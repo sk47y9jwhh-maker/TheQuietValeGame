@@ -2648,15 +2648,30 @@ button.effect-row {
 }
 
 @media (max-width: 767px) {
+  #root {
+    min-height: 100dvh;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
   .setup-screen {
     grid-template-columns: 1fr;
     align-items: start;
     padding: 24px;
   }
 
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+    grid-template-rows: auto auto auto;
+    overflow: visible;
+  }
+
   .seeding-screen {
     height: auto;
-    min-height: 100vh;
+    min-height: 100dvh;
     overflow: auto;
   }
 
@@ -2677,18 +2692,70 @@ button.effect-row {
   }
 
   .top-bar {
+    min-height: 0;
     align-items: stretch;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    padding: 8px;
+  }
+
+  .top-bar::after {
+    left: 8px;
+    right: 8px;
+    bottom: 3px;
+  }
+
+  .top-brand,
+  .season-card,
+  .turn-chip,
+  .alerts-chip {
+    min-height: 42px;
+    height: auto;
+    padding: 6px 8px;
+  }
+
+  .top-brand span {
+    display: none;
+  }
+
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+  }
+
+  .top-brand {
+    order: 1;
+  }
+
+  .season-card {
+    order: 2;
+  }
+
+  .turn-chip {
+    order: 3;
   }
 
   .warehouse-strip {
-    grid-column: auto;
+    order: 5;
+    grid-column: 1 / -1;
+    min-height: 40px;
+    height: auto;
     max-height: none;
-    overflow: visible;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .resource-pill {
+    flex: 0 0 auto;
   }
 
   .alerts-chip {
-    grid-column: auto;
+    order: 4;
+    grid-column: 2;
+    justify-content: flex-start;
+    text-align: left;
   }
 
   .terrain-key {
@@ -2696,23 +2763,127 @@ button.effect-row {
   }
 
   .command-table {
+    height: auto;
+    min-height: 0;
+    grid-template-columns: 1fr;
+    align-items: start;
+    padding: 8px;
+    overflow: visible;
+  }
+
+  .setup-command-table,
+  .setup-flow-table,
+  .seeding-flow,
+  .resolution-table {
     grid-template-columns: 1fr;
   }
 
+  .setup-step-board,
+  .setup-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-progress-tabs {
+    grid-template-columns: repeat(3, minmax(92px, 1fr));
+    overflow-x: auto;
+  }
+
   .map-panel {
-    order: 1;
+    min-height: 0;
+    order: 2;
+    align-self: start;
+    overflow: visible;
   }
 
   .action-console {
-    order: 2;
+    order: 1;
+    max-height: none;
+    overflow: visible;
   }
 
   .right-panel {
     order: 3;
     display: block;
+    max-height: none;
+    overflow: visible;
   }
 
-  .map-panel {
-    min-height: calc(100vh - 220px);
+  .map-canvas {
+    width: 100%;
+    height: clamp(420px, 58dvh, 560px);
+    justify-content: start;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
+
+  .hex-map {
+    width: 720px !important;
+    min-width: 720px;
+    height: 100% !important;
+    touch-action: pan-x pan-y;
+  }
+
+  .tile-choice-list {
+    max-height: 45dvh;
+  }
+
+  .tray-tabs {
+    grid-template-columns: repeat(5, minmax(82px, 1fr));
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tray-summary-item {
+    min-width: 82px;
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 6px 8px;
+  }
+
+  .tray-summary-item span {
+    display: none;
+  }
+
+  .bottom-drawer {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    display: grid;
+    padding: 7px 8px max(7px, env(safe-area-inset-bottom));
+  }
+
+  .tray-panel {
+    max-height: 58dvh;
+  }
+
+  .tile-reference-grid,
+  .tile-reference-grid.cards,
+  .tile-reference-grid.compact-reference,
+  .rules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .context-menu {
+    left: 8px !important;
+    right: 8px;
+    top: auto !important;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    max-width: none;
+    max-height: 70dvh;
+    overflow: auto;
+  }
+
+  .steward-placement-board {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .setup-map-panel .steward-placement-board {
+    height: clamp(360px, 54dvh, 520px);
+  }
+
+  .steward-start-map {
+    width: 620px;
+    max-width: none;
   }
 }
