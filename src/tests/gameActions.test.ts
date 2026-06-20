@@ -22,6 +22,25 @@ import {
 } from "../engine/gameActions";
 import { resolvePendingEffect } from "../engine/manualEffects";
 import { createNewGame } from "../engine/setup";
+import type { GameState, ResourceType } from "../engine/types";
+
+function confirmRequiredDiscounts(
+  state: GameState,
+  resource: ResourceType
+): GameState {
+  const requiredDiscountIds =
+    state.pendingCostChoice?.options
+      .filter((option) => option.required && option.kind === "discount")
+      .map((option) => option.id) ?? [];
+
+  expect(requiredDiscountIds.length).toBeGreaterThan(0);
+  return confirmCostChoice(state, {
+    selectedOptionIds: requiredDiscountIds,
+    discountResourceByOptionId: Object.fromEntries(
+      requiredDiscountIds.map((optionId) => [optionId, resource])
+    )
+  });
+}
 
 describe("game actions", () => {
   it("places a tile, spends an action, and reduces supply", () => {
@@ -479,6 +498,39 @@ describe("game actions", () => {
     expect(next.pendingEffects).toHaveLength(0);
   });
 
+  it("queues a revealed Burden's current season effect immediately", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      phase: "reveal" as const,
+      encounters: {
+        ...state.encounters,
+        deck: ["burden_bare_walls"]
+      },
+      map: {
+        placedTiles: [
+          {
+            instanceId: "tile_cabin",
+            tileId: "c05_cabin",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    const revealed = revealEncounters(ready);
+
+    expect(revealed.encounters.activeBurdens).toEqual(["burden_bare_walls"]);
+    expect(revealed.pendingEffects[0].sourceId).toBe("burden_bare_walls");
+    expect(revealed.pendingEffects[0].suggestedAdjustment?.tileStrainDeltas).toEqual({
+      tile_cabin: 1
+    });
+  });
+
   it("applies a prepared Boon resource discount to tile placement", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
@@ -518,7 +570,21 @@ describe("game actions", () => {
     const prepared = resolvePendingEffect(
       useFaceUpBoon(ready, "boon_many_hands_make_light_work")
     );
-    const next = placeTile(prepared, "player_1", "c05_cabin", "H1");
+    const prompted = placeTile(prepared, "player_1", "c05_cabin", "H1");
+    const boonDiscount = prompted.pendingCostChoice?.options.find(
+      (option) => option.sourceKind === "boon"
+    );
+    expect(boonDiscount).toMatchObject({
+      sourceName: "Many Hands, Light Work",
+      kind: "discount",
+      amount: 1,
+      required: true
+    });
+    expect(boonDiscount?.resourceChoices).toContain("wood");
+    const next = confirmCostChoice(prompted, {
+      selectedOptionIds: [boonDiscount?.id ?? ""],
+      discountResourceByOptionId: { [boonDiscount?.id ?? ""]: "wood" }
+    });
 
     expect(next.map.placedTiles).toHaveLength(2);
     expect(next.warehouse.wood).toBe(0);
@@ -735,10 +801,11 @@ describe("game actions", () => {
     };
 
     const prepared = resolvePendingEffect(useStewardPower(ready, "player_1"));
-    const next = placeTile(prepared, "player_1", "c17_track", {
+    const prompted = placeTile(prepared, "player_1", "c17_track", {
       anchorHexId: "H1",
       orientation: 3
     });
+    const next = confirmRequiredDiscounts(prompted, "stone");
 
     expect(prepared.players[0].stewardPowerUsesBySeason[1]).toBe(1);
     expect(next.map.placedTiles).toHaveLength(2);
@@ -932,7 +999,8 @@ describe("game actions", () => {
     const prepared = resolvePendingEffect(
       useFaceUpBoon(ready, "boon_a_welcome_well_met")
     );
-    const next = completeArrival(prepared, "arrival_the_quiet_quest");
+    const prompted = completeArrival(prepared, "arrival_the_quiet_quest");
+    const next = confirmRequiredDiscounts(prompted, "goods");
 
     expect(next.encounters.completedArrivals).toHaveLength(1);
     expect(next.warehouse.goods).toBe(0);
@@ -958,7 +1026,7 @@ describe("game actions", () => {
       useFaceUpBoon(ready, "boon_shared_hands_lighter_loads")
     );
     const prompted = resolveBurden(prepared, "burden_smoke_over_hearths");
-    const next = confirmCostChoice(prompted, { selectedOptionIds: [] });
+    const next = confirmRequiredDiscounts(prompted, "goods");
 
     expect(next.encounters.activeBurdens).toHaveLength(0);
     expect(next.encounters.discardPile).toContain("burden_smoke_over_hearths");

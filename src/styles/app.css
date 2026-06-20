@@ -1523,6 +1523,17 @@ button.effect-row {
   user-select: none;
 }
 
+.hex-marker-layer {
+  pointer-events: none;
+}
+
+.hex-cell > .support-marker,
+.hex-cell > .strain-marker,
+.hex-cell > .steward-marker,
+.hex-cell > .overstrain-label {
+  display: none;
+}
+
 .hex-cell polygon {
   fill: var(--terrain-grasslands);
   stroke: rgba(36, 31, 26, 0.42);
@@ -2095,8 +2106,9 @@ button.effect-row {
 }
 
 .steward-start-map {
-  width: min(100%, 620px, calc(62vh * 1.25));
-  height: auto;
+  width: 100%;
+  height: 100%;
+  max-width: 720px;
   display: block;
 }
 

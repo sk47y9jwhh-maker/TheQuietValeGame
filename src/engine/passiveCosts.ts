@@ -196,7 +196,18 @@ export function applyCostChoice(
     if (option.kind === "zero") {
       next = emptyCost();
     } else if (option.kind === "discount") {
-      next = applyFlexibleCostReduction(next, state.warehouse, option.amount ?? 0);
+      const selectedResource = selection.discountResourceByOptionId?.[option.id];
+      if (selectedResource && option.resourceChoices?.includes(selectedResource)) {
+        next = {
+          ...next,
+          [selectedResource]: Math.max(
+            0,
+            next[selectedResource] - (option.amount ?? 0)
+          )
+        };
+      } else {
+        next = applyFlexibleCostReduction(next, state.warehouse, option.amount ?? 0);
+      }
     } else if (option.kind === "market") {
       const resource = selection.marketResourceByOptionId?.[option.id];
       if (!resource || resource === "goods") continue;
@@ -218,14 +229,25 @@ export function validateCostChoiceSelection(
   selection: CostChoiceSelection = { selectedOptionIds: [] }
 ): boolean {
   const optionsById = new Map(options.map((option) => [option.id, option]));
+  const selectedIds = new Set(selection.selectedOptionIds);
+
+  if (options.some((option) => option.required && !selectedIds.has(option.id))) {
+    return false;
+  }
 
   for (const optionId of selection.selectedOptionIds) {
     const option = optionsById.get(optionId);
     if (!option) return false;
-    if (option.kind !== "market") continue;
 
-    const resource = selection.marketResourceByOptionId?.[option.id];
-    if (!resource || !option.resourceChoices?.includes(resource)) return false;
+    if (option.kind === "market") {
+      const resource = selection.marketResourceByOptionId?.[option.id];
+      if (!resource || !option.resourceChoices?.includes(resource)) return false;
+    }
+
+    if (option.kind === "discount" && option.resourceChoices?.length) {
+      const resource = selection.discountResourceByOptionId?.[option.id];
+      if (!resource || !option.resourceChoices.includes(resource)) return false;
+    }
   }
 
   return true;
@@ -238,7 +260,9 @@ export function recordPassiveCostChoices(
 ): GameState {
   if (selection.selectedOptionIds.length === 0) return state;
   const selectedIds = new Set(selection.selectedOptionIds);
-  const selectedOptions = options.filter((option) => selectedIds.has(option.id));
+  const selectedOptions = options.filter(
+    (option) => selectedIds.has(option.id) && (option.sourceKind ?? "tile") === "tile"
+  );
   if (selectedOptions.length === 0) return state;
 
   return {

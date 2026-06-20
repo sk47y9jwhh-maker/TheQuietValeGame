@@ -9,7 +9,7 @@ import type {
   ResourceCost,
   ResourceType
 } from "../../engine/types";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface CostChoicePanelProps {
   state: GameState;
@@ -29,16 +29,34 @@ export function CostChoicePanel({
       .filter((option) => option.kind === "market")
       .map((option) => [option.id, option.resourceChoices?.[0] ?? "wood"])
   ) as Record<string, ResourceType>;
-  const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>([]);
+  const defaultDiscountChoices = Object.fromEntries(
+    pending.options
+      .filter((option) => option.kind === "discount" && option.resourceChoices?.length)
+      .map((option) => [option.id, option.resourceChoices?.[0] ?? "wood"])
+  ) as Record<string, ResourceType>;
+  const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>(
+    pending.options.filter((option) => option.required).map((option) => option.id)
+  );
   const [marketResourceByOptionId, setMarketResourceByOptionId] =
     useState<Record<string, ResourceType>>(defaultMarketChoices);
+  const [discountResourceByOptionId, setDiscountResourceByOptionId] =
+    useState<Record<string, ResourceType>>(defaultDiscountChoices);
+
+  useEffect(() => {
+    setSelectedOptionIds(
+      pending.options.filter((option) => option.required).map((option) => option.id)
+    );
+    setMarketResourceByOptionId(defaultMarketChoices);
+    setDiscountResourceByOptionId(defaultDiscountChoices);
+  }, [pending.id]);
 
   const selection = useMemo(
     () => ({
       selectedOptionIds,
-      marketResourceByOptionId
+      marketResourceByOptionId,
+      discountResourceByOptionId
     }),
-    [marketResourceByOptionId, selectedOptionIds]
+    [discountResourceByOptionId, marketResourceByOptionId, selectedOptionIds]
   );
   const adjustedCost = applyCostChoice(
     state,
@@ -49,6 +67,7 @@ export function CostChoicePanel({
   const canConfirm = canAfford(state.warehouse, adjustedCost);
 
   function toggleOption(optionId: string) {
+    if (pending.options.find((option) => option.id === optionId)?.required) return;
     setSelectedOptionIds((current) =>
       current.includes(optionId)
         ? current.filter((candidate) => candidate !== optionId)
@@ -63,7 +82,7 @@ export function CostChoicePanel({
         <h1>{pending.title}</h1>
         <p>
           {pending.options.length > 0
-            ? "Select passive effects before paying the cost."
+            ? "Review prepared and passive effects before paying the cost."
             : "Confirm this payment before spending the action."}
         </p>
       </div>
@@ -91,6 +110,29 @@ export function CostChoicePanel({
                 <strong>{getOptionLabel(option)}</strong>
               </button>
               <p>{option.effectText}</p>
+              {option.required && <small>Required prepared effect.</small>}
+              {option.kind === "discount" &&
+                option.resourceChoices?.length &&
+                selected && (
+                  <label>
+                    Discount
+                    <select
+                      value={discountResourceByOptionId[option.id]}
+                      onChange={(event) =>
+                        setDiscountResourceByOptionId((current) => ({
+                          ...current,
+                          [option.id]: event.target.value as ResourceType
+                        }))
+                      }
+                    >
+                      {(option.resourceChoices ?? []).map((resource) => (
+                        <option key={resource} value={resource}>
+                          {resourceLabels[resource]}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
               {option.kind === "market" && selected && (
                 <label>
                   Goods counts as

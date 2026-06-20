@@ -275,6 +275,7 @@ export interface PendingCostAction {
 export interface PassiveCostOption {
   id: string;
   sourceTileId: string;
+  sourceKind?: "tile" | "boon";
   sourceName: string;
   effectText: string;
   kind: "discount" | "zero" | "market";
@@ -282,11 +283,13 @@ export interface PassiveCostOption {
   amount?: number;
   marketRate?: 1 | 2;
   resourceChoices?: ResourceType[];
+  required?: boolean;
 }
 
 export interface CostChoiceSelection {
   selectedOptionIds: string[];
   marketResourceByOptionId?: Record<string, ResourceType>;
+  discountResourceByOptionId?: Record<string, ResourceType>;
 }
 
 export interface PendingCostChoiceState {

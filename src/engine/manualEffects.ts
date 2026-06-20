@@ -193,10 +193,13 @@ function getCandidateText(effectText: string): string {
 }
 
 function getAdjacentCategoryRequirements(effectText: string): TileCategory[] {
-  const adjacentTexts = effectText
-    .toLowerCase()
-    .split("adjacent to")
-    .slice(1)
+  const lower = effectText.toLowerCase();
+  const adjacentTexts = [...lower.matchAll(/adjacent to/g)]
+    .filter((match) => {
+      const before = lower.slice(Math.max(0, (match.index ?? 0) - 16), match.index);
+      return !/\bnot\s+$/.test(before) && !/\bnot\s+be\s+$/.test(before);
+    })
+    .map((match) => lower.slice((match.index ?? 0) + "adjacent to".length))
     .filter((text) => !/^\s*(?:it|this tile|that tile|them)\b/.test(text));
   return adjacentTexts.flatMap((text) => getMentionedCategories(text));
 }

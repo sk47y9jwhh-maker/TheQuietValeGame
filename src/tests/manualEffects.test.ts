@@ -139,6 +139,22 @@ describe("manual effect suggestions", () => {
     expect(suggestion.adjustment?.tileStrainDeltas).toEqual({ tile_cabin: 1 });
   });
 
+  it("does not turn a not-adjacent Burden condition into a positive adjacency requirement", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [coreTile("c05_cabin", "tile_cabin", "G1")];
+    const effectText = getCurrentSeasonCardEffectText(
+      { season: 1 },
+      "burden_bare_walls"
+    );
+
+    const suggestion = suggestEffectAdjustment(state, effectText);
+
+    expect(getEffectTileTargets(state, effectText).map((tile) => tile.instanceId)).toEqual([
+      "tile_cabin"
+    ]);
+    expect(suggestion.adjustment?.tileStrainDeltas).toEqual({ tile_cabin: 1 });
+  });
+
   it("reads Burden effects from the active Season", () => {
     expect(
       getCurrentSeasonCardEffectText({ season: 2 }, "burden_smoke_over_hearths")

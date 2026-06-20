@@ -6,6 +6,7 @@ import type {
   ActiveBoonModifier,
   BoonModifierAction,
   GameState,
+  PassiveCostOption,
   ResourceCost,
   TileCategory
 } from "./types";
@@ -149,6 +150,42 @@ export function getBoonModifiedCost(
   target: BoonModifierTarget
 ): ResourceCost {
   return getBoonActionPreview(state, target).cost;
+}
+
+export function getBoonCostOptions(
+  state: GameState,
+  target: BoonModifierTarget
+): PassiveCostOption[] {
+  const matchingModifiers = state.boonModifiers.filter((modifier) =>
+    matchesModifier(modifier, target)
+  );
+  const costModifierIds = selectCostModifierIds(matchingModifiers, target);
+
+  return matchingModifiers
+    .filter(
+      (modifier) =>
+        costModifierIds.includes(modifier.id) &&
+        modifier.amount !== undefined &&
+        modifier.amount > 0
+    )
+    .flatMap((modifier) =>
+      Array.from({ length: modifier.amount ?? 0 }, (_, index) => ({
+        id: `boon:${modifier.id}:${index + 1}`,
+        sourceTileId: modifier.id,
+        sourceKind: "boon" as const,
+        sourceName:
+          (modifier.amount ?? 0) > 1
+            ? `${modifier.name} (${index + 1}/${modifier.amount})`
+            : modifier.name,
+        effectText: modifier.effectText,
+        kind: "discount" as const,
+        cadence: "round" as const,
+        amount: 1,
+        resourceChoices: resources.filter((resource) => target.baseCost[resource] > 0),
+        required: true
+      }))
+    )
+    .filter((option) => option.resourceChoices.length > 0);
 }
 
 export function consumeBoonModifiers(

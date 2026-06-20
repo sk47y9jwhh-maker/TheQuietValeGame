@@ -24,6 +24,7 @@ import {
   consumeBoonModifiers,
   createBoonModifierFromCard,
   getBoonActionPreview,
+  getBoonCostOptions,
   getBoonModifiedCost
 } from "./boonModifiers";
 import { canAfford, spendResources } from "./resources";
@@ -868,12 +869,13 @@ export function placeTile(
   if (!data) return state;
 
   const baseCost = coreData ? coreData.basic.cost : emptyCost();
-  const actionPreview = getBoonActionPreview(state, {
+  const boonTarget = {
     action: "place",
     category: data.category,
     kind: coreData ? "core" : "special",
     baseCost
-  });
+  } as const;
+  const actionPreview = getBoonActionPreview(state, boonTarget);
   if (state.actionsRemaining < actionPreview.actionCost) return state;
 
   const placementFailures = getPlacementFailures(state, playerId, tileId, placementInput).filter(
@@ -882,16 +884,18 @@ export function placeTile(
   if (placementFailures.length > 0) return state;
 
   const placementHexIds = getTilePlacementHexIds(tileId, placementInput);
+  const boonCostOptions = getBoonCostOptions(state, boonTarget);
   const passiveCostOptions = getPassiveCostOptions(state, {
     action: "place",
     playerId,
     category: data.category,
     kind: coreData ? "core" : "special",
     placementHexIds,
-    cost: actionPreview.cost
+    cost: baseCost
   });
+  const paymentOptions = [...boonCostOptions, ...passiveCostOptions];
 
-  if (passiveCostOptions.length > 0 && !costSelection) {
+  if (paymentOptions.length > 0 && !costSelection) {
     return queueCostChoice(state, {
       title: `Place ${coreData ? coreData.basic.name : specialData?.name}`,
       action: {
@@ -903,17 +907,17 @@ export function placeTile(
             ? { anchorHexId: placementInput }
             : placementInput
       },
-      baseCost: actionPreview.cost,
+      baseCost,
       actionCost: actionPreview.actionCost,
       boonModifierIds: actionPreview.appliedModifierIds,
-      options: passiveCostOptions
+      options: paymentOptions
     });
   }
 
   const finalCost = getSelectedCost(
     state,
-    actionPreview.cost,
-    passiveCostOptions,
+    baseCost,
+    paymentOptions,
     costSelection
   );
   if (!finalCost || !canAfford(state.warehouse, finalCost)) return state;
@@ -999,7 +1003,7 @@ export function placeTile(
     )}.`
   );
   nextState = consumeBoonModifiers(nextState, actionPreview.appliedModifierIds);
-  nextState = recordSelectedCostOptions(nextState, passiveCostOptions, costSelection);
+  nextState = recordSelectedCostOptions(nextState, paymentOptions, costSelection);
   return tileEffectTriggersOnPlacement(getTileEffectText(placedTiles[0]))
     ? queueTileEffectPrompt(nextState, placedTiles[0], "Placed effect")
     : nextState;
@@ -1076,24 +1080,27 @@ export function upgradeTile(
   if (!tile || tile.kind !== "core") return state;
 
   const data = coreTileById[tile.tileId];
-  const actionPreview = getBoonActionPreview(state, {
+  const boonTarget = {
     action: "upgrade",
     category: data.category,
     kind: "core",
     baseCost: data.upgraded.cost
-  });
+  } as const;
+  const actionPreview = getBoonActionPreview(state, boonTarget);
   if (state.actionsRemaining < actionPreview.actionCost) return state;
 
+  const boonCostOptions = getBoonCostOptions(state, boonTarget);
   const passiveCostOptions = getPassiveCostOptions(state, {
     action: "upgrade",
     playerId,
     category: data.category,
     kind: "core",
     targetTile: tile,
-    cost: actionPreview.cost
+    cost: data.upgraded.cost
   });
+  const paymentOptions = [...boonCostOptions, ...passiveCostOptions];
 
-  if (passiveCostOptions.length > 0 && !costSelection) {
+  if (paymentOptions.length > 0 && !costSelection) {
     return queueCostChoice(state, {
       title: `Upgrade ${data.basic.name}`,
       action: {
@@ -1101,17 +1108,17 @@ export function upgradeTile(
         playerId,
         placedTileId
       },
-      baseCost: actionPreview.cost,
+      baseCost: data.upgraded.cost,
       actionCost: actionPreview.actionCost,
       boonModifierIds: actionPreview.appliedModifierIds,
-      options: passiveCostOptions
+      options: paymentOptions
     });
   }
 
   const finalCost = getSelectedCost(
     state,
-    actionPreview.cost,
-    passiveCostOptions,
+    data.upgraded.cost,
+    paymentOptions,
     costSelection
   );
   if (!finalCost || !canAfford(state.warehouse, finalCost)) return state;
@@ -1133,7 +1140,7 @@ export function upgradeTile(
     warehouse: spendResources(state.warehouse, finalCost)
   };
   nextState = consumeBoonModifiers(nextState, actionPreview.appliedModifierIds);
-  nextState = recordSelectedCostOptions(nextState, passiveCostOptions, costSelection);
+  nextState = recordSelectedCostOptions(nextState, paymentOptions, costSelection);
   nextState = log(nextState, `Upgraded ${data.basic.name} to ${data.upgraded.name}.`);
   return tileEffectTriggersOnUpgrade(getTileEffectText(upgradedTile))
     ? queueTileEffectPrompt(nextState, upgradedTile, "Upgraded effect")
@@ -1673,17 +1680,21 @@ export function completeArrival(
     return state;
   }
 
-  const actionPreview = getBoonActionPreview(state, {
+  const baseCost = parseResourceCost(card.requirementText);
+  const boonTarget = {
     action: "arrival",
-    baseCost: parseResourceCost(card.requirementText)
-  });
+    baseCost
+  } as const;
+  const actionPreview = getBoonActionPreview(state, boonTarget);
+  const boonCostOptions = getBoonCostOptions(state, boonTarget);
   const passiveCostOptions = getPassiveCostOptions(state, {
     action: "arrival",
     playerId: state.currentPlayerId,
-    cost: actionPreview.cost
+    cost: baseCost
   });
+  const paymentOptions = [...boonCostOptions, ...passiveCostOptions];
 
-  if (passiveCostOptions.length > 0 && !costSelection) {
+  if (paymentOptions.length > 0 && !costSelection) {
     return queueCostChoice(state, {
       title: `Complete ${card.name}`,
       action: {
@@ -1691,17 +1702,17 @@ export function completeArrival(
         playerId: state.currentPlayerId,
         cardId: arrivalCardId
       },
-      baseCost: actionPreview.cost,
+      baseCost,
       actionCost: 1,
       boonModifierIds: actionPreview.appliedModifierIds,
-      options: passiveCostOptions
+      options: paymentOptions
     });
   }
 
   const finalCost = getSelectedCost(
     state,
-    actionPreview.cost,
-    passiveCostOptions,
+    baseCost,
+    paymentOptions,
     costSelection
   );
   if (!finalCost || !canAfford(state.warehouse, finalCost)) return state;
@@ -1738,7 +1749,7 @@ export function completeArrival(
     `Completed Arrival: ${card.name}. Unlocked ${specialTileIds.length || 0} Special Tile(s).`
   );
   nextState = consumeBoonModifiers(nextState, actionPreview.appliedModifierIds);
-  nextState = recordSelectedCostOptions(nextState, passiveCostOptions, costSelection);
+  nextState = recordSelectedCostOptions(nextState, paymentOptions, costSelection);
   return queuePendingEffect(nextState, {
     sourceType: "card",
     sourceId: arrivalCardId,
@@ -1824,15 +1835,18 @@ export function resolveBurden(
 
   const baseCost = parseSeasonScaledResolutionCost(card.resolutionText, state.season);
   if (!baseCost) return state;
-  const actionPreview = getBoonActionPreview(state, {
+  const boonTarget = {
     action: "burden",
     baseCost
-  });
+  } as const;
+  const actionPreview = getBoonActionPreview(state, boonTarget);
+  const boonCostOptions = getBoonCostOptions(state, boonTarget);
   const passiveCostOptions = getPassiveCostOptions(state, {
     action: "burden",
     playerId: state.currentPlayerId,
-    cost: actionPreview.cost
+    cost: baseCost
   });
+  const paymentOptions = [...boonCostOptions, ...passiveCostOptions];
 
   if (!costSelection) {
     return queueCostChoice(state, {
@@ -1842,17 +1856,17 @@ export function resolveBurden(
         playerId: state.currentPlayerId,
         cardId: burdenCardId
       },
-      baseCost: actionPreview.cost,
+      baseCost,
       actionCost: 1,
       boonModifierIds: actionPreview.appliedModifierIds,
-      options: passiveCostOptions
+      options: paymentOptions
     });
   }
 
   const finalCost = getSelectedCost(
     state,
-    actionPreview.cost,
-    passiveCostOptions,
+    baseCost,
+    paymentOptions,
     costSelection
   );
   if (!finalCost || !canAfford(state.warehouse, finalCost)) return state;
@@ -1873,7 +1887,7 @@ export function resolveBurden(
 
   nextState = log(nextState, `Resolved Burden: ${card.name}.`);
   nextState = consumeBoonModifiers(nextState, actionPreview.appliedModifierIds);
-  nextState = recordSelectedCostOptions(nextState, passiveCostOptions, costSelection);
+  nextState = recordSelectedCostOptions(nextState, paymentOptions, costSelection);
   nextState = queuePendingEffect(nextState, {
     sourceType: "card",
     sourceId: burdenCardId,

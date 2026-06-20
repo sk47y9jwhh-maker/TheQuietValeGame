@@ -295,6 +295,66 @@ export function HexMap({
               </g>
             );
           })}
+          <g className="hex-marker-layer" aria-hidden="true">
+            {mapCells.map((cell) => {
+              const colIndex = cell.col.charCodeAt(0) - 65;
+              const x = radius + colIndex * radius * 1.5 + 14;
+              const y =
+                hexHeight / 2 +
+                (cell.row - 1) * hexHeight +
+                (colIndex % 2 ? hexHeight / 2 : 0) +
+                18;
+              const placed = getPlacedTileAtHex(state, cell.id);
+              const stewardsHere = state.players.filter(
+                (player) => player.stewardHexId === cell.id
+              );
+              const supported = Boolean(placed?.support.passive || placed?.support.singleUse);
+              const overstrained = Boolean(placed && placed.strain >= 3);
+
+              return (
+                <g className="hex-marker-stack" key={`markers-${cell.id}`}>
+                  {supported && (
+                    <g className="support-marker">
+                      <circle cx={x - 19} cy={y + 19} r={8} />
+                      <text x={x - 19} y={y + 23} textAnchor="middle">
+                        S
+                      </text>
+                    </g>
+                  )}
+                  {placed && placed.strain > 0 && (
+                    <g className="strain-marker">
+                      <circle cx={x + 19} cy={y + 19} r={8} />
+                      <text x={x + 19} y={y + 23} textAnchor="middle">
+                        {placed.strain}
+                      </text>
+                    </g>
+                  )}
+                  {stewardsHere.map((player, index) => (
+                    <g
+                      className="steward-marker"
+                      key={player.id}
+                      transform={`translate(${x - 14 + index * 14}, ${y - 26})`}
+                    >
+                      <circle cx={0} cy={0} r={7} />
+                      <text x={0} y={4} textAnchor="middle">
+                        {state.players.findIndex((candidate) => candidate.id === player.id) + 1}
+                      </text>
+                    </g>
+                  ))}
+                  {overstrained && (
+                    <text
+                      x={x}
+                      y={y + 29}
+                      textAnchor="middle"
+                      className="overstrain-label"
+                    >
+                      OVER
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+          </g>
         </svg>
       </div>
     </section>
