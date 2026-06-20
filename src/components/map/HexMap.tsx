@@ -1,3 +1,4 @@
+import { useCallback, useRef } from "react";
 import { mapCells, terrainLabels } from "../../data/map";
 import {
   getLegalPlacementHexes,
@@ -35,6 +36,8 @@ const terrainKey: Terrain[] = [
   "arable",
   "ruins"
 ];
+const longPressDelayMs = 520;
+const longPressMoveTolerance = 12;
 
 function polygonPoints(cx: number, cy: number): string {
   return Array.from({ length: 6 }, (_, index) => {
@@ -52,6 +55,55 @@ export function HexMap({
   onHexSelect,
   onHexContextMenu
 }: HexMapProps) {
+  const longPressRef = useRef<{
+    timer: ReturnType<typeof setTimeout>;
+    hexId: string;
+    x: number;
+    y: number;
+    activated: boolean;
+  } | null>(null);
+  const ignoreClickHexRef = useRef<string | null>(null);
+
+  const clearLongPress = useCallback(() => {
+    if (longPressRef.current) {
+      clearTimeout(longPressRef.current.timer);
+      longPressRef.current = null;
+    }
+  }, []);
+
+  const startLongPress = useCallback(
+    (hexId: string, x: number, y: number) => {
+      if (!onHexContextMenu) return;
+      clearLongPress();
+
+      const press = {
+        timer: setTimeout(() => {
+          if (!longPressRef.current || longPressRef.current.hexId !== hexId) return;
+          longPressRef.current.activated = true;
+          ignoreClickHexRef.current = hexId;
+          onHexContextMenu(hexId, { x, y });
+        }, longPressDelayMs),
+        hexId,
+        x,
+        y,
+        activated: false
+      };
+
+      longPressRef.current = press;
+    },
+    [clearLongPress, onHexContextMenu]
+  );
+
+  const cancelLongPressIfMoved = useCallback((x: number, y: number) => {
+    const press = longPressRef.current;
+    if (!press) return;
+    const moved = Math.hypot(x - press.x, y - press.y);
+    if (moved > longPressMoveTolerance) {
+      clearTimeout(press.timer);
+      longPressRef.current = null;
+    }
+  }, []);
+
   const currentPlayer = selectCurrentPlayer(state);
   const placementDraft: TilePlacementDraft = {
     anchorHexId: selectedHexIds[0],
@@ -133,15 +185,42 @@ export function HexMap({
                   overstrained ? "is-overstrained" : ""
                 ].join(" ")}
                 onClick={() => {
+                  if (ignoreClickHexRef.current === cell.id) {
+                    ignoreClickHexRef.current = null;
+                    return;
+                  }
                   onHexSelect(cell.id);
                 }}
                 onContextMenu={(event) => {
                   event.preventDefault();
+                  clearLongPress();
                   onHexContextMenu?.(cell.id, {
                     x: event.clientX,
                     y: event.clientY
                   });
                 }}
+                onTouchStart={(event) => {
+                  if (event.touches.length !== 1) return;
+                  const touch = event.touches[0];
+                  startLongPress(cell.id, touch.clientX, touch.clientY);
+                }}
+                onTouchMove={(event) => {
+                  if (event.touches.length !== 1) {
+                    clearLongPress();
+                    return;
+                  }
+                  const touch = event.touches[0];
+                  cancelLongPressIfMoved(touch.clientX, touch.clientY);
+                }}
+                onTouchEnd={(event) => {
+                  const press = longPressRef.current;
+                  if (press?.hexId === cell.id && press.activated) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                  }
+                  clearLongPress();
+                }}
+                onTouchCancel={clearLongPress}
                 role="button"
                 tabIndex={0}
                 aria-label={`${cell.id}, ${accessibleName}${

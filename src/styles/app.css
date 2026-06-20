@@ -1444,6 +1444,9 @@ button.effect-row {
   min-height: 0;
   margin: 0;
   touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .map-panel.setup-overview-panel,
@@ -1456,6 +1459,10 @@ button.effect-row {
 
 .hex-cell {
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .hex-cell polygon {
@@ -2805,7 +2812,111 @@ button.effect-row {
     order: 3;
     display: block;
     max-height: none;
+    padding: 10px;
     overflow: visible;
+  }
+
+  .inspector-card,
+  .encounter-section {
+    min-width: 0;
+  }
+
+  .encounter-section {
+    gap: 7px;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .encounter-row,
+  .boon-row,
+  .modifier-row,
+  .deck-order-card,
+  .cost-line {
+    width: 100%;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+    align-items: start;
+    gap: 8px;
+  }
+
+  .encounter-row {
+    padding: 10px;
+  }
+
+  .card-row > div,
+  .mini-card,
+  .mini-card-heading,
+  .hand-card,
+  .deck-order-card > div:first-child {
+    min-width: 0;
+  }
+
+  .card-row strong,
+  .card-row span,
+  .card-row small,
+  .card-row em,
+  .mini-card strong,
+  .mini-card span,
+  .mini-card p,
+  .hand-card strong,
+  .hand-card span,
+  .hand-card small,
+  .deck-order-card strong,
+  .deck-order-card span,
+  .deck-order-card small {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .card-row > strong,
+  .mini-card-heading span,
+  .slot-chip,
+  .position-chip {
+    width: max-content;
+    max-width: 100%;
+  }
+
+  .boon-row button {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .season-effect-row {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .season-effect-row strong {
+    font-size: 10px;
+  }
+
+  .season-effect-row span {
+    font-size: 12px;
+  }
+
+  .encounter-type-banner,
+  .deck-order-card .encounter-type-banner,
+  .hand-card .encounter-type-banner,
+  .mini-card .encounter-type-banner {
+    width: 100%;
+    min-height: 30px;
+    padding: 6px 9px;
+    font-size: 13px;
+    white-space: normal;
+  }
+
+  .deck-order-controls,
+  .cost-choice-actions,
+  .effect-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .deck-order-controls button {
+    width: 100%;
   }
 
   .map-canvas {
@@ -2822,6 +2933,16 @@ button.effect-row {
     min-width: 720px;
     height: 100% !important;
     touch-action: pan-x pan-y;
+  }
+
+  .hex-cell text,
+  .support-marker,
+  .strain-marker,
+  .steward-marker {
+    pointer-events: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   .tile-choice-list {
