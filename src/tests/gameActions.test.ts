@@ -54,6 +54,120 @@ describe("game actions", () => {
     expect(next.pendingEffects).toHaveLength(0);
   });
 
+  it("moves the acting Steward to a newly placed tile", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      players: [
+        {
+          ...state.players[0],
+          hasPlacedFirstTile: true,
+          stewardHexId: "G1"
+        }
+      ],
+      map: {
+        placedTiles: [
+          {
+            instanceId: "tile_path",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    const next = placeTile(ready, "player_1", "c05_cabin", "H1");
+
+    expect(next.players[0].stewardHexId).toBe("H1");
+  });
+
+  it("moves the acting Steward to an upgraded tile", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      players: [
+        {
+          ...state.players[0],
+          hasPlacedFirstTile: true,
+          stewardHexId: "G1"
+        }
+      ],
+      map: {
+        placedTiles: [
+          {
+            instanceId: "tile_path",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "tile_cabin",
+            tileId: "c05_cabin",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["H1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    const next = upgradeTile(ready, "player_1", "tile_cabin");
+
+    expect(next.players[0].stewardHexId).toBe("H1");
+  });
+
+  it("moves the acting Steward to an activated tile", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      players: [
+        {
+          ...state.players[0],
+          hasPlacedFirstTile: true,
+          stewardHexId: "G1"
+        }
+      ],
+      map: {
+        placedTiles: [
+          {
+            instanceId: "tile_path",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "tile_lumber",
+            tileId: "c01_lumber_yard",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["H1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    const next = activateTile(ready, "player_1", "tile_lumber");
+
+    expect(next.players[0].stewardHexId).toBe("H1");
+  });
+
   it("does not re-fire an active Burden when a later tile creates a target", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {

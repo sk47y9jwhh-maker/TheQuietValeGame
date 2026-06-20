@@ -224,6 +224,19 @@ function replacePlacedTile(state: GameState, nextTile: PlacedTile): GameState {
   };
 }
 
+function movePlayerStewardToHex(
+  state: GameState,
+  playerId: string,
+  stewardHexId: string
+): GameState {
+  return {
+    ...state,
+    players: state.players.map((candidate) =>
+      candidate.id === playerId ? { ...candidate, stewardHexId } : candidate
+    )
+  };
+}
+
 function getPlacedTileName(tile: PlacedTile): string {
   if (tile.kind === "special") return specialTileById[tile.tileId]?.name ?? tile.tileId;
   const data = coreTileById[tile.tileId];
@@ -989,7 +1002,7 @@ export function placeTile(
             stewardHexId:
               !candidate.hasPlacedFirstTile && placementHexIds.includes(candidate.stewardHexId)
                 ? candidate.stewardHexId
-                : candidate.stewardHexId
+                : placementHexIds[0]
           }
         : candidate
     )
@@ -1139,6 +1152,7 @@ export function upgradeTile(
     actionsRemaining: state.actionsRemaining - actionPreview.actionCost,
     warehouse: spendResources(state.warehouse, finalCost)
   };
+  nextState = movePlayerStewardToHex(nextState, playerId, upgradedTile.hexIds[0]);
   nextState = consumeBoonModifiers(nextState, actionPreview.appliedModifierIds);
   nextState = recordSelectedCostOptions(nextState, paymentOptions, costSelection);
   nextState = log(nextState, `Upgraded ${data.basic.name} to ${data.upgraded.name}.`);
@@ -1185,6 +1199,7 @@ export function activateTile(
     actionsRemaining: state.actionsRemaining - 1
   };
 
+  nextState = movePlayerStewardToHex(nextState, playerId, tile.hexIds[0]);
   nextState = log(nextState, `Activated ${getPlacedTileName(tile)}.`);
   nextState = recordTileActivation(nextState, tile);
   nextState = queueTileEffectPrompt(nextState, tile, "Activated effect", production);
