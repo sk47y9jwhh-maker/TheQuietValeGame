@@ -1,0 +1,84 @@
+import { coreTileById } from "../data/tiles";
+import { mapById } from "../data/map";
+import { getHexNeighbors } from "./hex";
+import type { GameState, PlacedTile } from "./types";
+
+export function getPlacedTileAtHex(
+  state: Pick<GameState, "map">,
+  hexId: string
+): PlacedTile | undefined {
+  return state.map.placedTiles.find((tile) => tile.hexIds.includes(hexId));
+}
+
+export function isOverstrained(tile: Pick<PlacedTile, "strain">): boolean {
+  return tile.strain >= 3;
+}
+
+export function tileConnectsAcrossWater(tile: PlacedTile): boolean {
+  if (tile.kind !== "core") return false;
+  const data = coreTileById[tile.tileId];
+  return data?.basic.name === "Bridge" || data?.upgraded.name === "Stone Bridge";
+}
+
+function isActiveDocks(tile: PlacedTile): boolean {
+  return tile.kind === "special" && tile.tileId === "special_docks" && !isOverstrained(tile);
+}
+
+function isTileAdjacentToWater(tile: PlacedTile): boolean {
+  return tile.hexIds.some((hexId) =>
+    getHexNeighbors(hexId).some((neighborId) => mapById[neighborId]?.terrain === "water")
+  );
+}
+
+function areTilesConnectedByDocks(a: PlacedTile, b: PlacedTile): boolean {
+  return (
+    (isActiveDocks(a) && isTileAdjacentToWater(b)) ||
+    (isActiveDocks(b) && isTileAdjacentToWater(a))
+  );
+}
+
+export function areTilesNetworkAdjacent(a: PlacedTile, b: PlacedTile): boolean {
+  if (isOverstrained(a) || isOverstrained(b)) return false;
+
+  return (
+    a.hexIds.some((aHex) =>
+      b.hexIds.some((bHex) => getHexNeighbors(aHex).includes(bHex))
+    ) || areTilesConnectedByDocks(a, b)
+  );
+}
+
+export function selectReachablePlacedTileIds(
+  state: GameState,
+  playerId: string
+): Set<string> {
+  const player = state.players.find((candidate) => candidate.id === playerId);
+  if (!player) return new Set();
+
+  const startingTile = getPlacedTileAtHex(state, player.stewardHexId);
+  if (!startingTile || isOverstrained(startingTile)) return new Set();
+
+  const reachable = new Set<string>([startingTile.instanceId]);
+  const queue = [startingTile];
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+    if (!current) continue;
+
+    for (const candidate of state.map.placedTiles) {
+      if (reachable.has(candidate.instanceId)) continue;
+      if (!areTilesNetworkAdjacent(current, candidate)) continue;
+      reachable.add(candidate.instanceId);
+      queue.push(candidate);
+    }
+  }
+
+  return reachable;
+}
+
+export function isTileReachable(
+  state: GameState,
+  playerId: string,
+  placedTileId: string
+): boolean {
+  return selectReachablePlacedTileIds(state, playerId).has(placedTileId);
+}
