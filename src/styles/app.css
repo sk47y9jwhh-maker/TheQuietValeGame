@@ -1391,6 +1391,12 @@ button.effect-row {
   overscroll-behavior: contain;
 }
 
+.map-meta-strip {
+  width: 100%;
+  display: grid;
+  gap: 4px;
+}
+
 .terrain-key {
   width: 100%;
   min-height: 28px;
@@ -1457,6 +1463,19 @@ button.effect-row {
 
 .terrain-swatch.terrain-ruins {
   background: var(--terrain-ruins);
+}
+
+.map-gesture-hint {
+  margin: 0;
+  padding: 0 6px;
+  color: rgba(36, 31, 26, 0.6);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.touch-hint {
+  display: none;
 }
 
 .map-canvas {
@@ -1627,10 +1646,12 @@ button.effect-row {
 }
 
 .support-marker circle,
-.steward-marker circle {
+.steward-marker circle,
+.strain-marker circle {
   fill: var(--qv-muted-green-dark);
   stroke: var(--qv-cream-text);
   stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
 }
 
 .support-marker text,
@@ -1638,6 +1659,8 @@ button.effect-row {
 .strain-marker text {
   fill: var(--qv-cream-text);
   font-size: 9px;
+  font-weight: 900;
+  paint-order: stroke;
   stroke: none;
 }
 
@@ -2683,6 +2706,13 @@ button.effect-row {
 }
 
 @media (max-width: 1023px) {
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+    grid-template-rows: auto auto auto;
+    overflow: visible;
+  }
+
   .effect-stage .effect-prompt,
   .effect-stage .deck-order-screen,
   .effect-stage .cost-choice-screen {
@@ -2691,14 +2721,46 @@ button.effect-row {
 
   .command-table {
     grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    height: auto;
+    min-height: 0;
+    align-items: stretch;
+    overflow: visible;
   }
 
   .hand-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .right-panel {
+    grid-column: 1 / -1;
+    max-height: min(360px, 40vh);
+  }
+
   .bottom-drawer {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    display: grid;
+    padding: 7px 10px max(7px, env(safe-area-inset-bottom));
+  }
+
+  .tray-tabs {
+    grid-template-columns: repeat(5, minmax(96px, 1fr));
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tray-summary-item {
+    min-width: 96px;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .tray-summary-item span {
     display: none;
+  }
+
+  .tray-panel {
+    max-height: 42vh;
   }
 
   .terrain-key {
@@ -2855,6 +2917,14 @@ button.effect-row {
 
   .terrain-key {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .desktop-hint {
+    display: none;
+  }
+
+  .touch-hint {
+    display: inline;
   }
 
   .command-table {

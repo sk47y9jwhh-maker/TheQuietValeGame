@@ -138,7 +138,7 @@ export function SetupPanel({
           </div>
 
           <label className="setup-seed">
-            Encounter Seed
+            Randomizer Seed
             <div>
               <input
                 value={encounterSeed}
@@ -185,7 +185,7 @@ export function SetupPanel({
           </div>
           <div className="setup-overview-grid">
             <div className="detail-stack">
-              <strong>Encounter Seed</strong>
+              <strong>Randomizer Seed</strong>
               <span>{encounterSeed}</span>
             </div>
             <div className="detail-stack">

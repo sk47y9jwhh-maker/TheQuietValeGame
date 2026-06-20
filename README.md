@@ -9,7 +9,7 @@ This repository is a greenfield rebuild. The current implementation establishes 
 Implemented playable loop:
 
 - 1-4 player setup with unique Stewards.
-- Visible Encounter Seed setup with repeatable shuffled Encounter pools.
+- Visible Randomizer Seed setup with repeatable shuffled Encounter pools.
 - Hidden-hand seasonal seeding with Top, Middle, and Bottom slots.
 - Encounter reveal into active Arrivals, active Burdens, face-up Boons, and discard.
 - Face-up Boons with visible remaining-use tracking and Use buttons.
@@ -49,7 +49,7 @@ Implemented playable loop:
 
 Current source priority:
 
-1. Structured repository data once imported here.
+1. Structured repository data in this repository; this is the current online prototype authority.
 2. `The_Quiet_Vale_Production_Component_Lists_v3_6-2.xlsx`.
 3. Production Rulebook v3.1 and Player Rulebook v3.1, used as older supporting references.
 4. Greenfield handoff and supplemental authority pack.
@@ -58,7 +58,7 @@ Current source priority:
 Locked decisions for this build:
 
 - Encounter setup uses `4 Boons + 4 Burdens + 4 Arrivals` per player.
-- All dealt cards are used: `9` hidden cards per player plus `3` standard Encounter Deck cards per player.
+- All selected standard Encounter Cards are used: `9` hidden cards per player plus `3` standard Encounter Deck cards per player. Hands are intentionally not required to be `3/3/3` by type.
 - Steward objectives are worth `+15 Renown`.
 - Warden scores if active Burdens are fewer than player count.
 - Final Strain penalty is `-3 Renown` per Strain token.
@@ -97,13 +97,16 @@ The engine returns validation reasons for illegal actions so the UI can explain 
 
 ## Deployment
 
-The app is static and Vite-compatible. For GitHub Pages, build with:
+The app is static and Vite-compatible. The repository deploys to GitHub Pages through `.github/workflows/pages.yml`: tests run, `dist/` is built, and the artifact is published by GitHub Actions.
 
-```bash
-GITHUB_PAGES=true npm run build
-```
+The live custom-domain targets to verify after deployment are:
 
-Then publish `dist/` through the chosen GitHub Pages workflow.
+- `https://thequietvalegame.com`
+- `https://www.thequietvalegame.com`
+
+The Vite build uses `base: "./"` so the same artifact works on the custom domain and remains tolerant of project-path previews. GitHub Pages should stay configured to deploy from GitHub Actions, with the custom domain and HTTPS configured in the repository Pages settings and DNS provider.
+
+Post-deploy checks should include a fresh browser session, a mobile-sized viewport or real phone, and a cellular/incognito check to catch DNS or cached-service-worker issues. The app currently has no nested routes; if routed pages are introduced later, add static fallback/reload handling for GitHub Pages before deployment.
 
 ## Known Limitations
 

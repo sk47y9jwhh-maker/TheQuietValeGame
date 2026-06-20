@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { encounterById } from "../data/encounters";
 import {
   buildEncounterPool,
   createNewGame,
@@ -10,6 +11,32 @@ import {
   validateStewardPlacement
 } from "../engine/gameActions";
 import { getSeasonForRound, revealCountForPlayers } from "../engine/season";
+import type { EncounterData, PlayerCount } from "../engine/types";
+
+function countEncounterTypes(cardIds: string[]): Record<EncounterData["type"], number> {
+  const counts: Record<EncounterData["type"], number> = {
+    boon: 0,
+    burden: 0,
+    arrival: 0,
+    goldenBoon: 0
+  };
+
+  for (const cardId of cardIds) {
+    const card = encounterById[cardId];
+    if (!card) throw new Error(`Unknown Encounter Card: ${cardId}`);
+    counts[card.type] += 1;
+  }
+
+  return counts;
+}
+
+function dealtCardIds(setup: ReturnType<typeof dealEncounterSetup>): string[] {
+  return [
+    ...Object.values(setup.handsByPlayerId).flat(),
+    ...setup.deck,
+    ...setup.unused
+  ];
+}
 
 describe("setup and round authority", () => {
   it("calculates seasons from rounds", () => {
@@ -33,16 +60,61 @@ describe("setup and round authority", () => {
     expect(revealCountForPlayers(4)).toBe(4);
   });
 
-  it("uses the full 4/4/4 per player Encounter pool", () => {
-    const setup = dealEncounterSetup(4, ["p1", "p2", "p3", "p4"]);
-    const handCount = Object.values(setup.handsByPlayerId).reduce(
-      (total, hand) => total + hand.length,
-      0
-    );
+  it.each([1, 2, 3, 4] as PlayerCount[])(
+    "builds a balanced 4/4/4 standard Encounter pool for %s player(s)",
+    (playerCount) => {
+      const pool = buildEncounterPool(playerCount, `QV-AUTHORITY-${playerCount}`);
 
-    expect(handCount).toBe(36);
-    expect(setup.deck).toHaveLength(12);
-    expect(setup.unused).toHaveLength(0);
+      expect(pool).toHaveLength(playerCount * 12);
+      expect(countEncounterTypes(pool)).toEqual({
+        boon: playerCount * 4,
+        burden: playerCount * 4,
+        arrival: playerCount * 4,
+        goldenBoon: 0
+      });
+    }
+  );
+
+  it.each([1, 2, 3, 4] as PlayerCount[])(
+    "deals every selected standard Encounter Card for %s player(s)",
+    (playerCount) => {
+      const playerIds = Array.from(
+        { length: playerCount },
+        (_, index) => `player_${index + 1}`
+      );
+      const setup = dealEncounterSetup(playerCount, playerIds, {
+        encounterSeed: `QV-DEAL-${playerCount}`
+      });
+      const hands = Object.values(setup.handsByPlayerId);
+      const dealt = dealtCardIds(setup);
+
+      expect(hands.map((hand) => hand.length)).toEqual(Array(playerCount).fill(9));
+      expect(setup.deck).toHaveLength(playerCount * 3);
+      expect(setup.unused).toHaveLength(0);
+      expect(dealt).toHaveLength(playerCount * 12);
+      expect(new Set(dealt).size).toBe(dealt.length);
+      expect(countEncounterTypes(dealt)).toEqual({
+        boon: playerCount * 4,
+        burden: playerCount * 4,
+        arrival: playerCount * 4,
+        goldenBoon: 0
+      });
+    }
+  );
+
+  it("keeps Golden Boons out of normal online setup", () => {
+    const state = createNewGame(4, ["vanguard", "knight", "sentinel", "ranger"], {
+      encounterSeed: "QV-NO-GOLDEN"
+    });
+
+    expect(state.encounters.goldenEnabled).toBe(false);
+    expect(
+      dealtCardIds({
+        handsByPlayerId: state.encounters.handsByPlayerId,
+        deck: state.encounters.deck,
+        unused: []
+      }).some((cardId) => encounterById[cardId]?.type === "goldenBoon")
+    ).toBe(false);
   });
 
   it("builds repeatable shuffled Encounter pools from a setup seed", () => {
@@ -53,20 +125,6 @@ describe("setup and round authority", () => {
     expect(first).toEqual(second);
     expect(first).toHaveLength(24);
     expect(first).not.toEqual(different);
-  });
-
-  it("uses every dealt seeded Encounter Card", () => {
-    const setup = dealEncounterSetup(2, ["p1", "p2"], {
-      encounterSeed: "QV-TEST"
-    });
-    const handCount = Object.values(setup.handsByPlayerId).reduce(
-      (total, hand) => total + hand.length,
-      0
-    );
-
-    expect(handCount).toBe(18);
-    expect(setup.deck).toHaveLength(6);
-    expect(setup.unused).toHaveLength(0);
   });
 
   it("starts with explicit Steward placement before Season I seeding", () => {

@@ -66,4 +66,31 @@ describe("hex map touch controls", () => {
 
     expect(onHexContextMenu).not.toHaveBeenCalled();
   });
+
+  it("selects a focused hex with Enter or Space", () => {
+    const onHexSelect = vi.fn();
+    const state = {
+      ...createNewGame(1, ["vanguard"]),
+      phase: "turns" as const
+    };
+
+    render(
+      <HexMap
+        state={state}
+        selectedTileId={coreTiles[0].id}
+        actionMode="place"
+        selectedHexIds={[]}
+        placementOrientation={3}
+        onHexSelect={onHexSelect}
+        onHexContextMenu={vi.fn()}
+      />
+    );
+
+    const hex = screen.getByRole("button", { name: /^G1,/ });
+    fireEvent.keyDown(hex, { key: "Enter" });
+    fireEvent.keyDown(hex, { key: " " });
+
+    expect(onHexSelect).toHaveBeenNthCalledWith(1, "G1");
+    expect(onHexSelect).toHaveBeenNthCalledWith(2, "G1");
+  });
 });

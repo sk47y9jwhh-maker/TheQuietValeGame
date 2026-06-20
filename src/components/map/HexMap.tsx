@@ -132,13 +132,19 @@ export function HexMap({
 
   return (
     <section className="map-panel" aria-label="Settlement map">
-      <div className="terrain-key" aria-label="Terrain colour key">
-        {terrainKey.map((terrain) => (
-          <span className="terrain-key-item" key={terrain}>
-            <span className={`terrain-swatch terrain-${terrain}`} />
-            {terrainLabels[terrain]}
-          </span>
-        ))}
+      <div className="map-meta-strip">
+        <div className="terrain-key" aria-label="Terrain colour key">
+          {terrainKey.map((terrain) => (
+            <span className="terrain-key-item" key={terrain}>
+              <span className={`terrain-swatch terrain-${terrain}`} />
+              {terrainLabels[terrain]}
+            </span>
+          ))}
+        </div>
+        <p className="map-gesture-hint">
+          <span className="desktop-hint">Right-click a hex for quick actions.</span>
+          <span className="touch-hint">Tap a hex to select. Long-press for quick actions.</span>
+        </p>
       </div>
       <div className="map-canvas">
         <svg
@@ -228,6 +234,13 @@ export function HexMap({
                   clearLongPress();
                 }}
                 onTouchCancel={clearLongPress}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter" && event.key !== " " && event.key !== "Spacebar") {
+                    return;
+                  }
+                  event.preventDefault();
+                  onHexSelect(cell.id);
+                }}
                 role="button"
                 tabIndex={0}
                 aria-label={`${cell.id}, ${accessibleName}${

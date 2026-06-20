@@ -13,7 +13,7 @@ describe("app smoke flow", () => {
   it("starts a seeded game and asks for Steward placement first", () => {
     render(<App />);
 
-    fireEvent.change(screen.getByLabelText("Encounter Seed"), {
+    fireEvent.change(screen.getByLabelText("Randomizer Seed"), {
       target: { value: "QV-SMOKE" }
     });
     fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
@@ -26,7 +26,7 @@ describe("app smoke flow", () => {
   it("confirms the solo Steward start and shows the seeding screen", () => {
     render(<App />);
 
-    fireEvent.change(screen.getByLabelText("Encounter Seed"), {
+    fireEvent.change(screen.getByLabelText("Randomizer Seed"), {
       target: { value: "QV-SMOKE" }
     });
     fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
@@ -40,7 +40,7 @@ describe("app smoke flow", () => {
   it("advances from solo seeding to reveal", () => {
     render(<App />);
 
-    fireEvent.change(screen.getByLabelText("Encounter Seed"), {
+    fireEvent.change(screen.getByLabelText("Randomizer Seed"), {
       target: { value: "QV-SMOKE" }
     });
     fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
