@@ -4,6 +4,12 @@ import { describe, expect, it } from "vitest";
 import { App } from "../app/App";
 
 describe("app smoke flow", () => {
+  it("defaults new games to solo play", () => {
+    render(<App />);
+
+    expect(screen.getAllByText("1 Player").length).toBeGreaterThan(0);
+  });
+
   it("starts a seeded game and asks for Steward placement first", () => {
     render(<App />);
 
@@ -17,7 +23,7 @@ describe("app smoke flow", () => {
     expect(screen.getByRole("button", { name: /confirm vanguard start/i })).toBeEnabled();
   });
 
-  it("confirms Steward starts and shows the first seeding screen", () => {
+  it("confirms the solo Steward start and shows the seeding screen", () => {
     render(<App />);
 
     fireEvent.change(screen.getByLabelText("Encounter Seed"), {
@@ -25,14 +31,13 @@ describe("app smoke flow", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
     fireEvent.click(screen.getByRole("button", { name: /confirm vanguard start/i }));
-    fireEvent.click(screen.getByRole("button", { name: /confirm knight start/i }));
 
     expect(screen.getByText("Season 1 Seeding")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Vanguard" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /confirm seeding/i })).toBeEnabled();
   });
 
-  it("advances from player seeding to reveal", () => {
+  it("advances from solo seeding to reveal", () => {
     render(<App />);
 
     fireEvent.change(screen.getByLabelText("Encounter Seed"), {
@@ -40,11 +45,6 @@ describe("app smoke flow", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
     fireEvent.click(screen.getByRole("button", { name: /confirm vanguard start/i }));
-    fireEvent.click(screen.getByRole("button", { name: /confirm knight start/i }));
-    fireEvent.click(screen.getByRole("button", { name: /confirm seeding/i }));
-
-    expect(screen.getByRole("heading", { name: "Knight" })).toBeInTheDocument();
-
     fireEvent.click(screen.getByRole("button", { name: /confirm seeding/i }));
 
     expect(screen.getByRole("heading", { name: /reveal encounters/i })).toBeInTheDocument();

@@ -152,9 +152,9 @@ function ResolutionShell({
 }
 
 export function App() {
-  const [playerCount, setPlayerCount] = useState<PlayerCount>(2);
+  const [playerCount, setPlayerCount] = useState<PlayerCount>(1);
   const [stewardIds, setStewardIds] = useState(
-    stewards.slice(0, 2).map((steward) => steward.id)
+    stewards.slice(0, 1).map((steward) => steward.id)
   );
   const [encounterSeed, setEncounterSeed] = useState(createSetupSeed);
   const [state, setState] = useState<GameState | null>(null);

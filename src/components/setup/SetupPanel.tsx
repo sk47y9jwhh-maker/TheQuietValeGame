@@ -39,6 +39,7 @@ export function SetupPanel({
     .map((stewardId) => stewardById[stewardId])
     .filter(Boolean);
   const startingResources = getStartingWarehouseAmount(playerCount);
+  const playerLabel = `${playerCount} Player${playerCount === 1 ? "" : "s"}`;
 
   return (
     <div className="app-shell setup-shell">
@@ -67,7 +68,7 @@ export function SetupPanel({
           <UserRound size={18} />
           <div>
             <span>Stewards</span>
-            <strong>{playerCount} Players</strong>
+            <strong>{playerLabel}</strong>
           </div>
         </div>
         <div className="warehouse-strip setup-resource-strip" aria-label="Starting resources">
@@ -95,7 +96,7 @@ export function SetupPanel({
               <p className="eyebrow">Step 1</p>
               <h2>New Game</h2>
             </div>
-            <strong>{playerCount} players</strong>
+            <strong>{playerLabel}</strong>
           </div>
 
           <div className="segmented" aria-label="Player count">

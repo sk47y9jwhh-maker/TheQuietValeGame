@@ -2752,6 +2752,36 @@ button.effect-row {
     grid-template-columns: 1fr;
   }
 
+  .seeding-card-board {
+    grid-template-rows: auto auto;
+    align-content: start;
+    overflow: hidden;
+  }
+
+  .seeding-card-board .hand-grid {
+    width: 100%;
+    min-height: 0;
+    display: flex;
+    grid-template-columns: none;
+    gap: 12px;
+    align-items: flex-start;
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-padding-inline: 12px;
+    scroll-snap-type: x mandatory;
+    padding: 2px 12px 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .seeding-card-board .hand-card {
+    flex: 0 0 min(84vw, 390px);
+    width: min(84vw, 390px);
+    max-width: min(84vw, 390px);
+    min-width: 0;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+
   .steward-placement-screen {
     padding: 18px;
   }
