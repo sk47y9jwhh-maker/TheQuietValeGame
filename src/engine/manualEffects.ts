@@ -426,14 +426,73 @@ function parseTimerSuggestion(
   state: GameState,
   effectText: string
 ): Pick<EffectAdjustment, "arrivalTimerDeltas"> {
-  const match = effectText.match(/add\s+(?:up to\s+)?(\d+)\s+timer/i);
-  if (!match || state.encounters.activeArrivals.length !== 1) return {};
+  const rule = getTimerAdjustmentRule(effectText);
+  if (
+    !rule ||
+    rule.direction !== "add" ||
+    state.encounters.activeArrivals.length !== 1
+  ) {
+    return {};
+  }
 
+  const arrival = state.encounters.activeArrivals[0];
+  const delta = Math.min(rule.limit, Math.max(0, 3 - arrival.timerTokens));
+  if (delta <= 0) return {};
   return {
     arrivalTimerDeltas: {
-      [state.encounters.activeArrivals[0].cardId]: Number(match[1])
+      [arrival.cardId]: delta
     }
   };
+}
+
+export interface TimerAdjustmentRule {
+  direction: "add" | "remove";
+  limit: number;
+}
+
+export function getTimerAdjustmentRule(effectText: string): TimerAdjustmentRule | null {
+  const addMatch = effectText.match(/\badd\s+(?:up to\s+)?(\d+)\s+timer/i);
+  if (addMatch) {
+    return { direction: "add", limit: Number(addMatch[1]) };
+  }
+
+  const removeMatch = effectText.match(/\bremove\s+(?:up to\s+)?(\d+)\s+timer/i);
+  if (removeMatch) {
+    return { direction: "remove", limit: Number(removeMatch[1]) };
+  }
+
+  return null;
+}
+
+export function isTimerAdjustmentValid(
+  state: GameState,
+  effectText: string,
+  timerDeltas: Record<string, number> | undefined
+): boolean {
+  const rule = getTimerAdjustmentRule(effectText);
+  if (!rule || !timerDeltas) return true;
+
+  const activeArrivalById = new Map(
+    state.encounters.activeArrivals.map((arrival) => [arrival.cardId, arrival])
+  );
+  let total = 0;
+
+  for (const [cardId, delta] of Object.entries(timerDeltas)) {
+    if (delta === 0) continue;
+
+    const arrival = activeArrivalById.get(cardId);
+    if (!arrival) return false;
+
+    if (rule.direction === "add") {
+      if (delta < 0 || delta > 3 - arrival.timerTokens) return false;
+      total += delta;
+    } else {
+      if (delta > 0 || Math.abs(delta) > arrival.timerTokens) return false;
+      total += Math.abs(delta);
+    }
+  }
+
+  return total <= rule.limit;
 }
 
 function parseStrainSuggestion(
@@ -523,10 +582,19 @@ export function effectHasNoValidChoiceTargets(
   sourceTile?: PlacedTile
 ): boolean {
   const lower = effectText.toLowerCase();
+  const timerRule = getTimerAdjustmentRule(effectText);
   const { fallbackText } = getFallbackSplit(effectText);
   const hasResourceFallback = Boolean(
     fallbackText && /\b(gain|lose|pay|exchange)\b/i.test(fallbackText)
   );
+
+  if (
+    timerRule?.direction === "add" &&
+    lower.includes("active arrival") &&
+    !state.encounters.activeArrivals.some((arrival) => arrival.timerTokens < 3)
+  ) {
+    return true;
+  }
 
   if (
     state.encounters.activeArrivals.length === 0 &&
@@ -592,8 +660,13 @@ export function suggestEffectAdjustment(
     parseResolvedBurdenSuggestion(state, effectText)
   );
   const lower = effectText.toLowerCase();
+  const timerRule = getTimerAdjustmentRule(effectText);
+  const timerTargetCount =
+    timerRule?.direction === "add"
+      ? state.encounters.activeArrivals.filter((arrival) => arrival.timerTokens < 3).length
+      : state.encounters.activeArrivals.length;
   const hasMultipleTimerTargets =
-    lower.includes("timer") && state.encounters.activeArrivals.length > 1;
+    Boolean(timerRule) && lower.includes("timer") && timerTargetCount > 1;
   const hasMultipleStrainTargets =
     lower.includes("strain") &&
     (lower.includes("remove")
@@ -657,6 +730,15 @@ export function resolvePendingEffect(
   if (
     pendingEffect.requiresManualChoice &&
     !hasEffectAdjustment(effectiveAdjustment)
+  ) {
+    return state;
+  }
+  if (
+    !isTimerAdjustmentValid(
+      state,
+      pendingEffect.effectText,
+      effectiveAdjustment.arrivalTimerDeltas
+    )
   ) {
     return state;
   }

@@ -4,6 +4,7 @@ import {
   getCurrentSeasonCardEffectText,
   getEffectSupportTargets,
   getEffectTileTargets,
+  isTimerAdjustmentValid,
   resolvePendingEffect,
   skipPendingEffect,
   suggestEffectAdjustment
@@ -77,6 +78,92 @@ describe("manual effect suggestions", () => {
 
     expect(suggestion.adjustment).toBeUndefined();
     expect(suggestion.requiresManualChoice).toBe(true);
+  });
+
+  it("caps suggested timer changes at the Arrival maximum", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.encounters.activeArrivals = [
+      { cardId: "arrival_the_quiet_quest", timerTokens: 2 }
+    ];
+
+    const suggestion = suggestEffectAdjustment(
+      state,
+      "Add up to 3 timer tokens among active Arrivals, to a maximum of 3 on each."
+    );
+
+    expect(suggestion.adjustment?.arrivalTimerDeltas).toEqual({
+      arrival_the_quiet_quest: 1
+    });
+  });
+
+  it("treats add-timer effects as no effect when no Arrival can receive timers", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.encounters.activeArrivals = [
+      { cardId: "arrival_the_quiet_quest", timerTokens: 3 }
+    ];
+    const effectText =
+      "Add up to 2 timer tokens among active Arrivals, to a maximum of 3 on each.";
+
+    const suggestion = suggestEffectAdjustment(state, effectText);
+
+    expect(suggestion.adjustment).toBeUndefined();
+    expect(suggestion.requiresManualChoice).toBe(false);
+    expect(effectHasNoValidChoiceTargets(state, effectText)).toBe(true);
+  });
+
+  it("rejects add-timer adjustments that reduce timers or exceed the Boon limit", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.encounters.activeArrivals = [
+      { cardId: "arrival_the_quiet_quest", timerTokens: 1 },
+      { cardId: "arrival_remnants_of_the_cavalry", timerTokens: 1 }
+    ];
+    const effectText =
+      "Add 1 timer token to 1 active Arrival, to a maximum of 3.";
+
+    expect(
+      isTimerAdjustmentValid(state, effectText, {
+        arrival_the_quiet_quest: -1
+      })
+    ).toBe(false);
+    expect(
+      isTimerAdjustmentValid(state, effectText, {
+        arrival_the_quiet_quest: 1,
+        arrival_remnants_of_the_cavalry: 1
+      })
+    ).toBe(false);
+    expect(
+      isTimerAdjustmentValid(state, effectText, {
+        arrival_the_quiet_quest: 1
+      })
+    ).toBe(true);
+  });
+
+  it("does not resolve an add-timer effect with an illegal timer adjustment", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.encounters.activeArrivals = [
+      { cardId: "arrival_the_quiet_quest", timerTokens: 1 },
+      { cardId: "arrival_remnants_of_the_cavalry", timerTokens: 1 }
+    ];
+    state.pendingEffects = [
+      {
+        id: "effect_1",
+        sourceType: "card",
+        sourceName: "A Little Time",
+        title: "Use Boon: A Little Time",
+        effectText: "Add 1 timer token to 1 active Arrival, to a maximum of 3.",
+        requiresManualChoice: true
+      }
+    ];
+
+    const next = resolvePendingEffect(state, {
+      arrivalTimerDeltas: {
+        arrival_the_quiet_quest: 1,
+        arrival_remnants_of_the_cavalry: 1
+      }
+    });
+
+    expect(next.pendingEffects).toHaveLength(1);
+    expect(next.encounters.activeArrivals).toEqual(state.encounters.activeArrivals);
   });
 
   it("allows no-effect active Arrival choices when no Arrival is active", () => {

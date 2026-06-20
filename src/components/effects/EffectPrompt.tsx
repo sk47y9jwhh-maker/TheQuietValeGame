@@ -18,7 +18,9 @@ import {
 import {
   getEffectSupportTargets,
   getEffectTileTargets,
+  getTimerAdjustmentRule,
   hasEffectAdjustment,
+  isTimerAdjustmentValid,
   mergeEffectAdjustment
 } from "../../engine/manualEffects";
 import { selectEncounterName, selectTileName } from "../../engine/selectors";
@@ -139,6 +141,11 @@ export function EffectPrompt({
     effect.allowBurdenResolve &&
     state.encounters.activeBurdens.length > 0 &&
     resolvedBurdenIds.length === 0;
+  const timerInvalid = !isTimerAdjustmentValid(
+    state,
+    effect.effectText,
+    arrivalTimerDeltas
+  );
   const hasChanges = hasEffectAdjustment(adjustment);
   const sourceCard =
     effect.sourceType === "card" && effect.sourceId
@@ -147,6 +154,7 @@ export function EffectPrompt({
   const sourceCardToneClass = sourceCard ? `card-${sourceCard.type}` : "";
   const flavorText = sourceCard?.flavorText;
   const effectText = effect.effectText.toLowerCase();
+  const timerRule = getTimerAdjustmentRule(effect.effectText);
   const canAdjustTileStrain = effectText.includes("strain");
   const canToggleTileSupport = effectText.includes("supported");
   const sourceTile =
@@ -229,6 +237,7 @@ export function EffectPrompt({
     tileControlTargets.length > 0 && (hasTileSuggestion || needsTileChoice);
   const cannotApply =
     Boolean(effect.requiresManualChoice && !hasChanges) ||
+    timerInvalid ||
     exchangeInvalid ||
     Boolean(burdenResolveInvalid);
 
@@ -242,8 +251,52 @@ export function EffectPrompt({
   function adjustTimer(cardId: string, delta: number) {
     setArrivalTimerDeltas((current) => ({
       ...current,
-      [cardId]: (current[cardId] ?? 0) + delta
+      [cardId]: getNextTimerDelta(cardId, current[cardId] ?? 0, delta, current)
     }));
+  }
+
+  function getNextTimerDelta(
+    cardId: string,
+    currentDelta: number,
+    requestedDelta: number,
+    currentDeltas: Record<string, number>
+  ): number {
+    if (timerRule?.direction !== "add") return currentDelta + requestedDelta;
+
+    const arrival = state.encounters.activeArrivals.find(
+      (candidate) => candidate.cardId === cardId
+    );
+    if (!arrival) return currentDelta;
+
+    const totalOtherAdded = Object.entries(currentDeltas).reduce(
+      (total, [candidateCardId, candidateDelta]) =>
+        candidateCardId === cardId ? total : total + Math.max(0, candidateDelta),
+      0
+    );
+    const maxForArrival = Math.max(0, 3 - arrival.timerTokens);
+    const maxForEffect = Math.max(0, timerRule.limit - totalOtherAdded);
+    return Math.max(
+      0,
+      Math.min(currentDelta + requestedDelta, maxForArrival, maxForEffect)
+    );
+  }
+
+  function canAdjustTimer(cardId: string, requestedDelta: number): boolean {
+    if (timerRule?.direction !== "add") return true;
+
+    const currentDelta = arrivalTimerDeltas[cardId] ?? 0;
+    if (requestedDelta < 0) return currentDelta > 0;
+
+    const arrival = state.encounters.activeArrivals.find(
+      (candidate) => candidate.cardId === cardId
+    );
+    if (!arrival) return false;
+
+    const totalAdded = Object.values(arrivalTimerDeltas).reduce(
+      (total, delta) => total + Math.max(0, delta),
+      0
+    );
+    return currentDelta < 3 - arrival.timerTokens && totalAdded < timerRule.limit;
   }
 
   function adjustStrain(tileId: string, delta: number) {
@@ -351,14 +404,24 @@ export function EffectPrompt({
                   {selectEncounterName(arrival.cardId)} {arrival.timerTokens}
                 </span>
                 <div className="stepper">
-                  <button onClick={() => adjustTimer(arrival.cardId, -1)} type="button">
+                  <button
+                    aria-label={`Remove timer adjustment from ${selectEncounterName(arrival.cardId)}`}
+                    disabled={!canAdjustTimer(arrival.cardId, -1)}
+                    onClick={() => adjustTimer(arrival.cardId, -1)}
+                    type="button"
+                  >
                     <Minus size={14} />
                   </button>
                   <strong>
                     {(arrivalTimerDeltas[arrival.cardId] ?? 0) > 0 ? "+" : ""}
                     {arrivalTimerDeltas[arrival.cardId] ?? 0}
                   </strong>
-                  <button onClick={() => adjustTimer(arrival.cardId, 1)} type="button">
+                  <button
+                    aria-label={`Add timer adjustment to ${selectEncounterName(arrival.cardId)}`}
+                    disabled={!canAdjustTimer(arrival.cardId, 1)}
+                    onClick={() => adjustTimer(arrival.cardId, 1)}
+                    type="button"
+                  >
                     <Plus size={14} />
                   </button>
                 </div>
@@ -491,6 +554,9 @@ export function EffectPrompt({
       )}
       {burdenResolveInvalid && (
         <p className="failure-note">Choose one active Burden to resolve.</p>
+      )}
+      {timerInvalid && (
+        <p className="failure-note">Choose timer changes allowed by this effect.</p>
       )}
       {effect.resourceExchangeLimit !== undefined && exchangeInvalid && (
         <p className="failure-note">

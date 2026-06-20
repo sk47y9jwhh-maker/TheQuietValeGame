@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { EffectPrompt } from "../components/effects/EffectPrompt";
 import { createNewGame } from "../engine/setup";
@@ -81,5 +81,48 @@ describe("effect prompt controls", () => {
     expect(screen.getByText(/Cabin G1/)).toBeInTheDocument();
     expect(screen.queryByText(/Path I1/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Workshops H1/)).not.toBeInTheDocument();
+  });
+
+  it("limits add-timer Boon controls to legal timer additions", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.encounters.activeArrivals = [
+      { cardId: "arrival_the_quiet_quest", timerTokens: 1 },
+      { cardId: "arrival_remnants_of_the_cavalry", timerTokens: 1 }
+    ];
+    const effect: PendingEffectState = {
+      id: "effect_1",
+      sourceType: "card",
+      sourceId: "boon_a_little_more_time",
+      sourceName: "A Little Time",
+      title: "Use Boon: A Little Time",
+      effectText: "Add 1 timer token to 1 active Arrival, to a maximum of 3.",
+      requiresManualChoice: true
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(
+      screen.getByRole("button", {
+        name: /remove timer adjustment from quiet quest/i
+      })
+    ).toBeDisabled();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /add timer adjustment to quiet quest/i
+      })
+    );
+
+    expect(
+      screen.getByRole("button", {
+        name: /add timer adjustment to quiet quest/i
+      })
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", {
+        name: /add timer adjustment to remnants of the cavalry/i
+      })
+    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
   });
 });

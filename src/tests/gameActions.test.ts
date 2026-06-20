@@ -587,6 +587,40 @@ describe("game actions", () => {
     ]);
   });
 
+  it("uses A Little Time to add legal timer tokens to active Arrivals", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      season: 2 as const,
+      encounters: {
+        ...state.encounters,
+        activeArrivals: [
+          { cardId: "arrival_the_quiet_quest", timerTokens: 1 },
+          { cardId: "arrival_remnants_of_the_cavalry", timerTokens: 2 }
+        ],
+        faceUpBoons: [{ cardId: "boon_a_little_more_time", remainingUses: 1 }]
+      }
+    };
+
+    const prompted = useFaceUpBoon(ready, "boon_a_little_more_time");
+
+    expect(prompted.pendingEffects[0].requiresManualChoice).toBe(true);
+    const next = resolvePendingEffect(prompted, {
+      arrivalTimerDeltas: {
+        arrival_the_quiet_quest: 1,
+        arrival_remnants_of_the_cavalry: 1
+      }
+    });
+
+    expect(next.encounters.activeArrivals).toEqual([
+      { cardId: "arrival_the_quiet_quest", timerTokens: 2 },
+      { cardId: "arrival_remnants_of_the_cavalry", timerTokens: 3 }
+    ]);
+    expect(next.encounters.faceUpBoons).toHaveLength(0);
+    expect(next.encounters.discardPile).toContain("boon_a_little_more_time");
+  });
+
   it("reveals Clear Nights as a deck reorder effect", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
@@ -610,6 +644,36 @@ describe("game actions", () => {
       "burden_smoke_over_hearths"
     ]);
     expect(next.pendingEffects).toHaveLength(0);
+  });
+
+  it("uses the current season count for Clear Nights deck rearrange", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      phase: "reveal" as const,
+      season: 3 as const,
+      encounters: {
+        ...state.encounters,
+        deck: [
+          "boon_clear_nights_make_for_clear_plans",
+          "arrival_the_quiet_quest",
+          "burden_smoke_over_hearths",
+          "boon_a_little_more_time",
+          "arrival_remnants_of_the_cavalry",
+          "burden_forest_s_grudge"
+        ]
+      }
+    };
+
+    const next = revealEncounters(ready);
+
+    expect(next.pendingDeckReorder?.effectText).toContain("top 4 cards");
+    expect(next.pendingDeckReorder?.cardIds).toEqual([
+      "arrival_the_quiet_quest",
+      "burden_smoke_over_hearths",
+      "boon_a_little_more_time",
+      "arrival_remnants_of_the_cavalry"
+    ]);
   });
 
   it("queues a revealed Burden's current season effect immediately", () => {
