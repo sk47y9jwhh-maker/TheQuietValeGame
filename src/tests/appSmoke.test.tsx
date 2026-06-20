@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../app/App";
 
@@ -83,6 +83,39 @@ describe("app smoke flow", () => {
 
     expect(screen.getByRole("heading", { name: "Vanguard" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /confirm vanguard start/i })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("button", { name: /redo undone game step/i }));
+
+    expect(screen.getByText("Season 1 Seeding")).toBeInTheDocument();
+  });
+
+  it("redoes a browser Back undo when browser Forward is used", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
+    fireEvent.click(screen.getByRole("button", { name: /confirm vanguard start/i }));
+
+    expect(screen.getByText("Season 1 Seeding")).toBeInTheDocument();
+
+    act(() => {
+      window.dispatchEvent(
+        new PopStateEvent("popstate", {
+          state: { quietValeHistory: true, quietValeIndex: 0 }
+        })
+      );
+    });
+
+    expect(screen.getByRole("heading", { name: "Vanguard" })).toBeInTheDocument();
+
+    act(() => {
+      window.dispatchEvent(
+        new PopStateEvent("popstate", {
+          state: { quietValeHistory: true, quietValeIndex: 1 }
+        })
+      );
+    });
+
+    expect(screen.getByText("Season 1 Seeding")).toBeInTheDocument();
   });
 
   it("resets the active saved game", () => {

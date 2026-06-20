@@ -55,9 +55,11 @@ import type { GameState, HexDirection, PlayerCount, TilePlacementDraft } from ".
 import {
   clearAllSaves,
   clearSavedGame,
+  getBrowserHistoryIndex,
   pushBrowserUndoMarker,
   readSavedGame,
   readSavedSetup,
+  resetBrowserHistoryAnchor,
   writeSavedGame,
   writeSavedSetup
 } from "./persistence";
@@ -76,7 +78,9 @@ interface ResolutionShellProps {
   children: ReactNode;
   onUseFaceUpBoon: (boonCardId: string) => void;
   canUndo: boolean;
+  canRedo: boolean;
   onUndo: () => void;
+  onRedo: () => void;
   onReset: () => void;
 }
 
@@ -88,7 +92,9 @@ function ResolutionShell({
   children,
   onUseFaceUpBoon,
   canUndo,
+  canRedo,
   onUndo,
+  onRedo,
   onReset
 }: ResolutionShellProps) {
   const queueItems = [
@@ -122,7 +128,9 @@ function ResolutionShell({
       <TopBar
         state={state}
         canUndo={canUndo}
+        canRedo={canRedo}
         onUndo={onUndo}
+        onRedo={onRedo}
         onReset={onReset}
       />
       <main className="command-table resolution-table">
@@ -196,6 +204,7 @@ export function App() {
   );
   const [state, setState] = useState<GameState | null>(initialSavedGame?.state ?? null);
   const [undoStack, setUndoStack] = useState<GameState[]>([]);
+  const [redoStack, setRedoStack] = useState<GameState[]>([]);
   const [selectedHexIds, setSelectedHexIds] = useState<string[]>([]);
   const [selectedTileId, setSelectedTileId] = useState(coreTiles[0].id);
   const [placementOrientation, setPlacementOrientation] = useState<HexDirection>(3);
@@ -207,6 +216,8 @@ export function App() {
   } | null>(null);
   const stateRef = useRef<GameState | null>(state);
   const undoStackRef = useRef<GameState[]>(undoStack);
+  const redoStackRef = useRef<GameState[]>(redoStack);
+  const browserHistoryIndexRef = useRef(0);
 
   const normalizedStewards = useMemo(() => {
     const next = [...stewardIds];
@@ -224,6 +235,14 @@ export function App() {
   useEffect(() => {
     undoStackRef.current = undoStack;
   }, [undoStack]);
+
+  useEffect(() => {
+    redoStackRef.current = redoStack;
+  }, [redoStack]);
+
+  useEffect(() => {
+    browserHistoryIndexRef.current = resetBrowserHistoryAnchor();
+  }, []);
 
   useEffect(() => {
     if (state) {
@@ -245,8 +264,15 @@ export function App() {
   }, [encounterSeed, normalizedStewards, playerCount, state]);
 
   const pushUndoSnapshot = useCallback((previousState: GameState) => {
-    setUndoStack((current) => [previousState, ...current].slice(0, undoHistoryLimit));
-    pushBrowserUndoMarker();
+    setUndoStack((current) => {
+      const next = [previousState, ...current].slice(0, undoHistoryLimit);
+      undoStackRef.current = next;
+      return next;
+    });
+    redoStackRef.current = [];
+    setRedoStack([]);
+    browserHistoryIndexRef.current += 1;
+    pushBrowserUndoMarker(browserHistoryIndexRef.current);
   }, []);
 
   const commitKnownGameState = useCallback(
@@ -278,35 +304,73 @@ export function App() {
     [pushUndoSnapshot]
   );
 
-  const handleUndo = useCallback(() => {
-    const previousState = undoStackRef.current[0];
-    if (!previousState) return false;
-
-    setUndoStack((current) => current.slice(1));
-    setState(previousState);
+  const resetInteractionForState = useCallback((nextState: GameState) => {
     setSelectedHexIds([]);
     setSelectedTileId(
       getDefaultPlaceTileId(
-        previousState,
-        previousState.currentPlayerId,
+        nextState,
+        nextState.currentPlayerId,
         [],
         placementOrientation
       )
     );
     setActionMode("place");
     setMapContextMenu(null);
-    return true;
   }, [placementOrientation]);
 
+  const handleUndo = useCallback(() => {
+    const currentState = stateRef.current;
+    const previousState = undoStackRef.current[0];
+    if (!currentState || !previousState) return false;
+
+    const nextUndoStack = undoStackRef.current.slice(1);
+    const nextRedoStack = [currentState, ...redoStackRef.current].slice(0, undoHistoryLimit);
+    undoStackRef.current = nextUndoStack;
+    redoStackRef.current = nextRedoStack;
+    stateRef.current = previousState;
+    setUndoStack(nextUndoStack);
+    setRedoStack(nextRedoStack);
+    setState(previousState);
+    resetInteractionForState(previousState);
+    return true;
+  }, [resetInteractionForState]);
+
+  const handleRedo = useCallback(() => {
+    const currentState = stateRef.current;
+    const nextState = redoStackRef.current[0];
+    if (!currentState || !nextState) return false;
+
+    const nextRedoStack = redoStackRef.current.slice(1);
+    const nextUndoStack = [currentState, ...undoStackRef.current].slice(0, undoHistoryLimit);
+    redoStackRef.current = nextRedoStack;
+    undoStackRef.current = nextUndoStack;
+    stateRef.current = nextState;
+    setRedoStack(nextRedoStack);
+    setUndoStack(nextUndoStack);
+    setState(nextState);
+    resetInteractionForState(nextState);
+    return true;
+  }, [resetInteractionForState]);
+
   useEffect(() => {
-    function handleBrowserBack() {
-      if (!stateRef.current || undoStackRef.current.length === 0) return;
-      handleUndo();
+    function handleBrowserNavigation(event: PopStateEvent) {
+      if (!stateRef.current) return;
+
+      const nextIndex = getBrowserHistoryIndex(event);
+      if (nextIndex === null) return;
+
+      const currentIndex = browserHistoryIndexRef.current;
+      if (nextIndex < currentIndex) {
+        handleUndo();
+      } else if (nextIndex > currentIndex) {
+        handleRedo();
+      }
+      browserHistoryIndexRef.current = nextIndex;
     }
 
-    window.addEventListener("popstate", handleBrowserBack);
-    return () => window.removeEventListener("popstate", handleBrowserBack);
-  }, [handleUndo]);
+    window.addEventListener("popstate", handleBrowserNavigation);
+    return () => window.removeEventListener("popstate", handleBrowserNavigation);
+  }, [handleRedo, handleUndo]);
 
   function handleResetGame() {
     if (
@@ -317,7 +381,12 @@ export function App() {
     }
 
     clearAllSaves();
+    undoStackRef.current = [];
+    redoStackRef.current = [];
+    stateRef.current = null;
     setUndoStack([]);
+    setRedoStack([]);
+    browserHistoryIndexRef.current = resetBrowserHistoryAnchor();
     setState(null);
     setPlayerCount(1);
     setStewardIds(stewards.slice(0, 1).map((steward) => steward.id));
@@ -424,7 +493,11 @@ export function App() {
         onEncounterSeedChange={setEncounterSeed}
         onShuffleSeed={() => setEncounterSeed(createSetupSeed())}
         onStart={() => {
+          undoStackRef.current = [];
+          redoStackRef.current = [];
           setUndoStack([]);
+          setRedoStack([]);
+          browserHistoryIndexRef.current = resetBrowserHistoryAnchor();
           setSelectedHexIds([]);
           setActionMode("place");
           setState(
@@ -461,7 +534,9 @@ export function App() {
         detail="Review the revealed deck information and confirm the order before the table advances."
         onUseFaceUpBoon={handleUseFaceUpBoon}
         canUndo={undoStack.length > 0}
+        canRedo={redoStack.length > 0}
         onUndo={handleUndo}
+        onRedo={handleRedo}
         onReset={handleResetGame}
       >
         <DeckReorderPanel
@@ -485,7 +560,9 @@ export function App() {
         detail="Choose any passive payment effects, then confirm or cancel before spending the action."
         onUseFaceUpBoon={handleUseFaceUpBoon}
         canUndo={undoStack.length > 0}
+        canRedo={redoStack.length > 0}
         onUndo={handleUndo}
+        onRedo={handleRedo}
         onReset={handleResetGame}
       >
         <CostChoicePanel
@@ -518,7 +595,9 @@ export function App() {
         detail="Read the card or tile effect, make any required choices, then apply or skip where allowed."
         onUseFaceUpBoon={handleUseFaceUpBoon}
         canUndo={undoStack.length > 0}
+        canRedo={redoStack.length > 0}
         onUndo={handleUndo}
+        onRedo={handleRedo}
         onReset={handleResetGame}
       >
         <EffectPrompt
@@ -543,7 +622,9 @@ export function App() {
         <TopBar
           state={state}
           canUndo={undoStack.length > 0}
+          canRedo={redoStack.length > 0}
           onUndo={handleUndo}
+          onRedo={handleRedo}
           onReset={handleResetGame}
         />
         <SeedingPanel
@@ -564,7 +645,9 @@ export function App() {
         <TopBar
           state={state}
           canUndo={undoStack.length > 0}
+          canRedo={redoStack.length > 0}
           onUndo={handleUndo}
+          onRedo={handleRedo}
           onReset={handleResetGame}
         />
         <StewardPlacementPanel
@@ -654,7 +737,9 @@ export function App() {
       <TopBar
         state={state}
         canUndo={undoStack.length > 0}
+        canRedo={redoStack.length > 0}
         onUndo={handleUndo}
+        onRedo={handleRedo}
         onReset={handleResetGame}
       />
       <main className="command-table">

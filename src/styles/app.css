@@ -208,7 +208,7 @@ button:disabled {
     minmax(126px, 140px)
     minmax(136px, 150px)
     minmax(430px, 1fr)
-    minmax(116px, 132px)
+    minmax(128px, 138px)
     minmax(160px, 182px);
   align-items: center;
   gap: 9px;
@@ -356,13 +356,14 @@ button:disabled {
 
 .top-actions {
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
   padding: 6px;
 }
 
 .top-actions button {
   min-width: 0;
-  flex: 1 1 0;
+  flex: 0 0 34px;
+  width: 34px;
   height: 32px;
   display: inline-flex;
   align-items: center;
@@ -374,6 +375,7 @@ button:disabled {
   color: var(--qv-cream-text);
   font-weight: 900;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .top-actions button:disabled {
@@ -384,13 +386,6 @@ button:disabled {
 .top-actions svg {
   flex: 0 0 auto;
   color: var(--qv-brass);
-}
-
-.top-actions span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .warehouse-title {
@@ -2920,9 +2915,13 @@ button.effect-row {
   .top-bar {
     min-height: 0;
     align-items: stretch;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 7px;
-    padding: 8px;
+    grid-template-columns: minmax(0, 1fr) minmax(72px, auto) auto;
+    grid-template-areas:
+      "brand season actions"
+      "turn alerts alerts"
+      "warehouse warehouse warehouse";
+    gap: 6px;
+    padding: 7px;
   }
 
   .top-bar::after {
@@ -2936,41 +2935,76 @@ button.effect-row {
   .turn-chip,
   .top-actions,
   .alerts-chip {
-    min-height: 42px;
+    min-height: 38px;
     height: auto;
-    padding: 6px 8px;
+    padding: 5px 7px;
   }
 
   .top-brand span {
     display: none;
   }
 
+  .top-brand strong,
+  .turn-chip strong {
+    font-size: 14px;
+  }
+
+  .turn-chip span {
+    font-size: 10px;
+  }
+
   .brand-mark {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
   }
 
   .top-brand {
-    order: 1;
+    grid-area: brand;
   }
 
   .season-card {
-    order: 2;
+    grid-area: season;
+    gap: 4px;
+    min-width: 72px;
+  }
+
+  .season-card > svg {
+    display: none;
+  }
+
+  .season-metrics {
+    gap: 3px;
+  }
+
+  .season-metrics small {
+    font-size: 8px;
+  }
+
+  .season-metrics strong {
+    font-size: 14px;
   }
 
   .turn-chip {
-    order: 3;
+    grid-area: turn;
   }
 
   .top-actions {
-    order: 4;
-    grid-column: 1;
+    grid-area: actions;
+    width: max-content;
+    justify-self: end;
+    gap: 4px;
+    padding-inline: 5px;
+  }
+
+  .top-actions button {
+    flex-basis: 31px;
+    width: 31px;
+    height: 31px;
   }
 
   .warehouse-strip {
-    order: 6;
-    grid-column: 1 / -1;
-    min-height: 40px;
+    grid-area: warehouse;
+    min-height: 38px;
     height: auto;
     max-height: none;
     justify-content: flex-start;
@@ -2984,10 +3018,24 @@ button.effect-row {
   }
 
   .alerts-chip {
-    order: 5;
-    grid-column: 2;
+    grid-area: alerts;
     justify-content: flex-start;
     text-align: left;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .setup-top-bar {
+    grid-template-columns: minmax(0, 1fr) minmax(72px, auto) minmax(82px, auto);
+    grid-template-areas:
+      "brand season alerts"
+      "turn warehouse warehouse";
+  }
+
+  .setup-top-bar .warehouse-strip {
+    min-width: 0;
   }
 
   .terrain-key {

@@ -2,6 +2,7 @@ import {
   AlertTriangle,
   CalendarDays,
   Package,
+  Redo2,
   RotateCcw,
   Undo2,
   UserRound
@@ -15,11 +16,20 @@ import { BrandMark } from "../common/BrandMark";
 interface TopBarProps {
   state: GameState;
   canUndo?: boolean;
+  canRedo?: boolean;
   onUndo?: () => void;
+  onRedo?: () => void;
   onReset?: () => void;
 }
 
-export function TopBar({ state, canUndo = false, onUndo, onReset }: TopBarProps) {
+export function TopBar({
+  state,
+  canUndo = false,
+  canRedo = false,
+  onUndo,
+  onRedo,
+  onReset
+}: TopBarProps) {
   const currentPlayer = selectCurrentPlayer(state);
   const steward = stewardById[currentPlayer.stewardId];
   const alerts = selectAlerts(state);
@@ -75,7 +85,15 @@ export function TopBar({ state, canUndo = false, onUndo, onReset }: TopBarProps)
           type="button"
         >
           <Undo2 size={17} />
-          <span>Undo</span>
+        </button>
+        <button
+          aria-label="Redo undone game step"
+          disabled={!canRedo}
+          onClick={onRedo}
+          title={canRedo ? "Redo undone game step" : "Nothing to redo"}
+          type="button"
+        >
+          <Redo2 size={17} />
         </button>
         <button
           aria-label="Reset game"
@@ -84,7 +102,6 @@ export function TopBar({ state, canUndo = false, onUndo, onReset }: TopBarProps)
           type="button"
         >
           <RotateCcw size={17} />
-          <span>Reset</span>
         </button>
       </div>
       <button className={`alerts-chip ${hasAlerts ? "has-alerts" : ""}`} type="button">

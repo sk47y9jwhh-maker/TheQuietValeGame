@@ -96,12 +96,41 @@ export function clearAllSaves() {
   window.localStorage.removeItem(setupSaveKey);
 }
 
-export function pushBrowserUndoMarker() {
-  if (typeof window === "undefined") return;
+export function resetBrowserHistoryAnchor(): number {
+  if (typeof window === "undefined") return 0;
 
   try {
-    window.history.pushState({ quietValeUndo: true }, "", window.location.href);
+    window.history.replaceState(
+      { ...(window.history.state ?? {}), quietValeHistory: true, quietValeIndex: 0 },
+      "",
+      window.location.href
+    );
   } catch {
     // History integration is a convenience; normal in-app Undo still works.
   }
+
+  return 0;
+}
+
+export function pushBrowserUndoMarker(index: number) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.history.pushState(
+      { quietValeHistory: true, quietValeIndex: index },
+      "",
+      window.location.href
+    );
+  } catch {
+    // History integration is a convenience; normal in-app Undo still works.
+  }
+}
+
+export function getBrowserHistoryIndex(event: PopStateEvent): number | null {
+  const state = event.state as { quietValeHistory?: boolean; quietValeIndex?: unknown } | null;
+  if (!state?.quietValeHistory || typeof state.quietValeIndex !== "number") {
+    return null;
+  }
+
+  return state.quietValeIndex;
 }
