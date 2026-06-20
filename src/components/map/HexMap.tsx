@@ -184,9 +184,11 @@ export function HexMap({
                   supported ? "is-supported" : "",
                   overstrained ? "is-overstrained" : ""
                 ].join(" ")}
-                onClick={() => {
+                onClick={(event) => {
                   if (ignoreClickHexRef.current === cell.id) {
                     ignoreClickHexRef.current = null;
+                    event.preventDefault();
+                    event.stopPropagation();
                     return;
                   }
                   onHexSelect(cell.id);
@@ -205,6 +207,11 @@ export function HexMap({
                   startLongPress(cell.id, touch.clientX, touch.clientY);
                 }}
                 onTouchMove={(event) => {
+                  if (longPressRef.current?.activated) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                  }
                   if (event.touches.length !== 1) {
                     clearLongPress();
                     return;

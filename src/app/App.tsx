@@ -147,7 +147,6 @@ function ResolutionShell({
           onUseFaceUpBoon={onUseFaceUpBoon}
         />
       </main>
-      <BottomDrawer state={state} />
     </div>
   );
 }
@@ -400,7 +399,6 @@ export function App() {
             )
           }
         />
-        <BottomDrawer state={state} />
       </div>
     );
   }
@@ -419,7 +417,6 @@ export function App() {
             )
           }
         />
-        <BottomDrawer state={state} />
       </div>
     );
   }
@@ -696,13 +693,6 @@ export function App() {
         )}
       </main>
       <BottomDrawer state={state} />
-      <nav className="mobile-nav" aria-label="Mobile sections">
-        {["Map", "Action", "Encounters", "Hand", "Tiles"].map((item) => (
-          <button key={item} type="button">
-            {item}
-          </button>
-        ))}
-      </nav>
     </div>
   );
 }

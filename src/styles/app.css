@@ -77,7 +77,6 @@
 
 .segmented button,
 .action-grid button,
-.mobile-nav button,
 .primary-action,
 .secondary-action,
 .alerts-chip,
@@ -562,16 +561,56 @@ button:disabled {
   gap: 10px;
 }
 
-.setup-progress-drawer {
-  padding-block: 8px;
+.setup-progress-strip {
+  padding: 8px 12px;
+  border-top: 4px solid var(--qv-brass);
+  background:
+    linear-gradient(180deg, rgba(255, 246, 223, 0.98), rgba(244, 234, 214, 0.94)),
+    var(--qv-parchment);
+  color: var(--qv-ink);
 }
 
-.setup-progress-tabs {
+.setup-progress-grid {
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
-.setup-progress-tabs .tray-summary-item {
-  cursor: default;
+.setup-progress-item {
+  min-width: 0;
+  min-height: 36px;
+  display: grid;
+  grid-template-columns: auto minmax(0, auto) minmax(0, 1fr);
+  gap: 7px;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid rgba(125, 93, 47, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 246, 223, 0.58);
+  color: var(--qv-ink);
+}
+
+.setup-progress-item.active {
+  border-color: rgba(80, 107, 79, 0.5);
+  background: rgba(80, 107, 79, 0.14);
+}
+
+.setup-progress-item strong {
+  min-width: 0;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.setup-progress-item span {
+  min-width: 0;
+  color: rgba(36, 31, 26, 0.64);
+  font-size: 11px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .setup-map-panel {
@@ -1963,10 +2002,6 @@ button.effect-row {
   gap: 10px;
 }
 
-.mobile-nav {
-  display: none;
-}
-
 .log-list {
   display: grid;
   gap: 6px;
@@ -2356,6 +2391,29 @@ button.effect-row {
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.seed-card-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.seed-card-actions button {
+  min-height: 34px;
+  border: 1px solid rgba(36, 31, 26, 0.16);
+  border-radius: 8px;
+  background: var(--qv-parchment-soft);
+  color: var(--qv-ink);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.seed-card-actions button.selected {
+  border-color: var(--qv-muted-green-dark);
+  background: var(--qv-muted-green);
+  color: var(--qv-cream-text);
 }
 
 .context-menu {
@@ -2790,9 +2848,24 @@ button.effect-row {
     grid-template-columns: 1fr;
   }
 
-  .setup-progress-tabs {
-    grid-template-columns: repeat(3, minmax(92px, 1fr));
+  .setup-progress-strip {
+    padding: 7px 8px max(7px, env(safe-area-inset-bottom));
+  }
+
+  .setup-progress-grid {
+    grid-template-columns: repeat(3, minmax(86px, 1fr));
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .setup-progress-item {
+    min-width: 86px;
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 6px 8px;
+  }
+
+  .setup-progress-item span {
+    display: none;
   }
 
   .map-panel {
@@ -2992,6 +3065,8 @@ button.effect-row {
     max-width: none;
     max-height: 70dvh;
     overflow: auto;
+    overscroll-behavior: contain;
+    touch-action: manipulation;
   }
 
   .steward-placement-board {

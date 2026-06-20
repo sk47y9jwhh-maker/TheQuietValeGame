@@ -178,6 +178,33 @@ export function SeedingPanel({ state, onConfirm }: SeedingPanelProps) {
                 )}
                 {card?.flavorText && <em>{card.flavorText}</em>}
                 <EncounterSeasonEffects card={card} currentSeason={state.season} />
+                <div
+                  className="seed-card-actions"
+                  role="group"
+                  aria-label={`Seed ${card?.name ?? cardId}`}
+                >
+                  <button
+                    className={assignedSlot === "top" ? "selected" : ""}
+                    onClick={() => assignSeedSlot("top", cardId)}
+                    type="button"
+                  >
+                    Top
+                  </button>
+                  <button
+                    className={assignedSlot === "middle" ? "selected" : ""}
+                    onClick={() => assignSeedSlot("middle", cardId)}
+                    type="button"
+                  >
+                    Middle
+                  </button>
+                  <button
+                    className={assignedSlot === "bottom" ? "selected" : ""}
+                    onClick={() => assignSeedSlot("bottom", cardId)}
+                    type="button"
+                  >
+                    Bottom
+                  </button>
+                </div>
               </article>
             );
           })}

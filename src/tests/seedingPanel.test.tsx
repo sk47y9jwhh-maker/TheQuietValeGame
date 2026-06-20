@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { SeedingPanel } from "../components/seeding/SeedingPanel";
 import { encounterById } from "../data/encounters";
@@ -22,5 +22,23 @@ describe("seeding panel", () => {
     fireEvent.click(screen.getByRole("button", { name: "Seed Top" }));
 
     expect(screen.getByLabelText("Top")).toHaveValue(targetCardId);
+  });
+
+  it("lets players seed cards with direct card buttons", () => {
+    const state = { ...createNewGame(1, ["vanguard"]), phase: "seeding" as const };
+    const hand = state.encounters.handsByPlayerId.player_1;
+    const targetCardId = hand[4];
+    const targetCardName = encounterById[targetCardId].name;
+
+    render(<SeedingPanel state={state} onConfirm={() => {}} />);
+
+    fireEvent.click(
+      within(screen.getByRole("group", { name: `Seed ${targetCardName}` })).getByRole(
+        "button",
+        { name: "Bottom" }
+      )
+    );
+
+    expect(screen.getByLabelText("Bottom")).toHaveValue(targetCardId);
   });
 });

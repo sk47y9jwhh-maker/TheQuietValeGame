@@ -221,19 +221,19 @@ export function SetupPanel({
         </aside>
       </main>
 
-      <footer className="bottom-drawer setup-progress-drawer" aria-label="Setup progress">
-        <div className="tray-tabs setup-progress-tabs">
-          <div className="tray-summary-item selected">
+      <footer className="setup-progress-strip" aria-label="Setup progress">
+        <div className="setup-progress-grid">
+          <div className="setup-progress-item active">
             <UserRound size={17} />
             <strong>Stewards</strong>
             <span>{playerCount} chosen</span>
           </div>
-          <div className="tray-summary-item">
+          <div className="setup-progress-item">
             <Package size={17} />
             <strong>Warehouse</strong>
             <span>{startingResources} each</span>
           </div>
-          <div className="tray-summary-item">
+          <div className="setup-progress-item">
             <ScrollText size={17} />
             <strong>Encounters</strong>
             <span>seed ready</span>
