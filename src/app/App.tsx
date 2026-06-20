@@ -1,4 +1,11 @@
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import { ActionConsole } from "../components/actions/ActionConsole";
 import {
   getDefaultPlaceTileId,
@@ -45,10 +52,21 @@ import { getPlacedTileAtHex } from "../engine/reachability";
 import { createNewGame } from "../engine/setup";
 import { selectCurrentPlayer, selectTileName } from "../engine/selectors";
 import type { GameState, HexDirection, PlayerCount, TilePlacementDraft } from "../engine/types";
+import {
+  clearAllSaves,
+  clearSavedGame,
+  pushBrowserUndoMarker,
+  readSavedGame,
+  readSavedSetup,
+  writeSavedGame,
+  writeSavedSetup
+} from "./persistence";
 
 function createSetupSeed(): string {
   return `QV-${Date.now().toString(36).slice(-6).toUpperCase()}`;
 }
+
+const undoHistoryLimit = 40;
 
 interface ResolutionShellProps {
   state: GameState;
@@ -57,6 +75,9 @@ interface ResolutionShellProps {
   detail: string;
   children: ReactNode;
   onUseFaceUpBoon: (boonCardId: string) => void;
+  canUndo: boolean;
+  onUndo: () => void;
+  onReset: () => void;
 }
 
 function ResolutionShell({
@@ -65,7 +86,10 @@ function ResolutionShell({
   title,
   detail,
   children,
-  onUseFaceUpBoon
+  onUseFaceUpBoon,
+  canUndo,
+  onUndo,
+  onReset
 }: ResolutionShellProps) {
   const queueItems = [
     ...(state.pendingDeckReorder
@@ -95,7 +119,12 @@ function ResolutionShell({
 
   return (
     <div className="app-shell">
-      <TopBar state={state} />
+      <TopBar
+        state={state}
+        canUndo={canUndo}
+        onUndo={onUndo}
+        onReset={onReset}
+      />
       <main className="command-table resolution-table">
         <section className="action-console resolution-context-panel">
           <div className="turn-summary">
@@ -152,12 +181,21 @@ function ResolutionShell({
 }
 
 export function App() {
-  const [playerCount, setPlayerCount] = useState<PlayerCount>(1);
-  const [stewardIds, setStewardIds] = useState(
-    stewards.slice(0, 1).map((steward) => steward.id)
+  const [initialSavedGame] = useState(readSavedGame);
+  const [initialSavedSetup] = useState(readSavedSetup);
+  const [playerCount, setPlayerCount] = useState<PlayerCount>(
+    initialSavedGame?.playerCount ?? initialSavedSetup?.playerCount ?? 1
   );
-  const [encounterSeed, setEncounterSeed] = useState(createSetupSeed);
-  const [state, setState] = useState<GameState | null>(null);
+  const [stewardIds, setStewardIds] = useState(
+    initialSavedGame?.stewardIds ??
+      initialSavedSetup?.stewardIds ??
+      stewards.slice(0, 1).map((steward) => steward.id)
+  );
+  const [encounterSeed, setEncounterSeed] = useState(
+    initialSavedGame?.encounterSeed ?? initialSavedSetup?.encounterSeed ?? createSetupSeed
+  );
+  const [state, setState] = useState<GameState | null>(initialSavedGame?.state ?? null);
+  const [undoStack, setUndoStack] = useState<GameState[]>([]);
   const [selectedHexIds, setSelectedHexIds] = useState<string[]>([]);
   const [selectedTileId, setSelectedTileId] = useState(coreTiles[0].id);
   const [placementOrientation, setPlacementOrientation] = useState<HexDirection>(3);
@@ -167,6 +205,8 @@ export function App() {
     x: number;
     y: number;
   } | null>(null);
+  const stateRef = useRef<GameState | null>(state);
+  const undoStackRef = useRef<GameState[]>(undoStack);
 
   const normalizedStewards = useMemo(() => {
     const next = [...stewardIds];
@@ -176,6 +216,118 @@ export function App() {
     }
     return next.slice(0, playerCount);
   }, [playerCount, stewardIds]);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  useEffect(() => {
+    undoStackRef.current = undoStack;
+  }, [undoStack]);
+
+  useEffect(() => {
+    if (state) {
+      writeSavedGame({
+        playerCount,
+        stewardIds: normalizedStewards,
+        encounterSeed,
+        state
+      });
+      return;
+    }
+
+    writeSavedSetup({
+      playerCount,
+      stewardIds: normalizedStewards,
+      encounterSeed
+    });
+    clearSavedGame();
+  }, [encounterSeed, normalizedStewards, playerCount, state]);
+
+  const pushUndoSnapshot = useCallback((previousState: GameState) => {
+    setUndoStack((current) => [previousState, ...current].slice(0, undoHistoryLimit));
+    pushBrowserUndoMarker();
+  }, []);
+
+  const commitKnownGameState = useCallback(
+    (
+      previousState: GameState,
+      nextState: GameState,
+      options: { undoable?: boolean } = {}
+    ) => {
+      if (nextState === previousState) return;
+      if (options.undoable !== false) pushUndoSnapshot(previousState);
+      setState(nextState);
+    },
+    [pushUndoSnapshot]
+  );
+
+  const commitGameState = useCallback(
+    (
+      updater: (current: GameState) => GameState,
+      options: { undoable?: boolean } = {}
+    ) => {
+      setState((current) => {
+        if (!current) return current;
+        const nextState = updater(current);
+        if (nextState === current) return current;
+        if (options.undoable !== false) pushUndoSnapshot(current);
+        return nextState;
+      });
+    },
+    [pushUndoSnapshot]
+  );
+
+  const handleUndo = useCallback(() => {
+    const previousState = undoStackRef.current[0];
+    if (!previousState) return false;
+
+    setUndoStack((current) => current.slice(1));
+    setState(previousState);
+    setSelectedHexIds([]);
+    setSelectedTileId(
+      getDefaultPlaceTileId(
+        previousState,
+        previousState.currentPlayerId,
+        [],
+        placementOrientation
+      )
+    );
+    setActionMode("place");
+    setMapContextMenu(null);
+    return true;
+  }, [placementOrientation]);
+
+  useEffect(() => {
+    function handleBrowserBack() {
+      if (!stateRef.current || undoStackRef.current.length === 0) return;
+      handleUndo();
+    }
+
+    window.addEventListener("popstate", handleBrowserBack);
+    return () => window.removeEventListener("popstate", handleBrowserBack);
+  }, [handleUndo]);
+
+  function handleResetGame() {
+    if (
+      state &&
+      !window.confirm("Reset this game? This clears the saved game and starts over.")
+    ) {
+      return;
+    }
+
+    clearAllSaves();
+    setUndoStack([]);
+    setState(null);
+    setPlayerCount(1);
+    setStewardIds(stewards.slice(0, 1).map((steward) => steward.id));
+    setEncounterSeed(createSetupSeed());
+    setSelectedHexIds([]);
+    setSelectedTileId(coreTiles[0].id);
+    setPlacementOrientation(3);
+    setActionMode("place");
+    setMapContextMenu(null);
+  }
 
   function handlePlayerCountChange(nextCount: PlayerCount) {
     setPlayerCount(nextCount);
@@ -271,13 +423,16 @@ export function App() {
         onStewardChange={handleStewardChange}
         onEncounterSeedChange={setEncounterSeed}
         onShuffleSeed={() => setEncounterSeed(createSetupSeed())}
-        onStart={() =>
+        onStart={() => {
+          setUndoStack([]);
+          setSelectedHexIds([]);
+          setActionMode("place");
           setState(
             createNewGame(playerCount, normalizedStewards, {
               encounterSeed
             })
-          )
-        }
+          );
+        }}
       />
     );
   }
@@ -294,7 +449,7 @@ export function App() {
   }
 
   function handleUseFaceUpBoon(boonCardId: string) {
-    setState((current) => (current ? useFaceUpBoon(current, boonCardId) : current));
+    commitGameState((current) => useFaceUpBoon(current, boonCardId));
   }
 
   if (state.pendingDeckReorder) {
@@ -305,18 +460,17 @@ export function App() {
         title="Order Encounter Deck"
         detail="Review the revealed deck information and confirm the order before the table advances."
         onUseFaceUpBoon={handleUseFaceUpBoon}
+        canUndo={undoStack.length > 0}
+        onUndo={handleUndo}
+        onReset={handleResetGame}
       >
         <DeckReorderPanel
           pending={state.pendingDeckReorder}
           season={state.season}
           onConfirm={(orderedCardIds) =>
-            setState((current) =>
-              current ? confirmDeckReorder(current, orderedCardIds) : current
-            )
+            commitGameState((current) => confirmDeckReorder(current, orderedCardIds))
           }
-          onSkip={() =>
-            setState((current) => (current ? skipDeckReorder(current) : current))
-          }
+          onSkip={() => commitGameState((current) => skipDeckReorder(current))}
         />
       </ResolutionShell>
     );
@@ -330,13 +484,16 @@ export function App() {
         title="Confirm Payment"
         detail="Choose any passive payment effects, then confirm or cancel before spending the action."
         onUseFaceUpBoon={handleUseFaceUpBoon}
+        canUndo={undoStack.length > 0}
+        onUndo={handleUndo}
+        onReset={handleResetGame}
       >
         <CostChoicePanel
           state={state}
           pending={state.pendingCostChoice}
           onConfirm={(selection) => {
             const nextState = confirmCostChoice(state, selection);
-            setState(nextState);
+            commitKnownGameState(state, nextState);
             if (nextState.map.placedTiles.length > state.map.placedTiles.length) {
               resetPlacementSelection(
                 nextState,
@@ -345,9 +502,7 @@ export function App() {
               );
             }
           }}
-          onCancel={() =>
-            setState((current) => (current ? cancelCostChoice(current) : current))
-          }
+          onCancel={() => commitGameState((current) => cancelCostChoice(current))}
         />
       </ResolutionShell>
     );
@@ -362,23 +517,20 @@ export function App() {
         title="Resolve Effect"
         detail="Read the card or tile effect, make any required choices, then apply or skip where allowed."
         onUseFaceUpBoon={handleUseFaceUpBoon}
+        canUndo={undoStack.length > 0}
+        onUndo={handleUndo}
+        onReset={handleResetGame}
       >
         <EffectPrompt
           state={state}
           effect={pendingEffect}
           onApply={(adjustment) =>
-            setState((current) =>
-              current ? resolvePendingEffect(current, adjustment) : current
-            )
+            commitGameState((current) => resolvePendingEffect(current, adjustment))
           }
-          onSkip={() =>
-            setState((current) => (current ? skipPendingEffect(current) : current))
-          }
+          onSkip={() => commitGameState((current) => skipPendingEffect(current))}
           canCancelWithWarden={canCancelPendingBurdenWithWarden(state).ok}
           onCancelWithWarden={() =>
-            setState((current) =>
-              current ? cancelPendingBurdenWithWarden(current) : current
-            )
+            commitGameState((current) => cancelPendingBurdenWithWarden(current))
           }
         />
       </ResolutionShell>
@@ -388,14 +540,17 @@ export function App() {
   if (state.phase === "seeding") {
     return (
       <div className="app-shell">
-        <TopBar state={state} />
+        <TopBar
+          state={state}
+          canUndo={undoStack.length > 0}
+          onUndo={handleUndo}
+          onReset={handleResetGame}
+        />
         <SeedingPanel
           state={state}
           onConfirm={(selection) =>
-            setState((current) =>
-              current
-                ? commitSeasonSeeding(current, current.currentPlayerId, selection)
-                : current
+            commitGameState((current) =>
+              commitSeasonSeeding(current, current.currentPlayerId, selection)
             )
           }
         />
@@ -406,14 +561,17 @@ export function App() {
   if (state.phase === "setup") {
     return (
       <div className="app-shell">
-        <TopBar state={state} />
+        <TopBar
+          state={state}
+          canUndo={undoStack.length > 0}
+          onUndo={handleUndo}
+          onReset={handleResetGame}
+        />
         <StewardPlacementPanel
           state={state}
           onConfirm={(hexId) =>
-            setState((current) =>
-              current
-                ? commitStewardPlacement(current, current.currentPlayerId, hexId)
-                : current
+            commitGameState((current) =>
+              commitStewardPlacement(current, current.currentPlayerId, hexId)
             )
           }
         />
@@ -471,7 +629,7 @@ export function App() {
     draft: TilePlacementDraft
   ) {
     const nextState = placeTile(currentState, playerId, tileId, draft);
-    setState(nextState);
+    commitKnownGameState(currentState, nextState);
     if (nextState.map.placedTiles.length > currentState.map.placedTiles.length) {
       resetPlacementSelection(nextState, playerId, tileId);
     }
@@ -493,7 +651,12 @@ export function App() {
 
   return (
     <div className="app-shell">
-      <TopBar state={state} />
+      <TopBar
+        state={state}
+        canUndo={undoStack.length > 0}
+        onUndo={handleUndo}
+        onReset={handleResetGame}
+      />
       <main className="command-table">
         <ActionConsole
           state={state}
@@ -514,65 +677,57 @@ export function App() {
             );
           }}
           onUpgrade={(placedTileId) =>
-            setState((current) =>
-              current ? upgradeTile(current, currentPlayer.id, placedTileId) : current
+            commitGameState((current) =>
+              upgradeTile(current, currentPlayer.id, placedTileId)
             )
           }
           onActivate={(placedTileId) =>
-            setState((current) =>
-              current ? activateTile(current, currentPlayer.id, placedTileId) : current
+            commitGameState((current) =>
+              activateTile(current, currentPlayer.id, placedTileId)
             )
           }
           onCompleteArrival={(arrivalCardId) =>
-            setState((current) =>
-              current ? completeArrival(current, arrivalCardId) : current
+            commitGameState((current) =>
+              completeArrival(current, arrivalCardId)
             )
           }
           onResolveBurden={(burdenCardId) =>
-            setState((current) =>
-              current ? resolveBurden(current, burdenCardId) : current
+            commitGameState((current) =>
+              resolveBurden(current, burdenCardId)
             )
           }
           onUseFaceUpBoon={(boonCardId) =>
-            setState((current) =>
-              current ? useFaceUpBoon(current, boonCardId) : current
-            )
+            commitGameState((current) => useFaceUpBoon(current, boonCardId))
           }
           onStableMove={(destinationTileId) =>
-            setState((current) =>
-              current
-                ? moveStewardViaStables(current, currentPlayer.id, destinationTileId)
-                : current
+            commitGameState((current) =>
+              moveStewardViaStables(current, currentPlayer.id, destinationTileId)
             )
           }
           onUseStewardPower={() =>
-            setState((current) =>
-              current ? useStewardPower(current, currentPlayer.id) : current
-            )
+            commitGameState((current) => useStewardPower(current, currentPlayer.id))
           }
           onCancelPendingBurdenWithWarden={() =>
-            setState((current) =>
-              current ? cancelPendingBurdenWithWarden(current) : current
-            )
+            commitGameState((current) => cancelPendingBurdenWithWarden(current))
           }
           onResolvePendingEffect={(adjustment) =>
-            setState((current) =>
-              current ? resolvePendingEffect(current, adjustment) : current
+            commitGameState((current) =>
+              resolvePendingEffect(current, adjustment)
             )
           }
           onSkipPendingEffect={() =>
-            setState((current) => (current ? skipPendingEffect(current) : current))
+            commitGameState((current) => skipPendingEffect(current))
           }
           onReveal={() => {
             setActionMode("place");
-            setState((current) => (current ? revealEncounters(current) : current));
+            commitGameState((current) => revealEncounters(current));
           }}
           onEndTurn={() => {
             setActionMode("place");
-            setState((current) => (current ? endCurrentTurn(current) : current));
+            commitGameState((current) => endCurrentTurn(current));
           }}
           onEndRound={() =>
-            setState((current) => (current ? resolveEndRound(current) : current))
+            commitGameState((current) => resolveEndRound(current))
           }
         />
         <HexMap
@@ -656,10 +811,8 @@ export function App() {
                   setSelectedHexIds([mapContextMenu.hexId]);
                   setActionMode("upgrade");
                   setMapContextMenu(null);
-                  setState((current) =>
-                    current
-                      ? upgradeTile(current, currentPlayer.id, tileId)
-                      : current
+                  commitGameState((current) =>
+                    upgradeTile(current, currentPlayer.id, tileId)
                   );
                 }}
                 type="button"
@@ -680,8 +833,8 @@ export function App() {
                   setSelectedHexIds([mapContextMenu.hexId]);
                   setActionMode("activate");
                   setMapContextMenu(null);
-                  setState((current) =>
-                    current ? activateTile(current, currentPlayer.id, tileId) : current
+                  commitGameState((current) =>
+                    activateTile(current, currentPlayer.id, tileId)
                   );
                 }}
                 type="button"

@@ -1,4 +1,11 @@
-import { AlertTriangle, CalendarDays, Package, UserRound } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarDays,
+  Package,
+  RotateCcw,
+  Undo2,
+  UserRound
+} from "lucide-react";
 import { resourceLabels, resources } from "../../data/resources";
 import { stewardById } from "../../data/stewards";
 import { selectAlerts, selectCurrentPlayer } from "../../engine/selectors";
@@ -7,9 +14,12 @@ import { BrandMark } from "../common/BrandMark";
 
 interface TopBarProps {
   state: GameState;
+  canUndo?: boolean;
+  onUndo?: () => void;
+  onReset?: () => void;
 }
 
-export function TopBar({ state }: TopBarProps) {
+export function TopBar({ state, canUndo = false, onUndo, onReset }: TopBarProps) {
   const currentPlayer = selectCurrentPlayer(state);
   const steward = stewardById[currentPlayer.stewardId];
   const alerts = selectAlerts(state);
@@ -55,6 +65,27 @@ export function TopBar({ state }: TopBarProps) {
             <strong>{state.warehouse[resource]}</strong>
           </span>
         ))}
+      </div>
+      <div className="top-actions" aria-label="Game controls">
+        <button
+          aria-label="Undo last game step"
+          disabled={!canUndo}
+          onClick={onUndo}
+          title={canUndo ? "Undo last game step" : "Nothing to undo"}
+          type="button"
+        >
+          <Undo2 size={17} />
+          <span>Undo</span>
+        </button>
+        <button
+          aria-label="Reset game"
+          onClick={onReset}
+          title="Reset game"
+          type="button"
+        >
+          <RotateCcw size={17} />
+          <span>Reset</span>
+        </button>
       </div>
       <button className={`alerts-chip ${hasAlerts ? "has-alerts" : ""}`} type="button">
         <AlertTriangle size={18} />

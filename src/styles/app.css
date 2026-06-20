@@ -208,6 +208,7 @@ button:disabled {
     minmax(126px, 140px)
     minmax(136px, 150px)
     minmax(430px, 1fr)
+    minmax(116px, 132px)
     minmax(160px, 182px);
   align-items: center;
   gap: 9px;
@@ -240,6 +241,7 @@ button:disabled {
 .season-card,
 .turn-chip,
 .warehouse-strip,
+.top-actions,
 .alerts-chip {
   display: flex;
   align-items: center;
@@ -350,6 +352,45 @@ button:disabled {
   min-width: 0;
   overflow: hidden;
   padding: 6px 7px;
+}
+
+.top-actions {
+  justify-content: center;
+  gap: 5px;
+  padding: 6px;
+}
+
+.top-actions button {
+  min-width: 0;
+  flex: 1 1 0;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid rgba(244, 234, 214, 0.12);
+  border-radius: 8px;
+  background: rgba(21, 23, 17, 0.26);
+  color: var(--qv-cream-text);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.top-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+.top-actions svg {
+  flex: 0 0 auto;
+  color: var(--qv-brass);
+}
+
+.top-actions span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .warehouse-title {
@@ -2704,16 +2745,32 @@ button.effect-row {
 
 @media (max-width: 1180px) {
   .top-bar {
-    grid-template-columns: minmax(210px, 1fr) minmax(145px, auto) minmax(160px, auto);
+    grid-template-columns: minmax(210px, 1fr) minmax(145px, auto) minmax(132px, auto) minmax(160px, auto);
     grid-auto-rows: auto;
   }
 
+  .top-brand {
+    grid-column: 1;
+  }
+
+  .season-card {
+    grid-column: 2;
+  }
+
+  .turn-chip {
+    grid-column: 3;
+  }
+
+  .top-actions {
+    grid-column: 4;
+  }
+
   .warehouse-strip {
-    grid-column: 1 / 3;
+    grid-column: 1 / 4;
   }
 
   .alerts-chip {
-    grid-column: 3;
+    grid-column: 4;
   }
 }
 
@@ -2877,6 +2934,7 @@ button.effect-row {
   .top-brand,
   .season-card,
   .turn-chip,
+  .top-actions,
   .alerts-chip {
     min-height: 42px;
     height: auto;
@@ -2904,8 +2962,13 @@ button.effect-row {
     order: 3;
   }
 
+  .top-actions {
+    order: 4;
+    grid-column: 1;
+  }
+
   .warehouse-strip {
-    order: 5;
+    order: 6;
     grid-column: 1 / -1;
     min-height: 40px;
     height: auto;
@@ -2921,7 +2984,7 @@ button.effect-row {
   }
 
   .alerts-chip {
-    order: 4;
+    order: 5;
     grid-column: 2;
     justify-content: flex-start;
     text-align: left;
