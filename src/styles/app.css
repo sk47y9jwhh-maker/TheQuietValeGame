@@ -1876,6 +1876,68 @@ button.effect-row {
   white-space: nowrap;
 }
 
+.encounter-full-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 8px;
+  padding: 12px;
+}
+
+.encounter-card-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.encounter-card-heading > span {
+  min-width: 0;
+  font-size: 16px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.encounter-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.encounter-card-heading > strong,
+.encounter-card-actions > strong {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: rgba(36, 31, 26, 0.08);
+  color: var(--qv-ink);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.encounter-full-card em {
+  color: rgba(36, 31, 26, 0.76);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.right-panel .encounter-full-card .season-effects {
+  width: 100%;
+}
+
+.right-panel .encounter-full-card .season-effect-row {
+  grid-template-columns: minmax(78px, 0.28fr) minmax(0, 1fr);
+  gap: 10px;
+  padding: 8px 9px;
+}
+
+.right-panel .encounter-full-card .season-effect-row span {
+  font-size: 12px;
+}
+
 .burden-card {
   border-color: rgba(139, 76, 53, 0.26);
   background: rgba(139, 76, 53, 0.1);
@@ -1883,7 +1945,7 @@ button.effect-row {
 
 .boon-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .boon-row button {
@@ -3176,11 +3238,30 @@ button.effect-row {
   }
 
   .card-row > strong,
+  .encounter-card-heading > strong,
   .mini-card-heading span,
   .slot-chip,
   .position-chip {
     width: max-content;
     max-width: 100%;
+  }
+
+  .encounter-card-heading {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .encounter-card-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .encounter-card-actions > strong,
+  .encounter-card-heading > strong {
+    width: 100%;
+    justify-content: center;
   }
 
   .boon-row button {

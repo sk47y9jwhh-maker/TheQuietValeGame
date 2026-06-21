@@ -229,32 +229,42 @@ export function EncounterPanel({
         {state.encounters.faceUpBoons.length === 0 ? (
           <p className="muted">No face-up Boons.</p>
         ) : (
-          state.encounters.faceUpBoons.map((boon) => (
-            <div key={boon.cardId} className="encounter-row boon-row card-row card-boon">
-              <div>
-                <span>{encounterById[boon.cardId]?.name ?? boon.cardId}</span>
-                {getEncounterDetail(state, boon.cardId).flavorText && (
-                  <em>{getEncounterDetail(state, boon.cardId).flavorText}</em>
-                )}
+          state.encounters.faceUpBoons.map((boon) => {
+            const card = encounterById[boon.cardId];
+            const detail = getEncounterDetail(state, boon.cardId);
+
+            return (
+              <article
+                key={boon.cardId}
+                className="encounter-row encounter-full-card boon-row card-row card-boon"
+              >
+                <div className="encounter-card-heading">
+                  <span>{card?.name ?? boon.cardId}</span>
+                  <div className="encounter-card-actions">
+                    <strong>
+                      {boon.remainingUses} use{boon.remainingUses === 1 ? "" : "s"}
+                    </strong>
+                    <button
+                      disabled={
+                        state.phase !== "turns" ||
+                        state.pendingEffects.length > 0 ||
+                        Boolean(state.pendingDeckReorder)
+                      }
+                      onClick={() => onUseFaceUpBoon(boon.cardId)}
+                      type="button"
+                    >
+                      Use
+                    </button>
+                  </div>
+                </div>
+                {detail.flavorText && <em>{detail.flavorText}</em>}
                 <EncounterSeasonEffects
-                  card={encounterById[boon.cardId]}
+                  card={card}
                   currentSeason={state.season}
                 />
-              </div>
-              <strong>{boon.remainingUses} use{boon.remainingUses === 1 ? "" : "s"}</strong>
-              <button
-                disabled={
-                  state.phase !== "turns" ||
-                  state.pendingEffects.length > 0 ||
-                  Boolean(state.pendingDeckReorder)
-                }
-                onClick={() => onUseFaceUpBoon(boon.cardId)}
-                type="button"
-              >
-                Use
-              </button>
-            </div>
-          ))
+              </article>
+            );
+          })
         )}
       </section>
 
@@ -304,25 +314,28 @@ export function EncounterPanel({
         {state.encounters.activeBurdens.length === 0 ? (
           <p className="muted">No active Burdens.</p>
         ) : (
-          state.encounters.activeBurdens.map((cardId) => (
-            <article key={cardId} className="encounter-row card-row burden-card card-burden">
-              <div>
-                <span>{encounterById[cardId]?.name ?? cardId}</span>
-                {getEncounterDetail(state, cardId).flavorText && (
-                  <em>{getEncounterDetail(state, cardId).flavorText}</em>
-                )}
-                <EncounterSeasonEffects
-                  card={encounterById[cardId]}
-                  currentSeason={state.season}
-                />
-              </div>
-              <strong>
-                {state.ignoredBurdenIdsThisRound.includes(cardId)
-                  ? "Ignored"
-                  : "Active"}
-              </strong>
-            </article>
-          ))
+          state.encounters.activeBurdens.map((cardId) => {
+            const card = encounterById[cardId];
+            const detail = getEncounterDetail(state, cardId);
+
+            return (
+              <article
+                key={cardId}
+                className="encounter-row encounter-full-card burden-card card-row card-burden"
+              >
+                <div className="encounter-card-heading">
+                  <span>{card?.name ?? cardId}</span>
+                  <strong>
+                    {state.ignoredBurdenIdsThisRound.includes(cardId)
+                      ? "Ignored"
+                      : "Active"}
+                  </strong>
+                </div>
+                {detail.flavorText && <em>{detail.flavorText}</em>}
+                <EncounterSeasonEffects card={card} currentSeason={state.season} />
+              </article>
+            );
+          })
         )}
       </section>
 
