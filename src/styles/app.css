@@ -426,6 +426,7 @@ button:disabled {
   justify-content: center;
   font-weight: 800;
   line-height: 1.1;
+  min-width: 0;
   text-align: center;
 }
 
@@ -433,6 +434,13 @@ button:disabled {
   border-color: rgba(184, 138, 58, 0.6);
   background: rgba(139, 76, 53, 0.18);
   color: var(--qv-brass);
+}
+
+.alerts-summary {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .command-table {

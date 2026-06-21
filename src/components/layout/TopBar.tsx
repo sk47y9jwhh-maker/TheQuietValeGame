@@ -34,6 +34,9 @@ export function TopBar({
   const steward = stewardById[currentPlayer.stewardId];
   const alerts = selectAlerts(state);
   const hasAlerts = alerts.length > 0;
+  const alertDetails = hasAlerts ? alerts.join(" / ") : "No urgent alerts";
+  const alertSummary =
+    alerts.length > 1 ? `${alerts.length} alerts` : alertDetails;
 
   return (
     <header className="top-bar">
@@ -104,9 +107,14 @@ export function TopBar({
           <RotateCcw size={17} />
         </button>
       </div>
-      <button className={`alerts-chip ${hasAlerts ? "has-alerts" : ""}`} type="button">
+      <button
+        aria-label={alertDetails}
+        className={`alerts-chip ${hasAlerts ? "has-alerts" : ""}`}
+        title={alertDetails}
+        type="button"
+      >
         <AlertTriangle size={18} />
-        {alerts.length ? alerts.join(" / ") : "No urgent alerts"}
+        <span className="alerts-summary">{alertSummary}</span>
       </button>
     </header>
   );

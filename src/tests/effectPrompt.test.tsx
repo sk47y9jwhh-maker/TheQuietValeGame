@@ -83,6 +83,26 @@ describe("effect prompt controls", () => {
     expect(screen.queryByText(/Workshops H1/)).not.toBeInTheDocument();
   });
 
+  it("does not show warehouse controls for strain-only Burden choices", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [coreTile("c15_path", "tile_path", "G1")];
+    const effect: PendingEffectState = {
+      id: "effect_1",
+      sourceType: "card",
+      sourceName: "Test Burden",
+      title: "Revealed Test Burden",
+      effectText:
+        "Choose 1 Travel Tile with fewer than 3 Strain near Food stores and place 1 Strain on it.",
+      requiresManualChoice: true
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(screen.getByText("Tiles")).toBeInTheDocument();
+    expect(screen.getByText(/Path G1/)).toBeInTheDocument();
+    expect(screen.queryByText("Resources")).not.toBeInTheDocument();
+  });
+
   it("limits add-timer Boon controls to legal timer additions", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.encounters.activeArrivals = [

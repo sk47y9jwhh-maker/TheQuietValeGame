@@ -205,15 +205,12 @@ export function EffectPrompt({
           effectText.includes(resource) ||
           (effect.suggestedAdjustment?.resourceDeltas?.[resource] ?? 0) !== 0
       );
+  const hasResourceAction =
+    broadResourceChoice || /\b(gain|lose|pay)\b/.test(effectText);
   const showResourceControls =
     hasResourceSuggestion ||
     effect.resourceExchangeLimit !== undefined ||
-    Boolean(
-      effect.requiresManualChoice &&
-        (broadResourceChoice ||
-          visibleResources.length > 0 ||
-          /\b(gain|lose|pay)\b/.test(effectText))
-    );
+    Boolean(effect.requiresManualChoice && hasResourceAction);
   const hasTimerSuggestion = Object.values(
     effect.suggestedAdjustment?.arrivalTimerDeltas ?? {}
   ).some((delta) => delta !== 0);
