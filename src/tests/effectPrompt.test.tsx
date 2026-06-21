@@ -103,6 +103,29 @@ describe("effect prompt controls", () => {
     expect(screen.queryByText("Resources")).not.toBeInTheDocument();
   });
 
+  it("shows both payment and strain controls for pay-or-strain Burdens", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [coreTile("c09_tavern", "tile_social", "G1")];
+    const effect: PendingEffectState = {
+      id: "effect_1",
+      sourceType: "card",
+      sourceId: "burden_empty_shelves",
+      sourceName: "Empty Shelves",
+      title: "Revealed Empty Shelves",
+      effectText:
+        "Choose 1 Social Tile with fewer than 3 Strain. Pay 1 Goods, or place 1 Strain on it.",
+      requiresManualChoice: true
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(screen.getByText("Resources")).toBeInTheDocument();
+    expect(screen.getByText("Goods 15")).toBeInTheDocument();
+    expect(screen.getByText("Tiles")).toBeInTheDocument();
+    expect(screen.getByText(/Tavern G1/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeDisabled();
+  });
+
   it("limits add-timer Boon controls to legal timer additions", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.encounters.activeArrivals = [

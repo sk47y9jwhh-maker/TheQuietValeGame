@@ -242,6 +242,23 @@ describe("manual effect suggestions", () => {
     expect(suggestion.adjustment?.tileStrainDeltas).toEqual({ tile_cabin: 1 });
   });
 
+  it("requires a player choice for pay-or-strain Burdens", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [coreTile("c09_tavern", "tile_social", "G1")];
+    const effectText = getCurrentSeasonCardEffectText(
+      { season: 1 },
+      "burden_empty_shelves"
+    );
+
+    const suggestion = suggestEffectAdjustment(state, effectText);
+
+    expect(getEffectTileTargets(state, effectText).map((tile) => tile.instanceId)).toEqual([
+      "tile_social"
+    ]);
+    expect(suggestion.adjustment).toBeUndefined();
+    expect(suggestion.requiresManualChoice).toBe(true);
+  });
+
   it("reads Burden effects from the active Season", () => {
     expect(
       getCurrentSeasonCardEffectText({ season: 2 }, "burden_smoke_over_hearths")

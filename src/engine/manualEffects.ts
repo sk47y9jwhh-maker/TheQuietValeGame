@@ -576,6 +576,19 @@ function effectTextNeedsManualChoice(effectText: string): boolean {
   );
 }
 
+function effectHasPaymentOrStrainChoice(effectText: string): boolean {
+  return (
+    /\bpay\s+\d+\s+(?:wood|stone|metal|food|herbs|goods)\b/i.test(effectText) &&
+    /\bor\s+place\s+\d+\s+strain\b/i.test(effectText)
+  );
+}
+
+function omitTileStrainDeltas(adjustment: EffectAdjustment): EffectAdjustment {
+  const next = { ...adjustment };
+  delete next.tileStrainDeltas;
+  return next;
+}
+
 export function effectHasNoValidChoiceTargets(
   state: GameState,
   effectText: string,
@@ -679,9 +692,13 @@ export function suggestEffectAdjustment(
     getEffectSupportTargets(state, effectText, sourceTile).length > 1;
   const hasMultipleResolvedBurdenTargets =
     isResolveActiveBurdenEffect(effectText) && state.encounters.activeBurdens.length > 1;
+  const hasPaymentOrStrainChoice = effectHasPaymentOrStrainChoice(effectText);
+  const finalAdjustment = hasPaymentOrStrainChoice
+    ? omitTileStrainDeltas(withResolvedBurden)
+    : withResolvedBurden;
 
   return {
-    adjustment: hasEffectAdjustment(withResolvedBurden) ? withResolvedBurden : undefined,
+    adjustment: hasEffectAdjustment(finalAdjustment) ? finalAdjustment : undefined,
     requiresManualChoice:
       !effectHasNoValidChoiceTargets(state, effectText, sourceTile) &&
       (effectTextNeedsManualChoice(effectText) ||
@@ -689,7 +706,7 @@ export function suggestEffectAdjustment(
         hasMultipleStrainTargets ||
         hasMultipleSupportedTargets ||
         hasMultipleResolvedBurdenTargets) &&
-      !hasEffectAdjustment(withResolvedBurden)
+      (!hasEffectAdjustment(finalAdjustment) || hasPaymentOrStrainChoice)
   };
 }
 
