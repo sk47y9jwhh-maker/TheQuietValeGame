@@ -762,12 +762,12 @@ export function App() {
           onModeChange={setActionMode}
           onSelectedTileChange={handleTileChange}
           onPlacementOrientationChange={setPlacementOrientation}
-          onConfirmPlace={(resolvedPlacementDraft) => {
+          onConfirmPlace={(resolvedPlacementDraft, tileId = selectedTileId) => {
             if (!resolvedPlacementDraft.anchorHexId) return;
             commitTilePlacement(
               state,
               currentPlayer.id,
-              selectedTileId,
+              tileId,
               resolvedPlacementDraft
             );
           }}

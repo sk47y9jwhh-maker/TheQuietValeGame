@@ -529,6 +529,7 @@ describe("game actions", () => {
     expect(revealed.encounters.faceUpBoons).toEqual([
       { cardId: "boon_many_hands_make_light_work", remainingUses: 2 }
     ]);
+    expect(revealed.pendingEffects[0].confirmLabel).toBe("Acknowledge");
 
     const acknowledged = resolvePendingEffect(revealed);
     const usedOnce = useFaceUpBoon(acknowledged, "boon_many_hands_make_light_work");

@@ -207,7 +207,11 @@ export function HexMap({
             const reachable = Boolean(placed && reachableTileIds.has(placed.instanceId));
             const tileCategory = placed ? getTileCategory(placed) : null;
             const labelLines = getTileLabelLines(tileName);
-            const labelHeight = labelLines.length > 1 ? 26 : 19;
+            const labelWidth = Math.min(
+              56,
+              Math.max(32, Math.max(...labelLines.map((line) => line.length), 0) * 5.2 + 12)
+            );
+            const labelHeight = labelLines.length > 1 ? 25 : 18;
 
             return (
               <g
@@ -295,11 +299,11 @@ export function HexMap({
                   <>
                     <rect
                       className="hex-label-backplate"
-                      x={x - 28}
-                      y={y - labelHeight / 2 - 1}
-                      width={58}
+                      x={x - labelWidth / 2}
+                      y={y - labelHeight / 2}
+                      width={labelWidth}
                       height={labelHeight}
-                      rx={5}
+                      rx={4}
                     />
                     <text
                       x={x}
@@ -311,7 +315,7 @@ export function HexMap({
                         <tspan
                           key={`${line}-${index}`}
                           x={x}
-                          dy={index === 0 ? 0 : 9}
+                          dy={index === 0 ? 0 : 9.5}
                         >
                           {line}
                         </tspan>

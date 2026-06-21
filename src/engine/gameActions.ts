@@ -690,6 +690,10 @@ function queueEncounterCardEffectPrompt(
   const detailText = getEncounterEffectDetail(card);
   const noValidTarget = effectHasNoValidChoiceTargets(state, effectText);
   const noEffectContext = options.noEffectContext ?? "this reveal";
+  const acknowledgeOnlyBoon =
+    card.type === "boon" &&
+    Boolean(options.canSkipBoon) &&
+    card.lifecycle.toLowerCase().includes("keep face-up");
   const resolvedDetailText = [
     options.detailPrefix,
     detailText,
@@ -706,16 +710,18 @@ function queueEncounterCardEffectPrompt(
     title,
     effectText,
     detailText: resolvedDetailText || undefined,
-    resolutionLogMessage: noValidTarget
-      ? `No effect ${noEffectContext}: ${card.name}.`
-      : undefined,
+    resolutionLogMessage: acknowledgeOnlyBoon
+      ? `Acknowledged Boon: ${card.name}.`
+      : noValidTarget
+        ? `No effect ${noEffectContext}: ${card.name}.`
+        : undefined,
     suggestedAdjustment: suggestion.adjustment,
     requiresManualChoice: suggestion.requiresManualChoice,
     canCancelWithWardenPower:
       card.type === "burden" && Boolean(options.canCancelWithWardenPower),
     canSkip: card.type === "boon" && Boolean(options.canSkipBoon),
     skipLabel: card.type === "boon" && options.canSkipBoon ? "Skip Boon" : undefined,
-    confirmLabel: noValidTarget ? "Acknowledge" : undefined
+    confirmLabel: acknowledgeOnlyBoon || noValidTarget ? "Acknowledge" : undefined
   });
 }
 

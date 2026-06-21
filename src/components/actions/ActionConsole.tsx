@@ -7,7 +7,7 @@ import {
   Sparkles,
   SquarePlus
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, type KeyboardEvent } from "react";
 import { EffectPrompt } from "../effects/EffectPrompt";
 import { encounterById } from "../../data/encounters";
 import { stewardById } from "../../data/stewards";
@@ -53,7 +53,7 @@ interface ActionConsoleProps {
   onModeChange: (mode: string) => void;
   onSelectedTileChange: (tileId: string) => void;
   onPlacementOrientationChange: (orientation: HexDirection) => void;
-  onConfirmPlace: (placementDraft: TilePlacementDraft) => void;
+  onConfirmPlace: (placementDraft: TilePlacementDraft, tileId?: string) => void;
   onUpgrade: (placedTileId: string) => void;
   onActivate: (placedTileId: string) => void;
   onCompleteArrival: (arrivalCardId: string) => void;
@@ -140,6 +140,24 @@ export function ActionConsole({
     placementOrientation
   );
   const canPlaceSelected = Boolean(confirmPlacementDraft);
+  const getTileConfirmDraft = (tileId: string) =>
+    getConfirmPlacementDraft(
+      state,
+      currentPlayer.id,
+      tileId,
+      selectedHexIds,
+      placementOrientation
+    );
+  const selectTileWithKeyboard = (
+    event: KeyboardEvent<HTMLDivElement>,
+    tileId: string
+  ) => {
+    if (event.key !== "Enter" && event.key !== " " && event.key !== "Spacebar") {
+      return;
+    }
+    event.preventDefault();
+    onSelectedTileChange(tileId);
+  };
   const upgradeableIds = getUpgradeableTileIds(state, currentPlayer.id);
   const activatableIds = getActivatableTileIds(state, currentPlayer.id);
   const arrivalInteractions = state.encounters.activeArrivals.map((arrival) => ({
@@ -281,21 +299,12 @@ export function ActionConsole({
               <Shield size={18} />
               <h3>Place Tile</h3>
             </div>
-            <button
-              className="primary-action compact-confirm"
-              disabled={!canPlaceSelected}
-              onClick={() => {
-                if (confirmPlacementDraft) onConfirmPlace(confirmPlacementDraft);
-              }}
-              type="button"
-            >
-              Place
-            </button>
           </div>
           <div className="placement-status-line">
             <span>
               <strong>{legalHexes.length}</strong> legal spaces
             </span>
+            <span>{canPlaceSelected ? "Selected tile ready" : "Choose a tile and hex"}</span>
             {footprintKind === "detached" && (
               <span>
                 <strong>
@@ -319,7 +328,78 @@ export function ActionConsole({
               ))}
             </div>
           )}
-          <div className="decision-note selected-tile-note">
+          <div>
+            <span className="field-label">Choose a tile</span>
+            <div
+              aria-label="Choose a tile"
+              className="tile-choice-list"
+              role="listbox"
+            >
+              {placeableTiles.map((tile) => {
+                const tileConfirmDraft = getTileConfirmDraft(tile.id);
+                const readyToPlace = Boolean(tileConfirmDraft);
+                const statusLabel = tile.placeableNow
+                  ? readyToPlace
+                    ? "Placeable"
+                    : "Select hex"
+                  : tile.blockedReasons[0] ?? "Blocked";
+
+                return (
+                  <div
+                    aria-selected={selectedTileId === tile.id}
+                    className={[
+                      "tile-choice-row",
+                      tile.placeableNow ? "is-viable" : "is-blocked",
+                      readyToPlace ? "is-ready" : "",
+                      selectedTileId === tile.id ? "selected" : ""
+                    ].join(" ")}
+                    key={tile.id}
+                    onClick={() => onSelectedTileChange(tile.id)}
+                    onKeyDown={(event) => selectTileWithKeyboard(event, tile.id)}
+                    role="option"
+                    tabIndex={0}
+                  >
+                    <span className="tile-choice-main">
+                      <strong>{tile.name}</strong>
+                      <small>
+                        {tile.meta} | Cost {tile.costLabel}
+                      </small>
+                      <small>Supply {tile.copiesAvailable}/{tile.copiesRequired}</small>
+                    </span>
+                    <span className="tile-choice-actions">
+                      <span
+                        className={`tile-choice-status ${
+                          tile.placeableNow ? "available" : "blocked"
+                        }`}
+                      >
+                        {statusLabel}
+                      </span>
+                      {tile.placeableNow && (
+                        <button
+                          aria-label={`Place ${tile.name}`}
+                          className="tile-choice-place"
+                          disabled={!readyToPlace}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onSelectedTileChange(tile.id);
+                            if (!tileConfirmDraft) return;
+                            if (tileConfirmDraft.orientation !== undefined) {
+                              onPlacementOrientationChange(tileConfirmDraft.orientation);
+                            }
+                            onConfirmPlace(tileConfirmDraft, tile.id);
+                          }}
+                          type="button"
+                        >
+                          {readyToPlace ? "Place" : "Pick hex"}
+                        </button>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="decision-note selected-tile-detail">
             <strong>{selectedTile.name}</strong>
             <span>
               {selectedTile.meta} | Cost {selectedTile.costLabel}
@@ -327,6 +407,7 @@ export function ActionConsole({
             <span>
               Supply {selectedTile.copiesAvailable}/{selectedTile.copiesRequired}
             </span>
+            {selectedTile.actionCost === 0 && <span>Costs 0 actions</span>}
             {!selectedTile.hasPlacementOption && (
               <span className="missing-cost">No currently legal placement.</span>
             )}
@@ -338,48 +419,6 @@ export function ActionConsole({
                 Need {selectedTile.missingResources.join(", ")}
               </span>
             )}
-          </div>
-          <div>
-            <span className="field-label">Choose a tile</span>
-            <div
-              aria-label="Choose a tile"
-              className="tile-choice-list"
-              role="listbox"
-            >
-              {placeableTiles.map((tile) => (
-                <button
-                  aria-selected={selectedTileId === tile.id}
-                  className={[
-                    "tile-choice-row",
-                    tile.placeableNow ? "is-viable" : "is-blocked",
-                    selectedTileId === tile.id ? "selected" : ""
-                  ].join(" ")}
-                  key={tile.id}
-                  onClick={() => onSelectedTileChange(tile.id)}
-                  role="option"
-                  type="button"
-                >
-                  <span>
-                    <strong>{tile.name}</strong>
-                    <small>
-                      {tile.meta} | Cost {tile.costLabel}
-                    </small>
-                  </span>
-                  <span
-                    className={`tile-choice-status ${
-                      tile.placeableNow ? "available" : "blocked"
-                    }`}
-                  >
-                    {tile.placeableNow
-                      ? "Placeable"
-                      : tile.blockedReasons[0] ?? "Blocked"}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="decision-note">
-            {selectedTile.actionCost === 0 && <span>Costs 0 actions</span>}
             {selectedTile.blockedReasons.length > 0 && (
               <span className="missing-cost">
                 Blocked: {selectedTile.blockedReasons.join("; ")}

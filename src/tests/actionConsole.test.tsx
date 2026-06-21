@@ -74,13 +74,16 @@ describe("action console", () => {
       selectedTileId: "c16_street"
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Place" }));
+    fireEvent.click(screen.getByRole("button", { name: "Place Street" }));
 
     expect(onPlacementOrientationChange).toHaveBeenCalledWith(1);
-    expect(onConfirmPlace).toHaveBeenCalledWith({
-      anchorHexId: "G1",
-      orientation: 1
-    });
+    expect(onConfirmPlace).toHaveBeenCalledWith(
+      {
+        anchorHexId: "G1",
+        orientation: 1
+      },
+      "c16_street"
+    );
   });
 
   it("places a tile on the only legal opening space without a selected hex", () => {
@@ -92,9 +95,12 @@ describe("action console", () => {
       selectedTileId: "c01_lumber_yard"
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Place" }));
+    fireEvent.click(screen.getByRole("button", { name: "Place Lumber Yard" }));
 
-    expect(onConfirmPlace).toHaveBeenCalledWith({ anchorHexId: "G1" });
+    expect(onConfirmPlace).toHaveBeenCalledWith(
+      { anchorHexId: "G1" },
+      "c01_lumber_yard"
+    );
   });
 
   it("chooses the top current tile option after a tile is placed", () => {

@@ -950,10 +950,9 @@ button:disabled {
 }
 
 .placement-action-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .compact-confirm {
@@ -1256,7 +1255,7 @@ button.effect-row {
 }
 
 .tile-choice-list {
-  max-height: clamp(128px, 20vh, 196px);
+  max-height: clamp(230px, 36vh, 430px);
   display: grid;
   gap: 6px;
   overflow: auto;
@@ -1268,12 +1267,12 @@ button.effect-row {
 
 .tile-choice-row {
   width: 100%;
-  min-height: 48px;
+  min-height: 58px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(78px, auto);
   gap: 10px;
   align-items: center;
-  padding: 7px 9px;
+  padding: 8px 9px;
   border: 1px solid rgba(36, 31, 26, 0.16);
   border-radius: 8px;
   background:
@@ -1283,7 +1282,12 @@ button.effect-row {
   text-align: left;
 }
 
-.tile-choice-row > span:first-child {
+.tile-choice-row:focus-visible {
+  outline: 2px solid rgba(80, 107, 79, 0.48);
+  outline-offset: 2px;
+}
+
+.tile-choice-main {
   min-width: 0;
   display: grid;
   gap: 2px;
@@ -1315,9 +1319,22 @@ button.effect-row {
   box-shadow: inset 0 0 0 2px rgba(80, 107, 79, 0.16);
 }
 
+.tile-choice-row.is-ready {
+  background:
+    linear-gradient(90deg, rgba(80, 107, 79, 0.15), transparent 48%),
+    var(--qv-parchment-soft);
+}
+
+.tile-choice-actions {
+  display: grid;
+  justify-items: end;
+  gap: 5px;
+}
+
 .tile-choice-status {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 24px;
   max-width: 138px;
   padding: 0 8px;
@@ -1336,6 +1353,23 @@ button.effect-row {
 .tile-choice-status.blocked {
   background: rgba(36, 31, 26, 0.08);
   color: rgba(36, 31, 26, 0.58);
+}
+
+.tile-choice-place {
+  min-width: 76px;
+  min-height: 30px;
+  border: 1px solid rgba(80, 107, 79, 0.42);
+  border-radius: 8px;
+  background: var(--qv-muted-green);
+  color: var(--qv-cream-text);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.tile-choice-place:disabled {
+  border-color: rgba(36, 31, 26, 0.12);
+  background: rgba(36, 31, 26, 0.08);
+  color: rgba(36, 31, 26, 0.5);
 }
 
 .orientation-grid {
@@ -1407,16 +1441,19 @@ button.effect-row {
     var(--qv-parchment-soft);
 }
 
-.selected-tile-note {
+.selected-tile-note,
+.selected-tile-detail {
   gap: 2px;
   padding: 7px 9px;
 }
 
-.selected-tile-note strong {
+.selected-tile-note strong,
+.selected-tile-detail strong {
   font-size: 13px;
 }
 
-.selected-tile-note span {
+.selected-tile-note span,
+.selected-tile-detail span {
   font-size: 11px;
 }
 
@@ -1627,22 +1664,22 @@ button.effect-row {
 }
 
 .hex-label-backplate {
-  fill: rgba(21, 23, 17, 0.66);
-  stroke: rgba(244, 234, 214, 0.58);
-  stroke-width: 0.8;
+  fill: rgba(255, 246, 223, 0.76);
+  stroke: rgba(36, 31, 26, 0.26);
+  stroke-width: 0.7;
   pointer-events: none;
 }
 
 .hex-cell .hex-label {
-  fill: var(--qv-cream-text);
+  fill: var(--qv-ink);
   paint-order: stroke;
-  stroke: rgba(21, 23, 17, 0.44);
-  stroke-width: 1.4px;
+  stroke: rgba(255, 246, 223, 0.56);
+  stroke-width: 1px;
 }
 
 .hex-map .hex-label {
   display: block;
-  font-size: 9.4px;
+  font-size: 9.8px;
   font-weight: 900;
   letter-spacing: 0;
 }
@@ -1740,9 +1777,9 @@ button.effect-row {
 }
 
 .hex-cell.is-placed .hex-label {
-  fill: var(--qv-cream-text);
-  stroke: rgba(21, 23, 17, 0.58);
-  stroke-width: 1.5px;
+  fill: var(--qv-ink);
+  stroke: rgba(255, 246, 223, 0.58);
+  stroke-width: 1px;
 }
 
 .hex-cell.is-legal polygon {
