@@ -2250,6 +2250,10 @@ button.effect-row {
   outline: none;
 }
 
+.steward-start-cell.is-unavailable {
+  cursor: default;
+}
+
 .steward-start-cell polygon {
   fill: var(--terrain-grasslands);
   stroke: rgba(22, 31, 29, 0.68);
@@ -2260,25 +2264,16 @@ button.effect-row {
     stroke-width 120ms ease;
 }
 
-.steward-start-cell:hover polygon,
-.steward-start-cell:focus-visible polygon {
+.steward-start-cell.is-selectable:hover polygon,
+.steward-start-cell.is-selectable:focus-visible polygon {
   filter: brightness(1.08);
   stroke: rgba(244, 234, 214, 0.8);
   stroke-width: 2;
 }
 
-.steward-start-cell.allowed polygon {
+.steward-start-cell.is-selectable polygon {
   stroke: rgba(184, 138, 58, 0.78);
   stroke-width: 1.8;
-}
-
-.steward-start-cell.selected polygon {
-  stroke: var(--qv-danger-rust);
-  stroke-width: 3;
-}
-
-.steward-start-cell.occupied polygon {
-  opacity: 0.58;
 }
 
 .steward-start-cell.terrain-woodland polygon {
@@ -2305,20 +2300,45 @@ button.effect-row {
   fill: var(--terrain-ruins);
 }
 
-.steward-start-id,
-.steward-start-selected,
+.steward-start-cell.is-unavailable polygon {
+  filter: grayscale(1) saturate(0.25);
+  opacity: 0.34;
+  stroke: rgba(36, 31, 26, 0.24);
+  stroke-width: 1;
+}
+
+.steward-start-cell.occupied polygon {
+  opacity: 0.44;
+}
+
+.steward-start-cell.selected polygon {
+  filter: none;
+  opacity: 1;
+  stroke: var(--qv-danger-rust);
+  stroke-width: 3;
+}
+
+.steward-start-option-dot {
+  fill: rgba(255, 246, 223, 0.86);
+  stroke: rgba(125, 93, 47, 0.48);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+.steward-start-selected-token circle {
+  fill: var(--qv-danger-rust);
+  stroke: rgba(255, 246, 223, 0.94);
+  stroke-width: 1.6;
+}
+
+.steward-start-selected-token text,
 .steward-start-occupied text {
-  fill: var(--qv-ink);
+  fill: var(--qv-cream-text);
   font-weight: 800;
   pointer-events: none;
 }
 
-.steward-start-id {
-  font-size: 9px;
-}
-
-.steward-start-selected {
-  fill: var(--qv-danger-rust);
+.steward-start-selected-token text {
   font-size: 9px;
 }
 

@@ -76,10 +76,7 @@ export function StewardPlacementPanel({
             <MapPin size={18} />
             <h3>Selected Start</h3>
           </div>
-          <span>
-            {selectedHexId}
-            {selectedCell ? ` | ${terrainLabels[selectedCell.terrain]}` : ""}
-          </span>
+          <span>{selectedCell ? terrainLabels[selectedCell.terrain] : "Select a valid start"}</span>
         </div>
 
         {!validation.ok && (
@@ -130,6 +127,7 @@ export function StewardPlacementPanel({
                 (player) =>
                   player.id !== currentPlayer.id && player.stewardHexId === cell.id
               );
+              const selectable = allowed && !occupiedByOther;
               const selected = selectedHexId === cell.id;
               const occupiedPlayerIndex = state.players.findIndex(
                 (player) =>
@@ -138,45 +136,48 @@ export function StewardPlacementPanel({
 
               return (
                 <g
-                  aria-label={`${cell.id}, ${terrainLabels[cell.terrain]}${
-                    allowed ? ", valid start" : ""
+                  aria-disabled={selectable ? undefined : true}
+                  aria-label={`${terrainLabels[cell.terrain]}${
+                    selectable ? ", valid start" : ", unavailable start"
                   }${occupiedByOther ? ", occupied" : ""}`}
                   className={[
                     "steward-start-cell",
                     `terrain-${cell.terrain}`,
-                    allowed ? "allowed" : "",
+                    selectable ? "is-selectable" : "is-unavailable",
                     occupiedByOther ? "occupied" : "",
                     selected ? "selected" : ""
                   ].join(" ")}
                   key={cell.id}
-                  onClick={() => setSelectedHexId(cell.id)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      setSelectedHexId(cell.id);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
+                  onClick={selectable ? () => setSelectedHexId(cell.id) : undefined}
+                  onKeyDown={
+                    selectable
+                      ? (event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            setSelectedHexId(cell.id);
+                          }
+                        }
+                      : undefined
+                  }
+                  role={selectable ? "button" : undefined}
+                  tabIndex={selectable ? 0 : undefined}
                 >
                   <title>
-                    {cell.id}: {terrainLabels[cell.terrain]}
-                    {allowed ? " | Valid start" : ""}
+                    {terrainLabels[cell.terrain]}
+                    {selectable ? " | Valid start" : " | Unavailable start"}
                     {occupiedByOther ? " | Occupied" : ""}
                   </title>
                   <polygon points={setupPolygonPoints(x, y)} />
-                  <text className="steward-start-id" x={x} y={y + 4} textAnchor="middle">
-                    {cell.id}
-                  </text>
+                  {selectable && !selected && (
+                    <circle className="steward-start-option-dot" cx={x} cy={y} r={3.5} />
+                  )}
                   {selected && (
-                    <text
-                      className="steward-start-selected"
-                      x={x}
-                      y={y - 9}
-                      textAnchor="middle"
-                    >
-                      S
-                    </text>
+                    <g className="steward-start-selected-token" transform={`translate(${x}, ${y})`}>
+                      <circle cx={0} cy={0} r={8} />
+                      <text x={0} y={4} textAnchor="middle">
+                        S
+                      </text>
+                    </g>
                   )}
                   {occupiedByOther && (
                     <g className="steward-start-occupied" transform={`translate(${x}, ${y + 12})`}>
@@ -208,12 +209,10 @@ export function StewardPlacementPanel({
                   <span>{active ? "Choosing" : player.name}</span>
                 </div>
                 <p>
-                  {active ? selectedHexId : player.stewardHexId}
-                  {" | "}
                   {active
                     ? selectedCell
                       ? terrainLabels[selectedCell.terrain]
-                      : "Select a hex"
+                      : "Select a valid start"
                     : playerCell
                       ? terrainLabels[playerCell.terrain]
                       : "Unplaced"}
