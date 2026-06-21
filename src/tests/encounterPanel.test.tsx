@@ -36,7 +36,9 @@ describe("encounter panel", () => {
     renderEncounterPanel(state, { onCompleteArrival });
 
     expect(screen.getByText("Shrine of Renewal")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Complete" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Interact with Acorns & Oak Trees" })
+    );
 
     expect(onCompleteArrival).toHaveBeenCalledWith("arrival_acorns_and_oak_trees");
   });
@@ -55,7 +57,9 @@ describe("encounter panel", () => {
     renderEncounterPanel(state, { onResolveBurden });
 
     expect(screen.getAllByText(/Spend 1 Action and pay 2 Goods/).length).toBeGreaterThan(0);
-    fireEvent.click(screen.getByRole("button", { name: "Resolve" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Interact with Smoke over Hearths" })
+    );
 
     expect(onResolveBurden).toHaveBeenCalledWith("burden_smoke_over_hearths");
   });

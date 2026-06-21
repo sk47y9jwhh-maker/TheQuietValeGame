@@ -1,12 +1,14 @@
 import {
   CalendarDays,
+  Maximize2,
+  Minimize2,
   Package,
   Redo2,
   RotateCcw,
   Undo2,
   UserRound
 } from "lucide-react";
-import type { CSSProperties } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { stewardById } from "../../data/stewards";
 import { selectCurrentPlayer } from "../../engine/selectors";
@@ -14,6 +16,14 @@ import type { GameState } from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
 
 type ResourceFillStyle = CSSProperties & { "--resource-fill": string };
+type BrowserFullscreenDocument = Document & {
+  webkitExitFullscreen?: () => Promise<void> | void;
+  webkitFullscreenElement?: Element | null;
+  webkitFullscreenEnabled?: boolean;
+};
+type BrowserFullscreenElement = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void;
+};
 
 interface TopBarProps {
   state: GameState;
@@ -33,6 +43,22 @@ function getCompactPlayerName(name: string): string {
   return name.replace(/^Player\s+/i, "P");
 }
 
+function getFullscreenElement(): Element | null {
+  const fullscreenDocument = document as BrowserFullscreenDocument;
+  return document.fullscreenElement ?? fullscreenDocument.webkitFullscreenElement ?? null;
+}
+
+function getFullscreenSupported(): boolean {
+  const fullscreenDocument = document as BrowserFullscreenDocument;
+  const fullscreenElement = document.documentElement as BrowserFullscreenElement;
+  return Boolean(
+    document.fullscreenEnabled ||
+      fullscreenDocument.webkitFullscreenEnabled ||
+      fullscreenElement.requestFullscreen ||
+      fullscreenElement.webkitRequestFullscreen
+  );
+}
+
 export function TopBar({
   state,
   canUndo = false,
@@ -43,6 +69,45 @@ export function TopBar({
 }: TopBarProps) {
   const currentPlayer = selectCurrentPlayer(state);
   const steward = stewardById[currentPlayer.stewardId];
+  const [fullscreenSupported, setFullscreenSupported] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    function syncFullscreenState() {
+      setFullscreenSupported(getFullscreenSupported());
+      setIsFullscreen(Boolean(getFullscreenElement()));
+    }
+
+    syncFullscreenState();
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    document.addEventListener("webkitfullscreenchange", syncFullscreenState);
+    return () => {
+      document.removeEventListener("fullscreenchange", syncFullscreenState);
+      document.removeEventListener("webkitfullscreenchange", syncFullscreenState);
+    };
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    const fullscreenDocument = document as BrowserFullscreenDocument;
+    const fullscreenElement = document.documentElement as BrowserFullscreenElement;
+
+    try {
+      if (getFullscreenElement()) {
+        const exitFullscreen =
+          document.exitFullscreen?.bind(document) ??
+          fullscreenDocument.webkitExitFullscreen?.bind(fullscreenDocument);
+        await exitFullscreen?.();
+        return;
+      }
+
+      const requestFullscreen =
+        fullscreenElement.requestFullscreen?.bind(fullscreenElement) ??
+        fullscreenElement.webkitRequestFullscreen?.bind(fullscreenElement);
+      await requestFullscreen?.();
+    } catch (error) {
+      console.warn("Fullscreen request was blocked by the browser.", error);
+    }
+  }, []);
 
   return (
     <header className="top-bar">
@@ -119,6 +184,21 @@ export function TopBar({
           type="button"
         >
           <RotateCcw size={17} />
+        </button>
+        <button
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          disabled={!fullscreenSupported}
+          onClick={toggleFullscreen}
+          title={
+            fullscreenSupported
+              ? isFullscreen
+                ? "Exit fullscreen"
+                : "Enter fullscreen"
+              : "Fullscreen is not available in this browser"
+          }
+          type="button"
+        >
+          {isFullscreen ? <Minimize2 size={17} /> : <Maximize2 size={17} />}
         </button>
       </div>
     </header>

@@ -116,10 +116,11 @@ export function EncounterPanel({
                     </strong>
                     <button
                       disabled={!usableBoonIds.has(boon.cardId)}
+                      aria-label={`Interact with ${card?.name ?? boon.cardId}`}
                       onClick={() => onUseFaceUpBoon(boon.cardId)}
                       type="button"
                     >
-                      Use
+                      Interact
                     </button>
                   </div>
                 </div>
@@ -177,10 +178,11 @@ export function EncounterPanel({
                     <strong>{arrival.timerTokens} timers</strong>
                     <button
                       disabled={!validation.ok || !onCompleteArrival}
+                      aria-label={`Interact with ${card?.name ?? arrival.cardId}`}
                       onClick={() => onCompleteArrival?.(arrival.cardId)}
                       type="button"
                     >
-                      Complete
+                      Interact
                     </button>
                   </div>
                 </div>
@@ -232,10 +234,11 @@ export function EncounterPanel({
                     </strong>
                     <button
                       disabled={!validation.ok || !onResolveBurden}
+                      aria-label={`Interact with ${card?.name ?? cardId}`}
                       onClick={() => onResolveBurden?.(cardId)}
                       type="button"
                     >
-                      Resolve
+                      Interact
                     </button>
                   </div>
                 </div>

@@ -210,8 +210,8 @@ button:disabled {
     minmax(204px, 240px)
     minmax(126px, 140px)
     minmax(170px, 200px)
-    minmax(460px, 1fr)
-    minmax(128px, 138px);
+    minmax(430px, 1fr)
+    minmax(168px, 178px);
   align-items: center;
   gap: 9px;
   padding: 9px 16px 11px;
@@ -1265,14 +1265,15 @@ button.effect-row {
 .tile-choice-list {
   max-height: none;
   min-height: 0;
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
   overflow: auto;
-  padding: 7px;
+  padding: 8px 8px 16px;
   border: 1px solid rgba(36, 31, 26, 0.1);
   border-radius: 8px;
   background: rgba(36, 31, 26, 0.045);
+  scrollbar-gutter: stable;
 }
 
 .tile-choice-field {
@@ -1283,11 +1284,12 @@ button.effect-row {
 
 .tile-choice-row {
   width: 100%;
-  min-height: 58px;
+  flex: 0 0 auto;
+  min-height: 68px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(78px, auto);
-  gap: 10px;
-  align-items: center;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
+  align-items: stretch;
   padding: 8px 9px;
   border: 1px solid rgba(36, 31, 26, 0.16);
   border-radius: 8px;
@@ -1342,9 +1344,11 @@ button.effect-row {
 }
 
 .tile-choice-actions {
-  display: grid;
-  justify-items: end;
-  gap: 5px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
 }
 
 .tile-choice-status {
@@ -1352,13 +1356,13 @@ button.effect-row {
   align-items: center;
   justify-content: center;
   min-height: 24px;
-  max-width: 138px;
+  max-width: 100%;
   padding: 0 8px;
   border-radius: 8px;
   font-size: 11px;
   font-weight: 900;
   line-height: 1.15;
-  text-align: right;
+  text-align: left;
 }
 
 .tile-choice-status.available {
@@ -2028,7 +2032,7 @@ button.effect-row {
 
 .encounter-card-heading {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto);
   gap: 10px;
   align-items: start;
 }
@@ -2041,14 +2045,16 @@ button.effect-row {
 }
 
 .encounter-card-actions {
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .encounter-inline-actions {
-  min-width: min(100%, 170px);
+  min-width: 0;
 }
 
 .encounter-card-heading > strong,
@@ -2095,16 +2101,18 @@ button.effect-row {
 }
 
 .boon-row button {
+  max-width: 100%;
   min-height: 34px;
   border: 1px solid rgba(36, 31, 26, 0.16);
   border-radius: 8px;
   background: var(--qv-muted-green);
   color: var(--qv-cream-text);
   font-weight: 800;
-  padding: 0 12px;
+  padding: 0 10px;
 }
 
 .encounter-inline-actions button {
+  max-width: 100%;
   min-height: 32px;
   border: 1px solid rgba(36, 31, 26, 0.16);
   border-radius: 8px;
@@ -2112,7 +2120,7 @@ button.effect-row {
   color: var(--qv-cream-text);
   font-size: 12px;
   font-weight: 900;
-  padding: 0 10px;
+  padding: 0 9px;
 }
 
 .encounter-action-note {
