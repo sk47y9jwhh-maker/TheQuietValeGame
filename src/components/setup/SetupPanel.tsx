@@ -83,9 +83,10 @@ export function SetupPanel({
             </span>
           ))}
         </div>
-        <div className="alerts-chip">
+        <div className="alerts-chip status-chip is-stable">
           <CheckCircle2 size={18} />
-          Setup
+          <span className="status-label">Status</span>
+          <span className="alerts-summary">Setup</span>
         </div>
       </header>
 

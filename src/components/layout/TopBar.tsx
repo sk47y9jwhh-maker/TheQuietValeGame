@@ -1,6 +1,6 @@
 import {
-  AlertTriangle,
   CalendarDays,
+  ListChecks,
   Package,
   Redo2,
   RotateCcw,
@@ -34,9 +34,14 @@ export function TopBar({
   const steward = stewardById[currentPlayer.stewardId];
   const alerts = selectAlerts(state);
   const hasAlerts = alerts.length > 0;
-  const alertDetails = hasAlerts ? alerts.join(" / ") : "No urgent alerts";
-  const alertSummary =
-    alerts.length > 1 ? `${alerts.length} alerts` : alertDetails;
+  const statusDetails = hasAlerts
+    ? `Board status: ${alerts.join(" / ")}`
+    : "Board status: all clear";
+  const statusSummary = hasAlerts
+    ? alerts.length > 1
+      ? `${alerts.length} to watch`
+      : alerts[0]
+    : "All clear";
 
   return (
     <header className="top-bar">
@@ -108,13 +113,14 @@ export function TopBar({
         </button>
       </div>
       <button
-        aria-label={alertDetails}
-        className={`alerts-chip ${hasAlerts ? "has-alerts" : ""}`}
-        title={alertDetails}
+        aria-label={statusDetails}
+        className={`alerts-chip status-chip ${hasAlerts ? "has-status" : "is-stable"}`}
+        title={statusDetails}
         type="button"
       >
-        <AlertTriangle size={18} />
-        <span className="alerts-summary">{alertSummary}</span>
+        <ListChecks size={18} />
+        <span className="status-label">Status</span>
+        <span className="alerts-summary">{statusSummary}</span>
       </button>
     </header>
   );
