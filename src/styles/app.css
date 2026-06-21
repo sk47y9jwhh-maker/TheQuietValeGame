@@ -79,7 +79,6 @@
 .action-grid button,
 .primary-action,
 .secondary-action,
-.alerts-chip,
 .encounter-row {
   min-height: 44px;
   border: 1px solid rgba(36, 31, 26, 0.18);
@@ -204,12 +203,11 @@ button:disabled {
   min-height: 74px;
   display: grid;
   grid-template-columns:
-    minmax(184px, 204px)
+    minmax(204px, 240px)
     minmax(126px, 140px)
     minmax(136px, 150px)
-    minmax(430px, 1fr)
-    minmax(128px, 138px)
-    minmax(160px, 182px);
+    minmax(500px, 1fr)
+    minmax(128px, 138px);
   align-items: center;
   gap: 9px;
   padding: 9px 16px 11px;
@@ -241,8 +239,7 @@ button:disabled {
 .season-card,
 .turn-chip,
 .warehouse-strip,
-.top-actions,
-.alerts-chip {
+.top-actions {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -313,8 +310,7 @@ button:disabled {
 
 .season-card svg,
 .turn-chip svg,
-.warehouse-title svg,
-.alerts-chip svg {
+.warehouse-title svg {
   flex: 0 0 auto;
   color: var(--qv-muted-green);
 }
@@ -348,7 +344,7 @@ button:disabled {
 
 .warehouse-strip {
   flex-wrap: nowrap;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
   overflow: hidden;
   padding: 6px 7px;
@@ -400,14 +396,19 @@ button:disabled {
 }
 
 .resource-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 25px;
-  padding: 0 6px;
+  position: relative;
+  flex: 1 1 78px;
+  min-width: 68px;
+  min-height: 32px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 6px;
+  align-content: center;
+  padding: 4px 7px 6px;
   border: 1px solid rgba(125, 93, 47, 0.14);
   border-radius: 8px;
   background: rgba(255, 246, 223, 0.76);
+  overflow: hidden;
   white-space: nowrap;
 }
 
@@ -418,52 +419,51 @@ button:disabled {
 }
 
 .resource-pill strong {
+  color: var(--qv-ink);
   font-size: 13px;
 }
 
-.alerts-chip {
-  border-color: rgba(80, 107, 79, 0.24);
-  justify-content: flex-start;
-  font-weight: 800;
-  line-height: 1.1;
-  min-width: 0;
-  text-align: left;
-}
-
-.alerts-chip.status-chip {
-  background:
-    linear-gradient(180deg, rgba(255, 246, 223, 0.94), rgba(244, 234, 214, 0.58)),
-    rgba(80, 107, 79, 0.08);
-}
-
-.alerts-chip.has-status {
-  border-color: rgba(120, 148, 160, 0.4);
-  background:
-    linear-gradient(180deg, rgba(255, 246, 223, 0.94), rgba(244, 234, 214, 0.58)),
-    rgba(120, 148, 160, 0.14);
-}
-
-.alerts-chip.has-status svg {
-  color: #405866;
-}
-
-.alerts-chip.is-stable svg {
-  color: var(--qv-muted-green);
-}
-
-.status-label {
-  flex: 0 0 auto;
-  color: rgba(36, 31, 26, 0.52);
-  font-size: 10px;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.alerts-summary {
-  min-width: 0;
+.resource-fill {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 4px;
+  margin-top: 1px;
+  border-radius: 999px;
+  background: rgba(36, 31, 26, 0.1);
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.resource-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--resource-fill, 0%);
+  border-radius: inherit;
+  background: var(--resource-fill-color, var(--qv-muted-green));
+}
+
+.resource-pill[data-resource="wood"] {
+  --resource-fill-color: var(--qv-muted-green);
+}
+
+.resource-pill[data-resource="stone"] {
+  --resource-fill-color: #8b969b;
+}
+
+.resource-pill[data-resource="metal"] {
+  --resource-fill-color: #657885;
+}
+
+.resource-pill[data-resource="food"] {
+  --resource-fill-color: #c6a96d;
+}
+
+.resource-pill[data-resource="herbs"] {
+  --resource-fill-color: #78945f;
+}
+
+.resource-pill[data-resource="goods"] {
+  --resource-fill-color: var(--qv-brass);
 }
 
 .command-table {
@@ -509,8 +509,12 @@ button:disabled {
     var(--qv-parchment);
 }
 
-.setup-top-bar .alerts-chip {
-  cursor: default;
+.setup-top-bar {
+  grid-template-columns:
+    minmax(204px, 240px)
+    minmax(126px, 140px)
+    minmax(136px, 150px)
+    minmax(500px, 1fr);
 }
 
 .setup-resource-strip {
@@ -2857,8 +2861,12 @@ button.effect-row {
     grid-column: 1 / 4;
   }
 
-  .alerts-chip {
-    grid-column: 4;
+  .setup-top-bar {
+    grid-template-columns: minmax(210px, 1fr) minmax(145px, auto) minmax(132px, auto);
+  }
+
+  .setup-top-bar .warehouse-strip {
+    grid-column: 1 / -1;
   }
 }
 
@@ -3011,7 +3019,7 @@ button.effect-row {
     grid-template-columns: minmax(0, 1fr) minmax(72px, auto) auto;
     grid-template-areas:
       "brand season actions"
-      "turn alerts alerts"
+      "turn turn turn"
       "warehouse warehouse warehouse";
     gap: 6px;
     padding: 7px;
@@ -3026,20 +3034,20 @@ button.effect-row {
   .top-brand,
   .season-card,
   .turn-chip,
-  .top-actions,
-  .alerts-chip {
+  .top-actions {
     min-height: 38px;
     height: auto;
     padding: 5px 7px;
   }
 
-  .top-brand span {
-    display: none;
-  }
-
   .top-brand strong,
   .turn-chip strong {
     font-size: 14px;
+  }
+
+  .top-brand span {
+    display: block;
+    font-size: 9px;
   }
 
   .turn-chip span {
@@ -3107,24 +3115,15 @@ button.effect-row {
   }
 
   .resource-pill {
-    flex: 0 0 auto;
-  }
-
-  .alerts-chip {
-    grid-area: alerts;
-    justify-content: flex-start;
-    text-align: left;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    flex: 0 0 78px;
   }
 
   .setup-top-bar {
-    grid-template-columns: minmax(0, 1fr) minmax(72px, auto) minmax(82px, auto);
+    grid-template-columns: minmax(0, 1fr) minmax(72px, auto);
     grid-template-areas:
-      "brand season alerts"
-      "turn warehouse warehouse";
+      "brand season"
+      "turn turn"
+      "warehouse warehouse";
   }
 
   .setup-top-bar .warehouse-strip {

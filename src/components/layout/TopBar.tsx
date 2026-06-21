@@ -1,17 +1,19 @@
 import {
   CalendarDays,
-  ListChecks,
   Package,
   Redo2,
   RotateCcw,
   Undo2,
   UserRound
 } from "lucide-react";
-import { resourceLabels, resources } from "../../data/resources";
+import type { CSSProperties } from "react";
+import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { stewardById } from "../../data/stewards";
-import { selectAlerts, selectCurrentPlayer } from "../../engine/selectors";
+import { selectCurrentPlayer } from "../../engine/selectors";
 import type { GameState } from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
+
+type ResourceFillStyle = CSSProperties & { "--resource-fill": string };
 
 interface TopBarProps {
   state: GameState;
@@ -20,6 +22,11 @@ interface TopBarProps {
   onUndo?: () => void;
   onRedo?: () => void;
   onReset?: () => void;
+}
+
+function getResourceFillStyle(value: number): ResourceFillStyle {
+  const fill = Math.max(0, Math.min(100, (value / warehouseCap) * 100));
+  return { "--resource-fill": `${fill}%` };
 }
 
 export function TopBar({
@@ -32,16 +39,6 @@ export function TopBar({
 }: TopBarProps) {
   const currentPlayer = selectCurrentPlayer(state);
   const steward = stewardById[currentPlayer.stewardId];
-  const alerts = selectAlerts(state);
-  const hasAlerts = alerts.length > 0;
-  const statusDetails = hasAlerts
-    ? `Board status: ${alerts.join(" / ")}`
-    : "Board status: all clear";
-  const statusSummary = hasAlerts
-    ? alerts.length > 1
-      ? `${alerts.length} to watch`
-      : alerts[0]
-    : "All clear";
 
   return (
     <header className="top-bar">
@@ -49,7 +46,7 @@ export function TopBar({
         <BrandMark />
         <div>
           <strong>The Quiet Vale</strong>
-          <span>Stewards board</span>
+          <span>Seasons of Settlement</span>
         </div>
       </div>
       <div className="season-card">
@@ -78,9 +75,15 @@ export function TopBar({
           Warehouse
         </span>
         {resources.map((resource) => (
-          <span className="resource-pill" key={resource}>
+          <span
+            className="resource-pill"
+            data-resource={resource}
+            key={resource}
+            style={getResourceFillStyle(state.warehouse[resource])}
+          >
             <small>{resourceLabels[resource]}</small>
             <strong>{state.warehouse[resource]}</strong>
+            <span className="resource-fill" aria-hidden="true" />
           </span>
         ))}
       </div>
@@ -112,16 +115,6 @@ export function TopBar({
           <RotateCcw size={17} />
         </button>
       </div>
-      <button
-        aria-label={statusDetails}
-        className={`alerts-chip status-chip ${hasAlerts ? "has-status" : "is-stable"}`}
-        title={statusDetails}
-        type="button"
-      >
-        <ListChecks size={18} />
-        <span className="status-label">Status</span>
-        <span className="alerts-summary">{statusSummary}</span>
-      </button>
     </header>
   );
 }

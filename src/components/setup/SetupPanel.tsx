@@ -1,17 +1,19 @@
 import {
   CalendarDays,
-  CheckCircle2,
   Package,
   RefreshCw,
   ScrollText,
   UserRound
 } from "lucide-react";
+import type { CSSProperties } from "react";
 import { getStartingWarehouseAmount } from "../../engine/setup";
-import { resourceLabels, resources } from "../../data/resources";
+import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { stewardById, stewards } from "../../data/stewards";
 import { terrainLabels } from "../../data/map";
 import type { PlayerCount } from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
+
+type ResourceFillStyle = CSSProperties & { "--resource-fill": string };
 
 interface SetupPanelProps {
   playerCount: PlayerCount;
@@ -22,6 +24,11 @@ interface SetupPanelProps {
   onEncounterSeedChange: (seed: string) => void;
   onShuffleSeed: () => void;
   onStart: () => void;
+}
+
+function getResourceFillStyle(value: number): ResourceFillStyle {
+  const fill = Math.max(0, Math.min(100, (value / warehouseCap) * 100));
+  return { "--resource-fill": `${fill}%` };
 }
 
 export function SetupPanel({
@@ -48,7 +55,7 @@ export function SetupPanel({
           <BrandMark />
           <div>
             <strong>The Quiet Vale</strong>
-            <span>New game</span>
+            <span>Seasons of Settlement</span>
           </div>
         </div>
         <div className="season-card">
@@ -77,16 +84,17 @@ export function SetupPanel({
             Start
           </span>
           {resources.map((resource) => (
-            <span className="resource-pill" key={resource}>
+            <span
+              className="resource-pill"
+              data-resource={resource}
+              key={resource}
+              style={getResourceFillStyle(startingResources)}
+            >
               <small>{resourceLabels[resource]}</small>
               <strong>{startingResources}</strong>
+              <span className="resource-fill" aria-hidden="true" />
             </span>
           ))}
-        </div>
-        <div className="alerts-chip status-chip is-stable">
-          <CheckCircle2 size={18} />
-          <span className="status-label">Status</span>
-          <span className="alerts-summary">Setup</span>
         </div>
       </header>
 
