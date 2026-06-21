@@ -209,8 +209,8 @@ button:disabled {
   grid-template-columns:
     minmax(204px, 240px)
     minmax(126px, 140px)
-    minmax(136px, 150px)
-    minmax(500px, 1fr)
+    minmax(170px, 200px)
+    minmax(460px, 1fr)
     minmax(128px, 138px);
   align-items: center;
   gap: 9px;
@@ -501,12 +501,19 @@ button:disabled {
   border-top: 4px solid var(--qv-brass);
 }
 
+.turn-console {
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: stretch;
+}
+
 .right-panel,
 .map-panel {
   align-self: stretch;
 }
 
 .right-panel {
+  display: grid;
+  align-content: start;
   border-top: 4px solid var(--qv-muted-green);
   background:
     linear-gradient(180deg, rgba(255, 246, 223, 0.98), rgba(244, 234, 214, 0.93)),
@@ -946,6 +953,7 @@ button:disabled {
 
 .placement-flow {
   min-height: 0;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
   border-left: 4px solid var(--qv-muted-green);
 }
 
@@ -1255,14 +1263,22 @@ button.effect-row {
 }
 
 .tile-choice-list {
-  max-height: clamp(230px, 36vh, 430px);
+  max-height: none;
+  min-height: 0;
   display: grid;
+  align-content: start;
   gap: 6px;
   overflow: auto;
   padding: 7px;
   border: 1px solid rgba(36, 31, 26, 0.1);
   border-radius: 8px;
   background: rgba(36, 31, 26, 0.045);
+}
+
+.tile-choice-field {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .tile-choice-row {
@@ -1864,9 +1880,23 @@ button.effect-row {
 .encounter-section {
   display: grid;
   gap: 8px;
-  margin-top: 18px;
-  padding-top: 14px;
+  margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid rgba(125, 93, 47, 0.2);
+}
+
+.encounter-board-header {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 10px;
+}
+
+.encounter-board-header h2 {
+  margin: 0;
+}
+
+.encounter-board-header + .encounter-section {
+  margin-top: 0;
 }
 
 .inspector-card {
@@ -3002,7 +3032,7 @@ button.effect-row {
 @media (max-width: 1180px) {
   .top-bar {
     min-height: 118px;
-    grid-template-columns: minmax(190px, 1fr) minmax(132px, 150px) minmax(136px, 170px) auto;
+    grid-template-columns: minmax(190px, 1fr) minmax(132px, 150px) minmax(170px, 210px) auto;
     grid-auto-rows: auto;
   }
 
@@ -3370,6 +3400,10 @@ button.effect-row {
     order: 1;
     max-height: none;
     overflow: visible;
+  }
+
+  .turn-console {
+    grid-template-rows: auto;
   }
 
   .right-panel {

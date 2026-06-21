@@ -1,9 +1,7 @@
 import { encounterById } from "../../data/encounters";
-import { mapById, terrainLabels } from "../../data/map";
-import { coreTileById, specialTileById } from "../../data/tiles";
+import { specialTileById } from "../../data/tiles";
 import {
   formatCategory,
-  formatCost,
   getBurdenResolutionCurrentText,
 } from "../common/gameText";
 import { EncounterSeasonEffects } from "../common/EncounterSeasonEffects";
@@ -13,76 +11,16 @@ import {
   canResolveBurden,
   getUsableFaceUpBoonIds
 } from "../../engine/gameActions";
-import { getPlacementFailures } from "../../engine/placementRules";
-import { getPlacedTileAtHex } from "../../engine/reachability";
-import { selectCurrentPlayer, selectTileName } from "../../engine/selectors";
 import type {
   EncounterData,
-  GameState,
-  HexDirection,
-  PlacedTile,
-  TilePlacementDraft
+  GameState
 } from "../../engine/types";
 
 interface EncounterPanelProps {
   state: GameState;
-  selectedHexIds: string[];
-  selectedTileId: string;
-  placementOrientation: HexDirection;
-  actionMode: string;
   onUseFaceUpBoon: (boonCardId: string) => void;
   onCompleteArrival?: (arrivalCardId: string) => void;
   onResolveBurden?: (burdenCardId: string) => void;
-}
-
-function getPlacedTileDetail(tile: PlacedTile) {
-  if (tile.kind === "special") {
-    const data = specialTileById[tile.tileId];
-    return {
-      category: data.category,
-      effectText: data.effectText,
-      population: data.population,
-      renown: data.renown,
-      meta: "Special Tile"
-    };
-  }
-
-  const data = coreTileById[tile.tileId];
-  const side = tile.side === "upgraded" ? data.upgraded : data.basic;
-  return {
-    category: data.category,
-    effectText: side.effectText,
-    population: side.population,
-    renown: side.renown,
-    meta: tile.side === "upgraded" ? "Upgraded Core Tile" : "Basic Core Tile"
-  };
-}
-
-function getTilePreview(tileId: string) {
-  const core = coreTileById[tileId];
-  if (core) {
-    return {
-      name: core.basic.name,
-      meta: `${formatCategory(core.category)} Core Tile`,
-      cost: formatCost(core.basic.cost),
-      placement: core.placement?.text ?? "No placement restriction.",
-      effectText: core.basic.effectText,
-      population: core.basic.population,
-      renown: core.basic.renown
-    };
-  }
-
-  const special = specialTileById[tileId];
-  if (!special) return null;
-  return {
-    name: special.name,
-    meta: `${formatCategory(special.category)} Special Tile`,
-    cost: "Free",
-    placement: special.placement?.text ?? "No placement restriction.",
-    effectText: special.effectText,
-    population: special.population,
-    renown: special.renown
-  };
 }
 
 function getEncounterDetail(
@@ -143,109 +81,18 @@ function getSpecialTileList(tileIds: string[]) {
 
 export function EncounterPanel({
   state,
-  selectedHexIds,
-  selectedTileId,
-  placementOrientation,
-  actionMode,
   onUseFaceUpBoon,
   onCompleteArrival,
   onResolveBurden
 }: EncounterPanelProps) {
-  const currentPlayer = selectCurrentPlayer(state);
-  const inspectedHexId = selectedHexIds[selectedHexIds.length - 1] ?? null;
-  const placementDraft: TilePlacementDraft = {
-    anchorHexId: selectedHexIds[0],
-    orientation: placementOrientation,
-    secondaryHexIds: selectedHexIds.slice(1)
-  };
-  const selectedCell = inspectedHexId ? mapById[inspectedHexId] : null;
-  const placedTile = inspectedHexId ? getPlacedTileAtHex(state, inspectedHexId) : null;
-  const placedTileDetail = placedTile ? getPlacedTileDetail(placedTile) : null;
-  const selectedTilePreview = getTilePreview(selectedTileId);
-  const placementFailures =
-    inspectedHexId && actionMode === "place" && !placedTile
-      ? getPlacementFailures(state, currentPlayer.id, selectedTileId, placementDraft)
-      : [];
   const usableBoonIds = new Set(getUsableFaceUpBoonIds(state));
 
   return (
     <aside className="right-panel">
-      {selectedCell ? (
-        <section className="inspector-card">
-          <p className="eyebrow">Inspector</p>
-          <h2>{selectedCell.id}</h2>
-          <p>{terrainLabels[selectedCell.terrain]}</p>
-          {placedTile ? (
-            <div className="detail-stack tile-detail">
-              <div>
-                <strong>{selectTileName(placedTile)}</strong>
-                <span>{placedTileDetail?.meta}</span>
-              </div>
-              <div className="stat-row">
-                <span>{formatCategory(placedTileDetail?.category ?? "special")}</span>
-                <span>Pop {placedTileDetail?.population ?? 0}</span>
-                <span>Renown {placedTileDetail?.renown ?? 0}</span>
-              </div>
-              <div className="status-row">
-                <span className={placedTile.strain >= 3 ? "danger-pill" : "status-pill"}>
-                  Strain {placedTile.strain}/3
-                </span>
-                <span
-                  className={
-                    placedTile.support.passive || placedTile.support.singleUse
-                      ? "support-pill"
-                      : "status-pill"
-                  }
-                >
-                  {placedTile.support.passive
-                    ? "Passive Supported"
-                    : placedTile.support.singleUse
-                      ? "Supported"
-                      : "Not Supported"}
-                </span>
-              </div>
-              <p>{placedTileDetail?.effectText}</p>
-            </div>
-          ) : actionMode === "place" && placementFailures.length === 0 ? (
-            <div className="detail-stack tile-detail">
-              <strong>{selectedTilePreview?.name}</strong>
-              <span>{selectedTilePreview?.meta}</span>
-              <div className="stat-row">
-                <span>Cost {selectedTilePreview?.cost}</span>
-                <span>Pop {selectedTilePreview?.population}</span>
-                <span>Renown {selectedTilePreview?.renown}</span>
-              </div>
-              <p>{selectedTilePreview?.placement}</p>
-              <p>{selectedTilePreview?.effectText}</p>
-              <p className="success-note">Legal placement.</p>
-            </div>
-          ) : actionMode === "place" ? (
-            <>
-              {selectedTilePreview && (
-                <div className="detail-stack tile-detail">
-                  <strong>{selectedTilePreview.name}</strong>
-                  <span>{selectedTilePreview.meta}</span>
-                  <span>Cost {selectedTilePreview.cost}</span>
-                  <p>{selectedTilePreview.placement}</p>
-                  <p>{selectedTilePreview.effectText}</p>
-                </div>
-              )}
-              <ul className="failure-list">
-                {placementFailures.map((reason) => (
-                  <li key={reason}>{reason}</li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <p className="muted">Empty hex. Choose Place Tile to see legal options.</p>
-          )}
-        </section>
-      ) : (
-        <>
-          <p className="eyebrow">Stewards Board</p>
-          <h2>Encounters</h2>
-        </>
-      )}
+      <header className="encounter-board-header">
+        <p className="eyebrow">Stewards Board</p>
+        <h2>Encounters</h2>
+      </header>
 
       <section className="encounter-section">
         <h3>Face-up Boons</h3>

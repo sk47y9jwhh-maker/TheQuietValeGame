@@ -177,10 +177,6 @@ function ResolutionShell({
 
         <EncounterPanel
           state={state}
-          selectedHexIds={[]}
-          selectedTileId={coreTiles[0].id}
-          placementOrientation={3}
-          actionMode="inspect"
           onUseFaceUpBoon={onUseFaceUpBoon}
           onCompleteArrival={() => {}}
           onResolveBurden={() => {}}
@@ -834,10 +830,6 @@ export function App() {
         />
         <EncounterPanel
           state={state}
-          selectedHexIds={selectedHexIds}
-          selectedTileId={selectedTileId}
-          placementOrientation={placementOrientation}
-          actionMode={actionMode}
           onUseFaceUpBoon={(boonCardId) =>
             handleUseFaceUpBoon(boonCardId)
           }

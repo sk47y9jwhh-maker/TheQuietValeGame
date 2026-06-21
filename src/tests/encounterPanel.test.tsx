@@ -14,11 +14,7 @@ function renderEncounterPanel(
 ) {
   return render(
     <EncounterPanel
-      actionMode="inspect"
       onUseFaceUpBoon={() => {}}
-      placementOrientation={0}
-      selectedHexIds={[]}
-      selectedTileId="c01_lumber_yard"
       state={state}
       {...overrides}
     />

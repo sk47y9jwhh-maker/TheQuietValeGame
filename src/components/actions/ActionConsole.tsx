@@ -130,8 +130,6 @@ export function ActionConsole({
     selectedTileId,
     placementDraft
   );
-  const selectedTile =
-    placeableTiles.find((tile) => tile.id === selectedTileId) ?? placeableTiles[0];
   const confirmPlacementDraft = getConfirmPlacementDraft(
     state,
     currentPlayer.id,
@@ -265,15 +263,7 @@ export function ActionConsole({
   }
 
   return (
-    <aside className="action-console">
-      <div className="turn-summary">
-        <div>
-          <p className="eyebrow">Current Turn</p>
-          <h2>{currentPlayer.name}</h2>
-        </div>
-        <strong>{state.actionsRemaining} actions</strong>
-      </div>
-
+    <aside className="action-console turn-console">
       <div className="action-grid">
         {actions.map((action) => {
           const Icon = action.icon;
@@ -304,7 +294,7 @@ export function ActionConsole({
             <span>
               <strong>{legalHexes.length}</strong> legal spaces
             </span>
-            <span>{canPlaceSelected ? "Selected tile ready" : "Choose a tile and hex"}</span>
+            {!canPlaceSelected && <span>Choose a tile and hex</span>}
             {footprintKind === "detached" && (
               <span>
                 <strong>
@@ -328,7 +318,7 @@ export function ActionConsole({
               ))}
             </div>
           )}
-          <div>
+          <div className="tile-choice-field">
             <span className="field-label">Choose a tile</span>
             <div
               aria-label="Choose a tile"
@@ -374,11 +364,10 @@ export function ActionConsole({
                       >
                         {statusLabel}
                       </span>
-                      {tile.placeableNow && (
+                      {readyToPlace && (
                         <button
                           aria-label={`Place ${tile.name}`}
                           className="tile-choice-place"
-                          disabled={!readyToPlace}
                           onClick={(event) => {
                             event.stopPropagation();
                             onSelectedTileChange(tile.id);
@@ -390,7 +379,7 @@ export function ActionConsole({
                           }}
                           type="button"
                         >
-                          {readyToPlace ? "Place" : "Pick hex"}
+                          Place
                         </button>
                       )}
                     </span>
@@ -398,34 +387,6 @@ export function ActionConsole({
                 );
               })}
             </div>
-          </div>
-          <div className="decision-note selected-tile-detail">
-            <strong>{selectedTile.name}</strong>
-            <span>
-              {selectedTile.meta} | Cost {selectedTile.costLabel}
-            </span>
-            <span>
-              Supply {selectedTile.copiesAvailable}/{selectedTile.copiesRequired}
-            </span>
-            {selectedTile.actionCost === 0 && <span>Costs 0 actions</span>}
-            {!selectedTile.hasPlacementOption && (
-              <span className="missing-cost">No currently legal placement.</span>
-            )}
-            {!selectedTile.hasEnoughSupply && (
-              <span className="missing-cost">No copies available.</span>
-            )}
-            {!selectedTile.affordable && (
-              <span className="missing-cost">
-                Need {selectedTile.missingResources.join(", ")}
-              </span>
-            )}
-            {selectedTile.blockedReasons.length > 0 && (
-              <span className="missing-cost">
-                Blocked: {selectedTile.blockedReasons.join("; ")}
-              </span>
-            )}
-            <span>{selectedTile.placement}</span>
-            <p>{selectedTile.effectText}</p>
           </div>
         </section>
       )}

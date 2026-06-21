@@ -29,6 +29,10 @@ function getResourceFillStyle(value: number): ResourceFillStyle {
   return { "--resource-fill": `${fill}%` };
 }
 
+function getCompactPlayerName(name: string): string {
+  return name.replace(/^Player\s+/i, "P");
+}
+
 export function TopBar({
   state,
   canUndo = false,
@@ -65,7 +69,9 @@ export function TopBar({
       <div className="turn-chip">
         <UserRound size={18} />
         <div>
-          <span>{steward.name}</span>
+          <span>
+            {getCompactPlayerName(currentPlayer.name)} / {steward.name}
+          </span>
           <strong>{state.actionsRemaining} Actions</strong>
         </div>
       </div>
