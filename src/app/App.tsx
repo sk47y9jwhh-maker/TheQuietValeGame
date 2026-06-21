@@ -182,6 +182,8 @@ function ResolutionShell({
           placementOrientation={3}
           actionMode="inspect"
           onUseFaceUpBoon={onUseFaceUpBoon}
+          onCompleteArrival={() => {}}
+          onResolveBurden={() => {}}
         />
       </main>
     </div>
@@ -525,6 +527,14 @@ export function App() {
     commitGameState((current) => useFaceUpBoon(current, boonCardId));
   }
 
+  function handleCompleteArrival(arrivalCardId: string) {
+    commitGameState((current) => completeArrival(current, arrivalCardId));
+  }
+
+  function handleResolveBurden(burdenCardId: string) {
+    commitGameState((current) => resolveBurden(current, burdenCardId));
+  }
+
   if (state.pendingDeckReorder) {
     return (
       <ResolutionShell
@@ -772,14 +782,10 @@ export function App() {
             )
           }
           onCompleteArrival={(arrivalCardId) =>
-            commitGameState((current) =>
-              completeArrival(current, arrivalCardId)
-            )
+            handleCompleteArrival(arrivalCardId)
           }
           onResolveBurden={(burdenCardId) =>
-            commitGameState((current) =>
-              resolveBurden(current, burdenCardId)
-            )
+            handleResolveBurden(burdenCardId)
           }
           onUseFaceUpBoon={(boonCardId) =>
             commitGameState((current) => useFaceUpBoon(current, boonCardId))
@@ -835,6 +841,8 @@ export function App() {
           onUseFaceUpBoon={(boonCardId) =>
             handleUseFaceUpBoon(boonCardId)
           }
+          onCompleteArrival={handleCompleteArrival}
+          onResolveBurden={handleResolveBurden}
         />
         {mapContextMenu && (
           <div

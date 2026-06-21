@@ -1,11 +1,13 @@
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .setup-screen {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 430px);
   min-height: 100vh;
+  min-height: 100dvh;
   gap: clamp(22px, 4vw, 42px);
   align-items: center;
   padding: clamp(26px, 5vw, 58px);
@@ -192,7 +194,9 @@ button:disabled {
 
 .app-shell {
   height: 100vh;
+  height: 100dvh;
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
@@ -752,7 +756,7 @@ button:disabled {
 
 .seeding-card-board .hand-grid {
   min-height: 0;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
   padding: 2px 4px 2px 2px;
 }
 
@@ -1932,6 +1936,10 @@ button.effect-row {
   gap: 8px;
 }
 
+.encounter-inline-actions {
+  min-width: min(100%, 170px);
+}
+
 .encounter-card-heading > strong,
 .encounter-card-actions > strong {
   display: inline-flex;
@@ -1983,6 +1991,54 @@ button.effect-row {
   color: var(--qv-cream-text);
   font-weight: 800;
   padding: 0 12px;
+}
+
+.encounter-inline-actions button {
+  min-height: 32px;
+  border: 1px solid rgba(36, 31, 26, 0.16);
+  border-radius: 8px;
+  background: var(--qv-muted-green);
+  color: var(--qv-cream-text);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 0 10px;
+}
+
+.encounter-action-note {
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: rgba(139, 76, 53, 0.12);
+}
+
+.unlock-preview-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 6px;
+}
+
+.unlock-preview-list.prominent {
+  grid-template-columns: 1fr;
+}
+
+.unlock-preview-chip {
+  display: grid;
+  gap: 2px;
+  padding: 8px 9px;
+  border: 1px solid rgba(80, 107, 79, 0.26);
+  border-radius: 8px;
+  background: rgba(80, 107, 79, 0.12);
+}
+
+.unlock-preview-chip strong {
+  white-space: normal;
+}
+
+.unlock-preview-chip small {
+  color: rgba(36, 31, 26, 0.68);
+}
+
+.completed-arrival-card {
+  border-color: rgba(80, 107, 79, 0.34);
 }
 
 .modifier-row {
@@ -2133,6 +2189,13 @@ button.effect-row {
 .mini-card.available {
   border-color: rgba(80, 107, 79, 0.34);
   box-shadow: inset 0 0 0 1px rgba(80, 107, 79, 0.14);
+}
+
+.unlocked-special-card {
+  border-color: rgba(184, 138, 58, 0.48);
+  background:
+    linear-gradient(90deg, rgba(184, 138, 58, 0.18), rgba(80, 107, 79, 0.1)),
+    rgba(255, 246, 223, 0.82);
 }
 
 .mini-card.locked {
@@ -2492,7 +2555,7 @@ button.effect-row {
 
 .hand-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
   gap: 12px;
   align-content: start;
   overflow: auto;
@@ -2857,7 +2920,8 @@ button.effect-row {
 
 @media (max-width: 1180px) {
   .top-bar {
-    grid-template-columns: minmax(210px, 1fr) minmax(145px, auto) minmax(132px, auto) minmax(160px, auto);
+    min-height: 118px;
+    grid-template-columns: minmax(190px, 1fr) minmax(132px, 150px) minmax(136px, 170px) auto;
     grid-auto-rows: auto;
   }
 
@@ -2875,14 +2939,24 @@ button.effect-row {
 
   .top-actions {
     grid-column: 4;
+    grid-row: 1;
   }
 
   .warehouse-strip {
-    grid-column: 1 / 4;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-height: 42px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .resource-pill {
+    flex: 1 0 92px;
   }
 
   .setup-top-bar {
-    grid-template-columns: minmax(210px, 1fr) minmax(145px, auto) minmax(132px, auto);
+    grid-template-columns: minmax(190px, 1fr) minmax(132px, 150px) minmax(136px, 170px);
   }
 
   .setup-top-bar .warehouse-strip {
@@ -2894,6 +2968,7 @@ button.effect-row {
   .app-shell {
     height: auto;
     min-height: 100vh;
+    min-height: 100dvh;
     grid-template-rows: auto auto auto;
     overflow: visible;
   }
@@ -2913,7 +2988,7 @@ button.effect-row {
   }
 
   .hand-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
   }
 
   .right-panel {
@@ -2922,7 +2997,7 @@ button.effect-row {
   }
 
   .bottom-drawer {
-    position: sticky;
+    position: relative;
     bottom: 0;
     z-index: 20;
     display: grid;

@@ -47,13 +47,17 @@ export function BottomDrawer({ state }: BottomDrawerProps) {
     (total, tile) => total + (state.tileSupply.core[tile.id] ?? 0),
     0
   );
-  const specialReady = specialTiles.filter(
+  const readySpecialTiles = specialTiles.filter(
     (tile) => (state.tileSupply.special[tile.id] ?? 0) > 0
-  ).length;
+  );
+  const orderedSpecialTiles = [
+    ...readySpecialTiles,
+    ...specialTiles.filter((tile) => (state.tileSupply.special[tile.id] ?? 0) <= 0)
+  ];
   const trayItems = [
     { id: "tiles", label: "Tiles", detail: `${coreRemaining} core left`, icon: Layers },
     { id: "hand", label: "Hand", detail: `${hand.length} hidden`, icon: ScrollText },
-    { id: "specials", label: "Specials", detail: `${specialReady} ready`, icon: Sparkles },
+    { id: "specials", label: "Specials", detail: `${readySpecialTiles.length} ready`, icon: Sparkles },
     { id: "log", label: "Log", detail: `${state.log.length} entries`, icon: List },
     { id: "rules", label: "Rules", detail: "reference", icon: BookOpen }
   ] satisfies Array<{
@@ -91,6 +95,24 @@ export function BottomDrawer({ state }: BottomDrawerProps) {
           </div>
           {activeSection === "tiles" && (
             <div className="tile-reference-grid compact-reference">
+              {readySpecialTiles.map((tile) => {
+                const remaining = state.tileSupply.special[tile.id] ?? 0;
+                return (
+                  <article
+                    className="mini-card available unlocked-special-card"
+                    key={tile.id}
+                  >
+                    <div className="mini-card-heading">
+                      <strong>{tile.name}</strong>
+                      <span>{remaining} ready</span>
+                    </div>
+                    <p>
+                      Unlocked Special | {formatCategory(tile.category)}
+                    </p>
+                    <p>{tile.effectText}</p>
+                  </article>
+                );
+              })}
               {coreTiles.map((tile) => {
                 const remaining = state.tileSupply.core[tile.id] ?? 0;
                 return (
@@ -134,7 +156,7 @@ export function BottomDrawer({ state }: BottomDrawerProps) {
           )}
           {activeSection === "specials" && (
             <div className="tile-reference-grid compact-reference">
-              {specialTiles.map((tile) => {
+              {orderedSpecialTiles.map((tile) => {
                 const remaining = state.tileSupply.special[tile.id] ?? 0;
                 return (
                   <article

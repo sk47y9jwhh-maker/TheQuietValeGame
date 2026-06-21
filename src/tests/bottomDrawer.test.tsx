@@ -24,4 +24,29 @@ describe("bottom drawer", () => {
 
     expect(screen.queryByRole("heading", { name: "Tiles" })).not.toBeInTheDocument();
   });
+
+  it("shows unlocked special tiles first in the tile reference", () => {
+    const baseState = createNewGame(1, ["vanguard"]);
+    const state = {
+      ...baseState,
+      phase: "turns" as const,
+      tileSupply: {
+        ...baseState.tileSupply,
+        special: {
+          ...baseState.tileSupply.special,
+          special_shrine_of_renewal: 1
+        }
+      }
+    };
+
+    const { container } = render(<BottomDrawer state={state} />);
+
+    fireEvent.click(screen.getByRole("tab", { name: /tiles/i }));
+
+    const firstTileName = container.querySelector(
+      ".tile-reference-grid .mini-card .mini-card-heading strong"
+    );
+    expect(firstTileName).toHaveTextContent("Shrine of Renewal");
+    expect(screen.getByText("Unlocked Special | Resource")).toBeInTheDocument();
+  });
 });

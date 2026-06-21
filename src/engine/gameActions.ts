@@ -1733,6 +1733,9 @@ export function completeArrival(
   if (!finalCost || !canAfford(state.warehouse, finalCost)) return state;
 
   const specialTileIds = card.rewardSpecialTileIds;
+  const specialTileNames = specialTileIds.map(
+    (specialTileId) => specialTileById[specialTileId]?.name ?? specialTileId
+  );
   const nextSpecialSupply = { ...state.tileSupply.special };
   for (const specialTileId of specialTileIds) {
     nextSpecialSupply[specialTileId] = (nextSpecialSupply[specialTileId] ?? 0) + 1;
@@ -1761,7 +1764,9 @@ export function completeArrival(
 
   nextState = log(
     nextState,
-    `Completed Arrival: ${card.name}. Unlocked ${specialTileIds.length || 0} Special Tile(s).`
+    `Completed Arrival: ${card.name}. Unlocked ${
+      specialTileNames.length ? specialTileNames.join(", ") : "no Special Tiles"
+    }.`
   );
   nextState = consumeBoonModifiers(nextState, actionPreview.appliedModifierIds);
   nextState = recordSelectedCostOptions(nextState, paymentOptions, costSelection);
@@ -1771,9 +1776,7 @@ export function completeArrival(
     sourceName: card.name,
     title: `Arrival completed: ${card.name}`,
     effectText: `Requirement paid: ${card.requirementText}`,
-    detailText: `Unlocked: ${specialTileIds
-      .map((specialTileId) => specialTileById[specialTileId]?.name ?? specialTileId)
-      .join(", ")}`,
+    detailText: `Unlocked: ${specialTileNames.join(", ")}`,
     confirmLabel: "Acknowledge"
   });
 }

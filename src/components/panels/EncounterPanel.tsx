@@ -4,9 +4,15 @@ import { coreTileById, specialTileById } from "../../data/tiles";
 import {
   formatCategory,
   formatCost,
+  getBurdenResolutionCurrentText,
 } from "../common/gameText";
 import { EncounterSeasonEffects } from "../common/EncounterSeasonEffects";
 import { getCurrentSeasonCardEffectText } from "../../engine/manualEffects";
+import {
+  canCompleteArrival,
+  canResolveBurden,
+  getUsableFaceUpBoonIds
+} from "../../engine/gameActions";
 import { getPlacementFailures } from "../../engine/placementRules";
 import { getPlacedTileAtHex } from "../../engine/reachability";
 import { selectCurrentPlayer, selectTileName } from "../../engine/selectors";
@@ -25,6 +31,8 @@ interface EncounterPanelProps {
   placementOrientation: HexDirection;
   actionMode: string;
   onUseFaceUpBoon: (boonCardId: string) => void;
+  onCompleteArrival?: (arrivalCardId: string) => void;
+  onResolveBurden?: (burdenCardId: string) => void;
 }
 
 function getPlacedTileDetail(tile: PlacedTile) {
@@ -121,13 +129,27 @@ function getEncounterDetail(
   };
 }
 
+function formatInteractBlockers(reasons: string[]): string {
+  return reasons
+    .map((reason) =>
+      reason.replace(/^Cannot (?:complete Arrival|resolve Burden):\s*/i, "")
+    )
+    .join(" ");
+}
+
+function getSpecialTileList(tileIds: string[]) {
+  return tileIds.map((tileId) => specialTileById[tileId]).filter(Boolean);
+}
+
 export function EncounterPanel({
   state,
   selectedHexIds,
   selectedTileId,
   placementOrientation,
   actionMode,
-  onUseFaceUpBoon
+  onUseFaceUpBoon,
+  onCompleteArrival,
+  onResolveBurden
 }: EncounterPanelProps) {
   const currentPlayer = selectCurrentPlayer(state);
   const inspectedHexId = selectedHexIds[selectedHexIds.length - 1] ?? null;
@@ -144,6 +166,7 @@ export function EncounterPanel({
     inspectedHexId && actionMode === "place" && !placedTile
       ? getPlacementFailures(state, currentPlayer.id, selectedTileId, placementDraft)
       : [];
+  const usableBoonIds = new Set(getUsableFaceUpBoonIds(state));
 
   return (
     <aside className="right-panel">
@@ -245,11 +268,7 @@ export function EncounterPanel({
                       {boon.remainingUses} use{boon.remainingUses === 1 ? "" : "s"}
                     </strong>
                     <button
-                      disabled={
-                        state.phase !== "turns" ||
-                        state.pendingEffects.length > 0 ||
-                        Boolean(state.pendingDeckReorder)
-                      }
+                      disabled={!usableBoonIds.has(boon.cardId)}
                       onClick={() => onUseFaceUpBoon(boon.cardId)}
                       type="button"
                     >
@@ -293,19 +312,51 @@ export function EncounterPanel({
         {state.encounters.activeArrivals.length === 0 ? (
           <p className="muted">No active Arrivals.</p>
         ) : (
-          state.encounters.activeArrivals.map((arrival) => (
-            <article key={arrival.cardId} className="encounter-row card-row card-arrival">
-              <div>
-                <span>{encounterById[arrival.cardId]?.name ?? arrival.cardId}</span>
-                {getEncounterDetail(state, arrival.cardId).flavorText && (
-                  <em>{getEncounterDetail(state, arrival.cardId).flavorText}</em>
+          state.encounters.activeArrivals.map((arrival) => {
+            const detail = getEncounterDetail(state, arrival.cardId);
+            const card = encounterById[arrival.cardId];
+            const validation = canCompleteArrival(state, arrival.cardId);
+            const rewardTiles =
+              card?.type === "arrival" ? getSpecialTileList(card.rewardSpecialTileIds) : [];
+
+            return (
+              <article
+                key={arrival.cardId}
+                className="encounter-row encounter-full-card card-row card-arrival"
+              >
+                <div className="encounter-card-heading">
+                  <span>{card?.name ?? arrival.cardId}</span>
+                  <div className="encounter-card-actions encounter-inline-actions">
+                    <strong>{arrival.timerTokens} timers</strong>
+                    <button
+                      disabled={!validation.ok || !onCompleteArrival}
+                      onClick={() => onCompleteArrival?.(arrival.cardId)}
+                      type="button"
+                    >
+                      Complete
+                    </button>
+                  </div>
+                </div>
+                {detail.flavorText && <em>{detail.flavorText}</em>}
+                <small>{detail.effectText}</small>
+                {rewardTiles.length > 0 && (
+                  <div className="unlock-preview-list" aria-label="Unlock rewards">
+                    {rewardTiles.map((tile) => (
+                      <span className="unlock-preview-chip" key={tile.id}>
+                        <strong>{tile.name}</strong>
+                        <small>{formatCategory(tile.category)} Special</small>
+                      </span>
+                    ))}
+                  </div>
                 )}
-                <small>{getEncounterDetail(state, arrival.cardId).effectText}</small>
-                <small>{getEncounterDetail(state, arrival.cardId).footer}</small>
-              </div>
-              <strong>{arrival.timerTokens} timers</strong>
-            </article>
-          ))
+                {!validation.ok && (
+                  <small className="missing-cost encounter-action-note">
+                    {formatInteractBlockers(validation.reasons)}
+                  </small>
+                )}
+              </article>
+            );
+          })
         )}
       </section>
 
@@ -317,6 +368,7 @@ export function EncounterPanel({
           state.encounters.activeBurdens.map((cardId) => {
             const card = encounterById[cardId];
             const detail = getEncounterDetail(state, cardId);
+            const validation = canResolveBurden(state, cardId);
 
             return (
               <article
@@ -325,14 +377,32 @@ export function EncounterPanel({
               >
                 <div className="encounter-card-heading">
                   <span>{card?.name ?? cardId}</span>
-                  <strong>
-                    {state.ignoredBurdenIdsThisRound.includes(cardId)
-                      ? "Ignored"
-                      : "Active"}
-                  </strong>
+                  <div className="encounter-card-actions encounter-inline-actions">
+                    <strong>
+                      {state.ignoredBurdenIdsThisRound.includes(cardId)
+                        ? "Ignored"
+                        : "Active"}
+                    </strong>
+                    <button
+                      disabled={!validation.ok || !onResolveBurden}
+                      onClick={() => onResolveBurden?.(cardId)}
+                      type="button"
+                    >
+                      Resolve
+                    </button>
+                  </div>
                 </div>
                 {detail.flavorText && <em>{detail.flavorText}</em>}
+                <small>
+                  {getBurdenResolutionCurrentText(card, state.season) ??
+                    "Resolution cost unavailable."}
+                </small>
                 <EncounterSeasonEffects card={card} currentSeason={state.season} />
+                {!validation.ok && (
+                  <small className="missing-cost encounter-action-note">
+                    {formatInteractBlockers(validation.reasons)}
+                  </small>
+                )}
               </article>
             );
           })
@@ -344,22 +414,34 @@ export function EncounterPanel({
         {state.encounters.completedArrivals.length === 0 ? (
           <p className="muted">No Special Tiles unlocked.</p>
         ) : (
-          state.encounters.completedArrivals.map((arrival) => (
-            <article key={arrival.cardId} className="encounter-row card-row card-arrival">
-              <div>
-                <span>{encounterById[arrival.cardId]?.name ?? arrival.cardId}</span>
+          state.encounters.completedArrivals.map((arrival) => {
+            const rewardTiles = getSpecialTileList(arrival.specialTileIds);
+            return (
+              <article
+                key={arrival.cardId}
+                className="encounter-row encounter-full-card card-row card-arrival completed-arrival-card"
+              >
+                <div className="encounter-card-heading">
+                  <span>{encounterById[arrival.cardId]?.name ?? arrival.cardId}</span>
+                  <strong>
+                    {arrival.specialTileIds.length} tile
+                    {arrival.specialTileIds.length === 1 ? "" : "s"} unlocked
+                  </strong>
+                </div>
                 {getEncounterDetail(state, arrival.cardId).flavorText && (
                   <em>{getEncounterDetail(state, arrival.cardId).flavorText}</em>
                 )}
-                <small>
-                  {arrival.specialTileIds
-                    .map((tileId) => specialTileById[tileId]?.name ?? tileId)
-                    .join(", ")}
-                </small>
-              </div>
-              <strong>{arrival.specialTileIds.length} tiles</strong>
-            </article>
-          ))
+                <div className="unlock-preview-list prominent" aria-label="Unlocked special tiles">
+                  {rewardTiles.map((tile) => (
+                    <span className="unlock-preview-chip" key={tile.id}>
+                      <strong>{tile.name}</strong>
+                      <small>{formatCategory(tile.category)} Special Tile</small>
+                    </span>
+                  ))}
+                </div>
+              </article>
+            );
+          })
         )}
       </section>
     </aside>
