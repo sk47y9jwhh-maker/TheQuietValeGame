@@ -38,12 +38,44 @@ const terrainKey: Terrain[] = [
 ];
 const longPressDelayMs = 520;
 const longPressMoveTolerance = 12;
+const tileLabelMaxChars = 10;
 
 function polygonPoints(cx: number, cy: number): string {
   return Array.from({ length: 6 }, (_, index) => {
     const angle = (Math.PI / 180) * (60 * index);
     return `${cx + radius * Math.cos(angle)},${cy + radius * Math.sin(angle)}`;
   }).join(" ");
+}
+
+function getTileLabelLines(tileName: string): string[] {
+  if (!tileName) return [];
+  if (tileName.length <= tileLabelMaxChars) return [tileName];
+
+  const words = tileName.split(/\s+/);
+  const lines: string[] = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    const nextLine = currentLine ? `${currentLine} ${word}` : word;
+    if (nextLine.length <= tileLabelMaxChars) {
+      currentLine = nextLine;
+      continue;
+    }
+
+    if (currentLine) lines.push(currentLine);
+    currentLine = word;
+    if (lines.length === 1) break;
+  }
+
+  if (currentLine && lines.length < 2) lines.push(currentLine);
+  if (lines.length === 0) lines.push(tileName.slice(0, tileLabelMaxChars));
+
+  return lines.slice(0, 2).map((line, index) => {
+    if (index === 1 && line.length > tileLabelMaxChars) {
+      return `${line.slice(0, tileLabelMaxChars - 1)}.`;
+    }
+    return line;
+  });
 }
 
 export function HexMap({
@@ -174,6 +206,8 @@ export function HexMap({
             const overstrained = Boolean(placed && placed.strain >= 3);
             const reachable = Boolean(placed && reachableTileIds.has(placed.instanceId));
             const tileCategory = placed ? getTileCategory(placed) : null;
+            const labelLines = getTileLabelLines(tileName);
+            const labelHeight = labelLines.length > 1 ? 26 : 19;
 
             return (
               <g
@@ -185,6 +219,7 @@ export function HexMap({
                   selected ? "is-selected" : "",
                   inFootprint ? "is-footprint" : "",
                   placed ? "is-placed" : "",
+                  placed?.kind === "special" ? "tile-special" : "",
                   tileCategory ? `tile-${tileCategory}` : "",
                   reachable ? "is-reachable" : "",
                   supported ? "is-supported" : "",
@@ -256,41 +291,33 @@ export function HexMap({
                     : ""}
                 </title>
                 <polygon points={polygonPoints(x, y)} />
-                <text x={x} y={y + 2} textAnchor="middle" className="hex-label">
-                  {tileName.length > 17 ? `${tileName.slice(0, 16)}.` : tileName}
-                </text>
-                {supported && (
-                  <g className="support-marker">
-                    <circle cx={x - 19} cy={y + 19} r={8} />
-                    <text x={x - 19} y={y + 23} textAnchor="middle">
-                      S
+                {placed && (
+                  <>
+                    <rect
+                      className="hex-label-backplate"
+                      x={x - 28}
+                      y={y - labelHeight / 2 - 1}
+                      width={58}
+                      height={labelHeight}
+                      rx={5}
+                    />
+                    <text
+                      x={x}
+                      y={labelLines.length > 1 ? y - 4 : y + 3}
+                      textAnchor="middle"
+                      className="hex-label"
+                    >
+                      {labelLines.map((line, index) => (
+                        <tspan
+                          key={`${line}-${index}`}
+                          x={x}
+                          dy={index === 0 ? 0 : 9}
+                        >
+                          {line}
+                        </tspan>
+                      ))}
                     </text>
-                  </g>
-                )}
-                {placed && placed.strain > 0 && (
-                  <g className="strain-marker">
-                    <circle cx={x + 19} cy={y + 19} r={8} />
-                    <text x={x + 19} y={y + 23} textAnchor="middle">
-                      {placed.strain}
-                    </text>
-                  </g>
-                )}
-                {stewardsHere.map((player, index) => (
-                  <g
-                    className="steward-marker"
-                    key={player.id}
-                    transform={`translate(${x - 14 + index * 14}, ${y - 26})`}
-                  >
-                    <circle cx={0} cy={0} r={7} />
-                    <text x={0} y={4} textAnchor="middle">
-                      {state.players.findIndex((candidate) => candidate.id === player.id) + 1}
-                    </text>
-                  </g>
-                ))}
-                {overstrained && (
-                  <text x={x} y={y + 29} textAnchor="middle" className="overstrain-label">
-                    OVER
-                  </text>
+                  </>
                 )}
               </g>
             );
@@ -315,16 +342,16 @@ export function HexMap({
                 <g className="hex-marker-stack" key={`markers-${cell.id}`}>
                   {supported && (
                     <g className="support-marker">
-                      <circle cx={x - 19} cy={y + 19} r={8} />
-                      <text x={x - 19} y={y + 23} textAnchor="middle">
+                      <circle cx={x - 15} cy={y + 14} r={7} />
+                      <text x={x - 15} y={y + 18} textAnchor="middle">
                         S
                       </text>
                     </g>
                   )}
                   {placed && placed.strain > 0 && (
                     <g className="strain-marker">
-                      <circle cx={x + 19} cy={y + 19} r={8} />
-                      <text x={x + 19} y={y + 23} textAnchor="middle">
+                      <circle cx={x + 15} cy={y + 14} r={7} />
+                      <text x={x + 15} y={y + 18} textAnchor="middle">
                         {placed.strain}
                       </text>
                     </g>
@@ -333,10 +360,10 @@ export function HexMap({
                     <g
                       className="steward-marker"
                       key={player.id}
-                      transform={`translate(${x - 14 + index * 14}, ${y - 26})`}
+                      transform={`translate(${x - 15 + index * 10}, ${y - 22})`}
                     >
-                      <circle cx={0} cy={0} r={7} />
-                      <text x={0} y={4} textAnchor="middle">
+                      <circle cx={0} cy={0} r={6.5} />
+                      <text x={0} y={3.5} textAnchor="middle">
                         {state.players.findIndex((candidate) => candidate.id === player.id) + 1}
                       </text>
                     </g>
@@ -344,7 +371,7 @@ export function HexMap({
                   {overstrained && (
                     <text
                       x={x}
-                      y={y + 29}
+                      y={y + 25}
                       textAnchor="middle"
                       className="overstrain-label"
                     >

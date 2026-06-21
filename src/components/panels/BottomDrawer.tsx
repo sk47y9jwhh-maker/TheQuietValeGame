@@ -109,6 +109,7 @@ export function BottomDrawer({ state }: BottomDrawerProps) {
                     <p>
                       Unlocked Special | {formatCategory(tile.category)}
                     </p>
+                    <p>Placement: {tile.placement?.text ?? "No placement restriction."}</p>
                     <p>{tile.effectText}</p>
                   </article>
                 );
@@ -127,6 +128,7 @@ export function BottomDrawer({ state }: BottomDrawerProps) {
                     <p>
                       {formatCategory(tile.category)} | Cost {formatCost(tile.basic.cost)}
                     </p>
+                    <p>Placement: {tile.placement?.text ?? "No placement restriction."}</p>
                     <p>{tile.basic.effectText}</p>
                   </article>
                 );
@@ -168,6 +170,7 @@ export function BottomDrawer({ state }: BottomDrawerProps) {
                       <span>{remaining > 0 ? "Ready" : "Locked"}</span>
                     </div>
                     <p>{formatCategory(tile.category)} | {tile.unlockSource}</p>
+                    <p>Placement: {tile.placement?.text ?? "No placement restriction."}</p>
                     <p>{tile.effectText}</p>
                   </article>
                 );

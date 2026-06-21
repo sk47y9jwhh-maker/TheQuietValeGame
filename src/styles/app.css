@@ -1626,16 +1626,25 @@ button.effect-row {
   font-weight: 800;
 }
 
+.hex-label-backplate {
+  fill: rgba(21, 23, 17, 0.66);
+  stroke: rgba(244, 234, 214, 0.58);
+  stroke-width: 0.8;
+  pointer-events: none;
+}
+
 .hex-cell .hex-label {
+  fill: var(--qv-cream-text);
   paint-order: stroke;
-  stroke: rgba(244, 234, 214, 0.55);
-  stroke-width: 2px;
+  stroke: rgba(21, 23, 17, 0.44);
+  stroke-width: 1.4px;
 }
 
 .hex-map .hex-label {
   display: block;
-  font-size: 7px;
-  font-weight: 700;
+  font-size: 9.4px;
+  font-weight: 900;
+  letter-spacing: 0;
 }
 
 .hex-cell.terrain-woodland polygon {
@@ -1663,42 +1672,77 @@ button.effect-row {
 }
 
 .hex-cell.is-placed polygon {
-  fill: #6e7256;
+  fill: #70755f;
   filter: none;
+  stroke: rgba(244, 234, 214, 0.52);
+  stroke-width: 1.8;
 }
 
 .hex-cell.is-placed.tile-resource polygon {
-  fill: #55734f;
+  fill: #7f8956;
+}
+
+.hex-cell.is-placed.tile-resource.terrain-grasslands polygon {
+  fill: #8a8f5b;
+}
+
+.hex-cell.is-placed.tile-resource.terrain-woodland polygon {
+  fill: #587b4f;
+}
+
+.hex-cell.is-placed.tile-resource.terrain-water polygon {
+  fill: #5e8796;
+}
+
+.hex-cell.is-placed.tile-resource.terrain-mountains polygon {
+  fill: #89979b;
+}
+
+.hex-cell.is-placed.tile-resource.terrain-heaths polygon {
+  fill: #8d7898;
+}
+
+.hex-cell.is-placed.tile-resource.terrain-arable polygon {
+  fill: #bd9e55;
+}
+
+.hex-cell.is-placed.tile-resource.terrain-ruins polygon {
+  fill: #877968;
 }
 
 .hex-cell.is-placed.tile-housing polygon {
-  fill: #9b7047;
+  fill: #a66f48;
 }
 
 .hex-cell.is-placed.tile-crafting polygon {
-  fill: #626b74;
+  fill: #66747c;
 }
 
 .hex-cell.is-placed.tile-merchant polygon {
-  fill: #9a7b35;
+  fill: #b1883e;
 }
 
 .hex-cell.is-placed.tile-social polygon {
-  fill: #7f5f86;
+  fill: #825f8e;
 }
 
 .hex-cell.is-placed.tile-wellbeing polygon {
-  fill: #5e7d75;
+  fill: #5f8479;
 }
 
 .hex-cell.is-placed.tile-travel polygon {
-  fill: #596f8c;
+  fill: #58749d;
+}
+
+.hex-cell.is-placed.tile-special polygon {
+  stroke: rgba(255, 246, 223, 0.88);
+  stroke-width: 2.2;
 }
 
 .hex-cell.is-placed .hex-label {
   fill: var(--qv-cream-text);
-  stroke: rgba(21, 23, 17, 0.64);
-  stroke-width: 2.4px;
+  stroke: rgba(21, 23, 17, 0.58);
+  stroke-width: 1.5px;
 }
 
 .hex-cell.is-legal polygon {
@@ -1744,7 +1788,7 @@ button.effect-row {
 .steward-marker text,
 .strain-marker text {
   fill: var(--qv-cream-text);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 900;
   paint-order: stroke;
   stroke: none;
