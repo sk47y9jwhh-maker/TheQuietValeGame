@@ -27,6 +27,7 @@ function renderActionConsole(
       onResolvePendingEffect={() => {}}
       onReveal={() => {}}
       onSelectedTileChange={() => {}}
+      onTileInspect={() => {}}
       onSkipPendingEffect={() => {}}
       onStableMove={() => {}}
       onUpgrade={() => {}}
@@ -92,6 +93,18 @@ describe("action console", () => {
     });
 
     expect(screen.getAllByRole("option")[0]).toHaveTextContent("Street");
+  });
+
+  it("inspects a tile choice without selecting it", () => {
+    const onSelectedTileChange = vi.fn();
+    const onTileInspect = vi.fn();
+
+    renderActionConsole({ onSelectedTileChange, onTileInspect });
+
+    fireEvent.click(screen.getByRole("button", { name: "Inspect Lumber Yard" }));
+
+    expect(onTileInspect).toHaveBeenCalledWith("c01_lumber_yard");
+    expect(onSelectedTileChange).not.toHaveBeenCalled();
   });
 
   it("places a tile on the only legal opening space without a selected hex", () => {

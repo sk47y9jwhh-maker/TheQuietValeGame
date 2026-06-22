@@ -1,5 +1,6 @@
 import {
   BadgeCheck,
+  Eye,
   Hammer,
   Handshake,
   Play,
@@ -51,6 +52,7 @@ interface ActionConsoleProps {
   actionMode: string;
   onModeChange: (mode: string) => void;
   onSelectedTileChange: (tileId: string) => void;
+  onTileInspect: (tileId: string) => void;
   onPlacementOrientationChange: (orientation: HexDirection) => void;
   onConfirmPlace: (placementDraft: TilePlacementDraft, tileId?: string) => void;
   onUpgrade: (placedTileId: string) => void;
@@ -93,6 +95,7 @@ export function ActionConsole({
   actionMode,
   onModeChange,
   onSelectedTileChange,
+  onTileInspect,
   onPlacementOrientationChange,
   onConfirmPlace,
   onUpgrade,
@@ -364,6 +367,18 @@ export function ActionConsole({
                       >
                         {statusLabel}
                       </span>
+                      <button
+                        aria-label={`Inspect ${tile.name}`}
+                        className="tile-choice-inspect"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onTileInspect(tile.id);
+                        }}
+                        title={`Inspect ${tile.name}`}
+                        type="button"
+                      >
+                        <Eye size={15} />
+                      </button>
                       {readyToPlace && (
                         <button
                           aria-label={`Place ${tile.name}`}

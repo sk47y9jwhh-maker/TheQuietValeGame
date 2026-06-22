@@ -8,7 +8,8 @@ import type { GameState, Terrain, TileSideData } from "../../engine/types";
 
 interface TileInspectModalProps {
   state: GameState;
-  placedTileId: string | null;
+  placedTileId?: string | null;
+  tileId?: string | null;
   onClose: () => void;
 }
 
@@ -37,14 +38,21 @@ function SidePanel({ title, side, current }: SidePanelProps) {
 export function TileInspectModal({
   state,
   placedTileId,
+  tileId,
   onClose
 }: TileInspectModalProps) {
   const placedTile = placedTileId
     ? state.map.placedTiles.find((tile) => tile.instanceId === placedTileId)
     : null;
+  const inspectedTileId = placedTile?.tileId ?? tileId ?? null;
+  const coreTile = inspectedTileId ? coreTileById[inspectedTileId] : null;
+  const specialTile = inspectedTileId ? specialTileById[inspectedTileId] : null;
+  const tileName =
+    placedTile ? selectTileName(placedTile) : coreTile?.basic.name ?? specialTile?.name;
+  const isOpen = Boolean(placedTile || coreTile || specialTile);
 
   useEffect(() => {
-    if (!placedTileId) return undefined;
+    if (!isOpen) return undefined;
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
@@ -52,14 +60,10 @@ export function TileInspectModal({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose, placedTileId]);
+  }, [isOpen, onClose]);
 
-  if (!placedTile) return null;
+  if (!isOpen || !tileName) return null;
 
-  const coreTile = placedTile.kind === "core" ? coreTileById[placedTile.tileId] : null;
-  const specialTile =
-    placedTile.kind === "special" ? specialTileById[placedTile.tileId] : null;
-  const tileName = selectTileName(placedTile);
   const category = coreTile?.category ?? specialTile?.category;
   const placementText =
     coreTile?.placement?.text ??
@@ -67,13 +71,17 @@ export function TileInspectModal({
     "No placement restriction.";
   const terrainNames = Array.from(
     new Set(
-      placedTile.hexIds
+      (placedTile?.hexIds ?? [])
         .map((hexId) => mapById[hexId]?.terrain)
         .filter((terrain): terrain is Terrain => Boolean(terrain))
         .map((terrain) => terrainLabels[terrain])
     )
   );
-  const supported = placedTile.support.passive || placedTile.support.singleUse;
+  const supported = placedTile
+    ? placedTile.support.passive || placedTile.support.singleUse
+    : false;
+  const coreSupply = coreTile ? state.tileSupply.core[coreTile.id] ?? 0 : null;
+  const specialSupply = specialTile ? state.tileSupply.special[specialTile.id] ?? 0 : null;
 
   return (
     <div className="tile-inspect-scrim" onClick={onClose}>
@@ -98,10 +106,25 @@ export function TileInspectModal({
           <span>{category ? formatCategory(category) : "Tile"}</span>
         </div>
         <div className="tile-inspect-meta">
-          <span>Hex {placedTile.hexIds.join(", ")}</span>
-          <span>{terrainNames.join(", ") || "Terrain unknown"}</span>
-          <span>Strain {placedTile.strain}/3</span>
-          <span>{supported ? "Supported" : "Not Supported"}</span>
+          {placedTile ? (
+            <>
+              <span>Hex {placedTile.hexIds.join(", ")}</span>
+              <span>{terrainNames.join(", ") || "Terrain unknown"}</span>
+              <span>Strain {placedTile.strain}/3</span>
+              <span>{supported ? "Supported" : "Not Supported"}</span>
+            </>
+          ) : (
+            <>
+              <span>{coreTile ? "Core Tile" : "Special Tile"}</span>
+              {coreTile && <span>Supply {coreSupply}/{coreTile.count}</span>}
+              {specialTile && (
+                <span>
+                  {specialSupply && specialSupply > 0 ? `${specialSupply} ready` : "Locked"}
+                </span>
+              )}
+              <span>Size {coreTile?.size ?? specialTile?.size ?? 1}</span>
+            </>
+          )}
         </div>
         <div className="tile-inspect-rule">
           <strong>Placement</strong>
@@ -110,12 +133,12 @@ export function TileInspectModal({
         {coreTile && (
           <div className="tile-inspect-side-list">
             <SidePanel
-              current={placedTile.side === "basic"}
+              current={placedTile?.side === "basic"}
               side={coreTile.basic}
               title={coreTile.basic.name}
             />
             <SidePanel
-              current={placedTile.side === "upgraded"}
+              current={placedTile?.side === "upgraded"}
               side={coreTile.upgraded}
               title={coreTile.upgraded.name}
             />

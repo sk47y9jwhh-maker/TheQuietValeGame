@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { BottomDrawer } from "../components/panels/BottomDrawer";
 import { createNewGame } from "../engine/setup";
 
@@ -11,7 +11,7 @@ describe("bottom drawer", () => {
       phase: "turns" as const
     };
 
-    render(<BottomDrawer state={state} />);
+    render(<BottomDrawer state={state} onTileInspect={() => {}} />);
 
     expect(screen.queryByRole("heading", { name: "Tiles" })).not.toBeInTheDocument();
 
@@ -39,7 +39,7 @@ describe("bottom drawer", () => {
       }
     };
 
-    const { container } = render(<BottomDrawer state={state} />);
+    const { container } = render(<BottomDrawer state={state} onTileInspect={() => {}} />);
 
     fireEvent.click(screen.getByRole("tab", { name: /tiles/i }));
 
@@ -51,5 +51,20 @@ describe("bottom drawer", () => {
     expect(
       screen.getByText("Placement: Place adjacent to a Lumber Yard / Sustainable Lumber Yard.")
     ).toBeInTheDocument();
+  });
+
+  it("opens tile inspection from tray tiles", () => {
+    const onTileInspect = vi.fn();
+    const state = {
+      ...createNewGame(1, ["vanguard"]),
+      phase: "turns" as const
+    };
+
+    render(<BottomDrawer state={state} onTileInspect={onTileInspect} />);
+
+    fireEvent.click(screen.getByRole("tab", { name: /tiles/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Inspect Lumber Yard" }));
+
+    expect(onTileInspect).toHaveBeenCalledWith("c01_lumber_yard");
   });
 });

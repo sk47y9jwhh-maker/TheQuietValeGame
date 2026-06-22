@@ -208,6 +208,7 @@ export function App() {
   const [selectedTileId, setSelectedTileId] = useState(coreTiles[0].id);
   const [placementOrientation, setPlacementOrientation] = useState<HexDirection>(3);
   const [actionMode, setActionMode] = useState("place");
+  const [inspectedPlacedTileId, setInspectedPlacedTileId] = useState<string | null>(null);
   const [inspectedTileId, setInspectedTileId] = useState<string | null>(null);
   const [mapContextMenu, setMapContextMenu] = useState<{
     hexId: string;
@@ -740,6 +741,21 @@ export function App() {
     setMapContextMenu(null);
   }
 
+  function inspectPlacedTile(placedTileId: string) {
+    setInspectedPlacedTileId(placedTileId);
+    setInspectedTileId(null);
+  }
+
+  function inspectTileDefinition(tileId: string) {
+    setInspectedTileId(tileId);
+    setInspectedPlacedTileId(null);
+  }
+
+  function closeTileInspector() {
+    setInspectedPlacedTileId(null);
+    setInspectedTileId(null);
+  }
+
   return (
     <div className="app-shell">
       <TopBar
@@ -759,6 +775,7 @@ export function App() {
           actionMode={actionMode}
           onModeChange={setActionMode}
           onSelectedTileChange={handleTileChange}
+          onTileInspect={inspectTileDefinition}
           onPlacementOrientationChange={setPlacementOrientation}
           onConfirmPlace={(resolvedPlacementDraft, tileId = selectedTileId) => {
             if (!resolvedPlacementDraft.anchorHexId) return;
@@ -829,7 +846,7 @@ export function App() {
           onHexContextMenu={(hexId, point) =>
             setMapContextMenu({ hexId, x: point.x, y: point.y })
           }
-          onTileInspect={setInspectedTileId}
+          onTileInspect={inspectPlacedTile}
         />
         <EncounterPanel
           state={state}
@@ -893,7 +910,7 @@ export function App() {
             {contextTile && (
               <button
                 onClick={() => {
-                  setInspectedTileId(contextTile.instanceId);
+                  inspectPlacedTile(contextTile.instanceId);
                   setMapContextMenu(null);
                 }}
                 type="button"
@@ -946,10 +963,11 @@ export function App() {
       </main>
       <TileInspectModal
         state={state}
-        placedTileId={inspectedTileId}
-        onClose={() => setInspectedTileId(null)}
+        placedTileId={inspectedPlacedTileId}
+        tileId={inspectedTileId}
+        onClose={closeTileInspector}
       />
-      <BottomDrawer state={state} />
+      <BottomDrawer state={state} onTileInspect={inspectTileDefinition} />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  Eye,
   Layers,
   List,
   ScrollText,
@@ -18,6 +19,7 @@ type DrawerSection = "tiles" | "hand" | "specials" | "log" | "rules";
 
 interface BottomDrawerProps {
   state: GameState;
+  onTileInspect: (tileId: string) => void;
 }
 
 const rules = [
@@ -39,7 +41,7 @@ const rules = [
   }
 ];
 
-export function BottomDrawer({ state }: BottomDrawerProps) {
+export function BottomDrawer({ state, onTileInspect }: BottomDrawerProps) {
   const [activeSection, setActiveSection] = useState<DrawerSection | null>(null);
   const currentPlayer = selectCurrentPlayer(state);
   const hand = state.encounters.handsByPlayerId[currentPlayer.id] ?? [];
@@ -105,6 +107,15 @@ export function BottomDrawer({ state }: BottomDrawerProps) {
                     <div className="mini-card-heading">
                       <strong>{tile.name}</strong>
                       <span>{remaining} ready</span>
+                      <button
+                        aria-label={`Inspect ${tile.name}`}
+                        className="mini-card-inspect"
+                        onClick={() => onTileInspect(tile.id)}
+                        title={`Inspect ${tile.name}`}
+                        type="button"
+                      >
+                        <Eye size={14} />
+                      </button>
                     </div>
                     <p>
                       Unlocked Special | {formatCategory(tile.category)}
@@ -124,6 +135,15 @@ export function BottomDrawer({ state }: BottomDrawerProps) {
                     <div className="mini-card-heading">
                       <strong>{tile.basic.name}</strong>
                       <span>{remaining} left</span>
+                      <button
+                        aria-label={`Inspect ${tile.basic.name}`}
+                        className="mini-card-inspect"
+                        onClick={() => onTileInspect(tile.id)}
+                        title={`Inspect ${tile.basic.name}`}
+                        type="button"
+                      >
+                        <Eye size={14} />
+                      </button>
                     </div>
                     <p>
                       {formatCategory(tile.category)} | Cost {formatCost(tile.basic.cost)}
@@ -168,6 +188,15 @@ export function BottomDrawer({ state }: BottomDrawerProps) {
                     <div className="mini-card-heading">
                       <strong>{tile.name}</strong>
                       <span>{remaining > 0 ? "Ready" : "Locked"}</span>
+                      <button
+                        aria-label={`Inspect ${tile.name}`}
+                        className="mini-card-inspect"
+                        onClick={() => onTileInspect(tile.id)}
+                        title={`Inspect ${tile.name}`}
+                        type="button"
+                      >
+                        <Eye size={14} />
+                      </button>
                     </div>
                     <p>{formatCategory(tile.category)} | {tile.unlockSource}</p>
                     <p>Placement: {tile.placement?.text ?? "No placement restriction."}</p>

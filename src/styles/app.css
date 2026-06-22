@@ -1386,6 +1386,27 @@ button.effect-row {
   font-weight: 900;
 }
 
+.tile-choice-inspect,
+.mini-card-inspect {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(36, 31, 26, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 246, 223, 0.82);
+  color: var(--qv-muted-green-dark);
+}
+
+.tile-choice-inspect:hover,
+.mini-card-inspect:hover,
+.tile-choice-inspect:focus-visible,
+.mini-card-inspect:focus-visible {
+  border-color: var(--qv-muted-green-dark);
+  background: rgba(80, 107, 79, 0.14);
+}
+
 .tile-choice-place:disabled {
   border-color: rgba(36, 31, 26, 0.12);
   background: rgba(36, 31, 26, 0.08);
@@ -2512,7 +2533,7 @@ button.effect-row {
 
 .mini-card-heading {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 6px;
   align-items: start;
 }
@@ -2532,6 +2553,12 @@ button.effect-row {
   font-size: 10px;
   font-weight: 800;
   white-space: nowrap;
+}
+
+.mini-card-inspect {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
 }
 
 .rules-grid {
