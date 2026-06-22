@@ -2505,14 +2505,15 @@ button.effect-row {
 }
 
 .tile-reference-grid.compact-reference {
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  align-items: start;
 }
 
 .mini-card {
   display: grid;
-  gap: 4px;
-  min-width: 140px;
-  padding: 6px 8px;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px 10px;
   border-radius: 8px;
   background:
     linear-gradient(180deg, rgba(255, 246, 223, 0.94), rgba(216, 198, 154, 0.18)),
@@ -2545,6 +2546,8 @@ button.effect-row {
 
 .mini-card-heading strong {
   min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.12;
 }
 
 .mini-card-heading span {
@@ -2564,6 +2567,66 @@ button.effect-row {
   width: 24px;
   height: 24px;
   border-radius: 7px;
+}
+
+.tile-mini-card {
+  align-content: start;
+}
+
+.tile-mini-card-heading {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.tile-mini-card-heading strong {
+  min-width: 0;
+  color: var(--qv-ink);
+  font-size: 14px;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+
+.tile-mini-card-tools {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tile-mini-card-tools span {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  border-radius: 8px;
+  padding: 0 7px;
+  background: rgba(36, 31, 26, 0.08);
+  color: rgba(36, 31, 26, 0.74);
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.tile-mini-card p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.tile-mini-card-meta {
+  font-weight: 800;
+}
+
+.tile-mini-card-placement {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px;
+}
+
+.tile-mini-card-placement strong {
+  color: var(--qv-brass-dark);
+  font-size: 11px;
 }
 
 .rules-grid {

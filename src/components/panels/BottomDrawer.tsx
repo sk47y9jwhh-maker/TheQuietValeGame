@@ -22,6 +22,16 @@ interface BottomDrawerProps {
   onTileInspect: (tileId: string) => void;
 }
 
+interface TileReferenceCardProps {
+  className?: string;
+  effect: string;
+  meta: string;
+  name: string;
+  onInspect: () => void;
+  placement: string;
+  status: string;
+}
+
 const rules = [
   {
     title: "Round Flow",
@@ -40,6 +50,39 @@ const rules = [
     text: "A tile with 3 Strain is Overstrained. Supported prevents the next Strain that would be placed there."
   }
 ];
+
+function TileReferenceCard({
+  className = "",
+  effect,
+  meta,
+  name,
+  onInspect,
+  placement,
+  status
+}: TileReferenceCardProps) {
+  return (
+    <article className={`mini-card tile-mini-card ${className}`}>
+      <div className="tile-mini-card-heading">
+        <strong>{name}</strong>
+        <div className="tile-mini-card-tools">
+          <span>{status}</span>
+          <InspectIconButton
+            className="mini-card-inspect"
+            label={`Inspect ${name}`}
+            onClick={onInspect}
+            size={14}
+          />
+        </div>
+      </div>
+      <p className="tile-mini-card-meta">{meta}</p>
+      <p className="tile-mini-card-placement">
+        <strong>Placement:</strong>
+        <span>{placement}</span>
+      </p>
+      <p>{effect}</p>
+    </article>
+  );
+}
 
 export function BottomDrawer({ state, onTileInspect }: BottomDrawerProps) {
   const [activeSection, setActiveSection] = useState<DrawerSection | null>(null);
@@ -100,51 +143,31 @@ export function BottomDrawer({ state, onTileInspect }: BottomDrawerProps) {
               {readySpecialTiles.map((tile) => {
                 const remaining = state.tileSupply.special[tile.id] ?? 0;
                 return (
-                  <article
-                    className="mini-card available unlocked-special-card"
+                  <TileReferenceCard
+                    className="available unlocked-special-card"
+                    effect={tile.effectText}
                     key={tile.id}
-                  >
-                    <div className="mini-card-heading">
-                      <strong>{tile.name}</strong>
-                      <span>{remaining} ready</span>
-                      <InspectIconButton
-                        className="mini-card-inspect"
-                        label={`Inspect ${tile.name}`}
-                        onClick={() => onTileInspect(tile.id)}
-                        size={14}
-                      />
-                    </div>
-                    <p>
-                      Unlocked Special | {formatCategory(tile.category)}
-                    </p>
-                    <p>Placement: {tile.placement?.text ?? "No placement restriction."}</p>
-                    <p>{tile.effectText}</p>
-                  </article>
+                    meta={`Unlocked Special | ${formatCategory(tile.category)}`}
+                    name={tile.name}
+                    onInspect={() => onTileInspect(tile.id)}
+                    placement={tile.placement?.text ?? "No placement restriction."}
+                    status={`${remaining} ready`}
+                  />
                 );
               })}
               {coreTiles.map((tile) => {
                 const remaining = state.tileSupply.core[tile.id] ?? 0;
                 return (
-                  <article
-                    className={`mini-card ${remaining > 0 ? "available" : "locked"}`}
+                  <TileReferenceCard
+                    className={remaining > 0 ? "available" : "locked"}
+                    effect={tile.basic.effectText}
                     key={tile.id}
-                  >
-                    <div className="mini-card-heading">
-                      <strong>{tile.basic.name}</strong>
-                      <span>{remaining} left</span>
-                      <InspectIconButton
-                        className="mini-card-inspect"
-                        label={`Inspect ${tile.basic.name}`}
-                        onClick={() => onTileInspect(tile.id)}
-                        size={14}
-                      />
-                    </div>
-                    <p>
-                      {formatCategory(tile.category)} | Cost {formatCost(tile.basic.cost)}
-                    </p>
-                    <p>Placement: {tile.placement?.text ?? "No placement restriction."}</p>
-                    <p>{tile.basic.effectText}</p>
-                  </article>
+                    meta={`${formatCategory(tile.category)} | Cost ${formatCost(tile.basic.cost)}`}
+                    name={tile.basic.name}
+                    onInspect={() => onTileInspect(tile.id)}
+                    placement={tile.placement?.text ?? "No placement restriction."}
+                    status={`${remaining} left`}
+                  />
                 );
               })}
             </div>
@@ -175,24 +198,16 @@ export function BottomDrawer({ state, onTileInspect }: BottomDrawerProps) {
               {orderedSpecialTiles.map((tile) => {
                 const remaining = state.tileSupply.special[tile.id] ?? 0;
                 return (
-                  <article
-                    className={`mini-card ${remaining > 0 ? "available" : "locked"}`}
+                  <TileReferenceCard
+                    className={remaining > 0 ? "available" : "locked"}
+                    effect={tile.effectText}
                     key={tile.id}
-                  >
-                    <div className="mini-card-heading">
-                      <strong>{tile.name}</strong>
-                      <span>{remaining > 0 ? "Ready" : "Locked"}</span>
-                      <InspectIconButton
-                        className="mini-card-inspect"
-                        label={`Inspect ${tile.name}`}
-                        onClick={() => onTileInspect(tile.id)}
-                        size={14}
-                      />
-                    </div>
-                    <p>{formatCategory(tile.category)} | {tile.unlockSource}</p>
-                    <p>Placement: {tile.placement?.text ?? "No placement restriction."}</p>
-                    <p>{tile.effectText}</p>
-                  </article>
+                    meta={`${formatCategory(tile.category)} | ${tile.unlockSource}`}
+                    name={tile.name}
+                    onInspect={() => onTileInspect(tile.id)}
+                    placement={tile.placement?.text ?? "No placement restriction."}
+                    status={remaining > 0 ? "Ready" : "Locked"}
+                  />
                 );
               })}
             </div>

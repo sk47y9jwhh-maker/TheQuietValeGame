@@ -44,12 +44,12 @@ describe("bottom drawer", () => {
     fireEvent.click(screen.getByRole("tab", { name: /tiles/i }));
 
     const firstTileName = container.querySelector(
-      ".tile-reference-grid .mini-card .mini-card-heading strong"
+      ".tile-reference-grid .tile-mini-card .tile-mini-card-heading strong"
     );
     expect(firstTileName).toHaveTextContent("Shrine of Renewal");
     expect(screen.getByText("Unlocked Special | Resource")).toBeInTheDocument();
     expect(
-      screen.getByText("Placement: Place adjacent to a Lumber Yard / Sustainable Lumber Yard.")
+      screen.getByText("Place adjacent to a Lumber Yard / Sustainable Lumber Yard.")
     ).toBeInTheDocument();
   });
 
