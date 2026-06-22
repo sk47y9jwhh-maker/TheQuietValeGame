@@ -119,7 +119,8 @@ export function ActionConsole({
     state,
     currentPlayer.id,
     selectedHexIds,
-    placementOrientation
+    placementOrientation,
+    selectedTileId
   );
   const footprintKind = getTileFootprintKind(selectedTileId);
   const footprintSize = getTileFootprintSize(selectedTileId);

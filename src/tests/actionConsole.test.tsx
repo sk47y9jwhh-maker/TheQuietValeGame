@@ -86,6 +86,14 @@ describe("action console", () => {
     );
   });
 
+  it("keeps the selected line travel tile at the top of the place list", () => {
+    renderActionConsole({
+      selectedTileId: "c16_street"
+    });
+
+    expect(screen.getAllByRole("option")[0]).toHaveTextContent("Street");
+  });
+
   it("places a tile on the only legal opening space without a selected hex", () => {
     const onConfirmPlace = vi.fn();
 

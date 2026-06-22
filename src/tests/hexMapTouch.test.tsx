@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { coreTiles } from "../data/tiles";
 import { HexMap } from "../components/map/HexMap";
+import { placeTile } from "../engine/gameActions";
 import { createNewGame } from "../engine/setup";
 
 describe("hex map touch controls", () => {
@@ -92,5 +93,36 @@ describe("hex map touch controls", () => {
 
     expect(onHexSelect).toHaveBeenNthCalledWith(1, "G1");
     expect(onHexSelect).toHaveBeenNthCalledWith(2, "G1");
+  });
+
+  it("opens tile inspection from a placed tile inspect control", () => {
+    const onTileInspect = vi.fn();
+    const state = {
+      ...placeTile(
+        { ...createNewGame(1, ["vanguard"]), phase: "turns" as const },
+        "player_1",
+        "c01_lumber_yard",
+        "G1"
+      ),
+      phase: "turns" as const
+    };
+    const placedTile = state.map.placedTiles[0];
+
+    render(
+      <HexMap
+        state={state}
+        selectedTileId={coreTiles[0].id}
+        actionMode="place"
+        selectedHexIds={[]}
+        placementOrientation={3}
+        onHexSelect={vi.fn()}
+        onHexContextMenu={vi.fn()}
+        onTileInspect={onTileInspect}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Inspect Lumber Yard" }));
+
+    expect(onTileInspect).toHaveBeenCalledWith(placedTile.instanceId);
   });
 });

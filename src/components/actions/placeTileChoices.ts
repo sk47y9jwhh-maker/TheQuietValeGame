@@ -284,8 +284,12 @@ export function getPlaceTileChoices(
   state: GameState,
   playerId: string,
   selectedHexIds: string[],
-  placementOrientation: HexDirection
+  placementOrientation: HexDirection,
+  selectedTileId?: string
 ): PlaceTileChoice[] {
+  const pinSelectedLineTile =
+    selectedTileId !== undefined && getTileFootprintKind(selectedTileId) === "line";
+
   return [
     ...coreTiles.map((tile) => ({
       id: tile.id,
@@ -373,6 +377,10 @@ export function getPlaceTileChoices(
       };
     })
     .sort((a, b) => {
+      if (pinSelectedLineTile && a.id !== b.id) {
+        if (a.id === selectedTileId) return -1;
+        if (b.id === selectedTileId) return 1;
+      }
       if (a.selectedPlaceableNow !== b.selectedPlaceableNow) {
         return a.selectedPlaceableNow ? -1 : 1;
       }

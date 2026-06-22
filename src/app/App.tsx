@@ -17,6 +17,7 @@ import { DeckReorderPanel } from "../components/effects/DeckReorderPanel";
 import { EffectPrompt } from "../components/effects/EffectPrompt";
 import { TopBar } from "../components/layout/TopBar";
 import { HexMap } from "../components/map/HexMap";
+import { TileInspectModal } from "../components/map/TileInspectModal";
 import { BottomDrawer } from "../components/panels/BottomDrawer";
 import { EncounterPanel } from "../components/panels/EncounterPanel";
 import { SeedingPanel } from "../components/seeding/SeedingPanel";
@@ -207,6 +208,7 @@ export function App() {
   const [selectedTileId, setSelectedTileId] = useState(coreTiles[0].id);
   const [placementOrientation, setPlacementOrientation] = useState<HexDirection>(3);
   const [actionMode, setActionMode] = useState("place");
+  const [inspectedTileId, setInspectedTileId] = useState<string | null>(null);
   const [mapContextMenu, setMapContextMenu] = useState<{
     hexId: string;
     x: number;
@@ -827,6 +829,7 @@ export function App() {
           onHexContextMenu={(hexId, point) =>
             setMapContextMenu({ hexId, x: point.x, y: point.y })
           }
+          onTileInspect={setInspectedTileId}
         />
         <EncounterPanel
           state={state}
@@ -889,6 +892,17 @@ export function App() {
             )}
             {contextTile && (
               <button
+                onClick={() => {
+                  setInspectedTileId(contextTile.instanceId);
+                  setMapContextMenu(null);
+                }}
+                type="button"
+              >
+                Inspect {selectTileName(contextTile)}
+              </button>
+            )}
+            {contextTile && (
+              <button
                 disabled={!canUpgradeContextTile}
                 title={contextUpgradeValidation?.reasons[0]}
                 onClick={() => {
@@ -930,6 +944,11 @@ export function App() {
           </div>
         )}
       </main>
+      <TileInspectModal
+        state={state}
+        placedTileId={inspectedTileId}
+        onClose={() => setInspectedTileId(null)}
+      />
       <BottomDrawer state={state} />
     </div>
   );

@@ -1,5 +1,5 @@
 import { useCallback, useRef } from "react";
-import { mapCells, terrainLabels } from "../../data/map";
+import { mapById, mapCells, terrainLabels } from "../../data/map";
 import {
   getLegalPlacementHexes,
   getTileCategory,
@@ -20,6 +20,7 @@ interface HexMapProps {
   placementOrientation: HexDirection;
   onHexSelect: (hexId: string) => void;
   onHexContextMenu?: (hexId: string, point: { x: number; y: number }) => void;
+  onTileInspect?: (placedTileId: string) => void;
 }
 
 const radius = 30;
@@ -45,6 +46,14 @@ function polygonPoints(cx: number, cy: number): string {
     const angle = (Math.PI / 180) * (60 * index);
     return `${cx + radius * Math.cos(angle)},${cy + radius * Math.sin(angle)}`;
   }).join(" ");
+}
+
+function getCellCenter(cell: { col: string; row: number }): { x: number; y: number } {
+  const colIndex = cell.col.charCodeAt(0) - 65;
+  return {
+    x: radius + colIndex * radius * 1.5 + 14,
+    y: hexHeight / 2 + (cell.row - 1) * hexHeight + (colIndex % 2 ? hexHeight / 2 : 0) + 18
+  };
 }
 
 function getTileLabelLines(tileName: string): string[] {
@@ -85,7 +94,8 @@ export function HexMap({
   selectedHexIds,
   placementOrientation,
   onHexSelect,
-  onHexContextMenu
+  onHexContextMenu,
+  onTileInspect
 }: HexMapProps) {
   const longPressRef = useRef<{
     timer: ReturnType<typeof setTimeout>;
@@ -191,9 +201,7 @@ export function HexMap({
           aria-label="The Quiet Vale map"
         >
           {mapCells.map((cell) => {
-            const colIndex = cell.col.charCodeAt(0) - 65;
-            const x = radius + colIndex * radius * 1.5 + 14;
-            const y = hexHeight / 2 + (cell.row - 1) * hexHeight + (colIndex % 2 ? hexHeight / 2 : 0) + 18;
+            const { x, y } = getCellCenter(cell);
             const placed = getPlacedTileAtHex(state, cell.id);
             const legal = legalHexes.has(cell.id);
             const selected = selectedHexIds.includes(cell.id);
@@ -326,15 +334,59 @@ export function HexMap({
               </g>
             );
           })}
+          {onTileInspect && (
+            <g className="hex-inspect-layer">
+              {state.map.placedTiles.map((placed) => {
+                const points = placed.hexIds
+                  .map((hexId) => mapById[hexId])
+                  .filter(Boolean)
+                  .map(getCellCenter);
+                if (points.length === 0) return null;
+
+                const x =
+                  points.reduce((total, point) => total + point.x, 0) / points.length;
+                const y =
+                  points.reduce((total, point) => total + point.y, 0) / points.length;
+                const tileName = selectTileName(placed);
+
+                return (
+                  <g
+                    aria-label={`Inspect ${tileName}`}
+                    className="tile-inspect-control"
+                    key={`inspect-${placed.instanceId}`}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      onTileInspect(placed.instanceId);
+                    }}
+                    onKeyDown={(event) => {
+                      if (
+                        event.key !== "Enter" &&
+                        event.key !== " " &&
+                        event.key !== "Spacebar"
+                      ) {
+                        return;
+                      }
+                      event.preventDefault();
+                      event.stopPropagation();
+                      onTileInspect(placed.instanceId);
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    transform={`translate(${x + 18}, ${y - 19})`}
+                  >
+                    <title>Inspect {tileName}</title>
+                    <circle className="tile-inspect-backplate" cx={0} cy={0} r={8.5} />
+                    <path className="tile-inspect-eye" d="M-6,0 C-3.5,-4.5 3.5,-4.5 6,0 C3.5,4.5 -3.5,4.5 -6,0 Z" />
+                    <circle className="tile-inspect-pupil" cx={0} cy={0} r={2.1} />
+                  </g>
+                );
+              })}
+            </g>
+          )}
           <g className="hex-marker-layer" aria-hidden="true">
             {mapCells.map((cell) => {
-              const colIndex = cell.col.charCodeAt(0) - 65;
-              const x = radius + colIndex * radius * 1.5 + 14;
-              const y =
-                hexHeight / 2 +
-                (cell.row - 1) * hexHeight +
-                (colIndex % 2 ? hexHeight / 2 : 0) +
-                18;
+              const { x, y } = getCellCenter(cell);
               const placed = getPlacedTileAtHex(state, cell.id);
               const stewardsHere = state.players.filter(
                 (player) => player.stewardHexId === cell.id
