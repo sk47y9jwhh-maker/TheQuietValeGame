@@ -1,6 +1,5 @@
 import {
   BadgeCheck,
-  Eye,
   Hammer,
   Handshake,
   Play,
@@ -9,6 +8,7 @@ import {
   SquarePlus
 } from "lucide-react";
 import { useEffect, type KeyboardEvent } from "react";
+import { InspectIconButton } from "../common/InspectIconButton";
 import { EffectPrompt } from "../effects/EffectPrompt";
 import { encounterById } from "../../data/encounters";
 import { stewardById } from "../../data/stewards";
@@ -367,18 +367,14 @@ export function ActionConsole({
                       >
                         {statusLabel}
                       </span>
-                      <button
-                        aria-label={`Inspect ${tile.name}`}
+                      <InspectIconButton
                         className="tile-choice-inspect"
+                        label={`Inspect ${tile.name}`}
                         onClick={(event) => {
                           event.stopPropagation();
                           onTileInspect(tile.id);
                         }}
-                        title={`Inspect ${tile.name}`}
-                        type="button"
-                      >
-                        <Eye size={15} />
-                      </button>
+                      />
                       {readyToPlace && (
                         <button
                           aria-label={`Place ${tile.name}`}

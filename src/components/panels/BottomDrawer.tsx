@@ -1,6 +1,5 @@
 import {
   BookOpen,
-  Eye,
   Layers,
   List,
   ScrollText,
@@ -8,6 +7,7 @@ import {
   X
 } from "lucide-react";
 import { useState } from "react";
+import { InspectIconButton } from "../common/InspectIconButton";
 import { encounterById } from "../../data/encounters";
 import { coreTiles, specialTiles } from "../../data/tiles";
 import { selectCurrentPlayer } from "../../engine/selectors";
@@ -107,15 +107,12 @@ export function BottomDrawer({ state, onTileInspect }: BottomDrawerProps) {
                     <div className="mini-card-heading">
                       <strong>{tile.name}</strong>
                       <span>{remaining} ready</span>
-                      <button
-                        aria-label={`Inspect ${tile.name}`}
+                      <InspectIconButton
                         className="mini-card-inspect"
+                        label={`Inspect ${tile.name}`}
                         onClick={() => onTileInspect(tile.id)}
-                        title={`Inspect ${tile.name}`}
-                        type="button"
-                      >
-                        <Eye size={14} />
-                      </button>
+                        size={14}
+                      />
                     </div>
                     <p>
                       Unlocked Special | {formatCategory(tile.category)}
@@ -135,15 +132,12 @@ export function BottomDrawer({ state, onTileInspect }: BottomDrawerProps) {
                     <div className="mini-card-heading">
                       <strong>{tile.basic.name}</strong>
                       <span>{remaining} left</span>
-                      <button
-                        aria-label={`Inspect ${tile.basic.name}`}
+                      <InspectIconButton
                         className="mini-card-inspect"
+                        label={`Inspect ${tile.basic.name}`}
                         onClick={() => onTileInspect(tile.id)}
-                        title={`Inspect ${tile.basic.name}`}
-                        type="button"
-                      >
-                        <Eye size={14} />
-                      </button>
+                        size={14}
+                      />
                     </div>
                     <p>
                       {formatCategory(tile.category)} | Cost {formatCost(tile.basic.cost)}
@@ -188,15 +182,12 @@ export function BottomDrawer({ state, onTileInspect }: BottomDrawerProps) {
                     <div className="mini-card-heading">
                       <strong>{tile.name}</strong>
                       <span>{remaining > 0 ? "Ready" : "Locked"}</span>
-                      <button
-                        aria-label={`Inspect ${tile.name}`}
+                      <InspectIconButton
                         className="mini-card-inspect"
+                        label={`Inspect ${tile.name}`}
                         onClick={() => onTileInspect(tile.id)}
-                        title={`Inspect ${tile.name}`}
-                        type="button"
-                      >
-                        <Eye size={14} />
-                      </button>
+                        size={14}
+                      />
                     </div>
                     <p>{formatCategory(tile.category)} | {tile.unlockSource}</p>
                     <p>Placement: {tile.placement?.text ?? "No placement restriction."}</p>
