@@ -167,7 +167,7 @@ export function scoreStewardObjectives(state: GameState): number {
     if (player.stewardId === "vanguard") {
       met = hasBridgeConnectedRiverObjective(eligibleTiles);
     } else if (player.stewardId === "knight") {
-      met = largestHousingClusterSize(eligibleTiles) >= 4;
+      met = largestHousingClusterSize(eligibleTiles) >= 3;
     } else if (player.stewardId === "sentinel") {
       met =
         eligibleTiles.filter((tile) => tile.kind === "core" && tile.side === "upgraded")
@@ -181,9 +181,9 @@ export function scoreStewardObjectives(state: GameState): number {
       );
       met = terrainTypes.size >= 3;
     } else if (player.stewardId === "warden") {
-      met = state.encounters.activeBurdens.length < state.playerCount;
+      met = state.encounters.activeBurdens.length === 0;
     } else if (player.stewardId === "quartermaster") {
-      met = Object.values(state.warehouse).filter((amount) => amount >= 5).length >= 4;
+      met = Object.values(state.warehouse).filter((amount) => amount >= 5).length >= 3;
     }
 
     return met ? total + steward.objectiveRenown : total;

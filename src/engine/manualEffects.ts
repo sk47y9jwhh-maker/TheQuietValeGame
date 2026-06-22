@@ -31,9 +31,22 @@ function hasStringRecordChanges(record: Record<string, string> | undefined): boo
   return Object.values(record ?? {}).some(Boolean);
 }
 
+export function isWardenReliefAdjustmentValid(adjustment: EffectAdjustment): boolean {
+  const strainDeltas = Object.values(adjustment.tileStrainDeltas ?? {});
+  const supportCount = adjustment.supportTileIds?.length ?? 0;
+  const strainRemovalCount = strainDeltas.reduce(
+    (total, delta) => total + (delta < 0 ? Math.abs(delta) : 0),
+    0
+  );
+  const hasInvalidStrainDelta = strainDeltas.some((delta) => delta > 0 || delta < -1);
+
+  return !hasInvalidStrainDelta && supportCount + strainRemovalCount === 1;
+}
+
 function isValidResourceExchange(
   adjustment: EffectAdjustment,
-  exchangeLimit: number
+  exchangeLimit: number,
+  optional = false
 ): boolean {
   const spent = resources.reduce(
     (total, resource) => total + Math.max(0, -(adjustment.resourceDeltas?.[resource] ?? 0)),
@@ -44,6 +57,7 @@ function isValidResourceExchange(
     0
   );
 
+  if (spent === 0 && gained === 0) return optional;
   return spent > 0 && spent === gained && spent <= exchangeLimit;
 }
 
@@ -54,6 +68,7 @@ export function hasEffectAdjustment(adjustment: EffectAdjustment): boolean {
     hasRecordChanges(adjustment.tileStrainDeltas) ||
     Boolean(adjustment.supportTileIds?.length) ||
     hasStringRecordChanges(adjustment.stewardHexUpdates) ||
+    hasStringRecordChanges(adjustment.temporaryReachHexUpdates) ||
     Boolean(adjustment.ignoredBurdenIds?.length) ||
     Boolean(adjustment.resolvedBurdenIds?.length)
   );
@@ -71,6 +86,22 @@ export function queuePendingEffect(
         ...effect,
         id: `effect_${state.pendingEffects.length + state.log.length + 1}_${Date.now()}`
       }
+    ]
+  };
+}
+
+export function queuePendingEffectFirst(
+  state: GameState,
+  effect: Omit<PendingEffectState, "id">
+): GameState {
+  return {
+    ...state,
+    pendingEffects: [
+      {
+        ...effect,
+        id: `effect_${state.pendingEffects.length + state.log.length + 1}_${Date.now()}`
+      },
+      ...state.pendingEffects
     ]
   };
 }
@@ -761,7 +792,17 @@ export function resolvePendingEffect(
   }
   if (
     pendingEffect.resourceExchangeLimit !== undefined &&
-    !isValidResourceExchange(effectiveAdjustment, pendingEffect.resourceExchangeLimit)
+    !isValidResourceExchange(
+      effectiveAdjustment,
+      pendingEffect.resourceExchangeLimit,
+      pendingEffect.resourceExchangeOptional
+    )
+  ) {
+    return state;
+  }
+  if (
+    pendingEffect.allowWardenRelief &&
+    !isWardenReliefAdjustmentValid(effectiveAdjustment)
   ) {
     return state;
   }
@@ -848,6 +889,18 @@ export function resolvePendingEffect(
     };
   }
 
+  if (effectiveAdjustment.temporaryReachHexUpdates) {
+    nextState = {
+      ...nextState,
+      players: nextState.players.map((player) => ({
+        ...player,
+        temporaryReachHexId:
+          effectiveAdjustment.temporaryReachHexUpdates?.[player.id] ??
+          player.temporaryReachHexId
+      }))
+    };
+  }
+
   if (effectiveAdjustment.ignoredBurdenIds?.length) {
     nextState = {
       ...nextState,
@@ -927,6 +980,10 @@ export function mergeEffectAdjustment(
     tileStrainDeltas: { ...base.tileStrainDeltas, ...next.tileStrainDeltas },
     supportTileIds: next.supportTileIds ?? base.supportTileIds,
     stewardHexUpdates: { ...base.stewardHexUpdates, ...next.stewardHexUpdates },
+    temporaryReachHexUpdates: {
+      ...base.temporaryReachHexUpdates,
+      ...next.temporaryReachHexUpdates
+    },
     ignoredBurdenIds: next.ignoredBurdenIds ?? base.ignoredBurdenIds,
     resolvedBurdenIds: next.resolvedBurdenIds ?? base.resolvedBurdenIds
   };

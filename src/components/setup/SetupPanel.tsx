@@ -224,7 +224,7 @@ export function SetupPanel({
                     .map((terrain) => terrainLabels[terrain])
                     .join(" or ")}
                 </p>
-                <p>{steward.startingBenefit}</p>
+                <p>{steward.powerText}</p>
               </article>
             ))}
           </div>

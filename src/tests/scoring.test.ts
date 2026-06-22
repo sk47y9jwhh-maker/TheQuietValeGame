@@ -55,9 +55,9 @@ describe("final scoring", () => {
     expect(score.printedRenown).toBe(0);
   });
 
-  it("scores the Warden objective when active Burdens are fewer than player count", () => {
+  it("scores the Warden objective when there are no active Burdens", () => {
     const state = createNewGame(2, ["warden", "vanguard"]);
-    state.encounters.activeBurdens = ["burden_smoke_over_hearths"];
+    state.encounters.activeBurdens = [];
 
     expect(calculateFinalScore(state).stewardObjectiveRenown).toBe(15);
   });
@@ -68,7 +68,7 @@ describe("final scoring", () => {
       wood: 5,
       stone: 5,
       metal: 5,
-      food: 5,
+      food: 0,
       herbs: 0,
       goods: 0
     };

@@ -100,9 +100,8 @@ export interface StewardData {
   id: string;
   name: string;
   startingTerrains: Terrain[];
-  startingBenefit: string;
-  power: string;
-  objective: string;
+  powerText: string;
+  objectiveText: string;
   objectiveRenown: number;
 }
 
@@ -113,6 +112,7 @@ export interface PlayerState {
   stewardHexId: string;
   hasPlacedFirstTile: boolean;
   stewardPowerUsesBySeason: Record<Season, number>;
+  temporaryReachHexId?: string;
 }
 
 export interface SupportState {
@@ -224,6 +224,7 @@ export interface EffectAdjustment {
   tileStrainDeltas?: Record<string, number>;
   supportTileIds?: string[];
   stewardHexUpdates?: Record<string, string>;
+  temporaryReachHexUpdates?: Record<string, string>;
   ignoredBurdenIds?: string[];
   resolvedBurdenIds?: string[];
 }
@@ -244,9 +245,12 @@ export interface PendingEffectState {
   skipLabel?: string;
   confirmLabel?: string;
   allowStewardMovementPlayerId?: string;
+  allowTemporaryReachPlayerId?: string;
   allowBurdenIgnore?: boolean;
   allowBurdenResolve?: boolean;
+  allowWardenRelief?: boolean;
   resourceExchangeLimit?: number;
+  resourceExchangeOptional?: boolean;
 }
 
 export interface PendingDeckReorderState {

@@ -957,13 +957,20 @@ describe("game actions", () => {
     expect(next.phase).toBe("seeding");
   });
 
-  it("prepares Vanguard's Steward Power as a seasonal placement discount", () => {
+  it("uses Vanguard's Steward Power for a 0 Action Travel placement with conditional support", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
       phase: "turns" as const,
-      players: [{ ...state.players[0], hasPlacedFirstTile: true }],
-      warehouse: { ...state.warehouse, stone: 1 },
+      actionsRemaining: 0,
+      players: [
+        {
+          ...state.players[0],
+          hasPlacedFirstTile: true,
+          stewardHexId: "G1"
+        }
+      ],
+      warehouse: { ...state.warehouse, stone: 3 },
       map: {
         placedTiles: [
           {
@@ -980,31 +987,55 @@ describe("game actions", () => {
     };
 
     const prepared = resolvePendingEffect(useStewardPower(ready, "player_1"));
-    const prompted = placeTile(prepared, "player_1", "c17_track", {
+    const next = placeTile(prepared, "player_1", "c17_track", {
       anchorHexId: "H1",
       orientation: 3
     });
-    const next = confirmRequiredDiscounts(prompted, "stone");
+    const placedTrack = next.map.placedTiles.find((tile) => tile.tileId === "c17_track");
 
     expect(prepared.players[0].stewardPowerUsesBySeason[1]).toBe(1);
     expect(next.map.placedTiles).toHaveLength(2);
+    expect(next.actionsRemaining).toBe(0);
     expect(next.warehouse.stone).toBe(0);
+    expect(placedTrack?.support.singleUse).toBe(true);
     expect(next.boonModifiers).toHaveLength(0);
   });
 
-  it("prepares Knight's Steward Power as a 0 Action Housing placement", () => {
+  it("uses Knight's Steward Power for a 0 Action Housing placement", () => {
     const state = createNewGame(1, ["knight"]);
     const ready = {
       ...state,
       phase: "turns" as const,
-      actionsRemaining: 0
+      actionsRemaining: 0,
+      players: [
+        {
+          ...state.players[0],
+          hasPlacedFirstTile: true,
+          stewardHexId: "G1"
+        }
+      ],
+      map: {
+        placedTiles: [
+          {
+            instanceId: "tile_1",
+            tileId: "c05_cabin",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
     };
 
     const prepared = resolvePendingEffect(useStewardPower(ready, "player_1"));
-    const next = placeTile(prepared, "player_1", "c05_cabin", "A6");
+    const next = placeTile(prepared, "player_1", "c05_cabin", "H1");
+    const placedCabin = next.map.placedTiles.find((tile) => tile.hexIds.includes("H1"));
 
-    expect(next.map.placedTiles).toHaveLength(1);
+    expect(next.map.placedTiles).toHaveLength(2);
     expect(next.actionsRemaining).toBe(0);
+    expect(placedCabin?.support.singleUse).toBe(true);
     expect(next.boonModifiers).toHaveLength(0);
   });
 
@@ -1042,7 +1073,54 @@ describe("game actions", () => {
     expect(next.map.placedTiles[0].support.passive).toBe(true);
   });
 
-  it("moves Ranger's Steward position through the effect prompt", () => {
+  it("uses Sentinel's Steward Power for a 0 Action upgrade with conditional support", () => {
+    const state = createNewGame(1, ["sentinel"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      actionsRemaining: 0,
+      warehouse: { ...state.warehouse, stone: 4 },
+      players: [
+        {
+          ...state.players[0],
+          hasPlacedFirstTile: true,
+          stewardHexId: "G1"
+        }
+      ],
+      map: {
+        placedTiles: [
+          {
+            instanceId: "tile_target",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "tile_upgraded_neighbor",
+            tileId: "c16_street",
+            kind: "core" as const,
+            side: "upgraded" as const,
+            hexIds: ["H1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    const prepared = resolvePendingEffect(useStewardPower(ready, "player_1"));
+    const next = upgradeTile(prepared, "player_1", "tile_target");
+    const upgraded = next.map.placedTiles.find((tile) => tile.instanceId === "tile_target");
+
+    expect(upgraded?.side).toBe("upgraded");
+    expect(upgraded?.support.singleUse).toBe(true);
+    expect(next.actionsRemaining).toBe(0);
+  });
+
+  it("sets Ranger's temporary reach target through the effect prompt", () => {
     const state = createNewGame(1, ["ranger"]);
     const ready = {
       ...state,
@@ -1064,15 +1142,16 @@ describe("game actions", () => {
 
     const prompted = useStewardPower(ready, "player_1");
     const next = resolvePendingEffect(prompted, {
-      stewardHexUpdates: { player_1: "G1" }
+      temporaryReachHexUpdates: { player_1: "G1" }
     });
 
-    expect(next.players[0].stewardHexId).toBe("G1");
+    expect(next.players[0].stewardHexId).toBe("A3");
+    expect(next.players[0].temporaryReachHexId).toBe("G1");
     expect(next.players[0].stewardPowerUsesBySeason[1]).toBe(1);
-    expect(canUseStewardPower(next, "player_1").ok).toBe(true);
+    expect(canUseStewardPower(next, "player_1").ok).toBe(false);
   });
 
-  it("lets Ranger place from a disconnected reached tile for 0 Actions", () => {
+  it("lets Ranger place from a disconnected reached tile with normal action cost", () => {
     const state = createNewGame(1, ["ranger"]);
     const ready = {
       ...state,
@@ -1112,21 +1191,63 @@ describe("game actions", () => {
 
     const prompted = useStewardPower(ready, "player_1");
     const reached = resolvePendingEffect(prompted, {
-      stewardHexUpdates: { player_1: "H5" }
+      temporaryReachHexUpdates: { player_1: "H5" }
     });
 
     expect(canStartPlaceTile(reached, "player_1", "c15_path", "H6").ok).toBe(true);
 
     const placed = placeTile(reached, "player_1", "c15_path", "H6");
 
-    expect(placed.actionsRemaining).toBe(reached.actionsRemaining);
+    expect(placed.actionsRemaining).toBe(reached.actionsRemaining - 1);
     expect(placed.map.placedTiles.some((tile) => tile.hexIds.includes("H6"))).toBe(true);
     expect(placed.boonModifiers.some((modifier) => modifier.sourceCardId === "ranger")).toBe(
       false
     );
   });
 
-  it("marks a Burden ignored for the round with Warden's Steward Power", () => {
+  it("lets Ranger place on a disconnected empty reach hex", () => {
+    const state = createNewGame(1, ["ranger"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      players: [
+        {
+          ...state.players[0],
+          hasPlacedFirstTile: true,
+          stewardHexId: "A3"
+        }
+      ],
+      map: {
+        placedTiles: [
+          {
+            instanceId: "tile_home",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["A3"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    expect(canStartPlaceTile(ready, "player_1", "c05_cabin", "H5").ok).toBe(false);
+
+    const reached = resolvePendingEffect(useStewardPower(ready, "player_1"), {
+      temporaryReachHexUpdates: { player_1: "H5" }
+    });
+
+    expect(canStartPlaceTile(reached, "player_1", "c05_cabin", "H5").ok).toBe(true);
+
+    const placed = placeTile(reached, "player_1", "c05_cabin", "H5");
+
+    expect(placed.map.placedTiles.some((tile) => tile.hexIds.includes("H5"))).toBe(true);
+    expect(placed.warehouse.wood).toBe(ready.warehouse.wood - 2);
+    expect(placed.warehouse.food).toBe(ready.warehouse.food - 5);
+  });
+
+  it("does not allow Warden's Steward Power as a normal turn action", () => {
     const state = createNewGame(1, ["warden"]);
     const ready = {
       ...state,
@@ -1137,21 +1258,10 @@ describe("game actions", () => {
       }
     };
 
-    const prompted = useStewardPower(ready, "player_1");
-    const ignored = resolvePendingEffect(prompted, {
-      ignoredBurdenIds: ["burden_smoke_over_hearths"]
-    });
-
-    expect(ignored.ignoredBurdenIdsThisRound).toEqual([
-      "burden_smoke_over_hearths"
-    ]);
-    expect(canUseStewardPower(ignored, "player_1").ok).toBe(false);
-
-    const nextRound = resolveEndRound({ ...ignored, phase: "endRound" as const });
-    expect(nextRound.ignoredBurdenIdsThisRound).toHaveLength(0);
+    expect(canUseStewardPower(ready, "player_1").ok).toBe(false);
   });
 
-  it("cancels a revealed Burden effect with Warden's Steward Power", () => {
+  it("prevents a revealed Burden effect with Warden's Steward Power and queues relief", () => {
     const state = createNewGame(2, ["vanguard", "warden"]);
     const ready = {
       ...state,
@@ -1159,6 +1269,19 @@ describe("game actions", () => {
       encounters: {
         ...state.encounters,
         deck: ["burden_smoke_over_hearths"]
+      },
+      map: {
+        placedTiles: [
+          {
+            instanceId: "tile_1",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 1,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
       }
     };
 
@@ -1170,12 +1293,17 @@ describe("game actions", () => {
 
     const cancelled = cancelPendingBurdenWithWarden(revealed);
 
-    expect(cancelled.pendingEffects).toHaveLength(0);
+    expect(cancelled.pendingEffects).toHaveLength(1);
+    expect(cancelled.pendingEffects[0].title).toBe("Warden Relief");
     expect(cancelled.encounters.activeBurdens).toEqual(["burden_smoke_over_hearths"]);
-    expect(cancelled.ignoredBurdenIdsThisRound).toEqual([
-      "burden_smoke_over_hearths"
-    ]);
+    expect(cancelled.ignoredBurdenIdsThisRound).toEqual([]);
     expect(cancelled.players[1].stewardPowerUsesBySeason[1]).toBe(1);
+
+    const relieved = resolvePendingEffect(cancelled, {
+      tileStrainDeltas: { tile_1: -1 }
+    });
+
+    expect(relieved.map.placedTiles[0].strain).toBe(0);
   });
 
   it("uses Quartermaster's Steward Power as a capped resource exchange prompt", () => {
@@ -1192,7 +1320,7 @@ describe("game actions", () => {
 
     const prompted = useStewardPower(ready, "player_1");
 
-    expect(prompted.pendingEffects[0].resourceExchangeLimit).toBe(3);
+    expect(prompted.pendingEffects[0].resourceExchangeLimit).toBe(5);
 
     const next = resolvePendingEffect(prompted, {
       resourceDeltas: { wood: -2, stone: 2 }
@@ -1202,12 +1330,31 @@ describe("game actions", () => {
     expect(next.warehouse.stone).toBe(2);
   });
 
+  it("lets Quartermaster add 1 timer to an active Arrival below 3", () => {
+    const state = createNewGame(1, ["quartermaster"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      warehouse: { wood: 0, stone: 0, metal: 0, food: 0, herbs: 0, goods: 0 },
+      encounters: {
+        ...state.encounters,
+        activeArrivals: [{ cardId: "arrival_the_quiet_quest", timerTokens: 2 }]
+      }
+    };
+
+    const prompted = useStewardPower(ready, "player_1");
+    const next = resolvePendingEffect(prompted);
+
+    expect(next.encounters.activeArrivals[0].timerTokens).toBe(3);
+    expect(next.players[0].stewardPowerUsesBySeason[1]).toBe(1);
+  });
+
   it("rejects an invalid Quartermaster resource exchange", () => {
     const state = createNewGame(1, ["quartermaster"]);
     const prompted = useStewardPower({ ...state, phase: "turns" as const }, "player_1");
 
     const next = resolvePendingEffect(prompted, {
-      resourceDeltas: { wood: -4, stone: 4 }
+      resourceDeltas: { wood: -6, stone: 6 }
     });
 
     expect(next.pendingEffects).toHaveLength(1);

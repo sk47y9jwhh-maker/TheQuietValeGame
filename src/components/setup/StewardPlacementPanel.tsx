@@ -68,7 +68,7 @@ export function StewardPlacementPanel({
             <h3>{steward.name}</h3>
           </div>
           <p>Choose a starting hex on {allowedTerrainText}.</p>
-          <p>{steward.startingBenefit}</p>
+          <p>{steward.powerText}</p>
         </div>
 
         <div className="detail-stack selected-start-summary">
@@ -217,7 +217,7 @@ export function StewardPlacementPanel({
                       ? terrainLabels[playerCell.terrain]
                       : "Unplaced"}
                 </p>
-                <p>{playerSteward.objective}</p>
+                <p>{playerSteward.objectiveText}</p>
               </article>
             );
           })}

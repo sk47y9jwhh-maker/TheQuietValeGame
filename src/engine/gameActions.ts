@@ -13,6 +13,7 @@ import {
   effectHasNoValidChoiceTargets,
   getCurrentSeasonCardEffectText,
   queuePendingEffect,
+  queuePendingEffectFirst,
   queueRestingHallBurdenPassive,
   suggestEffectAdjustment
 } from "./manualEffects";
@@ -52,6 +53,7 @@ import type {
   PlayerState,
   ResourceCost,
   ResourceType,
+  TileCategory,
   TilePlacementDraft,
   ValidationResult
 } from "./types";
@@ -243,6 +245,11 @@ function getPlacedTileName(tile: PlacedTile): string {
   return tile.side === "upgraded" ? data.upgraded.name : data.basic.name;
 }
 
+function getPlacedTileCategory(tile: PlacedTile): TileCategory {
+  if (tile.kind === "special") return specialTileById[tile.tileId].category;
+  return coreTileById[tile.tileId].category;
+}
+
 function getTileEffectText(tile: PlacedTile): string {
   if (tile.kind === "special") {
     return specialTileById[tile.tileId]?.effectText ?? tile.tileId;
@@ -270,6 +277,61 @@ function getTileProduction(tile: PlacedTile): ResourceCost | undefined {
 function arePlacedTilesAdjacent(a: PlacedTile, b: PlacedTile): boolean {
   return a.hexIds.some((aHexId) =>
     b.hexIds.some((bHexId) => getHexNeighbors(aHexId).includes(bHexId))
+  );
+}
+
+function isAdjacentToCategory(
+  tile: PlacedTile,
+  tiles: PlacedTile[],
+  category: TileCategory
+): boolean {
+  return tiles.some(
+    (candidate) =>
+      candidate.instanceId !== tile.instanceId &&
+      candidate.strain < 3 &&
+      getPlacedTileCategory(candidate) === category &&
+      arePlacedTilesAdjacent(tile, candidate)
+  );
+}
+
+function isAdjacentToUpgradedCore(tile: PlacedTile, tiles: PlacedTile[]): boolean {
+  return tiles.some(
+    (candidate) =>
+      candidate.instanceId !== tile.instanceId &&
+      candidate.kind === "core" &&
+      candidate.side === "upgraded" &&
+      candidate.strain < 3 &&
+      arePlacedTilesAdjacent(tile, candidate)
+  );
+}
+
+function isPlacedOnTerrain(tile: PlacedTile, terrain: string): boolean {
+  return tile.hexIds.some((hexId) => mapById[hexId]?.terrain === terrain);
+}
+
+function withSingleUseSupport(tile: PlacedTile): PlacedTile {
+  return {
+    ...tile,
+    support: {
+      ...tile.support,
+      singleUse: true,
+      preventedThisRound: false
+    }
+  };
+}
+
+function getAppliedStewardPowerIds(
+  state: GameState,
+  appliedModifierIds: string[]
+): Set<string> {
+  const appliedIdSet = new Set(appliedModifierIds);
+  return new Set(
+    state.boonModifiers
+      .filter(
+        (modifier) =>
+          appliedIdSet.has(modifier.id) && modifier.sourceType === "steward"
+      )
+      .map((modifier) => modifier.sourceCardId)
   );
 }
 
@@ -946,7 +1008,7 @@ export function placeTile(
 
   const footprintKind = getTileFootprintKind(tileId);
   const supplyCopiesRequired = getTileSupplyCopiesRequired(tileId);
-  const placedTiles: PlacedTile[] =
+  let placedTiles: PlacedTile[] =
     footprintKind === "detached"
       ? placementHexIds.map((hexId, index) =>
           withIntrinsicPassiveSupport({
@@ -958,7 +1020,7 @@ export function placeTile(
             strain: 0,
             support: {
               passive: false,
-              singleUse: player.stewardId === "warden" && !player.hasPlacedFirstTile,
+              singleUse: false,
               preventedThisRound: false
             }
           })
@@ -973,11 +1035,32 @@ export function placeTile(
             strain: 0,
             support: {
               passive: false,
-              singleUse: player.stewardId === "warden" && !player.hasPlacedFirstTile,
+              singleUse: false,
               preventedThisRound: false
             }
           })
         ];
+  const appliedStewardPowerIds = getAppliedStewardPowerIds(
+    state,
+    actionPreview.appliedModifierIds
+  );
+  const placementContextTiles = [...state.map.placedTiles, ...placedTiles];
+  placedTiles = placedTiles.map((placedTile) => {
+    const category = getPlacedTileCategory(placedTile);
+    const vanguardSupports =
+      appliedStewardPowerIds.has("vanguard") &&
+      category === "travel" &&
+      (isAdjacentToCategory(placedTile, placementContextTiles, "travel") ||
+        isPlacedOnTerrain(placedTile, "water"));
+    const knightSupports =
+      appliedStewardPowerIds.has("knight") &&
+      category === "housing" &&
+      isAdjacentToCategory(placedTile, placementContextTiles, "housing");
+
+    return vanguardSupports || knightSupports
+      ? withSingleUseSupport(placedTile)
+      : placedTile;
+  });
 
   let nextState: GameState = {
     ...state,
@@ -1149,7 +1232,19 @@ export function upgradeTile(
     return state;
   }
 
-  const upgradedTile = withIntrinsicPassiveSupport({ ...tile, side: "upgraded" });
+  const appliedStewardPowerIds = getAppliedStewardPowerIds(
+    state,
+    actionPreview.appliedModifierIds
+  );
+  const upgradedBaseTile = withIntrinsicPassiveSupport({ ...tile, side: "upgraded" });
+  const upgradedContextTiles = state.map.placedTiles.map((candidate) =>
+    candidate.instanceId === upgradedBaseTile.instanceId ? upgradedBaseTile : candidate
+  );
+  const upgradedTile =
+    appliedStewardPowerIds.has("sentinel") &&
+    isAdjacentToUpgradedCore(upgradedBaseTile, upgradedContextTiles)
+      ? withSingleUseSupport(upgradedBaseTile)
+      : upgradedBaseTile;
   let nextState = replacePlacedTile(state, upgradedTile);
   nextState = recalculatePassiveSupported(nextState);
   nextState = {
@@ -1381,10 +1476,10 @@ export function moveStewardViaStables(
 }
 
 export function getStewardPowerUseLimit(
-  state: Pick<GameState, "season">,
-  player: PlayerState
+  _state: Pick<GameState, "season">,
+  _player: PlayerState
 ): number {
-  return player.stewardId === "ranger" && state.season === 1 ? 2 : 1;
+  return 1;
 }
 
 function getAvailableWardenForCancel(state: GameState): PlayerState | undefined {
@@ -1432,9 +1527,6 @@ export function cancelPendingBurdenWithWarden(state: GameState): GameState {
   const nextState: GameState = {
     ...state,
     pendingEffects: remainingEffects,
-    ignoredBurdenIdsThisRound: [
-      ...new Set([...state.ignoredBurdenIdsThisRound, pendingEffect.sourceId])
-    ],
     players: state.players.map((player) =>
       player.id === warden.id
         ? {
@@ -1447,11 +1539,30 @@ export function cancelPendingBurdenWithWarden(state: GameState): GameState {
         : player
     )
   };
-
-  return log(
+  const cancelledState = log(
     nextState,
     `${warden.name} used Warden's Steward Power to cancel ${burdenName}'s reveal effect.`
   );
+
+  if (cancelledState.map.placedTiles.length === 0) {
+    return log(
+      cancelledState,
+      "Warden Power had no tile available for Strain removal or Supported."
+    );
+  }
+
+  return queuePendingEffectFirst(cancelledState, {
+    sourceType: "system",
+    sourceId: "warden",
+    sourceName: "Warden",
+    title: "Warden Relief",
+    effectText:
+      "Choose exactly one: remove 1 Strain from any tile, or place Supported on one tile.",
+    detailText: "The Burden remains active, but its reveal effect was prevented.",
+    requiresManualChoice: true,
+    allowWardenRelief: true,
+    confirmLabel: "Apply Warden Relief"
+  });
 }
 
 function createStewardPowerModifier(
@@ -1467,11 +1578,11 @@ function createStewardPowerModifier(
       sourceCardId: player.stewardId,
       sourceType: "steward",
       name: `${steward.name} Power`,
-      effectText: steward.power,
+      effectText: steward.powerText,
       actions: ["place"],
       remainingUses: 1,
-      amount: 2,
-      allowedCategories: ["travel", "resource"]
+      zeroAction: true,
+      allowedCategories: ["travel"]
     };
   }
 
@@ -1481,7 +1592,7 @@ function createStewardPowerModifier(
       sourceCardId: player.stewardId,
       sourceType: "steward",
       name: `${steward.name} Power`,
-      effectText: steward.power,
+      effectText: steward.powerText,
       actions: ["place"],
       remainingUses: 1,
       zeroAction: true,
@@ -1495,24 +1606,11 @@ function createStewardPowerModifier(
       sourceCardId: player.stewardId,
       sourceType: "steward",
       name: `${steward.name} Power`,
-      effectText: steward.power,
+      effectText: steward.powerText,
       actions: ["upgrade"],
       remainingUses: 1,
       zeroAction: true,
       coreOnly: true
-    };
-  }
-
-  if (player.stewardId === "ranger") {
-    return {
-      id: `modifier_${state.boonModifiers.length + state.log.length + 1}_${Date.now()}`,
-      sourceCardId: player.stewardId,
-      sourceType: "steward",
-      name: `${steward.name} Power`,
-      effectText: steward.power,
-      actions: ["place", "upgrade"],
-      remainingUses: 1,
-      zeroAction: true
     };
   }
 
@@ -1546,27 +1644,18 @@ export function canUseStewardPower(
     reasons.push("Cannot use Steward Power: this Season's uses are spent.");
   }
 
-  if (
-    player.stewardId === "ranger" &&
-    !state.map.placedTiles.some((tile) => tile.strain < 3)
-  ) {
-    reasons.push("Cannot use Ranger Power: there is no non-Overstrained tile to move to.");
-  }
-
-  if (
-    player.stewardId === "warden" &&
-    state.encounters.activeBurdens.filter(
-      (cardId) => !state.ignoredBurdenIdsThisRound.includes(cardId)
-    ).length === 0
-  ) {
-    reasons.push("Cannot use Warden Power: there is no active Burden to ignore.");
+  if (player.stewardId === "warden") {
+    reasons.push("Warden Power is used when a Burden is revealed.");
   }
 
   if (
     player.stewardId === "quartermaster" &&
-    resources.every((resource) => state.warehouse[resource] <= 0)
+    resources.every((resource) => state.warehouse[resource] <= 0) &&
+    !state.encounters.activeArrivals.some((arrival) => arrival.timerTokens < 3)
   ) {
-    reasons.push("Cannot use Quartermaster Power: the Warehouse has no resources to exchange.");
+    reasons.push(
+      "Cannot use Quartermaster Power: there are no resources to exchange or Arrival timers to add."
+    );
   }
 
   return { ok: reasons.length === 0, reasons };
@@ -1608,30 +1697,35 @@ export function useStewardPower(state: GameState, playerId: string): GameState {
     sourceId: player.stewardId,
     sourceName: steward.name,
     title: `Steward Power: ${steward.name}`,
-    effectText: steward.power,
+    effectText: steward.powerText,
     detailText: modifier ? "Prepared for the next matching action this Season." : undefined
   };
 
   if (player.stewardId === "ranger") {
     pendingEffect = {
       ...pendingEffect,
-      detailText: "Choose the placed non-Overstrained tile the Ranger can reach from.",
-      allowStewardMovementPlayerId: playerId,
-      requiresManualChoice: true
-    };
-  } else if (player.stewardId === "warden") {
-    pendingEffect = {
-      ...pendingEffect,
-      detailText: "Choose one active Burden to mark ignored for the rest of this round.",
-      allowBurdenIgnore: true,
-      requiresManualChoice: true
+      detailText:
+        "Choose an empty hex or placed non-Overstrained tile to treat as reachable until the end of this turn.",
+      allowTemporaryReachPlayerId: playerId,
+      requiresManualChoice: true,
+      confirmLabel: "Set Reach"
     };
   } else if (player.stewardId === "quartermaster") {
+    const timerCandidates = state.encounters.activeArrivals.filter(
+      (arrival) => arrival.timerTokens < 3
+    );
     pendingEffect = {
       ...pendingEffect,
-      detailText: "Use the resource controls to exchange the same number out and in.",
-      resourceExchangeLimit: 3,
-      requiresManualChoice: true
+      detailText:
+        "Exchange up to 5 Warehouse resources. You may also add 1 timer to an active Arrival below 3 timers.",
+      suggestedAdjustment:
+        timerCandidates.length === 1
+          ? { arrivalTimerDeltas: { [timerCandidates[0].cardId]: 1 } }
+          : undefined,
+      resourceExchangeLimit: 5,
+      resourceExchangeOptional: true,
+      requiresManualChoice: true,
+      confirmLabel: "Use Quartermaster Power"
     };
   }
 
@@ -1979,10 +2073,16 @@ export function endCurrentTurn(state: GameState): GameState {
 
   const acted = [...new Set([...state.playersActedThisRound, state.currentPlayerId])];
   const nextPlayer = state.players.find((player) => !acted.includes(player.id));
+  const playersWithExpiredReach = state.players.map((player) =>
+    player.id === state.currentPlayerId
+      ? { ...player, temporaryReachHexId: undefined }
+      : player
+  );
   if (!nextPlayer) {
     return log(
       {
         ...state,
+        players: playersWithExpiredReach,
         phase: "endRound",
         playersActedThisRound: acted,
         actionsRemaining: 0
@@ -1994,6 +2094,7 @@ export function endCurrentTurn(state: GameState): GameState {
   return log(
     {
       ...state,
+      players: playersWithExpiredReach,
       currentPlayerId: nextPlayer.id,
       playersActedThisRound: acted,
       actionsRemaining: 4
@@ -2024,6 +2125,10 @@ export function resolveEndRound(state: GameState): GameState {
     season: nextSeason,
     phase: gameEnd ? "gameEnd" : shouldSeed ? "seeding" : "reveal",
     currentPlayerId: state.players[0].id,
+    players: state.players.map((player) => ({
+      ...player,
+      temporaryReachHexId: undefined
+    })),
     actionsRemaining: 4,
     playersActedThisRound: [],
     seasonSeededPlayerIds: [],

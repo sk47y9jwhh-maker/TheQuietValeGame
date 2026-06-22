@@ -5,68 +5,60 @@ export const stewards: StewardData[] = [
     id: "vanguard",
     name: "Vanguard",
     startingTerrains: ["woodland"],
-    startingBenefit:
-      "First Travel Tile or Resource Tile placement costs 1 fewer resource.",
-    power:
-      "Once per Season, reduce a Travel or Resource placement cost by 2 resources. All normal placement requirements still apply.",
-    objective:
-      "+15 Renown if the settlement has non-Overstrained tiles on both sides of the river connected by a Bridge.",
+    powerText:
+      "Once per Season, when you place a Travel Tile, you may place it without spending an Action. Pay its cost and follow all placement rules. If it is placed adjacent to another Travel Tile or placed on a River/Water hex, it gains Supported.",
+    objectiveText:
+      "At final scoring, gain +15 Renown if the settlement has non-Overstrained placed tiles on both sides of the river connected by a Bridge.",
     objectiveRenown: 15
   },
   {
     id: "knight",
     name: "Knight",
     startingTerrains: ["arable"],
-    startingBenefit: "First Housing placement costs 1 fewer resource.",
-    power:
-      "Once per Season, place a Housing Tile for 0 Actions. Pay costs and follow normal placement rules.",
-    objective:
-      "+15 Renown if the settlement contains a Housing cluster of 4+ non-Overstrained Housing Tiles.",
+    powerText:
+      "Once per Season, when you place a Housing Tile, you may place it without spending an Action. Pay its cost and follow all placement rules. If it is placed adjacent to another Housing Tile, it gains Supported.",
+    objectiveText:
+      "At final scoring, gain +15 Renown if the settlement contains a Housing cluster of 3 or more non-Overstrained Housing Tiles.",
     objectiveRenown: 15
   },
   {
     id: "sentinel",
     name: "Sentinel",
     startingTerrains: ["mountains"],
-    startingBenefit: "First upgrade costs 1 fewer resource.",
-    power:
-      "Once per Season, upgrade a reachable Core Tile for 0 Actions. Pay costs and follow normal upgrade rules.",
-    objective:
-      "+15 Renown if the settlement contains 5+ upgraded non-Overstrained Core Tiles.",
+    powerText:
+      "Once per Season, when you upgrade a Core Tile, you may upgrade it without spending an Action. Pay its cost and follow all upgrade rules. If it is adjacent to another upgraded Core Tile after upgrading, it gains Supported.",
+    objectiveText:
+      "At final scoring, gain +15 Renown if the settlement contains 5 or more upgraded non-Overstrained Core Tiles.",
     objectiveRenown: 15
   },
   {
     id: "ranger",
     name: "Ranger",
     startingTerrains: ["heaths"],
-    startingBenefit:
-      "In Season I, Ranger may use their movement/reachability power one extra time.",
-    power:
-      "Once per Season, move/reach one placed non-Overstrained tile for the next map action at 0 Actions. Season I has 2 uses.",
-    objective:
-      "+15 Renown if the settlement has tiles on 3+ non-Grasslands terrain types.",
+    powerText:
+      "Once per Season, choose any legal empty hex or any placed non-Overstrained tile, connected or disconnected. Until the end of your turn, you may treat that hex or tile as reachable for your tile actions. If you place a tile there, pay its cost and follow all terrain, River/Water, and printed placement requirements.",
+    objectiveText:
+      "At final scoring, gain +15 Renown if the settlement contains non-Overstrained placed tiles on at least 3 terrain types other than Grasslands and River/Water.",
     objectiveRenown: 15
   },
   {
     id: "warden",
     name: "Warden",
     startingTerrains: ["ruins"],
-    startingBenefit: "After the first tile is placed, it gains Supported.",
-    power: "Once per Season, ignore one Burden this round.",
-    objective:
-      "+15 Renown if active Burdens are fewer than the player count.",
+    powerText:
+      "Once per Season, when a Burden is revealed, you may prevent that Burden's revealed effect from triggering. The Burden still becomes active. Then either remove 1 Strain from any tile or place Supported on one tile.",
+    objectiveText:
+      "At final scoring, gain +15 Renown if there are no active Burdens.",
     objectiveRenown: 15
   },
   {
     id: "quartermaster",
     name: "Quartermaster",
     startingTerrains: ["woodland", "mountains", "heaths", "arable", "ruins"],
-    startingBenefit:
-      "Once during Season I, exchange up to 2 Warehouse resources for resources of any type.",
-    power:
-      "Once per Season, substitute/exchange up to 3 resources in a cost.",
-    objective:
-      "+15 Renown if the Warehouse has 5+ resources in at least 4 resource types.",
+    powerText:
+      "Once per Season, exchange up to 5 resources in the Warehouse for the same number of resources of any type. Then add 1 timer token to an active Arrival with fewer than 3 timer tokens on it.",
+    objectiveText:
+      "At final scoring, gain +15 Renown if the Warehouse contains 5 or more resources in at least 3 different resource types.",
     objectiveRenown: 15
   }
 ];
@@ -74,4 +66,3 @@ export const stewards: StewardData[] = [
 export const stewardById = Object.fromEntries(
   stewards.map((steward) => [steward.id, steward])
 ) as Record<string, StewardData>;
-

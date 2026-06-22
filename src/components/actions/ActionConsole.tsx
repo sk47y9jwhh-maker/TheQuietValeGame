@@ -21,7 +21,6 @@ import {
   canCancelPendingBurdenWithWarden,
   canResolveBurden,
   getStableMoveDestinationTileIds,
-  getStewardPowerUseLimit,
   getUsableFaceUpBoonIds,
   getUpgradeableTileIds
 } from "../../engine/gameActions";
@@ -174,9 +173,9 @@ export function ActionConsole({
   const finalScore = calculateFinalScore(state);
   const pendingEffect = state.pendingEffects[0];
   const steward = stewardById[currentPlayer.stewardId];
-  const stewardPowerLimit = getStewardPowerUseLimit(state, currentPlayer);
   const stewardPowerUses =
     currentPlayer.stewardPowerUsesBySeason[state.season] ?? 0;
+  const stewardPowerUsed = stewardPowerUses > 0;
   const stewardPowerValidation = canUseStewardPower(state, currentPlayer.id);
 
   useEffect(() => {
@@ -557,11 +556,11 @@ export function ActionConsole({
           </div>
           <p>
             <strong>
-              {steward?.name ?? currentPlayer.stewardId} {stewardPowerUses}/
-              {stewardPowerLimit}
+              {steward?.name ?? currentPlayer.stewardId}{" "}
+              {stewardPowerUsed ? "Power Used This Season" : "Power Available"}
             </strong>
           </p>
-          <p className="muted">{steward?.power}</p>
+          <p className="muted">{steward?.powerText}</p>
           {!stewardPowerValidation.ok && (
             <ul className="failure-list">
               {stewardPowerValidation.reasons.map((reason) => (

@@ -54,11 +54,23 @@ export function selectReachablePlacedTileIds(
   const player = state.players.find((candidate) => candidate.id === playerId);
   if (!player) return new Set();
 
-  const startingTile = getPlacedTileAtHex(state, player.stewardHexId);
-  if (!startingTile || isOverstrained(startingTile)) return new Set();
+  const candidateStartingTiles = [
+    getPlacedTileAtHex(state, player.stewardHexId),
+    player.temporaryReachHexId
+      ? getPlacedTileAtHex(state, player.temporaryReachHexId)
+      : undefined
+  ];
+  const startingTiles = candidateStartingTiles.filter((tile, index): tile is PlacedTile => {
+    if (!tile || isOverstrained(tile)) return false;
+    return (
+      candidateStartingTiles.findIndex(
+        (candidate) => candidate?.instanceId === tile.instanceId
+      ) === index
+    );
+  });
 
-  const reachable = new Set<string>([startingTile.instanceId]);
-  const queue = [startingTile];
+  const reachable = new Set<string>(startingTiles.map((tile) => tile.instanceId));
+  const queue = [...startingTiles];
 
   while (queue.length > 0) {
     const current = queue.shift();

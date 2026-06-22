@@ -20,9 +20,11 @@ import {
   getEffectTileTargets,
   getTimerAdjustmentRule,
   hasEffectAdjustment,
+  isWardenReliefAdjustmentValid,
   isTimerAdjustmentValid,
   mergeEffectAdjustment
 } from "../../engine/manualEffects";
+import { mapCells, terrainLabels } from "../../data/map";
 import { selectEncounterName, selectTileName } from "../../engine/selectors";
 import type {
   EffectAdjustment,
@@ -85,6 +87,9 @@ export function EffectPrompt({
   const [stewardHexUpdates, setStewardHexUpdates] = useState<Record<string, string>>(
     effect.suggestedAdjustment?.stewardHexUpdates ?? {}
   );
+  const [temporaryReachHexUpdates, setTemporaryReachHexUpdates] = useState<
+    Record<string, string>
+  >(effect.suggestedAdjustment?.temporaryReachHexUpdates ?? {});
   const [ignoredBurdenIds, setIgnoredBurdenIds] = useState<string[]>(
     effect.suggestedAdjustment?.ignoredBurdenIds ?? []
   );
@@ -98,6 +103,9 @@ export function EffectPrompt({
     setTileStrainDeltas(effect.suggestedAdjustment?.tileStrainDeltas ?? {});
     setSupportTileIds(effect.suggestedAdjustment?.supportTileIds ?? []);
     setStewardHexUpdates(effect.suggestedAdjustment?.stewardHexUpdates ?? {});
+    setTemporaryReachHexUpdates(
+      effect.suggestedAdjustment?.temporaryReachHexUpdates ?? {}
+    );
     setIgnoredBurdenIds(effect.suggestedAdjustment?.ignoredBurdenIds ?? []);
     setResolvedBurdenIds(effect.suggestedAdjustment?.resolvedBurdenIds ?? []);
   }, [effect.id, effect.suggestedAdjustment]);
@@ -110,6 +118,7 @@ export function EffectPrompt({
         tileStrainDeltas,
         supportTileIds,
         stewardHexUpdates,
+        temporaryReachHexUpdates,
         ignoredBurdenIds,
         resolvedBurdenIds
       }),
@@ -120,6 +129,7 @@ export function EffectPrompt({
       resolvedBurdenIds,
       resourceDeltas,
       stewardHexUpdates,
+      temporaryReachHexUpdates,
       supportTileIds,
       tileStrainDeltas
     ]
@@ -134,13 +144,15 @@ export function EffectPrompt({
   );
   const exchangeInvalid =
     effect.resourceExchangeLimit !== undefined &&
-    (exchangeSpent === 0 ||
-      exchangeSpent !== exchangeGained ||
-      exchangeSpent > effect.resourceExchangeLimit);
+    (exchangeSpent !== exchangeGained ||
+      exchangeSpent > effect.resourceExchangeLimit ||
+      (!effect.resourceExchangeOptional && exchangeSpent === 0));
   const burdenResolveInvalid =
     effect.allowBurdenResolve &&
     state.encounters.activeBurdens.length > 0 &&
     resolvedBurdenIds.length === 0;
+  const wardenReliefInvalid =
+    effect.allowWardenRelief && !isWardenReliefAdjustmentValid(adjustment);
   const timerInvalid = !isTimerAdjustmentValid(
     state,
     effect.effectText,
@@ -236,7 +248,8 @@ export function EffectPrompt({
     Boolean(effect.requiresManualChoice && !hasChanges) ||
     timerInvalid ||
     exchangeInvalid ||
-    Boolean(burdenResolveInvalid);
+    Boolean(burdenResolveInvalid) ||
+    Boolean(wardenReliefInvalid);
 
   function adjustResource(resource: ResourceType, delta: number) {
     setResourceDeltas((current) => ({
@@ -311,8 +324,27 @@ export function EffectPrompt({
     );
   }
 
+  function chooseWardenStrainRelief(tileId: string) {
+    setTileStrainDeltas((current) =>
+      current[tileId] === -1 ? {} : { [tileId]: -1 }
+    );
+    setSupportTileIds([]);
+  }
+
+  function chooseWardenSupportRelief(tileId: string) {
+    setSupportTileIds((current) => (current.includes(tileId) ? [] : [tileId]));
+    setTileStrainDeltas({});
+  }
+
   function moveSteward(playerId: string, hexId: string) {
     setStewardHexUpdates((current) => ({
+      ...current,
+      [playerId]: hexId
+    }));
+  }
+
+  function chooseTemporaryReach(playerId: string, hexId: string) {
+    setTemporaryReachHexUpdates((current) => ({
       ...current,
       [playerId]: hexId
     }));
@@ -439,23 +471,38 @@ export function EffectPrompt({
                 </span>
                 <div className="stepper">
                   {canAdjustTileStrain && tileControlData.strainTargetIds.has(tile.instanceId) && (
-                    <>
-                      <button onClick={() => adjustStrain(tile.instanceId, -1)} type="button">
+                    effect.allowWardenRelief ? (
+                      <button
+                        className={tileStrainDeltas[tile.instanceId] === -1 ? "selected" : ""}
+                        disabled={tile.strain <= 0}
+                        onClick={() => chooseWardenStrainRelief(tile.instanceId)}
+                        type="button"
+                      >
                         <Minus size={14} />
                       </button>
-                      <strong>
-                        {(tileStrainDeltas[tile.instanceId] ?? 0) > 0 ? "+" : ""}
-                        {tileStrainDeltas[tile.instanceId] ?? 0}
-                      </strong>
-                      <button onClick={() => adjustStrain(tile.instanceId, 1)} type="button">
-                        <Plus size={14} />
-                      </button>
-                    </>
+                    ) : (
+                      <>
+                        <button onClick={() => adjustStrain(tile.instanceId, -1)} type="button">
+                          <Minus size={14} />
+                        </button>
+                        <strong>
+                          {(tileStrainDeltas[tile.instanceId] ?? 0) > 0 ? "+" : ""}
+                          {tileStrainDeltas[tile.instanceId] ?? 0}
+                        </strong>
+                        <button onClick={() => adjustStrain(tile.instanceId, 1)} type="button">
+                          <Plus size={14} />
+                        </button>
+                      </>
+                    )
                   )}
                   {canToggleTileSupport && tileControlData.supportTargetIds.has(tile.instanceId) && (
                     <button
                       className={supportTileIds.includes(tile.instanceId) ? "selected" : ""}
-                      onClick={() => toggleSupported(tile.instanceId)}
+                      onClick={() =>
+                        effect.allowWardenRelief
+                          ? chooseWardenSupportRelief(tile.instanceId)
+                          : toggleSupported(tile.instanceId)
+                      }
                       type="button"
                     >
                       <ShieldCheck size={14} />
@@ -498,6 +545,43 @@ export function EffectPrompt({
                   </button>
                 );
               })}
+          </div>
+        </section>
+      )}
+
+      {effect.allowTemporaryReachPlayerId && (
+        <section className="effect-control-group">
+          <h3>Reach Target</h3>
+          <div className="effect-list tile-effect-list">
+            {mapCells.map((cell) => {
+              const placedTile = state.map.placedTiles.find((tile) =>
+                tile.hexIds.includes(cell.id)
+              );
+              const selectable = !placedTile || placedTile.strain < 3;
+              const selected =
+                temporaryReachHexUpdates[effect.allowTemporaryReachPlayerId ?? ""] ===
+                cell.id;
+              return (
+                <button
+                  className={`effect-row tile-effect-row ${selected ? "selected" : ""}`}
+                  disabled={!selectable}
+                  key={cell.id}
+                  onClick={() =>
+                    chooseTemporaryReach(
+                      effect.allowTemporaryReachPlayerId ?? "",
+                      cell.id
+                    )
+                  }
+                  type="button"
+                >
+                  <span>
+                    {cell.id} | {terrainLabels[cell.terrain]}
+                    {placedTile ? ` | ${selectTileName(placedTile)}` : " | Empty"}
+                  </span>
+                  <MapPin size={16} />
+                </button>
+              );
+            })}
           </div>
         </section>
       )}
@@ -551,6 +635,12 @@ export function EffectPrompt({
       )}
       {burdenResolveInvalid && (
         <p className="failure-note">Choose one active Burden to resolve.</p>
+      )}
+      {wardenReliefInvalid && (
+        <p className="failure-note">
+          Choose exactly one Warden relief: remove 1 Strain from one tile, or place
+          Supported on one tile.
+        </p>
       )}
       {timerInvalid && (
         <p className="failure-note">Choose timer changes allowed by this effect.</p>

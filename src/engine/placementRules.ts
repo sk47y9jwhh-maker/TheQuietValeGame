@@ -161,18 +161,24 @@ function isActiveDocks(tile: PlacedTile): boolean {
 }
 
 function getPlacementNetworkContext(state: GameState, playerId: string) {
+  const player = state.players.find((candidate) => candidate.id === playerId);
   const reachableTileIds = selectReachablePlacedTileIds(state, playerId);
   const hasReachableDocks = state.map.placedTiles.some(
     (tile) => reachableTileIds.has(tile.instanceId) && isActiveDocks(tile)
   );
-  return { hasReachableDocks, reachableTileIds };
+  return {
+    hasReachableDocks,
+    reachableTileIds,
+    temporaryReachHexId: player?.temporaryReachHexId
+  };
 }
 
 function connectsToReachablePlacementNetwork(
   state: GameState,
   hexIds: string[],
   reachableTileIds: Set<string>,
-  hasReachableDocks: boolean
+  hasReachableDocks: boolean,
+  temporaryReachHexId?: string
 ): boolean {
   const neighborIds = new Set(hexIds.flatMap((hexId) => getHexNeighbors(hexId)));
   const physicallyConnected = state.map.placedTiles.some(
@@ -182,7 +188,11 @@ function connectsToReachablePlacementNetwork(
       tile.hexIds.some((id) => neighborIds.has(id))
   );
 
-  return physicallyConnected || (hasReachableDocks && hexIds.some(isHexAdjacentToWater));
+  return (
+    physicallyConnected ||
+    (hasReachableDocks && hexIds.some(isHexAdjacentToWater)) ||
+    Boolean(temporaryReachHexId && hexIds.includes(temporaryReachHexId))
+  );
 }
 
 function getPlacementFailuresInternal(
@@ -203,7 +213,11 @@ function getPlacementFailuresInternal(
   const cells = selectedHexIds.map((hexId) => mapById[hexId]).filter(Boolean);
   const placementNetwork = player
     ? getPlacementNetworkContext(state, playerId)
-    : { hasReachableDocks: false, reachableTileIds: new Set<string>() };
+    : {
+        hasReachableDocks: false,
+        reachableTileIds: new Set<string>(),
+        temporaryReachHexId: undefined
+      };
 
   if (!draft.anchorHexId) reasons.push("Cannot place here: choose a map hex.");
   if (!tile) reasons.push("Cannot place here: this tile is not in the current data.");
@@ -307,7 +321,8 @@ function getPlacementFailuresInternal(
         state,
         [hexId],
         placementNetwork.reachableTileIds,
-        placementNetwork.hasReachableDocks
+        placementNetwork.hasReachableDocks,
+        placementNetwork.temporaryReachHexId
       );
     });
 
@@ -325,7 +340,8 @@ function getPlacementFailuresInternal(
       state,
       selectedHexIds,
       placementNetwork.reachableTileIds,
-      placementNetwork.hasReachableDocks
+      placementNetwork.hasReachableDocks,
+      placementNetwork.temporaryReachHexId
     )
   ) {
     reasons.push(
