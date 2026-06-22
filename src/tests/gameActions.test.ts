@@ -1072,6 +1072,60 @@ describe("game actions", () => {
     expect(canUseStewardPower(next, "player_1").ok).toBe(true);
   });
 
+  it("lets Ranger place from a disconnected reached tile for 0 Actions", () => {
+    const state = createNewGame(1, ["ranger"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      players: [
+        {
+          ...state.players[0],
+          hasPlacedFirstTile: true,
+          stewardHexId: "A3"
+        }
+      ],
+      map: {
+        placedTiles: [
+          {
+            instanceId: "tile_home",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["A3"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "tile_remote",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["H5"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    expect(canStartPlaceTile(ready, "player_1", "c15_path", "H6").ok).toBe(false);
+
+    const prompted = useStewardPower(ready, "player_1");
+    const reached = resolvePendingEffect(prompted, {
+      stewardHexUpdates: { player_1: "H5" }
+    });
+
+    expect(canStartPlaceTile(reached, "player_1", "c15_path", "H6").ok).toBe(true);
+
+    const placed = placeTile(reached, "player_1", "c15_path", "H6");
+
+    expect(placed.actionsRemaining).toBe(reached.actionsRemaining);
+    expect(placed.map.placedTiles.some((tile) => tile.hexIds.includes("H6"))).toBe(true);
+    expect(placed.boonModifiers.some((modifier) => modifier.sourceCardId === "ranger")).toBe(
+      false
+    );
+  });
+
   it("marks a Burden ignored for the round with Warden's Steward Power", () => {
     const state = createNewGame(1, ["warden"]);
     const ready = {

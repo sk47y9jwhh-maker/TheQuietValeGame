@@ -496,7 +496,8 @@ export function ActionConsole({
                   onClick={() => onUseFaceUpBoon(boonCardId)}
                   type="button"
                 >
-                  Use {selectEncounterName(boonCardId)}
+                  <strong>Interact with {selectEncounterName(boonCardId)}</strong>
+                  <span>Boon: choose whether to use it on the next screen.</span>
                 </button>
               ))}
               {arrivalInteractions.map(({ cardId: arrivalCardId, validation }) => {
@@ -509,7 +510,7 @@ export function ActionConsole({
                     onClick={() => onCompleteArrival(arrivalCardId)}
                     type="button"
                   >
-                    <strong>Complete {selectEncounterName(arrivalCardId)}</strong>
+                    <strong>Interact with {selectEncounterName(arrivalCardId)}</strong>
                     {card?.type === "arrival" && (
                       <span>Requirement: {card.requirementText}</span>
                     )}
@@ -529,7 +530,7 @@ export function ActionConsole({
                   onClick={() => onResolveBurden(burdenCardId)}
                   type="button"
                 >
-                  <strong>Resolve {selectEncounterName(burdenCardId)}</strong>
+                  <strong>Interact with {selectEncounterName(burdenCardId)}</strong>
                   <span>
                     {getBurdenResolutionCurrentText(
                       encounterById[burdenCardId],

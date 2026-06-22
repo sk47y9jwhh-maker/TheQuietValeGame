@@ -15,6 +15,7 @@ describe("placement validation", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.warehouse.wood = 10;
     state.players[0].hasPlacedFirstTile = true;
+    state.players[0].stewardHexId = "C1";
     state.map.placedTiles.push({
       instanceId: "tile_1",
       tileId: "c15_path",
@@ -68,6 +69,28 @@ describe("placement validation", () => {
 
     expect(canPlaceTile(state, "player_1", "special_shrine_of_renewal", "H1").ok).toBe(true);
     expect(canPlaceTile(state, "player_1", "special_shrine_of_renewal", "A1").ok).toBe(false);
+  });
+
+  it("treats river-adjacent hexes as connected when reachable Docks are active", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.players[0].hasPlacedFirstTile = true;
+    state.players[0].stewardHexId = "D1";
+    state.map.placedTiles.push({
+      instanceId: "tile_docks",
+      tileId: "special_docks",
+      kind: "special",
+      side: "special",
+      hexIds: ["D1"],
+      strain: 0,
+      support: { passive: false, singleUse: false, preventedThisRound: false }
+    });
+
+    expect(canPlaceTile(state, "player_1", "c15_path", "H5").ok).toBe(true);
+
+    state.map.placedTiles[0].strain = 3;
+    const blocked = canPlaceTile(state, "player_1", "c15_path", "H5");
+    expect(blocked.ok).toBe(false);
+    expect(blocked.reasons.join(" ")).toContain("not connected");
   });
 
   it("validates a straight multi-hex Street footprint", () => {

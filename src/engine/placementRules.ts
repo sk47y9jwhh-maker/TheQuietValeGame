@@ -3,7 +3,7 @@ import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexLine, getHexNeighbors } from "./hex";
 import { getBoonModifiedCost } from "./boonModifiers";
 import { canAfford, getMissingResources } from "./resources";
-import { getPlacedTileAtHex } from "./reachability";
+import { getPlacedTileAtHex, isOverstrained, selectReachablePlacedTileIds } from "./reachability";
 import type {
   CoreTileData,
   GameState,
@@ -150,11 +150,39 @@ function hasAdjacentTerrain(hexIds: string[], terrains: string[]): boolean {
   });
 }
 
-function connectsToAnyPlacedTile(state: GameState, hexIds: string[]): boolean {
-  const neighborIds = new Set(hexIds.flatMap((hexId) => getHexNeighbors(hexId)));
-  return state.map.placedTiles.some(
-    (tile) => tile.strain < 3 && tile.hexIds.some((id) => neighborIds.has(id))
+function isHexAdjacentToWater(hexId: string): boolean {
+  const cell = mapById[hexId];
+  if (!cell || cell.terrain === "water") return false;
+  return getHexNeighbors(hexId).some((neighborId) => mapById[neighborId]?.terrain === "water");
+}
+
+function isActiveDocks(tile: PlacedTile): boolean {
+  return tile.kind === "special" && tile.tileId === "special_docks" && !isOverstrained(tile);
+}
+
+function getPlacementNetworkContext(state: GameState, playerId: string) {
+  const reachableTileIds = selectReachablePlacedTileIds(state, playerId);
+  const hasReachableDocks = state.map.placedTiles.some(
+    (tile) => reachableTileIds.has(tile.instanceId) && isActiveDocks(tile)
   );
+  return { hasReachableDocks, reachableTileIds };
+}
+
+function connectsToReachablePlacementNetwork(
+  state: GameState,
+  hexIds: string[],
+  reachableTileIds: Set<string>,
+  hasReachableDocks: boolean
+): boolean {
+  const neighborIds = new Set(hexIds.flatMap((hexId) => getHexNeighbors(hexId)));
+  const physicallyConnected = state.map.placedTiles.some(
+    (tile) =>
+      reachableTileIds.has(tile.instanceId) &&
+      !isOverstrained(tile) &&
+      tile.hexIds.some((id) => neighborIds.has(id))
+  );
+
+  return physicallyConnected || (hasReachableDocks && hexIds.some(isHexAdjacentToWater));
 }
 
 function getPlacementFailuresInternal(
@@ -173,6 +201,9 @@ function getPlacementFailuresInternal(
   const footprintHexIds = getTilePlacementHexIds(tileId, draft);
   const selectedHexIds = uniqueHexIds(footprintHexIds);
   const cells = selectedHexIds.map((hexId) => mapById[hexId]).filter(Boolean);
+  const placementNetwork = player
+    ? getPlacementNetworkContext(state, playerId)
+    : { hasReachableDocks: false, reachableTileIds: new Set<string>() };
 
   if (!draft.anchorHexId) reasons.push("Cannot place here: choose a map hex.");
   if (!tile) reasons.push("Cannot place here: this tile is not in the current data.");
@@ -272,7 +303,12 @@ function getPlacementFailuresInternal(
   if (footprintKind === "detached") {
     const disconnectedHexIds = selectedHexIds.filter((hexId) => {
       if (isFirstPlacement && hexId === player.stewardHexId) return false;
-      return !connectsToAnyPlacedTile(state, [hexId]);
+      return !connectsToReachablePlacementNetwork(
+        state,
+        [hexId],
+        placementNetwork.reachableTileIds,
+        placementNetwork.hasReachableDocks
+      );
     });
 
     if (disconnectedHexIds.length > 0) {
@@ -285,7 +321,12 @@ function getPlacementFailuresInternal(
   } else if (
     !isFirstPlacement &&
     state.map.placedTiles.length > 0 &&
-    !connectsToAnyPlacedTile(state, selectedHexIds)
+    !connectsToReachablePlacementNetwork(
+      state,
+      selectedHexIds,
+      placementNetwork.reachableTileIds,
+      placementNetwork.hasReachableDocks
+    )
   ) {
     reasons.push(
       "Cannot place here: not connected to the acting Steward's reachable settlement network."

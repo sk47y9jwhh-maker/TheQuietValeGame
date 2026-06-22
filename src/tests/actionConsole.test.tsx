@@ -126,8 +126,8 @@ describe("action console", () => {
 
     renderActionConsole({ actionMode: "interact", state });
 
-    const arrivalButton = screen.getByText("Complete Lest We Forget").closest("button");
-    const burdenButton = screen.getByText("Resolve Smoke over Hearths").closest("button");
+    const arrivalButton = screen.getByText("Interact with Lest We Forget").closest("button");
+    const burdenButton = screen.getByText("Interact with Smoke over Hearths").closest("button");
 
     expect(arrivalButton).toBeDisabled();
     expect(arrivalButton).toHaveTextContent("Requirement: Pay 4 Wood and 4 Metal.");
@@ -151,7 +151,7 @@ describe("action console", () => {
 
     renderActionConsole({ actionMode: "interact", onResolveBurden, state });
 
-    fireEvent.click(screen.getByText("Resolve Smoke over Hearths"));
+    fireEvent.click(screen.getByText("Interact with Smoke over Hearths"));
 
     expect(onResolveBurden).toHaveBeenCalledWith("burden_smoke_over_hearths");
   });

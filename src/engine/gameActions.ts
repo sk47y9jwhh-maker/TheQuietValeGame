@@ -1503,6 +1503,19 @@ function createStewardPowerModifier(
     };
   }
 
+  if (player.stewardId === "ranger") {
+    return {
+      id: `modifier_${state.boonModifiers.length + state.log.length + 1}_${Date.now()}`,
+      sourceCardId: player.stewardId,
+      sourceType: "steward",
+      name: `${steward.name} Power`,
+      effectText: steward.power,
+      actions: ["place", "upgrade"],
+      remainingUses: 1,
+      zeroAction: true
+    };
+  }
+
   return null;
 }
 
