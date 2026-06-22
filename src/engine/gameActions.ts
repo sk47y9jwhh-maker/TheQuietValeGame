@@ -1925,14 +1925,6 @@ export function resolveBurden(
   nextState = log(nextState, `Resolved Burden: ${card.name}.`);
   nextState = consumeBoonModifiers(nextState, actionPreview.appliedModifierIds);
   nextState = recordSelectedCostOptions(nextState, paymentOptions, costSelection);
-  nextState = queuePendingEffect(nextState, {
-    sourceType: "card",
-    sourceId: burdenCardId,
-    sourceName: card.name,
-    title: `Burden resolved: ${card.name}`,
-    effectText: card.resolutionText ?? "Burden resolved.",
-    detailText: getCurrentSeasonCardEffectText(nextState, burdenCardId)
-  });
   return queueRestingHallBurdenPassive(nextState);
 }
 

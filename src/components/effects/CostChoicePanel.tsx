@@ -24,6 +24,15 @@ export function CostChoicePanel({
   onConfirm,
   onCancel
 }: CostChoicePanelProps) {
+  const isBurdenResolution = pending.action.type === "burden";
+  const paymentPrompt = isBurdenResolution
+    ? "Confirm this payment to resolve the Burden."
+    : pending.options.length > 0
+      ? "Review prepared and passive effects before paying the cost."
+      : "Confirm this payment before spending the action.";
+  const confirmLabel = isBurdenResolution
+    ? "Confirm Payment and Resolve"
+    : "Confirm Payment";
   const defaultMarketChoices = Object.fromEntries(
     pending.options
       .filter((option) => option.kind === "market")
@@ -80,11 +89,7 @@ export function CostChoicePanel({
       <div className="seeding-header">
         <p className="eyebrow">Payment Choice</p>
         <h1>{pending.title}</h1>
-        <p>
-          {pending.options.length > 0
-            ? "Review prepared and passive effects before paying the cost."
-            : "Confirm this payment before spending the action."}
-        </p>
+        <p>{paymentPrompt}</p>
       </div>
 
       <div className="cost-summary">
@@ -174,7 +179,7 @@ export function CostChoicePanel({
           type="button"
         >
           <Check size={18} />
-          Confirm Payment
+          {confirmLabel}
         </button>
       </div>
     </section>

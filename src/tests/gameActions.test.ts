@@ -1574,7 +1574,7 @@ describe("game actions", () => {
     expect(next.encounters.discardPile).toContain("burden_smoke_over_hearths");
     expect(next.warehouse.goods).toBe(0);
     expect(next.actionsRemaining).toBe(3);
-    expect(next.pendingEffects[0].title).toContain("Burden resolved");
+    expect(next.pendingEffects).toHaveLength(0);
   });
 
   it("prompts for Market Stalls before paying a Burden cost", () => {
@@ -1706,11 +1706,10 @@ describe("game actions", () => {
     const prompted = resolveBurden(ready, "burden_smoke_over_hearths");
     const resolved = confirmCostChoice(prompted, { selectedOptionIds: [] });
 
-    expect(resolved.pendingEffects).toHaveLength(2);
-    expect(resolved.pendingEffects[1].sourceName).toBe("The Resting Hall");
+    expect(resolved.pendingEffects).toHaveLength(1);
+    expect(resolved.pendingEffects[0].sourceName).toBe("The Resting Hall");
 
-    const afterBurdenPrompt = resolvePendingEffect(resolved);
-    const afterPassive = resolvePendingEffect(afterBurdenPrompt);
+    const afterPassive = resolvePendingEffect(resolved);
 
     expect(afterPassive.map.placedTiles[1].strain).toBe(0);
   });
