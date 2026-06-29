@@ -994,6 +994,8 @@ describe("game actions", () => {
     const placedTrack = next.map.placedTiles.find((tile) => tile.tileId === "c17_track");
 
     expect(prepared.players[0].stewardPowerUsesBySeason[1]).toBe(1);
+    expect(prepared.pendingEffects).toHaveLength(0);
+    expect(prepared.boonModifiers[0]?.sourceType).toBe("steward");
     expect(next.map.placedTiles).toHaveLength(2);
     expect(next.actionsRemaining).toBe(0);
     expect(next.warehouse.stone).toBe(0);

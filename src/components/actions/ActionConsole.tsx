@@ -79,6 +79,23 @@ const actions = [
   { id: "end", label: "End", ariaLabel: "End Turn", icon: BadgeCheck }
 ];
 
+const stewardPowerTiming: Record<string, string> = {
+  vanguard: "Prepare before placing a Travel Tile.",
+  knight: "Prepare before placing a Housing Tile.",
+  sentinel: "Prepare before upgrading a Core Tile.",
+  ranger: "Use before a tile action that needs a new point of reach.",
+  warden: "Offered automatically when a Burden is revealed.",
+  quartermaster: "Use during your turn to exchange resources and aid an Arrival."
+};
+
+const stewardPowerButtonLabel: Record<string, string> = {
+  vanguard: "Prepare Free Travel Placement",
+  knight: "Prepare Free Housing Placement",
+  sentinel: "Prepare Free Core Upgrade",
+  ranger: "Choose Temporary Reach",
+  quartermaster: "Exchange Resources"
+};
+
 function formatInteractBlockers(reasons: string[]): string {
   return reasons
     .map((reason) =>
@@ -181,6 +198,27 @@ export function ActionConsole({
     currentPlayer.stewardPowerUsesBySeason[state.season] ?? 0;
   const stewardPowerUsed = stewardPowerUses > 0;
   const stewardPowerValidation = canUseStewardPower(state, currentPlayer.id);
+  const stewardPowerPrepared = state.boonModifiers.some(
+    (modifier) =>
+      modifier.sourceType === "steward" &&
+      modifier.sourceCardId === currentPlayer.stewardId &&
+      modifier.remainingUses > 0
+  );
+  const stewardPowerReactive = currentPlayer.stewardId === "warden";
+  const stewardPowerStatus = stewardPowerPrepared
+    ? "Prepared"
+    : stewardPowerUsed
+      ? "Used this Season"
+      : stewardPowerReactive
+        ? "Ready on Burden reveal"
+        : stewardPowerValidation.ok
+          ? "Ready now"
+          : "Unavailable now";
+  const stewardPowerTone = stewardPowerPrepared
+    ? "is-prepared"
+    : !stewardPowerUsed && (stewardPowerReactive || stewardPowerValidation.ok)
+      ? "is-ready"
+      : "is-spent";
 
   useEffect(() => {
     if (
@@ -267,14 +305,30 @@ export function ActionConsole({
 
   return (
     <aside className="action-console turn-console">
+      <button
+        className={`steward-power-summary ${stewardPowerTone}`}
+        onClick={() => onModeChange("power")}
+        type="button"
+      >
+        <Sparkles size={18} />
+        <span>
+          <strong>{steward?.name ?? currentPlayer.stewardId} Power</strong>
+          <small>{stewardPowerStatus}</small>
+        </span>
+        <span className="steward-power-season">Season {state.season}</span>
+      </button>
       <div className="action-grid">
         {actions.map((action) => {
           const Icon = action.icon;
+          const powerClass =
+            action.id === "power" && stewardPowerTone !== "is-spent"
+              ? stewardPowerTone
+              : "";
           return (
             <button
               aria-label={action.ariaLabel}
               key={action.id}
-              className={actionMode === action.id ? "selected" : ""}
+              className={`${actionMode === action.id ? "selected" : ""} ${powerClass}`.trim()}
               onClick={() => onModeChange(action.id)}
               type="button"
             >
@@ -561,33 +615,42 @@ export function ActionConsole({
       )}
 
       {actionMode === "power" && (
-        <section className="flow-card">
+        <section className={`flow-card steward-power-card ${stewardPowerTone}`}>
           <div className="flow-heading">
             <Sparkles size={18} />
             <h3>Steward Power</h3>
+            <strong className="steward-power-state">{stewardPowerStatus}</strong>
           </div>
-          <p>
-            <strong>
-              {steward?.name ?? currentPlayer.stewardId}{" "}
-              {stewardPowerUsed ? "Power Used This Season" : "Power Available"}
-            </strong>
+          <p className="steward-power-timing">
+            {stewardPowerTiming[currentPlayer.stewardId]}
           </p>
-          <p className="muted">{steward?.powerText}</p>
-          {!stewardPowerValidation.ok && (
+          <p>{steward?.powerText}</p>
+          {!stewardPowerValidation.ok && !stewardPowerReactive && !stewardPowerPrepared && (
             <ul className="failure-list">
               {stewardPowerValidation.reasons.map((reason) => (
                 <li key={reason}>{reason}</li>
               ))}
             </ul>
           )}
-          <button
-            className="primary-action"
-            disabled={!stewardPowerValidation.ok}
-            onClick={onUseStewardPower}
-            type="button"
-          >
-            Use Steward Power
-          </button>
+          {stewardPowerReactive ? (
+            <p className="steward-power-reactive-note">
+              When a Burden is revealed, its effect screen will offer the Warden
+              option before the Burden applies.
+            </p>
+          ) : stewardPowerPrepared ? (
+            <p className="steward-power-reactive-note">
+              This power is prepared. Take the matching tile action to use it.
+            </p>
+          ) : (
+            <button
+              className="primary-action"
+              disabled={!stewardPowerValidation.ok}
+              onClick={onUseStewardPower}
+              type="button"
+            >
+              {stewardPowerButtonLabel[currentPlayer.stewardId] ?? "Use Steward Power"}
+            </button>
+          )}
         </section>
       )}
 

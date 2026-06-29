@@ -502,7 +502,7 @@ button:disabled {
 }
 
 .turn-console {
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
   align-content: stretch;
 }
 
@@ -930,6 +930,94 @@ button:disabled {
   font-weight: 700;
 }
 
+.steward-power-summary {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  padding: 7px 9px;
+  border: 1px solid rgba(125, 93, 47, 0.24);
+  border-left: 4px solid rgba(36, 31, 26, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 246, 223, 0.58);
+  color: var(--qv-ink);
+  text-align: left;
+}
+
+.steward-power-summary > span:nth-child(2) {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.steward-power-summary strong,
+.steward-power-summary small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.steward-power-summary small {
+  color: rgba(36, 31, 26, 0.68);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.steward-power-summary.is-ready,
+.steward-power-card.is-ready {
+  border-left-color: var(--qv-muted-green);
+  background: rgba(80, 107, 79, 0.1);
+}
+
+.steward-power-summary.is-prepared,
+.steward-power-card.is-prepared {
+  border-left-color: var(--qv-brass);
+  background: rgba(184, 138, 58, 0.11);
+}
+
+.steward-power-summary.is-spent {
+  opacity: 0.72;
+}
+
+.steward-power-season,
+.steward-power-state {
+  width: max-content;
+  max-width: 100%;
+  padding: 4px 6px;
+  border-radius: 8px;
+  background: rgba(36, 31, 26, 0.08);
+  font-size: 10px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.action-grid button.is-ready:not(.selected),
+.action-grid button.is-prepared:not(.selected) {
+  border-color: rgba(80, 107, 79, 0.44);
+  color: var(--qv-muted-green-dark);
+}
+
+.steward-power-card {
+  border-left: 4px solid rgba(36, 31, 26, 0.28);
+}
+
+.steward-power-card .flow-heading {
+  justify-content: space-between;
+}
+
+.steward-power-timing,
+.steward-power-reactive-note {
+  margin: 0;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(36, 31, 26, 0.06);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
 .action-grid button {
   min-height: 34px;
   justify-content: center;
@@ -1143,6 +1231,36 @@ button:disabled {
   gap: 10px;
 }
 
+.effect-command-bar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: minmax(120px, auto) minmax(280px, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 9px;
+  border: 1px solid rgba(125, 93, 47, 0.26);
+  border-radius: 8px;
+  background: rgba(255, 246, 223, 0.97);
+  box-shadow: 0 5px 14px rgba(36, 31, 26, 0.12);
+  backdrop-filter: blur(6px);
+}
+
+.effect-choice-ready,
+.effect-choice-waiting {
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.effect-choice-ready {
+  color: var(--qv-muted-green-dark);
+}
+
+.effect-choice-waiting {
+  color: var(--qv-danger-rust);
+}
+
 .effect-control-group {
   display: grid;
   gap: 8px;
@@ -1151,6 +1269,20 @@ button:disabled {
 .effect-control-group h3 {
   margin: 0;
   font-size: 15px;
+}
+
+.effect-control-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 12px;
+  align-items: baseline;
+}
+
+.effect-control-heading > span {
+  color: rgba(36, 31, 26, 0.68);
+  font-size: 11px;
+  font-weight: 750;
 }
 
 .effect-grid,
@@ -3822,6 +3954,11 @@ button.effect-row {
   .effect-actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .effect-command-bar {
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
 
   .deck-order-controls button {

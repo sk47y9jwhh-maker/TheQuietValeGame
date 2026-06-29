@@ -1690,6 +1690,10 @@ export function useStewardPower(state: GameState, playerId: string): GameState {
       ...nextState,
       boonModifiers: [...nextState.boonModifiers, modifier]
     };
+    return log(
+      nextState,
+      `${player.name} prepared ${steward.name}'s Steward Power for the next matching action.`
+    );
   }
 
   let pendingEffect: Omit<PendingEffectState, "id"> = {

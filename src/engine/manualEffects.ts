@@ -418,10 +418,177 @@ export function getEffectSupportTargets(
             candidate.hexIds.some((hexId) => neighbors.has(hexId))
         );
       })
-    );
+    ).filter((tile) => !tile.support.passive && !tile.support.singleUse);
   }
 
-  return primaryTargets;
+  return primaryTargets.filter(
+    (tile) => !tile.support.passive && !tile.support.singleUse
+  );
+}
+
+const effectNumberWords: Record<string, number> = {
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6
+};
+
+function parseEffectNumber(value: string | undefined, fallback = 1): number {
+  if (!value) return fallback;
+  const numeric = Number(value);
+  if (Number.isFinite(numeric)) return numeric;
+  return effectNumberWords[value.toLowerCase()] ?? fallback;
+}
+
+export interface TileAdjustmentRule {
+  strain?: {
+    direction: "place" | "remove";
+    maxTotal: number;
+    maxPerTile: number;
+    maxTargets: number;
+  };
+  support?: {
+    maxTargets: number;
+  };
+}
+
+function parseTargetCount(effectText: string, actionIndex: number): number {
+  const lower = effectText.toLowerCase();
+  const before = lower.slice(Math.max(0, actionIndex - 180), actionIndex);
+  const after = lower.slice(actionIndex, actionIndex + 180);
+  const patterns = [
+    /choose\s+up to\s+(\d+|one|two|three|four|five|six)\b/g,
+    /choose\s+(\d+|one|two|three|four|five|six)\b/g,
+    /each of\s+up to\s+(\d+|one|two|three|four|five|six)\b/g,
+    /from\s+up to\s+(\d+|one|two|three|four|five|six)\b/g,
+    /on\s+each\s+of\s+(\d+|one|two|three|four|five|six)\b/g,
+    /from\s+(\d+|one|two|three|four|five|six)\b/g
+  ];
+
+  for (const scope of [after, before]) {
+    for (const pattern of patterns) {
+      const matches = [...scope.matchAll(pattern)];
+      const match = matches.at(-1);
+      if (match) return parseEffectNumber(match[1]);
+    }
+  }
+  return 1;
+}
+
+export function getTileAdjustmentRule(effectText: string): TileAdjustmentRule {
+  const lower = effectText.toLowerCase();
+  const rule: TileAdjustmentRule = {};
+  const supportAction = lower.search(/\b(?:gain|gains)\s+supported\b/);
+
+  if (supportAction >= 0) {
+    rule.support = { maxTargets: parseTargetCount(effectText, supportAction) };
+  }
+
+  const strainActions = [
+    ...effectText.matchAll(/\b(place|remove)\s+(up to\s+)?(\d+|one|two|three|four|five|six)\s+strain\b/gi)
+  ];
+  if (strainActions.length > 0) {
+    const direction = strainActions.some((match) => match[1].toLowerCase() === "place")
+      ? "place"
+      : "remove";
+    const matchingActions = strainActions.filter(
+      (match) => match[1].toLowerCase() === direction
+    );
+    let maxTotal = 0;
+    let maxPerTile = 1;
+    let maxTargets = 0;
+
+    for (const match of matchingActions) {
+      const amount = parseEffectNumber(match[3]);
+      const actionIndex = match.index ?? 0;
+      let targetCount = parseTargetCount(effectText, actionIndex);
+      const actionText = lower.slice(actionIndex, actionIndex + 180);
+      if (
+        match[2] &&
+        targetCount === 1 &&
+        (/\bamong\b/.test(actionText) || /\btiles\b/.test(actionText))
+      ) {
+        targetCount = amount;
+      }
+      const distributesAmount =
+        /\bamong\b/.test(actionText) ||
+        (/up to\s+\d+\s+strain/.test(match[0].toLowerCase()) && targetCount > 1);
+      const actionTotal = distributesAmount ? amount : amount * targetCount;
+      maxTotal += actionTotal;
+      maxPerTile = Math.max(maxPerTile, distributesAmount ? amount : amount);
+      maxTargets += targetCount;
+    }
+
+    rule.strain = {
+      direction,
+      maxTotal: Math.max(1, maxTotal),
+      maxPerTile: Math.max(1, maxPerTile),
+      maxTargets: Math.max(1, maxTargets)
+    };
+  }
+
+  return rule;
+}
+
+export function getValidEffectStrainTargets(
+  state: GameState,
+  effectText: string,
+  sourceTile?: PlacedTile
+): PlacedTile[] {
+  const rule = getTileAdjustmentRule(effectText).strain;
+  const targets = getEffectTileTargets(state, effectText, sourceTile);
+  if (!rule) return [];
+  return targets.filter((tile) =>
+    rule.direction === "remove" ? tile.strain > 0 : tile.strain < 3
+  );
+}
+
+export function isTileAdjustmentValid(
+  state: GameState,
+  effectText: string,
+  adjustment: EffectAdjustment,
+  sourceTile?: PlacedTile
+): boolean {
+  const rule = getTileAdjustmentRule(effectText);
+  const strainEntries = Object.entries(adjustment.tileStrainDeltas ?? {}).filter(
+    ([, delta]) => delta !== 0
+  );
+  const supportIds = [...new Set(adjustment.supportTileIds ?? [])];
+
+  if (strainEntries.length > 0) {
+    if (!rule.strain) return false;
+    const legalIds = new Set(
+      getValidEffectStrainTargets(state, effectText, sourceTile).map(
+        (tile) => tile.instanceId
+      )
+    );
+    const total = strainEntries.reduce((sum, [, delta]) => sum + Math.abs(delta), 0);
+    if (strainEntries.length > rule.strain.maxTargets || total > rule.strain.maxTotal) {
+      return false;
+    }
+    for (const [tileId, delta] of strainEntries) {
+      if (!legalIds.has(tileId) || Math.abs(delta) > rule.strain.maxPerTile) return false;
+      if (rule.strain.direction === "place" && delta < 0) return false;
+      if (rule.strain.direction === "remove" && delta > 0) return false;
+      const tile = state.map.placedTiles.find((candidate) => candidate.instanceId === tileId);
+      if (!tile) return false;
+      if (rule.strain.direction === "remove" && Math.abs(delta) > tile.strain) return false;
+    }
+  }
+
+  if (supportIds.length > 0) {
+    if (!rule.support || supportIds.length > rule.support.maxTargets) return false;
+    const legalIds = new Set(
+      getEffectSupportTargets(state, effectText, sourceTile).map(
+        (tile) => tile.instanceId
+      )
+    );
+    if (supportIds.some((tileId) => !legalIds.has(tileId))) return false;
+  }
+
+  return true;
 }
 
 function isResolveActiveBurdenEffect(effectText: string): boolean {
@@ -534,8 +701,7 @@ function parseStrainSuggestion(
   const removeMatch = effectText.match(/remove\s+(?:up to\s+)?(\d+)\s+strain/i);
   if (removeMatch) {
     const amount = Number(removeMatch[1]);
-    const candidates = getEffectTileTargets(state, effectText, sourceTile).filter((tile) => {
-      if (tile.strain <= 0) return false;
+    const candidates = getValidEffectStrainTargets(state, effectText, sourceTile).filter((tile) => {
       return sourceTile && effectText.toLowerCase().includes("adjacent")
         ? isAdjacentToTile(tile, sourceTile)
         : true;
@@ -553,9 +719,7 @@ function parseStrainSuggestion(
   const placeMatch = effectText.match(/place\s+(\d+)\s+strain/i);
   if (placeMatch) {
     const amount = Number(placeMatch[1]);
-    const candidates = getEffectTileTargets(state, effectText, sourceTile).filter(
-      (tile) => tile.strain < 3
-    );
+    const candidates = getValidEffectStrainTargets(state, effectText, sourceTile);
     if (candidates.length === 1) {
       return {
         tileStrainDeltas: {
@@ -631,6 +795,13 @@ export function effectHasNoValidChoiceTargets(
   const hasResourceFallback = Boolean(
     fallbackText && /\b(gain|lose|pay|exchange)\b/i.test(fallbackText)
   );
+  const tileRule = getTileAdjustmentRule(effectText);
+  const hasValidStrainTarget = tileRule.strain
+    ? getValidEffectStrainTargets(state, effectText, sourceTile).length > 0
+    : false;
+  const hasValidSupportTarget = tileRule.support
+    ? getEffectSupportTargets(state, effectText, sourceTile).length > 0
+    : false;
 
   if (
     timerRule?.direction === "add" &&
@@ -666,6 +837,15 @@ export function effectHasNoValidChoiceTargets(
     lower.includes("strain") &&
     !lower.includes("warehouse") &&
     !lower.includes("lose ")
+  ) {
+    return true;
+  }
+
+  if (
+    (tileRule.strain || tileRule.support) &&
+    !hasValidStrainTarget &&
+    !hasValidSupportTarget &&
+    !hasResourceFallback
   ) {
     return true;
   }
@@ -713,11 +893,7 @@ export function suggestEffectAdjustment(
     Boolean(timerRule) && lower.includes("timer") && timerTargetCount > 1;
   const hasMultipleStrainTargets =
     lower.includes("strain") &&
-    (lower.includes("remove")
-      ? getEffectTileTargets(state, effectText, sourceTile).filter((tile) => tile.strain > 0)
-          .length > 1
-      : getEffectTileTargets(state, effectText, sourceTile).filter((tile) => tile.strain < 3)
-          .length > 1);
+    getValidEffectStrainTargets(state, effectText, sourceTile).length > 1;
   const hasMultipleSupportedTargets =
     lower.includes("supported") &&
     getEffectSupportTargets(state, effectText, sourceTile).length > 1;
@@ -803,6 +979,23 @@ export function resolvePendingEffect(
   if (
     pendingEffect.allowWardenRelief &&
     !isWardenReliefAdjustmentValid(effectiveAdjustment)
+  ) {
+    return state;
+  }
+  const sourceTile =
+    pendingEffect.sourceType === "tile" && pendingEffect.sourceId
+      ? state.map.placedTiles.find(
+          (tile) => tile.instanceId === pendingEffect.sourceId
+        )
+      : undefined;
+  if (
+    !pendingEffect.allowWardenRelief &&
+    !isTileAdjustmentValid(
+      state,
+      pendingEffect.effectText,
+      effectiveAdjustment,
+      sourceTile
+    )
   ) {
     return state;
   }

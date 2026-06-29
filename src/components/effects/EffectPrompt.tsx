@@ -17,9 +17,11 @@ import {
 } from "../common/gameText";
 import {
   getEffectSupportTargets,
-  getEffectTileTargets,
+  getTileAdjustmentRule,
+  getValidEffectStrainTargets,
   getTimerAdjustmentRule,
   hasEffectAdjustment,
+  isTileAdjustmentValid,
   isWardenReliefAdjustmentValid,
   isTimerAdjustmentValid,
   mergeEffectAdjustment
@@ -167,8 +169,6 @@ export function EffectPrompt({
   const flavorText = sourceCard?.flavorText;
   const effectText = effect.effectText.toLowerCase();
   const timerRule = getTimerAdjustmentRule(effect.effectText);
-  const canAdjustTileStrain = effectText.includes("strain");
-  const canToggleTileSupport = effectText.includes("supported");
   const sourceTile =
     effect.sourceType === "tile" && effect.sourceId
       ? state.map.placedTiles.find((tile) => tile.instanceId === effect.sourceId)
@@ -177,7 +177,11 @@ export function EffectPrompt({
     const suggestedStrainIds = Object.keys(effect.suggestedAdjustment?.tileStrainDeltas ?? {});
     const suggestedSupportIds = effect.suggestedAdjustment?.supportTileIds ?? [];
     const suggestedTileIds = new Set([...suggestedStrainIds, ...suggestedSupportIds]);
-    const legalTargets = getEffectTileTargets(state, effect.effectText, sourceTile);
+    const legalTargets = getValidEffectStrainTargets(
+      state,
+      effect.effectText,
+      sourceTile
+    );
     const supportTargets = getEffectSupportTargets(state, effect.effectText, sourceTile);
     const legalTargetIds = new Set(legalTargets.map((tile) => tile.instanceId));
     const supportTargetIds = new Set(supportTargets.map((tile) => tile.instanceId));
@@ -200,6 +204,19 @@ export function EffectPrompt({
     };
   }, [effect.effectText, effect.suggestedAdjustment, sourceTile, state]);
   const tileControlTargets = tileControlData.targets;
+  const tileAdjustmentRule = useMemo(
+    () => getTileAdjustmentRule(effect.effectText),
+    [effect.effectText]
+  );
+  const canAdjustTileStrain = Boolean(tileAdjustmentRule.strain);
+  const canToggleTileSupport = Boolean(tileAdjustmentRule.support);
+  const selectedStrainEntries = Object.entries(tileStrainDeltas).filter(
+    ([, delta]) => delta !== 0
+  );
+  const selectedStrainTotal = selectedStrainEntries.reduce(
+    (total, [, delta]) => total + Math.abs(delta),
+    0
+  );
   const hasResourceSuggestion = resources.some(
     (resource) => (effect.suggestedAdjustment?.resourceDeltas?.[resource] ?? 0) !== 0
   );
@@ -218,7 +235,10 @@ export function EffectPrompt({
           (effect.suggestedAdjustment?.resourceDeltas?.[resource] ?? 0) !== 0
       );
   const hasResourceAction =
-    broadResourceChoice || /\b(gain|lose|pay)\b/.test(effectText);
+    broadResourceChoice ||
+    /\b(?:gain|lose|pay)\s+(?:up to\s+)?\d+\s+(?:wood|stone|metal|food|herbs|goods|resource|resources)\b/.test(
+      effectText
+    );
   const showResourceControls =
     hasResourceSuggestion ||
     effect.resourceExchangeLimit !== undefined ||
@@ -244,12 +264,21 @@ export function EffectPrompt({
     );
   const showTileControls =
     tileControlTargets.length > 0 && (hasTileSuggestion || needsTileChoice);
+  const tileAdjustmentInvalid =
+    !effect.allowWardenRelief &&
+    !isTileAdjustmentValid(
+      state,
+      effect.effectText,
+      adjustment,
+      sourceTile
+    );
   const cannotApply =
     Boolean(effect.requiresManualChoice && !hasChanges) ||
     timerInvalid ||
     exchangeInvalid ||
     Boolean(burdenResolveInvalid) ||
-    Boolean(wardenReliefInvalid);
+    Boolean(wardenReliefInvalid) ||
+    tileAdjustmentInvalid;
 
   function adjustResource(resource: ResourceType, delta: number) {
     setResourceDeltas((current) => ({
@@ -309,19 +338,55 @@ export function EffectPrompt({
     return currentDelta < 3 - arrival.timerTokens && totalAdded < timerRule.limit;
   }
 
+  function getNextStrainDelta(tileId: string, requestedDelta: number): number {
+    const rule = tileAdjustmentRule.strain;
+    if (!rule) return tileStrainDeltas[tileId] ?? 0;
+    const tile = state.map.placedTiles.find(
+      (candidate) => candidate.instanceId === tileId
+    );
+    if (!tile) return tileStrainDeltas[tileId] ?? 0;
+
+    const currentDelta = tileStrainDeltas[tileId] ?? 0;
+    const nextDelta = currentDelta + requestedDelta;
+    if (rule.direction === "place" && nextDelta < 0) return currentDelta;
+    if (rule.direction === "remove" && nextDelta > 0) return currentDelta;
+    if (Math.abs(nextDelta) > rule.maxPerTile) return currentDelta;
+    if (rule.direction === "remove" && Math.abs(nextDelta) > tile.strain) {
+      return currentDelta;
+    }
+
+    const otherEntries = Object.entries(tileStrainDeltas).filter(
+      ([candidateId, delta]) => candidateId !== tileId && delta !== 0
+    );
+    const nextTargetCount = otherEntries.length + (nextDelta === 0 ? 0 : 1);
+    const nextTotal =
+      otherEntries.reduce((total, [, delta]) => total + Math.abs(delta), 0) +
+      Math.abs(nextDelta);
+    if (nextTargetCount > rule.maxTargets || nextTotal > rule.maxTotal) {
+      return currentDelta;
+    }
+    return nextDelta;
+  }
+
+  function canAdjustStrain(tileId: string, requestedDelta: number): boolean {
+    return getNextStrainDelta(tileId, requestedDelta) !== (tileStrainDeltas[tileId] ?? 0);
+  }
+
   function adjustStrain(tileId: string, delta: number) {
-    setTileStrainDeltas((current) => ({
-      ...current,
-      [tileId]: (current[tileId] ?? 0) + delta
-    }));
+    const nextDelta = getNextStrainDelta(tileId, delta);
+    setTileStrainDeltas((current) => ({ ...current, [tileId]: nextDelta }));
   }
 
   function toggleSupported(tileId: string) {
-    setSupportTileIds((current) =>
-      current.includes(tileId)
-        ? current.filter((candidate) => candidate !== tileId)
-        : [...current, tileId]
-    );
+    setSupportTileIds((current) => {
+      if (current.includes(tileId)) {
+        return current.filter((candidate) => candidate !== tileId);
+      }
+      if (current.length >= (tileAdjustmentRule.support?.maxTargets ?? 0)) {
+        return current;
+      }
+      return [...current, tileId];
+    });
   }
 
   function chooseWardenStrainRelief(tileId: string) {
@@ -395,9 +460,32 @@ export function EffectPrompt({
           type="button"
         >
           <ShieldOff size={18} />
-          Use Warden Power
+          Use Warden Power: prevent this effect
         </button>
       )}
+
+      <div className="effect-command-bar">
+        <span className={cannotApply ? "effect-choice-waiting" : "effect-choice-ready"}>
+          {cannotApply ? "Complete a valid choice" : "Ready to continue"}
+        </span>
+        <div className="effect-actions">
+          {effect.canSkip && onSkip && (
+            <button className="secondary-action" onClick={onSkip} type="button">
+              <X size={18} />
+              {effect.skipLabel ?? "Skip"}
+            </button>
+          )}
+          <button
+            className="primary-action"
+            disabled={cannotApply}
+            onClick={() => onApply(adjustment)}
+            type="button"
+          >
+            <Check size={18} />
+            {effect.confirmLabel ?? "Apply Effect"}
+          </button>
+        </div>
+      </div>
 
       {showResourceControls && (
       <section className="effect-control-group">
@@ -462,12 +550,24 @@ export function EffectPrompt({
 
       {showTileControls && (
         <section className="effect-control-group">
-          <h3>Tiles</h3>
+          <div className="effect-control-heading">
+            <h3>Tiles</h3>
+            <span>
+              {tileAdjustmentRule.strain &&
+                `${tileAdjustmentRule.strain.direction === "place" ? "Place" : "Remove"} up to ${tileAdjustmentRule.strain.maxTotal} Strain: ${selectedStrainTotal} selected`}
+              {tileAdjustmentRule.strain && tileAdjustmentRule.support && " | "}
+              {tileAdjustmentRule.support &&
+                `Supported up to ${tileAdjustmentRule.support.maxTargets} tiles: ${supportTileIds.length} selected`}
+            </span>
+          </div>
           <div className="effect-list tile-effect-list">
             {tileControlTargets.map((tile) => (
               <div className="effect-row tile-effect-row" key={tile.instanceId}>
                 <span>
                   {selectTileName(tile)} {tile.hexIds.join(", ")} | Strain {tile.strain}
+                  {(tile.support.passive || tile.support.singleUse) && (
+                    <small>Already Supported</small>
+                  )}
                 </span>
                 <div className="stepper">
                   {canAdjustTileStrain && tileControlData.strainTargetIds.has(tile.instanceId) && (
@@ -482,14 +582,24 @@ export function EffectPrompt({
                       </button>
                     ) : (
                       <>
-                        <button onClick={() => adjustStrain(tile.instanceId, -1)} type="button">
+                        <button
+                          aria-label={`Decrease Strain adjustment for ${selectTileName(tile)}`}
+                          disabled={!canAdjustStrain(tile.instanceId, -1)}
+                          onClick={() => adjustStrain(tile.instanceId, -1)}
+                          type="button"
+                        >
                           <Minus size={14} />
                         </button>
                         <strong>
                           {(tileStrainDeltas[tile.instanceId] ?? 0) > 0 ? "+" : ""}
                           {tileStrainDeltas[tile.instanceId] ?? 0}
                         </strong>
-                        <button onClick={() => adjustStrain(tile.instanceId, 1)} type="button">
+                        <button
+                          aria-label={`Increase Strain adjustment for ${selectTileName(tile)}`}
+                          disabled={!canAdjustStrain(tile.instanceId, 1)}
+                          onClick={() => adjustStrain(tile.instanceId, 1)}
+                          type="button"
+                        >
                           <Plus size={14} />
                         </button>
                       </>
@@ -497,7 +607,13 @@ export function EffectPrompt({
                   )}
                   {canToggleTileSupport && tileControlData.supportTargetIds.has(tile.instanceId) && (
                     <button
+                      aria-label={`Place Supported on ${selectTileName(tile)}`}
                       className={supportTileIds.includes(tile.instanceId) ? "selected" : ""}
+                      disabled={
+                        !supportTileIds.includes(tile.instanceId) &&
+                        supportTileIds.length >=
+                          (tileAdjustmentRule.support?.maxTargets ?? 0)
+                      }
                       onClick={() =>
                         effect.allowWardenRelief
                           ? chooseWardenSupportRelief(tile.instanceId)
@@ -651,24 +767,6 @@ export function EffectPrompt({
           {effect.resourceExchangeLimit}.
         </p>
       )}
-
-      <div className="effect-actions">
-        {effect.canSkip && onSkip && (
-          <button className="secondary-action" onClick={onSkip} type="button">
-            <X size={18} />
-            {effect.skipLabel ?? "Skip"}
-          </button>
-        )}
-        <button
-          className="primary-action"
-          disabled={cannotApply}
-          onClick={() => onApply(adjustment)}
-          type="button"
-        >
-          <Check size={18} />
-          {effect.confirmLabel ?? "Apply Effect"}
-        </button>
-      </div>
       <p className="muted effect-footer">
         <TimerReset size={15} />
         Next effect: {state.pendingEffects[1]?.title ?? "None"}

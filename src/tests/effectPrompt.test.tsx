@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { EffectPrompt } from "../components/effects/EffectPrompt";
 import { createNewGame } from "../engine/setup";
+import { getHexNeighbors } from "../engine/hex";
 import type { PendingEffectState, PlacedTile } from "../engine/types";
 
 const coreTile = (
@@ -167,5 +168,71 @@ describe("effect prompt controls", () => {
       })
     ).toBeDisabled();
     expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
+  });
+
+  it("keeps an up-to Supported effect playable with fewer than the maximum", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const [firstHex, secondHex, thirdHex] = getHexNeighbors("G2");
+    const source = coreTile("c15_path", "tile_source", "G2");
+    state.map.placedTiles = [
+      source,
+      coreTile("c15_path", "tile_1", firstHex),
+      coreTile("c15_path", "tile_2", secondHex),
+      coreTile("c15_path", "tile_3", thirdHex)
+    ];
+    const effect: PendingEffectState = {
+      id: "effect_support",
+      sourceType: "tile",
+      sourceId: source.instanceId,
+      sourceName: "Alms House",
+      title: "Placed effect: Alms House",
+      effectText:
+        "When placed or activated: Choose up to two adjacent tiles. They gain Supported.",
+      requiresManualChoice: true
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    const [first] = screen.getAllByRole("button", {
+      name: /place supported on path/i
+    });
+    fireEvent.click(first);
+    expect(screen.getByText(/Supported up to 2 tiles: 1 selected/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
+    expect(screen.queryByText("Resources")).not.toBeInTheDocument();
+
+    const supportButtons = screen.getAllByRole("button", {
+      name: /place supported on path/i
+    });
+    fireEvent.click(supportButtons[1]);
+    expect(screen.getByText(/Supported up to 2 tiles: 2 selected/i)).toBeInTheDocument();
+    const thirdSupportButton = supportButtons.at(2);
+    expect(thirdSupportButton).toBeDefined();
+    expect(thirdSupportButton!).toBeDisabled();
+  });
+
+  it("shows the continue action before long choice controls", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [coreTile("c15_path", "tile_path", "G1", 1)];
+    const effect: PendingEffectState = {
+      id: "effect_visible_action",
+      sourceType: "card",
+      sourceName: "Test Boon",
+      title: "Use Test Boon",
+      effectText: "Remove up to 2 Strain from 1 placed tile.",
+      requiresManualChoice: true
+    };
+
+    const { container } = render(
+      <EffectPrompt state={state} effect={effect} onApply={() => {}} />
+    );
+
+    const commandBar = container.querySelector(".effect-command-bar");
+    const tileControls = screen.getByText("Tiles").closest(".effect-control-group");
+    expect(commandBar).toBeInTheDocument();
+    expect(
+      commandBar!.compareDocumentPosition(tileControls as Node) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
   });
 });

@@ -4,6 +4,8 @@ import {
   getCurrentSeasonCardEffectText,
   getEffectSupportTargets,
   getEffectTileTargets,
+  getTileAdjustmentRule,
+  isTileAdjustmentValid,
   isTimerAdjustmentValid,
   resolvePendingEffect,
   skipPendingEffect,
@@ -380,6 +382,94 @@ describe("manual effect suggestions", () => {
     );
 
     expect(suggestion.adjustment?.supportTileIds).toEqual(["tile_2"]);
+  });
+
+  it("treats an already-Supported adjacent tile as no valid target", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const source = pathTile("tile_1", "G1");
+    const neighbor = {
+      ...pathTile("tile_2", "H1"),
+      support: { passive: false, singleUse: true, preventedThisRound: false }
+    };
+    state.map.placedTiles = [source, neighbor];
+    const effectText =
+      "When placed or activated: Choose up to two adjacent tiles. They gain Supported.";
+
+    expect(getEffectSupportTargets(state, effectText, source)).toEqual([]);
+    expect(effectHasNoValidChoiceTargets(state, effectText, source)).toBe(true);
+    expect(suggestEffectAdjustment(state, effectText, source).requiresManualChoice).toBe(
+      false
+    );
+  });
+
+  it("caps Supported choices at the printed up-to count", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const source = pathTile("tile_source", "G1");
+    const first = pathTile("tile_1", "H1");
+    const second = pathTile("tile_2", "G2");
+    const third = pathTile("tile_3", "F1");
+    state.map.placedTiles = [source, first, second, third];
+    const effectText =
+      "When placed or activated: Choose up to two adjacent tiles. They gain Supported.";
+
+    expect(getTileAdjustmentRule(effectText).support?.maxTargets).toBe(2);
+    expect(
+      isTileAdjustmentValid(
+        state,
+        effectText,
+        { supportTileIds: ["tile_1", "tile_2"] },
+        source
+      )
+    ).toBe(true);
+    expect(
+      isTileAdjustmentValid(
+        state,
+        effectText,
+        { supportTileIds: ["tile_1", "tile_2", "tile_3"] },
+        source
+      )
+    ).toBe(false);
+  });
+
+  it("caps Strain removal by both total and target count", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [
+      pathTile("tile_1", "G1", 2),
+      pathTile("tile_2", "H1", 1),
+      pathTile("tile_3", "I1", 1)
+    ];
+    const effectText = "Remove 1 Strain from up to 2 placed tiles.";
+
+    expect(getTileAdjustmentRule(effectText).strain).toEqual({
+      direction: "remove",
+      maxTotal: 2,
+      maxPerTile: 1,
+      maxTargets: 2
+    });
+    expect(
+      isTileAdjustmentValid(state, effectText, {
+        tileStrainDeltas: { tile_1: -1, tile_2: -1 }
+      })
+    ).toBe(true);
+    expect(
+      isTileAdjustmentValid(state, effectText, {
+        tileStrainDeltas: { tile_1: -1, tile_2: -1, tile_3: -1 }
+      })
+    ).toBe(false);
+    expect(
+      isTileAdjustmentValid(state, effectText, {
+        tileStrainDeltas: { tile_1: -2 }
+      })
+    ).toBe(false);
+  });
+
+  it("does not require a removal choice when every legal tile has 0 Strain", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [pathTile("tile_1", "G1", 0)];
+    const effectText = "Remove up to 2 Strain from 1 placed tile.";
+
+    expect(effectHasNoValidChoiceTargets(state, effectText)).toBe(true);
+    expect(suggestEffectAdjustment(state, effectText).requiresManualChoice).toBe(false);
   });
 
   it("applies suggested changes when resolving a pending effect", () => {

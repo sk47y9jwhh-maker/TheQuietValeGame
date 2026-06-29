@@ -43,6 +43,34 @@ function renderActionConsole(
 }
 
 describe("action console", () => {
+  it("keeps the current Steward Power status visible during the turn", () => {
+    const onModeChange = vi.fn();
+
+    renderActionConsole({ onModeChange });
+
+    const powerSummary = screen.getByRole("button", {
+      name: /Vanguard Power Ready now Season 1/i
+    });
+    expect(powerSummary).toBeInTheDocument();
+
+    fireEvent.click(powerSummary);
+    expect(onModeChange).toHaveBeenCalledWith("power");
+  });
+
+  it("explains that the Warden Power appears during a Burden reveal", () => {
+    const state = { ...createNewGame(1, ["warden"]), phase: "turns" as const };
+
+    const { container } = renderActionConsole({ actionMode: "power", state });
+
+    expect(screen.getAllByText("Ready on Burden reveal")).toHaveLength(2);
+    expect(
+      screen.getByText(/its effect screen will offer the Warden option/i)
+    ).toBeInTheDocument();
+    expect(
+      container.querySelector(".steward-power-card .primary-action")
+    ).not.toBeInTheDocument();
+  });
+
   it("shows viable tile choices before greyed blocked choices", () => {
     const state = { ...createNewGame(1, ["vanguard"]), phase: "turns" as const };
     const onSelectedTileChange = vi.fn();
