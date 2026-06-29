@@ -67,4 +67,30 @@ describe("bottom drawer", () => {
 
     expect(onTileInspect).toHaveBeenCalledWith("c01_lumber_yard");
   });
+
+  it("provides a player-facing quick rules guide", () => {
+    const state = {
+      ...createNewGame(1, ["vanguard"]),
+      phase: "turns" as const,
+      actionsRemaining: 3
+    };
+
+    const { container } = render(
+      <BottomDrawer state={state} onTileInspect={() => {}} />
+    );
+
+    fireEvent.click(screen.getByRole("tab", { name: /rules/i }));
+
+    expect(screen.getByRole("heading", { name: "Rules" })).toBeInTheDocument();
+    expect(screen.getByText("Playtester Quick Guide")).toBeInTheDocument();
+    expect(screen.getByText("Round 1/12")).toBeInTheDocument();
+    expect(screen.getByText("3 actions left")).toBeInTheDocument();
+    expect(screen.getByText("Placement and reach")).toBeInTheDocument();
+    expect(screen.getByText("Boons, Arrivals, and Burdens")).toBeInTheDocument();
+    expect(screen.getByText("Final scoring")).toBeInTheDocument();
+    expect(
+      screen.getByText("Lose 6 Renown for each active Burden and 3 Renown for every Strain token on the map.")
+    ).toBeInTheDocument();
+    expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(10);
+  });
 });

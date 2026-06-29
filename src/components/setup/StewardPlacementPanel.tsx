@@ -1,5 +1,5 @@
 import { Check, MapPin, Shield } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { mapCells, terrainLabels } from "../../data/map";
 import { stewardById } from "../../data/stewards";
 import { selectCurrentPlayer } from "../../engine/selectors";
@@ -28,6 +28,23 @@ function setupPolygonPoints(cx: number, cy: number): string {
   }).join(" ");
 }
 
+const setupMapGeometry = mapCells.map((cell) => {
+  const colIndex = cell.col.charCodeAt(0) - 65;
+  const x = setupRadius + colIndex * setupRadius * 1.5 + 14;
+  const y =
+    setupHexHeight / 2 +
+    (cell.row - 1) * setupHexHeight +
+    (colIndex % 2 ? setupHexHeight / 2 : 0) +
+    17;
+
+  return {
+    cell,
+    x,
+    y,
+    points: setupPolygonPoints(x, y)
+  };
+});
+
 interface StewardPlacementPanelProps {
   state: GameState;
   onConfirm: (hexId: string) => void;
@@ -50,6 +67,15 @@ export function StewardPlacementPanel({
   const allowedTerrainText = steward.startingTerrains
     .map((terrain) => terrainLabels[terrain])
     .join(" or ");
+  const occupiedPlayerIndexByHex = useMemo(() => {
+    const byHex = new Map<string, number>();
+    state.players.forEach((player, playerIndex) => {
+      if (player.id !== currentPlayer.id) {
+        byHex.set(player.stewardHexId, playerIndex);
+      }
+    });
+    return byHex;
+  }, [currentPlayer.id, state.players]);
 
   return (
     <main className="command-table setup-flow-table steward-start-flow">
@@ -114,25 +140,12 @@ export function StewardPlacementPanel({
             aria-label={`${steward.name} starting map`}
             viewBox={`0 0 ${setupMapWidth} ${setupMapHeight}`}
           >
-            {mapCells.map((cell) => {
-              const colIndex = cell.col.charCodeAt(0) - 65;
-              const x = setupRadius + colIndex * setupRadius * 1.5 + 14;
-              const y =
-                setupHexHeight / 2 +
-                (cell.row - 1) * setupHexHeight +
-                (colIndex % 2 ? setupHexHeight / 2 : 0) +
-                17;
+            {setupMapGeometry.map(({ cell, x, y, points }) => {
               const allowed = steward.startingTerrains.includes(cell.terrain);
-              const occupiedByOther = state.players.some(
-                (player) =>
-                  player.id !== currentPlayer.id && player.stewardHexId === cell.id
-              );
+              const occupiedPlayerIndex = occupiedPlayerIndexByHex.get(cell.id);
+              const occupiedByOther = occupiedPlayerIndex !== undefined;
               const selectable = allowed && !occupiedByOther;
               const selected = selectedHexId === cell.id;
-              const occupiedPlayerIndex = state.players.findIndex(
-                (player) =>
-                  player.id !== currentPlayer.id && player.stewardHexId === cell.id
-              );
 
               return (
                 <g
@@ -167,7 +180,7 @@ export function StewardPlacementPanel({
                     {selectable ? " | Valid start" : " | Unavailable start"}
                     {occupiedByOther ? " | Occupied" : ""}
                   </title>
-                  <polygon points={setupPolygonPoints(x, y)} />
+                  <polygon points={points} />
                   {selectable && !selected && (
                     <circle className="steward-start-option-dot" cx={x} cy={y} r={3.5} />
                   )}
@@ -183,7 +196,7 @@ export function StewardPlacementPanel({
                     <g className="steward-start-occupied" transform={`translate(${x}, ${y + 12})`}>
                       <circle cx={0} cy={0} r={6} />
                       <text x={0} y={4} textAnchor="middle">
-                        {occupiedPlayerIndex + 1}
+                        {(occupiedPlayerIndex ?? 0) + 1}
                       </text>
                     </g>
                   )}

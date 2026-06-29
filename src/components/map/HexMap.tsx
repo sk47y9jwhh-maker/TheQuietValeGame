@@ -1,16 +1,22 @@
-import { useCallback, useRef } from "react";
-import { mapById, mapCells, terrainLabels } from "../../data/map";
+import { useCallback, useMemo, useRef } from "react";
+import { mapCells, terrainLabels } from "../../data/map";
 import {
   getLegalPlacementHexes,
   getTileCategory,
   getTilePlacementHexIds
 } from "../../engine/placementRules";
 import {
-  getPlacedTileAtHex,
   selectReachablePlacedTileIds
 } from "../../engine/reachability";
 import { selectCurrentPlayer, selectTileName } from "../../engine/selectors";
-import type { GameState, HexDirection, Terrain, TilePlacementDraft } from "../../engine/types";
+import type {
+  GameState,
+  HexDirection,
+  PlacedTile,
+  PlayerState,
+  Terrain,
+  TilePlacementDraft
+} from "../../engine/types";
 
 interface HexMapProps {
   state: GameState;
@@ -55,6 +61,19 @@ function getCellCenter(cell: { col: string; row: number }): { x: number; y: numb
     y: hexHeight / 2 + (cell.row - 1) * hexHeight + (colIndex % 2 ? hexHeight / 2 : 0) + 18
   };
 }
+
+const mapGeometry = mapCells.map((cell) => {
+  const center = getCellCenter(cell);
+  return {
+    cell,
+    ...center,
+    points: polygonPoints(center.x, center.y)
+  };
+});
+
+const mapGeometryById = new Map(
+  mapGeometry.map((geometry) => [geometry.cell.id, geometry])
+);
 
 function getTileLabelLines(tileName: string): string[] {
   if (!tileName) return [];
@@ -147,30 +166,58 @@ export function HexMap({
   }, []);
 
   const currentPlayer = selectCurrentPlayer(state);
-  const placementDraft: TilePlacementDraft = {
-    anchorHexId: selectedHexIds[0],
-    orientation: placementOrientation,
-    secondaryHexIds: selectedHexIds.slice(1)
-  };
-  const legalHexes =
-    actionMode === "place"
-      ? new Set(
-          getLegalPlacementHexes(
-            state,
-            currentPlayer.id,
-            selectedTileId,
-            placementDraft
+  const placementDraft = useMemo<TilePlacementDraft>(
+    () => ({
+      anchorHexId: selectedHexIds[0],
+      orientation: placementOrientation,
+      secondaryHexIds: selectedHexIds.slice(1)
+    }),
+    [placementOrientation, selectedHexIds]
+  );
+  const legalHexes = useMemo(
+    () =>
+      actionMode === "place"
+        ? new Set(
+            getLegalPlacementHexes(
+              state,
+              currentPlayer.id,
+              selectedTileId,
+              placementDraft
+            )
           )
-        )
-      : new Set<string>();
-  const footprintHexes =
-    actionMode === "place"
-      ? new Set(getTilePlacementHexIds(selectedTileId, placementDraft))
-      : new Set<string>(selectedHexIds);
-  const reachableTileIds =
-    state.phase === "turns"
-      ? selectReachablePlacedTileIds(state, currentPlayer.id)
-      : new Set<string>();
+        : new Set<string>(),
+    [actionMode, currentPlayer.id, placementDraft, selectedTileId, state]
+  );
+  const footprintHexes = useMemo(
+    () =>
+      actionMode === "place"
+        ? new Set(getTilePlacementHexIds(selectedTileId, placementDraft))
+        : new Set<string>(selectedHexIds),
+    [actionMode, placementDraft, selectedHexIds, selectedTileId]
+  );
+  const reachableTileIds = useMemo(
+    () =>
+      state.phase === "turns"
+        ? selectReachablePlacedTileIds(state, currentPlayer.id)
+        : new Set<string>(),
+    [currentPlayer.id, state]
+  );
+  const placedTileByHex = useMemo(() => {
+    const byHex = new Map<string, PlacedTile>();
+    for (const tile of state.map.placedTiles) {
+      for (const hexId of tile.hexIds) byHex.set(hexId, tile);
+    }
+    return byHex;
+  }, [state.map.placedTiles]);
+  const stewardsByHex = useMemo(() => {
+    const byHex = new Map<string, Array<{ player: PlayerState; playerIndex: number }>>();
+    state.players.forEach((player, playerIndex) => {
+      const players = byHex.get(player.stewardHexId) ?? [];
+      players.push({ player, playerIndex });
+      byHex.set(player.stewardHexId, players);
+    });
+    return byHex;
+  }, [state.players]);
 
   return (
     <section className="map-panel" aria-label="Settlement map">
@@ -200,16 +247,14 @@ export function HexMap({
           role="img"
           aria-label="The Quiet Vale map"
         >
-          {mapCells.map((cell) => {
-            const { x, y } = getCellCenter(cell);
-            const placed = getPlacedTileAtHex(state, cell.id);
+          {mapGeometry.map(({ cell, x, y, points }) => {
+            const placed = placedTileByHex.get(cell.id);
             const legal = legalHexes.has(cell.id);
             const selected = selectedHexIds.includes(cell.id);
             const inFootprint = footprintHexes.has(cell.id);
             const terrainName = terrainLabels[cell.terrain];
             const tileName = placed ? selectTileName(placed) : "";
             const accessibleName = placed ? `${tileName}, ${terrainName}` : terrainName;
-            const stewardsHere = state.players.filter((player) => player.stewardHexId === cell.id);
             const supported = Boolean(placed?.support.passive || placed?.support.singleUse);
             const overstrained = Boolean(placed && placed.strain >= 3);
             const reachable = Boolean(placed && reachableTileIds.has(placed.instanceId));
@@ -302,7 +347,7 @@ export function HexMap({
                       }`
                     : ""}
                 </title>
-                <polygon points={polygonPoints(x, y)} />
+                <polygon points={points} />
                 {placed && (
                   <>
                     <rect
@@ -338,9 +383,10 @@ export function HexMap({
             <g className="hex-inspect-layer">
               {state.map.placedTiles.map((placed) => {
                 const points = placed.hexIds
-                  .map((hexId) => mapById[hexId])
-                  .filter(Boolean)
-                  .map(getCellCenter);
+                  .flatMap((hexId) => {
+                    const geometry = mapGeometryById.get(hexId);
+                    return geometry ? [{ x: geometry.x, y: geometry.y }] : [];
+                  });
                 if (points.length === 0) return null;
 
                 const x =
@@ -385,12 +431,9 @@ export function HexMap({
             </g>
           )}
           <g className="hex-marker-layer" aria-hidden="true">
-            {mapCells.map((cell) => {
-              const { x, y } = getCellCenter(cell);
-              const placed = getPlacedTileAtHex(state, cell.id);
-              const stewardsHere = state.players.filter(
-                (player) => player.stewardHexId === cell.id
-              );
+            {mapGeometry.map(({ cell, x, y }) => {
+              const placed = placedTileByHex.get(cell.id);
+              const stewardsHere = stewardsByHex.get(cell.id) ?? [];
               const supported = Boolean(placed?.support.passive || placed?.support.singleUse);
               const overstrained = Boolean(placed && placed.strain >= 3);
 
@@ -412,7 +455,7 @@ export function HexMap({
                       </text>
                     </g>
                   )}
-                  {stewardsHere.map((player, index) => (
+                  {stewardsHere.map(({ player, playerIndex }, index) => (
                     <g
                       className="steward-marker"
                       key={player.id}
@@ -420,7 +463,7 @@ export function HexMap({
                     >
                       <circle cx={0} cy={0} r={6.5} />
                       <text x={0} y={3.5} textAnchor="middle">
-                        {state.players.findIndex((candidate) => candidate.id === player.id) + 1}
+                        {playerIndex + 1}
                       </text>
                     </g>
                   ))}
