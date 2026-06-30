@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
 import { mapById, terrainLabels } from "../../data/map";
-import { coreTileById, specialTileById } from "../../data/tiles";
+import { coreTileById, goldenTileById, specialTileById } from "../../data/tiles";
 import { formatCategory, formatCost } from "../common/gameText";
 import { selectTileName } from "../../engine/selectors";
 import type { GameState, Terrain, TileSideData } from "../../engine/types";
@@ -47,6 +47,7 @@ export function TileInspectModal({
   const inspectedTileId = placedTile?.tileId ?? tileId ?? null;
   const coreTile = inspectedTileId ? coreTileById[inspectedTileId] : null;
   const specialTile = inspectedTileId ? specialTileById[inspectedTileId] : null;
+  const goldenTile = inspectedTileId ? goldenTileById[inspectedTileId] : null;
   const tileName =
     placedTile ? selectTileName(placedTile) : coreTile?.basic.name ?? specialTile?.name;
   const isOpen = Boolean(placedTile || coreTile || specialTile);
@@ -115,9 +116,9 @@ export function TileInspectModal({
             </>
           ) : (
             <>
-              <span>{coreTile ? "Core Tile" : "Special Tile"}</span>
+              <span>{coreTile ? "Core Tile" : goldenTile ? "Golden Tile" : "Special Tile"}</span>
               {coreTile && <span>Supply {coreSupply}/{coreTile.count}</span>}
-              {specialTile && (
+              {specialTile && !goldenTile && (
                 <span>
                   {specialSupply && specialSupply > 0 ? `${specialSupply} ready` : "Locked"}
                 </span>
@@ -149,13 +150,14 @@ export function TileInspectModal({
             <article className="tile-inspect-side current">
               <div className="tile-inspect-side-header">
                 <strong>{specialTile.name}</strong>
-                <span>Special</span>
+                <span>{goldenTile ? "Golden" : "Special"}</span>
               </div>
               <p>
                 Unlocked by {specialTile.unlockSource} | Pop {specialTile.population} |
                 Renown {specialTile.renown}
               </p>
               <p>{specialTile.effectText}</p>
+              {goldenTile && <p><strong>Scoring:</strong> {goldenTile.scoringText}</p>}
             </article>
           </div>
         )}

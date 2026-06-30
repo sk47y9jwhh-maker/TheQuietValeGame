@@ -1,6 +1,13 @@
 export type PlayerCount = 1 | 2 | 3 | 4;
 export type Season = 1 | 2 | 3;
-export type GamePhase = "setup" | "seeding" | "reveal" | "turns" | "endRound" | "gameEnd";
+export type GamePhase =
+  | "setup"
+  | "goldenSetup"
+  | "seeding"
+  | "reveal"
+  | "turns"
+  | "endRound"
+  | "gameEnd";
 export type HexDirection = 0 | 1 | 2 | 3 | 4 | 5;
 export type TileFootprintKind = "single" | "line" | "detached";
 
@@ -47,6 +54,7 @@ export interface TilePlacementRequirement {
   adjacentToCategory?: TileCategory[];
   adjacentToTileIds?: string[];
   adjacentToTerrain?: Terrain[];
+  notAdjacentToTerrain?: Terrain[];
   text?: string;
 }
 
@@ -84,6 +92,15 @@ export interface SpecialTileData {
   effectText: string;
   population: number;
   renown: number;
+}
+
+export interface GoldenTileData extends Omit<SpecialTileData, "category"> {
+  golden: true;
+  category: TileCategory;
+  unlockAt: number;
+  linkedGoldenBoonId: string;
+  scoringText: string;
+  layoutIncentive: string;
 }
 
 export interface TilePlacementDraft {
@@ -180,7 +197,9 @@ export interface GoldenBoonData {
   name: string;
   flavorText?: string;
   effectText: string;
-  enabledInOnlinePrototype: false;
+  lifecycle: string;
+  unlockAt: number;
+  enabledInOnlinePrototype: true;
 }
 
 export type EncounterData = BoonData | BurdenData | ArrivalData | GoldenBoonData;
@@ -198,6 +217,7 @@ export interface CompletedArrival {
 export interface ActiveBoon {
   cardId: string;
   remainingUses: number;
+  lastUsedRound?: number;
 }
 
 export type BoonModifierAction = "place" | "upgrade" | "arrival" | "burden";
@@ -213,6 +233,7 @@ export interface ActiveBoonModifier {
   amount?: number;
   zeroAction?: boolean;
   allowedCategories?: TileCategory[];
+  allowedTileIds?: string[];
   coreOnly?: boolean;
 }
 
@@ -314,8 +335,39 @@ export interface EncounterState {
   activeBurdens: string[];
   faceUpBoons: ActiveBoon[];
   completedArrivals: CompletedArrival[];
-  goldenEnabled: false;
+  reserveBoonIds: string[];
+  reserveArrivalIds: string[];
+  selectedGoldenBoonId?: string;
+  goldenEnabled: boolean;
 }
+
+export interface GoldenSetupState {
+  selectedTileId?: string;
+  selectedBoonId?: string;
+  tilePlaced: boolean;
+  tileSkipped: boolean;
+}
+
+export interface PendingGoldenBellState {
+  kind: "bell";
+  cardId: string;
+  arrivalCardIds: string[];
+}
+
+export interface PendingGoldenScrollState {
+  kind: "scroll";
+  cardId: string;
+}
+
+export interface PendingGoldenSignetState {
+  kind: "signet";
+  cardId: string;
+}
+
+export type PendingGoldenEffectState =
+  | PendingGoldenBellState
+  | PendingGoldenScrollState
+  | PendingGoldenSignetState;
 
 export interface LogEntry {
   id: string;
@@ -366,6 +418,10 @@ export interface GameState {
   map: MapState;
   tileSupply: TileSupplyState;
   encounters: EncounterState;
+  goldenSetup: GoldenSetupState;
+  pendingGoldenEffect: PendingGoldenEffectState | null;
+  bonusTurnsPending: boolean;
+  bonusTurnsActive: boolean;
   boonModifiers: ActiveBoonModifier[];
   ignoredBurdenIdsThisRound: string[];
   tileActivationRecords: Record<string, TileActivationRecord>;

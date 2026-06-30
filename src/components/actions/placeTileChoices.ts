@@ -321,6 +321,7 @@ export function getPlaceTileChoices(
     .map((tile) => {
       const actionPreview = getBoonActionPreview(state, {
         action: "place",
+        tileId: tile.id,
         category: tile.category,
         kind: tile.kind,
         baseCost: tile.cost

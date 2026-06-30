@@ -184,7 +184,7 @@ describe("game actions", () => {
     expect(next.pendingEffects).toHaveLength(0);
   });
 
-  it("prompts before applying production and caps the Warehouse", () => {
+  it("applies production immediately and caps the Warehouse", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = { ...state, phase: "turns" as const };
     const placed = resolvePendingEffect(
@@ -193,13 +193,12 @@ describe("game actions", () => {
     placed.warehouse.wood = 14;
     const activated = activateTile(placed, "player_1", placed.map.placedTiles[0].instanceId);
 
-    expect(activated.pendingEffects[0].suggestedAdjustment?.resourceDeltas?.wood).toBe(2);
-    const next = resolvePendingEffect(activated);
-    expect(next.warehouse.wood).toBe(15);
-    expect(next.actionsRemaining).toBe(2);
+    expect(activated.pendingEffects).toHaveLength(0);
+    expect(activated.warehouse.wood).toBe(15);
+    expect(activated.actionsRemaining).toBe(2);
   });
 
-  it("queues adjacent Shrine production passives once per round", () => {
+  it("applies adjacent Shrine production passives automatically once per round", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
@@ -238,19 +237,15 @@ describe("game actions", () => {
 
     const activated = activateTile(ready, "player_1", "tile_1");
 
-    expect(activated.pendingEffects).toHaveLength(2);
-    expect(activated.pendingEffects[1].sourceName).toBe("Shrine of Bounty");
+    expect(activated.pendingEffects).toHaveLength(0);
+    expect(activated.warehouse.food).toBe(4);
+    expect(getActivatableTileIds(ready, "player_1")).not.toContain("tile_2");
 
-    const afterProduction = resolvePendingEffect(activated);
-    const afterShrine = resolvePendingEffect(afterProduction);
-
-    expect(afterShrine.warehouse.food).toBe(4);
-
-    const activatedAgain = activateTile(afterShrine, "player_1", "tile_1");
-    expect(activatedAgain.pendingEffects).toHaveLength(1);
+    const activatedAgain = activateTile(activated, "player_1", "tile_1");
+    expect(activatedAgain.warehouse.food).toBe(6);
   });
 
-  it("acknowledges a tile effect when no legal tile target exists", () => {
+  it("does not offer an activated effect when it has no legal target", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
@@ -277,11 +272,8 @@ describe("game actions", () => {
       }
     };
 
-    const activated = activateTile(ready, "player_1", "tile_alms");
-
-    expect(activated.pendingEffects[0].requiresManualChoice).toBe(false);
-    expect(activated.pendingEffects[0].confirmLabel).toBe("Acknowledge");
-    expect(activated.pendingEffects[0].detailText).toContain("No valid target");
+    expect(getActivatableTileIds(ready, "player_1")).not.toContain("tile_alms");
+    expect(activateTile(ready, "player_1", "tile_alms")).toEqual(ready);
   });
 
   it("enforces once-per-season activated Special Tile limits", () => {
@@ -308,6 +300,10 @@ describe("game actions", () => {
             support: { passive: false, singleUse: false, preventedThisRound: false }
           }
         ]
+      },
+      encounters: {
+        ...state.encounters,
+        activeBurdens: ["burden_smoke_over_hearths"]
       }
     };
 
@@ -466,7 +462,8 @@ describe("game actions", () => {
       resolvedBurdenIds: ["burden_smoke_over_hearths"]
     });
 
-    expect(resolved.pendingEffects[0].sourceName).toBe("The Resting Hall");
+    expect(resolved.pendingEffects).toHaveLength(0);
+    expect(resolved.map.placedTiles.find((tile) => tile.instanceId === "tile_strained")?.strain).toBe(0);
   });
 
   it("moves to End of Round after every player has acted", () => {
@@ -771,7 +768,7 @@ describe("game actions", () => {
     expect(next.boonModifiers).toHaveLength(0);
   });
 
-  it("prompts for Brewery of Legends before free Housing placement", () => {
+  it("applies Brewery of Legends automatically to adjacent Housing", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
@@ -799,13 +796,7 @@ describe("game actions", () => {
 
     expect(canStartPlaceTile(ready, "player_1", "c05_cabin", "H1").ok).toBe(true);
 
-    const prompted = placeTile(ready, "player_1", "c05_cabin", "H1");
-
-    expect(prompted.pendingCostChoice?.options[0].sourceName).toBe("Brewery of Legends");
-
-    const placed = confirmCostChoice(prompted, {
-      selectedOptionIds: [prompted.pendingCostChoice?.options[0].id ?? ""]
-    });
+    const placed = placeTile(ready, "player_1", "c05_cabin", "H1");
 
     expect(placed.map.placedTiles).toHaveLength(2);
     expect(placed.warehouse.wood).toBe(0);
@@ -813,7 +804,7 @@ describe("game actions", () => {
     expect(placed.tileActivationRecords.tile_brewery.season).toBe(1);
   });
 
-  it("prompts for Labourers' Yard before adjacent placement discount", () => {
+  it("applies Labourers' Yard automatically to adjacent placement", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
@@ -839,13 +830,7 @@ describe("game actions", () => {
       }
     };
 
-    const prompted = placeTile(ready, "player_1", "c05_cabin", "H1");
-
-    expect(prompted.pendingCostChoice?.options[0].sourceName).toBe("Labourers' Yard");
-
-    const placed = confirmCostChoice(prompted, {
-      selectedOptionIds: [prompted.pendingCostChoice?.options[0].id ?? ""]
-    });
+    const placed = placeTile(ready, "player_1", "c05_cabin", "H1");
 
     expect(placed.map.placedTiles).toHaveLength(2);
     expect(placed.warehouse.wood).toBe(0);
@@ -877,7 +862,7 @@ describe("game actions", () => {
     expect(next.boonModifiers).toHaveLength(0);
   });
 
-  it("prompts for Workshops before adjacent Core upgrade discount", () => {
+  it("applies Workshops automatically to an adjacent Core upgrade", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
@@ -918,13 +903,7 @@ describe("game actions", () => {
       }
     };
 
-    const prompted = upgradeTile(ready, "player_1", "tile_cabin");
-
-    expect(prompted.pendingCostChoice?.options[0].sourceName).toBe("Workshops");
-
-    const upgraded = confirmCostChoice(prompted, {
-      selectedOptionIds: [prompted.pendingCostChoice?.options[0].id ?? ""]
-    });
+    const upgraded = upgradeTile(ready, "player_1", "tile_cabin");
 
     expect(upgraded.map.placedTiles[1].side).toBe("upgraded");
     expect(upgraded.warehouse.stone).toBe(0);
@@ -1454,7 +1433,7 @@ describe("game actions", () => {
 
     expect(next.map.placedTiles[0].kind).toBe("special");
     expect(next.tileSupply.special.special_alms_house).toBe(0);
-    expect(next.pendingEffects[0].sourceName).toBe("Alms House");
+    expect(next.pendingEffects).toHaveLength(0);
   });
 
   it("places a multi-hex Street as one tile", () => {
@@ -1855,12 +1834,8 @@ describe("game actions", () => {
     const prompted = resolveBurden(ready, "burden_smoke_over_hearths");
     const resolved = confirmCostChoice(prompted, { selectedOptionIds: [] });
 
-    expect(resolved.pendingEffects).toHaveLength(1);
-    expect(resolved.pendingEffects[0].sourceName).toBe("The Resting Hall");
-
-    const afterPassive = resolvePendingEffect(resolved);
-
-    expect(afterPassive.map.placedTiles[1].strain).toBe(0);
+    expect(resolved.pendingEffects).toHaveLength(0);
+    expect(resolved.map.placedTiles[1].strain).toBe(0);
   });
 
   it("expired Arrivals prompt for a Strain target", () => {

@@ -21,6 +21,7 @@ import {
   getValidEffectStrainTargets,
   getTimerAdjustmentRule,
   hasEffectAdjustment,
+  isResourceExchangeAdjustmentValid,
   isTileAdjustmentValid,
   isWardenReliefAdjustmentValid,
   isTimerAdjustmentValid,
@@ -136,19 +137,15 @@ export function EffectPrompt({
       tileStrainDeltas
     ]
   );
-  const exchangeSpent = resources.reduce(
-    (total, resource) => total + Math.max(0, -(resourceDeltas[resource] ?? 0)),
-    0
-  );
-  const exchangeGained = resources.reduce(
-    (total, resource) => total + Math.max(0, resourceDeltas[resource] ?? 0),
-    0
-  );
   const exchangeInvalid =
     effect.resourceExchangeLimit !== undefined &&
-    (exchangeSpent !== exchangeGained ||
-      exchangeSpent > effect.resourceExchangeLimit ||
-      (!effect.resourceExchangeOptional && exchangeSpent === 0));
+    !isResourceExchangeAdjustmentValid(
+      state,
+      effect.effectText,
+      { resourceDeltas },
+      effect.resourceExchangeLimit,
+      effect.resourceExchangeOptional
+    );
   const burdenResolveInvalid =
     effect.allowBurdenResolve &&
     state.encounters.activeBurdens.length > 0 &&
@@ -763,8 +760,11 @@ export function EffectPrompt({
       )}
       {effect.resourceExchangeLimit !== undefined && exchangeInvalid && (
         <p className="failure-note">
-          Exchange the same number of resources in and out, up to{" "}
-          {effect.resourceExchangeLimit}.
+          {/exchange\s+5\s+total\s+resources\s+for\s+3\s+Goods/i.test(
+            effect.effectText
+          )
+            ? "Exchange up to 5 resources one-for-one into non-Goods, or spend exactly 5 resources to gain 3 Goods."
+            : `Exchange the same number of resources in and out, up to ${effect.resourceExchangeLimit}.`}
         </p>
       )}
       <p className="muted effect-footer">

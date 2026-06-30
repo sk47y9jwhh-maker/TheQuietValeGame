@@ -1,6 +1,6 @@
 import type { GameState, PlayerCount } from "../engine/types";
 
-const saveVersion = 1;
+const saveVersion = 2;
 const gameSaveKey = "quietVale.activeGame.v1";
 const setupSaveKey = "quietVale.setup.v1";
 
@@ -11,6 +11,8 @@ export interface SavedSetup {
   stewardIds: string[];
   encounterSeed: string;
   declaredVowId?: string;
+  selectedGoldenTileId?: string;
+  selectedGoldenBoonId?: string;
 }
 
 export interface SavedGame extends SavedSetup {
@@ -49,7 +51,7 @@ function isPlayerCount(value: unknown): value is PlayerCount {
 function isSavedSetup(value: SavedSetup | null): value is SavedSetup {
   return (
     Boolean(value) &&
-    value?.version === saveVersion &&
+    (value?.version === 1 || value?.version === saveVersion) &&
     isPlayerCount(value.playerCount) &&
     Array.isArray(value.stewardIds) &&
     typeof value.encounterSeed === "string"
@@ -62,12 +64,36 @@ function isSavedGame(value: SavedGame | null): value is SavedGame {
 
 export function readSavedSetup(): SavedSetup | null {
   const saved = readJson<SavedSetup>(setupSaveKey);
-  return isSavedSetup(saved) ? saved : null;
+  return isSavedSetup(saved) ? { ...saved, version: saveVersion } : null;
 }
 
 export function readSavedGame(): SavedGame | null {
   const saved = readJson<SavedGame>(gameSaveKey);
-  return isSavedGame(saved) ? saved : null;
+  if (!isSavedGame(saved)) return null;
+  return {
+    ...saved,
+    version: saveVersion,
+    state: {
+      ...saved.state,
+      goldenSetup: saved.state.goldenSetup ?? {
+        selectedTileId: saved.selectedGoldenTileId,
+        selectedBoonId: saved.selectedGoldenBoonId,
+        tilePlaced: false,
+        tileSkipped: false
+      },
+      pendingGoldenEffect: saved.state.pendingGoldenEffect ?? null,
+      bonusTurnsPending: saved.state.bonusTurnsPending ?? false,
+      bonusTurnsActive: saved.state.bonusTurnsActive ?? false,
+      encounters: {
+        ...saved.state.encounters,
+        reserveBoonIds: saved.state.encounters.reserveBoonIds ?? [],
+        reserveArrivalIds: saved.state.encounters.reserveArrivalIds ?? [],
+        selectedGoldenBoonId:
+          saved.state.encounters.selectedGoldenBoonId ?? saved.selectedGoldenBoonId,
+        goldenEnabled: saved.state.encounters.goldenEnabled ?? false
+      }
+    }
+  };
 }
 
 export function writeSavedSetup(input: Omit<SavedSetup, "version" | "savedAt">) {

@@ -552,17 +552,51 @@ export const goldenBoons: GoldenBoonData[] = [
     id: "golden_boon_the_golden_bell",
     type: "goldenBoon",
     name: "The Golden Bell",
-    enabledInOnlinePrototype: false,
+    enabledInOnlinePrototype: true,
+    unlockAt: 5,
+    lifecycle: "Resolve immediately for free, reveal a replacement Encounter Card, then discard.",
     effectText:
-      "When revealed, choose 3 unused Arrival Cards from the game box, reveal 1 at random as an active Arrival, then discard this card."
+      "When revealed, reveal 3 unused Arrival Cards from the game box. Choose 1 and complete it immediately without paying its Requirement and without spending an Action. Unlock its Special Tile as normal. Return the other revealed Arrival Cards to the box. Then discard this card."
   },
   {
     id: "golden_boon_the_golden_scroll",
     type: "goldenBoon",
     name: "The Golden Scroll",
-    enabledInOnlinePrototype: false,
+    enabledInOnlinePrototype: true,
+    unlockAt: 10,
+    lifecycle: "Resolve immediately for free, reveal a replacement Encounter Card, then discard.",
     effectText:
-      "When revealed, each player may discard hidden standard Encounter Cards and draw replacements from the box."
+      "When revealed, each player may choose 1 standard Encounter Card from their hand and return it to the game box. Each player who did draws 1 random standard Boon Card from the game box into their hand. Golden Boons cannot be drawn this way. If there are not enough standard Boon Cards in the box, draw as many as possible. Then discard this card."
+  },
+  {
+    id: "golden_boon_the_golden_vial",
+    type: "goldenBoon",
+    name: "The Golden Vial",
+    enabledInOnlinePrototype: true,
+    unlockAt: 15,
+    lifecycle: "Keep face-up for the rest of the game; reveal a replacement Encounter Card.",
+    effectText:
+      "When revealed, keep this card face-up near the Stewards Board. For the rest of the game, once per round, the group may place 1 Path Tile without spending an Action. Pay its cost and follow normal placement rules. If no Path Tiles remain, this effect cannot be used."
+  },
+  {
+    id: "golden_boon_the_golden_eyed_traveler",
+    type: "goldenBoon",
+    name: "The Golden-Eyed Traveller",
+    enabledInOnlinePrototype: true,
+    unlockAt: 20,
+    lifecycle: "Resolve immediately for free, reveal a replacement Encounter Card, then discard.",
+    effectText:
+      "When revealed, after the normal Player Turns phase this round, each player takes 1 bonus turn with the normal action allowance. Then continue to End of Round. Do not reveal additional Encounter Cards, remove Arrival timers, resolve End of Round effects, or advance the Round Timer before these bonus turns. Then discard this card."
+  },
+  {
+    id: "golden_boon_the_golden_signet_ring",
+    type: "goldenBoon",
+    name: "The Golden Signet Ring",
+    enabledInOnlinePrototype: true,
+    unlockAt: 30,
+    lifecycle: "Resolve immediately for free, reveal a replacement Encounter Card, then discard.",
+    effectText:
+      "When revealed, choose up to 5 placed tiles. Remove those tiles, then place each chosen tile into a legal empty map space. Chosen tiles may use spaces vacated by other chosen tiles. Ignore adjacency and reachability restrictions, but all terrain restrictions still apply. Multi-hex tiles must cover only empty, legal hexes. Chosen tiles keep Strain, Supported, upgrade state, and all tokens. Recalculate connectivity and Overstrained effects immediately. Then discard this card."
   }
 ];
 
@@ -684,7 +718,13 @@ const encounterFlavorById: Record<string, string> = {
   golden_boon_the_golden_bell:
     "We found the bell beneath root and rubble, warm beneath the hand despite its long burial. When it rang across the Vale, even abandoned roads seemed to listen. Days later, strangers arrived by ways we thought forgotten.",
   golden_boon_the_golden_scroll:
-    "The scroll arrived sealed in gold thread. Its ink shifted between readings: maps into letters, warnings into opportunities, forgotten names into doors. I recorded it as possibility, not prophecy."
+    "The scroll arrived sealed in gold thread. Its ink shifted between readings: maps into letters, warnings into opportunities, forgotten names into doors. I recorded it as possibility, not prophecy.",
+  golden_boon_the_golden_vial:
+    "The vial lay sealed in golden wax within the hollow roots of a dead pale tree. Its liquid caught the light like dawn held still. Those who carried it found storms softening, paths opening, and distance less certain of itself.",
+  golden_boon_the_golden_eyed_traveler:
+    "The traveller appeared after dusk, dry-cloaked despite the rain, and asked only for a place by the fire. Through the night, a melody moved through the sleeping settlement. By morning, the season's weariness had loosened its grip.",
+  golden_boon_the_golden_signet_ring:
+    "The ring came from a collapsed cairn beneath the mines, its gold untouched by age. When raised, it seemed to remind roads, walls, and foundations of older orders. For a moment, the settlement obeyed memory."
 };
 
 for (const card of [...boons, ...burdens, ...arrivals, ...goldenBoons]) {

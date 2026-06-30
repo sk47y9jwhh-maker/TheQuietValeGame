@@ -1,4 +1,9 @@
-import type { CoreTileData, ResourceCost, SpecialTileData } from "../engine/types";
+import type {
+  CoreTileData,
+  GoldenTileData,
+  ResourceCost,
+  SpecialTileData
+} from "../engine/types";
 
 const cost = (values: Partial<ResourceCost>): ResourceCost => ({
   wood: 0,
@@ -906,10 +911,127 @@ export const specialTiles: SpecialTileData[] = [
   }
 ];
 
+export const goldenTiles: GoldenTileData[] = [
+  {
+    id: "golden_tile_the_golden_charter",
+    name: "The Golden Charter",
+    golden: true,
+    category: "special",
+    count: 1,
+    size: 1,
+    unlockSource: "5 Steward's Ledger entries",
+    unlockAt: 5,
+    linkedGoldenBoonId: "golden_boon_the_golden_bell",
+    placement: {
+      terrain: ["grasslands", "woodland", "mountains", "heaths", "arable", "ruins"],
+      text: "Place on any non-River hex."
+    },
+    effectText:
+      "Once per round, the first tile placed adjacent to this tile costs 1 fewer resource.",
+    scoringText:
+      "+5 Renown if this tile is adjacent to at least four different tile categories.",
+    layoutIncentive: "Mixed civic district.",
+    population: 0,
+    renown: 0
+  },
+  {
+    id: "golden_tile_the_golden_hearth",
+    name: "The Golden Hearth",
+    golden: true,
+    category: "special",
+    count: 1,
+    size: 1,
+    unlockSource: "10 Steward's Ledger entries",
+    unlockAt: 10,
+    linkedGoldenBoonId: "golden_boon_the_golden_scroll",
+    placement: {
+      terrain: ["grasslands", "woodland", "arable"],
+      notAdjacentToTerrain: ["water"],
+      text: "Place on Grasslands, Woodland, or Arable Land. Not adjacent to River/Water."
+    },
+    effectText: "Adjacent Housing Tiles have Passive: Supported.",
+    scoringText:
+      "+5 Renown if this tile is surrounded by six non-Overstrained placed tiles.",
+    layoutIncentive: "Central ring or dense village core.",
+    population: 0,
+    renown: 0
+  },
+  {
+    id: "golden_tile_the_golden_river_gate",
+    name: "The Golden River Gate",
+    golden: true,
+    category: "special",
+    count: 1,
+    size: 1,
+    unlockSource: "15 Steward's Ledger entries",
+    unlockAt: 15,
+    linkedGoldenBoonId: "golden_boon_the_golden_vial",
+    placement: {
+      terrain: ["grasslands", "woodland", "mountains", "heaths", "arable", "ruins"],
+      adjacentToTerrain: ["water"],
+      text: "Place on a non-River hex adjacent to River/Water."
+    },
+    effectText:
+      "Once per round, the first tile placed adjacent to River/Water costs 1 fewer resource.",
+    scoringText:
+      "+5 Renown if the settlement has non-Overstrained placed tiles on both sides of the river connected by a Bridge or Stone Bridge.",
+    layoutIncentive: "Riverbank planning and bridge route.",
+    population: 0,
+    renown: 0
+  },
+  {
+    id: "golden_tile_the_golden_cairn",
+    name: "The Golden Cairn",
+    golden: true,
+    category: "special",
+    count: 1,
+    size: 1,
+    unlockSource: "20 Steward's Ledger entries",
+    unlockAt: 20,
+    linkedGoldenBoonId: "golden_boon_the_golden_eyed_traveler",
+    placement: {
+      terrain: ["mountains", "heaths", "woodland", "arable", "ruins"],
+      text: "Place on Mountains, Heaths, Woodland, Arable Land, or Ruins."
+    },
+    effectText:
+      "Once per round, the first tile placed on non-Grasslands terrain costs 1 fewer resource.",
+    scoringText:
+      "+5 Renown if the settlement has non-Overstrained placed tiles on at least four terrain types other than River/Water.",
+    layoutIncentive: "Terrain spread and remote development.",
+    population: 0,
+    renown: 0
+  },
+  {
+    id: "golden_tile_the_golden_garden",
+    name: "The Golden Garden",
+    golden: true,
+    category: "special",
+    count: 1,
+    size: 1,
+    unlockSource: "30 Steward's Ledger entries",
+    unlockAt: 30,
+    linkedGoldenBoonId: "golden_boon_the_golden_signet_ring",
+    placement: {
+      terrain: ["grasslands", "woodland", "ruins"],
+      text: "Place on Grasslands, Woodland, or Ruins."
+    },
+    effectText:
+      "Once per round, prevent 1 Strain that would be placed on a tile adjacent to this tile.",
+    scoringText: "+5 Renown if the game ends with 0 Overstrained tiles.",
+    layoutIncentive: "Protected district and recovery planning.",
+    population: 0,
+    renown: 0
+  }
+];
+
 export const coreTileById = Object.fromEntries(
   coreTiles.map((tile) => [tile.id, tile])
 ) as Record<string, CoreTileData>;
 
 export const specialTileById = Object.fromEntries(
-  specialTiles.map((tile) => [tile.id, tile])
-) as Record<string, SpecialTileData>;
+  [...specialTiles, ...goldenTiles].map((tile) => [tile.id, tile])
+) as Record<string, SpecialTileData | GoldenTileData>;
+
+export const goldenTileById = Object.fromEntries(
+  goldenTiles.map((tile) => [tile.id, tile])
+) as Record<string, GoldenTileData>;

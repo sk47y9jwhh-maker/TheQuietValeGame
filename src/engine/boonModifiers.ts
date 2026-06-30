@@ -13,6 +13,7 @@ import type {
 
 interface BoonModifierTarget {
   action: BoonModifierAction;
+  tileId?: string;
   category?: TileCategory;
   kind?: "core" | "special";
   baseCost: ResourceCost;
@@ -91,6 +92,12 @@ function matchesModifier(
 ): boolean {
   if (!modifier.actions.includes(target.action)) return false;
   if (modifier.coreOnly && target.kind !== "core") return false;
+  if (
+    modifier.allowedTileIds &&
+    (!target.tileId || !modifier.allowedTileIds.includes(target.tileId))
+  ) {
+    return false;
+  }
   if (
     modifier.allowedCategories &&
     (!target.category || !modifier.allowedCategories.includes(target.category))

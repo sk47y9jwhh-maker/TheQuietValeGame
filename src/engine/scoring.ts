@@ -156,6 +156,47 @@ function hasBridgeConnectedRiverObjective(tiles: PlacedTile[]): boolean {
   });
 }
 
+function scoreGoldenTiles(state: GameState, eligibleTiles: PlacedTile[]): number {
+  let total = 0;
+  const eligibleByHex = new Map(
+    eligibleTiles.flatMap((tile) => tile.hexIds.map((hexId) => [hexId, tile] as const))
+  );
+
+  for (const golden of eligibleTiles.filter((tile) =>
+    tile.tileId.startsWith("golden_tile_")
+  )) {
+    let met = false;
+    if (golden.tileId === "golden_tile_the_golden_charter") {
+      const categories = new Set(
+        getAdjacentTiles(golden, eligibleTiles)
+          .map(getTileCategory)
+          .filter((category) => category !== "special" && category !== "unknown")
+      );
+      met = categories.size >= 4;
+    } else if (golden.tileId === "golden_tile_the_golden_hearth") {
+      const neighbors = getHexNeighbors(golden.hexIds[0]);
+      const surroundingTileIds = new Set(
+        neighbors.map((hexId) => eligibleByHex.get(hexId)?.instanceId).filter(Boolean)
+      );
+      met = neighbors.length === 6 && surroundingTileIds.size === 6;
+    } else if (golden.tileId === "golden_tile_the_golden_river_gate") {
+      met = hasBridgeConnectedRiverObjective(eligibleTiles);
+    } else if (golden.tileId === "golden_tile_the_golden_cairn") {
+      const terrainTypes = new Set(
+        eligibleTiles
+          .flatMap((tile) => tile.hexIds)
+          .map((hexId) => mapById[hexId]?.terrain)
+          .filter((terrain) => terrain && terrain !== "water")
+      );
+      met = terrainTypes.size >= 4;
+    } else if (golden.tileId === "golden_tile_the_golden_garden") {
+      met = state.map.placedTiles.every((tile) => tile.strain < 3);
+    }
+    if (met) total += 5;
+  }
+  return total;
+}
+
 export interface StewardObjectiveProgress {
   playerId: string;
   playerName: string;
@@ -272,13 +313,15 @@ export function calculateFinalScore(state: GameState) {
     0
   );
   const stewardObjectiveRenown = scoreStewardObjectives(state);
+  const goldenRenown = scoreGoldenTiles(state, eligibleTiles);
   const burdenPenalty = state.encounters.activeBurdens.length * activeBurdenPenalty;
   const strainTokens = state.map.placedTiles.reduce((total, tile) => total + tile.strain, 0);
   const strainPenaltyTotal = strainTokens * strainPenalty;
   const renown =
     printedRenown +
     passiveRenown +
-    stewardObjectiveRenown -
+    stewardObjectiveRenown +
+    goldenRenown -
     burdenPenalty -
     strainPenaltyTotal;
 
@@ -289,6 +332,7 @@ export function calculateFinalScore(state: GameState) {
     printedRenown,
     passiveRenown,
     stewardObjectiveRenown,
+    goldenRenown,
     burdenPenalty,
     strainPenalty: strainPenaltyTotal,
     finalScore: population + renown

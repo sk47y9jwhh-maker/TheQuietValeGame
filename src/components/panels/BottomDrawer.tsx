@@ -26,7 +26,7 @@ import {
   ledgerMilestones,
   type LedgerChronicle
 } from "../../data/ledger";
-import { coreTiles, specialTiles } from "../../data/tiles";
+import { coreTiles, goldenTileById, specialTiles } from "../../data/tiles";
 import { evaluateStewardObjectives } from "../../engine/scoring";
 import { evaluateLedgerEntries, getLedgerRun } from "../../engine/ledger";
 import { selectCurrentPlayer } from "../../engine/selectors";
@@ -138,6 +138,17 @@ const rules: RuleReferenceCard[] = [
     ]
   },
   {
+    category: "Golden Legacy",
+    title: "Golden Tiles and Boons",
+    bullets: [
+      "Ledger milestones unlock Golden Tiles and Golden Boons for future games.",
+      "During setup, choose up to one unlocked Golden Tile and one unlocked Golden Boon independently.",
+      "Place the Golden Tile after Steward starts for 0 Actions, following its printed setup restriction.",
+      "The Golden Boon is shuffled into the Encounter Deck, is never dealt to a hand, and grants a bonus reveal when drawn.",
+      "Golden Tile scoring conditions are worth +5 Renown when achieved."
+    ]
+  },
+  {
     category: "Stewards",
     title: "Powers and objectives",
     bullets: [
@@ -164,6 +175,7 @@ const rules: RuleReferenceCard[] = [
     bullets: [
       "Add Population and Renown from every non-Overstrained tile, including eligible passive bonuses.",
       "Add +15 Renown for each Steward objective achieved.",
+      "Add +5 Renown for each placed Golden Tile whose scoring condition is achieved.",
       "Lose 6 Renown for each active Burden and 3 Renown for every Strain token on the map.",
       "Final score = Population + Renown after all bonuses and penalties."
     ],
@@ -611,6 +623,8 @@ export function BottomDrawer({
                   <div className="ledger-unlock-grid">
                     {ledgerMilestones.map((milestone) => {
                       const unlocked = completedLedgerCount >= milestone.threshold;
+                      const goldenTile = goldenTileById[milestone.goldenTileId];
+                      const goldenBoon = encounterById[milestone.goldenBoonId];
                       return (
                         <article
                           className={`ledger-unlock-card ${unlocked ? "is-unlocked" : ""}`}
@@ -623,14 +637,22 @@ export function BottomDrawer({
                           <div>
                             <span>Golden Tile</span>
                             <strong>{milestone.goldenTile}</strong>
-                            <small>{milestone.goldenTileTheme}</small>
+                            <small>{goldenTile?.effectText ?? milestone.goldenTileTheme}</small>
                           </div>
                           <div>
                             <span>Golden Boon</span>
                             <strong>{milestone.goldenBoon}</strong>
-                            <small>{milestone.goldenBoonTheme}</small>
+                            <small>
+                              {goldenBoon?.type === "goldenBoon"
+                                ? goldenBoon.effectText
+                                : milestone.goldenBoonTheme}
+                            </small>
                           </div>
-                          <footer>Golden content is not yet supported in online play.</footer>
+                          <footer>
+                            {unlocked
+                              ? "Available in Golden Legacy setup. Choose up to one Tile and one Boon."
+                              : `Complete ${milestone.threshold} named Ledger entries to unlock.`}
+                          </footer>
                         </article>
                       );
                     })}

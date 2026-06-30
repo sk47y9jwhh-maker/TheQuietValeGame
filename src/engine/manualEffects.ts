@@ -3,7 +3,7 @@ import { encounterById } from "../data/encounters";
 import { mapById } from "../data/map";
 import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
-import { applyStrainToTile, removeStrainFromTile } from "./strainRules";
+import { applyStrainToState, removeStrainFromTile } from "./strainRules";
 import { recalculatePassiveSupported } from "./supportRules";
 import type {
   EffectAdjustment,
@@ -43,11 +43,23 @@ export function isWardenReliefAdjustmentValid(adjustment: EffectAdjustment): boo
   return !hasInvalidStrainDelta && supportCount + strainRemovalCount === 1;
 }
 
-function isValidResourceExchange(
+export function isResourceExchangeAdjustmentValid(
+  state: Pick<GameState, "warehouse">,
+  effectText: string,
   adjustment: EffectAdjustment,
   exchangeLimit: number,
   optional = false
 ): boolean {
+  if (
+    resources.some(
+      (resource) =>
+        Math.max(0, -(adjustment.resourceDeltas?.[resource] ?? 0)) >
+        state.warehouse[resource]
+    )
+  ) {
+    return false;
+  }
+
   const spent = resources.reduce(
     (total, resource) => total + Math.max(0, -(adjustment.resourceDeltas?.[resource] ?? 0)),
     0
@@ -58,7 +70,28 @@ function isValidResourceExchange(
   );
 
   if (spent === 0 && gained === 0) return optional;
-  return spent > 0 && spent === gained && spent <= exchangeLimit;
+  const isAlchemistGoodsMode = /exchange\s+5\s+total\s+resources\s+for\s+3\s+Goods/i.test(
+    effectText
+  );
+  if (isAlchemistGoodsMode) {
+    const goodsGain = Math.max(0, adjustment.resourceDeltas?.goods ?? 0);
+    const otherGain = resources
+      .filter((resource) => resource !== "goods")
+      .reduce(
+        (total, resource) =>
+          total + Math.max(0, adjustment.resourceDeltas?.[resource] ?? 0),
+        0
+      );
+    if (spent === 5 && goodsGain === 3 && otherGain === 0) return true;
+  }
+
+  const gainsGoods = (adjustment.resourceDeltas?.goods ?? 0) > 0;
+  return (
+    spent > 0 &&
+    spent === gained &&
+    spent <= exchangeLimit &&
+    (!isAlchemistGoodsMode || !gainsGoods)
+  );
 }
 
 export function hasEffectAdjustment(adjustment: EffectAdjustment): boolean {
@@ -929,7 +962,7 @@ export function queueRestingHallBurdenPassive(state: GameState): GameState {
     "Passive: When players resolve an active Burden, remove 1 Strain from 1 placed tile.";
   const suggestion = suggestEffectAdjustment(state, effectText, restingHall);
 
-  return queuePendingEffect(state, {
+  const queued = queuePendingEffect(state, {
     sourceType: "tile",
     sourceId: restingHall.instanceId,
     sourceName: getPlacedTileName(restingHall),
@@ -939,6 +972,9 @@ export function queueRestingHallBurdenPassive(state: GameState): GameState {
     suggestedAdjustment: suggestion.adjustment,
     requiresManualChoice: suggestion.requiresManualChoice
   });
+  return suggestion.adjustment && !suggestion.requiresManualChoice
+    ? resolvePendingEffect(queued)
+    : queued;
 }
 
 export function resolvePendingEffect(
@@ -968,7 +1004,9 @@ export function resolvePendingEffect(
   }
   if (
     pendingEffect.resourceExchangeLimit !== undefined &&
-    !isValidResourceExchange(
+    !isResourceExchangeAdjustmentValid(
+      state,
+      pendingEffect.effectText,
       effectiveAdjustment,
       pendingEffect.resourceExchangeLimit,
       pendingEffect.resourceExchangeOptional
@@ -1044,23 +1082,33 @@ export function resolvePendingEffect(
 
   if (effectiveAdjustment.tileStrainDeltas || effectiveAdjustment.supportTileIds?.length) {
     const supportedIds = new Set(effectiveAdjustment.supportTileIds ?? []);
+    for (const [tileId, strainDelta] of Object.entries(
+      effectiveAdjustment.tileStrainDeltas ?? {}
+    )) {
+      if (strainDelta > 0) {
+        nextState = applyStrainToState(nextState, tileId, strainDelta);
+      } else if (strainDelta < 0) {
+        nextState = {
+          ...nextState,
+          map: {
+            placedTiles: nextState.map.placedTiles.map((tile) =>
+              tile.instanceId === tileId
+                ? removeStrainFromTile(tile, Math.abs(strainDelta))
+                : tile
+            )
+          }
+        };
+      }
+    }
     nextState = {
       ...nextState,
       map: {
         placedTiles: nextState.map.placedTiles.map((tile) => {
-          const strainDelta = effectiveAdjustment.tileStrainDeltas?.[tile.instanceId] ?? 0;
-          const strained =
-            strainDelta > 0
-              ? applyStrainToTile(tile, strainDelta)
-              : strainDelta < 0
-                ? removeStrainFromTile(tile, Math.abs(strainDelta))
-                : tile;
-
-          if (!supportedIds.has(tile.instanceId)) return strained;
+          if (!supportedIds.has(tile.instanceId)) return tile;
           return {
-            ...strained,
+            ...tile,
             support: {
-              ...strained.support,
+              ...tile.support,
               singleUse: true,
               preventedThisRound: false
             }

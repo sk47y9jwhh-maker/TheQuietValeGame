@@ -52,6 +52,7 @@ function getPlacementCost(state: GameState, tileId: string): ResourceCost {
   const baseCost = "basic" in data ? data.basic.cost : emptyCost();
   return getBoonModifiedCost(state, {
     action: "place",
+    tileId,
     category: data.category,
     kind: "basic" in data ? "core" : "special",
     baseCost

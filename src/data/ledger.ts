@@ -31,18 +31,20 @@ export interface LedgerEntry {
 
 export interface LedgerMilestone {
   threshold: number;
+  goldenTileId: string;
   goldenTile: string;
   goldenTileTheme: string;
+  goldenBoonId: string;
   goldenBoon: string;
   goldenBoonTheme: string;
 }
 
 export const ledgerMilestones: LedgerMilestone[] = [
-  { threshold: 5, goldenTile: "The Golden Charter", goldenTileTheme: "Mixed civic district", goldenBoon: "The Golden Bell", goldenBoonTheme: "Immediate Arrival completion" },
-  { threshold: 10, goldenTile: "The Golden Hearth", goldenTileTheme: "Settlement core and Supported Housing", goldenBoon: "The Golden Scroll", goldenBoonTheme: "Replace a hand card with a random Boon" },
-  { threshold: 15, goldenTile: "The Golden River Gate", goldenTileTheme: "Riverbank settlement and bridge incentive", goldenBoon: "The Golden Vial", goldenBoonTheme: "Ongoing Path placement" },
-  { threshold: 20, goldenTile: "The Golden Cairn", goldenTileTheme: "Terrain spread and remote expansion", goldenBoon: "The Golden-Eyed Traveller", goldenBoonTheme: "Bonus player turns" },
-  { threshold: 30, goldenTile: "The Golden Garden", goldenTileTheme: "Resilience and recovery district", goldenBoon: "The Golden Signet Ring", goldenBoonTheme: "Tile repositioning" }
+  { threshold: 5, goldenTileId: "golden_tile_the_golden_charter", goldenTile: "The Golden Charter", goldenTileTheme: "Mixed civic district", goldenBoonId: "golden_boon_the_golden_bell", goldenBoon: "The Golden Bell", goldenBoonTheme: "Immediate Arrival completion" },
+  { threshold: 10, goldenTileId: "golden_tile_the_golden_hearth", goldenTile: "The Golden Hearth", goldenTileTheme: "Settlement core and Supported Housing", goldenBoonId: "golden_boon_the_golden_scroll", goldenBoon: "The Golden Scroll", goldenBoonTheme: "Replace a hand card with a random Boon" },
+  { threshold: 15, goldenTileId: "golden_tile_the_golden_river_gate", goldenTile: "The Golden River Gate", goldenTileTheme: "Riverbank settlement and bridge incentive", goldenBoonId: "golden_boon_the_golden_vial", goldenBoon: "The Golden Vial", goldenBoonTheme: "Ongoing Path placement" },
+  { threshold: 20, goldenTileId: "golden_tile_the_golden_cairn", goldenTile: "The Golden Cairn", goldenTileTheme: "Terrain spread and remote expansion", goldenBoonId: "golden_boon_the_golden_eyed_traveler", goldenBoon: "The Golden-Eyed Traveller", goldenBoonTheme: "Bonus player turns" },
+  { threshold: 30, goldenTileId: "golden_tile_the_golden_garden", goldenTile: "The Golden Garden", goldenTileTheme: "Resilience and recovery district", goldenBoonId: "golden_boon_the_golden_signet_ring", goldenBoon: "The Golden Signet Ring", goldenBoonTheme: "Tile repositioning" }
 ];
 
 // Generated from the v3.12 final-authority Ledger specification.

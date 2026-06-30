@@ -359,7 +359,9 @@ export function evaluateLedgerEntries(
   const upgradedEligible = eligible.filter(
     (tile) => tile.kind === "core" && tile.side === "upgraded"
   ).length;
-  const specialPlaced = tiles.filter((tile) => tile.kind === "special").length;
+  const specialPlaced = tiles.filter(
+    (tile) => tile.kind === "special" && !tile.tileId.startsWith("golden_tile_")
+  ).length;
   const unlockedSpecial = state.encounters.completedArrivals.reduce(
     (total, arrival) => total + arrival.specialTileIds.length,
     0
@@ -395,7 +397,10 @@ export function evaluateLedgerEntries(
       .map(placedTileCategory)
   );
   const specialAdjacentHousing = eligible.filter(
-    (tile) => tile.kind === "special" && eligibleHousing.some((home) => areTilesAdjacent(tile, home))
+    (tile) =>
+      tile.kind === "special" &&
+      !tile.tileId.startsWith("golden_tile_") &&
+      eligibleHousing.some((home) => areTilesAdjacent(tile, home))
   ).length;
   const resourceTypesAt10 = Object.values(state.warehouse).filter((amount) => amount >= 10).length;
   const stewardObjectives = evaluateStewardObjectives(state);

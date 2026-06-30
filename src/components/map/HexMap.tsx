@@ -277,6 +277,7 @@ export function HexMap({
                   inFootprint ? "is-footprint" : "",
                   placed ? "is-placed" : "",
                   placed?.kind === "special" ? "tile-special" : "",
+                  placed?.tileId.startsWith("golden_tile_") ? "tile-golden" : "",
                   tileCategory ? `tile-${tileCategory}` : "",
                   reachable ? "is-reachable" : "",
                   supported ? "is-supported" : "",

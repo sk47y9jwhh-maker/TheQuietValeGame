@@ -11,7 +11,11 @@ import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { stewardById, stewards } from "../../data/stewards";
 import { terrainLabels } from "../../data/map";
 import type { LedgerEntry } from "../../data/ledger";
-import type { PlayerCount } from "../../engine/types";
+import type {
+  GoldenBoonData,
+  GoldenTileData,
+  PlayerCount
+} from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
 
 type ResourceFillStyle = CSSProperties & { "--resource-fill": string };
@@ -21,12 +25,18 @@ interface SetupPanelProps {
   stewardIds: string[];
   encounterSeed: string;
   declaredVowId?: string;
+  selectedGoldenTileId?: string;
+  selectedGoldenBoonId?: string;
   completedLedgerCount?: number;
   availableVows?: LedgerEntry[];
+  availableGoldenTiles?: GoldenTileData[];
+  availableGoldenBoons?: GoldenBoonData[];
   onPlayerCountChange: (playerCount: PlayerCount) => void;
   onStewardChange: (seatIndex: number, stewardId: string) => void;
   onEncounterSeedChange: (seed: string) => void;
   onDeclaredVowChange?: (entryId: string) => void;
+  onGoldenTileChange?: (tileId: string) => void;
+  onGoldenBoonChange?: (boonId: string) => void;
   onShuffleSeed: () => void;
   onStart: () => void;
 }
@@ -41,12 +51,18 @@ export function SetupPanel({
   stewardIds,
   encounterSeed,
   declaredVowId = "",
+  selectedGoldenTileId = "",
+  selectedGoldenBoonId = "",
   completedLedgerCount = 0,
   availableVows = [],
+  availableGoldenTiles = [],
+  availableGoldenBoons = [],
   onPlayerCountChange,
   onStewardChange,
   onEncounterSeedChange,
   onDeclaredVowChange = () => {},
+  onGoldenTileChange = () => {},
+  onGoldenBoonChange = () => {},
   onShuffleSeed,
   onStart
 }: SetupPanelProps) {
@@ -57,6 +73,12 @@ export function SetupPanel({
   const startingResources = getStartingWarehouseAmount(playerCount);
   const playerLabel = `${playerCount} Player${playerCount === 1 ? "" : "s"}`;
   const declaredVow = availableVows.find((entry) => entry.id === declaredVowId);
+  const selectedGoldenTile = availableGoldenTiles.find(
+    (tile) => tile.id === selectedGoldenTileId
+  );
+  const selectedGoldenBoon = availableGoldenBoons.find(
+    (boon) => boon.id === selectedGoldenBoonId
+  );
 
   return (
     <div className="app-shell setup-shell">
@@ -190,6 +212,51 @@ export function SetupPanel({
                 : `Optional · one Vow per game · ${completedLedgerCount}/50 entries complete`}
             </small>
           </label>
+
+          <section className="setup-golden-legacy">
+            <div>
+              <strong>Golden Legacy</strong>
+              <small>
+                Optional · choose up to one unlocked Golden Tile and one Golden Boon
+              </small>
+            </div>
+            <label>
+              Golden Tile
+              <select
+                aria-label="Golden Tile"
+                value={selectedGoldenTileId}
+                onChange={(event) => onGoldenTileChange(event.target.value)}
+              >
+                <option value="">No Golden Tile</option>
+                {availableGoldenTiles.map((tile) => (
+                  <option key={tile.id} value={tile.id}>{tile.name}</option>
+                ))}
+              </select>
+              <small>
+                {selectedGoldenTile
+                  ? `${selectedGoldenTile.placement?.text} ${selectedGoldenTile.effectText}`
+                  : `${availableGoldenTiles.length} unlocked at ${completedLedgerCount}/50 entries`}
+              </small>
+            </label>
+            <label>
+              Golden Boon
+              <select
+                aria-label="Golden Boon"
+                value={selectedGoldenBoonId}
+                onChange={(event) => onGoldenBoonChange(event.target.value)}
+              >
+                <option value="">No Golden Boon</option>
+                {availableGoldenBoons.map((boon) => (
+                  <option key={boon.id} value={boon.id}>{boon.name}</option>
+                ))}
+              </select>
+              <small>
+                {selectedGoldenBoon
+                  ? selectedGoldenBoon.effectText
+                  : `${availableGoldenBoons.length} unlocked at ${completedLedgerCount}/50 entries`}
+              </small>
+            </label>
+          </section>
 
           <button className="primary-action" onClick={onStart} type="button">
             Start Season I

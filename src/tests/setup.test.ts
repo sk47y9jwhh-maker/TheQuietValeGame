@@ -30,7 +30,9 @@ function countEncounterTypes(cardIds: string[]): Record<EncounterData["type"], n
   return counts;
 }
 
-function dealtCardIds(setup: ReturnType<typeof dealEncounterSetup>): string[] {
+function dealtCardIds(
+  setup: Pick<ReturnType<typeof dealEncounterSetup>, "handsByPlayerId" | "deck" | "unused">
+): string[] {
   return [
     ...Object.values(setup.handsByPlayerId).flat(),
     ...setup.deck,

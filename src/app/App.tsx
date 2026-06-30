@@ -15,6 +15,7 @@ import {
 import { CostChoicePanel } from "../components/effects/CostChoicePanel";
 import { DeckReorderPanel } from "../components/effects/DeckReorderPanel";
 import { EffectPrompt } from "../components/effects/EffectPrompt";
+import { GoldenEffectPanel } from "../components/effects/GoldenEffectPanel";
 import { TopBar } from "../components/layout/TopBar";
 import { HexMap } from "../components/map/HexMap";
 import { TileInspectModal } from "../components/map/TileInspectModal";
@@ -23,9 +24,11 @@ import { EncounterPanel } from "../components/panels/EncounterPanel";
 import { SeedingPanel } from "../components/seeding/SeedingPanel";
 import { SetupPanel } from "../components/setup/SetupPanel";
 import { StewardPlacementPanel } from "../components/setup/StewardPlacementPanel";
+import { GoldenTilePlacementPanel } from "../components/setup/GoldenTilePlacementPanel";
 import { stewards } from "../data/stewards";
+import { goldenBoons } from "../data/encounters";
 import { ledgerEntries } from "../data/ledger";
-import { coreTiles } from "../data/tiles";
+import { coreTiles, goldenTiles } from "../data/tiles";
 import {
   activateTile,
   cancelCostChoice,
@@ -53,6 +56,13 @@ import { getTileFootprintKind } from "../engine/placementRules";
 import { getPlacedTileAtHex } from "../engine/reachability";
 import { createNewGame } from "../engine/setup";
 import { recordLedgerGame, trackLedgerTransition } from "../engine/ledger";
+import {
+  placeGoldenTileForSetup,
+  resolveGoldenBell,
+  resolveGoldenScroll,
+  resolveGoldenSignet,
+  skipGoldenTileForSetup
+} from "../engine/golden";
 import { selectCurrentPlayer, selectTileName } from "../engine/selectors";
 import type { GameState, HexDirection, PlayerCount, TilePlacementDraft } from "../engine/types";
 import {
@@ -108,6 +118,13 @@ function ResolutionShell({
   onReset
 }: ResolutionShellProps) {
   const queueItems = [
+    ...(state.pendingGoldenEffect
+      ? [{
+          id: `golden_${state.pendingGoldenEffect.cardId}`,
+          title: "Resolve Golden Boon",
+          source: "Golden Legacy"
+        }]
+      : []),
     ...(state.pendingDeckReorder
       ? [
           {
@@ -213,6 +230,12 @@ export function App() {
   const [declaredVowId, setDeclaredVowId] = useState(
     initialSavedGame?.declaredVowId ?? initialSavedSetup?.declaredVowId ?? ""
   );
+  const [selectedGoldenTileId, setSelectedGoldenTileId] = useState(
+    initialSavedGame?.selectedGoldenTileId ?? initialSavedSetup?.selectedGoldenTileId ?? ""
+  );
+  const [selectedGoldenBoonId, setSelectedGoldenBoonId] = useState(
+    initialSavedGame?.selectedGoldenBoonId ?? initialSavedSetup?.selectedGoldenBoonId ?? ""
+  );
   const [ledgerCampaign, setLedgerCampaign] = useState(readLedgerCampaign);
   const [state, setState] = useState<GameState | null>(initialSavedGame?.state ?? null);
   const [undoStack, setUndoStack] = useState<GameState[]>([]);
@@ -265,6 +288,8 @@ export function App() {
         stewardIds: normalizedStewards,
         encounterSeed,
         declaredVowId: state.ledgerRun?.declaredVowId,
+        selectedGoldenTileId: state.goldenSetup.selectedTileId,
+        selectedGoldenBoonId: state.goldenSetup.selectedBoonId,
         state
       });
       return;
@@ -274,10 +299,12 @@ export function App() {
       playerCount,
       stewardIds: normalizedStewards,
       encounterSeed,
-      declaredVowId: declaredVowId || undefined
+      declaredVowId: declaredVowId || undefined,
+      selectedGoldenTileId: selectedGoldenTileId || undefined,
+      selectedGoldenBoonId: selectedGoldenBoonId || undefined
     });
     clearSavedGame();
-  }, [declaredVowId, encounterSeed, normalizedStewards, playerCount, state]);
+  }, [declaredVowId, encounterSeed, normalizedStewards, playerCount, selectedGoldenBoonId, selectedGoldenTileId, state]);
 
   const pushUndoSnapshot = useCallback((previousState: GameState) => {
     setUndoStack((current) => {
@@ -410,6 +437,8 @@ export function App() {
     setStewardIds(stewards.slice(0, 1).map((steward) => steward.id));
     setEncounterSeed(createSetupSeed());
     setDeclaredVowId("");
+    setSelectedGoldenTileId("");
+    setSelectedGoldenBoonId("");
     setSelectedHexIds([]);
     setSelectedTileId(coreTiles[0].id);
     setPlacementOrientation(3);
@@ -434,6 +463,10 @@ export function App() {
     if (!confirmed) return;
     clearLedgerCampaign();
     setLedgerCampaign(createEmptyLedgerCampaign());
+    if (!state) {
+      setSelectedGoldenTileId("");
+      setSelectedGoldenBoonId("");
+    }
   }
 
   function handlePlayerCountChange(nextCount: PlayerCount) {
@@ -503,6 +536,7 @@ export function App() {
       state.phase !== "turns" ||
       state.actionsRemaining !== 0 ||
       state.pendingEffects.length > 0 ||
+      state.pendingGoldenEffect ||
       state.pendingDeckReorder ||
       state.pendingCostChoice ||
       actionMode === "end"
@@ -517,6 +551,7 @@ export function App() {
     state?.pendingCostChoice,
     state?.pendingDeckReorder,
     state?.pendingEffects.length,
+    state?.pendingGoldenEffect,
     state?.phase
   ]);
 
@@ -527,16 +562,26 @@ export function App() {
         stewardIds={normalizedStewards}
         encounterSeed={encounterSeed}
         declaredVowId={declaredVowId}
+        selectedGoldenTileId={selectedGoldenTileId}
+        selectedGoldenBoonId={selectedGoldenBoonId}
         completedLedgerCount={countCompletedLedgerEntries(ledgerCampaign)}
         availableVows={ledgerEntries.filter(
           (entry) =>
             entry.declaredVow &&
             countCompletedLedgerEntries(ledgerCampaign) >= entry.unlockAt
         )}
+        availableGoldenTiles={goldenTiles.filter(
+          (tile) => countCompletedLedgerEntries(ledgerCampaign) >= tile.unlockAt
+        )}
+        availableGoldenBoons={goldenBoons.filter(
+          (boon) => countCompletedLedgerEntries(ledgerCampaign) >= boon.unlockAt
+        )}
         onPlayerCountChange={handlePlayerCountChange}
         onStewardChange={handleStewardChange}
         onEncounterSeedChange={setEncounterSeed}
         onDeclaredVowChange={setDeclaredVowId}
+        onGoldenTileChange={setSelectedGoldenTileId}
+        onGoldenBoonChange={setSelectedGoldenBoonId}
         onShuffleSeed={() => setEncounterSeed(createSetupSeed())}
         onStart={() => {
           undoStackRef.current = [];
@@ -549,7 +594,9 @@ export function App() {
           setState(
             createNewGame(playerCount, normalizedStewards, {
               encounterSeed,
-              declaredVowId: declaredVowId || undefined
+              declaredVowId: declaredVowId || undefined,
+              selectedGoldenTileId: selectedGoldenTileId || undefined,
+              selectedGoldenBoonId: selectedGoldenBoonId || undefined
             })
           );
         }}
@@ -578,6 +625,36 @@ export function App() {
 
   function handleResolveBurden(burdenCardId: string) {
     commitGameState((current) => resolveBurden(current, burdenCardId));
+  }
+
+  if (state.pendingGoldenEffect) {
+    return (
+      <ResolutionShell
+        state={state}
+        eyebrow="Golden Boon"
+        title="Resolve Golden Legacy"
+        detail="Golden Boons resolve immediately for free before normal Encounter effects continue."
+        onUseFaceUpBoon={handleUseFaceUpBoon}
+        canUndo={undoStack.length > 0}
+        canRedo={redoStack.length > 0}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onReset={handleResetGame}
+      >
+        <GoldenEffectPanel
+          state={state}
+          onResolveBell={(arrivalCardId) =>
+            commitGameState((current) => resolveGoldenBell(current, arrivalCardId))
+          }
+          onResolveScroll={(choices) =>
+            commitGameState((current) => resolveGoldenScroll(current, choices))
+          }
+          onResolveSignet={(placements) =>
+            commitGameState((current) => resolveGoldenSignet(current, placements))
+          }
+        />
+      </ResolutionShell>
+    );
   }
 
   if (state.pendingDeckReorder) {
@@ -689,6 +766,28 @@ export function App() {
               commitSeasonSeeding(current, current.currentPlayerId, selection)
             )
           }
+        />
+      </div>
+    );
+  }
+
+  if (state.phase === "goldenSetup") {
+    return (
+      <div className="app-shell">
+        <TopBar
+          state={state}
+          canUndo={undoStack.length > 0}
+          canRedo={redoStack.length > 0}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onReset={handleResetGame}
+        />
+        <GoldenTilePlacementPanel
+          state={state}
+          onConfirm={(hexId) =>
+            commitGameState((current) => placeGoldenTileForSetup(current, hexId))
+          }
+          onSkip={() => commitGameState((current) => skipGoldenTileForSetup(current))}
         />
       </div>
     );

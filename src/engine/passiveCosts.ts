@@ -1,4 +1,5 @@
 import { resources } from "../data/resources";
+import { mapById } from "../data/map";
 import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
 import { isTileReachable } from "./reachability";
@@ -105,6 +106,16 @@ function getMarketResourceChoices(cost: ResourceCost): ResourceType[] {
   return resources.filter((resource) => resource !== "goods" && cost[resource] > 0);
 }
 
+function getCostResourceChoices(cost: ResourceCost): ResourceType[] {
+  return resources.filter((resource) => cost[resource] > 0);
+}
+
+function placementTouchesWater(hexIds: string[]): boolean {
+  return hexIds.some((hexId) =>
+    getHexNeighbors(hexId).some((neighborId) => mapById[neighborId]?.terrain === "water")
+  );
+}
+
 export function getPassiveCostOptions(
   state: GameState,
   context: PassiveCostContext
@@ -117,13 +128,49 @@ export function getPassiveCostOptions(
 
     if (
       context.action === "place" &&
+      context.placementHexIds?.length &&
+      !isPassiveUsed(state, tile, "round")
+    ) {
+      const isCharter =
+        tile.tileId === "golden_tile_the_golden_charter" &&
+        areHexSetsAdjacent(tile.hexIds, context.placementHexIds);
+      const isRiverGate =
+        tile.tileId === "golden_tile_the_golden_river_gate" &&
+        placementTouchesWater(context.placementHexIds);
+      const isCairn =
+        tile.tileId === "golden_tile_the_golden_cairn" &&
+        context.placementHexIds.some((hexId) => {
+          const terrain = mapById[hexId]?.terrain;
+          return terrain !== undefined && terrain !== "grasslands" && terrain !== "water";
+        });
+      if (isCharter || isRiverGate || isCairn) {
+        options.push(
+          makeOption(tile, {
+            kind: "discount",
+            cadence: "round",
+            amount: 1,
+            resourceChoices: getCostResourceChoices(context.cost),
+            required: true
+          })
+        );
+      }
+    }
+
+    if (
+      context.action === "place" &&
       context.category === "housing" &&
       context.placementHexIds?.length &&
       tile.tileId === "special_brewery_of_legends" &&
       !isPassiveUsed(state, tile, "season") &&
       areHexSetsAdjacent(tile.hexIds, context.placementHexIds)
     ) {
-      options.push(makeOption(tile, { kind: "zero", cadence: "season" }));
+      options.push(
+        makeOption(tile, {
+          kind: "zero",
+          cadence: "season",
+          required: true
+        })
+      );
     }
 
     if (
@@ -133,7 +180,14 @@ export function getPassiveCostOptions(
       !isPassiveUsed(state, tile, "round") &&
       areHexSetsAdjacent(tile.hexIds, context.placementHexIds)
     ) {
-      options.push(makeOption(tile, { kind: "discount", cadence: "round", amount: 2 }));
+      options.push(
+        makeOption(tile, {
+          kind: "discount",
+          cadence: "round",
+          amount: 2,
+          required: true
+        })
+      );
     }
 
     if (
@@ -152,7 +206,8 @@ export function getPassiveCostOptions(
           makeOption(tile, {
             kind: "discount",
             cadence: "round",
-            amount: isBasicWorkshop ? 1 : 2
+            amount: isBasicWorkshop ? 1 : 2,
+            required: true
           })
         );
       }

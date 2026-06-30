@@ -317,6 +317,7 @@ export function ActionConsole({
           <span>Printed Renown {finalScore.printedRenown}</span>
           <span>Passive Renown {finalScore.passiveRenown}</span>
           <span>Steward Objectives {finalScore.stewardObjectiveRenown}</span>
+          <span>Golden Tile Renown {finalScore.goldenRenown}</span>
           <span>Burden Penalty -{finalScore.burdenPenalty}</span>
           <span>Strain Penalty -{finalScore.strainPenalty}</span>
           <strong>Final Score {finalScore.finalScore}</strong>
@@ -557,6 +558,10 @@ export function ActionConsole({
             <Play size={18} />
             <h3>Activate Tile</h3>
           </div>
+          <p className="muted">
+            Passive effects—including Shrines and cost reductions—trigger automatically
+            when their condition is met.
+          </p>
           {activatableIds.length === 0 ? (
             <p className="muted">No reachable activated effects are available.</p>
           ) : (

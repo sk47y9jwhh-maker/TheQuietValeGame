@@ -63,7 +63,7 @@ function getEncounterDetail(
     card,
     effectText: card.effectText,
     flavorText: card.flavorText,
-    footer: "Disabled in normal online setup."
+    footer: card.lifecycle
   };
 }
 
@@ -106,13 +106,17 @@ export function EncounterPanel({
             return (
               <article
                 key={boon.cardId}
-                className="encounter-row encounter-full-card boon-row card-row card-boon"
+                className={`encounter-row encounter-full-card boon-row card-row card-${card?.type ?? "boon"}`}
               >
                 <div className="encounter-card-heading">
                   <span>{card?.name ?? boon.cardId}</span>
                   <div className="encounter-card-actions">
                     <strong>
-                      {boon.remainingUses} use{boon.remainingUses === 1 ? "" : "s"}
+                      {card?.type === "goldenBoon"
+                        ? boon.lastUsedRound === state.round
+                          ? "Used this round"
+                          : "Once per round"
+                        : `${boon.remainingUses} use${boon.remainingUses === 1 ? "" : "s"}`}
                     </strong>
                     <button
                       disabled={!usableBoonIds.has(boon.cardId)}
@@ -120,7 +124,7 @@ export function EncounterPanel({
                       onClick={() => onUseFaceUpBoon(boon.cardId)}
                       type="button"
                     >
-                      Interact
+                      {card?.type === "goldenBoon" ? "Prepare Path" : "Interact"}
                     </button>
                   </div>
                 </div>

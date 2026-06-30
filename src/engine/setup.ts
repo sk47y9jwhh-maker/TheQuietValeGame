@@ -1,4 +1,4 @@
-import { arrivals, boons, burdens } from "../data/encounters";
+import { arrivals, boons, burdens, goldenBoons } from "../data/encounters";
 import { createWarehouse } from "../data/resources";
 import { stewards } from "../data/stewards";
 import { coreTiles, specialTiles } from "../data/tiles";
@@ -22,10 +22,12 @@ const startingWarehouseByPlayerCount: Record<PlayerCount, number> = {
 
 interface EncounterSetupOptions {
   encounterSeed?: string;
+  selectedGoldenBoonId?: string;
 }
 
 interface NewGameOptions extends EncounterSetupOptions {
   declaredVowId?: string;
+  selectedGoldenTileId?: string;
 }
 
 export function getStartingWarehouseAmount(playerCount: PlayerCount): number {
@@ -108,12 +110,35 @@ export function dealEncounterSetup(
     cursor += 9;
   }
 
-  const deck = pool.slice(cursor, cursor + playerCount * 3);
+  const standardDeck = pool.slice(cursor, cursor + playerCount * 3);
+  const selectedGoldenBoon = goldenBoons.find(
+    (card) => card.id === options.selectedGoldenBoonId
+  );
+  const deck = selectedGoldenBoon
+    ? shuffleWithSeed(
+        [...standardDeck, selectedGoldenBoon.id],
+        createSeededRandom(
+          `${options.encounterSeed?.trim() || "QV-GOLDEN"}:${playerCount}:${selectedGoldenBoon.id}`
+        )
+      )
+    : standardDeck;
+  const selectedCardIds = new Set(pool);
+  const reserveBoonIds = boons
+    .map((card) => card.id)
+    .filter((cardId) => !selectedCardIds.has(cardId));
+  const reserveArrivalIds = arrivals
+    .map((card) => card.id)
+    .filter((cardId) => !selectedCardIds.has(cardId));
+  const reserveRandom = createSeededRandom(
+    `${options.encounterSeed?.trim() || "QV-RESERVE"}:${playerCount}:reserve`
+  );
 
   return {
     handsByPlayerId,
     deck,
-    unused: pool.slice(cursor + playerCount * 3)
+    unused: pool.slice(cursor + playerCount * 3),
+    reserveBoonIds: shuffleWithSeed(reserveBoonIds, reserveRandom),
+    reserveArrivalIds: shuffleWithSeed(reserveArrivalIds, reserveRandom)
   };
 }
 
@@ -184,8 +209,20 @@ export function createNewGame(
       activeBurdens: [],
       faceUpBoons: [],
       completedArrivals: [],
-      goldenEnabled: false
+      reserveBoonIds: encounterSetup.reserveBoonIds,
+      reserveArrivalIds: encounterSetup.reserveArrivalIds,
+      selectedGoldenBoonId: options.selectedGoldenBoonId,
+      goldenEnabled: Boolean(options.selectedGoldenBoonId || options.selectedGoldenTileId)
     },
+    goldenSetup: {
+      selectedTileId: options.selectedGoldenTileId,
+      selectedBoonId: options.selectedGoldenBoonId,
+      tilePlaced: false,
+      tileSkipped: false
+    },
+    pendingGoldenEffect: null,
+    bonusTurnsPending: false,
+    bonusTurnsActive: false,
     boonModifiers: [],
     ignoredBurdenIdsThisRound: [],
     tileActivationRecords: {},
