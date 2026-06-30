@@ -15,16 +15,13 @@ describe("Golden Legacy interface", () => {
       <SetupPanel
         playerCount={1}
         stewardIds={["vanguard"]}
-        encounterSeed="QV-GOLDEN-UI"
         completedLedgerCount={5}
         availableGoldenTiles={[goldenTiles[0]]}
         availableGoldenBoons={[goldenBoons[0]]}
         onPlayerCountChange={() => {}}
         onStewardChange={() => {}}
-        onEncounterSeedChange={() => {}}
         onGoldenTileChange={onGoldenTileChange}
         onGoldenBoonChange={onGoldenBoonChange}
-        onShuffleSeed={() => {}}
         onStart={() => {}}
       />
     );

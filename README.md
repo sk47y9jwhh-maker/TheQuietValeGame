@@ -9,7 +9,7 @@ This repository is a greenfield rebuild. The current implementation establishes 
 Implemented playable loop:
 
 - 1-4 player setup with unique Stewards.
-- Visible Randomizer Seed setup with repeatable shuffled Encounter pools.
+- Automatic fresh Encounter shuffle whenever a new game starts.
 - Hidden-hand seasonal seeding with Top, Middle, and Bottom slots.
 - Encounter reveal into active Arrivals, active Burdens, face-up Boons, and discard.
 - Face-up Boons with visible remaining-use tracking and Use buttons.

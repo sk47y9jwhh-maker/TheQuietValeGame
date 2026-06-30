@@ -15,17 +15,20 @@ describe("app smoke flow", () => {
     expect(screen.getAllByText("1 Player").length).toBeGreaterThan(0);
   });
 
-  it("starts a seeded game and asks for Steward placement first", () => {
+  it("starts with an automatic shuffle and asks for Steward placement first", () => {
     render(<App />);
 
-    fireEvent.change(screen.getByLabelText("Randomizer Seed"), {
-      target: { value: "QV-SMOKE" }
-    });
+    expect(screen.queryByLabelText("Randomizer Seed")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /shuffle/i })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
 
     expect(screen.getByText("Setup")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Vanguard" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /confirm vanguard start/i })).toBeEnabled();
+    const saved = JSON.parse(
+      window.localStorage.getItem("quietVale.activeGame.v1") ?? "{}"
+    );
+    expect(saved.encounterSeed).toMatch(/^QV-[A-Z0-9]+$/);
   });
 
   it("declares one available Ledger Vow before setup", () => {
@@ -46,9 +49,6 @@ describe("app smoke flow", () => {
   it("confirms the solo Steward start and shows the seeding screen", () => {
     render(<App />);
 
-    fireEvent.change(screen.getByLabelText("Randomizer Seed"), {
-      target: { value: "QV-SMOKE" }
-    });
     fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
     fireEvent.click(screen.getByRole("button", { name: /confirm vanguard start/i }));
 
@@ -60,9 +60,6 @@ describe("app smoke flow", () => {
   it("advances from solo seeding to reveal", () => {
     render(<App />);
 
-    fireEvent.change(screen.getByLabelText("Randomizer Seed"), {
-      target: { value: "QV-SMOKE" }
-    });
     fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
     fireEvent.click(screen.getByRole("button", { name: /confirm vanguard start/i }));
     fireEvent.click(screen.getByRole("button", { name: /confirm seeding/i }));
@@ -74,9 +71,6 @@ describe("app smoke flow", () => {
   it("restores an active saved game after reopening the app", () => {
     const first = render(<App />);
 
-    fireEvent.change(screen.getByLabelText("Randomizer Seed"), {
-      target: { value: "QV-SAVED" }
-    });
     fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
     expect(screen.getByRole("heading", { name: "Vanguard" })).toBeInTheDocument();
 

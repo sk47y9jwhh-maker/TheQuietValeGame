@@ -81,7 +81,7 @@ const rules: RuleReferenceCard[] = [
       "At each Season start, every player seeds one hidden Encounter at the top, middle, and bottom of the deck.",
       "Your first placed tile must include your Steward Token’s starting hex."
     ],
-    note: "The Randomizer Seed recreates the same setup for repeat playtests."
+    note: "Encounter cards are freshly randomised when each new game starts."
   },
   {
     category: "Round structure",

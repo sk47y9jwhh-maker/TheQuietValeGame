@@ -103,6 +103,26 @@
   margin-bottom: 24px;
 }
 
+.setup-control-panel .segmented {
+  margin-bottom: 0;
+}
+
+.setup-control-panel .setup-stewards {
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.setup-control-panel .setup-stewards label,
+.setup-control-panel .setup-vow-select {
+  gap: 4px;
+  font-size: 11px;
+}
+
+.setup-control-panel select {
+  min-height: 38px;
+}
+
 .setup-stewards label,
 .flow-card label {
   display: grid;
@@ -160,6 +180,10 @@ input {
   font-weight: 800;
 }
 
+.setup-control-panel .setup-vow-select {
+  margin-bottom: 0;
+}
+
 .setup-vow-select small {
   padding: 7px 8px;
   border-left: 3px solid var(--qv-brass);
@@ -170,14 +194,31 @@ input {
   line-height: 1.35;
 }
 
+.setup-control-panel .setup-vow-select small,
+.setup-control-panel .setup-golden-legacy label small {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .setup-golden-legacy {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 9px;
   margin-bottom: 18px;
   padding: 10px;
   border: 1px solid rgba(184, 138, 58, 0.45);
   border-radius: 9px;
   background: linear-gradient(135deg, rgba(184, 138, 58, 0.13), rgba(255, 246, 223, 0.62));
+}
+
+.setup-control-panel .setup-golden-legacy {
+  margin-bottom: 0;
+}
+
+.setup-golden-legacy > div {
+  grid-column: 1 / -1;
 }
 
 .setup-golden-legacy > div,
@@ -622,6 +663,11 @@ button:disabled {
 .seeding-control-panel {
   align-content: start;
   gap: 12px;
+}
+
+.setup-control-panel {
+  gap: 7px;
+  padding: 11px;
 }
 
 .setup-overview-panel,

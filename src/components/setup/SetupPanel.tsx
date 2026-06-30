@@ -1,7 +1,6 @@
 import {
   CalendarDays,
   Package,
-  RefreshCw,
   ScrollText,
   UserRound
 } from "lucide-react";
@@ -23,7 +22,6 @@ type ResourceFillStyle = CSSProperties & { "--resource-fill": string };
 interface SetupPanelProps {
   playerCount: PlayerCount;
   stewardIds: string[];
-  encounterSeed: string;
   declaredVowId?: string;
   selectedGoldenTileId?: string;
   selectedGoldenBoonId?: string;
@@ -33,11 +31,9 @@ interface SetupPanelProps {
   availableGoldenBoons?: GoldenBoonData[];
   onPlayerCountChange: (playerCount: PlayerCount) => void;
   onStewardChange: (seatIndex: number, stewardId: string) => void;
-  onEncounterSeedChange: (seed: string) => void;
   onDeclaredVowChange?: (entryId: string) => void;
   onGoldenTileChange?: (tileId: string) => void;
   onGoldenBoonChange?: (boonId: string) => void;
-  onShuffleSeed: () => void;
   onStart: () => void;
 }
 
@@ -49,7 +45,6 @@ function getResourceFillStyle(value: number): ResourceFillStyle {
 export function SetupPanel({
   playerCount,
   stewardIds,
-  encounterSeed,
   declaredVowId = "",
   selectedGoldenTileId = "",
   selectedGoldenBoonId = "",
@@ -59,11 +54,9 @@ export function SetupPanel({
   availableGoldenBoons = [],
   onPlayerCountChange,
   onStewardChange,
-  onEncounterSeedChange,
   onDeclaredVowChange = () => {},
   onGoldenTileChange = () => {},
   onGoldenBoonChange = () => {},
-  onShuffleSeed,
   onStart
 }: SetupPanelProps) {
   const selectedStewards = stewardIds
@@ -178,20 +171,6 @@ export function SetupPanel({
             ))}
           </div>
 
-          <label className="setup-seed">
-            Randomizer Seed
-            <div>
-              <input
-                value={encounterSeed}
-                onChange={(event) => onEncounterSeedChange(event.target.value)}
-              />
-              <button onClick={onShuffleSeed} type="button">
-                <RefreshCw size={17} />
-                Shuffle
-              </button>
-            </div>
-          </label>
-
           <label className="setup-vow-select">
             Steward’s Ledger Vow
             <select
@@ -292,8 +271,8 @@ export function SetupPanel({
           </div>
           <div className="setup-overview-grid">
             <div className="detail-stack">
-              <strong>Randomizer Seed</strong>
-              <span>{encounterSeed}</span>
+              <strong>Encounter Shuffle</strong>
+              <span>Randomised automatically</span>
             </div>
             <div className="detail-stack">
               <strong>Starting Warehouse</strong>

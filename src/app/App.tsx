@@ -560,7 +560,6 @@ export function App() {
       <SetupPanel
         playerCount={playerCount}
         stewardIds={normalizedStewards}
-        encounterSeed={encounterSeed}
         declaredVowId={declaredVowId}
         selectedGoldenTileId={selectedGoldenTileId}
         selectedGoldenBoonId={selectedGoldenBoonId}
@@ -578,12 +577,12 @@ export function App() {
         )}
         onPlayerCountChange={handlePlayerCountChange}
         onStewardChange={handleStewardChange}
-        onEncounterSeedChange={setEncounterSeed}
         onDeclaredVowChange={setDeclaredVowId}
         onGoldenTileChange={setSelectedGoldenTileId}
         onGoldenBoonChange={setSelectedGoldenBoonId}
-        onShuffleSeed={() => setEncounterSeed(createSetupSeed())}
         onStart={() => {
+          const randomizedSeed = createSetupSeed();
+          setEncounterSeed(randomizedSeed);
           undoStackRef.current = [];
           redoStackRef.current = [];
           setUndoStack([]);
@@ -593,7 +592,7 @@ export function App() {
           setActionMode("place");
           setState(
             createNewGame(playerCount, normalizedStewards, {
-              encounterSeed,
+              encounterSeed: randomizedSeed,
               declaredVowId: declaredVowId || undefined,
               selectedGoldenTileId: selectedGoldenTileId || undefined,
               selectedGoldenBoonId: selectedGoldenBoonId || undefined
