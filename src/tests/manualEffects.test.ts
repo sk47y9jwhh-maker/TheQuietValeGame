@@ -228,6 +228,97 @@ describe("manual effect suggestions", () => {
     expect(suggestion.adjustment?.tileStrainDeltas).toEqual({ tile_cabin: 1 });
   });
 
+  it.each([
+    ["burden_smoke_over_hearths", "c13_workshops", "tile_fallback"],
+    ["burden_wares_of_war", "c14_market_stalls", "tile_fallback"]
+  ])(
+    "uses and resolves the Season III fallback for %s when no Housing target qualifies",
+    (cardId, fallbackTileId, fallbackInstanceId) => {
+      const state = createNewGame(1, ["vanguard"]);
+      state.season = 3;
+      state.map.placedTiles = [
+        coreTile("c05_cabin", "tile_unqualified_housing", "G1"),
+        coreTile(fallbackTileId, fallbackInstanceId, "J1")
+      ];
+      const effectText = getCurrentSeasonCardEffectText({ season: 3 }, cardId);
+      const suggestion = suggestEffectAdjustment(state, effectText);
+
+      expect(getEffectTileTargets(state, effectText).map((tile) => tile.instanceId)).toEqual([
+        fallbackInstanceId
+      ]);
+      expect(suggestion.adjustment?.tileStrainDeltas).toEqual({
+        [fallbackInstanceId]: 1
+      });
+
+      state.pendingEffects = [
+        {
+          id: "effect_fallback",
+          sourceType: "card",
+          sourceId: cardId,
+          sourceName: cardId,
+          title: "Fallback Burden",
+          effectText,
+          suggestedAdjustment: suggestion.adjustment,
+          requiresManualChoice: suggestion.requiresManualChoice
+        }
+      ];
+      const resolved = resolvePendingEffect(state);
+
+      expect(resolved.pendingEffects).toHaveLength(0);
+      expect(
+        resolved.map.placedTiles.find((tile) => tile.instanceId === fallbackInstanceId)?.strain
+      ).toBe(1);
+      expect(
+        resolved.map.placedTiles.find(
+          (tile) => tile.instanceId === "tile_unqualified_housing"
+        )?.strain
+      ).toBe(0);
+    }
+  );
+
+  it("limits a Season III Housing fallback to one Merchant tile", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 3;
+    state.map.placedTiles = [
+      coreTile("c14_market_stalls", "tile_market_1", "G1"),
+      coreTile("c14_market_stalls", "tile_market_2", "I1")
+    ];
+    const effectText = getCurrentSeasonCardEffectText(
+      { season: 3 },
+      "burden_wares_of_war"
+    );
+    const suggestion = suggestEffectAdjustment(state, effectText);
+
+    expect(suggestion.requiresManualChoice).toBe(true);
+    expect(
+      isTileAdjustmentValid(state, effectText, {
+        tileStrainDeltas: { tile_market_1: 1 }
+      })
+    ).toBe(true);
+    expect(
+      isTileAdjustmentValid(state, effectText, {
+        tileStrainDeltas: { tile_market_1: 1, tile_market_2: 1 }
+      })
+    ).toBe(false);
+  });
+
+  it("prepares exact resource losses alongside a Burden's tile choice", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 3;
+    state.map.placedTiles = [
+      coreTile("c13_workshops", "tile_workshops", "G1"),
+      coreTile("c14_market_stalls", "tile_market", "I1")
+    ];
+    const effectText = getCurrentSeasonCardEffectText(
+      { season: 3 },
+      "burden_tools_left_to_rust"
+    );
+    const suggestion = suggestEffectAdjustment(state, effectText);
+
+    expect(suggestion.adjustment?.resourceDeltas).toMatchObject({ metal: -2 });
+    expect(suggestion.requiresManualChoice).toBe(true);
+  });
+
   it("does not turn a not-adjacent Burden condition into a positive adjacency requirement", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.map.placedTiles = [coreTile("c05_cabin", "tile_cabin", "G1")];

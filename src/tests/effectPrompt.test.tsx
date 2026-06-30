@@ -22,7 +22,7 @@ const coreTile = (
 });
 
 describe("effect prompt controls", () => {
-  it("only shows resource rows that the effect can use", () => {
+  it("shows a compact preview instead of controls for a prepared resource effect", () => {
     const state = createNewGame(1, ["vanguard"]);
     const effect: PendingEffectState = {
       id: "effect_1",
@@ -35,10 +35,11 @@ describe("effect prompt controls", () => {
 
     render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
 
-    expect(screen.getByText("Resources")).toBeInTheDocument();
-    expect(screen.getByText("Wood 15")).toBeInTheDocument();
-    expect(screen.queryByText("Stone 15")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Gain 2 Wood");
+    expect(screen.queryByText("Resources")).not.toBeInTheDocument();
+    expect(screen.queryByText("Wood 15")).not.toBeInTheDocument();
     expect(screen.queryByText("Tiles")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
   });
 
   it("does not show controls for a prepared cost modifier acknowledgement", () => {
@@ -54,6 +55,30 @@ describe("effect prompt controls", () => {
     render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
 
     expect(screen.queryByText("Resources")).not.toBeInTheDocument();
+    expect(screen.queryByText("Tiles")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
+  });
+
+  it("names the tile receiving prepared Strain and explains Supported prevention", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const target = coreTile("c05_cabin", "tile_cabin", "G1");
+    target.support.singleUse = true;
+    state.map.placedTiles = [target];
+    const effect: PendingEffectState = {
+      id: "effect_strain_preview",
+      sourceType: "card",
+      sourceId: "burden_smoke_over_hearths",
+      sourceName: "Smoke over Hearths",
+      title: "Revealed Smoke over Hearths",
+      effectText: "Choose 1 Housing Tile and place 1 Strain on it.",
+      suggestedAdjustment: { tileStrainDeltas: { tile_cabin: 1 } }
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(screen.getByLabelText("Effect preview")).toHaveTextContent(
+      "Cabin (G1): +1 Strain — Supported prevents 1"
+    );
     expect(screen.queryByText("Tiles")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
   });

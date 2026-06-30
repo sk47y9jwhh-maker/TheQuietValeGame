@@ -10,13 +10,13 @@ import {
 } from "lucide-react";
 import { encounterById } from "../../data/encounters";
 import { resourceLabels, resources } from "../../data/resources";
-import { EncounterSeasonEffects } from "../common/EncounterSeasonEffects";
 import {
   getBurdenResolutionCurrentText,
   getEncounterTypeLabel
 } from "../common/gameText";
 import {
   getEffectSupportTargets,
+  getActiveEffectText,
   getTileAdjustmentRule,
   getValidEffectStrainTargets,
   getTimerAdjustmentRule,
@@ -164,12 +164,13 @@ export function EffectPrompt({
       : undefined;
   const sourceCardToneClass = sourceCard ? `card-${sourceCard.type}` : "";
   const flavorText = sourceCard?.flavorText;
-  const effectText = effect.effectText.toLowerCase();
-  const timerRule = getTimerAdjustmentRule(effect.effectText);
   const sourceTile =
     effect.sourceType === "tile" && effect.sourceId
       ? state.map.placedTiles.find((tile) => tile.instanceId === effect.sourceId)
       : undefined;
+  const activeEffectText = getActiveEffectText(state, effect.effectText, sourceTile);
+  const effectText = activeEffectText.toLowerCase();
+  const timerRule = getTimerAdjustmentRule(activeEffectText);
   const tileControlData = useMemo(() => {
     const suggestedStrainIds = Object.keys(effect.suggestedAdjustment?.tileStrainDeltas ?? {});
     const suggestedSupportIds = effect.suggestedAdjustment?.supportTileIds ?? [];
@@ -202,8 +203,8 @@ export function EffectPrompt({
   }, [effect.effectText, effect.suggestedAdjustment, sourceTile, state]);
   const tileControlTargets = tileControlData.targets;
   const tileAdjustmentRule = useMemo(
-    () => getTileAdjustmentRule(effect.effectText),
-    [effect.effectText]
+    () => getTileAdjustmentRule(activeEffectText),
+    [activeEffectText]
   );
   const canAdjustTileStrain = Boolean(tileAdjustmentRule.strain);
   const canToggleTileSupport = Boolean(tileAdjustmentRule.support);
@@ -269,13 +270,94 @@ export function EffectPrompt({
       adjustment,
       sourceTile
     );
+  const allowsResourceInsteadOfTile =
+    /\bpay\s+\d+\s+(?:wood|stone|metal|food|herbs|goods)\b/i.test(activeEffectText) &&
+    /\bor\s+place\s+\d+\s+strain\b/i.test(activeEffectText);
+  const missingRequiredTileChoice =
+    Boolean(effect.requiresManualChoice && needsTileChoice) &&
+    Boolean(tileAdjustmentRule.strain || tileAdjustmentRule.support) &&
+    selectedStrainEntries.length === 0 &&
+    supportTileIds.length === 0 &&
+    !allowsResourceInsteadOfTile;
   const cannotApply =
     Boolean(effect.requiresManualChoice && !hasChanges) ||
+    missingRequiredTileChoice ||
     timerInvalid ||
     exchangeInvalid ||
     Boolean(burdenResolveInvalid) ||
     Boolean(wardenReliefInvalid) ||
     tileAdjustmentInvalid;
+  const previewItems = useMemo(() => {
+    const items: string[] = [];
+
+    for (const resource of resources) {
+      const delta = adjustment.resourceDeltas?.[resource] ?? 0;
+      if (delta !== 0) {
+        items.push(
+          `${delta > 0 ? `Gain ${delta}` : `Lose ${Math.abs(delta)}`} ${resourceLabels[resource]}`
+        );
+      }
+    }
+
+    for (const [cardId, delta] of Object.entries(
+      adjustment.arrivalTimerDeltas ?? {}
+    )) {
+      if (delta !== 0) {
+        items.push(
+          `${selectEncounterName(cardId)}: ${delta > 0 ? "+" : ""}${delta} timer`
+        );
+      }
+    }
+
+    for (const [tileId, delta] of Object.entries(adjustment.tileStrainDeltas ?? {})) {
+      if (delta === 0) continue;
+      const tile = state.map.placedTiles.find(
+        (candidate) => candidate.instanceId === tileId
+      );
+      const tileName = tile ? `${selectTileName(tile)} (${tile.hexIds.join(", ")})` : tileId;
+      const supportWillPrevent =
+        delta > 0 &&
+        Boolean(
+          tile &&
+            (tile.support.passive || tile.support.singleUse) &&
+            !tile.support.preventedThisRound
+        );
+      items.push(
+        `${tileName}: ${delta > 0 ? "+" : ""}${delta} Strain${
+          supportWillPrevent ? " — Supported prevents 1" : ""
+        }`
+      );
+    }
+
+    for (const tileId of adjustment.supportTileIds ?? []) {
+      const tile = state.map.placedTiles.find(
+        (candidate) => candidate.instanceId === tileId
+      );
+      items.push(
+        `${tile ? `${selectTileName(tile)} (${tile.hexIds.join(", ")})` : tileId}: gains Supported`
+      );
+    }
+
+    for (const cardId of adjustment.resolvedBurdenIds ?? []) {
+      items.push(`Resolve ${selectEncounterName(cardId)}`);
+    }
+    for (const cardId of adjustment.ignoredBurdenIds ?? []) {
+      items.push(`Ignore ${selectEncounterName(cardId)} this round`);
+    }
+    for (const [playerId, hexId] of Object.entries(adjustment.stewardHexUpdates ?? {})) {
+      const player = state.players.find((candidate) => candidate.id === playerId);
+      items.push(`${player?.name ?? "Steward"} moves to ${hexId}`);
+    }
+    for (const [playerId, hexId] of Object.entries(
+      adjustment.temporaryReachHexUpdates ?? {}
+    )) {
+      const player = state.players.find((candidate) => candidate.id === playerId);
+      items.push(`${player?.name ?? "Steward"} can reach ${hexId}`);
+    }
+
+    return items;
+  }, [adjustment, state.map.placedTiles, state.players]);
+  const isPreparedPreview = !effect.requiresManualChoice && previewItems.length > 0;
 
   function adjustResource(resource: ResourceType, delta: number) {
     setResourceDeltas((current) => ({
@@ -445,9 +527,6 @@ export function EffectPrompt({
         {flavorText && <em>{flavorText}</em>}
         <strong>{effect.effectText}</strong>
         {effect.detailText && <span>{effect.detailText}</span>}
-        {sourceCard && (
-          <EncounterSeasonEffects card={sourceCard} currentSeason={state.season} />
-        )}
       </div>
 
       {canCancelWithWarden && onCancelWithWarden && (
@@ -463,8 +542,21 @@ export function EffectPrompt({
 
       <div className="effect-command-bar">
         <span className={cannotApply ? "effect-choice-waiting" : "effect-choice-ready"}>
-          {cannotApply ? "Complete a valid choice" : "Ready to continue"}
+          {cannotApply
+            ? "Complete a valid choice"
+            : previewItems.length > 0
+              ? "Will apply"
+              : "Ready to continue"}
         </span>
+        {previewItems.length > 0 && (
+          <div className="effect-preview-list" aria-label="Effect preview">
+            {previewItems.map((item, index) => (
+              <span className="effect-preview-item" key={`${item}_${index}`}>
+                {item}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="effect-actions">
           {effect.canSkip && onSkip && (
             <button className="secondary-action" onClick={onSkip} type="button">
@@ -484,7 +576,7 @@ export function EffectPrompt({
         </div>
       </div>
 
-      {showResourceControls && (
+      {showResourceControls && !isPreparedPreview && (
       <section className="effect-control-group">
         <h3>Resources</h3>
         <div className="effect-grid">
@@ -508,7 +600,7 @@ export function EffectPrompt({
       </section>
       )}
 
-      {showTimerControls && (
+      {showTimerControls && !isPreparedPreview && (
         <section className="effect-control-group">
           <h3>Arrival Timers</h3>
           <div className="effect-list">
@@ -545,7 +637,7 @@ export function EffectPrompt({
         </section>
       )}
 
-      {showTileControls && (
+      {showTileControls && !isPreparedPreview && (
         <section className="effect-control-group">
           <div className="effect-control-heading">
             <h3>Tiles</h3>

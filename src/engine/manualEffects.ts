@@ -273,7 +273,7 @@ function getFallbackSplit(effectText: string): {
   fallbackText?: string;
 } {
   const match = effectText.match(
-    /\b(?:if none(?: are valid| is valid)?|if there (?:is|are) no [^.]*|if there are none|if no [^.]*|otherwise)\b/i
+    /\b(?:if none(?: are valid| is valid)?|if there are none|if there is no active arrival)\s*,/i
   );
   if (!match || match.index === undefined) return { primaryText: effectText };
 
@@ -281,6 +281,47 @@ function getFallbackSplit(effectText: string): {
     primaryText: effectText.slice(0, match.index).trim(),
     fallbackText: effectText.slice(match.index + match[0].length).trim()
   };
+}
+
+function hasAdjustmentAction(effectText: string): boolean {
+  return /\b(?:gain|lose|pay|exchange|place|remove|add)\b/i.test(effectText);
+}
+
+function getInheritedFallbackAction(primaryText: string): string | undefined {
+  const sentences = primaryText.match(/[^.]+\.?/g) ?? [];
+  return sentences
+    .map((sentence) => sentence.trim())
+    .reverse()
+    .find((sentence) =>
+      /\b(?:gain|lose|pay|exchange|place|remove|add)\b/i.test(sentence)
+    );
+}
+
+/**
+ * Returns the instruction branch that is live in the current board state. Some
+ * cards print a target-only fallback ("choose 1 Merchant Tile instead"), so the
+ * primary branch's action is inherited when the fallback does not repeat it.
+ */
+export function getActiveEffectText(
+  state: GameState,
+  effectText: string,
+  sourceTile?: PlacedTile
+): string {
+  const { primaryText, fallbackText } = getFallbackSplit(effectText);
+  if (!fallbackText) return effectText;
+
+  const primary = getTileTargetsForText(state, primaryText, sourceTile);
+  const primaryMentionsArrivals = primaryText.toLowerCase().includes("active arrival");
+  const shouldUseFallback =
+    (primary.hasTileTarget && primary.targets.length === 0) ||
+    (primaryMentionsArrivals && state.encounters.activeArrivals.length === 0);
+  if (!shouldUseFallback) return primaryText;
+
+  if (/\bno effect\b/i.test(fallbackText) || hasAdjustmentAction(fallbackText)) {
+    return fallbackText;
+  }
+  const inheritedAction = getInheritedFallbackAction(primaryText);
+  return inheritedAction ? `${fallbackText} ${inheritedAction}` : fallbackText;
 }
 
 function hasTileTargetLanguage(effectText: string): boolean {
@@ -397,28 +438,11 @@ export function getEffectTileTargets(
   effectText: string,
   sourceTile?: PlacedTile
 ): PlacedTile[] {
-  const { primaryText, fallbackText } = getFallbackSplit(effectText);
-  if (/steward-occupied\s+tiles?/i.test(primaryText)) {
+  const activeText = getActiveEffectText(state, effectText, sourceTile);
+  if (/steward-occupied\s+tiles?/i.test(activeText)) {
     return getStewardOccupiedTileTargets(state);
   }
-
-  const primary = getTileTargetsForText(state, primaryText, sourceTile);
-  const primaryMentionsArrivals = primaryText.toLowerCase().includes("active arrival");
-
-  if (primary.hasTileTarget && primary.targets.length > 0) {
-    return primary.targets;
-  }
-
-  if (
-    fallbackText &&
-    ((primary.hasTileTarget && primary.targets.length === 0) ||
-      (primaryMentionsArrivals && state.encounters.activeArrivals.length === 0))
-  ) {
-    const fallback = getTileTargetsForText(state, fallbackText, sourceTile);
-    if (fallback.hasTileTarget) return fallback.targets;
-  }
-
-  return primary.targets;
+  return getTileTargetsForText(state, activeText, sourceTile).targets;
 }
 
 function uniqueTiles(tiles: PlacedTile[]): PlacedTile[] {
@@ -570,7 +594,8 @@ export function getValidEffectStrainTargets(
   effectText: string,
   sourceTile?: PlacedTile
 ): PlacedTile[] {
-  const rule = getTileAdjustmentRule(effectText).strain;
+  const activeText = getActiveEffectText(state, effectText, sourceTile);
+  const rule = getTileAdjustmentRule(activeText).strain;
   const targets = getEffectTileTargets(state, effectText, sourceTile);
   if (!rule) return [];
   return targets.filter((tile) =>
@@ -584,7 +609,8 @@ export function isTileAdjustmentValid(
   adjustment: EffectAdjustment,
   sourceTile?: PlacedTile
 ): boolean {
-  const rule = getTileAdjustmentRule(effectText);
+  const activeText = getActiveEffectText(state, effectText, sourceTile);
+  const rule = getTileAdjustmentRule(activeText);
   const strainEntries = Object.entries(adjustment.tileStrainDeltas ?? {}).filter(
     ([, delta]) => delta !== 0
   );
@@ -628,12 +654,13 @@ function isResolveActiveBurdenEffect(effectText: string): boolean {
   return /resolve\s+1\s+active\s+burden/i.test(effectText);
 }
 
-function parseExactResourceGain(effectText: string): Partial<Record<ResourceType, number>> {
+function parseExactResourceDeltas(
+  state: GameState,
+  effectText: string
+): Partial<Record<ResourceType, number>> {
   const lower = effectText.toLowerCase();
   if (
-    !lower.includes("gain") ||
-    lower.includes(" or ") ||
-    lower.includes("and/or") ||
+    (!lower.includes("gain") && !lower.includes("lose")) ||
     lower.includes("for each") ||
     lower.includes("same number") ||
     lower.includes("any type") ||
@@ -643,11 +670,33 @@ function parseExactResourceGain(effectText: string): Partial<Record<ResourceType
   }
 
   const deltas: Partial<Record<ResourceType, number>> = {};
-  const matches = effectText.matchAll(/(\d+)\s+(Wood|Stone|Metal|Food|Herbs|Goods)/gi);
-  for (const match of matches) {
-    const amount = Number(match[1]);
-    const resource = match[2].toLowerCase() as ResourceType;
-    deltas[resource] = (deltas[resource] ?? 0) + amount;
+  const ambiguousResourceChoice = new RegExp(
+    `\\b(?:${resources.join("|")})\\s+(?:or|and/or)\\s+(?:${resources.join("|")})\\b`,
+    "i"
+  );
+  if (ambiguousResourceChoice.test(effectText)) return {};
+
+  const actionMatches = [...effectText.matchAll(/\b(gain|lose)\b/gi)];
+  for (const [index, actionMatch] of actionMatches.entries()) {
+    const start = actionMatch.index ?? 0;
+    const nextActionIndex = actionMatches[index + 1]?.index ?? effectText.length;
+    const sentenceEnd = effectText.indexOf(".", start);
+    const end = Math.min(
+      nextActionIndex,
+      sentenceEnd >= 0 ? sentenceEnd : effectText.length
+    );
+    const actionText = effectText.slice(start, end);
+    const direction = actionMatch[1].toLowerCase() === "gain" ? 1 : -1;
+    const resourceMatches = actionText.matchAll(
+      /(\d+)\s+(Wood|Stone|Metal|Food|Herbs|Goods)\b/gi
+    );
+    for (const match of resourceMatches) {
+      const amount = Number(match[1]);
+      const resource = match[2].toLowerCase() as ResourceType;
+      const delta =
+        direction > 0 ? amount : -Math.min(amount, state.warehouse[resource]);
+      deltas[resource] = (deltas[resource] ?? 0) + delta;
+    }
   }
 
   return deltas;
@@ -900,24 +949,25 @@ export function suggestEffectAdjustment(
   effectText: string,
   sourceTile?: PlacedTile
 ): { adjustment?: EffectAdjustment; requiresManualChoice?: boolean } {
+  const activeText = getActiveEffectText(state, effectText, sourceTile);
   const adjustment = mergeEffectAdjustment(
-    { resourceDeltas: parseExactResourceGain(effectText) },
-    parseTimerSuggestion(state, effectText)
+    { resourceDeltas: parseExactResourceDeltas(state, activeText) },
+    parseTimerSuggestion(state, activeText)
   );
   const withStrain = mergeEffectAdjustment(
     adjustment,
-    parseStrainSuggestion(state, effectText, sourceTile)
+    parseStrainSuggestion(state, activeText, sourceTile)
   );
   const withSupported = mergeEffectAdjustment(
     withStrain,
-    parseSupportedSuggestion(state, effectText, sourceTile)
+    parseSupportedSuggestion(state, activeText, sourceTile)
   );
   const withResolvedBurden = mergeEffectAdjustment(
     withSupported,
-    parseResolvedBurdenSuggestion(state, effectText)
+    parseResolvedBurdenSuggestion(state, activeText)
   );
-  const lower = effectText.toLowerCase();
-  const timerRule = getTimerAdjustmentRule(effectText);
+  const lower = activeText.toLowerCase();
+  const timerRule = getTimerAdjustmentRule(activeText);
   const timerTargetCount =
     timerRule?.direction === "add"
       ? state.encounters.activeArrivals.filter((arrival) => arrival.timerTokens < 3).length
@@ -926,13 +976,13 @@ export function suggestEffectAdjustment(
     Boolean(timerRule) && lower.includes("timer") && timerTargetCount > 1;
   const hasMultipleStrainTargets =
     lower.includes("strain") &&
-    getValidEffectStrainTargets(state, effectText, sourceTile).length > 1;
+    getValidEffectStrainTargets(state, activeText, sourceTile).length > 1;
   const hasMultipleSupportedTargets =
     lower.includes("supported") &&
-    getEffectSupportTargets(state, effectText, sourceTile).length > 1;
+    getEffectSupportTargets(state, activeText, sourceTile).length > 1;
   const hasMultipleResolvedBurdenTargets =
-    isResolveActiveBurdenEffect(effectText) && state.encounters.activeBurdens.length > 1;
-  const hasPaymentOrStrainChoice = effectHasPaymentOrStrainChoice(effectText);
+    isResolveActiveBurdenEffect(activeText) && state.encounters.activeBurdens.length > 1;
+  const hasPaymentOrStrainChoice = effectHasPaymentOrStrainChoice(activeText);
   const finalAdjustment = hasPaymentOrStrainChoice
     ? omitTileStrainDeltas(withResolvedBurden)
     : withResolvedBurden;
@@ -940,13 +990,13 @@ export function suggestEffectAdjustment(
   return {
     adjustment: hasEffectAdjustment(finalAdjustment) ? finalAdjustment : undefined,
     requiresManualChoice:
-      !effectHasNoValidChoiceTargets(state, effectText, sourceTile) &&
-      (effectTextNeedsManualChoice(effectText) ||
-        hasMultipleTimerTargets ||
+      !effectHasNoValidChoiceTargets(state, activeText, sourceTile) &&
+      (hasMultipleTimerTargets ||
         hasMultipleStrainTargets ||
         hasMultipleSupportedTargets ||
-        hasMultipleResolvedBurdenTargets) &&
-      (!hasEffectAdjustment(finalAdjustment) || hasPaymentOrStrainChoice)
+        hasMultipleResolvedBurdenTargets ||
+        (effectTextNeedsManualChoice(activeText) &&
+          (!hasEffectAdjustment(finalAdjustment) || hasPaymentOrStrainChoice)))
   };
 }
 
