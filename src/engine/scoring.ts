@@ -1,4 +1,4 @@
-import { mapById, mapColumns } from "../data/map";
+import { mapById, mapColumns, terrainLabels } from "../data/map";
 import { stewardById } from "../data/stewards";
 import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
@@ -156,22 +156,52 @@ function hasBridgeConnectedRiverObjective(tiles: PlacedTile[]): boolean {
   });
 }
 
-export function scoreStewardObjectives(state: GameState): number {
+export interface StewardObjectiveProgress {
+  playerId: string;
+  playerName: string;
+  stewardId: string;
+  stewardName: string;
+  objectiveText: string;
+  reward: number;
+  met: boolean;
+  current: number;
+  target: number;
+  progressLabel: string;
+  detail: string;
+}
+
+export function evaluateStewardObjectives(state: GameState): StewardObjectiveProgress[] {
   const eligibleTiles = state.map.placedTiles.filter((tile) => tile.strain < 3);
 
-  return state.players.reduce((total, player) => {
+  return state.players.flatMap((player) => {
     const steward = stewardById[player.stewardId];
-    if (!steward) return total;
+    if (!steward) return [];
 
+    let current = 0;
+    let target = 1;
     let met = false;
+    let progressLabel = "Not yet complete";
+    let detail = "This condition is checked against the current settlement.";
+
     if (player.stewardId === "vanguard") {
       met = hasBridgeConnectedRiverObjective(eligibleTiles);
+      current = met ? 1 : 0;
+      progressLabel = met ? "Crossing connected" : "Crossing not yet connected";
+      detail = "Place a Bridge with eligible settlement tiles connected on both river sides.";
     } else if (player.stewardId === "knight") {
-      met = largestHousingClusterSize(eligibleTiles) >= 3;
+      current = largestHousingClusterSize(eligibleTiles);
+      target = 3;
+      met = current >= target;
+      progressLabel = `${current}/${target} Housing in the largest cluster`;
+      detail = "Only non-Overstrained Housing Tiles count toward the cluster.";
     } else if (player.stewardId === "sentinel") {
-      met =
-        eligibleTiles.filter((tile) => tile.kind === "core" && tile.side === "upgraded")
-          .length >= 5;
+      current = eligibleTiles.filter(
+        (tile) => tile.kind === "core" && tile.side === "upgraded"
+      ).length;
+      target = 5;
+      met = current >= target;
+      progressLabel = `${current}/${target} upgraded Core Tiles`;
+      detail = "Overstrained upgrades do not count.";
     } else if (player.stewardId === "ranger") {
       const terrainTypes = new Set(
         eligibleTiles
@@ -179,15 +209,50 @@ export function scoreStewardObjectives(state: GameState): number {
           .map((hexId) => mapById[hexId]?.terrain)
           .filter((terrain) => terrain && terrain !== "grasslands" && terrain !== "water")
       );
-      met = terrainTypes.size >= 3;
+      current = terrainTypes.size;
+      target = 3;
+      met = current >= target;
+      progressLabel = `${current}/${target} qualifying terrain types`;
+      detail = terrainTypes.size
+        ? `Present: ${[...terrainTypes].map((terrain) => terrainLabels[terrain]).join(", ")}.`
+        : "Build on non-Grasslands, non-River terrain.";
     } else if (player.stewardId === "warden") {
-      met = state.encounters.activeBurdens.length === 0;
+      const activeBurdens = state.encounters.activeBurdens.length;
+      met = activeBurdens === 0;
+      current = met ? 1 : 0;
+      progressLabel = met ? "No active Burdens" : `${activeBurdens} active Burden${activeBurdens === 1 ? "" : "s"}`;
+      detail = met ? "The settlement is currently clear." : "Resolve every active Burden before final scoring.";
     } else if (player.stewardId === "quartermaster") {
-      met = Object.values(state.warehouse).filter((amount) => amount >= 5).length >= 3;
+      current = Object.values(state.warehouse).filter((amount) => amount >= 5).length;
+      target = 3;
+      met = current >= target;
+      progressLabel = `${current}/${target} resource types at 5+`;
+      detail = "The Warehouse condition is checked at final scoring.";
     }
 
-    return met ? total + steward.objectiveRenown : total;
-  }, 0);
+    return [
+      {
+        playerId: player.id,
+        playerName: player.name,
+        stewardId: player.stewardId,
+        stewardName: steward.name,
+        objectiveText: steward.objectiveText,
+        reward: steward.objectiveRenown,
+        met,
+        current,
+        target,
+        progressLabel,
+        detail
+      }
+    ];
+  });
+}
+
+export function scoreStewardObjectives(state: GameState): number {
+  return evaluateStewardObjectives(state).reduce(
+    (total, objective) => total + (objective.met ? objective.reward : 0),
+    0
+  );
 }
 
 export function calculateFinalScore(state: GameState) {

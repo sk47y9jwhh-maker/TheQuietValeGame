@@ -6,6 +6,7 @@ import { getDefaultPlaceTileId } from "../components/actions/placeTileChoices";
 import { placeTile } from "../engine/gameActions";
 import { createNewGame } from "../engine/setup";
 import type { ComponentProps } from "react";
+import { createEmptyLedgerCampaign } from "../app/ledgerPersistence";
 
 function renderActionConsole(
   overrides: Partial<ComponentProps<typeof ActionConsole>> = {}
@@ -43,6 +44,22 @@ function renderActionConsole(
 }
 
 describe("action console", () => {
+  it("reviews and records eligible Ledger entries at game end", () => {
+    const state = { ...createNewGame(1, ["warden"]), phase: "gameEnd" as const };
+    const onRecordLedgerGame = vi.fn();
+
+    renderActionConsole({
+      state,
+      ledgerCampaign: createEmptyLedgerCampaign(),
+      onRecordLedgerGame
+    });
+
+    expect(screen.getByRole("heading", { name: "Ledger review" })).toBeInTheDocument();
+    expect(screen.getByText(/eligible Ledger Entries completed/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Record Completed Game" }));
+    expect(onRecordLedgerGame).toHaveBeenCalledOnce();
+  });
+
   it("keeps the current Steward Power status visible during the turn", () => {
     const onModeChange = vi.fn();
 

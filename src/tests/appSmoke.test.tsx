@@ -28,6 +28,21 @@ describe("app smoke flow", () => {
     expect(screen.getByRole("button", { name: /confirm vanguard start/i })).toBeEnabled();
   });
 
+  it("declares one available Ledger Vow before setup", () => {
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText("Steward's Ledger Vow"), {
+      target: { value: "LE-029" }
+    });
+    expect(screen.getByText(/No Arrival may expire/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
+
+    const saved = JSON.parse(
+      window.localStorage.getItem("quietVale.activeGame.v1") ?? "{}"
+    );
+    expect(saved.state.ledgerRun.declaredVowId).toBe("LE-029");
+  });
+
   it("confirms the solo Steward start and shows the seeding screen", () => {
     render(<App />);
 

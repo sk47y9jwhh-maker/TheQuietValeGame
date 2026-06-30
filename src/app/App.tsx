@@ -24,6 +24,7 @@ import { SeedingPanel } from "../components/seeding/SeedingPanel";
 import { SetupPanel } from "../components/setup/SetupPanel";
 import { StewardPlacementPanel } from "../components/setup/StewardPlacementPanel";
 import { stewards } from "../data/stewards";
+import { ledgerEntries } from "../data/ledger";
 import { coreTiles } from "../data/tiles";
 import {
   activateTile,
@@ -51,6 +52,7 @@ import { resolvePendingEffect, skipPendingEffect } from "../engine/manualEffects
 import { getTileFootprintKind } from "../engine/placementRules";
 import { getPlacedTileAtHex } from "../engine/reachability";
 import { createNewGame } from "../engine/setup";
+import { recordLedgerGame, trackLedgerTransition } from "../engine/ledger";
 import { selectCurrentPlayer, selectTileName } from "../engine/selectors";
 import type { GameState, HexDirection, PlayerCount, TilePlacementDraft } from "../engine/types";
 import {
@@ -64,6 +66,13 @@ import {
   writeSavedGame,
   writeSavedSetup
 } from "./persistence";
+import {
+  clearLedgerCampaign,
+  countCompletedLedgerEntries,
+  createEmptyLedgerCampaign,
+  readLedgerCampaign,
+  writeLedgerCampaign
+} from "./ledgerPersistence";
 
 function createSetupSeed(): string {
   return `QV-${Date.now().toString(36).slice(-6).toUpperCase()}`;
@@ -201,6 +210,10 @@ export function App() {
   const [encounterSeed, setEncounterSeed] = useState(
     initialSavedGame?.encounterSeed ?? initialSavedSetup?.encounterSeed ?? createSetupSeed
   );
+  const [declaredVowId, setDeclaredVowId] = useState(
+    initialSavedGame?.declaredVowId ?? initialSavedSetup?.declaredVowId ?? ""
+  );
+  const [ledgerCampaign, setLedgerCampaign] = useState(readLedgerCampaign);
   const [state, setState] = useState<GameState | null>(initialSavedGame?.state ?? null);
   const [undoStack, setUndoStack] = useState<GameState[]>([]);
   const [redoStack, setRedoStack] = useState<GameState[]>([]);
@@ -251,6 +264,7 @@ export function App() {
         playerCount,
         stewardIds: normalizedStewards,
         encounterSeed,
+        declaredVowId: state.ledgerRun?.declaredVowId,
         state
       });
       return;
@@ -259,10 +273,11 @@ export function App() {
     writeSavedSetup({
       playerCount,
       stewardIds: normalizedStewards,
-      encounterSeed
+      encounterSeed,
+      declaredVowId: declaredVowId || undefined
     });
     clearSavedGame();
-  }, [encounterSeed, normalizedStewards, playerCount, state]);
+  }, [declaredVowId, encounterSeed, normalizedStewards, playerCount, state]);
 
   const pushUndoSnapshot = useCallback((previousState: GameState) => {
     setUndoStack((current) => {
@@ -283,8 +298,9 @@ export function App() {
       options: { undoable?: boolean } = {}
     ) => {
       if (nextState === previousState) return;
+      const trackedState = trackLedgerTransition(previousState, nextState);
       if (options.undoable !== false) pushUndoSnapshot(previousState);
-      setState(nextState);
+      setState(trackedState);
     },
     [pushUndoSnapshot]
   );
@@ -298,8 +314,9 @@ export function App() {
         if (!current) return current;
         const nextState = updater(current);
         if (nextState === current) return current;
+        const trackedState = trackLedgerTransition(current, nextState);
         if (options.undoable !== false) pushUndoSnapshot(current);
-        return nextState;
+        return trackedState;
       });
     },
     [pushUndoSnapshot]
@@ -392,11 +409,31 @@ export function App() {
     setPlayerCount(1);
     setStewardIds(stewards.slice(0, 1).map((steward) => steward.id));
     setEncounterSeed(createSetupSeed());
+    setDeclaredVowId("");
     setSelectedHexIds([]);
     setSelectedTileId(coreTiles[0].id);
     setPlacementOrientation(3);
     setActionMode("place");
     setMapContextMenu(null);
+  }
+
+  function handleRecordLedgerGame() {
+    if (!state || state.phase !== "gameEnd") return;
+    const result = recordLedgerGame(state, ledgerCampaign);
+    if (result.campaign === ledgerCampaign) return;
+    setLedgerCampaign(result.campaign);
+    writeLedgerCampaign(result.campaign);
+    stateRef.current = result.state;
+    setState(result.state);
+  }
+
+  function handleResetLedgerCampaign() {
+    const confirmed = window.confirm(
+      "Reset all Steward's Ledger progress? This clears completed entries, prestige records, Golden unlocks, and campaign history. Your current game will not be reset."
+    );
+    if (!confirmed) return;
+    clearLedgerCampaign();
+    setLedgerCampaign(createEmptyLedgerCampaign());
   }
 
   function handlePlayerCountChange(nextCount: PlayerCount) {
@@ -489,9 +526,17 @@ export function App() {
         playerCount={playerCount}
         stewardIds={normalizedStewards}
         encounterSeed={encounterSeed}
+        declaredVowId={declaredVowId}
+        completedLedgerCount={countCompletedLedgerEntries(ledgerCampaign)}
+        availableVows={ledgerEntries.filter(
+          (entry) =>
+            entry.declaredVow &&
+            countCompletedLedgerEntries(ledgerCampaign) >= entry.unlockAt
+        )}
         onPlayerCountChange={handlePlayerCountChange}
         onStewardChange={handleStewardChange}
         onEncounterSeedChange={setEncounterSeed}
+        onDeclaredVowChange={setDeclaredVowId}
         onShuffleSeed={() => setEncounterSeed(createSetupSeed())}
         onStart={() => {
           undoStackRef.current = [];
@@ -503,7 +548,8 @@ export function App() {
           setActionMode("place");
           setState(
             createNewGame(playerCount, normalizedStewards, {
-              encounterSeed
+              encounterSeed,
+              declaredVowId: declaredVowId || undefined
             })
           );
         }}
@@ -769,6 +815,8 @@ export function App() {
       <main className="command-table">
         <ActionConsole
           state={state}
+          ledgerCampaign={ledgerCampaign}
+          onRecordLedgerGame={handleRecordLedgerGame}
           selectedTileId={selectedTileId}
           selectedHexIds={selectedHexIds}
           placementOrientation={placementOrientation}
@@ -967,7 +1015,12 @@ export function App() {
         tileId={inspectedTileId}
         onClose={closeTileInspector}
       />
-      <BottomDrawer state={state} onTileInspect={inspectTileDefinition} />
+      <BottomDrawer
+        state={state}
+        ledgerCampaign={ledgerCampaign}
+        onResetLedgerCampaign={handleResetLedgerCampaign}
+        onTileInspect={inspectTileDefinition}
+      />
     </div>
   );
 }

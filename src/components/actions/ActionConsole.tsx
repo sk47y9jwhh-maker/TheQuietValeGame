@@ -31,6 +31,8 @@ import {
   getLegalPlacementHexes
 } from "../../engine/placementRules";
 import { calculateFinalScore } from "../../engine/scoring";
+import { evaluateLedgerEntries, getLedgerRun } from "../../engine/ledger";
+import type { LedgerCampaign } from "../../app/ledgerPersistence";
 import {
   selectCurrentPlayer,
   selectEncounterName,
@@ -68,6 +70,8 @@ interface ActionConsoleProps {
   onReveal: () => void;
   onEndTurn: () => void;
   onEndRound: () => void;
+  ledgerCampaign?: LedgerCampaign;
+  onRecordLedgerGame?: () => void;
 }
 
 const actions = [
@@ -127,9 +131,27 @@ export function ActionConsole({
   onSkipPendingEffect,
   onReveal,
   onEndTurn,
-  onEndRound
+  onEndRound,
+  ledgerCampaign,
+  onRecordLedgerGame
 }: ActionConsoleProps) {
   const currentPlayer = selectCurrentPlayer(state);
+  const ledgerRun = getLedgerRun(state);
+  const ledgerAchievements = ledgerCampaign
+    ? evaluateLedgerEntries(state, ledgerCampaign).filter(
+        (evaluation) => evaluation.eligible && evaluation.met
+      )
+    : [];
+  const newLedgerAchievements = ledgerAchievements.filter(
+    (evaluation) => {
+      const completion = ledgerCampaign?.completions[evaluation.entry.id];
+      return (
+        !completion ||
+        (evaluation.entry.playerCountPrestige &&
+          !completion.completedPlayerCounts?.includes(state.playerCount))
+      );
+    }
+  );
   const placementDraft: TilePlacementDraft = {
     anchorHexId: selectedHexIds[0],
     orientation: placementOrientation,
@@ -299,6 +321,38 @@ export function ActionConsole({
           <span>Strain Penalty -{finalScore.strainPenalty}</span>
           <strong>Final Score {finalScore.finalScore}</strong>
         </div>
+        {ledgerCampaign && (
+          <section className="ledger-end-review">
+            <div className="ledger-end-review-heading">
+              <div>
+                <p className="eyebrow">Steward’s Ledger</p>
+                <h3>{ledgerRun.recorded ? "Game recorded" : "Ledger review"}</h3>
+              </div>
+              <strong>{newLedgerAchievements.length} new records</strong>
+            </div>
+            <p>
+              {ledgerAchievements.length} eligible Ledger {ledgerAchievements.length === 1 ? "Entry" : "Entries"} completed this game.
+            </p>
+            {newLedgerAchievements.length > 0 && (
+              <div className="ledger-end-entry-list">
+                {newLedgerAchievements.map((evaluation) => (
+                  <span key={evaluation.entry.id}>
+                    <small>{evaluation.entry.id}</small>
+                    <strong>{evaluation.entry.name}</strong>
+                  </span>
+                ))}
+              </div>
+            )}
+            <button
+              className="primary-action"
+              disabled={ledgerRun.recorded}
+              onClick={onRecordLedgerGame}
+              type="button"
+            >
+              {ledgerRun.recorded ? "Recorded in Ledger" : "Record Completed Game"}
+            </button>
+          </section>
+        )}
       </aside>
     );
   }

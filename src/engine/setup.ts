@@ -3,6 +3,7 @@ import { createWarehouse } from "../data/resources";
 import { stewards } from "../data/stewards";
 import { coreTiles, specialTiles } from "../data/tiles";
 import { getSeasonForRound } from "./season";
+import { createLedgerRunState } from "./ledger";
 import type {
   GameState,
   PlayerCount,
@@ -23,7 +24,9 @@ interface EncounterSetupOptions {
   encounterSeed?: string;
 }
 
-interface NewGameOptions extends EncounterSetupOptions {}
+interface NewGameOptions extends EncounterSetupOptions {
+  declaredVowId?: string;
+}
 
 export function getStartingWarehouseAmount(playerCount: PlayerCount): number {
   return startingWarehouseByPlayerCount[playerCount];
@@ -158,6 +161,7 @@ export function createNewGame(
     players.map((player) => player.id),
     options
   );
+  const startingWarehouse = createWarehouse(getStartingWarehouseAmount(playerCount));
 
   return {
     playerCount,
@@ -169,7 +173,7 @@ export function createNewGame(
     actionsRemaining: 4,
     playersActedThisRound: [],
     seasonSeededPlayerIds: [],
-    warehouse: createWarehouse(getStartingWarehouseAmount(playerCount)),
+    warehouse: startingWarehouse,
     map: { placedTiles: [] },
     tileSupply: createTileSupply(),
     encounters: {
@@ -188,6 +192,7 @@ export function createNewGame(
     pendingEffects: [],
     pendingDeckReorder: null,
     pendingCostChoice: null,
+    ledgerRun: createLedgerRunState(startingWarehouse, options.declaredVowId),
     log: [
       {
         id: "log_setup",

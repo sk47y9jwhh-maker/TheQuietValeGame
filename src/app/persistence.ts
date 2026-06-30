@@ -10,6 +10,7 @@ export interface SavedSetup {
   playerCount: PlayerCount;
   stewardIds: string[];
   encounterSeed: string;
+  declaredVowId?: string;
 }
 
 export interface SavedGame extends SavedSetup {

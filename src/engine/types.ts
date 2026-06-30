@@ -328,6 +328,30 @@ export interface TileActivationRecord {
   season?: Season;
 }
 
+export interface LedgerSeasonSnapshot {
+  activeBurdens: number;
+  overstrainedTiles: number;
+  arrivalsCompleted: number;
+  burdensResolved: number;
+}
+
+export interface LedgerRunState {
+  gameId: string;
+  declaredVowId?: string;
+  recorded: boolean;
+  arrivalsRevealed: number;
+  arrivalsCompleted: number;
+  arrivalsExpired: number;
+  burdensRevealed: number;
+  burdensResolved: number;
+  arrivalsCompletedBySeason: Record<Season, number>;
+  burdensResolvedBySeason: Record<Season, number>;
+  strainPreventedBySupported: number;
+  warehousePeakByResource: WarehouseState;
+  seasonSnapshots: Partial<Record<Season, LedgerSeasonSnapshot>>;
+  violatedVowReasons: string[];
+}
+
 export interface GameState {
   playerCount: PlayerCount;
   players: PlayerState[];
@@ -348,6 +372,7 @@ export interface GameState {
   pendingEffects: PendingEffectState[];
   pendingDeckReorder: PendingDeckReorderState | null;
   pendingCostChoice: PendingCostChoiceState | null;
+  ledgerRun?: LedgerRunState;
   log: LogEntry[];
 }
 

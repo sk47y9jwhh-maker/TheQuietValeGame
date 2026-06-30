@@ -10,6 +10,7 @@ import { getStartingWarehouseAmount } from "../../engine/setup";
 import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { stewardById, stewards } from "../../data/stewards";
 import { terrainLabels } from "../../data/map";
+import type { LedgerEntry } from "../../data/ledger";
 import type { PlayerCount } from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
 
@@ -19,9 +20,13 @@ interface SetupPanelProps {
   playerCount: PlayerCount;
   stewardIds: string[];
   encounterSeed: string;
+  declaredVowId?: string;
+  completedLedgerCount?: number;
+  availableVows?: LedgerEntry[];
   onPlayerCountChange: (playerCount: PlayerCount) => void;
   onStewardChange: (seatIndex: number, stewardId: string) => void;
   onEncounterSeedChange: (seed: string) => void;
+  onDeclaredVowChange?: (entryId: string) => void;
   onShuffleSeed: () => void;
   onStart: () => void;
 }
@@ -35,9 +40,13 @@ export function SetupPanel({
   playerCount,
   stewardIds,
   encounterSeed,
+  declaredVowId = "",
+  completedLedgerCount = 0,
+  availableVows = [],
   onPlayerCountChange,
   onStewardChange,
   onEncounterSeedChange,
+  onDeclaredVowChange = () => {},
   onShuffleSeed,
   onStart
 }: SetupPanelProps) {
@@ -47,6 +56,7 @@ export function SetupPanel({
     .filter(Boolean);
   const startingResources = getStartingWarehouseAmount(playerCount);
   const playerLabel = `${playerCount} Player${playerCount === 1 ? "" : "s"}`;
+  const declaredVow = availableVows.find((entry) => entry.id === declaredVowId);
 
   return (
     <div className="app-shell setup-shell">
@@ -158,6 +168,27 @@ export function SetupPanel({
                 Shuffle
               </button>
             </div>
+          </label>
+
+          <label className="setup-vow-select">
+            Steward’s Ledger Vow
+            <select
+              aria-label="Steward's Ledger Vow"
+              value={declaredVowId}
+              onChange={(event) => onDeclaredVowChange(event.target.value)}
+            >
+              <option value="">No Vow this game</option>
+              {availableVows.map((entry) => (
+                <option key={entry.id} value={entry.id}>
+                  {entry.name}
+                </option>
+              ))}
+            </select>
+            <small>
+              {declaredVow
+                ? declaredVow.requirement
+                : `Optional · one Vow per game · ${completedLedgerCount}/50 entries complete`}
+            </small>
           </label>
 
           <button className="primary-action" onClick={onStart} type="button">
