@@ -39,6 +39,7 @@ import { queueGoldenBoonResolution } from "./golden";
 import {
   applyCostChoice,
   getPassiveCostOptions,
+  findAffordableCostSelection,
   recordPassiveCostChoices,
   validateCostChoiceSelection
 } from "./passiveCosts";
@@ -129,9 +130,9 @@ function isInsufficientResourceReason(reason: string): boolean {
 function canPayNowOrWithPassiveOptions(
   state: GameState,
   cost: ResourceCost,
-  optionsCount: number
+  options: PassiveCostOption[]
 ): boolean {
-  return canAfford(state.warehouse, cost) || optionsCount > 0;
+  return Boolean(findAffordableCostSelection(state, cost, options));
 }
 
 function queueCostChoice(
@@ -1005,7 +1006,7 @@ export function canStartPlaceTile(
     cost: actionPreview.cost
   });
 
-  if (!canPayNowOrWithPassiveOptions(state, actionPreview.cost, options.length)) {
+  if (!canPayNowOrWithPassiveOptions(state, actionPreview.cost, options)) {
     for (const missing of resources
       .filter((resource) => state.warehouse[resource] < actionPreview.cost[resource])
       .map((resource) => `${actionPreview.cost[resource] - state.warehouse[resource]} ${resource}`)) {
@@ -1247,7 +1248,7 @@ export function canStartUpgradeTile(
     targetTile: tile,
     cost: actionPreview.cost
   });
-  if (!canPayNowOrWithPassiveOptions(state, actionPreview.cost, options.length)) {
+  if (!canPayNowOrWithPassiveOptions(state, actionPreview.cost, options)) {
     for (const missing of resources
       .filter((resource) => state.warehouse[resource] < actionPreview.cost[resource])
       .map((resource) => `${actionPreview.cost[resource] - state.warehouse[resource]} ${resource}`)) {
@@ -1459,7 +1460,7 @@ export function canCompleteArrival(
     playerId: state.currentPlayerId,
     cost
   });
-  if (!canPayNowOrWithPassiveOptions(state, cost, options.length)) {
+  if (!canPayNowOrWithPassiveOptions(state, cost, options)) {
     const missing = resources
       .filter((resource) => state.warehouse[resource] < cost[resource])
       .map((resource) => `${cost[resource] - state.warehouse[resource]} ${resource}`);
@@ -2098,7 +2099,7 @@ export function canResolveBurden(
     cost
   });
 
-  if (!canPayNowOrWithPassiveOptions(state, cost, options.length)) {
+  if (!canPayNowOrWithPassiveOptions(state, cost, options)) {
     const missing = resources
       .filter((resource) => state.warehouse[resource] < cost[resource])
       .map((resource) => `${cost[resource] - state.warehouse[resource]} ${resource}`);

@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
   effectHasNoValidChoiceTargets,
+  getActiveEffectText,
+  getAlternativeEffectRule,
   getCurrentSeasonCardEffectText,
   getEffectSupportTargets,
   getEffectTileTargets,
   getTileAdjustmentRule,
+  getTimerAdjustmentRule,
   isTileAdjustmentValid,
+  isAlternativeEffectAdjustmentValid,
   isTimerAdjustmentValid,
   resolvePendingEffect,
   skipPendingEffect,
@@ -351,6 +355,232 @@ describe("manual effect suggestions", () => {
     expect(suggestion.adjustment).toBeUndefined();
     expect(suggestion.requiresManualChoice).toBe(true);
   });
+
+  it("requires every pay-or-strain outcome to be fully assigned", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 2;
+    state.map.placedTiles = [
+      coreTile("c09_tavern", "tile_social_1", "G1"),
+      coreTile("c09_tavern", "tile_social_2", "I1")
+    ];
+    const effectText = getCurrentSeasonCardEffectText(
+      state,
+      "burden_empty_shelves"
+    );
+
+    expect(getAlternativeEffectRule(state, effectText)).toMatchObject({
+      kind: "pay_or_strain",
+      requiredChoices: 2,
+      resourceStep: 1
+    });
+    expect(
+      isAlternativeEffectAdjustmentValid(state, effectText, {
+        resourceDeltas: { goods: -1 }
+      })
+    ).toBe(false);
+    expect(
+      isAlternativeEffectAdjustmentValid(state, effectText, {
+        resourceDeltas: { goods: -1 },
+        tileStrainDeltas: { tile_social_1: 1 }
+      })
+    ).toBe(true);
+    expect(
+      isAlternativeEffectAdjustmentValid(state, effectText, {
+        resourceDeltas: { goods: -2 }
+      })
+    ).toBe(true);
+    expect(
+      isAlternativeEffectAdjustmentValid(state, effectText, {
+        resourceDeltas: { goods: -2 },
+        tileStrainDeltas: { tile_social_1: 1 }
+      })
+    ).toBe(false);
+  });
+
+  it("supports complete mixed payment-or-timer choices for multiple Arrivals", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 2;
+    state.encounters.activeArrivals = [
+      { cardId: "arrival_the_quiet_quest", timerTokens: 2 },
+      { cardId: "arrival_remnants_of_the_cavalry", timerTokens: 2 }
+    ];
+    const effectText = getCurrentSeasonCardEffectText(
+      state,
+      "burden_promises_overstretched"
+    );
+
+    expect(getAlternativeEffectRule(state, effectText)).toMatchObject({
+      kind: "pay_or_timer",
+      requiredChoices: 2,
+      resourceStep: 1,
+      timerPerChoice: 1
+    });
+    expect(
+      isAlternativeEffectAdjustmentValid(state, effectText, {
+        resourceDeltas: { goods: -1 },
+        arrivalTimerDeltas: { arrival_the_quiet_quest: -1 }
+      })
+    ).toBe(true);
+    expect(
+      isAlternativeEffectAdjustmentValid(state, effectText, {
+        arrivalTimerDeltas: { arrival_the_quiet_quest: -1 }
+      })
+    ).toBe(false);
+    expect(
+      isTimerAdjustmentValid(state, effectText, {
+        arrival_the_quiet_quest: -1,
+        arrival_remnants_of_the_cavalry: -1
+      })
+    ).toBe(true);
+  });
+
+  it("resolves Storehouses Disagree through exactly one legal branch", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [coreTile("c01_lumber_yard", "tile_resource", "G1")];
+    const effectText = getCurrentSeasonCardEffectText(
+      state,
+      "burden_the_storehouses_disagree"
+    );
+
+    expect(effectHasNoValidChoiceTargets(state, effectText)).toBe(false);
+    expect(getAlternativeEffectRule(state, effectText)).toMatchObject({
+      kind: "warehouse_loss_or_strain",
+      resources: ["wood", "stone", "food"],
+      resourceStep: 2
+    });
+    expect(
+      isAlternativeEffectAdjustmentValid(state, effectText, {
+        resourceDeltas: { wood: -2 }
+      })
+    ).toBe(true);
+    expect(
+      isAlternativeEffectAdjustmentValid(state, effectText, {
+        tileStrainDeltas: { tile_resource: 1 }
+      })
+    ).toBe(false);
+
+    state.warehouse.food = 1;
+    expect(
+      isAlternativeEffectAdjustmentValid(state, effectText, {
+        tileStrainDeltas: { tile_resource: 1 }
+      })
+    ).toBe(true);
+  });
+
+  it("rejects an incomplete alternative when resolving the queued effect", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [coreTile("c01_lumber_yard", "tile_resource", "G1")];
+    const effectText = getCurrentSeasonCardEffectText(
+      state,
+      "burden_the_storehouses_disagree"
+    );
+    state.pendingEffects = [{
+      id: "effect_storehouse",
+      sourceType: "card",
+      sourceId: "burden_the_storehouses_disagree",
+      sourceName: "Storehouses Disagree",
+      title: "Revealed Storehouses Disagree",
+      effectText,
+      requiresManualChoice: true
+    }];
+
+    expect(
+      resolvePendingEffect(state, { resourceDeltas: { wood: -1 } }).pendingEffects
+    ).toHaveLength(1);
+    const resolved = resolvePendingEffect(state, { resourceDeltas: { wood: -2 } });
+    expect(resolved.pendingEffects).toHaveLength(0);
+    expect(resolved.warehouse.wood).toBe(13);
+  });
+
+  it("expands the Quiet Fractures Season III fallback into a playable branch", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 3;
+    state.map.placedTiles = [
+      pathTile("tile_strained", "G1", 1),
+      pathTile("tile_adjacent", "H1", 0)
+    ];
+    const effectText = getCurrentSeasonCardEffectText(
+      state,
+      "burden_the_quiet_fractures"
+    );
+
+    expect(getActiveEffectText(state, effectText)).toContain("tile with 1-2 Strain");
+    expect(getActiveEffectText(state, effectText)).not.toContain("use the Season II effect");
+  });
+
+  it.each([
+    [1, 1],
+    [2, 2],
+    [3, 3]
+  ])(
+    "recognises Empty Shelves Season %i as %i complete alternative outcomes",
+    (season, expectedChoices) => {
+      const state = createNewGame(1, ["vanguard"]);
+      state.season = season as 1 | 2 | 3;
+      state.map.placedTiles = [
+        coreTile("c09_tavern", "tile_social_1", "G1"),
+        coreTile("c09_tavern", "tile_social_2", "I1"),
+        coreTile("c09_tavern", "tile_social_3", "K1")
+      ];
+      const rule = getAlternativeEffectRule(
+        state,
+        getCurrentSeasonCardEffectText(state, "burden_empty_shelves")
+      );
+      expect(rule).toMatchObject({
+        kind: "pay_or_strain",
+        requiredChoices: expectedChoices
+      });
+    }
+  );
+
+  it.each([
+    ["burden_promises_overstretched", "goods"],
+    ["burden_welcome_wears_thin", "herbs"]
+  ])("recognises every payment-or-timer Burden branch for %s", (cardId, resource) => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 3;
+    state.encounters.activeArrivals = [
+      { cardId: "arrival_the_quiet_quest", timerTokens: 2 },
+      { cardId: "arrival_remnants_of_the_cavalry", timerTokens: 2 },
+      { cardId: "arrival_from_battle_to_cattle", timerTokens: 2 }
+    ];
+    const effectText = getCurrentSeasonCardEffectText(state, cardId);
+    expect(getAlternativeEffectRule(state, effectText)).toMatchObject({
+      kind: "pay_or_timer",
+      resources: [resource],
+      requiredChoices: 3
+    });
+    expect(getTimerAdjustmentRule(effectText)).toEqual({
+      direction: "remove",
+      limit: 3
+    });
+  });
+
+  it.each([
+    [1, 2, ["wood", "stone", "food"]],
+    [2, 3, ["wood", "stone", "metal", "food", "herbs"]],
+    [3, 5, ["wood", "stone", "metal", "food", "herbs"]]
+  ])(
+    "recognises every Storehouses Disagree Season %i branch",
+    (season, resourceStep, expectedResources) => {
+      const state = createNewGame(1, ["vanguard"]);
+      state.season = season as 1 | 2 | 3;
+      state.map.placedTiles = [
+        coreTile("c01_lumber_yard", "tile_resource_1", "G1"),
+        coreTile("c01_lumber_yard", "tile_resource_2", "I1")
+      ];
+      expect(
+        getAlternativeEffectRule(
+          state,
+          getCurrentSeasonCardEffectText(state, "burden_the_storehouses_disagree")
+        )
+      ).toMatchObject({
+        kind: "warehouse_loss_or_strain",
+        resources: expectedResources,
+        resourceStep
+      });
+    }
+  );
 
   it("reads Burden effects from the active Season", () => {
     expect(

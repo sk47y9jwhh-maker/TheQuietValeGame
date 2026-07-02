@@ -4084,6 +4084,9 @@ button.effect-row {
   gap: 6px;
   min-width: 190px;
   max-width: min(280px, calc(100vw - 24px));
+  max-height: calc(100dvh - 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 8px;
   border: 1px solid rgba(36, 31, 26, 0.18);
   border-radius: 8px;

@@ -534,6 +534,14 @@ function parseTargetCount(effectText: string, actionIndex: number): number {
   return 1;
 }
 
+function parseChosenTargetCountBefore(effectText: string, actionIndex: number): number {
+  const before = effectText.slice(0, actionIndex);
+  const matches = [
+    ...before.matchAll(/choose\s+(?:up to\s+)?(\d+|one|two|three|four|five|six)\b/gi)
+  ];
+  return parseEffectNumber(matches.at(-1)?.[1]);
+}
+
 export function getTileAdjustmentRule(effectText: string): TileAdjustmentRule {
   const lower = effectText.toLowerCase();
   const rule: TileAdjustmentRule = {};
@@ -738,7 +746,11 @@ export function getTimerAdjustmentRule(effectText: string): TimerAdjustmentRule 
 
   const removeMatch = effectText.match(/\bremove\s+(?:up to\s+)?(\d+)\s+timer/i);
   if (removeMatch) {
-    return { direction: "remove", limit: Number(removeMatch[1]) };
+    const perTarget = Number(removeMatch[1]);
+    const targetCount = /\bfor each\b/i.test(effectText)
+      ? parseChosenTargetCountBefore(effectText, removeMatch.index ?? 0)
+      : 1;
+    return { direction: "remove", limit: perTarget * targetCount };
   }
 
   return null;
@@ -860,6 +872,198 @@ function effectHasPaymentOrStrainChoice(effectText: string): boolean {
   );
 }
 
+export type AlternativeEffectRule =
+  | {
+      kind: "pay_or_strain";
+      resources: ResourceType[];
+      resourceStep: number;
+      requiredChoices: number;
+      strainPerChoice: number;
+    }
+  | {
+      kind: "pay_or_timer";
+      resources: ResourceType[];
+      resourceStep: number;
+      requiredChoices: number;
+      timerPerChoice: number;
+    }
+  | {
+      kind: "warehouse_loss_or_strain";
+      resources: ResourceType[];
+      resourceStep: number;
+      requiredChoices: 1;
+      requiredStrainTotal: number;
+    };
+
+function resourcesMentionedBefore(text: string, end: number): ResourceType[] {
+  const prefix = text.slice(0, end).toLowerCase();
+  if (prefix.includes("any non-goods resource")) {
+    return resources.filter((resource) => resource !== "goods");
+  }
+  return resources.filter((resource) =>
+    new RegExp(`\\b${resource}\\b`, "i").test(prefix)
+  );
+}
+
+export function getAlternativeEffectRule(
+  state: GameState,
+  effectText: string,
+  sourceTile?: PlacedTile
+): AlternativeEffectRule | null {
+  const activeText = getActiveEffectText(state, effectText, sourceTile);
+  const payOrStrain = activeText.match(
+    /pay\s+(\d+)\s+(Wood|Stone|Metal|Food|Herbs|Goods)\s*,?\s+or\s+place\s+(\d+)\s+Strain/i
+  );
+  if (payOrStrain) {
+    const strainRule = getTileAdjustmentRule(activeText).strain;
+    const targetCount = getValidEffectStrainTargets(state, activeText, sourceTile).length;
+    const requiredChoices = Math.min(strainRule?.maxTargets ?? 1, targetCount);
+    if (requiredChoices > 0) {
+      return {
+        kind: "pay_or_strain",
+        resources: [payOrStrain[2].toLowerCase() as ResourceType],
+        resourceStep: Number(payOrStrain[1]),
+        requiredChoices,
+        strainPerChoice: Number(payOrStrain[3])
+      };
+    }
+  }
+
+  const payOrTimer = activeText.match(
+    /pay\s+(\d+)\s+(Wood|Stone|Metal|Food|Herbs|Goods)\s+or\s+remove\s+(\d+)\s+timer/i
+  );
+  if (payOrTimer) {
+    const requested = parseTargetCount(activeText, payOrTimer.index ?? 0);
+    const requiredChoices = Math.min(requested, state.encounters.activeArrivals.length);
+    if (requiredChoices > 0) {
+      return {
+        kind: "pay_or_timer",
+        resources: [payOrTimer[2].toLowerCase() as ResourceType],
+        resourceStep: Number(payOrTimer[1]),
+        requiredChoices,
+        timerPerChoice: Number(payOrTimer[3])
+      };
+    }
+  }
+
+  const warehouseChoice = activeText.match(
+    /If the Warehouse has at least\s+(\d+)\s+of it,\s*lose\s+(\d+)\.\s*Otherwise,\s*place\s+(\d+)\s+Strain/i
+  );
+  if (warehouseChoice) {
+    const strainRule = getTileAdjustmentRule(activeText).strain;
+    const legalTargets = getValidEffectStrainTargets(state, activeText, sourceTile);
+    const requiredStrainTotal = strainRule
+      ? legalTargets
+          .slice(0, strainRule.maxTargets)
+          .reduce(
+            (total, tile) =>
+              total + Math.min(strainRule.maxPerTile, Math.max(0, 3 - tile.strain)),
+            0
+          )
+      : Number(warehouseChoice[3]);
+    return {
+      kind: "warehouse_loss_or_strain",
+      resources: resourcesMentionedBefore(activeText, warehouseChoice.index ?? 0),
+      resourceStep: Number(warehouseChoice[2]),
+      requiredChoices: 1,
+      requiredStrainTotal
+    };
+  }
+
+  return null;
+}
+
+function resourceSpend(
+  adjustment: EffectAdjustment,
+  resource: ResourceType
+): number {
+  return Math.max(0, -(adjustment.resourceDeltas?.[resource] ?? 0));
+}
+
+function hasOnlyAllowedResourceSpending(
+  state: GameState,
+  adjustment: EffectAdjustment,
+  allowed: ResourceType[]
+): boolean {
+  return resources.every((resource) => {
+    const delta = adjustment.resourceDeltas?.[resource] ?? 0;
+    return delta <= 0 && Math.abs(delta) <= state.warehouse[resource] &&
+      (allowed.includes(resource) || delta === 0);
+  });
+}
+
+export function isAlternativeEffectAdjustmentValid(
+  state: GameState,
+  effectText: string,
+  adjustment: EffectAdjustment,
+  sourceTile?: PlacedTile
+): boolean {
+  const rule = getAlternativeEffectRule(state, effectText, sourceTile);
+  if (!rule) return true;
+  if (!hasOnlyAllowedResourceSpending(state, adjustment, rule.resources)) return false;
+
+  const totalSpent = rule.resources.reduce(
+    (total, resource) => total + resourceSpend(adjustment, resource),
+    0
+  );
+  const strainEntries = Object.values(adjustment.tileStrainDeltas ?? {}).filter(
+    (delta) => delta !== 0
+  );
+  const totalStrain = strainEntries.reduce(
+    (total, delta) => total + Math.max(0, delta),
+    0
+  );
+  const totalTimersRemoved = Object.values(adjustment.arrivalTimerDeltas ?? {}).reduce(
+    (total, delta) => total + Math.max(0, -delta),
+    0
+  );
+
+  if (rule.kind === "pay_or_strain") {
+    if (totalTimersRemoved > 0 || totalSpent % rule.resourceStep !== 0) return false;
+    if (strainEntries.some((delta) => delta !== rule.strainPerChoice)) return false;
+    return totalSpent / rule.resourceStep + totalStrain / rule.strainPerChoice ===
+      rule.requiredChoices;
+  }
+
+  if (rule.kind === "pay_or_timer") {
+    if (totalStrain > 0 || totalSpent % rule.resourceStep !== 0) return false;
+    if (
+      Object.values(adjustment.arrivalTimerDeltas ?? {}).some(
+        (delta) => delta !== 0 && delta !== -rule.timerPerChoice
+      )
+    ) return false;
+    return totalSpent / rule.resourceStep + totalTimersRemoved / rule.timerPerChoice ===
+      rule.requiredChoices;
+  }
+
+  const paymentBranch = totalSpent === rule.resourceStep && totalStrain === 0 &&
+    rule.resources.filter((resource) => resourceSpend(adjustment, resource) > 0).length === 1;
+  const strainBranchAvailable = rule.resources.some(
+    (resource) => state.warehouse[resource] < rule.resourceStep
+  );
+  const strainBranch = totalSpent === 0 && strainBranchAvailable &&
+    totalStrain === rule.requiredStrainTotal;
+  return paymentBranch || strainBranch;
+}
+
+function hasAnyAlternativeEffectOutcome(
+  state: GameState,
+  rule: AlternativeEffectRule
+): boolean {
+  if (rule.kind === "pay_or_strain") return rule.requiredChoices > 0;
+  if (rule.kind === "pay_or_timer") {
+    const resource = rule.resources[0];
+    const payable = Math.floor(state.warehouse[resource] / rule.resourceStep);
+    const removable = state.encounters.activeArrivals.filter(
+      (arrival) => arrival.timerTokens >= rule.timerPerChoice
+    ).length;
+    return payable + removable >= rule.requiredChoices;
+  }
+  return rule.resources.some((resource) => state.warehouse[resource] >= rule.resourceStep) ||
+    (rule.requiredStrainTotal > 0 &&
+      rule.resources.some((resource) => state.warehouse[resource] < rule.resourceStep));
+}
+
 function omitTileStrainDeltas(adjustment: EffectAdjustment): EffectAdjustment {
   const next = { ...adjustment };
   delete next.tileStrainDeltas;
@@ -871,6 +1075,10 @@ export function effectHasNoValidChoiceTargets(
   effectText: string,
   sourceTile?: PlacedTile
 ): boolean {
+  const alternativeRule = getAlternativeEffectRule(state, effectText, sourceTile);
+  if (alternativeRule) {
+    return !hasAnyAlternativeEffectOutcome(state, alternativeRule);
+  }
   const lower = effectText.toLowerCase();
   const timerRule = getTimerAdjustmentRule(effectText);
   const { fallbackText } = getFallbackSplit(effectText);
@@ -983,8 +1191,15 @@ export function suggestEffectAdjustment(
   const hasMultipleResolvedBurdenTargets =
     isResolveActiveBurdenEffect(activeText) && state.encounters.activeBurdens.length > 1;
   const hasPaymentOrStrainChoice = effectHasPaymentOrStrainChoice(activeText);
-  const finalAdjustment = hasPaymentOrStrainChoice
-    ? omitTileStrainDeltas(withResolvedBurden)
+  const hasAlternativeChoice = Boolean(
+    getAlternativeEffectRule(state, activeText, sourceTile)
+  );
+  const finalAdjustment = hasPaymentOrStrainChoice || hasAlternativeChoice
+    ? omitTileStrainDeltas({
+        ...withResolvedBurden,
+        resourceDeltas: {},
+        arrivalTimerDeltas: {}
+      })
     : withResolvedBurden;
 
   return {
@@ -996,7 +1211,7 @@ export function suggestEffectAdjustment(
         hasMultipleSupportedTargets ||
         hasMultipleResolvedBurdenTargets ||
         (effectTextNeedsManualChoice(activeText) &&
-          (!hasEffectAdjustment(finalAdjustment) || hasPaymentOrStrainChoice)))
+          (!hasEffectAdjustment(finalAdjustment) || hasPaymentOrStrainChoice || hasAlternativeChoice)))
   };
 }
 
@@ -1076,6 +1291,17 @@ export function resolvePendingEffect(
           (tile) => tile.instanceId === pendingEffect.sourceId
         )
       : undefined;
+  if (
+    !pendingEffect.allowWardenRelief &&
+    !isAlternativeEffectAdjustmentValid(
+      state,
+      pendingEffect.effectText,
+      effectiveAdjustment,
+      sourceTile
+    )
+  ) {
+    return state;
+  }
   if (
     !pendingEffect.allowWardenRelief &&
     !isTileAdjustmentValid(

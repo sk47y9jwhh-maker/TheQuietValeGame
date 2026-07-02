@@ -804,6 +804,39 @@ describe("game actions", () => {
     expect(placed.tileActivationRecords.tile_brewery.season).toBe(1);
   });
 
+  it("does not advertise a placement when an available discount is still insufficient", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      warehouse: {
+        ...state.warehouse,
+        wood: 0,
+        food: 1
+      },
+      players: [{ ...state.players[0], hasPlacedFirstTile: true }],
+      map: {
+        placedTiles: [
+          {
+            instanceId: "golden_charter",
+            tileId: "golden_tile_the_golden_charter",
+            kind: "special" as const,
+            side: "special" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    expect(canStartPlaceTile(ready, "player_1", "c05_cabin", "H1").ok).toBe(false);
+
+    ready.warehouse.wood = 1;
+    ready.warehouse.food = 5;
+    expect(canStartPlaceTile(ready, "player_1", "c05_cabin", "H1").ok).toBe(true);
+  });
+
   it("applies Labourers' Yard automatically to adjacent placement", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {

@@ -16,12 +16,14 @@ import {
 } from "../common/gameText";
 import {
   getEffectSupportTargets,
+  getAlternativeEffectRule,
   getActiveEffectText,
   getTileAdjustmentRule,
   getValidEffectStrainTargets,
   getTimerAdjustmentRule,
   hasEffectAdjustment,
   isResourceExchangeAdjustmentValid,
+  isAlternativeEffectAdjustmentValid,
   isTileAdjustmentValid,
   isWardenReliefAdjustmentValid,
   isTimerAdjustmentValid,
@@ -170,6 +172,11 @@ export function EffectPrompt({
       : undefined;
   const activeEffectText = getActiveEffectText(state, effect.effectText, sourceTile);
   const effectText = activeEffectText.toLowerCase();
+  const alternativeEffectRule = getAlternativeEffectRule(
+    state,
+    effect.effectText,
+    sourceTile
+  );
   const timerRule = getTimerAdjustmentRule(activeEffectText);
   const tileControlData = useMemo(() => {
     const suggestedStrainIds = Object.keys(effect.suggestedAdjustment?.tileStrainDeltas ?? {});
@@ -225,7 +232,9 @@ export function EffectPrompt({
     effectText.includes("of any type") ||
     /\bgain\s+\d+\s+resource/.test(effectText) ||
     /\bgain\s+\d+\s+resources/.test(effectText);
-  const visibleResources = broadResourceChoice
+  const visibleResources = alternativeEffectRule
+    ? alternativeEffectRule.resources
+    : broadResourceChoice
     ? resources
     : resources.filter(
         (resource) =>
@@ -237,10 +246,20 @@ export function EffectPrompt({
     /\b(?:gain|lose|pay)\s+(?:up to\s+)?\d+\s+(?:wood|stone|metal|food|herbs|goods|resource|resources)\b/.test(
       effectText
     );
-  const showResourceControls =
-    hasResourceSuggestion ||
+  const hasExplicitResourceAlternative =
+    /\b(?:gain|lose|pay)\s+(?:up to\s+)?\d+\s+(?:wood|stone|metal|food|herbs|goods)[^.]*\b(?:or|and\/or)\b/i.test(
+      activeEffectText
+    );
+  const hasEditableResourceChoice =
+    Boolean(alternativeEffectRule) ||
     effect.resourceExchangeLimit !== undefined ||
-    Boolean(effect.requiresManualChoice && hasResourceAction);
+    broadResourceChoice ||
+    hasExplicitResourceAlternative;
+  const showResourceControls =
+    hasEditableResourceChoice ||
+    Boolean(
+      effect.requiresManualChoice && hasResourceAction && !hasResourceSuggestion
+    );
   const hasTimerSuggestion = Object.values(
     effect.suggestedAdjustment?.arrivalTimerDeltas ?? {}
   ).some((delta) => delta !== 0);
@@ -270,9 +289,16 @@ export function EffectPrompt({
       adjustment,
       sourceTile
     );
-  const allowsResourceInsteadOfTile =
-    /\bpay\s+\d+\s+(?:wood|stone|metal|food|herbs|goods)\b/i.test(activeEffectText) &&
-    /\bor\s+place\s+\d+\s+strain\b/i.test(activeEffectText);
+  const alternativeEffectInvalid = !isAlternativeEffectAdjustmentValid(
+    state,
+    effect.effectText,
+    adjustment,
+    sourceTile
+  );
+  const allowsResourceInsteadOfTile = Boolean(
+    alternativeEffectRule?.kind === "pay_or_strain" ||
+    alternativeEffectRule?.kind === "warehouse_loss_or_strain"
+  );
   const missingRequiredTileChoice =
     Boolean(effect.requiresManualChoice && needsTileChoice) &&
     Boolean(tileAdjustmentRule.strain || tileAdjustmentRule.support) &&
@@ -284,6 +310,7 @@ export function EffectPrompt({
     missingRequiredTileChoice ||
     timerInvalid ||
     exchangeInvalid ||
+    alternativeEffectInvalid ||
     Boolean(burdenResolveInvalid) ||
     Boolean(wardenReliefInvalid) ||
     tileAdjustmentInvalid;
@@ -359,11 +386,69 @@ export function EffectPrompt({
   }, [adjustment, state.map.placedTiles, state.players]);
   const isPreparedPreview = !effect.requiresManualChoice && previewItems.length > 0;
 
+  const alternativeResolvedChoices = (() => {
+    if (!alternativeEffectRule) return null;
+    const spent = alternativeEffectRule.resources.reduce(
+      (total, resource) =>
+        total + Math.max(0, -(resourceDeltas[resource] ?? 0)),
+      0
+    );
+    if (alternativeEffectRule.kind === "pay_or_strain") {
+      return spent / alternativeEffectRule.resourceStep +
+        selectedStrainTotal / alternativeEffectRule.strainPerChoice;
+    }
+    if (alternativeEffectRule.kind === "pay_or_timer") {
+      const removed = Object.values(arrivalTimerDeltas).reduce(
+        (total, delta) => total + Math.max(0, -delta),
+        0
+      );
+      return spent / alternativeEffectRule.resourceStep +
+        removed / alternativeEffectRule.timerPerChoice;
+    }
+    return isAlternativeEffectAdjustmentValid(
+      state,
+      effect.effectText,
+      adjustment,
+      sourceTile
+    ) ? 1 : 0;
+  })();
+
+  function resourceStepFor(resource: ResourceType): number {
+    return alternativeEffectRule?.resources.includes(resource)
+      ? alternativeEffectRule.resourceStep
+      : 1;
+  }
+
+  function canAdjustResource(resource: ResourceType, delta: number): boolean {
+    if (!alternativeEffectRule) return true;
+    const current = resourceDeltas[resource] ?? 0;
+    if (delta > 0) return current < 0;
+    const next = current + delta;
+    if (next < -state.warehouse[resource] || next > 0) return false;
+    const maxSpend = alternativeEffectRule.kind === "warehouse_loss_or_strain"
+      ? alternativeEffectRule.resourceStep
+      : alternativeEffectRule.resourceStep * alternativeEffectRule.requiredChoices;
+    const otherSpend = alternativeEffectRule.resources.reduce(
+      (total, candidate) =>
+        candidate === resource
+          ? total
+          : total + Math.max(0, -(resourceDeltas[candidate] ?? 0)),
+      0
+    );
+    return otherSpend + Math.max(0, -next) <= maxSpend;
+  }
+
   function adjustResource(resource: ResourceType, delta: number) {
-    setResourceDeltas((current) => ({
-      ...current,
-      [resource]: (current[resource] ?? 0) + delta
-    }));
+    setResourceDeltas((current) => {
+      const next = alternativeEffectRule?.kind === "warehouse_loss_or_strain" && delta < 0
+        ? emptyResourceDeltas()
+        : { ...current };
+      next[resource] = (next[resource] ?? 0) + delta;
+      return next;
+    });
+    if (alternativeEffectRule?.kind === "warehouse_loss_or_strain" && delta < 0) {
+      setTileStrainDeltas({});
+    }
   }
 
   function adjustTimer(cardId: string, delta: number) {
@@ -379,6 +464,26 @@ export function EffectPrompt({
     requestedDelta: number,
     currentDeltas: Record<string, number>
   ): number {
+    if (timerRule?.direction === "remove") {
+      const arrival = state.encounters.activeArrivals.find(
+        (candidate) => candidate.cardId === cardId
+      );
+      if (!arrival) return currentDelta;
+      const totalOtherRemoved = Object.entries(currentDeltas).reduce(
+        (total, [candidateCardId, candidateDelta]) =>
+          candidateCardId === cardId ? total : total + Math.max(0, -candidateDelta),
+        0
+      );
+      const perArrivalLimit = alternativeEffectRule?.kind === "pay_or_timer"
+        ? alternativeEffectRule.timerPerChoice
+        : arrival.timerTokens;
+      const maxForArrival = Math.min(arrival.timerTokens, perArrivalLimit);
+      const maxForEffect = Math.max(0, (timerRule?.limit ?? 0) - totalOtherRemoved);
+      return Math.min(
+        0,
+        Math.max(currentDelta + requestedDelta, -maxForArrival, -maxForEffect)
+      );
+    }
     if (timerRule?.direction !== "add") return currentDelta + requestedDelta;
 
     const arrival = state.encounters.activeArrivals.find(
@@ -400,6 +505,14 @@ export function EffectPrompt({
   }
 
   function canAdjustTimer(cardId: string, requestedDelta: number): boolean {
+    if (timerRule?.direction === "remove") {
+      return getNextTimerDelta(
+        cardId,
+        arrivalTimerDeltas[cardId] ?? 0,
+        requestedDelta,
+        arrivalTimerDeltas
+      ) !== (arrivalTimerDeltas[cardId] ?? 0);
+    }
     if (timerRule?.direction !== "add") return true;
 
     const currentDelta = arrivalTimerDeltas[cardId] ?? 0;
@@ -426,6 +539,15 @@ export function EffectPrompt({
     if (!tile) return tileStrainDeltas[tileId] ?? 0;
 
     const currentDelta = tileStrainDeltas[tileId] ?? 0;
+    if (
+      alternativeEffectRule?.kind === "warehouse_loss_or_strain" &&
+      requestedDelta > 0 &&
+      !alternativeEffectRule.resources.some(
+        (resource) => state.warehouse[resource] < alternativeEffectRule.resourceStep
+      )
+    ) {
+      return currentDelta;
+    }
     const nextDelta = currentDelta + requestedDelta;
     if (rule.direction === "place" && nextDelta < 0) return currentDelta;
     if (rule.direction === "remove" && nextDelta > 0) return currentDelta;
@@ -454,6 +576,9 @@ export function EffectPrompt({
   function adjustStrain(tileId: string, delta: number) {
     const nextDelta = getNextStrainDelta(tileId, delta);
     setTileStrainDeltas((current) => ({ ...current, [tileId]: nextDelta }));
+    if (alternativeEffectRule?.kind === "warehouse_loss_or_strain" && nextDelta > 0) {
+      setResourceDeltas(emptyResourceDeltas());
+    }
   }
 
   function toggleSupported(tileId: string) {
@@ -578,7 +703,16 @@ export function EffectPrompt({
 
       {showResourceControls && !isPreparedPreview && (
       <section className="effect-control-group">
-        <h3>Resources</h3>
+        <div className="effect-control-heading">
+          <h3>Resources</h3>
+          {alternativeEffectRule && alternativeResolvedChoices !== null && (
+            <span>
+              {alternativeEffectRule.kind === "warehouse_loss_or_strain"
+                ? `${alternativeResolvedChoices}/1 outcome selected`
+                : `${alternativeResolvedChoices}/${alternativeEffectRule.requiredChoices} outcomes selected`}
+            </span>
+          )}
+        </div>
         <div className="effect-grid">
           {(visibleResources.length > 0 ? visibleResources : resources).map((resource) => (
             <div className="effect-row" key={resource}>
@@ -586,11 +720,21 @@ export function EffectPrompt({
                 {resourceLabels[resource]} {state.warehouse[resource]}
               </span>
               <div className="stepper">
-                <button onClick={() => adjustResource(resource, -1)} type="button">
+                <button
+                  aria-label={`Spend ${resourceStepFor(resource)} ${resourceLabels[resource]}`}
+                  disabled={!canAdjustResource(resource, -resourceStepFor(resource))}
+                  onClick={() => adjustResource(resource, -resourceStepFor(resource))}
+                  type="button"
+                >
                   <Minus size={14} />
                 </button>
                 <strong>{resourceDeltas[resource] > 0 ? "+" : ""}{resourceDeltas[resource]}</strong>
-                <button onClick={() => adjustResource(resource, 1)} type="button">
+                <button
+                  aria-label={`Undo ${resourceStepFor(resource)} ${resourceLabels[resource]}`}
+                  disabled={!canAdjustResource(resource, resourceStepFor(resource))}
+                  onClick={() => adjustResource(resource, resourceStepFor(resource))}
+                  type="button"
+                >
                   <Plus size={14} />
                 </button>
               </div>

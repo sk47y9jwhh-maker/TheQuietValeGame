@@ -2,6 +2,7 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState
@@ -27,7 +28,7 @@ import { StewardPlacementPanel } from "../components/setup/StewardPlacementPanel
 import { GoldenTilePlacementPanel } from "../components/setup/GoldenTilePlacementPanel";
 import { stewards } from "../data/stewards";
 import { goldenBoons } from "../data/encounters";
-import { ledgerEntries } from "../data/ledger";
+import { ledgerEntries, ledgerMilestones } from "../data/ledger";
 import { coreTiles, goldenTiles } from "../data/tiles";
 import {
   activateTile,
@@ -80,9 +81,11 @@ import {
   clearLedgerCampaign,
   countCompletedLedgerEntries,
   createEmptyLedgerCampaign,
+  isGoldenMilestoneUnlocked,
   readLedgerCampaign,
   writeLedgerCampaign
 } from "./ledgerPersistence";
+import { fitContextMenuToViewport } from "./contextMenuPosition";
 
 function createSetupSeed(): string {
   return `QV-${Date.now().toString(36).slice(-6).toUpperCase()}`;
@@ -251,6 +254,11 @@ export function App() {
     x: number;
     y: number;
   } | null>(null);
+  const [mapContextMenuPosition, setMapContextMenuPosition] = useState<{
+    left: number;
+    top: number;
+  } | null>(null);
+  const mapContextMenuRef = useRef<HTMLDivElement | null>(null);
   const stateRef = useRef<GameState | null>(state);
   const undoStackRef = useRef<GameState[]>(undoStack);
   const redoStackRef = useRef<GameState[]>(redoStack);
@@ -530,6 +538,35 @@ export function App() {
     };
   }, [mapContextMenu]);
 
+  useLayoutEffect(() => {
+    const menu = mapContextMenuRef.current;
+    if (!mapContextMenu || !menu) {
+      setMapContextMenuPosition(null);
+      return undefined;
+    }
+    const anchor = mapContextMenu;
+    const menuElement = menu;
+
+    function placeMenu() {
+      const rect = menuElement.getBoundingClientRect();
+      const next = fitContextMenuToViewport(
+        anchor.x,
+        anchor.y,
+        rect.width,
+        rect.height,
+        window.innerWidth,
+        window.innerHeight
+      );
+      setMapContextMenuPosition((current) =>
+        current?.left === next.left && current.top === next.top ? current : next
+      );
+    }
+
+    placeMenu();
+    window.addEventListener("resize", placeMenu);
+    return () => window.removeEventListener("resize", placeMenu);
+  }, [mapContextMenu]);
+
   useEffect(() => {
     if (
       !state ||
@@ -570,10 +607,18 @@ export function App() {
             countCompletedLedgerEntries(ledgerCampaign) >= entry.unlockAt
         )}
         availableGoldenTiles={goldenTiles.filter(
-          (tile) => countCompletedLedgerEntries(ledgerCampaign) >= tile.unlockAt
+          (_tile, index) => isGoldenMilestoneUnlocked(
+            ledgerCampaign,
+            index,
+            ledgerMilestones[index].threshold
+          )
         )}
         availableGoldenBoons={goldenBoons.filter(
-          (boon) => countCompletedLedgerEntries(ledgerCampaign) >= boon.unlockAt
+          (_boon, index) => isGoldenMilestoneUnlocked(
+            ledgerCampaign,
+            index,
+            ledgerMilestones[index].threshold
+          )
         )}
         onPlayerCountChange={handlePlayerCountChange}
         onStewardChange={handleStewardChange}
@@ -1006,8 +1051,12 @@ export function App() {
           <div
             className="context-menu map-context-menu"
             onClick={(event) => event.stopPropagation()}
+            ref={mapContextMenuRef}
             role="menu"
-            style={{ left: mapContextMenu.x, top: mapContextMenu.y }}
+            style={{
+              left: mapContextMenuPosition?.left ?? mapContextMenu.x,
+              top: mapContextMenuPosition?.top ?? mapContextMenu.y
+            }}
           >
             <span className="context-menu-caption">Map actions</span>
             <strong>

@@ -3,6 +3,7 @@ import { mapById } from "../data/map";
 import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
 import { isTileReachable } from "./reachability";
+import { canAfford } from "./resources";
 import type {
   CostActionType,
   CostChoiceSelection,
@@ -277,6 +278,71 @@ export function applyCostChoice(
   }
 
   return next;
+}
+
+export function findAffordableCostSelection(
+  state: GameState,
+  baseCost: ResourceCost,
+  options: PassiveCostOption[]
+): CostChoiceSelection | null {
+  if (canAfford(state.warehouse, baseCost) && !options.some((option) => option.required)) {
+    return { selectedOptionIds: [] };
+  }
+
+  let visits = 0;
+  const search = (
+    index: number,
+    selection: CostChoiceSelection
+  ): CostChoiceSelection | null => {
+    visits += 1;
+    if (visits > 50_000) return null;
+    if (index >= options.length) {
+      if (!validateCostChoiceSelection(options, selection)) return null;
+      const cost = applyCostChoice(state, baseCost, options, selection);
+      return canAfford(state.warehouse, cost) ? selection : null;
+    }
+
+    const option = options[index];
+    if (!option.required) {
+      const skipped = search(index + 1, selection);
+      if (skipped) return skipped;
+    }
+
+    const selectedOptionIds = [...selection.selectedOptionIds, option.id];
+    if (option.kind === "market") {
+      for (const resource of option.resourceChoices ?? []) {
+        const found = search(index + 1, {
+          ...selection,
+          selectedOptionIds,
+          marketResourceByOptionId: {
+            ...selection.marketResourceByOptionId,
+            [option.id]: resource
+          }
+        });
+        if (found) return found;
+      }
+      return null;
+    }
+
+    if (option.kind === "discount" && option.resourceChoices?.length) {
+      for (const resource of option.resourceChoices) {
+        const found = search(index + 1, {
+          ...selection,
+          selectedOptionIds,
+          discountResourceByOptionId: {
+            ...selection.discountResourceByOptionId,
+            [option.id]: resource
+          }
+        });
+        if (found) return found;
+      }
+      return null;
+    }
+
+    return search(index + 1, { ...selection, selectedOptionIds });
+  };
+
+  return search(0, { selectedOptionIds: [] });
 }
 
 export function validateCostChoiceSelection(

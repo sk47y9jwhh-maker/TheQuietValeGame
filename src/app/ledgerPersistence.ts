@@ -23,6 +23,8 @@ export interface LedgerGameRecord {
 
 export interface LedgerCampaign {
   version: number;
+  pacingVersion?: 2;
+  grandfatheredGoldenMilestoneCount?: number;
   completions: Record<string, LedgerCompletionRecord>;
   games: LedgerGameRecord[];
 }
@@ -30,6 +32,7 @@ export interface LedgerCampaign {
 export function createEmptyLedgerCampaign(): LedgerCampaign {
   return {
     version: ledgerCampaignVersion,
+    pacingVersion: 2,
     completions: {},
     games: []
   };
@@ -57,7 +60,18 @@ export function readLedgerCampaign(): LedgerCampaign {
     const raw = window.localStorage.getItem(ledgerCampaignKey);
     if (!raw) return createEmptyLedgerCampaign();
     const parsed = JSON.parse(raw) as unknown;
-    return isLedgerCampaign(parsed) ? parsed : createEmptyLedgerCampaign();
+    if (!isLedgerCampaign(parsed)) return createEmptyLedgerCampaign();
+    if (parsed.pacingVersion === 2) return parsed;
+
+    const completed = countCompletedLedgerEntries(parsed);
+    const legacyThresholds = [5, 10, 15, 20, 30];
+    return {
+      ...parsed,
+      pacingVersion: 2,
+      grandfatheredGoldenMilestoneCount: legacyThresholds.filter(
+        (threshold) => completed >= threshold
+      ).length
+    };
   } catch {
     return createEmptyLedgerCampaign();
   }
@@ -83,4 +97,15 @@ export function countCompletedLedgerEntries(campaign: LedgerCampaign): number {
     (completion) =>
       completion.completedOnce || (completion.completedPlayerCounts?.length ?? 0) > 0
   ).length;
+}
+
+export function isGoldenMilestoneUnlocked(
+  campaign: LedgerCampaign,
+  milestoneIndex: number,
+  threshold: number
+): boolean {
+  return (
+    countCompletedLedgerEntries(campaign) >= threshold ||
+    (campaign.grandfatheredGoldenMilestoneCount ?? 0) > milestoneIndex
+  );
 }

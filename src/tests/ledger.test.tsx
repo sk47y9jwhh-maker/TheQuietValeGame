@@ -5,6 +5,7 @@ import {
   countCompletedLedgerEntries,
   clearLedgerCampaign,
   createEmptyLedgerCampaign,
+  isGoldenMilestoneUnlocked,
   readLedgerCampaign,
   writeLedgerCampaign
 } from "../app/ledgerPersistence";
@@ -36,8 +37,24 @@ describe("Steward's Ledger", () => {
     expect(ledgerChronicles).toHaveLength(9);
     expect(ledgerEntries.filter((entry) => entry.declaredVow)).toHaveLength(12);
     expect(ledgerMilestones.map((milestone) => milestone.threshold)).toEqual([
-      5, 10, 15, 20, 30
+      5, 12, 18, 25, 32
     ]);
+  });
+
+  it("stages entry eligibility so a first game cannot cascade through the Ledger", () => {
+    const startingEntries = ledgerEntries.filter((entry) => entry.unlockAt === 0);
+    expect(startingEntries.map((entry) => entry.id)).toEqual([
+      "LE-007", "LE-008", "LE-013", "LE-018", "LE-024", "LE-029", "LE-039"
+    ]);
+    expect(startingEntries).toHaveLength(7);
+    expect(Math.max(...ledgerEntries.map((entry) => entry.unlockAt))).toBe(38);
+    expect(
+      ledgerEntries.every((entry) =>
+        entry.unlockAt === 0
+          ? !entry.requirement.includes("Available after")
+          : entry.requirement.includes(`Available after ${entry.unlockAt} named Ledger Entries`)
+      )
+    ).toBe(true);
   });
 
   it("derives live Steward objective progress from the game state", () => {
@@ -70,6 +87,25 @@ describe("Steward's Ledger", () => {
 
     clearLedgerCampaign();
     expect(countCompletedLedgerEntries(readLedgerCampaign())).toBe(0);
+  });
+
+  it("keeps Golden content that was unlocked before the pacing update", () => {
+    const legacy = createEmptyLedgerCampaign();
+    delete legacy.pacingVersion;
+    for (let index = 1; index <= 20; index += 1) {
+      const entryId = `LE-${String(index).padStart(3, "0")}`;
+      legacy.completions[entryId] = {
+        entryId,
+        completedOnce: true,
+        completedPlayerCounts: []
+      };
+    }
+    window.localStorage.setItem("quietVale.stewardsLedger.v1", JSON.stringify(legacy));
+
+    const migrated = readLedgerCampaign();
+    expect(migrated.grandfatheredGoldenMilestoneCount).toBe(4);
+    expect(isGoldenMilestoneUnlocked(migrated, 3, 25)).toBe(true);
+    expect(isGoldenMilestoneUnlocked(migrated, 4, 32)).toBe(false);
   });
 
   it("opens the Ledger with game, Chronicle, unlock and log views", () => {

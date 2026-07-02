@@ -152,6 +152,91 @@ describe("effect prompt controls", () => {
     expect(screen.getByRole("button", { name: /apply effect/i })).toBeDisabled();
   });
 
+  it("keeps a multi-target pay-or-strain Burden disabled until every outcome is chosen", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [
+      coreTile("c09_tavern", "tile_social_1", "G1"),
+      coreTile("c09_tavern", "tile_social_2", "I1")
+    ];
+    const effect: PendingEffectState = {
+      id: "effect_empty_shelves_2",
+      sourceType: "card",
+      sourceId: "burden_empty_shelves",
+      sourceName: "Empty Shelves",
+      title: "Revealed Empty Shelves",
+      effectText:
+        "Choose 2 Social Tiles with fewer than 3 Strain. For each, pay 1 Goods or place 1 Strain on it.",
+      requiresManualChoice: true
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    const spendGoods = screen.getByRole("button", { name: "Spend 1 Goods" });
+    fireEvent.click(spendGoods);
+    expect(screen.getByText("1/2 outcomes selected")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeDisabled();
+
+    fireEvent.click(spendGoods);
+    expect(screen.getByText("2/2 outcomes selected")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
+  });
+
+  it("offers the correct Storehouses Disagree resource branch in one click", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [
+      coreTile("c01_lumber_yard", "tile_resource", "G1")
+    ];
+    const effect: PendingEffectState = {
+      id: "effect_storehouses",
+      sourceType: "card",
+      sourceId: "burden_the_storehouses_disagree",
+      sourceName: "Storehouses Disagree",
+      title: "Revealed Storehouses Disagree",
+      effectText:
+        "Choose Wood, Stone, or Food. If the Warehouse has at least 2 of it, lose 2. Otherwise, place 1 Strain on 1 Resource Tile with fewer than 3 Strain.",
+      requiresManualChoice: true
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(screen.getByText("Wood 15")).toBeInTheDocument();
+    expect(screen.getByText("Stone 15")).toBeInTheDocument();
+    expect(screen.getByText("Food 15")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /increase strain adjustment for lumber yard/i })
+    ).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Spend 2 Wood" }));
+    expect(screen.getByText("1/1 outcome selected")).toBeInTheDocument();
+    expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Lose 2 Wood");
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
+  });
+
+  it("shows a compulsory resource loss as a fixed preview beside its tile choice", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [
+      coreTile("c13_workshops", "tile_workshop", "G1"),
+      coreTile("c14_market_stalls", "tile_market", "I1")
+    ];
+    const effect: PendingEffectState = {
+      id: "effect_tools_rust",
+      sourceType: "card",
+      sourceId: "burden_tools_left_to_rust",
+      sourceName: "Tools Left to Rust",
+      title: "Revealed Tools Left to Rust",
+      effectText:
+        "Choose 2 Crafting and/or Merchant Tiles with fewer than 3 Strain. Place 1 Strain on each. Then lose 2 Metal if able.",
+      suggestedAdjustment: { resourceDeltas: { metal: -2 } },
+      requiresManualChoice: true
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Lose 2 Metal");
+    expect(screen.queryByText("Resources")).not.toBeInTheDocument();
+    expect(screen.getByText("Tiles")).toBeInTheDocument();
+  });
+
   it("limits add-timer Boon controls to legal timer additions", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.encounters.activeArrivals = [

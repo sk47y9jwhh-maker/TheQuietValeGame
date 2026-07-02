@@ -1,5 +1,5 @@
 import { coreTileById } from "../data/tiles";
-import { mapById } from "../data/map";
+import { mapById, mapColumns } from "../data/map";
 import { getHexNeighbors } from "./hex";
 import type { GameState, PlacedTile } from "./types";
 
@@ -18,6 +18,46 @@ export function tileConnectsAcrossWater(tile: PlacedTile): boolean {
   if (tile.kind !== "core") return false;
   const data = coreTileById[tile.tileId];
   return data?.basic.name === "Bridge" || data?.upgraded.name === "Stone Bridge";
+}
+
+function isBridge(tile: PlacedTile): boolean {
+  if (tile.kind !== "core") return false;
+  const data = coreTileById[tile.tileId];
+  return data?.basic.name === "Bridge" || data?.upgraded.name === "Stone Bridge";
+}
+
+/**
+ * A bridge only forms a completed crossing when settlement tiles actually meet
+ * it from both banks. Merely having unrelated tiles somewhere west and east of
+ * the river is not enough.
+ */
+export function hasConnectedBridgeCrossing(tiles: PlacedTile[]): boolean {
+  const eligibleTiles = tiles.filter((tile) => !isOverstrained(tile));
+
+  return eligibleTiles.filter(isBridge).some((bridge) => {
+    const bridgeHex = bridge.hexIds[0];
+    const bridgeCell = mapById[bridgeHex];
+    if (!bridgeCell || bridgeCell.terrain !== "water") return false;
+
+    const bridgeCol = mapColumns.indexOf(bridgeCell.col);
+    const adjacentTiles = eligibleTiles.filter(
+      (tile) =>
+        tile.instanceId !== bridge.instanceId &&
+        tile.hexIds.some((hexId) => getHexNeighbors(bridgeHex).includes(hexId))
+    );
+    const touchesWestBank = adjacentTiles.some((tile) =>
+      tile.hexIds.some(
+        (hexId) => mapColumns.indexOf(mapById[hexId]?.col ?? bridgeCell.col) < bridgeCol
+      )
+    );
+    const touchesEastBank = adjacentTiles.some((tile) =>
+      tile.hexIds.some(
+        (hexId) => mapColumns.indexOf(mapById[hexId]?.col ?? bridgeCell.col) > bridgeCol
+      )
+    );
+
+    return touchesWestBank && touchesEastBank;
+  });
 }
 
 function isActiveDocks(tile: PlacedTile): boolean {

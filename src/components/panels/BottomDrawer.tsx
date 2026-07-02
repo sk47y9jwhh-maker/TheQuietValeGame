@@ -15,6 +15,7 @@ import {
 import { useState } from "react";
 import {
   countCompletedLedgerEntries,
+  isGoldenMilestoneUnlocked,
   readLedgerCampaign,
   type LedgerCampaign
 } from "../../app/ledgerPersistence";
@@ -621,8 +622,12 @@ export function BottomDrawer({
                     <Trophy size={30} />
                   </section>
                   <div className="ledger-unlock-grid">
-                    {ledgerMilestones.map((milestone) => {
-                      const unlocked = completedLedgerCount >= milestone.threshold;
+                    {ledgerMilestones.map((milestone, milestoneIndex) => {
+                      const unlocked = isGoldenMilestoneUnlocked(
+                        ledgerCampaign,
+                        milestoneIndex,
+                        milestone.threshold
+                      );
                       const goldenTile = goldenTileById[milestone.goldenTileId];
                       const goldenBoon = encounterById[milestone.goldenBoonId];
                       return (

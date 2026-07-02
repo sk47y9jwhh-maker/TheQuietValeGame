@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run --config vitest.config.ts",
     "test:watch": "vitest --config vitest.config.ts",
-    "lint": "tsc -b --pretty false"
+    "lint": "tsc -b --pretty false",
+    "bot": "QV_BOT_CLI=1 vite-node tools/playtest-bot/bot.ts"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

@@ -39,16 +39,35 @@ export interface LedgerMilestone {
   goldenBoonTheme: string;
 }
 
+// Staggered eligibility prevents one strong game from opening a large second-game
+// cascade. The order keeps broad records early and reserves specialised vows and
+// capstones for established campaigns.
+export const ledgerUnlockGates: Record<string, number> = {
+  "LE-001": 6, "LE-002": 7, "LE-003": 8, "LE-004": 22,
+  "LE-005": 16, "LE-006": 14, "LE-007": 0, "LE-008": 0,
+  "LE-009": 16, "LE-010": 2, "LE-011": 12, "LE-012": 3,
+  "LE-013": 0, "LE-014": 5, "LE-015": 14, "LE-016": 5,
+  "LE-017": 2, "LE-018": 0, "LE-019": 12, "LE-020": 10,
+  "LE-021": 8, "LE-022": 13, "LE-023": 25, "LE-024": 0,
+  "LE-025": 3, "LE-026": 28, "LE-027": 30, "LE-028": 32,
+  "LE-029": 0, "LE-030": 34, "LE-031": 22, "LE-032": 9,
+  "LE-033": 10, "LE-034": 12, "LE-035": 15, "LE-036": 3,
+  "LE-037": 16, "LE-038": 35, "LE-039": 0, "LE-040": 18,
+  "LE-041": 20, "LE-042": 18, "LE-043": 5, "LE-044": 2,
+  "LE-045": 30, "LE-046": 38, "LE-047": 34, "LE-048": 9,
+  "LE-049": 11, "LE-050": 14
+};
+
 export const ledgerMilestones: LedgerMilestone[] = [
   { threshold: 5, goldenTileId: "golden_tile_the_golden_charter", goldenTile: "The Golden Charter", goldenTileTheme: "Mixed civic district", goldenBoonId: "golden_boon_the_golden_bell", goldenBoon: "The Golden Bell", goldenBoonTheme: "Immediate Arrival completion" },
-  { threshold: 10, goldenTileId: "golden_tile_the_golden_hearth", goldenTile: "The Golden Hearth", goldenTileTheme: "Settlement core and Supported Housing", goldenBoonId: "golden_boon_the_golden_scroll", goldenBoon: "The Golden Scroll", goldenBoonTheme: "Replace a hand card with a random Boon" },
-  { threshold: 15, goldenTileId: "golden_tile_the_golden_river_gate", goldenTile: "The Golden River Gate", goldenTileTheme: "Riverbank settlement and bridge incentive", goldenBoonId: "golden_boon_the_golden_vial", goldenBoon: "The Golden Vial", goldenBoonTheme: "Ongoing Path placement" },
-  { threshold: 20, goldenTileId: "golden_tile_the_golden_cairn", goldenTile: "The Golden Cairn", goldenTileTheme: "Terrain spread and remote expansion", goldenBoonId: "golden_boon_the_golden_eyed_traveler", goldenBoon: "The Golden-Eyed Traveller", goldenBoonTheme: "Bonus player turns" },
-  { threshold: 30, goldenTileId: "golden_tile_the_golden_garden", goldenTile: "The Golden Garden", goldenTileTheme: "Resilience and recovery district", goldenBoonId: "golden_boon_the_golden_signet_ring", goldenBoon: "The Golden Signet Ring", goldenBoonTheme: "Tile repositioning" }
+  { threshold: 12, goldenTileId: "golden_tile_the_golden_hearth", goldenTile: "The Golden Hearth", goldenTileTheme: "Settlement core and Supported Housing", goldenBoonId: "golden_boon_the_golden_scroll", goldenBoon: "The Golden Scroll", goldenBoonTheme: "Replace a hand card with a random Boon" },
+  { threshold: 18, goldenTileId: "golden_tile_the_golden_river_gate", goldenTile: "The Golden River Gate", goldenTileTheme: "Riverbank settlement and bridge incentive", goldenBoonId: "golden_boon_the_golden_vial", goldenBoon: "The Golden Vial", goldenBoonTheme: "Ongoing Path placement" },
+  { threshold: 25, goldenTileId: "golden_tile_the_golden_cairn", goldenTile: "The Golden Cairn", goldenTileTheme: "Terrain spread and remote expansion", goldenBoonId: "golden_boon_the_golden_eyed_traveler", goldenBoon: "The Golden-Eyed Traveller", goldenBoonTheme: "Bonus player turns" },
+  { threshold: 32, goldenTileId: "golden_tile_the_golden_garden", goldenTile: "The Golden Garden", goldenTileTheme: "Resilience and recovery district", goldenBoonId: "golden_boon_the_golden_signet_ring", goldenBoon: "The Golden Signet Ring", goldenBoonTheme: "Tile repositioning" }
 ];
 
 // Generated from the v3.12 final-authority Ledger specification.
-export const ledgerEntries = [
+const ledgerEntryDefinitions = [
   {"id":"LE-001","name":"The Vale Endures","chronicle":"Settlement Records","entryType":"Record","scope":"By player count","pacingBand":"Directed","countsTowardUnlock":true,"playerCountPrestige":true,"unlockAt":5,"declaredVow":false,"requiredSteward":null,"thresholdsByPlayerCount":{"1":80,"2":115,"3":155,"4":240},"cumulativeCounter":null,"requirement":"Record a final score at or above the threshold for that player count. Available after 5 named Ledger Entries have been completed."},
   {"id":"LE-002","name":"Hearths Drawn Together","chronicle":"Settlement Records","entryType":"Record","scope":"By player count","pacingBand":"Directed","countsTowardUnlock":true,"playerCountPrestige":true,"unlockAt":5,"declaredVow":false,"requiredSteward":null,"thresholdsByPlayerCount":{"1":75,"2":105,"3":130,"4":175},"cumulativeCounter":null,"requirement":"Record final Population at or above the threshold for that player count. Available after 5 named Ledger Entries have been completed."},
   {"id":"LE-003","name":"Remembered Across the Vale","chronicle":"Settlement Records","entryType":"Record","scope":"By player count","pacingBand":"Directed","countsTowardUnlock":true,"playerCountPrestige":true,"unlockAt":5,"declaredVow":false,"requiredSteward":null,"thresholdsByPlayerCount":{"1":25,"2":40,"3":60,"4":90},"cumulativeCounter":null,"requirement":"Record final Renown at or above the threshold for that player count. Available after 5 named Ledger Entries have been completed."},
@@ -100,3 +119,17 @@ export const ledgerEntries = [
   {"id":"LE-049","name":"The Long Road Home","chronicle":"Shape of the Settlement","entryType":"Vow","scope":"By player count","pacingBand":"Directed","countsTowardUnlock":true,"playerCountPrestige":true,"unlockAt":0,"declaredVow":true,"requiredSteward":null,"thresholdsByPlayerCount":{"1":8,"2":10,"3":12,"4":14},"cumulativeCounter":null,"requirement":"Declare before setup. Finish with a connected Travel group containing at least 8 / 10 / 12 / 14 non-Overstrained Travel hexes in 1p / 2p / 3p / 4p. Only one Steward's Ledger Vow may be declared per game."},
   {"id":"LE-050","name":"The Vale Made Room","chronicle":"Arrivals Remembered","entryType":"Arrival","scope":"Once","pacingBand":"Directed","countsTowardUnlock":true,"playerCountPrestige":false,"unlockAt":10,"declaredVow":false,"requiredSteward":null,"thresholdsByPlayerCount":null,"cumulativeCounter":null,"requirement":"Available after 10 named Ledger Entries have been completed. Finish with at least 4 non-Overstrained Special Tiles, each adjacent to at least one Housing Tile."},
 ] satisfies LedgerEntry[];
+
+const availabilitySentence = /Available after \d+ named Ledger Entries have been completed\. ?/g;
+
+export const ledgerEntries: LedgerEntry[] = ledgerEntryDefinitions.map((entry) => {
+  const unlockAt = ledgerUnlockGates[entry.id] ?? entry.unlockAt;
+  const baseRequirement = entry.requirement.replace(availabilitySentence, "").trim();
+  return {
+    ...entry,
+    unlockAt,
+    requirement: unlockAt > 0
+      ? `${baseRequirement} Available after ${unlockAt} named Ledger Entries have been completed.`
+      : baseRequirement
+  };
+});

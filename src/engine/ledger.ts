@@ -4,6 +4,7 @@ import { ledgerEntries, type LedgerEntry } from "../data/ledger";
 import { mapById, mapCells, mapColumns } from "../data/map";
 import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
+import { hasConnectedBridgeCrossing } from "./reachability";
 import { calculateFinalScore, evaluateStewardObjectives } from "./scoring";
 import type {
   GameState,
@@ -247,24 +248,6 @@ function countSeparateRings(rings: Set<string>[]): number {
   return count;
 }
 
-function hasBridgeConnection(tiles: PlacedTile[]): boolean {
-  const bridges = tiles.filter((tile) => {
-    if (tile.kind !== "core") return false;
-    const data = coreTileById[tile.tileId];
-    return /bridge/i.test(data?.basic.name ?? "") || /bridge/i.test(data?.upgraded.name ?? "");
-  });
-  return bridges.some((bridge) => {
-    const bridgeCol = mapColumns.indexOf(mapById[bridge.hexIds[0]]?.col ?? "A");
-    const west = tiles.some((tile) =>
-      tile.hexIds.some((hexId) => mapColumns.indexOf(mapById[hexId]?.col ?? "A") < bridgeCol)
-    );
-    const east = tiles.some((tile) =>
-      tile.hexIds.some((hexId) => mapColumns.indexOf(mapById[hexId]?.col ?? "A") > bridgeCol)
-    );
-    return west && east;
-  });
-}
-
 function housingTouchesRiverSide(tiles: PlacedTile[], side: "west" | "east"): boolean {
   const riverColumns = mapCells
     .filter((cell) => cell.terrain === "water")
@@ -437,8 +420,8 @@ export function evaluateLedgerEntries(
       case "LE-007": met = eligibleHousing.length >= target && allHousingPaired; progressLabel = `${eligibleHousing.length}/${target} Housing · ${allHousingPaired ? "all paired" : "an isolated home remains"}`; break;
       case "LE-008": met = eligibleCategoryCounts.size >= target; progressLabel = formatProgress(eligibleCategoryCounts.size, target, "categories"); break;
       case "LE-009": met = eligibleCategoryCounts.size >= 8; progressLabel = formatProgress(eligibleCategoryCounts.size, 8, "categories"); break;
-      case "LE-010": met = hasBridgeConnection(eligible); progressLabel = met ? "River crossing connected" : "No complete crossing"; break;
-      case "LE-011": met = hasBridgeConnection(eligible) && housingTouchesRiverSide(eligible, "west") && housingTouchesRiverSide(eligible, "east"); progressLabel = met ? "Hearths reach both banks" : "Both banks are not yet housed"; break;
+      case "LE-010": met = hasConnectedBridgeCrossing(eligible); progressLabel = met ? "River crossing connected" : "No complete crossing"; break;
+      case "LE-011": met = hasConnectedBridgeCrossing(eligible) && housingTouchesRiverSide(eligible, "west") && housingTouchesRiverSide(eligible, "east"); progressLabel = met ? "Hearths reach both banks" : "Both banks are not yet housed"; break;
       case "LE-012": met = travelAdjacentRiver >= target; progressLabel = formatProgress(travelAdjacentRiver, target, "riverside Travel Tiles"); break;
       case "LE-013": case "LE-014": met = specialPlaced >= target; progressLabel = formatProgress(specialPlaced, target, "Special Tiles"); break;
       case "LE-015": met = specialPlaced >= target && specialPlaced >= unlockedSpecial; progressLabel = `${specialPlaced}/${target} placed · ${Math.max(0, unlockedSpecial - specialPlaced)} unlocked unplaced`; break;
@@ -450,14 +433,14 @@ export function evaluateLedgerEntries(
       case "LE-021": case "LE-022": met = upgraded >= target; progressLabel = formatProgress(upgraded, target, "upgrades"); break;
       case "LE-023": met = warehouseTotal >= target; progressLabel = formatProgress(warehouseTotal, target, "Warehouse resources"); break;
       case "LE-024": met = (categoryCounts.get("crafting") ?? 0) >= target && (categoryCounts.get("merchant") ?? 0) >= target; progressLabel = `${categoryCounts.get("crafting") ?? 0}/${target} Crafting · ${categoryCounts.get("merchant") ?? 0}/${target} Merchant`; break;
-      case "LE-025": met = (categoryCounts.get("travel") ?? 0) >= target; progressLabel = formatProgress(categoryCounts.get("travel") ?? 0, target, "Travel Tiles"); break;
+      case "LE-025": met = (eligibleCategoryCounts.get("travel") ?? 0) >= target; progressLabel = formatProgress(eligibleCategoryCounts.get("travel") ?? 0, target, "non-Overstrained Travel Tiles"); break;
       case "LE-026": met = (categoryCounts.get("travel") ?? 0) === 0 && score.finalScore >= target; progressLabel = `0 Travel required · ${score.finalScore}/${target} score`; break;
       case "LE-027": met = countFarmsteads(state) === 0 && score.finalScore >= target; progressLabel = `0 Farmsteads required · ${score.finalScore}/${target} score`; break;
       case "LE-028": met = upgraded === 0 && score.finalScore >= target; progressLabel = `0 upgrades required · ${score.finalScore}/${target} score`; break;
-      case "LE-029": met = run.arrivalsExpired === 0; progressLabel = `${run.arrivalsExpired} Arrivals expired`; break;
+      case "LE-029": met = run.arrivalsRevealed > 0 && run.arrivalsExpired === 0; progressLabel = `${run.arrivalsRevealed} revealed · ${run.arrivalsExpired} expired`; break;
       case "LE-030": { const peak = Math.max(...Object.values(run.warehousePeakByResource)); met = peak <= 8; progressLabel = `${peak}/8 highest Warehouse amount`; break; }
       case "LE-031": met = chosenStewards.size >= 6; progressLabel = formatProgress(chosenStewards.size, 6, "Stewards used"); break;
-      case "LE-032": met = objectiveIds.has("vanguard") && hasBridgeConnection(eligible); progressLabel = objectiveIds.has("vanguard") ? "Vanguard objective complete" : "Vanguard objective incomplete"; break;
+      case "LE-032": met = objectiveIds.has("vanguard") && hasConnectedBridgeCrossing(eligible); progressLabel = objectiveIds.has("vanguard") ? "Vanguard objective complete" : "Vanguard objective incomplete"; break;
       case "LE-033": met = objectiveIds.has("knight") && maxHousingStrain === 0; progressLabel = `${objectiveIds.has("knight") ? "Objective complete" : "Objective incomplete"} · max ${maxHousingStrain} Housing Strain`; break;
       case "LE-034": met = objectiveIds.has("sentinel") && upgradedEligible >= 8; progressLabel = `${upgradedEligible}/8 eligible upgrades`; break;
       case "LE-035": met = objectiveIds.has("ranger") && qualifyingTerrains >= 4; progressLabel = `${qualifyingTerrains}/4 terrain types`; break;

@@ -24,13 +24,13 @@ function appendLog(state: GameState, message: string): GameState {
   return {
     ...state,
     log: [
-      ...state.log,
       {
         id: `log_${state.log.length + 1}_${Date.now()}`,
         round: state.round,
         message
-      }
-    ]
+      },
+      ...state.log,
+    ].slice(0, 80)
   };
 }
 

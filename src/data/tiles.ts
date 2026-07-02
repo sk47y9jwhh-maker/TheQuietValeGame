@@ -941,8 +941,8 @@ export const goldenTiles: GoldenTileData[] = [
     category: "special",
     count: 1,
     size: 1,
-    unlockSource: "10 Steward's Ledger entries",
-    unlockAt: 10,
+    unlockSource: "12 Steward's Ledger entries",
+    unlockAt: 12,
     linkedGoldenBoonId: "golden_boon_the_golden_scroll",
     placement: {
       terrain: ["grasslands", "woodland", "arable"],
@@ -963,8 +963,8 @@ export const goldenTiles: GoldenTileData[] = [
     category: "special",
     count: 1,
     size: 1,
-    unlockSource: "15 Steward's Ledger entries",
-    unlockAt: 15,
+    unlockSource: "18 Steward's Ledger entries",
+    unlockAt: 18,
     linkedGoldenBoonId: "golden_boon_the_golden_vial",
     placement: {
       terrain: ["grasslands", "woodland", "mountains", "heaths", "arable", "ruins"],
@@ -986,8 +986,8 @@ export const goldenTiles: GoldenTileData[] = [
     category: "special",
     count: 1,
     size: 1,
-    unlockSource: "20 Steward's Ledger entries",
-    unlockAt: 20,
+    unlockSource: "25 Steward's Ledger entries",
+    unlockAt: 25,
     linkedGoldenBoonId: "golden_boon_the_golden_eyed_traveler",
     placement: {
       terrain: ["mountains", "heaths", "woodland", "arable", "ruins"],
@@ -1008,8 +1008,8 @@ export const goldenTiles: GoldenTileData[] = [
     category: "special",
     count: 1,
     size: 1,
-    unlockSource: "30 Steward's Ledger entries",
-    unlockAt: 30,
+    unlockSource: "32 Steward's Ledger entries",
+    unlockAt: 32,
     linkedGoldenBoonId: "golden_boon_the_golden_signet_ring",
     placement: {
       terrain: ["grasslands", "woodland", "ruins"],

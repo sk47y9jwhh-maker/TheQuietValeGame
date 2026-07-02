@@ -1,7 +1,8 @@
-import { mapById, mapColumns, terrainLabels } from "../data/map";
+import { mapById, terrainLabels } from "../data/map";
 import { stewardById } from "../data/stewards";
 import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
+import { hasConnectedBridgeCrossing } from "./reachability";
 import type { GameState, PlacedTile, TileSideData } from "./types";
 
 const activeBurdenPenalty = 6;
@@ -137,25 +138,6 @@ function largestHousingClusterSize(tiles: PlacedTile[]): number {
   return largest;
 }
 
-function hasBridgeConnectedRiverObjective(tiles: PlacedTile[]): boolean {
-  const bridges = tiles.filter((tile) => {
-    if (tile.kind !== "core") return false;
-    const data = coreTileById[tile.tileId];
-    return data.basic.name === "Bridge" || data.upgraded.name === "Stone Bridge";
-  });
-
-  return bridges.some((bridge) => {
-    const bridgeColIndex = mapColumns.indexOf(mapById[bridge.hexIds[0]]?.col ?? "A");
-    const hasWest = tiles.some((tile) =>
-      tile.hexIds.some((hexId) => mapColumns.indexOf(mapById[hexId]?.col ?? "A") < bridgeColIndex)
-    );
-    const hasEast = tiles.some((tile) =>
-      tile.hexIds.some((hexId) => mapColumns.indexOf(mapById[hexId]?.col ?? "A") > bridgeColIndex)
-    );
-    return hasWest && hasEast;
-  });
-}
-
 function scoreGoldenTiles(state: GameState, eligibleTiles: PlacedTile[]): number {
   let total = 0;
   const eligibleByHex = new Map(
@@ -180,7 +162,7 @@ function scoreGoldenTiles(state: GameState, eligibleTiles: PlacedTile[]): number
       );
       met = neighbors.length === 6 && surroundingTileIds.size === 6;
     } else if (golden.tileId === "golden_tile_the_golden_river_gate") {
-      met = hasBridgeConnectedRiverObjective(eligibleTiles);
+      met = hasConnectedBridgeCrossing(eligibleTiles);
     } else if (golden.tileId === "golden_tile_the_golden_cairn") {
       const terrainTypes = new Set(
         eligibleTiles
@@ -225,7 +207,7 @@ export function evaluateStewardObjectives(state: GameState): StewardObjectivePro
     let detail = "This condition is checked against the current settlement.";
 
     if (player.stewardId === "vanguard") {
-      met = hasBridgeConnectedRiverObjective(eligibleTiles);
+      met = hasConnectedBridgeCrossing(eligibleTiles);
       current = met ? 1 : 0;
       progressLabel = met ? "Crossing connected" : "Crossing not yet connected";
       detail = "Place a Bridge with eligible settlement tiles connected on both river sides.";

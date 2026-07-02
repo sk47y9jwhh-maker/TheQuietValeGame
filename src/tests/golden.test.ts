@@ -95,6 +95,7 @@ describe("Golden Legacy", () => {
     const completed = resolveGoldenBell(revealed, arrivalId);
     expect(completed.pendingGoldenEffect).toBeNull();
     expect(completed.encounters.completedArrivals.some((arrival) => arrival.cardId === arrivalId)).toBe(true);
+    expect(completed.log[0].message).toMatch(/The Golden Bell completed/);
   });
 
   it("lets each player optionally exchange a hidden card through The Golden Scroll", () => {

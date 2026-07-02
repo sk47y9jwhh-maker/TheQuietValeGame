@@ -286,7 +286,7 @@ export const burdens: BurdenData[] = [
     effects: season(
       "Choose 1 tile with 1-2 Strain and place 1 Strain on it.",
       "Choose 1 tile with 1-2 Strain and place 1 Strain on it. Then place 1 Strain on 1 adjacent placed tile with 0 Strain.",
-      "Choose 1 Overstrained tile. Then place 1 Strain on each of 2 adjacent placed tiles with 0 Strain. If no Overstrained tile exists, use the Season II effect instead."
+      "Choose 1 Overstrained tile. Then place 1 Strain on each of 2 adjacent placed tiles with 0 Strain. If none, choose 1 tile with 1-2 Strain and place 1 Strain on it, then place 1 Strain on 1 adjacent placed tile with 0 Strain instead."
     ),
     resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
   },
@@ -563,7 +563,7 @@ export const goldenBoons: GoldenBoonData[] = [
     type: "goldenBoon",
     name: "The Golden Scroll",
     enabledInOnlinePrototype: true,
-    unlockAt: 10,
+    unlockAt: 12,
     lifecycle: "Resolve immediately for free, reveal a replacement Encounter Card, then discard.",
     effectText:
       "When revealed, each player may choose 1 standard Encounter Card from their hand and return it to the game box. Each player who did draws 1 random standard Boon Card from the game box into their hand. Golden Boons cannot be drawn this way. If there are not enough standard Boon Cards in the box, draw as many as possible. Then discard this card."
@@ -573,7 +573,7 @@ export const goldenBoons: GoldenBoonData[] = [
     type: "goldenBoon",
     name: "The Golden Vial",
     enabledInOnlinePrototype: true,
-    unlockAt: 15,
+    unlockAt: 18,
     lifecycle: "Keep face-up for the rest of the game; reveal a replacement Encounter Card.",
     effectText:
       "When revealed, keep this card face-up near the Stewards Board. For the rest of the game, once per round, the group may place 1 Path Tile without spending an Action. Pay its cost and follow normal placement rules. If no Path Tiles remain, this effect cannot be used."
@@ -583,7 +583,7 @@ export const goldenBoons: GoldenBoonData[] = [
     type: "goldenBoon",
     name: "The Golden-Eyed Traveller",
     enabledInOnlinePrototype: true,
-    unlockAt: 20,
+    unlockAt: 25,
     lifecycle: "Resolve immediately for free, reveal a replacement Encounter Card, then discard.",
     effectText:
       "When revealed, after the normal Player Turns phase this round, each player takes 1 bonus turn with the normal action allowance. Then continue to End of Round. Do not reveal additional Encounter Cards, remove Arrival timers, resolve End of Round effects, or advance the Round Timer before these bonus turns. Then discard this card."
@@ -593,7 +593,7 @@ export const goldenBoons: GoldenBoonData[] = [
     type: "goldenBoon",
     name: "The Golden Signet Ring",
     enabledInOnlinePrototype: true,
-    unlockAt: 30,
+    unlockAt: 32,
     lifecycle: "Resolve immediately for free, reveal a replacement Encounter Card, then discard.",
     effectText:
       "When revealed, choose up to 5 placed tiles. Remove those tiles, then place each chosen tile into a legal empty map space. Chosen tiles may use spaces vacated by other chosen tiles. Ignore adjacency and reachability restrictions, but all terrain restrictions still apply. Multi-hex tiles must cover only empty, legal hexes. Chosen tiles keep Strain, Supported, upgrade state, and all tokens. Recalculate connectivity and Overstrained effects immediately. Then discard this card."
