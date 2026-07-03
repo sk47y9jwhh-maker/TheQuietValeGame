@@ -18,6 +18,7 @@ import {
   getEffectSupportTargets,
   getAlternativeEffectRule,
   getActiveEffectText,
+  getHelpStandsRule,
   getResourceGainChoiceRule,
   getTileAdjustmentRule,
   getValidEffectStrainTargets,
@@ -80,6 +81,7 @@ export function EffectPrompt({
   canCancelWithWarden,
   onCancelWithWarden
 }: EffectPromptProps) {
+  const helpStandsRule = getHelpStandsRule(state, effect.effectText);
   const [resourceDeltas, setResourceDeltas] = useState(
     normalizeResourceDeltas(effect.suggestedAdjustment)
   );
@@ -87,7 +89,9 @@ export function EffectPrompt({
     effect.suggestedAdjustment?.arrivalTimerDeltas ?? {}
   );
   const [tileStrainDeltas, setTileStrainDeltas] = useState<Record<string, number>>(
-    effect.suggestedAdjustment?.tileStrainDeltas ?? {}
+    helpStandsRule?.tileStrainDeltas ??
+      effect.suggestedAdjustment?.tileStrainDeltas ??
+      {}
   );
   const [supportTileIds, setSupportTileIds] = useState<string[]>(
     effect.suggestedAdjustment?.supportTileIds ?? []
@@ -108,7 +112,11 @@ export function EffectPrompt({
   useEffect(() => {
     setResourceDeltas(normalizeResourceDeltas(effect.suggestedAdjustment));
     setArrivalTimerDeltas(effect.suggestedAdjustment?.arrivalTimerDeltas ?? {});
-    setTileStrainDeltas(effect.suggestedAdjustment?.tileStrainDeltas ?? {});
+    setTileStrainDeltas(
+      getHelpStandsRule(state, effect.effectText)?.tileStrainDeltas ??
+        effect.suggestedAdjustment?.tileStrainDeltas ??
+        {}
+    );
     setSupportTileIds(effect.suggestedAdjustment?.supportTileIds ?? []);
     setStewardHexUpdates(effect.suggestedAdjustment?.stewardHexUpdates ?? {});
     setTemporaryReachHexUpdates(
@@ -264,7 +272,7 @@ export function EffectPrompt({
     );
   const hasEditableResourceChoice =
     Boolean(alternativeEffectRule) ||
-    Boolean(resourceGainChoiceRule) ||
+    Boolean(resourceGainChoiceRule && resourceGainChoiceRule.amount > 0) ||
     effect.resourceExchangeLimit !== undefined ||
     broadResourceChoice ||
     hasExplicitResourceAlternative;
@@ -293,7 +301,9 @@ export function EffectPrompt({
       effectText
     );
   const showTileControls =
-    tileControlTargets.length > 0 && (hasTileSuggestion || needsTileChoice);
+    !helpStandsRule &&
+    tileControlTargets.length > 0 &&
+    (hasTileSuggestion || needsTileChoice);
   const tileAdjustmentInvalid =
     !effect.allowWardenRelief &&
     !isTileAdjustmentValid(
@@ -322,9 +332,11 @@ export function EffectPrompt({
   const missingRequiredTileChoice =
     Boolean(effect.requiresManualChoice && needsTileChoice) &&
     Boolean(tileAdjustmentRule.strain || tileAdjustmentRule.support) &&
+    tileControlTargets.length > 0 &&
     selectedStrainEntries.length === 0 &&
     supportTileIds.length === 0 &&
     !allowsResourceInsteadOfTile &&
+    !helpStandsRule &&
     !wardenReliefHasNoTarget;
   const cannotApply =
     Boolean(effect.requiresManualChoice && !hasChanges && !wardenReliefHasNoTarget) ||

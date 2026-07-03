@@ -658,11 +658,21 @@ export function isTileAdjustmentValid(
   sourceTile?: PlacedTile
 ): boolean {
   const activeText = getActiveEffectText(state, effectText, sourceTile);
+  const helpStandsRule = getHelpStandsRule(state, activeText);
   const rule = getTileAdjustmentRule(activeText);
   const strainEntries = Object.entries(adjustment.tileStrainDeltas ?? {}).filter(
     ([, delta]) => delta !== 0
   );
   const supportIds = [...new Set(adjustment.supportTileIds ?? [])];
+
+  if (helpStandsRule) {
+    const requiredEntries = Object.entries(helpStandsRule.tileStrainDeltas);
+    return supportIds.length === 0 &&
+      strainEntries.length === requiredEntries.length &&
+      requiredEntries.every(
+        ([tileId, delta]) => adjustment.tileStrainDeltas?.[tileId] === delta
+      );
+  }
 
   if (strainEntries.length > 0) {
     if (!rule.strain) return false;
@@ -706,6 +716,7 @@ function parseExactResourceDeltas(
   state: GameState,
   effectText: string
 ): Partial<Record<ResourceType, number>> {
+  if (getResourceGainChoiceRule(state, effectText)) return {};
   const lower = effectText.toLowerCase();
   if (
     (!lower.includes("gain") && !lower.includes("lose")) ||
@@ -941,16 +952,62 @@ export interface ResourceGainChoiceRule {
   alternativeToStrainRemoval: boolean;
 }
 
+export interface HelpStandsRule {
+  resourceAmount: number;
+  tileStrainDeltas: Record<string, number>;
+}
+
+export function getHelpStandsRule(
+  state: GameState,
+  effectText: string
+): HelpStandsRule | null {
+  const activeText = getActiveEffectText(state, effectText);
+  const match = activeText.match(
+    /for each Steward-occupied tile, remove 1 Strain\. For each that had none, gain (\d+) resources?, up to (\d+) total/i
+  );
+  if (!match) return null;
+
+  const occupiedTiles = getStewardOccupiedTileTargets(state);
+  const unstrainedCount = occupiedTiles.filter((tile) => tile.strain === 0).length;
+  return {
+    resourceAmount: Math.min(Number(match[2]), unstrainedCount * Number(match[1])),
+    tileStrainDeltas: Object.fromEntries(
+      occupiedTiles
+        .filter((tile) => tile.strain > 0)
+        .map((tile) => [tile.instanceId, -1])
+    )
+  };
+}
+
 export function getResourceGainChoiceRule(
   state: GameState,
   effectText: string,
   sourceTile?: PlacedTile
 ): ResourceGainChoiceRule | null {
   const activeText = getActiveEffectText(state, effectText, sourceTile);
+  const helpStandsRule = getHelpStandsRule(state, activeText);
+  if (helpStandsRule) {
+    return {
+      resources: [...resources],
+      amount: helpStandsRule.resourceAmount,
+      alternativeToStrainRemoval: false
+    };
+  }
   const match = activeText.match(
     /\bgain\s+(\d+)\s+(Wood|Stone|Metal|Food|Herbs|Goods)\s+(?:and\/or|or)\s+(?:(\d+)\s+)?(Wood|Stone|Metal|Food|Herbs|Goods)\b/i
   );
-  if (!match) return null;
+  if (!match) {
+    const genericMatch = activeText.match(
+      /\bgain\s+\+?(\d+)\s+(?:additional\s+)?resources?\b/i
+    );
+    return genericMatch
+      ? {
+          resources: [...resources],
+          amount: Number(genericMatch[1]),
+          alternativeToStrainRemoval: false
+        }
+      : null;
+  }
   const resourcesInChoice = [
     match[2].toLowerCase() as ResourceType,
     match[4].toLowerCase() as ResourceType
@@ -1173,6 +1230,14 @@ export function effectHasNoValidChoiceTargets(
   if (alternativeRule) {
     return !hasAnyAlternativeEffectOutcome(state, alternativeRule);
   }
+  const resourceGainRule = getResourceGainChoiceRule(state, effectText, sourceTile);
+  if (
+    resourceGainRule &&
+    resourceGainRule.amount > 0 &&
+    !resourceGainRule.alternativeToStrainRemoval
+  ) {
+    return false;
+  }
   const lower = effectText.toLowerCase();
   const timerRule = getTimerAdjustmentRule(effectText);
   const { fallbackText } = getFallbackSplit(effectText);
@@ -1252,6 +1317,16 @@ export function suggestEffectAdjustment(
   sourceTile?: PlacedTile
 ): { adjustment?: EffectAdjustment; requiresManualChoice?: boolean } {
   const activeText = getActiveEffectText(state, effectText, sourceTile);
+  const helpStandsRule = getHelpStandsRule(state, activeText);
+  if (helpStandsRule) {
+    const adjustment = Object.keys(helpStandsRule.tileStrainDeltas).length > 0
+      ? { tileStrainDeltas: helpStandsRule.tileStrainDeltas }
+      : undefined;
+    return {
+      adjustment,
+      requiresManualChoice: helpStandsRule.resourceAmount > 0
+    };
+  }
   const adjustment = mergeEffectAdjustment(
     { resourceDeltas: parseExactResourceDeltas(state, activeText) },
     parseTimerSuggestion(state, activeText)
@@ -1288,6 +1363,9 @@ export function suggestEffectAdjustment(
   const hasAlternativeChoice = Boolean(
     getAlternativeEffectRule(state, activeText, sourceTile)
   );
+  const hasResourceGainChoice = Boolean(
+    getResourceGainChoiceRule(state, activeText, sourceTile)
+  );
   const finalAdjustment = hasPaymentOrStrainChoice || hasAlternativeChoice
     ? omitTileStrainDeltas({
         ...withResolvedBurden,
@@ -1305,7 +1383,10 @@ export function suggestEffectAdjustment(
         hasMultipleSupportedTargets ||
         hasMultipleResolvedBurdenTargets ||
         (effectTextNeedsManualChoice(activeText) &&
-          (!hasEffectAdjustment(finalAdjustment) || hasPaymentOrStrainChoice || hasAlternativeChoice)))
+          (!hasEffectAdjustment(finalAdjustment) ||
+            hasPaymentOrStrainChoice ||
+            hasAlternativeChoice ||
+            hasResourceGainChoice)))
   };
 }
 

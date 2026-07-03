@@ -6,6 +6,7 @@ import {
   getCurrentSeasonCardEffectText,
   getEffectSupportTargets,
   getEffectTileTargets,
+  getHelpStandsRule,
   getResourceGainChoiceRule,
   getTileAdjustmentRule,
   getTimerAdjustmentRule,
@@ -62,6 +63,101 @@ describe("manual effect suggestions", () => {
         "Choose exactly one: remove 1 Strain from any tile, or place Supported on one tile."
       ).support
     ).toEqual({ maxTargets: 1 });
+  });
+
+  it.each([
+    [1, 2],
+    [2, 4],
+    [3, 6]
+  ] as const)(
+    "requires Help Stands' full earned resource total in Season %i",
+    (season, expectedAmount) => {
+      const state = createNewGame(4, ["vanguard", "warden", "knight", "quartermaster"]);
+      state.season = season;
+      state.players = state.players.map((player, index) => ({
+        ...player,
+        stewardHexId: ["G1", "H1", "I1", "J1"][index]
+      }));
+      state.map.placedTiles = [
+        pathTile("tile_1", "G1"),
+        pathTile("tile_2", "H1"),
+        pathTile("tile_3", "I1"),
+        pathTile("tile_4", "J1", 1)
+      ];
+      const effectText = getCurrentSeasonCardEffectText(
+        state,
+        "boon_where_help_stands"
+      );
+
+      expect(getHelpStandsRule(state, effectText)).toEqual({
+        resourceAmount: expectedAmount,
+        tileStrainDeltas: { tile_4: -1 }
+      });
+      expect(getResourceGainChoiceRule(state, effectText)).toEqual({
+        resources: ["wood", "stone", "metal", "food", "herbs", "goods"],
+        amount: expectedAmount,
+        alternativeToStrainRemoval: false
+      });
+      expect(
+        isResourceGainChoiceAdjustmentValid(state, effectText, {
+          resourceDeltas: { wood: 1 }
+        })
+      ).toBe(false);
+      expect(
+        isResourceGainChoiceAdjustmentValid(state, effectText, {
+          resourceDeltas: { wood: expectedAmount - 1, herbs: 1 }
+        })
+      ).toBe(true);
+      expect(suggestEffectAdjustment(state, effectText)).toEqual({
+        adjustment: { tileStrainDeltas: { tile_4: -1 } },
+        requiresManualChoice: true
+      });
+    }
+  );
+
+  it("enforces fixed any-resource gains from tile effects", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const effectText =
+      "Passive: Gain +2 additional resources of types that tile can produce.";
+
+    expect(getResourceGainChoiceRule(state, effectText)?.amount).toBe(2);
+    expect(
+      isResourceGainChoiceAdjustmentValid(state, effectText, {
+        resourceDeltas: { wood: 1 }
+      })
+    ).toBe(false);
+    expect(
+      isResourceGainChoiceAdjustmentValid(state, effectText, {
+        resourceDeltas: { wood: 1, food: 1 }
+      })
+    ).toBe(true);
+  });
+
+  it("keeps Wonderful Find's resource choice playable without a Dig Site", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 1;
+    const effectText = getCurrentSeasonCardEffectText(
+      state,
+      "boon_a_wonderful_find"
+    );
+
+    expect(getResourceGainChoiceRule(state, effectText)).toEqual({
+      resources: ["metal", "goods"],
+      amount: 1,
+      alternativeToStrainRemoval: false
+    });
+    expect(effectHasNoValidChoiceTargets(state, effectText)).toBe(false);
+    expect(suggestEffectAdjustment(state, effectText).requiresManualChoice).toBe(true);
+    expect(
+      isResourceGainChoiceAdjustmentValid(state, effectText, {
+        resourceDeltas: { metal: 1 }
+      })
+    ).toBe(true);
+    expect(
+      isResourceGainChoiceAdjustmentValid(state, effectText, {
+        resourceDeltas: { metal: 1, goods: 1 }
+      })
+    ).toBe(false);
   });
 
   it.each([

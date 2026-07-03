@@ -22,6 +22,94 @@ const coreTile = (
 });
 
 describe("effect prompt controls", () => {
+  it("keeps Help Stands disabled until every earned resource is selected", () => {
+    const state = createNewGame(2, ["vanguard", "warden"]);
+    state.season = 2;
+    state.players = state.players.map((player, index) => ({
+      ...player,
+      stewardHexId: index === 0 ? "G1" : "H1"
+    }));
+    state.map.placedTiles = [
+      coreTile("c15_path", "tile_1", "G1"),
+      coreTile("c15_path", "tile_2", "H1")
+    ];
+    const effect: PendingEffectState = {
+      id: "effect_help_stands",
+      sourceType: "card",
+      sourceId: "boon_where_help_stands",
+      sourceName: "Help Stands",
+      title: "Revealed Help Stands",
+      effectText:
+        "For each Steward-occupied tile, remove 1 Strain. For each that had none, gain 2 resources, up to 4 total.",
+      requiresManualChoice: true
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    const addWood = screen.getByRole("button", { name: "Add 1 Wood" });
+    fireEvent.click(addWood);
+    expect(screen.getByText("1/4 resources selected")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeDisabled();
+
+    fireEvent.click(addWood);
+    fireEvent.click(screen.getByRole("button", { name: "Add 1 Food" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add 1 Goods" }));
+
+    expect(screen.getByText("4/4 resources selected")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
+  });
+
+  it("repairs an already-open Help Stands prompt with its required Strain removal", () => {
+    const state = createNewGame(2, ["vanguard", "warden"]);
+    state.season = 2;
+    state.players = state.players.map((player, index) => ({
+      ...player,
+      stewardHexId: index === 0 ? "G1" : "H1"
+    }));
+    state.map.placedTiles = [
+      coreTile("c15_path", "tile_1", "G1", 1),
+      coreTile("c15_path", "tile_2", "H1")
+    ];
+    const effect: PendingEffectState = {
+      id: "effect_help_stands_saved",
+      sourceType: "card",
+      sourceId: "boon_where_help_stands",
+      sourceName: "Help Stands",
+      title: "Revealed Help Stands",
+      effectText:
+        "For each Steward-occupied tile, remove 1 Strain. For each that had none, gain 2 resources, up to 4 total.",
+      requiresManualChoice: true
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(screen.getByLabelText("Effect preview")).toHaveTextContent(
+      "Path (G1): -1 Strain"
+    );
+    expect(screen.getByText("0/2 resources selected")).toBeInTheDocument();
+  });
+
+  it("allows Wonderful Find's resource choice when no Dig Site is placed", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const effect: PendingEffectState = {
+      id: "effect_wonderful_find",
+      sourceType: "card",
+      sourceId: "boon_a_wonderful_find",
+      sourceName: "The Wonderful Find",
+      title: "Revealed The Wonderful Find",
+      effectText:
+        "Gain 1 Metal or 1 Goods. If there is a placed Dig Site / Excavation Site, one such tile gains Supported.",
+      requiresManualChoice: true
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(screen.queryByText("Tiles")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add 1 Metal" }));
+    expect(screen.getByText("1/1 resources selected")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
+  });
+
   it("allows Warden Relief to place Supported on an eligible tile", () => {
     const state = createNewGame(1, ["warden"]);
     state.map.placedTiles = [coreTile("c15_path", "tile_path", "G1")];
