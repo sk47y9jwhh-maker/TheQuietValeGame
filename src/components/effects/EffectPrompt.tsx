@@ -22,6 +22,7 @@ import {
   getTileAdjustmentRule,
   getValidEffectStrainTargets,
   getTimerAdjustmentRule,
+  hasWardenReliefTarget,
   hasEffectAdjustment,
   isResourceExchangeAdjustmentValid,
   isAlternativeEffectAdjustmentValid,
@@ -154,8 +155,10 @@ export function EffectPrompt({
     effect.allowBurdenResolve &&
     state.encounters.activeBurdens.length > 0 &&
     resolvedBurdenIds.length === 0;
+  const wardenReliefHasNoTarget =
+    Boolean(effect.allowWardenRelief) && !hasWardenReliefTarget(state);
   const wardenReliefInvalid =
-    effect.allowWardenRelief && !isWardenReliefAdjustmentValid(adjustment);
+    effect.allowWardenRelief && !isWardenReliefAdjustmentValid(state, adjustment);
   const timerInvalid = !isTimerAdjustmentValid(
     state,
     effect.effectText,
@@ -321,9 +324,10 @@ export function EffectPrompt({
     Boolean(tileAdjustmentRule.strain || tileAdjustmentRule.support) &&
     selectedStrainEntries.length === 0 &&
     supportTileIds.length === 0 &&
-    !allowsResourceInsteadOfTile;
+    !allowsResourceInsteadOfTile &&
+    !wardenReliefHasNoTarget;
   const cannotApply =
-    Boolean(effect.requiresManualChoice && !hasChanges) ||
+    Boolean(effect.requiresManualChoice && !hasChanges && !wardenReliefHasNoTarget) ||
     missingRequiredTileChoice ||
     timerInvalid ||
     exchangeInvalid ||
@@ -710,6 +714,8 @@ export function EffectPrompt({
         <span className={cannotApply ? "effect-choice-waiting" : "effect-choice-ready"}>
           {cannotApply
             ? "Complete a valid choice"
+            : wardenReliefHasNoTarget
+              ? "No eligible tile — continue"
             : previewItems.length > 0
               ? "Will apply"
               : "Ready to continue"}
@@ -737,7 +743,9 @@ export function EffectPrompt({
             type="button"
           >
             <Check size={18} />
-            {effect.confirmLabel ?? "Apply Effect"}
+            {wardenReliefHasNoTarget
+              ? "Continue"
+              : effect.confirmLabel ?? "Apply Effect"}
           </button>
         </div>
       </div>
@@ -1039,7 +1047,7 @@ export function EffectPrompt({
         </section>
       )}
 
-      {effect.requiresManualChoice && !hasChanges && (
+      {effect.requiresManualChoice && !hasChanges && !wardenReliefHasNoTarget && (
         <p className="failure-note">A choice is required before this effect can resolve.</p>
       )}
       {burdenResolveInvalid && (

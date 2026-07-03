@@ -1320,6 +1320,37 @@ describe("game actions", () => {
     expect(relieved.map.placedTiles[0].strain).toBe(0);
   });
 
+  it("does not queue Warden Relief when every tile is already Supported and unstrained", () => {
+    const state = createNewGame(2, ["vanguard", "warden"]);
+    const ready = {
+      ...state,
+      phase: "reveal" as const,
+      encounters: {
+        ...state.encounters,
+        deck: ["burden_smoke_over_hearths"]
+      },
+      map: {
+        placedTiles: [
+          {
+            instanceId: "tile_1",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: true, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    const revealed = revealEncounters(ready);
+    const cancelled = cancelPendingBurdenWithWarden(revealed);
+
+    expect(cancelled.pendingEffects).toHaveLength(0);
+    expect(cancelled.log[0].message).toContain("no eligible tile");
+  });
+
   it("uses Quartermaster's Steward Power as a capped resource exchange prompt", () => {
     const state = createNewGame(1, ["quartermaster"]);
     const ready = {

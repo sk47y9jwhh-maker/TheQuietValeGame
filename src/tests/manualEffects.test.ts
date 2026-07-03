@@ -56,6 +56,14 @@ describe("manual effect suggestions", () => {
     });
   });
 
+  it("recognises Warden Relief's place-Supported choice", () => {
+    expect(
+      getTileAdjustmentRule(
+        "Choose exactly one: remove 1 Strain from any tile, or place Supported on one tile."
+      ).support
+    ).toEqual({ maxTargets: 1 });
+  });
+
   it.each([
     [1, 2],
     [2, 3],

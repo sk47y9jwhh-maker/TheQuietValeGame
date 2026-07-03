@@ -195,7 +195,9 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
   if (pending.allowWardenRelief) {
     const strained = state.map.placedTiles.find((tile) => tile.strain > 0);
     if (strained) return { tileStrainDeltas: { [strained.instanceId]: -1 } };
-    const tile = state.map.placedTiles[0];
+    const tile = state.map.placedTiles.find(
+      (candidate) => !candidate.support.passive && !candidate.support.singleUse
+    );
     return tile ? { supportTileIds: [tile.instanceId] } : {};
   }
   if (pending.allowTemporaryReachPlayerId) {

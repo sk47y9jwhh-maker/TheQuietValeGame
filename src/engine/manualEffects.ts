@@ -31,16 +31,56 @@ function hasStringRecordChanges(record: Record<string, string> | undefined): boo
   return Object.values(record ?? {}).some(Boolean);
 }
 
-export function isWardenReliefAdjustmentValid(adjustment: EffectAdjustment): boolean {
+export function hasWardenReliefTarget(state: GameState): boolean {
+  return state.map.placedTiles.some(
+    (tile) =>
+      tile.strain > 0 || (!tile.support.passive && !tile.support.singleUse)
+  );
+}
+
+export function isWardenReliefAdjustmentValid(
+  state: GameState,
+  adjustment: EffectAdjustment
+): boolean {
+  if (
+    hasResourceChanges(adjustment) ||
+    hasRecordChanges(adjustment.arrivalTimerDeltas) ||
+    hasStringRecordChanges(adjustment.stewardHexUpdates) ||
+    hasStringRecordChanges(adjustment.temporaryReachHexUpdates) ||
+    Boolean(adjustment.ignoredBurdenIds?.length) ||
+    Boolean(adjustment.resolvedBurdenIds?.length)
+  ) {
+    return false;
+  }
+
   const strainDeltas = Object.values(adjustment.tileStrainDeltas ?? {});
-  const supportCount = adjustment.supportTileIds?.length ?? 0;
+  const supportIds = [...new Set(adjustment.supportTileIds ?? [])];
+  const supportCount = supportIds.length;
   const strainRemovalCount = strainDeltas.reduce(
     (total, delta) => total + (delta < 0 ? Math.abs(delta) : 0),
     0
   );
   const hasInvalidStrainDelta = strainDeltas.some((delta) => delta > 0 || delta < -1);
 
-  return !hasInvalidStrainDelta && supportCount + strainRemovalCount === 1;
+  if (hasInvalidStrainDelta) return false;
+  if (!hasWardenReliefTarget(state)) {
+    return supportCount + strainRemovalCount === 0;
+  }
+
+  const supportIsLegal = supportIds.every((tileId) => {
+    const tile = state.map.placedTiles.find((candidate) => candidate.instanceId === tileId);
+    return Boolean(tile && !tile.support.passive && !tile.support.singleUse);
+  });
+  const strainRemovalIsLegal = Object.entries(
+    adjustment.tileStrainDeltas ?? {}
+  ).every(([tileId, delta]) => {
+    if (delta === 0) return true;
+    const tile = state.map.placedTiles.find((candidate) => candidate.instanceId === tileId);
+    return Boolean(tile && delta === -1 && tile.strain > 0);
+  });
+
+  return supportIsLegal && strainRemovalIsLegal &&
+    supportCount + strainRemovalCount === 1;
 }
 
 export function isResourceExchangeAdjustmentValid(
@@ -545,7 +585,7 @@ function parseChosenTargetCountBefore(effectText: string, actionIndex: number): 
 export function getTileAdjustmentRule(effectText: string): TileAdjustmentRule {
   const lower = effectText.toLowerCase();
   const rule: TileAdjustmentRule = {};
-  const supportAction = lower.search(/\b(?:gain|gains)\s+supported\b/);
+  const supportAction = lower.search(/\b(?:(?:gain|gains)\s+|place\s+)supported\b/);
 
   if (supportAction >= 0) {
     rule.support = { maxTargets: parseTargetCount(effectText, supportAction) };
@@ -1335,7 +1375,7 @@ export function resolvePendingEffect(
   }
   if (
     pendingEffect.allowWardenRelief &&
-    !isWardenReliefAdjustmentValid(effectiveAdjustment)
+    !isWardenReliefAdjustmentValid(state, effectiveAdjustment)
   ) {
     return state;
   }

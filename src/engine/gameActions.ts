@@ -12,6 +12,7 @@ import {
 import {
   effectHasNoValidChoiceTargets,
   getCurrentSeasonCardEffectText,
+  hasWardenReliefTarget,
   queuePendingEffect,
   queuePendingEffectFirst,
   queueRestingHallBurdenPassive,
@@ -1669,10 +1670,10 @@ export function cancelPendingBurdenWithWarden(state: GameState): GameState {
     `${warden.name} used Warden's Steward Power to cancel ${burdenName}'s reveal effect.`
   );
 
-  if (cancelledState.map.placedTiles.length === 0) {
+  if (!hasWardenReliefTarget(cancelledState)) {
     return log(
       cancelledState,
-      "Warden Power had no tile available for Strain removal or Supported."
+      "Warden Power had no eligible tile for Strain removal or Supported."
     );
   }
 

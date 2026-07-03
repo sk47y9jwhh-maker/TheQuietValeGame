@@ -22,6 +22,68 @@ const coreTile = (
 });
 
 describe("effect prompt controls", () => {
+  it("allows Warden Relief to place Supported on an eligible tile", () => {
+    const state = createNewGame(1, ["warden"]);
+    state.map.placedTiles = [coreTile("c15_path", "tile_path", "G1")];
+    const effect: PendingEffectState = {
+      id: "effect_warden_relief",
+      sourceType: "system",
+      sourceId: "warden",
+      sourceName: "Warden",
+      title: "Warden Relief",
+      effectText:
+        "Choose exactly one: remove 1 Strain from any tile, or place Supported on one tile.",
+      requiresManualChoice: true,
+      allowWardenRelief: true,
+      confirmLabel: "Apply Warden Relief"
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(screen.getByRole("button", { name: /apply warden relief/i })).toBeDisabled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Place Supported on Path" })
+    );
+    expect(screen.getByLabelText("Effect preview")).toHaveTextContent(
+      "Path (G1): gains Supported"
+    );
+    expect(screen.getByRole("button", { name: /apply warden relief/i })).toBeEnabled();
+  });
+
+  it("allows an already-stuck Warden Relief prompt to continue when no target exists", () => {
+    const state = createNewGame(1, ["warden"]);
+    const tile = coreTile("c15_path", "tile_path", "G1");
+    tile.support.singleUse = true;
+    state.map.placedTiles = [tile];
+    const applied: unknown[] = [];
+    const effect: PendingEffectState = {
+      id: "effect_warden_relief",
+      sourceType: "system",
+      sourceId: "warden",
+      sourceName: "Warden",
+      title: "Warden Relief",
+      effectText:
+        "Choose exactly one: remove 1 Strain from any tile, or place Supported on one tile.",
+      requiresManualChoice: true,
+      allowWardenRelief: true,
+      confirmLabel: "Apply Warden Relief"
+    };
+
+    render(
+      <EffectPrompt
+        state={state}
+        effect={effect}
+        onApply={(adjustment) => applied.push(adjustment)}
+      />
+    );
+
+    expect(screen.getByText("No eligible tile — continue")).toBeInTheDocument();
+    const continueButton = screen.getByRole("button", { name: "Continue" });
+    expect(continueButton).toBeEnabled();
+    fireEvent.click(continueButton);
+    expect(applied).toHaveLength(1);
+  });
+
   it("keeps Settlement of Plenty disabled until all five resources are chosen", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.season = 3;
