@@ -895,6 +895,60 @@ export type AlternativeEffectRule =
       requiredStrainTotal: number;
     };
 
+export interface ResourceGainChoiceRule {
+  resources: ResourceType[];
+  amount: number;
+  alternativeToStrainRemoval: boolean;
+}
+
+export function getResourceGainChoiceRule(
+  state: GameState,
+  effectText: string,
+  sourceTile?: PlacedTile
+): ResourceGainChoiceRule | null {
+  const activeText = getActiveEffectText(state, effectText, sourceTile);
+  const match = activeText.match(
+    /\bgain\s+(\d+)\s+(Wood|Stone|Metal|Food|Herbs|Goods)\s+(?:and\/or|or)\s+(?:(\d+)\s+)?(Wood|Stone|Metal|Food|Herbs|Goods)\b/i
+  );
+  if (!match) return null;
+  const resourcesInChoice = [
+    match[2].toLowerCase() as ResourceType,
+    match[4].toLowerCase() as ResourceType
+  ];
+  return {
+    resources: [...new Set(resourcesInChoice)],
+    amount: Number(match[1]),
+    alternativeToStrainRemoval: /if\s+(?:no\s+strain|none)\s+is\s+removed/i.test(
+      activeText.slice(0, match.index ?? 0)
+    )
+  };
+}
+
+export function isResourceGainChoiceAdjustmentValid(
+  state: GameState,
+  effectText: string,
+  adjustment: EffectAdjustment,
+  sourceTile?: PlacedTile
+): boolean {
+  const rule = getResourceGainChoiceRule(state, effectText, sourceTile);
+  if (!rule) return true;
+  const strainRemoved = Object.values(adjustment.tileStrainDeltas ?? {}).reduce(
+    (total, delta) => total + Math.max(0, -delta),
+    0
+  );
+  const gainsAreLegal = resources.every((resource) => {
+    const delta = adjustment.resourceDeltas?.[resource] ?? 0;
+    return delta >= 0 && (rule.resources.includes(resource) || delta === 0);
+  });
+  if (!gainsAreLegal) return false;
+  const totalGain = rule.resources.reduce(
+    (total, resource) => total + Math.max(0, adjustment.resourceDeltas?.[resource] ?? 0),
+    0
+  );
+  if (rule.alternativeToStrainRemoval && strainRemoved > 0) return totalGain === 0;
+  return totalGain === rule.amount;
+}
+
 function resourcesMentionedBefore(text: string, end: number): ResourceType[] {
   const prefix = text.slice(0, end).toLowerCase();
   if (prefix.includes("any non-goods resource")) {
@@ -1294,6 +1348,17 @@ export function resolvePendingEffect(
   if (
     !pendingEffect.allowWardenRelief &&
     !isAlternativeEffectAdjustmentValid(
+      state,
+      pendingEffect.effectText,
+      effectiveAdjustment,
+      sourceTile
+    )
+  ) {
+    return state;
+  }
+  if (
+    !pendingEffect.allowWardenRelief &&
+    !isResourceGainChoiceAdjustmentValid(
       state,
       pendingEffect.effectText,
       effectiveAdjustment,

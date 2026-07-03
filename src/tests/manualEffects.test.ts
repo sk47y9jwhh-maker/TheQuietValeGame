@@ -6,8 +6,10 @@ import {
   getCurrentSeasonCardEffectText,
   getEffectSupportTargets,
   getEffectTileTargets,
+  getResourceGainChoiceRule,
   getTileAdjustmentRule,
   getTimerAdjustmentRule,
+  isResourceGainChoiceAdjustmentValid,
   isTileAdjustmentValid,
   isAlternativeEffectAdjustmentValid,
   isTimerAdjustmentValid,
@@ -52,6 +54,92 @@ describe("manual effect suggestions", () => {
       metal: 2,
       goods: 2
     });
+  });
+
+  it.each([
+    [1, 2],
+    [2, 3],
+    [3, 5]
+  ] as const)(
+    "requires the full Settlement of Plenty resource total in Season %i",
+    (season, amount) => {
+      const state = createNewGame(1, ["vanguard"]);
+      state.season = season;
+      const effectText = getCurrentSeasonCardEffectText(
+        state,
+        "boon_the_settlement_of_plenty"
+      );
+
+      expect(getResourceGainChoiceRule(state, effectText)).toEqual({
+        resources: ["food", "goods"],
+        amount,
+        alternativeToStrainRemoval: true
+      });
+      expect(
+        isResourceGainChoiceAdjustmentValid(state, effectText, {
+          resourceDeltas: { food: 1 }
+        })
+      ).toBe(false);
+      expect(
+        isResourceGainChoiceAdjustmentValid(state, effectText, {
+          resourceDeltas: { food: amount - 1, goods: 1 }
+        })
+      ).toBe(true);
+    }
+  );
+
+  it("accepts Settlement of Plenty's Strain-removal branch without resource gains", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 3;
+    const effectText = getCurrentSeasonCardEffectText(
+      state,
+      "boon_the_settlement_of_plenty"
+    );
+
+    expect(
+      isResourceGainChoiceAdjustmentValid(state, effectText, {
+        tileStrainDeltas: { tile_path: -1 }
+      })
+    ).toBe(true);
+    expect(
+      isResourceGainChoiceAdjustmentValid(state, effectText, {
+        resourceDeltas: { food: 5 },
+        tileStrainDeltas: { tile_path: -1 }
+      })
+    ).toBe(false);
+  });
+
+  it("does not resolve Settlement of Plenty after only one of five resources", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 3;
+    const effectText = getCurrentSeasonCardEffectText(
+      state,
+      "boon_the_settlement_of_plenty"
+    );
+    state.pendingEffects = [
+      {
+        id: "effect_settlement",
+        sourceType: "card",
+        sourceId: "boon_the_settlement_of_plenty",
+        sourceName: "Settlement of Plenty",
+        title: "Use Boon: Settlement of Plenty",
+        effectText,
+        requiresManualChoice: true
+      }
+    ];
+    state.warehouse.food = 0;
+
+    const incomplete = resolvePendingEffect(state, {
+      resourceDeltas: { food: 1 }
+    });
+    expect(incomplete.pendingEffects).toHaveLength(1);
+    expect(incomplete.warehouse.food).toBe(0);
+
+    const complete = resolvePendingEffect(state, {
+      resourceDeltas: { food: 5 }
+    });
+    expect(complete.pendingEffects).toHaveLength(0);
+    expect(complete.warehouse.food).toBe(5);
   });
 
   it("suggests timer changes when there is one active Arrival", () => {

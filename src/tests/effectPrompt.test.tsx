@@ -22,6 +22,38 @@ const coreTile = (
 });
 
 describe("effect prompt controls", () => {
+  it("keeps Settlement of Plenty disabled until all five resources are chosen", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 3;
+    const effect: PendingEffectState = {
+      id: "effect_settlement",
+      sourceType: "card",
+      sourceId: "boon_the_settlement_of_plenty",
+      sourceName: "Settlement of Plenty",
+      title: "Use Boon: Settlement of Plenty",
+      effectText:
+        "Choose 1 connected group of 5 or more non-Overstrained tiles. Remove up to 3 Strain among tiles in that group. If none is removed, gain 5 Food and/or Goods.",
+      requiresManualChoice: true
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    const addFood = screen.getByRole("button", { name: "Add 1 Food" });
+    fireEvent.click(addFood);
+    expect(screen.getByText("1/5 resources selected")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeDisabled();
+
+    fireEvent.click(addFood);
+    fireEvent.click(addFood);
+    fireEvent.click(screen.getByRole("button", { name: "Add 1 Goods" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add 1 Goods" }));
+
+    expect(screen.getByText("5/5 resources selected")).toBeInTheDocument();
+    expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Gain 3 Food");
+    expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Gain 2 Goods");
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
+  });
+
   it("shows a compact preview instead of controls for a prepared resource effect", () => {
     const state = createNewGame(1, ["vanguard"]);
     const effect: PendingEffectState = {

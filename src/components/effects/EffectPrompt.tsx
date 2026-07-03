@@ -18,12 +18,14 @@ import {
   getEffectSupportTargets,
   getAlternativeEffectRule,
   getActiveEffectText,
+  getResourceGainChoiceRule,
   getTileAdjustmentRule,
   getValidEffectStrainTargets,
   getTimerAdjustmentRule,
   hasEffectAdjustment,
   isResourceExchangeAdjustmentValid,
   isAlternativeEffectAdjustmentValid,
+  isResourceGainChoiceAdjustmentValid,
   isTileAdjustmentValid,
   isWardenReliefAdjustmentValid,
   isTimerAdjustmentValid,
@@ -177,6 +179,11 @@ export function EffectPrompt({
     effect.effectText,
     sourceTile
   );
+  const resourceGainChoiceRule = getResourceGainChoiceRule(
+    state,
+    effect.effectText,
+    sourceTile
+  );
   const timerRule = getTimerAdjustmentRule(activeEffectText);
   const tileControlData = useMemo(() => {
     const suggestedStrainIds = Object.keys(effect.suggestedAdjustment?.tileStrainDeltas ?? {});
@@ -234,6 +241,8 @@ export function EffectPrompt({
     /\bgain\s+\d+\s+resources/.test(effectText);
   const visibleResources = alternativeEffectRule
     ? alternativeEffectRule.resources
+    : resourceGainChoiceRule
+    ? resourceGainChoiceRule.resources
     : broadResourceChoice
     ? resources
     : resources.filter(
@@ -252,6 +261,7 @@ export function EffectPrompt({
     );
   const hasEditableResourceChoice =
     Boolean(alternativeEffectRule) ||
+    Boolean(resourceGainChoiceRule) ||
     effect.resourceExchangeLimit !== undefined ||
     broadResourceChoice ||
     hasExplicitResourceAlternative;
@@ -295,9 +305,16 @@ export function EffectPrompt({
     adjustment,
     sourceTile
   );
+  const resourceGainChoiceInvalid = !isResourceGainChoiceAdjustmentValid(
+    state,
+    effect.effectText,
+    adjustment,
+    sourceTile
+  );
   const allowsResourceInsteadOfTile = Boolean(
     alternativeEffectRule?.kind === "pay_or_strain" ||
-    alternativeEffectRule?.kind === "warehouse_loss_or_strain"
+    alternativeEffectRule?.kind === "warehouse_loss_or_strain" ||
+    resourceGainChoiceRule?.alternativeToStrainRemoval
   );
   const missingRequiredTileChoice =
     Boolean(effect.requiresManualChoice && needsTileChoice) &&
@@ -311,6 +328,7 @@ export function EffectPrompt({
     timerInvalid ||
     exchangeInvalid ||
     alternativeEffectInvalid ||
+    resourceGainChoiceInvalid ||
     Boolean(burdenResolveInvalid) ||
     Boolean(wardenReliefInvalid) ||
     tileAdjustmentInvalid;
@@ -412,6 +430,12 @@ export function EffectPrompt({
       sourceTile
     ) ? 1 : 0;
   })();
+  const selectedResourceGain = resourceGainChoiceRule
+    ? resourceGainChoiceRule.resources.reduce(
+        (total, resource) => total + Math.max(0, resourceDeltas[resource] ?? 0),
+        0
+      )
+    : null;
 
   function resourceStepFor(resource: ResourceType): number {
     return alternativeEffectRule?.resources.includes(resource)
@@ -420,6 +444,11 @@ export function EffectPrompt({
   }
 
   function canAdjustResource(resource: ResourceType, delta: number): boolean {
+    if (resourceGainChoiceRule) {
+      const current = resourceDeltas[resource] ?? 0;
+      if (delta < 0) return current > 0;
+      return (selectedResourceGain ?? 0) < resourceGainChoiceRule.amount;
+    }
     if (!alternativeEffectRule) return true;
     const current = resourceDeltas[resource] ?? 0;
     if (delta > 0) return current < 0;
@@ -446,6 +475,12 @@ export function EffectPrompt({
       next[resource] = (next[resource] ?? 0) + delta;
       return next;
     });
+    if (
+      resourceGainChoiceRule?.alternativeToStrainRemoval &&
+      delta > 0
+    ) {
+      setTileStrainDeltas({});
+    }
     if (alternativeEffectRule?.kind === "warehouse_loss_or_strain" && delta < 0) {
       setTileStrainDeltas({});
     }
@@ -577,6 +612,12 @@ export function EffectPrompt({
     const nextDelta = getNextStrainDelta(tileId, delta);
     setTileStrainDeltas((current) => ({ ...current, [tileId]: nextDelta }));
     if (alternativeEffectRule?.kind === "warehouse_loss_or_strain" && nextDelta > 0) {
+      setResourceDeltas(emptyResourceDeltas());
+    }
+    if (
+      resourceGainChoiceRule?.alternativeToStrainRemoval &&
+      nextDelta < 0
+    ) {
       setResourceDeltas(emptyResourceDeltas());
     }
   }
@@ -712,6 +753,13 @@ export function EffectPrompt({
                 : `${alternativeResolvedChoices}/${alternativeEffectRule.requiredChoices} outcomes selected`}
             </span>
           )}
+          {resourceGainChoiceRule && selectedResourceGain !== null && (
+            <span>
+              {resourceGainChoiceRule.alternativeToStrainRemoval && selectedStrainTotal > 0
+                ? "Strain removal selected"
+                : `${selectedResourceGain}/${resourceGainChoiceRule.amount} resources selected`}
+            </span>
+          )}
         </div>
         <div className="effect-grid">
           {(visibleResources.length > 0 ? visibleResources : resources).map((resource) => (
@@ -721,7 +769,13 @@ export function EffectPrompt({
               </span>
               <div className="stepper">
                 <button
-                  aria-label={`Spend ${resourceStepFor(resource)} ${resourceLabels[resource]}`}
+                  aria-label={
+                    resourceGainChoiceRule
+                      ? `Remove ${resourceStepFor(resource)} ${resourceLabels[resource]} selection`
+                      : alternativeEffectRule
+                        ? `Spend ${resourceStepFor(resource)} ${resourceLabels[resource]}`
+                        : `Decrease ${resourceLabels[resource]} adjustment`
+                  }
                   disabled={!canAdjustResource(resource, -resourceStepFor(resource))}
                   onClick={() => adjustResource(resource, -resourceStepFor(resource))}
                   type="button"
@@ -730,7 +784,13 @@ export function EffectPrompt({
                 </button>
                 <strong>{resourceDeltas[resource] > 0 ? "+" : ""}{resourceDeltas[resource]}</strong>
                 <button
-                  aria-label={`Undo ${resourceStepFor(resource)} ${resourceLabels[resource]}`}
+                  aria-label={
+                    resourceGainChoiceRule
+                      ? `Add ${resourceStepFor(resource)} ${resourceLabels[resource]}`
+                      : alternativeEffectRule
+                        ? `Undo ${resourceStepFor(resource)} ${resourceLabels[resource]}`
+                        : `Increase ${resourceLabels[resource]} adjustment`
+                  }
                   disabled={!canAdjustResource(resource, resourceStepFor(resource))}
                   onClick={() => adjustResource(resource, resourceStepFor(resource))}
                   type="button"
