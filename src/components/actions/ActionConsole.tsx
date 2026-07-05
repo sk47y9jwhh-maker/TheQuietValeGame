@@ -7,7 +7,7 @@ import {
   Sparkles,
   SquarePlus
 } from "lucide-react";
-import { useEffect, type KeyboardEvent } from "react";
+import { useEffect, useRef, type KeyboardEvent } from "react";
 import { InspectIconButton } from "../common/InspectIconButton";
 import { EffectPrompt } from "../effects/EffectPrompt";
 import { encounterById } from "../../data/encounters";
@@ -135,6 +135,7 @@ export function ActionConsole({
   ledgerCampaign,
   onRecordLedgerGame
 }: ActionConsoleProps) {
+  const tileChoiceListRef = useRef<HTMLDivElement>(null);
   const currentPlayer = selectCurrentPlayer(state);
   const ledgerRun = getLedgerRun(state);
   const ledgerAchievements = ledgerCampaign
@@ -259,6 +260,11 @@ export function ActionConsole({
     onPlacementOrientationChange,
     placementOrientation
   ]);
+
+  useEffect(() => {
+    if (actionMode !== "place" || footprintKind !== "line") return;
+    if (tileChoiceListRef.current) tileChoiceListRef.current.scrollTop = 0;
+  }, [actionMode, footprintKind, selectedTileId]);
 
   if (pendingEffect) {
     return (
@@ -406,7 +412,12 @@ export function ActionConsole({
             <span>
               <strong>{legalHexes.length}</strong> legal spaces
             </span>
-            {!canPlaceSelected && <span>Choose a tile and hex</span>}
+            {!canPlaceSelected && footprintKind === "single" && (
+              <span>Choose a tile and hex</span>
+            )}
+            {!canPlaceSelected && footprintKind === "line" && (
+              <span>Choose a starting hex and direction</span>
+            )}
             {footprintKind === "detached" && (
               <span>
                 <strong>
@@ -417,17 +428,50 @@ export function ActionConsole({
             )}
           </div>
           {footprintKind === "line" && (
-            <div className="orientation-grid compact" aria-label="Tile orientation">
-              {hexDirections.map((direction) => (
-                <button
-                  key={direction}
-                  className={placementOrientation === direction ? "selected" : ""}
-                  onClick={() => onPlacementOrientationChange(direction)}
-                  type="button"
-                >
-                  {hexDirectionLabels[direction]}
-                </button>
-              ))}
+            <div className="placement-guidance placement-direction-prompt">
+              <div>
+                <strong>Choose the tile’s direction</strong>
+                <span>
+                  Select a starting hex, then choose the direction Street or Track extends.
+                </span>
+              </div>
+              <div className="orientation-grid compact" aria-label="Tile orientation">
+                {hexDirections.map((direction) => (
+                  <button
+                    key={direction}
+                    className={placementOrientation === direction ? "selected" : ""}
+                    onClick={() => onPlacementOrientationChange(direction)}
+                    type="button"
+                  >
+                    {hexDirectionLabels[direction]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {footprintKind === "detached" && (
+            <div className="placement-guidance stables-placement-prompt" aria-live="polite">
+              <div>
+                <strong>
+                  {selectedHexIds.length === 0
+                    ? "Choose the first Stable"
+                    : selectedHexIds.length === 1
+                      ? "Choose the second Stable"
+                      : "Both Stables selected"}
+                </strong>
+                <span>
+                  Choose two separate gold-outlined spaces. They do not need to be adjacent,
+                  but each must connect to the reachable settlement network.
+                </span>
+              </div>
+              <div className="stables-placement-steps">
+                <span className={selectedHexIds[0] ? "complete" : "current"}>
+                  <strong>1</strong> First Stable: {selectedHexIds[0] ?? "select on map"}
+                </span>
+                <span className={selectedHexIds[1] ? "complete" : "current"}>
+                  <strong>2</strong> Second Stable: {selectedHexIds[1] ?? "select on map"}
+                </span>
+              </div>
             </div>
           )}
           <div className="tile-choice-field">
@@ -435,6 +479,7 @@ export function ActionConsole({
             <div
               aria-label="Choose a tile"
               className="tile-choice-list"
+              ref={tileChoiceListRef}
               role="listbox"
             >
               {placeableTiles.map((tile) => {

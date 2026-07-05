@@ -1556,6 +1556,60 @@ describe("game actions", () => {
     expect(next.pendingEffects).toHaveLength(0);
   });
 
+  it("places the two Stables on non-adjacent legal hexes", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      players: [{ ...state.players[0], hasPlacedFirstTile: true }],
+      tileSupply: {
+        ...state.tileSupply,
+        special: { ...state.tileSupply.special, special_stables: 2 }
+      },
+      map: {
+        placedTiles: [
+          {
+            instanceId: "path_1",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "path_2",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["H1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "path_3",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["I1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    const next = placeTile(ready, "player_1", "special_stables", {
+      anchorHexId: "G2",
+      secondaryHexIds: ["I2"]
+    });
+
+    expect(next.map.placedTiles.slice(-2).map((tile) => tile.hexIds)).toEqual([
+      ["G2"],
+      ["I2"]
+    ]);
+  });
+
   it("moves a Steward through Stables without spending an action", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {

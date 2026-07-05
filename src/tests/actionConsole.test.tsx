@@ -8,12 +8,12 @@ import { createNewGame } from "../engine/setup";
 import type { ComponentProps } from "react";
 import { createEmptyLedgerCampaign } from "../app/ledgerPersistence";
 
-function renderActionConsole(
+function actionConsoleElement(
   overrides: Partial<ComponentProps<typeof ActionConsole>> = {}
 ) {
   const state = { ...createNewGame(1, ["vanguard"]), phase: "turns" as const };
 
-  return render(
+  return (
     <ActionConsole
       actionMode="place"
       onActivate={() => {}}
@@ -41,6 +41,12 @@ function renderActionConsole(
       {...overrides}
     />
   );
+}
+
+function renderActionConsole(
+  overrides: Partial<ComponentProps<typeof ActionConsole>> = {}
+) {
+  return render(actionConsoleElement(overrides));
 }
 
 describe("action console", () => {
@@ -138,6 +144,57 @@ describe("action console", () => {
     });
 
     expect(screen.getAllByRole("option")[0]).toHaveTextContent("Street");
+  });
+
+  it("returns the tile list to the top and foregrounds direction for Street", () => {
+    const view = renderActionConsole({ selectedTileId: "c15_path" });
+    const list = screen.getByRole("listbox", { name: "Choose a tile" });
+    list.scrollTop = 240;
+
+    view.rerender(actionConsoleElement({ selectedTileId: "c16_street" }));
+
+    expect(list.scrollTop).toBe(0);
+    expect(screen.getByText("Choose the tile’s direction")).toBeInTheDocument();
+    expect(
+      screen.getByText(/choose the direction Street or Track extends/i)
+    ).toBeInTheDocument();
+  });
+
+  it("walks players through choosing two independent Stables spaces", () => {
+    const base = createNewGame(1, ["vanguard"]);
+    const state = {
+      ...base,
+      phase: "turns" as const,
+      players: [{ ...base.players[0], hasPlacedFirstTile: true }],
+      tileSupply: {
+        ...base.tileSupply,
+        special: { ...base.tileSupply.special, special_stables: 2 }
+      },
+      map: {
+        placedTiles: [
+          {
+            instanceId: "path_1",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    renderActionConsole({
+      selectedHexIds: ["G2"],
+      selectedTileId: "special_stables",
+      state
+    });
+
+    expect(screen.getByText("Choose the second Stable")).toBeInTheDocument();
+    expect(screen.getByText(/do not need to be adjacent/i)).toBeInTheDocument();
+    expect(screen.getByText("First Stable: G2")).toBeInTheDocument();
+    expect(screen.getByText("Second Stable: select on map")).toBeInTheDocument();
   });
 
   it("inspects a tile choice without selecting it", () => {
