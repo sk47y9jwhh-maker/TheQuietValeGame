@@ -3179,6 +3179,153 @@ button.effect-row {
   white-space: nowrap;
 }
 
+.rules-view-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.rules-view-tabs button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(125, 93, 47, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 246, 223, 0.66);
+  color: rgba(36, 31, 26, 0.72);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.rules-view-tabs button.selected {
+  border-color: var(--qv-muted-green);
+  background: var(--qv-muted-green);
+  color: var(--qv-cream-text);
+}
+
+.how-to-guide {
+  display: grid;
+  gap: 10px;
+}
+
+.how-to-flow {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.8fr) minmax(0, 2fr);
+  gap: 14px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid rgba(184, 138, 58, 0.34);
+  border-left: 5px solid var(--qv-brass);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(184, 138, 58, 0.14), rgba(80, 107, 79, 0.08)),
+    rgba(255, 246, 223, 0.78);
+}
+
+.how-to-flow p,
+.how-to-flow strong {
+  margin: 0;
+}
+
+.how-to-flow ol {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: guide-step;
+}
+
+.how-to-flow li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 5px;
+  align-items: center;
+  color: rgba(36, 31, 26, 0.76);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  counter-increment: guide-step;
+}
+
+.how-to-flow li::before {
+  content: counter(guide-step);
+  width: 21px;
+  height: 21px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--qv-brass);
+  color: var(--qv-ink);
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.how-to-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.how-to-card {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+}
+
+.how-to-card > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.how-to-card strong,
+.how-to-card p {
+  margin: 0;
+}
+
+.how-to-card strong {
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.how-to-card p {
+  color: rgba(36, 31, 26, 0.76);
+  font-size: 11px;
+  line-height: 1.38;
+}
+
+.how-to-step-number {
+  width: 25px;
+  height: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(80, 107, 79, 0.14);
+  color: var(--qv-muted-green-dark);
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.how-to-help-note {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(120, 148, 160, 0.12);
+  color: rgba(36, 31, 26, 0.76);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.how-to-help-note strong {
+  flex: 0 0 auto;
+  color: var(--qv-ink);
+}
+
 .rules-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
@@ -4957,13 +5104,23 @@ button.effect-row {
   .tile-reference-grid,
   .tile-reference-grid.cards,
   .tile-reference-grid.compact-reference,
-  .rules-grid {
+  .rules-grid,
+  .how-to-grid {
     grid-template-columns: 1fr;
   }
 
-  .rules-quick-start {
+  .rules-quick-start,
+  .how-to-flow {
     grid-template-columns: 1fr;
     align-items: start;
+  }
+
+  .how-to-flow ol {
+    grid-template-columns: 1fr;
+  }
+
+  .how-to-help-note {
+    display: grid;
   }
 
   .rules-status-row {

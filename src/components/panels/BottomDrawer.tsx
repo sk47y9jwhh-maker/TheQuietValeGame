@@ -37,6 +37,7 @@ import { formatCategory, formatCost, getEncounterTypeLabel } from "../common/gam
 
 type DrawerSection = "tiles" | "hand" | "specials" | "ledger" | "rules";
 type LedgerView = "game" | "chronicles" | "unlocks" | "log";
+type RulesView = "howTo" | "gameRules";
 
 interface BottomDrawerProps {
   state: GameState;
@@ -225,6 +226,7 @@ export function BottomDrawer({
 }: BottomDrawerProps) {
   const [activeSection, setActiveSection] = useState<DrawerSection | null>(null);
   const [ledgerView, setLedgerView] = useState<LedgerView>("game");
+  const [rulesView, setRulesView] = useState<RulesView>("howTo");
   const [ledgerChronicle, setLedgerChronicle] = useState<LedgerChronicle>(
     ledgerChronicles[1]
   );
@@ -267,7 +269,7 @@ export function BottomDrawer({
       detail: `${completedLedgerCount}/50 complete`,
       icon: BookMarked
     },
-    { id: "rules", label: "Rules", detail: "quick guide", icon: BookOpen }
+    { id: "rules", label: "Rules", detail: "guide & rules", icon: BookOpen }
   ] satisfies Array<{
     id: DrawerSection;
     label: string;
@@ -697,7 +699,7 @@ export function BottomDrawer({
             <div className="rules-guide">
               <section className="rules-quick-start" aria-label="Current game and quick start">
                 <div>
-                  <p className="eyebrow">Playtester Quick Guide</p>
+                  <p className="eyebrow">Playtester Guide</p>
                   <strong>Build together. Resolve every prompt. Keep Strain under control.</strong>
                 </div>
                 <div className="rules-status-row" aria-label="Current game status">
@@ -706,21 +708,145 @@ export function BottomDrawer({
                   <span>{state.actionsRemaining} actions left</span>
                 </div>
               </section>
-              <div className="rules-grid">
-                {rules.map((rule) => (
-                  <article className="mini-card rule-reference-card" key={rule.title}>
-                    <span className="rule-category">{rule.category}</span>
-                    <strong>{rule.title}</strong>
-                    {rule.summary && <p className="rule-summary">{rule.summary}</p>}
-                    <ul>
-                      {rule.bullets.map((bullet) => (
-                        <li key={bullet}>{bullet}</li>
-                      ))}
-                    </ul>
-                    {rule.note && <small className="rule-note">{rule.note}</small>}
-                  </article>
-                ))}
-              </div>
+              <nav className="rules-view-tabs" aria-label="Guide sections" role="tablist">
+                <button
+                  aria-selected={rulesView === "howTo"}
+                  className={rulesView === "howTo" ? "selected" : ""}
+                  onClick={() => setRulesView("howTo")}
+                  role="tab"
+                  type="button"
+                >
+                  How to use
+                </button>
+                <button
+                  aria-selected={rulesView === "gameRules"}
+                  className={rulesView === "gameRules" ? "selected" : ""}
+                  onClick={() => setRulesView("gameRules")}
+                  role="tab"
+                  type="button"
+                >
+                  Game rules
+                </button>
+              </nav>
+
+              {rulesView === "howTo" && (
+                <div className="how-to-guide">
+                  <section className="how-to-flow" aria-labelledby="first-game-flow-title">
+                    <div>
+                      <p className="eyebrow">First game in 60 seconds</p>
+                      <strong id="first-game-flow-title">Follow the screen from left to right</strong>
+                    </div>
+                    <ol>
+                      <li>Resolve any prompt</li>
+                      <li>Choose an action</li>
+                      <li>Follow the highlights</li>
+                      <li>Confirm the choice</li>
+                      <li>End your turn</li>
+                    </ol>
+                  </section>
+
+                  <div className="how-to-grid">
+                    <article className="mini-card how-to-card">
+                      <span className="how-to-step-number">1</span>
+                      <div>
+                        <strong>Start with the action buttons</strong>
+                        <p>
+                          Use Place, Upgrade, Activate, Interact, or Power in the left panel.
+                          You can also right-click a map hex to open its available quick actions;
+                          on a touch device, use the standard action buttons. Unavailable choices
+                          stay visible and explain what is missing. End finishes your turn early.
+                        </p>
+                      </div>
+                    </article>
+
+                    <article className="mini-card how-to-card">
+                      <span className="how-to-step-number">2</span>
+                      <div>
+                        <strong>Place or upgrade a tile</strong>
+                        <p>
+                          Choose a tile, then select one of the highlighted map hexes. Check the
+                          preview, cost, and any discounts before confirming. The eye button opens
+                          the tile’s full reference.
+                        </p>
+                      </div>
+                    </article>
+
+                    <article className="mini-card how-to-card">
+                      <span className="how-to-step-number">3</span>
+                      <div>
+                        <strong>Finish multi-part placements</strong>
+                        <p>
+                          Street and Track need a starting hex and a direction. Stables need two
+                          separate highlighted hexes; they do not need to touch, but each must
+                          connect legally. The prompt shows what still needs choosing.
+                        </p>
+                      </div>
+                    </article>
+
+                    <article className="mini-card how-to-card">
+                      <span className="how-to-step-number">4</span>
+                      <div>
+                        <strong>Resolve prompts before continuing</strong>
+                        <p>
+                          Boons, Burdens, payments, and other effects open a focused choice. Select
+                          the full amount or one complete alternative, review exactly where changes
+                          will land, then apply. A no-effect result still needs acknowledging.
+                        </p>
+                      </div>
+                    </article>
+
+                    <article className="mini-card how-to-card">
+                      <span className="how-to-step-number">5</span>
+                      <div>
+                        <strong>Use the Stewards Board and bottom drawer</strong>
+                        <p>
+                          The right board holds face-up Boons, prepared effects, Arrivals, and
+                          Burdens. The bottom drawer contains tile references, your hidden hand,
+                          unlocked Specials, Ledger progress, and these guides.
+                        </p>
+                      </div>
+                    </article>
+
+                    <article className="mini-card how-to-card">
+                      <span className="how-to-step-number">6</span>
+                      <div>
+                        <strong>Undo, leave, and resume safely</strong>
+                        <p>
+                          Use the top-right undo and redo controls for recent actions. The current
+                          game and Steward’s Ledger save automatically in this browser, so you can
+                          close the page and return later. Clearing browser storage removes them.
+                        </p>
+                      </div>
+                    </article>
+                  </div>
+
+                  <aside className="how-to-help-note">
+                    <strong>If a choice looks blocked:</strong>
+                    <span>
+                      Read the reason beside it, then check actions, resources, tile supply,
+                      settlement reach, terrain, Strain, and whether another prompt is waiting.
+                    </span>
+                  </aside>
+                </div>
+              )}
+
+              {rulesView === "gameRules" && (
+                <div className="rules-grid">
+                  {rules.map((rule) => (
+                    <article className="mini-card rule-reference-card" key={rule.title}>
+                      <span className="rule-category">{rule.category}</span>
+                      <strong>{rule.title}</strong>
+                      {rule.summary && <p className="rule-summary">{rule.summary}</p>}
+                      <ul>
+                        {rule.bullets.map((bullet) => (
+                          <li key={bullet}>{bullet}</li>
+                        ))}
+                      </ul>
+                      {rule.note && <small className="rule-note">{rule.note}</small>}
+                    </article>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </section>

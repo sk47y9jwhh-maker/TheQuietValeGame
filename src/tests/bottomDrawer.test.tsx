@@ -68,7 +68,7 @@ describe("bottom drawer", () => {
     expect(onTileInspect).toHaveBeenCalledWith("c01_lumber_yard");
   });
 
-  it("provides a player-facing quick rules guide", () => {
+  it("provides a player-facing how-to guide and full game rules", () => {
     const state = {
       ...createNewGame(1, ["vanguard"]),
       phase: "turns" as const,
@@ -82,9 +82,23 @@ describe("bottom drawer", () => {
     fireEvent.click(screen.getByRole("tab", { name: /rules/i }));
 
     expect(screen.getByRole("heading", { name: "Rules" })).toBeInTheDocument();
-    expect(screen.getByText("Playtester Quick Guide")).toBeInTheDocument();
+    expect(screen.getByText("Playtester Guide")).toBeInTheDocument();
     expect(screen.getByText("Round 1/12")).toBeInTheDocument();
     expect(screen.getByText("3 actions left")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "How to use" })).toHaveAttribute(
+      "aria-selected",
+      "true"
+    );
+    expect(screen.getByText("First game in 60 seconds")).toBeInTheDocument();
+    expect(screen.getByText(/right-click a map hex to open its available quick actions/)).toBeInTheDocument();
+    expect(screen.getByText("Finish multi-part placements")).toBeInTheDocument();
+    expect(screen.getByText(/Street and Track need a starting hex and a direction/)).toBeInTheDocument();
+    expect(screen.getByText(/save automatically in this browser/)).toBeInTheDocument();
+    expect(container.querySelectorAll(".how-to-card")).toHaveLength(6);
+    expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(0);
+
+    fireEvent.click(screen.getByRole("tab", { name: "Game rules" }));
+
     expect(screen.getByText("Placement and reach")).toBeInTheDocument();
     expect(screen.getByText("Boons, Arrivals, and Burdens")).toBeInTheDocument();
     expect(screen.getByText("Final scoring")).toBeInTheDocument();
