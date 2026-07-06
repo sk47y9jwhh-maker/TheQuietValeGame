@@ -97,8 +97,15 @@ interface BotStats {
   usedBoonIds: string[];
   tileActivationCountsByInstance: Record<string, number>;
   arrivalsExpired: number;
+  arrivalsCompletedAtOneTimer: number;
+  arrivalCompletionEvents: Array<{ cardId: string; round: number; season: number; specialTileIds: string[] }>;
   strainPrevented: number;
   strainRemoved: number;
+  maxOverstrainedTiles: number;
+  burdenRevealSeason: Record<string, number>;
+  burdenRevealRound: Record<string, number>;
+  burdensResolvedSameSeason: number;
+  burdensResolvedSameRoundBySeason: Record<number, number>;
   warehousePeak: Record<ResourceType, number>;
   seasonSnapshots: Record<string, any>;
   unusedActions: number;
@@ -168,6 +175,10 @@ function updatePeak(state: GameState, stats: BotStats): void {
   for (const resource of Object.keys(stats.warehousePeak) as ResourceType[]) {
     stats.warehousePeak[resource] = Math.max(stats.warehousePeak[resource], state.warehouse[resource]);
   }
+  stats.maxOverstrainedTiles = Math.max(
+    stats.maxOverstrainedTiles,
+    state.map.placedTiles.filter((tile) => tile.strain >= 3).length,
+  );
 }
 
 function supportPreventions(before: GameState, after: GameState): number {
@@ -545,6 +556,19 @@ function drainPending(initial: GameState, stats: BotStats, plan?: HumanSeasonPla
   return state;
 }
 
+function boonBreaksDeclaredVow(state: GameState, cardId: string, targets: string[]): boolean {
+  const card = encounterById[cardId];
+  if (!card || card.type !== "boon") return false;
+  const effect = card.effects[state.season === 1 ? "season1" : state.season === 2 ? "season2" : "season3"].toLowerCase();
+  if (hasV43Target(targets, "LE-041") && /place.*travel|travel tile/.test(effect)) return true;
+  if (hasV43Target(targets, "LE-042") && /upgrade/.test(effect)) return true;
+  return false;
+}
+
+function hasV43Target(targets: string[], ...entryIds: string[]): boolean {
+  return entryIds.some((entryId) => targets.includes(`V43-${entryId.replace("LE-", "")}`));
+}
+
 function targetCategoryWeights(targets: string[]): Partial<Record<TileCategory, number>> {
   const weights: Partial<Record<TileCategory, number>> = {};
   const add = (category: TileCategory, amount: number) => { weights[category] = (weights[category] ?? 0) + amount; };
@@ -566,6 +590,22 @@ function targetCategoryWeights(targets: string[]): Partial<Record<TileCategory, 
     if (["LE-013","LE-014","LE-015","LE-050"].includes(id)) add("special", 45);
     if (["LE-008","LE-009","LE-048"].includes(id)) {
       for (const category of ["crafting","merchant","social","wellbeing"] as TileCategory[]) add(category, 20);
+    }
+    if (["V43-005", "V43-006", "V43-007", "V43-015", "V43-016", "V43-018", "V43-040", "V43-044"].includes(id)) add("travel", 34);
+    if (["V43-008", "V43-009", "V43-010", "V43-011", "V43-013", "V43-023", "V43-034", "V43-045"].includes(id)) add("housing", 40);
+    if (["V43-009", "V43-010", "V43-013", "V43-017", "V43-033"].includes(id)) {
+      add("social", 28);
+      add("wellbeing", 28);
+    }
+    if (["V43-013", "V43-017", "V43-032", "V43-033"].includes(id)) add("merchant", 42);
+    if (["V43-032", "V43-033"].includes(id)) add("crafting", 42);
+    if (["V43-019", "V43-020", "V43-021", "V43-022", "V43-023"].includes(id)) add("special", 48);
+    if (["V43-034", "V43-035", "V43-036", "V43-037", "V43-040"].includes(id)) add("resource", 58);
+    if (["V43-003", "V43-041", "V43-042"].includes(id)) {
+      add("housing", 38);
+      add("social", 24);
+      add("wellbeing", 24);
+      add("special", 30);
     }
   }
   return weights;
@@ -624,7 +664,7 @@ function findPlacement(
     const category = tileCategory(tile);
     placedCategoryCounts.set(category, (placedCategoryCounts.get(category) ?? 0) + 1);
   }
-  if (targets.some((id) => ["LE-008", "LE-009"].includes(id))) {
+  if (targets.some((id) => ["LE-008", "LE-009"].includes(id)) || hasV43Target(targets, "LE-007", "LE-012")) {
     for (const category of ["resource", "housing", "crafting", "merchant", "social", "wellbeing", "travel"] as TileCategory[]) {
       if ((placedCategoryCounts.get(category) ?? 0) === 0) {
         categoryWeights[category] = (categoryWeights[category] ?? 0) + 75;
@@ -644,7 +684,7 @@ function findPlacement(
   if (targets.some((id) => ["LE-012", "LE-025", "LE-049"].includes(id))) {
     categoryWeights.travel = (categoryWeights.travel ?? 0) + 45;
   }
-  const noTravel = targets.includes("LE-026");
+  const noTravel = targets.includes("LE-026") || hasV43Target(targets, "LE-041");
   const noFarmstead = targets.includes("LE-027");
   const occupied = new Set(state.map.placedTiles.flatMap((tile) => tile.hexIds));
   const missingProductionTerrains = new Set<string>();
@@ -697,7 +737,7 @@ function findPlacement(
   const tiles = [
     ...coreTiles.filter((tile) => state.tileSupply.core[tile.id] > 0).map((tile) => ({ ...tile, kind: "core" as const, name: tile.basic.name })),
     ...specialTiles.filter((tile) => state.tileSupply.special[tile.id] > 0).map((tile) => ({ ...tile, kind: "special" as const, name: tile.name })),
-  ].filter((tile) => getTileFootprintKind(tile.id) !== "detached");
+  ].filter((tile) => getTileFootprintKind(tile.id) !== "detached" && !(noTravel && tile.category === "travel"));
   const scored = tiles.map((tile) => {
     let score = random() * 3 + (categoryWeights[tile.category] ?? 0);
     let reasonCode = "FINAL_SCORE_CONVERSION";
@@ -709,6 +749,8 @@ function findPlacement(
         reason = "Establish prevention or Strain relief before forecast Burdens can disable the economy or scoring district.";
       }
       score += tile.basic.population + tile.basic.renown;
+      if (hasV43Target(targets, "LE-003")) score += tile.basic.renown * 18;
+      if (hasV43Target(targets, "LE-041", "LE-042")) score += (tile.basic.population + tile.basic.renown) * 5;
       const scarcityCost = (Object.entries(tile.basic.cost) as Array<[ResourceType, number]>).reduce(
         (total, [resource, amount]) =>
           total + amount * (0.4 + Math.max(0, 8 - state.warehouse[resource]) * 0.35),
@@ -736,6 +778,14 @@ function findPlacement(
       if (tile.category === "housing") score += 24;
       if (tile.category === "travel") score += 8;
       if (tile.id === "c15_path") score += 8;
+      if (hasV43Target(targets, "LE-008") && tile.id === "c18_common_land") score += 120;
+      if (hasV43Target(targets, "LE-018", "LE-044") && tile.id === "c19_bridge") score += 130;
+      if (hasV43Target(targets, "LE-032") && tile.id === "c17_track") score += 150;
+      if (hasV43Target(targets, "LE-033") && tile.id === "c11_washhouse") score += 120;
+      if (hasV43Target(targets, "LE-034") && tile.id === "c04_farmstead") score += 120;
+      if (hasV43Target(targets, "LE-035") && tile.id === "c02_mine_tunnel") score += 120;
+      if (hasV43Target(targets, "LE-036", "LE-037") && ["c01_lumber_yard", "c02_mine_tunnel", "c03_gathering_outpost", "c04_farmstead"].includes(tile.id)) score += 105;
+      if (hasV43Target(targets, "LE-040") && ["c01_lumber_yard", "c02_mine_tunnel", "c04_farmstead"].includes(tile.id)) score += 95;
       if (plan && tile.category === "travel") {
         const travelCount = state.map.placedTiles.filter((placed) => tileCategory(placed) === "travel").length;
         if (!plan.needsTravelAnchor && travelCount >= 1) score -= 45;
@@ -768,6 +818,8 @@ function findPlacement(
       if (!player.hasPlacedFirstTile && tileCostTotal(tile.id) === 0) score += 80;
     } else {
       score += tile.population + tile.renown + 28;
+      if (hasV43Target(targets, "LE-003")) score += tile.renown * 18;
+      if (hasV43Target(targets, "LE-041", "LE-042")) score += (tile.population + tile.renown) * 5;
       if (plan?.needsSupportBeforeHousing && /supported|remove .*strain|resolve 1 active burden/i.test(tile.effectText)) {
         score += 28;
         reasonCode = "PROTECT_AGAINST_FORECAST_BURDEN";
@@ -779,6 +831,7 @@ function findPlacement(
         reason = `Place the Special Tile unlocked for this Season's planned Arrival.`;
       }
     }
+    if (noTravel && tile.category === "travel") score -= 1000;
     return { tile, score, reasonCode, reason };
   }).sort((a, b) => b.score - a.score);
 
@@ -820,6 +873,24 @@ function findPlacement(
           0,
         );
       }
+      if (hasV43Target(targets, "LE-005") && placementHexIds.some((hexId) => ["A1", "A9", "N1", "N9"].includes(hexId))) geometryScore += 260;
+      if (hasV43Target(targets, "LE-006") && placementHexIds.some((hexId) => {
+        const cell = mapById[hexId];
+        return cell.terrain !== "water" && (cell.col === "A" || cell.col === "N" || cell.row === 1 || cell.row === 9);
+      })) geometryScore += 75;
+      if (hasV43Target(targets, "LE-007") && placementHexIds.some((hexId) => mapById[hexId].terrain !== "grasslands" && mapById[hexId].terrain !== "water")) geometryScore += 65;
+      if (hasV43Target(targets, "LE-008") && tile.category === "housing" && adjacentTiles.some((placed) => placed.tileId === "c18_common_land")) geometryScore += 125;
+      if (hasV43Target(targets, "LE-009") && ["social", "wellbeing"].includes(tile.category) && adjacentCategories.includes("housing")) geometryScore += 80;
+      if (hasV43Target(targets, "LE-010") && ["housing", "social", "wellbeing"].includes(tile.category) && adjacentTiles.some((placed) => tileCategory(placed) === "wellbeing")) geometryScore += 72;
+      if (hasV43Target(targets, "LE-013") && ["housing", "social", "travel"].includes(tile.category) && adjacentCategories.includes("merchant")) geometryScore += 88;
+      if (hasV43Target(targets, "LE-014")) geometryScore += placementHexIds.reduce((total, hexId) => total + getHexNeighbors(hexId).filter((neighbor) => occupied.has(neighbor)).length * 7, 0);
+      if (hasV43Target(targets, "LE-016", "LE-017") && placementHexIds.some((hexId) => getHexNeighbors(hexId).some((neighbor) => mapById[neighbor]?.terrain === "water"))) geometryScore += 66;
+      if (hasV43Target(targets, "LE-023") && tile.kind === "special" && adjacentCategories.includes("housing")) geometryScore += 95;
+      if (hasV43Target(targets, "LE-032") && ["crafting", "merchant"].includes(tile.category) && adjacentTiles.some((placed) => placed.tileId === "c17_track")) geometryScore += 150;
+      if (hasV43Target(targets, "LE-033") && ["crafting", "merchant", "social"].includes(tile.category) && adjacentTiles.some((placed) => placed.tileId === "c11_washhouse")) geometryScore += 110;
+      if (hasV43Target(targets, "LE-034") && tile.id === "c04_farmstead" && adjacentCategories.includes("housing")) geometryScore += 120;
+      if (hasV43Target(targets, "LE-035") && tile.id === "c02_mine_tunnel" && adjacentCategories.includes("travel")) geometryScore += 120;
+      if (hasV43Target(targets, "LE-040") && ["c01_lumber_yard", "c02_mine_tunnel", "c04_farmstead"].includes(tile.id) && adjacentCategories.includes("travel")) geometryScore += 110;
       if (targets.some((id) => ["LE-010", "LE-011", "LE-032"].includes(id)) && tile.id === "c19_bridge") geometryScore += 80;
       if (targets.includes("LE-012") && placementHexIds.some((hexId) => getHexNeighbors(hexId).some((neighbor) => mapById[neighbor]?.terrain === "water"))) geometryScore += 22;
       legalPlacements.push({
@@ -842,8 +913,8 @@ function chooseUpgrade(
   targets: string[],
   plan?: HumanSeasonPlan,
 ): { instanceId: string; score: number; reasonCode: string; reason: string } | null {
-  if (targets.includes("LE-028")) return null;
-  const targetBoost = targets.some((id) => ["LE-021","LE-022","LE-034"].includes(id)) ? 30 : 0;
+  if (targets.includes("LE-028") || hasV43Target(targets, "LE-042")) return null;
+  const targetBoost = targets.some((id) => ["LE-021","LE-022","LE-034"].includes(id)) || hasV43Target(targets, "LE-031", "LE-036", "LE-046") ? 30 : 0;
   const candidates = getUpgradeableTileIds(state, playerId).map((instanceId) => {
     const placed = state.map.placedTiles.find((tile) => tile.instanceId === instanceId)!;
     const tile = coreTileById[placed.tileId];
@@ -867,8 +938,10 @@ function chooseUpgrade(
       0,
     );
     const isHousing = tile.category === "housing";
+    const v43ResourceCrownBoost = hasV43Target(targets, "LE-036") && ["c01_lumber_yard", "c02_mine_tunnel", "c03_gathering_outpost", "c04_farmstead"].includes(placed.tileId) ? 75 : 0;
     const score =
       targetBoost +
+      v43ResourceCrownBoost +
       scoringGain * (plan && isHousing && plan.housingPush ? 2.5 : 1) +
       productionGain * 2 -
       scarcityCost +
@@ -967,7 +1040,7 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
     if (state.pendingEffects.length || state.pendingDeckReorder || state.pendingCostChoice) break;
 
     if (!boonUsed) {
-      const boonId = getUsableFaceUpBoonIds(state)[0];
+      const boonId = getUsableFaceUpBoonIds(state).find((cardId) => !boonBreaksDeclaredVow(state, cardId, targets));
       if (boonId) {
         state = drainPending(useFaceUpBoon(state, boonId), stats);
         stats.usedBoonIds.push(boonId);
@@ -988,18 +1061,24 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
     powerPrepared = true;
 
     const arrivalId = getCompletableArrivalIds(state)[0];
-    const wantsArrivals = targets.some((id) => ["LE-013","LE-014","LE-015","LE-016","LE-029","LE-050"].includes(id));
+    const wantsArrivals = targets.some((id) => ["LE-013","LE-014","LE-015","LE-016","LE-029","LE-050"].includes(id)) || hasV43Target(targets, "LE-019", "LE-020", "LE-021", "LE-022", "LE-023");
     if (arrivalId && (wantsArrivals || profile !== "passive_normal" || random() < 0.55)) {
+      const timerBefore = state.encounters.activeArrivals.find((arrival) => arrival.cardId === arrivalId)?.timerTokens;
+      const completionRound = state.round;
+      const completionSeason = state.season;
       const beforeActions = state.actionsRemaining;
       state = drainPending(completeArrival(state, arrivalId, emptySelection), stats);
       if (state.actionsRemaining < beforeActions) {
         stats.encounterInteractActions += 1;
+        if (timerBefore === 1) stats.arrivalsCompletedAtOneTimer += 1;
+        const completed = [...state.encounters.completedArrivals].reverse().find((arrival) => arrival.cardId === arrivalId);
+        stats.arrivalCompletionEvents.push({ cardId: arrivalId, round: completionRound, season: completionSeason, specialTileIds: completed?.specialTileIds ?? [] });
         continue;
       }
     }
 
     const burdenId = getResolvableBurdenIds(state)[0];
-    const wantsBurdens = targets.some((id) => ["LE-004","LE-017","LE-036","LE-040","LE-041","LE-043"].includes(id));
+    const wantsBurdens = targets.some((id) => ["LE-004","LE-017","LE-036","LE-040","LE-041","LE-043"].includes(id)) || hasV43Target(targets, "LE-024", "LE-025", "LE-026", "LE-027", "LE-029", "LE-030", "LE-048");
     if (burdenId && (wantsBurdens || state.encounters.activeBurdens.length >= state.playerCount || random() < 0.35)) {
       const beforeActions = state.actionsRemaining;
       state = drainPending(resolveBurden(state, burdenId, emptySelection), stats);
@@ -1007,6 +1086,10 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
         stats.encounterInteractActions += 1;
         stats.burdensResolved += 1;
         stats.resolvedBurdenIds.push(burdenId);
+        if (stats.burdenRevealSeason[burdenId] === state.season) stats.burdensResolvedSameSeason += 1;
+        if (stats.burdenRevealRound[burdenId] === state.round) {
+          stats.burdensResolvedSameRoundBySeason[state.season] = (stats.burdensResolvedSameRoundBySeason[state.season] ?? 0) + 1;
+        }
         continue;
       }
     }
@@ -1357,14 +1440,26 @@ function playHumanLikeTurn(
       state = drainPending(useStewardPower(state, playerId), stats, plan);
       powerUsed = true;
     } else if (selected.kind === "arrival") {
+      const timerBefore = state.encounters.activeArrivals.find((arrival) => arrival.cardId === selected.target)?.timerTokens;
+      const completionRound = state.round;
+      const completionSeason = state.season;
       state = drainPending(completeArrival(state, selected.target, emptySelection), stats, plan);
-      if (state.actionsRemaining < beforeActions) stats.encounterInteractActions += 1;
+      if (state.actionsRemaining < beforeActions) {
+        stats.encounterInteractActions += 1;
+        if (timerBefore === 1) stats.arrivalsCompletedAtOneTimer += 1;
+        const completed = [...state.encounters.completedArrivals].reverse().find((arrival) => arrival.cardId === selected.target);
+        stats.arrivalCompletionEvents.push({ cardId: selected.target, round: completionRound, season: completionSeason, specialTileIds: completed?.specialTileIds ?? [] });
+      }
     } else if (selected.kind === "burden") {
       state = drainPending(resolveBurden(state, selected.target, emptySelection), stats, plan);
       if (state.actionsRemaining < beforeActions) {
         stats.encounterInteractActions += 1;
         stats.burdensResolved += 1;
         stats.resolvedBurdenIds.push(selected.target);
+        if (stats.burdenRevealSeason[selected.target] === state.season) stats.burdensResolvedSameSeason += 1;
+        if (stats.burdenRevealRound[selected.target] === state.round) {
+          stats.burdensResolvedSameRoundBySeason[state.season] = (stats.burdensResolvedSameRoundBySeason[state.season] ?? 0) + 1;
+        }
       }
     } else if (selected.kind === "place" && selected.placement !== undefined) {
       state = drainPending(placeTile(state, playerId, selected.target, selected.placement, emptySelection), stats, plan);
@@ -1563,6 +1658,8 @@ function buildGameLog(state: GameState, stats: BotStats, input: any) {
       burdens_resolved_or_removed: stats.burdensResolved,
       arrivals_revealed: state.playerCount * 4,
       arrivals_completed: state.encounters.completedArrivals.length,
+      arrivals_completed_at_one_timer: stats.arrivalsCompletedAtOneTimer,
+      arrival_completion_events: stats.arrivalCompletionEvents,
       arrivals_expired: stats.arrivalsExpired,
       special_tiles_unlocked: completedSpecials.length,
       special_tiles_placed: specialCount,
@@ -1614,7 +1711,10 @@ function buildGameLog(state: GameState, stats: BotStats, input: any) {
       arrivals_completed: state.encounters.completedArrivals.length,
       arrivals_abandoned: stats.arrivalsExpired + state.encounters.activeArrivals.length,
       burdens_resolved: stats.burdensResolved,
+      burdens_resolved_same_season: stats.burdensResolvedSameSeason,
+      burdens_resolved_same_round_by_season: stats.burdensResolvedSameRoundBySeason,
       burdens_left_active: state.encounters.activeBurdens.length,
+      max_overstrained_tiles: stats.maxOverstrainedTiles,
       seeded_cards_seen: stats.strategyPlans.flatMap((plan) => plan.forecasts).filter((forecast) =>
         state.encounters.discardPile.includes(forecast.cardId) ||
         state.encounters.activeBurdens.includes(forecast.cardId) ||
@@ -1672,13 +1772,20 @@ function buildGameLog(state: GameState, stats: BotStats, input: any) {
 }
 
 function chooseStewardIds(playerCount: PlayerCount, targets: string[], campaignState: any, random: () => number): string[] {
-  const requiredByEntry: Record<string, string> = { "LE-032": "vanguard", "LE-033": "knight", "LE-034": "sentinel", "LE-035": "ranger", "LE-036": "warden", "LE-037": "quartermaster" };
+  const requiredByEntry: Record<string, string> = {
+    "LE-032": "vanguard", "LE-033": "knight", "LE-034": "sentinel", "LE-035": "ranger", "LE-036": "warden", "LE-037": "quartermaster",
+    "V43-044": "vanguard", "V43-045": "knight", "V43-046": "sentinel", "V43-047": "ranger", "V43-048": "warden", "V43-049": "quartermaster",
+  };
   const required = targets.map((id) => requiredByEntry[id]).filter(Boolean);
   const usedNames = new Set(campaignState.chosen_stewards ?? []);
-  const rotate = targets.some((id) => ["LE-031","LE-038"].includes(id));
+  const rotate = targets.some((id) => ["LE-031","LE-038", "V43-050"].includes(id));
+  const breaksVow = (stewardId: string) =>
+    (hasV43Target(targets, "LE-041") && stewardId === "vanguard") ||
+    (hasV43Target(targets, "LE-042") && stewardId === "sentinel");
+  const availableStewards = stewards.filter((steward) => !breaksVow(steward.id));
   const pool = rotate
-    ? [...stewards.filter((steward) => !usedNames.has(steward.name)), ...stewards.filter((steward) => usedNames.has(steward.name))]
-    : shuffled(random, stewards);
+    ? [...availableStewards.filter((steward) => !usedNames.has(steward.name)), ...availableStewards.filter((steward) => usedNames.has(steward.name))]
+    : shuffled(random, availableStewards);
   return [...new Set([...required, ...pool.map((steward) => steward.id)])].slice(0, playerCount);
 }
 
@@ -1728,8 +1835,15 @@ function createStats(state: GameState): BotStats {
     usedBoonIds: [],
     tileActivationCountsByInstance: {},
     arrivalsExpired: 0,
+    arrivalsCompletedAtOneTimer: 0,
+    arrivalCompletionEvents: [],
     strainPrevented: 0,
     strainRemoved: 0,
+    maxOverstrainedTiles: 0,
+    burdenRevealSeason: {},
+    burdenRevealRound: {},
+    burdensResolvedSameSeason: 0,
+    burdensResolvedSameRoundBySeason: {},
     warehousePeak: { ...state.warehouse },
     seasonSnapshots: {
       end_season_1: { active_burdens: 0, overstrained_tiles: 0, arrivals_completed_this_season: 0, burdens_resolved_this_season: 0 },
@@ -1828,6 +1942,7 @@ export function simulateCurrentGame(input: any): any {
   let seasonStartResolved = 0;
   for (let guard = 0; guard < 1000 && state.phase !== "gameEnd"; guard += 1) {
     state = drainPending(state, stats);
+    updatePeak(state, stats);
     if (stats.errors.length) break;
     if (state.phase === "seeding") {
       const playerId = state.currentPlayerId;
@@ -1850,8 +1965,15 @@ export function simulateCurrentGame(input: any): any {
       continue;
     }
     if (state.phase === "reveal") {
+      const burdensBefore = new Set(state.encounters.activeBurdens);
       const plan = input.profile === "human_like" ? humanPlanning.plansBySeason[state.season] : undefined;
       state = drainPending(revealEncounters(state), stats, plan);
+      for (const burdenId of state.encounters.activeBurdens) {
+        if (!burdensBefore.has(burdenId)) {
+          stats.burdenRevealSeason[burdenId] = state.season;
+          stats.burdenRevealRound[burdenId] = state.round;
+        }
+      }
       continue;
     }
     if (state.phase === "turns") {

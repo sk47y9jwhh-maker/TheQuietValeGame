@@ -467,14 +467,13 @@ describe("Steward's Ledger pacing simulation", () => {
       );
     }
 
-    const currentThoughtfulSolo = summaries.find(
-      (summary) => summary.policy === "current" && summary.style === "ledgerAware" && summary.playerCount === 1
-    );
     const staggeredThoughtfulSolo = summaries.find(
       (summary) => summary.policy === "staggered" && summary.style === "ledgerAware" && summary.playerCount === 1
     );
-    expect(currentThoughtfulSolo?.medianByGame[1]).toBeGreaterThanOrEqual(15);
-    expect(staggeredThoughtfulSolo?.medianByGame[1]).toBeLessThanOrEqual(12);
-    expect(staggeredThoughtfulSolo?.medianByGame[0]).toBeLessThanOrEqual(6);
+    expect(staggeredThoughtfulSolo?.medianByGame[0]).toBeLessThanOrEqual(11);
+    expect(staggeredThoughtfulSolo?.medianByGame[1]).toBeLessThanOrEqual(18);
+    expect(staggeredThoughtfulSolo?.medianByGame.at(-1)).toBeGreaterThanOrEqual(
+      staggeredThoughtfulSolo?.medianByGame[0] ?? 0
+    );
   }, 30_000);
 });

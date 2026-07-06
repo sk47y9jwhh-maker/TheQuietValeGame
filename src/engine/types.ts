@@ -387,6 +387,20 @@ export interface LedgerSeasonSnapshot {
   burdensResolved: number;
 }
 
+export interface LedgerArrivalCompletionEvent {
+  cardId: string;
+  round: number;
+  season: Season;
+  specialTileIds: string[];
+  timerTokens?: number;
+}
+
+export interface LedgerBurdenEvent {
+  cardId: string;
+  round: number;
+  season: Season;
+}
+
 export interface LedgerRunState {
   gameId: string;
   declaredVowId?: string;
@@ -398,7 +412,15 @@ export interface LedgerRunState {
   burdensResolved: number;
   arrivalsCompletedBySeason: Record<Season, number>;
   burdensResolvedBySeason: Record<Season, number>;
+  burdensRevealedBySeason: Record<Season, number>;
+  arrivalCompletionEvents: LedgerArrivalCompletionEvent[];
+  burdenRevealEvents: LedgerBurdenEvent[];
+  burdenResolutionEvents: LedgerBurdenEvent[];
   strainPreventedBySupported: number;
+  strainRemovedByRoundCategory: Record<string, Partial<Record<TileCategory, number>>>;
+  maxOverstrainedTiles: number;
+  rangerPowerTerrainTypes: Terrain[];
+  upgradeActions: number;
   warehousePeakByResource: WarehouseState;
   seasonSnapshots: Partial<Record<Season, LedgerSeasonSnapshot>>;
   violatedVowReasons: string[];

@@ -66,6 +66,41 @@ describe("action console", () => {
     expect(onRecordLedgerGame).toHaveBeenCalledOnce();
   });
 
+  it("keeps the recorded game award snapshot stable after new gates unlock", () => {
+    const state = { ...createNewGame(1, ["warden"]), phase: "gameEnd" as const };
+    state.ledgerRun!.recorded = true;
+    const campaign = createEmptyLedgerCampaign();
+    for (let index = 1; index <= 8; index += 1) {
+      const entryId = `test-${index}`;
+      campaign.completions[entryId] = {
+        entryId,
+        completedOnce: true,
+        completedPlayerCounts: []
+      };
+    }
+    campaign.completions["LE-026"] = {
+      entryId: "LE-026",
+      completedOnce: true,
+      completedPlayerCounts: [1]
+    };
+    campaign.games = [{
+      id: state.ledgerRun!.gameId,
+      completedAt: "2026-07-06T12:00:00.000Z",
+      playerCount: 1,
+      stewardIds: ["warden"],
+      finalScore: 0,
+      completedEntryIds: ["LE-026"],
+      newRecordEntryIds: ["LE-026"]
+    }];
+
+    renderActionConsole({ state, ledgerCampaign: campaign });
+
+    expect(screen.getByText("1 new records")).toBeInTheDocument();
+    expect(screen.getByText("1 eligible Ledger Entry completed this game.")).toBeInTheDocument();
+    expect(screen.getByText("The Quiet Holds")).toBeInTheDocument();
+    expect(screen.queryByText("Remembered Across the Vale")).not.toBeInTheDocument();
+  });
+
   it("keeps the current Steward Power status visible during the turn", () => {
     const onModeChange = vi.fn();
 

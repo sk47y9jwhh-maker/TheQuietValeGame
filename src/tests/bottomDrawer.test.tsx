@@ -105,6 +105,7 @@ describe("bottom drawer", () => {
     expect(
       screen.getByText("Lose 6 Renown for each active Burden and 3 Renown for every Strain token on the map.")
     ).toBeInTheDocument();
-    expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(11);
+    expect(screen.getByText("Achievements, Vows, and Golden unlocks")).toBeInTheDocument();
+    expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(12);
   });
 });

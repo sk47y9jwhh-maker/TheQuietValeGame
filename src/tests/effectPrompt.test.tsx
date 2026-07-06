@@ -89,6 +89,7 @@ describe("effect prompt controls", () => {
     expect(screen.getByText("0/2 resources selected")).toBeInTheDocument();
   });
 
+
   it("allows Wonderful Find's resource choice when no Dig Site is placed", () => {
     const state = createNewGame(1, ["vanguard"]);
     const effect: PendingEffectState = {
@@ -109,6 +110,7 @@ describe("effect prompt controls", () => {
     expect(screen.getByText("1/1 resources selected")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
   });
+
 
   it("allows Warden Relief to place Supported on an eligible tile", () => {
     const state = createNewGame(1, ["warden"]);

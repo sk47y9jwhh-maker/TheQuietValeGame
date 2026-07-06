@@ -72,6 +72,12 @@ export function SetupPanel({
   const selectedGoldenBoon = availableGoldenBoons.find(
     (boon) => boon.id === selectedGoldenBoonId
   );
+  const vowCompatibilityWarning = declaredVowId === "LE-041" &&
+    (selectedStewards.some((steward) => steward.id === "vanguard") || selectedGoldenBoonId === "golden_boon_the_golden_vial")
+    ? "Vanguard’s Power and The Golden Vial can place Travel Tiles. Using either would break No Roads Raised."
+    : declaredVowId === "LE-042" && selectedStewards.some((steward) => steward.id === "sentinel")
+      ? "Sentinel’s Power upgrades a Core Tile. Using it would break No Fine Work."
+      : undefined;
 
   return (
     <div className="app-shell setup-shell">
@@ -190,6 +196,11 @@ export function SetupPanel({
                 ? declaredVow.requirement
                 : `Optional · one Vow per game · ${completedLedgerCount}/50 entries complete`}
             </small>
+            {vowCompatibilityWarning && (
+              <small className="setup-vow-warning" role="status">
+                {vowCompatibilityWarning}
+              </small>
+            )}
           </label>
 
           <section className="setup-golden-legacy">

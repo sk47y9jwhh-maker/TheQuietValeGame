@@ -5198,3 +5198,7 @@ button.effect-row {
     max-width: none;
   }
 }
+.setup-vow-warning {
+  color: #8b3f2f;
+  font-weight: 700;
+}

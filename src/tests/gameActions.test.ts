@@ -707,6 +707,56 @@ describe("game actions", () => {
     });
   });
 
+  it("reveals Welcome Wears Thin as acknowledgement-only in Season 2 with no Arrivals", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      season: 2 as const,
+      phase: "reveal" as const,
+      encounters: {
+        ...state.encounters,
+        deck: ["burden_welcome_wears_thin"],
+        activeArrivals: []
+      },
+      map: {
+        placedTiles: [
+          {
+            instanceId: "tile_path_1",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "tile_path_2",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["H1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    const revealed = revealEncounters(ready);
+
+    expect(revealed.pendingEffects[0]).toMatchObject({
+      sourceId: "burden_welcome_wears_thin",
+      requiresManualChoice: false,
+      confirmLabel: "Acknowledge"
+    });
+    expect(revealed.pendingEffects[0].effectText).toMatch(/there are none, no effect/i);
+    expect(revealed.pendingEffects[0].suggestedAdjustment).toBeUndefined();
+
+    const acknowledged = resolvePendingEffect(revealed);
+    expect(acknowledged.pendingEffects).toHaveLength(0);
+    expect(acknowledged.map.placedTiles.map((tile) => tile.strain)).toEqual([0, 0]);
+  });
+
   it("applies a prepared Boon resource discount to tile placement", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {

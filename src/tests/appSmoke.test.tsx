@@ -2,6 +2,7 @@ import "@testing-library/jest-dom/vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../app/App";
+import { createEmptyLedgerCampaign, writeLedgerCampaign } from "../app/ledgerPersistence";
 
 describe("app smoke flow", () => {
   beforeEach(() => {
@@ -32,18 +33,29 @@ describe("app smoke flow", () => {
   });
 
   it("declares one available Ledger Vow before setup", () => {
+    const campaign = createEmptyLedgerCampaign();
+    for (let index = 1; index <= 40; index += 1) {
+      const entryId = `test-${index}`;
+      campaign.completions[entryId] = {
+        entryId,
+        completedOnce: true,
+        completedPlayerCounts: []
+      };
+    }
+    writeLedgerCampaign(campaign);
     render(<App />);
 
     fireEvent.change(screen.getByLabelText("Steward's Ledger Vow"), {
-      target: { value: "LE-029" }
+      target: { value: "LE-041" }
     });
-    expect(screen.getByText(/No Arrival may expire/i)).toBeInTheDocument();
+    expect(screen.getByText(/Place no Travel Tiles/i)).toBeInTheDocument();
+    expect(screen.getByText(/Vanguard’s Power.*would break No Roads Raised/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
 
     const saved = JSON.parse(
       window.localStorage.getItem("quietVale.activeGame.v1") ?? "{}"
     );
-    expect(saved.state.ledgerRun.declaredVowId).toBe("LE-029");
+    expect(saved.state.ledgerRun.declaredVowId).toBe("LE-041");
   });
 
   it("confirms the solo Steward start and shows the seeding screen", () => {

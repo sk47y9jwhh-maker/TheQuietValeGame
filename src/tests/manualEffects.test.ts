@@ -246,6 +246,46 @@ describe("manual effect suggestions", () => {
     expect(complete.warehouse.food).toBe(5);
   });
 
+  it.each([1, 2] as const)(
+    "treats Welcome Wears Thin as no effect with no Arrivals in Season %i",
+    (season) => {
+      const state = createNewGame(1, ["vanguard"]);
+      state.season = season;
+      state.encounters.activeArrivals = [];
+      const effectText = getCurrentSeasonCardEffectText(
+        state,
+        "burden_welcome_wears_thin"
+      );
+
+      expect(getActiveEffectText(state, effectText)).toMatch(/no effect/i);
+      expect(effectHasNoValidChoiceTargets(state, effectText)).toBe(true);
+      expect(suggestEffectAdjustment(state, effectText)).toEqual({
+        adjustment: undefined,
+        requiresManualChoice: false
+      });
+    }
+  );
+
+  it("uses Welcome Wears Thin's printed Strain fallback in Season 3", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 3;
+    state.encounters.activeArrivals = [];
+    state.map.placedTiles = [
+      pathTile("tile_1", "G1"),
+      pathTile("tile_2", "H1")
+    ];
+    const effectText = getCurrentSeasonCardEffectText(
+      state,
+      "burden_welcome_wears_thin"
+    );
+
+    expect(getActiveEffectText(state, effectText)).toMatch(
+      /place 1 Strain on each of 2 placed tiles/i
+    );
+    expect(effectHasNoValidChoiceTargets(state, effectText)).toBe(false);
+    expect(suggestEffectAdjustment(state, effectText).requiresManualChoice).toBe(true);
+  });
+
   it("suggests timer changes when there is one active Arrival", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.encounters.activeArrivals = [

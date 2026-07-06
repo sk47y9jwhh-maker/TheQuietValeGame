@@ -34,8 +34,10 @@ describe("Steward's Ledger", () => {
 
   it("contains the complete normalized campaign catalogue", () => {
     expect(ledgerEntries).toHaveLength(50);
-    expect(ledgerChronicles).toHaveLength(9);
-    expect(ledgerEntries.filter((entry) => entry.declaredVow)).toHaveLength(12);
+    expect(ledgerChronicles).toHaveLength(8);
+    expect(ledgerEntries.filter((entry) => entry.declaredVow).map((entry) => entry.id)).toEqual([
+      "LE-041", "LE-042", "LE-043"
+    ]);
     expect(ledgerMilestones.map((milestone) => milestone.threshold)).toEqual([
       5, 12, 18, 25, 32
     ]);
@@ -44,10 +46,10 @@ describe("Steward's Ledger", () => {
   it("stages entry eligibility so a first game cannot cascade through the Ledger", () => {
     const startingEntries = ledgerEntries.filter((entry) => entry.unlockAt === 0);
     expect(startingEntries.map((entry) => entry.id)).toEqual([
-      "LE-007", "LE-008", "LE-013", "LE-018", "LE-024", "LE-029", "LE-039"
+      "LE-005", "LE-007", "LE-011", "LE-015", "LE-019", "LE-024"
     ]);
-    expect(startingEntries).toHaveLength(7);
-    expect(Math.max(...ledgerEntries.map((entry) => entry.unlockAt))).toBe(38);
+    expect(startingEntries).toHaveLength(6);
+    expect(Math.max(...ledgerEntries.map((entry) => entry.unlockAt))).toBe(34);
     expect(
       ledgerEntries.every((entry) =>
         entry.unlockAt === 0
@@ -91,6 +93,8 @@ describe("Steward's Ledger", () => {
 
   it("keeps Golden content that was unlocked before the pacing update", () => {
     const legacy = createEmptyLedgerCampaign();
+    legacy.version = 1;
+    delete legacy.catalogueVersion;
     delete legacy.pacingVersion;
     for (let index = 1; index <= 20; index += 1) {
       const entryId = `LE-${String(index).padStart(3, "0")}`;
@@ -104,6 +108,8 @@ describe("Steward's Ledger", () => {
 
     const migrated = readLedgerCampaign();
     expect(migrated.grandfatheredGoldenMilestoneCount).toBe(4);
+    expect(migrated.completions).toEqual({});
+    expect(migrated.games).toEqual([]);
     expect(isGoldenMilestoneUnlocked(migrated, 3, 25)).toBe(true);
     expect(isGoldenMilestoneUnlocked(migrated, 4, 32)).toBe(false);
   });

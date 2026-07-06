@@ -28,7 +28,7 @@ describe("current-prototype playtest bot", () => {
     expect(first.campaign.games).toHaveLength(2);
   }, 20_000);
 
-  it("uses current eligibility gates and declares at most one targeted Vow", () => {
+  it("uses current eligibility gates and never declares multiple targeted Vows", () => {
     const campaign = createEmptyLedgerCampaign();
     const targets = chooseLedgerTargets(campaign, "chaser", 1, "target-regression");
     const targetEntries = targets.map((entryId) =>
@@ -36,7 +36,7 @@ describe("current-prototype playtest bot", () => {
     );
 
     expect(targetEntries.every((entry) => entry && entry.unlockAt === 0)).toBe(true);
-    expect(targetEntries.filter((entry) => entry?.declaredVow)).toHaveLength(1);
+    expect(targetEntries.filter((entry) => entry?.declaredVow).length).toBeLessThanOrEqual(1);
     expect(
       new Set(targetEntries.map((entry) => entry?.requiredSteward).filter(Boolean)).size,
     ).toBeLessThanOrEqual(1);

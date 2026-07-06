@@ -151,6 +151,19 @@ const rules: RuleReferenceCard[] = [
     ]
   },
   {
+    category: "Steward’s Ledger",
+    title: "Achievements, Vows, and Golden unlocks",
+    bullets: [
+      "Ledger Entries are persistent achievements awarded when a completed game is recorded; each named entry advances Golden unlocks only once.",
+      "Entries marked by player count also keep separate 1P–4P prestige ticks, but those extra ticks do not advance the Golden milestones again.",
+      "Some entries are locked until the shown number of named entries is complete. Locked entries cannot be earned early.",
+      "A Vow must be declared before setup and only one may be attempted. Any effect from a Steward, Boon, or Golden source can break it if it performs the forbidden action.",
+      "During-game timing entries are tracked automatically, including Arrival timers, same-round Burden answers, recovery, and Ranger-enabled terrain actions.",
+      "Golden Tiles and Golden Boons unlock at 5, 12, 18, 25, and 32 completed named entries."
+    ],
+    note: "Open Ledger → Chronicles to read every requirement and see live progress."
+  },
+  {
     category: "Stewards",
     title: "Powers and objectives",
     bullets: [
