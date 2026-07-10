@@ -307,6 +307,24 @@ function arePlacedTilesAdjacent(a: PlacedTile, b: PlacedTile): boolean {
   );
 }
 
+export function getLinkedProductionTileId(
+  state: GameState,
+  placedTileId: string
+): string | undefined {
+  const tile = getPlacedTile(state, placedTileId);
+  if (!tile || tile.strain >= 3 || !getTileProduction(tile)) return undefined;
+
+  return state.map.placedTiles.find(
+    (candidate) =>
+      candidate.instanceId !== tile.instanceId &&
+      candidate.kind === "core" &&
+      candidate.tileId === tile.tileId &&
+      candidate.strain < 3 &&
+      Boolean(getTileProduction(candidate)) &&
+      arePlacedTilesAdjacent(tile, candidate)
+  )?.instanceId;
+}
+
 function isAdjacentToCategory(
   tile: PlacedTile,
   tiles: PlacedTile[],
@@ -1419,7 +1437,28 @@ export function activateTile(
       production,
       `${getPlacedTileName(tile)} produced resources.`
     );
-    return applyAdjacentProductionPassiveEffects(nextState, tile, production);
+    nextState = applyAdjacentProductionPassiveEffects(nextState, tile, production);
+
+    const linkedTileId = getLinkedProductionTileId(state, tile.instanceId);
+    const linkedTile = linkedTileId ? getPlacedTile(state, linkedTileId) : undefined;
+    const linkedProduction = linkedTile ? getTileProduction(linkedTile) : undefined;
+    if (!linkedTile || !linkedProduction) return nextState;
+
+    nextState = log(
+      nextState,
+      `Linked production activated ${getPlacedTileName(linkedTile)}.`
+    );
+    nextState = recordTileActivation(nextState, linkedTile);
+    nextState = applyResourceGain(
+      nextState,
+      linkedProduction,
+      `${getPlacedTileName(linkedTile)} produced resources.`
+    );
+    return applyAdjacentProductionPassiveEffects(
+      nextState,
+      linkedTile,
+      linkedProduction
+    );
   }
   return queueTileEffectPrompt(nextState, tile, "Activated effect");
 }

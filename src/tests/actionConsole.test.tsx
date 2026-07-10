@@ -50,6 +50,63 @@ function renderActionConsole(
 }
 
 describe("action console", () => {
+  it("previews linked production in the Activate action", () => {
+    const state = { ...createNewGame(1, ["vanguard"]), phase: "turns" as const };
+    state.players[0] = {
+      ...state.players[0],
+      hasPlacedFirstTile: true,
+      stewardHexId: "G1"
+    };
+    state.map.placedTiles = [
+      {
+        instanceId: "farm_1",
+        tileId: "c04_farmstead",
+        kind: "core",
+        side: "basic",
+        hexIds: ["G1"],
+        strain: 0,
+        support: { passive: false, singleUse: false, preventedThisRound: false }
+      },
+      {
+        instanceId: "farm_2",
+        tileId: "c04_farmstead",
+        kind: "core",
+        side: "upgraded",
+        hexIds: ["H1"],
+        strain: 0,
+        support: { passive: false, singleUse: false, preventedThisRound: false }
+      }
+    ];
+
+    renderActionConsole({ state, actionMode: "activate" });
+
+    expect(screen.getByText("Also activates Artisan Farm")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Adjacent matching Resource producers activate together/i)
+    ).toBeInTheDocument();
+  });
+
+  it("shows failed Arrival, Burden, and Strain penalties in final scoring", () => {
+    const state = { ...createNewGame(1, ["vanguard"]), phase: "gameEnd" as const };
+    state.encounters.discardPile.push("arrival_acorns_and_oak_trees");
+    state.encounters.activeBurdens.push("burden_smoke_over_hearths");
+    state.map.placedTiles.push({
+      instanceId: "tile_1",
+      tileId: "c15_path",
+      kind: "core",
+      side: "basic",
+      hexIds: ["G1"],
+      strain: 1,
+      support: { passive: false, singleUse: false, preventedThisRound: false }
+    });
+
+    renderActionConsole({ state });
+
+    expect(screen.getByText("Failed Arrival Penalty -5 (1 failed)")).toBeInTheDocument();
+    expect(screen.getByText("Burden Penalty -5")).toBeInTheDocument();
+    expect(screen.getByText("Strain Penalty -5")).toBeInTheDocument();
+  });
+
   it("reviews and records eligible Ledger entries at game end", () => {
     const state = { ...createNewGame(1, ["warden"]), phase: "gameEnd" as const };
     const onRecordLedgerGame = vi.fn();

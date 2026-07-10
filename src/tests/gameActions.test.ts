@@ -10,6 +10,7 @@ import {
   confirmCostChoice,
   endCurrentTurn,
   getActivatableTileIds,
+  getLinkedProductionTileId,
   getStableMoveDestinationTileIds,
   moveStewardViaStables,
   placeTile,
@@ -196,6 +197,109 @@ describe("game actions", () => {
     expect(activated.pendingEffects).toHaveLength(0);
     expect(activated.warehouse.wood).toBe(15);
     expect(activated.actionsRemaining).toBe(2);
+  });
+
+  it("activates an adjacent matching Resource producer for one action", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      warehouse: { ...state.warehouse, food: 0, goods: 0 },
+      players: [
+        {
+          ...state.players[0],
+          hasPlacedFirstTile: true,
+          stewardHexId: "G1"
+        }
+      ],
+      map: {
+        placedTiles: [
+          {
+            instanceId: "farm_1",
+            tileId: "c04_farmstead",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "farm_2",
+            tileId: "c04_farmstead",
+            kind: "core" as const,
+            side: "upgraded" as const,
+            hexIds: ["H1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "shrine",
+            tileId: "special_shrine_of_bounty",
+            kind: "special" as const,
+            side: "special" as const,
+            hexIds: ["I1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    expect(getLinkedProductionTileId(ready, "farm_1")).toBe("farm_2");
+
+    const firstActivation = activateTile(ready, "player_1", "farm_1");
+    const secondActivation = activateTile(firstActivation, "player_1", "farm_1");
+
+    expect(firstActivation.warehouse.food).toBe(7);
+    expect(firstActivation.warehouse.goods).toBe(2);
+    expect(firstActivation.actionsRemaining).toBe(3);
+    expect(firstActivation.players[0].stewardHexId).toBe("G1");
+    expect(firstActivation.tileActivationRecords.shrine.round).toBe(1);
+    expect(secondActivation.warehouse.food).toBe(12);
+    expect(secondActivation.warehouse.goods).toBe(4);
+  });
+
+  it("does not link production to an Overstrained matching tile", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      warehouse: { ...state.warehouse, food: 0 },
+      players: [
+        {
+          ...state.players[0],
+          hasPlacedFirstTile: true,
+          stewardHexId: "G1"
+        }
+      ],
+      map: {
+        placedTiles: [
+          {
+            instanceId: "farm_1",
+            tileId: "c04_farmstead",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "farm_2",
+            tileId: "c04_farmstead",
+            kind: "core" as const,
+            side: "upgraded" as const,
+            hexIds: ["H1"],
+            strain: 3,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    const activated = activateTile(ready, "player_1", "farm_1");
+
+    expect(getLinkedProductionTileId(ready, "farm_1")).toBeUndefined();
+    expect(activated.warehouse.food).toBe(2);
   });
 
   it("applies adjacent Shrine production passives automatically once per round", () => {

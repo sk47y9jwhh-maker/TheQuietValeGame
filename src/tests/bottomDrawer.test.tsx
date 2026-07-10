@@ -103,7 +103,7 @@ describe("bottom drawer", () => {
     expect(screen.getByText("Boons, Arrivals, and Burdens")).toBeInTheDocument();
     expect(screen.getByText("Final scoring")).toBeInTheDocument();
     expect(
-      screen.getByText("Lose 6 Renown for each active Burden and 3 Renown for every Strain token on the map.")
+      screen.getByText("Lose 5 Renown for each failed Arrival, each active Burden, and every Strain token on the map.")
     ).toBeInTheDocument();
     expect(screen.getByText("Achievements, Vows, and Golden unlocks")).toBeInTheDocument();
     expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(12);

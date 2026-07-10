@@ -1,12 +1,20 @@
 import { mapById, terrainLabels } from "../data/map";
+import { encounterById } from "../data/encounters";
 import { stewardById } from "../data/stewards";
 import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
 import { hasConnectedBridgeCrossing } from "./reachability";
 import type { GameState, PlacedTile, TileSideData } from "./types";
 
-const activeBurdenPenalty = 6;
-const strainPenalty = 3;
+const activeBurdenPenalty = 5;
+const strainPenalty = 5;
+const failedArrivalPenalty = 5;
+
+function countFailedArrivals(state: GameState): number {
+  return state.encounters.discardPile.filter(
+    (cardId) => encounterById[cardId]?.type === "arrival"
+  ).length;
+}
 
 function getPrintedPopulation(tile: PlacedTile): number {
   if (tile.kind === "special") return specialTileById[tile.tileId]?.population ?? 0;
@@ -297,6 +305,8 @@ export function calculateFinalScore(state: GameState) {
   const stewardObjectiveRenown = scoreStewardObjectives(state);
   const goldenRenown = scoreGoldenTiles(state, eligibleTiles);
   const burdenPenalty = state.encounters.activeBurdens.length * activeBurdenPenalty;
+  const failedArrivals = countFailedArrivals(state);
+  const failedArrivalPenaltyTotal = failedArrivals * failedArrivalPenalty;
   const strainTokens = state.map.placedTiles.reduce((total, tile) => total + tile.strain, 0);
   const strainPenaltyTotal = strainTokens * strainPenalty;
   const renown =
@@ -305,6 +315,7 @@ export function calculateFinalScore(state: GameState) {
     stewardObjectiveRenown +
     goldenRenown -
     burdenPenalty -
+    failedArrivalPenaltyTotal -
     strainPenaltyTotal;
 
   return {
@@ -316,6 +327,8 @@ export function calculateFinalScore(state: GameState) {
     stewardObjectiveRenown,
     goldenRenown,
     burdenPenalty,
+    failedArrivals,
+    failedArrivalPenalty: failedArrivalPenaltyTotal,
     strainPenalty: strainPenaltyTotal,
     finalScore: population + renown
   };

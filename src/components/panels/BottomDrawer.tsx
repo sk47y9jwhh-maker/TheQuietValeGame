@@ -102,6 +102,7 @@ const rules: RuleReferenceCard[] = [
       "Place: spend 1 action and pay the shown Core Tile cost.",
       "Upgrade: spend 1 action and pay the upgraded cost of a reachable basic Core Tile.",
       "Activate: spend 1 action to use an eligible reachable tile’s production or activated effect.",
+      "Linked Production: activating a Resource producer also activates one adjacent, non-Overstrained producer from the same tile stack for no additional action.",
       "Complete an Arrival or resolve a Burden: spend 1 action and pay its requirement or current resolution cost.",
       "Using a face-up Boon, moving through Stables, and using a Steward Power do not spend an action unless their text says otherwise."
     ]
@@ -134,7 +135,8 @@ const rules: RuleReferenceCard[] = [
     bullets: [
       "Boons resolve on reveal or remain face-up when their lifecycle says so. Face-up Boons show their remaining uses.",
       "Arrivals enter with 3 timer tokens. Complete one by spending 1 action and paying its requirement to unlock its Special Tile reward.",
-      "An unresolved Arrival at 0 timers is discarded and places 1 Strain on an eligible placed tile.",
+      "An unresolved Arrival at 0 timers is discarded, places 1 Strain on an eligible placed tile, and counts as a failed Arrival.",
+      "An Arrival still showing any timer tokens when the game ends does not count as failed.",
       "Burdens trigger when revealed, remain active, and trigger again at each later Season start until resolved.",
       "Resolve a Burden by spending 1 action and paying its Season-scaled resolution cost."
     ]
@@ -191,7 +193,7 @@ const rules: RuleReferenceCard[] = [
       "Add Population and Renown from every non-Overstrained tile, including eligible passive bonuses.",
       "Add +15 Renown for each Steward objective achieved.",
       "Add +5 Renown for each placed Golden Tile whose scoring condition is achieved.",
-      "Lose 6 Renown for each active Burden and 3 Renown for every Strain token on the map.",
+      "Lose 5 Renown for each failed Arrival, each active Burden, and every Strain token on the map.",
       "Final score = Population + Renown after all bonuses and penalties."
     ],
     note: "Use the End screen breakdown to audit the playtest result."

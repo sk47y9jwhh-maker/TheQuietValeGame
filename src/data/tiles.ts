@@ -498,7 +498,7 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c20_dig_site",
     category: "resource",
-    count: 1,
+    count: 2,
     size: 1,
     placement: { terrain: ["ruins"], text: "Place on Ruins." },
     basic: {

@@ -26,6 +26,7 @@ Implemented playable loop:
 - Free Stables movement between placed Stables and adjacent non-Overstrained destinations.
 - Core and unlocked Special Tile placement.
 - Upgrade and Activate flows for reachable eligible tiles.
+- Linked Production activates adjacent matching Resource producers together for one action.
 - Activated Special Tile effects that resolve an active Burden with a player choice prompt.
 - Docks passive reachability connecting active settlement networks to water-adjacent tiles.
 - Once-per-season/round activation limits for tile effects that declare them.
@@ -44,7 +45,7 @@ Implemented playable loop:
 - No-effect card prompts can be acknowledged when their valid target type is absent.
 - Intrinsic printed self-Supported effects, such as Stone Bridge, apply automatically.
 - Season-end cleanup for unused face-up Boons and prepared Boon effects.
-- Final scoring basics, including passive Population/Renown bonuses, `+15` Steward Objectives, and `-3` per Strain.
+- Final scoring basics, including passive Population/Renown bonuses, `+15` Steward Objectives, and the Encounter penalties below.
 
 ## Source Of Truth
 
@@ -62,7 +63,7 @@ Locked decisions for this build:
 - All selected standard Encounter Cards are used: `9` hidden cards per player plus `3` standard Encounter Deck cards per player. Hands are intentionally not required to be `3/3/3` by type.
 - Steward objectives are worth `+15 Renown`.
 - Warden scores if active Burdens are fewer than player count.
-- Final Strain penalty is `-3 Renown` per Strain token.
+- Final penalties are `-5 Renown` per failed Arrival, active Burden, and Strain token.
 - Final scoring shows raw final score only, with no success bands/ratings for now.
 - Steward’s Ledger milestones unlock five Golden Tiles and five Golden Boons for optional online setup.
 - Council Variant is not supported in the online prototype.

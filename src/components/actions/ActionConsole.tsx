@@ -21,6 +21,7 @@ import {
   canUseStewardPower,
   canCancelPendingBurdenWithWarden,
   canResolveBurden,
+  getLinkedProductionTileId,
   getStableMoveDestinationTileIds,
   getUsableFaceUpBoonIds,
   getUpgradeableTileIds
@@ -330,6 +331,12 @@ export function ActionConsole({
           <span>Steward Objectives {finalScore.stewardObjectiveRenown}</span>
           <span>Golden Tile Renown {finalScore.goldenRenown}</span>
           <span>Burden Penalty -{finalScore.burdenPenalty}</span>
+          <span>
+            Failed Arrival Penalty -{finalScore.failedArrivalPenalty}
+            {finalScore.failedArrivals > 0
+              ? ` (${finalScore.failedArrivals} failed)`
+              : ""}
+          </span>
           <span>Strain Penalty -{finalScore.strainPenalty}</span>
           <strong>Final Score {finalScore.finalScore}</strong>
         </div>
@@ -610,7 +617,8 @@ export function ActionConsole({
           </div>
           <p className="muted">
             Passive effects—including Shrines and cost reductions—trigger automatically
-            when their condition is met.
+            when their condition is met. Adjacent matching Resource producers activate
+            together for one action.
           </p>
           {activatableIds.length === 0 ? (
             <p className="muted">No reachable activated effects are available.</p>
@@ -620,6 +628,12 @@ export function ActionConsole({
                 const tile = state.map.placedTiles.find(
                   (candidate) => candidate.instanceId === placedTileId
                 );
+                const linkedTileId = getLinkedProductionTileId(state, placedTileId);
+                const linkedTile = linkedTileId
+                  ? state.map.placedTiles.find(
+                      (candidate) => candidate.instanceId === linkedTileId
+                    )
+                  : undefined;
                 return (
                   <button
                     key={placedTileId}
@@ -627,6 +641,9 @@ export function ActionConsole({
                     type="button"
                   >
                     <strong>Activate {tile ? selectTileName(tile) : placedTileId}</strong>
+                    {linkedTile && (
+                      <span>Also activates {selectTileName(linkedTile)}</span>
+                    )}
                   </button>
                 );
               })}

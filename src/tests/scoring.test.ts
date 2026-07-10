@@ -23,7 +23,7 @@ function placedTile(
 }
 
 describe("final scoring", () => {
-  it("applies -3 Renown per Strain token", () => {
+  it("applies -5 Renown per Strain token", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.map.placedTiles.push({
       instanceId: "tile_1",
@@ -35,7 +35,35 @@ describe("final scoring", () => {
       support: { passive: false, singleUse: false, preventedThisRound: false }
     });
 
-    expect(calculateFinalScore(state).strainPenalty).toBe(6);
+    expect(calculateFinalScore(state).strainPenalty).toBe(10);
+  });
+
+  it("applies -5 Renown per failed Arrival and active Burden", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.phase = "gameEnd";
+    state.encounters.discardPile.push("arrival_acorns_and_oak_trees");
+    state.encounters.activeBurdens.push("burden_smoke_over_hearths");
+
+    const score = calculateFinalScore(state);
+
+    expect(score.failedArrivals).toBe(1);
+    expect(score.failedArrivalPenalty).toBe(5);
+    expect(score.burdenPenalty).toBe(5);
+    expect(score.finalScore).toBe(-10);
+  });
+
+  it("does not count an active Arrival with timer tokens at game end as failed", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.phase = "gameEnd";
+    state.encounters.activeArrivals.push({
+      cardId: "arrival_blessed_harvest",
+      timerTokens: 2
+    });
+
+    const score = calculateFinalScore(state);
+
+    expect(score.failedArrivals).toBe(0);
+    expect(score.failedArrivalPenalty).toBe(0);
   });
 
   it("does not count Overstrained tile population or renown", () => {

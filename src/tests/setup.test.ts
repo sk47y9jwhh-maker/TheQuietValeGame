@@ -41,6 +41,12 @@ function dealtCardIds(
 }
 
 describe("setup and round authority", () => {
+  it("includes two Dig Sites so Ruins production can be linked", () => {
+    const state = createNewGame(1, ["vanguard"]);
+
+    expect(state.tileSupply.core.c20_dig_site).toBe(2);
+  });
+
   it("calculates seasons from rounds", () => {
     expect(getSeasonForRound(1)).toBe(1);
     expect(getSeasonForRound(4)).toBe(1);
