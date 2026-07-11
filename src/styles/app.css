@@ -445,13 +445,6 @@ button:disabled {
   border-color: rgba(184, 138, 58, 0.28);
 }
 
-.season-card svg,
-.turn-chip svg,
-.warehouse-title svg {
-  flex: 0 0 auto;
-  color: var(--qv-muted-green);
-}
-
 .season-metrics {
   min-width: 0;
   display: grid;
@@ -5219,16 +5212,34 @@ button.effect-row {
 body,
 button,
 select,
-input {
+input,
+textarea {
   font-family: var(--font-ui);
 }
 
+.major-title,
+.ui-heading,
+.setup-card h2,
+.action-console h2,
+.right-panel h2,
+.flow-card h2,
+.flow-card h3,
+.encounter-panel h2,
+.bottom-drawer h2,
 .setup-copy h1,
 .setup-table-header h1,
 .seeding-board-header h1,
 .seeding-header h1 {
   font-family: var(--font-display);
-  font-weight: 650;
+  font-weight: 700;
+  line-height: 1.08;
+}
+
+button,
+.nav-label,
+.ui-heading {
+  font-weight: 600;
+  letter-spacing: 0.025em;
 }
 
 .eyebrow {
