@@ -1,4 +1,6 @@
-import type { GameState, PlayerCount } from "../engine/types";
+import { resources } from "../data/resources";
+import type { GamePhase, GameState, PlayerCount, Season } from "../engine/types";
+import { readStoredJson, removeStoredItems, writeStoredJson } from "./browserStorage";
 
 const saveVersion = 2;
 const gameSaveKey = "quietVale.activeGame.v1";
@@ -19,56 +21,99 @@ export interface SavedGame extends SavedSetup {
   state: GameState;
 }
 
-function canUseStorage(): boolean {
-  return typeof window !== "undefined" && Boolean(window.localStorage);
-}
-
-function readJson<T>(key: string): T | null {
-  if (!canUseStorage()) return null;
-
-  try {
-    const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeJson(key: string, value: unknown) {
-  if (!canUseStorage()) return;
-
-  try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // Storage can fail in private browsing or quota edge cases; the game remains playable.
-  }
-}
-
 function isPlayerCount(value: unknown): value is PlayerCount {
   return value === 1 || value === 2 || value === 3 || value === 4;
 }
 
-function isSavedSetup(value: SavedSetup | null): value is SavedSetup {
+function isSeason(value: unknown): value is Season {
+  return value === 1 || value === 2 || value === 3;
+}
+
+function isGamePhase(value: unknown): value is GamePhase {
   return (
-    Boolean(value) &&
-    (value?.version === 1 || value?.version === saveVersion) &&
-    isPlayerCount(value.playerCount) &&
-    Array.isArray(value.stewardIds) &&
-    typeof value.encounterSeed === "string"
+    value === "setup" ||
+    value === "goldenSetup" ||
+    value === "seeding" ||
+    value === "reveal" ||
+    value === "turns" ||
+    value === "endRound" ||
+    value === "gameEnd"
   );
 }
 
-function isSavedGame(value: SavedGame | null): value is SavedGame {
-  return isSavedSetup(value) && Boolean(value.state);
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function isWarehouseShape(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    resources.every((resource) => typeof value[resource] === "number")
+  );
+}
+
+function isSavedGameStateShape(value: unknown): value is GameState {
+  if (!isRecord(value)) return false;
+
+  const map = value.map;
+  const tileSupply = value.tileSupply;
+  const encounters = value.encounters;
+
+  return (
+    isPlayerCount(value.playerCount) &&
+    Array.isArray(value.players) &&
+    typeof value.currentPlayerId === "string" &&
+    isSeason(value.season) &&
+    typeof value.round === "number" &&
+    isGamePhase(value.phase) &&
+    typeof value.actionsRemaining === "number" &&
+    Array.isArray(value.playersActedThisRound) &&
+    Array.isArray(value.seasonSeededPlayerIds) &&
+    isWarehouseShape(value.warehouse) &&
+    isRecord(map) &&
+    Array.isArray(map.placedTiles) &&
+    isRecord(tileSupply) &&
+    isRecord(tileSupply.core) &&
+    isRecord(tileSupply.special) &&
+    isRecord(encounters) &&
+    isRecord(encounters.handsByPlayerId) &&
+    Array.isArray(encounters.deck) &&
+    Array.isArray(encounters.discardPile) &&
+    Array.isArray(encounters.activeArrivals) &&
+    Array.isArray(encounters.activeBurdens) &&
+    Array.isArray(encounters.faceUpBoons) &&
+    Array.isArray(encounters.completedArrivals) &&
+    Array.isArray(value.pendingEffects) &&
+    Array.isArray(value.log)
+  );
+}
+
+function isSavedSetup(value: unknown): value is SavedSetup {
+  if (!isRecord(value)) return false;
+  return (
+    (value.version === 1 || value.version === saveVersion) &&
+    isPlayerCount(value.playerCount) &&
+    Array.isArray(value.stewardIds) &&
+    value.stewardIds.every((id) => typeof id === "string") &&
+    typeof value.encounterSeed === "string" &&
+    (value.declaredVowId === undefined || typeof value.declaredVowId === "string") &&
+    (value.selectedGoldenTileId === undefined || typeof value.selectedGoldenTileId === "string") &&
+    (value.selectedGoldenBoonId === undefined || typeof value.selectedGoldenBoonId === "string")
+  );
+}
+
+function isSavedGame(value: unknown): value is SavedGame {
+  if (!isRecord(value) || !isSavedSetup(value)) return false;
+  return isSavedGameStateShape(value.state);
 }
 
 export function readSavedSetup(): SavedSetup | null {
-  const saved = readJson<SavedSetup>(setupSaveKey);
+  const saved = readStoredJson(setupSaveKey);
   return isSavedSetup(saved) ? { ...saved, version: saveVersion } : null;
 }
 
 export function readSavedGame(): SavedGame | null {
-  const saved = readJson<SavedGame>(gameSaveKey);
+  const saved = readStoredJson(gameSaveKey);
   if (!isSavedGame(saved)) return null;
   return {
     ...saved,
@@ -97,7 +142,7 @@ export function readSavedGame(): SavedGame | null {
 }
 
 export function writeSavedSetup(input: Omit<SavedSetup, "version" | "savedAt">) {
-  writeJson(setupSaveKey, {
+  writeStoredJson(setupSaveKey, {
     ...input,
     version: saveVersion,
     savedAt: new Date().toISOString()
@@ -105,7 +150,7 @@ export function writeSavedSetup(input: Omit<SavedSetup, "version" | "savedAt">) 
 }
 
 export function writeSavedGame(input: Omit<SavedGame, "version" | "savedAt">) {
-  writeJson(gameSaveKey, {
+  writeStoredJson(gameSaveKey, {
     ...input,
     version: saveVersion,
     savedAt: new Date().toISOString()
@@ -113,14 +158,11 @@ export function writeSavedGame(input: Omit<SavedGame, "version" | "savedAt">) {
 }
 
 export function clearSavedGame() {
-  if (!canUseStorage()) return;
-  window.localStorage.removeItem(gameSaveKey);
+  removeStoredItems(gameSaveKey);
 }
 
 export function clearAllSaves() {
-  if (!canUseStorage()) return;
-  window.localStorage.removeItem(gameSaveKey);
-  window.localStorage.removeItem(setupSaveKey);
+  removeStoredItems(gameSaveKey, setupSaveKey);
 }
 
 export function resetBrowserHistoryAnchor(): number {

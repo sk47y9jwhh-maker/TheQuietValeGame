@@ -33,7 +33,7 @@ import {
 } from "../../engine/placementRules";
 import { calculateFinalScore } from "../../engine/scoring";
 import { evaluateLedgerEntries, getLedgerRun } from "../../engine/ledger";
-import type { LedgerCampaign } from "../../app/ledgerPersistence";
+import type { LedgerCampaign } from "../../engine/ledgerCampaign";
 import {
   selectCurrentPlayer,
   selectEncounterName,

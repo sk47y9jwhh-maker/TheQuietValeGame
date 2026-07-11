@@ -197,7 +197,7 @@ export function chooseLedgerTargets(
         (entry.declaredVow && attemptedVows.has(entry.id) ? 8 : 0),
     }))
     .sort((a, b) => b.score - a.score);
-  const limit = profile === "chaser" ? 3 : 2;
+  const limit = profile === "chaser" ? 3 : profile === "human" ? 1 : 2;
   const selected: LedgerEntry[] = [];
   for (const candidate of ranked) {
     if (selected.length >= limit) break;

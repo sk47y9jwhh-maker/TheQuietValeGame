@@ -58,6 +58,10 @@ import { getPlacedTileAtHex } from "../engine/reachability";
 import { createNewGame } from "../engine/setup";
 import { recordLedgerGame, trackLedgerTransition } from "../engine/ledger";
 import {
+  countCompletedLedgerEntries,
+  createEmptyLedgerCampaign
+} from "../engine/ledgerCampaign";
+import {
   placeGoldenTileForSetup,
   resolveGoldenBell,
   resolveGoldenScroll,
@@ -79,9 +83,6 @@ import {
 } from "./persistence";
 import {
   clearLedgerCampaign,
-  countCompletedLedgerEntries,
-  createEmptyLedgerCampaign,
-  isGoldenMilestoneUnlocked,
   readLedgerCampaign,
   writeLedgerCampaign
 } from "./ledgerPersistence";
@@ -272,6 +273,26 @@ export function App() {
     }
     return next.slice(0, playerCount);
   }, [playerCount, stewardIds]);
+
+  const ledgerSetupOptions = useMemo(() => {
+    const completedCount = countCompletedLedgerEntries(ledgerCampaign);
+    const isMilestoneUnlocked = (index: number) =>
+      completedCount >= ledgerMilestones[index].threshold ||
+      (ledgerCampaign.grandfatheredGoldenMilestoneCount ?? 0) > index;
+
+    return {
+      completedCount,
+      availableVows: ledgerEntries.filter(
+        (entry) => entry.declaredVow && completedCount >= entry.unlockAt
+      ),
+      availableGoldenTiles: goldenTiles.filter((_tile, index) =>
+        isMilestoneUnlocked(index)
+      ),
+      availableGoldenBoons: goldenBoons.filter((_boon, index) =>
+        isMilestoneUnlocked(index)
+      )
+    };
+  }, [ledgerCampaign]);
 
   useEffect(() => {
     stateRef.current = state;
@@ -600,26 +621,10 @@ export function App() {
         declaredVowId={declaredVowId}
         selectedGoldenTileId={selectedGoldenTileId}
         selectedGoldenBoonId={selectedGoldenBoonId}
-        completedLedgerCount={countCompletedLedgerEntries(ledgerCampaign)}
-        availableVows={ledgerEntries.filter(
-          (entry) =>
-            entry.declaredVow &&
-            countCompletedLedgerEntries(ledgerCampaign) >= entry.unlockAt
-        )}
-        availableGoldenTiles={goldenTiles.filter(
-          (_tile, index) => isGoldenMilestoneUnlocked(
-            ledgerCampaign,
-            index,
-            ledgerMilestones[index].threshold
-          )
-        )}
-        availableGoldenBoons={goldenBoons.filter(
-          (_boon, index) => isGoldenMilestoneUnlocked(
-            ledgerCampaign,
-            index,
-            ledgerMilestones[index].threshold
-          )
-        )}
+        completedLedgerCount={ledgerSetupOptions.completedCount}
+        availableVows={ledgerSetupOptions.availableVows}
+        availableGoldenTiles={ledgerSetupOptions.availableGoldenTiles}
+        availableGoldenBoons={ledgerSetupOptions.availableGoldenBoons}
         onPlayerCountChange={handlePlayerCountChange}
         onStewardChange={handleStewardChange}
         onDeclaredVowChange={setDeclaredVowId}

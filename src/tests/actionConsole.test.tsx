@@ -86,7 +86,7 @@ describe("action console", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows failed Arrival, Burden, and Strain penalties in final scoring", () => {
+  it("shows the local Encounter penalty trial in final scoring", () => {
     const state = { ...createNewGame(1, ["vanguard"]), phase: "gameEnd" as const };
     state.encounters.discardPile.push("arrival_acorns_and_oak_trees");
     state.encounters.activeBurdens.push("burden_smoke_over_hearths");

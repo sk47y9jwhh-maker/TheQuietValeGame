@@ -4,7 +4,7 @@ import {
   ScrollText,
   UserRound
 } from "lucide-react";
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { getStartingWarehouseAmount } from "../../engine/setup";
 import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { stewardById, stewards } from "../../data/stewards";
@@ -71,6 +71,11 @@ export function SetupPanel({
   );
   const selectedGoldenBoon = availableGoldenBoons.find(
     (boon) => boon.id === selectedGoldenBoonId
+  );
+  const [goldenOptionsOpen, setGoldenOptionsOpen] = useState(
+    availableGoldenTiles.length > 0 ||
+      availableGoldenBoons.length > 0 ||
+      Boolean(selectedGoldenTileId || selectedGoldenBoonId)
   );
   const vowCompatibilityWarning = declaredVowId === "LE-041" &&
     (selectedStewards.some((steward) => steward.id === "vanguard") || selectedGoldenBoonId === "golden_boon_the_golden_vial")
@@ -203,50 +208,60 @@ export function SetupPanel({
             )}
           </label>
 
-          <section className="setup-golden-legacy">
-            <div>
-              <strong>Golden Legacy</strong>
+          <details
+            className="setup-golden-legacy"
+            open={goldenOptionsOpen}
+            onToggle={(event) => setGoldenOptionsOpen(event.currentTarget.open)}
+          >
+            <summary>
+              <span>
+                <strong>Golden Legacy</strong>
+                <small>Optional setup</small>
+              </span>
               <small>
-                Optional · choose up to one unlocked Golden Tile and one Golden Boon
+                {availableGoldenTiles.length + availableGoldenBoons.length} unlocked
               </small>
+            </summary>
+            <div className="setup-golden-fields">
+              <p>Choose up to one unlocked Golden Tile and one Golden Boon.</p>
+              <label>
+                Golden Tile
+                <select
+                  aria-label="Golden Tile"
+                  value={selectedGoldenTileId}
+                  onChange={(event) => onGoldenTileChange(event.target.value)}
+                >
+                  <option value="">No Golden Tile</option>
+                  {availableGoldenTiles.map((tile) => (
+                    <option key={tile.id} value={tile.id}>{tile.name}</option>
+                  ))}
+                </select>
+                <small>
+                  {selectedGoldenTile
+                    ? `${selectedGoldenTile.placement?.text} ${selectedGoldenTile.effectText}`
+                    : `${availableGoldenTiles.length} unlocked at ${completedLedgerCount}/50 entries`}
+                </small>
+              </label>
+              <label>
+                Golden Boon
+                <select
+                  aria-label="Golden Boon"
+                  value={selectedGoldenBoonId}
+                  onChange={(event) => onGoldenBoonChange(event.target.value)}
+                >
+                  <option value="">No Golden Boon</option>
+                  {availableGoldenBoons.map((boon) => (
+                    <option key={boon.id} value={boon.id}>{boon.name}</option>
+                  ))}
+                </select>
+                <small>
+                  {selectedGoldenBoon
+                    ? selectedGoldenBoon.effectText
+                    : `${availableGoldenBoons.length} unlocked at ${completedLedgerCount}/50 entries`}
+                </small>
+              </label>
             </div>
-            <label>
-              Golden Tile
-              <select
-                aria-label="Golden Tile"
-                value={selectedGoldenTileId}
-                onChange={(event) => onGoldenTileChange(event.target.value)}
-              >
-                <option value="">No Golden Tile</option>
-                {availableGoldenTiles.map((tile) => (
-                  <option key={tile.id} value={tile.id}>{tile.name}</option>
-                ))}
-              </select>
-              <small>
-                {selectedGoldenTile
-                  ? `${selectedGoldenTile.placement?.text} ${selectedGoldenTile.effectText}`
-                  : `${availableGoldenTiles.length} unlocked at ${completedLedgerCount}/50 entries`}
-              </small>
-            </label>
-            <label>
-              Golden Boon
-              <select
-                aria-label="Golden Boon"
-                value={selectedGoldenBoonId}
-                onChange={(event) => onGoldenBoonChange(event.target.value)}
-              >
-                <option value="">No Golden Boon</option>
-                {availableGoldenBoons.map((boon) => (
-                  <option key={boon.id} value={boon.id}>{boon.name}</option>
-                ))}
-              </select>
-              <small>
-                {selectedGoldenBoon
-                  ? selectedGoldenBoon.effectText
-                  : `${availableGoldenBoons.length} unlocked at ${completedLedgerCount}/50 entries`}
-              </small>
-            </label>
-          </section>
+          </details>
 
           <button className="primary-action" onClick={onStart} type="button">
             Start Season I

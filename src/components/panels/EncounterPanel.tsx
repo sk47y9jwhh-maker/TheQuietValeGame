@@ -1,4 +1,5 @@
 import { encounterById } from "../../data/encounters";
+import { useState } from "react";
 import { specialTileById } from "../../data/tiles";
 import {
   formatCategory,
@@ -86,6 +87,9 @@ export function EncounterPanel({
   onResolveBurden
 }: EncounterPanelProps) {
   const usableBoonIds = new Set(getUsableFaceUpBoonIds(state));
+  const [completedArrivalsOpen, setCompletedArrivalsOpen] = useState(
+    state.encounters.completedArrivals.length <= 1
+  );
 
   return (
     <aside className="right-panel">
@@ -263,41 +267,50 @@ export function EncounterPanel({
         )}
       </section>
 
-      <section className="encounter-section">
-        <h3>Completed Arrivals</h3>
-        {state.encounters.completedArrivals.length === 0 ? (
-          <p className="muted">No Special Tiles unlocked.</p>
-        ) : (
-          state.encounters.completedArrivals.map((arrival) => {
-            const rewardTiles = getSpecialTileList(arrival.specialTileIds);
-            return (
-              <article
-                key={arrival.cardId}
-                className="encounter-row encounter-full-card card-row card-arrival completed-arrival-card"
-              >
-                <div className="encounter-card-heading">
-                  <span>{encounterById[arrival.cardId]?.name ?? arrival.cardId}</span>
-                  <strong>
-                    {arrival.specialTileIds.length} tile
-                    {arrival.specialTileIds.length === 1 ? "" : "s"} unlocked
-                  </strong>
-                </div>
-                {getEncounterDetail(state, arrival.cardId).flavorText && (
-                  <em>{getEncounterDetail(state, arrival.cardId).flavorText}</em>
-                )}
-                <div className="unlock-preview-list prominent" aria-label="Unlocked special tiles">
-                  {rewardTiles.map((tile) => (
-                    <span className="unlock-preview-chip" key={tile.id}>
-                      <strong>{tile.name}</strong>
-                      <small>{formatCategory(tile.category)} Special Tile</small>
-                    </span>
-                  ))}
-                </div>
-              </article>
-            );
-          })
-        )}
-      </section>
+      <details
+        className="encounter-section completed-arrivals-section"
+        open={completedArrivalsOpen}
+        onToggle={(event) => setCompletedArrivalsOpen(event.currentTarget.open)}
+      >
+        <summary>
+          <h3>Completed Arrivals</h3>
+          <span>{state.encounters.completedArrivals.length}</span>
+        </summary>
+        <div className="completed-arrivals-list">
+          {state.encounters.completedArrivals.length === 0 ? (
+            <p className="muted">No Special Tiles unlocked.</p>
+          ) : (
+            state.encounters.completedArrivals.map((arrival) => {
+              const rewardTiles = getSpecialTileList(arrival.specialTileIds);
+              return (
+                <article
+                  key={arrival.cardId}
+                  className="encounter-row encounter-full-card card-row card-arrival completed-arrival-card"
+                >
+                  <div className="encounter-card-heading">
+                    <span>{encounterById[arrival.cardId]?.name ?? arrival.cardId}</span>
+                    <strong>
+                      {arrival.specialTileIds.length} tile
+                      {arrival.specialTileIds.length === 1 ? "" : "s"} unlocked
+                    </strong>
+                  </div>
+                  {getEncounterDetail(state, arrival.cardId).flavorText && (
+                    <em>{getEncounterDetail(state, arrival.cardId).flavorText}</em>
+                  )}
+                  <div className="unlock-preview-list prominent" aria-label="Unlocked special tiles">
+                    {rewardTiles.map((tile) => (
+                      <span className="unlock-preview-chip" key={tile.id}>
+                        <strong>{tile.name}</strong>
+                        <small>{formatCategory(tile.category)} Special Tile</small>
+                      </span>
+                    ))}
+                  </div>
+                </article>
+              );
+            })
+          )}
+        </div>
+      </details>
     </aside>
   );
 }

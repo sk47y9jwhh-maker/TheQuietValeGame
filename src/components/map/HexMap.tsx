@@ -1,5 +1,10 @@
 import { useCallback, useMemo, useRef } from "react";
-import { mapCells, terrainLabels } from "../../data/map";
+import {
+  mapArtworkLayers,
+  mapCells,
+  mapLayout,
+  terrainLabels
+} from "../../data/map";
 import {
   getLegalPlacementHexes,
   getTileCategory,
@@ -15,6 +20,7 @@ import type {
   PlacedTile,
   PlayerState,
   Terrain,
+  TileCategory,
   TilePlacementDraft
 } from "../../engine/types";
 
@@ -29,11 +35,10 @@ interface HexMapProps {
   onTileInspect?: (placedTileId: string) => void;
 }
 
-const radius = 30;
-const hexHeight = Math.sqrt(3) * radius;
-const hexWidth = radius * 2;
-const mapWidth = hexWidth + 13 * radius * 1.5 + 30;
-const mapHeight = hexHeight * 9 + hexHeight / 2 + 40;
+const radius = mapLayout.hexRadius;
+const hexHeight = mapLayout.hexHeight;
+const mapWidth = mapLayout.width;
+const mapHeight = mapLayout.height;
 const terrainKey: Terrain[] = [
   "grasslands",
   "woodland",
@@ -47,6 +52,17 @@ const longPressDelayMs = 520;
 const longPressMoveTolerance = 12;
 const tileLabelMaxChars = 10;
 
+const tileCategoryGlyphs: Record<TileCategory, string> = {
+  resource: "R",
+  housing: "H",
+  crafting: "C",
+  merchant: "M",
+  social: "S",
+  wellbeing: "W",
+  travel: "T",
+  special: "✦"
+};
+
 function polygonPoints(cx: number, cy: number): string {
   return Array.from({ length: 6 }, (_, index) => {
     const angle = (Math.PI / 180) * (60 * index);
@@ -57,8 +73,8 @@ function polygonPoints(cx: number, cy: number): string {
 function getCellCenter(cell: { col: string; row: number }): { x: number; y: number } {
   const colIndex = cell.col.charCodeAt(0) - 65;
   return {
-    x: radius + colIndex * radius * 1.5 + 14,
-    y: hexHeight / 2 + (cell.row - 1) * hexHeight + (colIndex % 2 ? hexHeight / 2 : 0) + 18
+    x: radius + colIndex * radius * 1.5 + mapLayout.originX,
+    y: hexHeight / 2 + (cell.row - 1) * hexHeight + (colIndex % 2 ? hexHeight / 2 : 0) + mapLayout.originY
   };
 }
 
@@ -74,6 +90,32 @@ const mapGeometry = mapCells.map((cell) => {
 const mapGeometryById = new Map(
   mapGeometry.map((geometry) => [geometry.cell.id, geometry])
 );
+
+const activeMapArtworkLayers = mapArtworkLayers.filter((layer) => layer.src);
+const hasMapArtwork = activeMapArtworkLayers.length > 0;
+
+function MapArtworkImage({ kind }: { kind: "underlay" | "overlay" }) {
+  return (
+    <>
+      {activeMapArtworkLayers
+        .filter((layer) => layer.kind === kind)
+        .map((layer) => (
+          <image
+            aria-hidden="true"
+            className={`map-artwork-layer map-artwork-${layer.kind}`}
+            height={mapHeight}
+            href={layer.src}
+            key={layer.id}
+            opacity={layer.opacity}
+            preserveAspectRatio="xMidYMid meet"
+            width={mapWidth}
+            x={0}
+            y={0}
+          />
+        ))}
+    </>
+  );
+}
 
 function getTileLabelLines(tileName: string): string[] {
   if (!tileName) return [];
@@ -209,6 +251,16 @@ export function HexMap({
     }
     return byHex;
   }, [state.map.placedTiles]);
+  const selectedPlacedTileIds = useMemo(
+    () =>
+      new Set(
+        selectedHexIds.flatMap((hexId) => {
+          const tile = placedTileByHex.get(hexId);
+          return tile ? [tile.instanceId] : [];
+        })
+      ),
+    [placedTileByHex, selectedHexIds]
+  );
   const stewardsByHex = useMemo(() => {
     const byHex = new Map<string, Array<{ player: PlayerState; playerIndex: number }>>();
     state.players.forEach((player, playerIndex) => {
@@ -237,7 +289,7 @@ export function HexMap({
       </div>
       <div className="map-canvas">
         <svg
-          className="hex-map zoom-high"
+          className={`hex-map zoom-high ${hasMapArtwork ? "has-map-artwork" : ""}`}
           style={{
             width: "100%",
             height: "100%"
@@ -247,139 +299,154 @@ export function HexMap({
           role="img"
           aria-label="The Quiet Vale map"
         >
-          {mapGeometry.map(({ cell, x, y, points }) => {
-            const placed = placedTileByHex.get(cell.id);
-            const legal = legalHexes.has(cell.id);
-            const selected = selectedHexIds.includes(cell.id);
-            const inFootprint = footprintHexes.has(cell.id);
-            const terrainName = terrainLabels[cell.terrain];
-            const tileName = placed ? selectTileName(placed) : "";
-            const accessibleName = placed ? `${tileName}, ${terrainName}` : terrainName;
-            const supported = Boolean(placed?.support.passive || placed?.support.singleUse);
-            const overstrained = Boolean(placed && placed.strain >= 3);
-            const reachable = Boolean(placed && reachableTileIds.has(placed.instanceId));
-            const tileCategory = placed ? getTileCategory(placed) : null;
-            const labelLines = getTileLabelLines(tileName);
-            const labelWidth = Math.min(
-              56,
-              Math.max(32, Math.max(...labelLines.map((line) => line.length), 0) * 5.2 + 12)
-            );
-            const labelHeight = labelLines.length > 1 ? 25 : 18;
+          <MapArtworkImage kind="underlay" />
+          <g className="hex-terrain-layer">
+            {mapGeometry.map(({ cell, x, y, points }) => {
+              const placed = placedTileByHex.get(cell.id);
+              const legal = legalHexes.has(cell.id);
+              const selected = selectedHexIds.includes(cell.id);
+              const inFootprint = footprintHexes.has(cell.id);
+              const terrainName = terrainLabels[cell.terrain];
+              const tileName = placed ? selectTileName(placed) : "";
+              const accessibleName = placed ? `${tileName}, ${terrainName}` : terrainName;
+              const supported = Boolean(placed?.support.passive || placed?.support.singleUse);
+              const overstrained = Boolean(placed && placed.strain >= 3);
+              const reachable = Boolean(placed && reachableTileIds.has(placed.instanceId));
+              const tileCategory = placed ? getTileCategory(placed) : null;
+              const labelLines = getTileLabelLines(tileName);
+              const labelWidth = Math.min(
+                56,
+                Math.max(32, Math.max(...labelLines.map((line) => line.length), 0) * 5.2 + 12)
+              );
+              const labelHeight = labelLines.length > 1 ? 25 : 18;
 
-            return (
-              <g
-                key={cell.id}
-                className={[
-                  "hex-cell",
-                  `terrain-${cell.terrain}`,
-                  legal ? "is-legal" : "",
-                  selected ? "is-selected" : "",
-                  inFootprint ? "is-footprint" : "",
-                  placed ? "is-placed" : "",
-                  placed?.kind === "special" ? "tile-special" : "",
-                  placed?.tileId.startsWith("golden_tile_") ? "tile-golden" : "",
-                  tileCategory ? `tile-${tileCategory}` : "",
-                  reachable ? "is-reachable" : "",
-                  supported ? "is-supported" : "",
-                  overstrained ? "is-overstrained" : ""
-                ].join(" ")}
-                onClick={(event) => {
-                  if (ignoreClickHexRef.current === cell.id) {
-                    ignoreClickHexRef.current = null;
+              return (
+                <g
+                  key={cell.id}
+                  className={[
+                    "hex-cell",
+                    `terrain-${cell.terrain}`,
+                    legal ? "is-legal" : "",
+                    selected ? "is-selected" : "",
+                    inFootprint ? "is-footprint" : "",
+                    placed ? "is-placed" : "",
+                    placed?.kind === "special" ? "tile-special" : "",
+                    placed?.tileId.startsWith("golden_tile_") ? "tile-golden" : "",
+                    tileCategory ? `tile-${tileCategory}` : "",
+                    reachable ? "is-reachable" : "",
+                    supported ? "is-supported" : "",
+                    overstrained ? "is-overstrained" : ""
+                  ].join(" ")}
+                  onClick={(event) => {
+                    if (ignoreClickHexRef.current === cell.id) {
+                      ignoreClickHexRef.current = null;
+                      event.preventDefault();
+                      event.stopPropagation();
+                      return;
+                    }
+                    onHexSelect(cell.id);
+                  }}
+                  onContextMenu={(event) => {
                     event.preventDefault();
-                    event.stopPropagation();
-                    return;
-                  }
-                  onHexSelect(cell.id);
-                }}
-                onContextMenu={(event) => {
-                  event.preventDefault();
-                  clearLongPress();
-                  onHexContextMenu?.(cell.id, {
-                    x: event.clientX,
-                    y: event.clientY
-                  });
-                }}
-                onTouchStart={(event) => {
-                  if (event.touches.length !== 1) return;
-                  const touch = event.touches[0];
-                  startLongPress(cell.id, touch.clientX, touch.clientY);
-                }}
-                onTouchMove={(event) => {
-                  if (longPressRef.current?.activated) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return;
-                  }
-                  if (event.touches.length !== 1) {
                     clearLongPress();
-                    return;
-                  }
-                  const touch = event.touches[0];
-                  cancelLongPressIfMoved(touch.clientX, touch.clientY);
-                }}
-                onTouchEnd={(event) => {
-                  const press = longPressRef.current;
-                  if (press?.hexId === cell.id && press.activated) {
+                    onHexContextMenu?.(cell.id, {
+                      x: event.clientX,
+                      y: event.clientY
+                    });
+                  }}
+                  onTouchStart={(event) => {
+                    if (event.touches.length !== 1) return;
+                    const touch = event.touches[0];
+                    startLongPress(cell.id, touch.clientX, touch.clientY);
+                  }}
+                  onTouchMove={(event) => {
+                    if (longPressRef.current?.activated) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      return;
+                    }
+                    if (event.touches.length !== 1) {
+                      clearLongPress();
+                      return;
+                    }
+                    const touch = event.touches[0];
+                    cancelLongPressIfMoved(touch.clientX, touch.clientY);
+                  }}
+                  onTouchEnd={(event) => {
+                    const press = longPressRef.current;
+                    if (press?.hexId === cell.id && press.activated) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    clearLongPress();
+                  }}
+                  onTouchCancel={clearLongPress}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter" && event.key !== " " && event.key !== "Spacebar") {
+                      return;
+                    }
                     event.preventDefault();
-                    event.stopPropagation();
-                  }
-                  clearLongPress();
-                }}
-                onTouchCancel={clearLongPress}
-                onKeyDown={(event) => {
-                  if (event.key !== "Enter" && event.key !== " " && event.key !== "Spacebar") {
-                    return;
-                  }
-                  event.preventDefault();
-                  onHexSelect(cell.id);
-                }}
-                role="button"
-                tabIndex={0}
-                aria-label={`${cell.id}, ${accessibleName}${
-                  placed ? `, Strain ${placed.strain}, ${supported ? "Supported" : "Unsupported"}` : ""
-                }`}
-              >
-                <title>
-                  {cell.id}: {accessibleName}
-                  {placed
-                    ? ` | Strain ${placed.strain}/3 | ${
-                        supported ? "Supported" : "Not Supported"
-                      }`
-                    : ""}
-                </title>
-                <polygon points={points} />
-                {placed && (
-                  <>
-                    <rect
-                      className="hex-label-backplate"
-                      x={x - labelWidth / 2}
-                      y={y - labelHeight / 2}
-                      width={labelWidth}
-                      height={labelHeight}
-                      rx={4}
-                    />
-                    <text
-                      x={x}
-                      y={labelLines.length > 1 ? y - 4 : y + 3}
-                      textAnchor="middle"
-                      className="hex-label"
+                    onHexSelect(cell.id);
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${cell.id}, ${accessibleName}${
+                    placed ? `, Strain ${placed.strain}, ${supported ? "Supported" : "Unsupported"}` : ""
+                  }`}
+                >
+                  <title>
+                    {cell.id}: {accessibleName}
+                    {placed
+                      ? ` | Strain ${placed.strain}/3 | ${
+                          supported ? "Supported" : "Not Supported"
+                        }`
+                      : ""}
+                  </title>
+                  <polygon points={points} />
+                  {placed && tileCategory && (
+                    <g
+                      aria-hidden="true"
+                      className={`tile-category-marker tile-category-${tileCategory}`}
                     >
-                      {labelLines.map((line, index) => (
-                        <tspan
-                          key={`${line}-${index}`}
-                          x={x}
-                          dy={index === 0 ? 0 : 9.5}
-                        >
-                          {line}
-                        </tspan>
-                      ))}
-                    </text>
-                  </>
-                )}
-              </g>
-            );
-          })}
+                      <circle cx={x - 18} cy={y - 18} r={6} />
+                      <text x={x - 18} y={y - 15.5} textAnchor="middle">
+                        {tileCategoryGlyphs[tileCategory]}
+                      </text>
+                    </g>
+                  )}
+                  {placed && (
+                    <>
+                      <rect
+                        className="hex-label-backplate"
+                        x={x - labelWidth / 2}
+                        y={y - labelHeight / 2}
+                        width={labelWidth}
+                        height={labelHeight}
+                        rx={4}
+                      />
+                      <text
+                        x={x}
+                        y={labelLines.length > 1 ? y - 4 : y + 3}
+                        textAnchor="middle"
+                        className="hex-label"
+                      >
+                        {labelLines.map((line, index) => (
+                          <tspan
+                            key={`${line}-${index}`}
+                            x={x}
+                            dy={index === 0 ? 0 : 9.5}
+                          >
+                            {line}
+                          </tspan>
+                        ))}
+                      </text>
+                    </>
+                  )}
+                </g>
+              );
+            })}
+          </g>
+          <MapArtworkImage kind="overlay" />
           {onTileInspect && (
             <g className="hex-inspect-layer">
               {state.map.placedTiles.map((placed) => {
@@ -395,11 +462,12 @@ export function HexMap({
                 const y =
                   points.reduce((total, point) => total + point.y, 0) / points.length;
                 const tileName = selectTileName(placed);
+                const isActive = selectedPlacedTileIds.has(placed.instanceId);
 
                 return (
                   <g
                     aria-label={`Inspect ${tileName}`}
-                    className="tile-inspect-control"
+                    className={`tile-inspect-control ${isActive ? "is-active" : ""}`}
                     key={`inspect-${placed.instanceId}`}
                     onClick={(event) => {
                       event.preventDefault();
@@ -419,7 +487,7 @@ export function HexMap({
                       onTileInspect(placed.instanceId);
                     }}
                     role="button"
-                    tabIndex={0}
+                    tabIndex={isActive ? 0 : -1}
                     transform={`translate(${x + 18}, ${y - 19})`}
                   >
                     <title>Inspect {tileName}</title>
@@ -442,10 +510,13 @@ export function HexMap({
                 <g className="hex-marker-stack" key={`markers-${cell.id}`}>
                   {supported && (
                     <g className="support-marker">
-                      <circle cx={x - 15} cy={y + 14} r={7} />
-                      <text x={x - 15} y={y + 18} textAnchor="middle">
-                        S
-                      </text>
+                      <path
+                        d={`M${x - 21},${y + 10} L${x - 15},${y + 7} L${x - 9},${y + 10} L${x - 10},${y + 17} L${x - 15},${y + 20} L${x - 20},${y + 17} Z`}
+                      />
+                      <path
+                        className="support-marker-check"
+                        d={`M${x - 18},${y + 14} L${x - 16},${y + 16} L${x - 12},${y + 12}`}
+                      />
                     </g>
                   )}
                   {placed && placed.strain > 0 && (
