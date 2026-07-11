@@ -1,69 +1,73 @@
-export const ledgerCampaignVersion = 2;
+import {
+  countCompletedLedgerEntries,
+  createEmptyLedgerCampaign,
+  ledgerCampaignVersion,
+  ledgerCatalogueVersion,
+  type LedgerCampaign,
+  type LedgerCompletionRecord,
+  type LedgerGameRecord
+} from "../engine/ledgerCampaign";
+import { readStoredJson, removeStoredItems, writeStoredJson } from "./browserStorage";
+
+export {
+  countCompletedLedgerEntries,
+  createEmptyLedgerCampaign,
+  isGoldenMilestoneUnlocked,
+  ledgerCampaignVersion,
+  type LedgerCampaign,
+  type LedgerCompletionRecord,
+  type LedgerGameRecord
+} from "../engine/ledgerCampaign";
+
 const ledgerCampaignKey = "quietVale.stewardsLedger.v1";
-const ledgerCatalogueVersion = "v4.6" as const;
 
-export interface LedgerCompletionRecord {
-  entryId: string;
-  completedOnce: boolean;
-  completedPlayerCounts: number[];
-  firstCompletedAt?: string;
-  firstGameId?: string;
-  notes?: string;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-export interface LedgerGameRecord {
-  id: string;
-  completedAt: string;
-  playerCount: number;
-  stewardIds: string[];
-  finalScore: number;
-  declaredVowId?: string;
-  completedStewardObjectiveIds?: string[];
-  completedEntryIds: string[];
-  newRecordEntryIds?: string[];
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
 }
 
-export interface LedgerCampaign {
-  version: number;
-  catalogueVersion?: typeof ledgerCatalogueVersion;
-  pacingVersion?: 2;
-  grandfatheredGoldenMilestoneCount?: number;
-  completions: Record<string, LedgerCompletionRecord>;
-  games: LedgerGameRecord[];
+function isLedgerCompletionRecord(value: unknown): value is LedgerCompletionRecord {
+  return (
+    isRecord(value) &&
+    typeof value.entryId === "string" &&
+    typeof value.completedOnce === "boolean" &&
+    Array.isArray(value.completedPlayerCounts) &&
+    value.completedPlayerCounts.every((count) => typeof count === "number")
+  );
 }
 
-export function createEmptyLedgerCampaign(): LedgerCampaign {
-  return {
-    version: ledgerCampaignVersion,
-    catalogueVersion: ledgerCatalogueVersion,
-    pacingVersion: 2,
-    completions: {},
-    games: []
-  };
-}
-
-function canUseStorage(): boolean {
-  return typeof window !== "undefined" && Boolean(window.localStorage);
+function isLedgerGameRecord(value: unknown): value is LedgerGameRecord {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.completedAt === "string" &&
+    typeof value.playerCount === "number" &&
+    isStringArray(value.stewardIds) &&
+    typeof value.finalScore === "number" &&
+    isStringArray(value.completedEntryIds) &&
+    (value.completedStewardObjectiveIds === undefined ||
+      isStringArray(value.completedStewardObjectiveIds)) &&
+    (value.newRecordEntryIds === undefined || isStringArray(value.newRecordEntryIds))
+  );
 }
 
 function isLedgerCampaignShape(value: unknown): value is LedgerCampaign {
-  if (!value || typeof value !== "object") return false;
-  const candidate = value as Partial<LedgerCampaign>;
+  if (!isRecord(value) || !isRecord(value.completions) || !Array.isArray(value.games)) {
+    return false;
+  }
   return (
-    typeof candidate.version === "number" &&
-    Boolean(candidate.completions) &&
-    !Array.isArray(candidate.completions) &&
-    Array.isArray(candidate.games)
+    typeof value.version === "number" &&
+    Object.values(value.completions).every(isLedgerCompletionRecord) &&
+    value.games.every(isLedgerGameRecord)
   );
 }
 
 export function readLedgerCampaign(): LedgerCampaign {
-  if (!canUseStorage()) return createEmptyLedgerCampaign();
-
   try {
-    const raw = window.localStorage.getItem(ledgerCampaignKey);
-    if (!raw) return createEmptyLedgerCampaign();
-    const parsed = JSON.parse(raw) as unknown;
+    const parsed = readStoredJson(ledgerCampaignKey);
     if (!isLedgerCampaignShape(parsed)) return createEmptyLedgerCampaign();
     if (
       parsed.version === ledgerCampaignVersion &&
@@ -96,34 +100,9 @@ export function readLedgerCampaign(): LedgerCampaign {
 }
 
 export function writeLedgerCampaign(campaign: LedgerCampaign) {
-  if (!canUseStorage()) return;
-
-  try {
-    window.localStorage.setItem(ledgerCampaignKey, JSON.stringify(campaign));
-  } catch {
-    // Campaign tracking is additive; a storage failure must not interrupt a game.
-  }
+  writeStoredJson(ledgerCampaignKey, campaign);
 }
 
 export function clearLedgerCampaign() {
-  if (!canUseStorage()) return;
-  window.localStorage.removeItem(ledgerCampaignKey);
-}
-
-export function countCompletedLedgerEntries(campaign: LedgerCampaign): number {
-  return Object.values(campaign.completions).filter(
-    (completion) =>
-      completion.completedOnce || (completion.completedPlayerCounts?.length ?? 0) > 0
-  ).length;
-}
-
-export function isGoldenMilestoneUnlocked(
-  campaign: LedgerCampaign,
-  milestoneIndex: number,
-  threshold: number
-): boolean {
-  return (
-    countCompletedLedgerEntries(campaign) >= threshold ||
-    (campaign.grandfatheredGoldenMilestoneCount ?? 0) > milestoneIndex
-  );
+  removeStoredItems(ledgerCampaignKey);
 }

@@ -71,6 +71,44 @@ describe("placement validation", () => {
     expect(canPlaceTile(state, "player_1", "special_shrine_of_renewal", "A1").ok).toBe(false);
   });
 
+  it("enforces terrain-adjacency bans from tile data", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.players[0].hasPlacedFirstTile = true;
+    state.players[0].stewardHexId = "G1";
+    state.tileSupply.special.golden_tile_the_golden_hearth = 1;
+    state.map.placedTiles.push(
+      {
+        instanceId: "tile_path_f1",
+        tileId: "c15_path",
+        kind: "core",
+        side: "basic",
+        hexIds: ["F1"],
+        strain: 0,
+        support: { passive: false, singleUse: false, preventedThisRound: false }
+      },
+      {
+        instanceId: "tile_path_g1",
+        tileId: "c15_path",
+        kind: "core",
+        side: "basic",
+        hexIds: ["G1"],
+        strain: 0,
+        support: { passive: false, singleUse: false, preventedThisRound: false }
+      }
+    );
+
+    const riverAdjacent = canPlaceTile(
+      state,
+      "player_1",
+      "golden_tile_the_golden_hearth",
+      "E1"
+    );
+    expect(riverAdjacent.ok).toBe(false);
+    expect(riverAdjacent.reasons.join(" ")).toContain("must not be adjacent to Water/River");
+
+    expect(canPlaceTile(state, "player_1", "golden_tile_the_golden_hearth", "H1").ok).toBe(true);
+  });
+
   it("treats river-adjacent hexes as connected when reachable Docks are active", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.players[0].hasPlacedFirstTile = true;

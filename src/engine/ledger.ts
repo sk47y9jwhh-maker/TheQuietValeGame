@@ -1,4 +1,8 @@
-import type { LedgerCampaign, LedgerGameRecord } from "../app/ledgerPersistence";
+import {
+  countCompletedLedgerEntries,
+  type LedgerCampaign,
+  type LedgerGameRecord
+} from "./ledgerCampaign";
 import { ledgerEntries, type LedgerEntry } from "../data/ledger";
 import { mapById, mapCells } from "../data/map";
 import { coreTileById, goldenTileById, specialTileById } from "../data/tiles";
@@ -275,7 +279,41 @@ function areTilesAdjacent(a: PlacedTile, b: PlacedTile): boolean {
   return a.hexIds.some((hexId) => getHexNeighbors(hexId).some((neighborId) => b.hexIds.includes(neighborId)));
 }
 
-function connectedGroups(tiles: PlacedTile[]): PlacedTile[][] {
+interface LedgerBoardIndex {
+  adjacentIdsByTileId: Map<string, Set<string>>;
+  categoryByTileId: Map<string, TileCategory>;
+  tileByHexId: Map<string, PlacedTile>;
+}
+
+function createLedgerBoardIndex(tiles: PlacedTile[]): LedgerBoardIndex {
+  const adjacentIdsByTileId = new Map(
+    tiles.map((tile) => [tile.instanceId, new Set<string>()])
+  );
+  const categoryByTileId = new Map(
+    tiles.map((tile) => [tile.instanceId, placedTileCategory(tile)])
+  );
+  const tileByHexId = new Map<string, PlacedTile>();
+
+  for (const tile of tiles) {
+    for (const hexId of tile.hexIds) tileByHexId.set(hexId, tile);
+  }
+  for (let leftIndex = 0; leftIndex < tiles.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < tiles.length; rightIndex += 1) {
+      const left = tiles[leftIndex];
+      const right = tiles[rightIndex];
+      if (!areTilesAdjacent(left, right)) continue;
+      adjacentIdsByTileId.get(left.instanceId)?.add(right.instanceId);
+      adjacentIdsByTileId.get(right.instanceId)?.add(left.instanceId);
+    }
+  }
+
+  return { adjacentIdsByTileId, categoryByTileId, tileByHexId };
+}
+
+function connectedGroups(
+  tiles: PlacedTile[],
+  adjacentIdsByTileId: Map<string, Set<string>>
+): PlacedTile[][] {
   const remaining = new Set(tiles.map((tile) => tile.instanceId));
   const byId = new Map(tiles.map((tile) => [tile.instanceId, tile]));
   const groups: PlacedTile[][] = [];
@@ -284,16 +322,14 @@ function connectedGroups(tiles: PlacedTile[]): PlacedTile[][] {
     remaining.delete(first);
     const queue = [first];
     const group: PlacedTile[] = [];
-    while (queue.length > 0) {
-      const tile = byId.get(queue.shift()!);
+    for (let index = 0; index < queue.length; index += 1) {
+      const tile = byId.get(queue[index]);
       if (!tile) continue;
       group.push(tile);
-      for (const candidateId of [...remaining]) {
-        const candidate = byId.get(candidateId);
-        if (candidate && areTilesAdjacent(tile, candidate)) {
-          remaining.delete(candidateId);
-          queue.push(candidateId);
-        }
+      for (const candidateId of adjacentIdsByTileId.get(tile.instanceId) ?? []) {
+        if (!remaining.has(candidateId)) continue;
+        remaining.delete(candidateId);
+        queue.push(candidateId);
       }
     }
     groups.push(group);
@@ -301,23 +337,16 @@ function connectedGroups(tiles: PlacedTile[]): PlacedTile[][] {
   return groups;
 }
 
-function tileAtHex(tiles: PlacedTile[], hexId: string): PlacedTile | undefined {
-  return tiles.find((tile) => tile.hexIds.includes(hexId));
-}
-
-function ringTilesAt(tiles: PlacedTile[], centerHexId: string): PlacedTile[] | null {
+function ringTilesAt(
+  tileByHexId: Map<string, PlacedTile>,
+  centerHexId: string
+): PlacedTile[] | null {
   const neighbors = getHexNeighbors(centerHexId);
   if (neighbors.length !== 6) return null;
-  const ring = neighbors.map((hexId) => tileAtHex(tiles, hexId));
+  const ring = neighbors.map((hexId) => tileByHexId.get(hexId));
   if (ring.some((tile) => !tile)) return null;
   const present = ring as PlacedTile[];
   return new Set(present.map((tile) => tile.instanceId)).size === 6 ? present : null;
-}
-
-function campaignCompletedCount(campaign: LedgerCampaign): number {
-  return Object.values(campaign.completions).filter(
-    (completion) => completion.completedOnce || (completion.completedPlayerCounts?.length ?? 0) > 0
-  ).length;
 }
 
 function thresholdFor(entry: LedgerEntry, playerCount: number): number {
@@ -335,9 +364,14 @@ function usesPowerEverySeason(state: GameState, stewardId: string): boolean {
 
 export function evaluateLedgerEntries(state: GameState, campaign: LedgerCampaign): LedgerEntryEvaluation[] {
   const run = getLedgerRun(state);
-  const completedCount = campaignCompletedCount(campaign);
+  const completedCount = countCompletedLedgerEntries(campaign);
   const tiles = state.map.placedTiles;
   const eligible = tiles.filter((tile) => tile.strain < 3);
+  const boardIndex = createLedgerBoardIndex(eligible);
+  const tileCategory = (tile: PlacedTile) =>
+    boardIndex.categoryByTileId.get(tile.instanceId) ?? placedTileCategory(tile);
+  const tilesAreAdjacent = (left: PlacedTile, right: PlacedTile) =>
+    boardIndex.adjacentIdsByTileId.get(left.instanceId)?.has(right.instanceId) ?? false;
   const score = calculateFinalScore(state);
   const renown = score.finalScore - score.population;
   const overstrained = tiles.filter((tile) => tile.strain >= 3).length;
@@ -345,16 +379,22 @@ export function evaluateLedgerEntries(state: GameState, campaign: LedgerCampaign
   const activeBurdens = state.encounters.activeBurdens.length;
   const warehouseTotal = Object.values(state.warehouse).reduce((sum, amount) => sum + amount, 0);
   const occupied = new Set(eligible.flatMap((tile) => tile.hexIds));
-  const eligibleHousing = eligible.filter((tile) => placedTileCategory(tile) === "housing");
-  const housingGroups = connectedGroups(eligibleHousing);
-  const travelGroups = connectedGroups(eligible.filter((tile) => placedTileCategory(tile) === "travel"));
-  const categorySet = new Set(eligible.map(placedTileCategory));
+  const eligibleHousing = eligible.filter((tile) => tileCategory(tile) === "housing");
+  const housingGroups = connectedGroups(eligibleHousing, boardIndex.adjacentIdsByTileId);
+  const travelGroups = connectedGroups(
+    eligible.filter((tile) => tileCategory(tile) === "travel"),
+    boardIndex.adjacentIdsByTileId
+  );
+  const categorySet = new Set(eligible.map(tileCategory));
   const adjacentToCategory = (tile: PlacedTile, category: TileCategory) =>
-    eligible.some((candidate) => candidate.instanceId !== tile.instanceId && placedTileCategory(candidate) === category && areTilesAdjacent(tile, candidate));
+    [...(boardIndex.adjacentIdsByTileId.get(tile.instanceId) ?? [])].some(
+      (candidateId) => boardIndex.categoryByTileId.get(candidateId) === category
+    );
   const allHousingPaired = eligibleHousing.length > 0 && eligibleHousing.every((tile) => adjacentToCategory(tile, "housing"));
   const specialTiles = eligible.filter((tile) => tile.kind === "special" && !tile.tileId.startsWith("golden_tile_"));
   const placedSpecialIds = specialTiles.map((tile) => tile.tileId);
   const supported = eligible.filter((tile) => tile.support.passive || tile.support.singleUse);
+  const supportedCategoryCount = new Set(supported.map(tileCategory)).size;
   const bridges = eligible.filter((tile) => tile.tileId === "c19_bridge");
   const upgradedEligible = eligible.filter((tile) => tile.kind === "core" && tile.side === "upgraded");
   const edgeHexes = [...occupied].filter((hexId) => {
@@ -366,31 +406,31 @@ export function evaluateLedgerEntries(state: GameState, campaign: LedgerCampaign
   );
   const terrainTypes = new Set([...occupied].map((hexId) => mapById[hexId]?.terrain).filter(Boolean));
   const riverCategories = new Set(
-    eligible.filter((tile) => tile.hexIds.some((hexId) => getHexNeighbors(hexId).some((neighbor) => mapById[neighbor]?.terrain === "water"))).map(placedTileCategory)
+    eligible.filter((tile) => tile.hexIds.some((hexId) => getHexNeighbors(hexId).some((neighbor) => mapById[neighbor]?.terrain === "water"))).map(tileCategory)
   );
   const gardenCommunity = eligible.some((center) => {
     if (center.tileId !== "c18_common_land" || center.hexIds.length !== 1) return false;
-    const ring = ringTilesAt(eligible, center.hexIds[0]);
-    return Boolean(ring && ring.every((tile) => placedTileCategory(tile) === "housing"));
+    const ring = ringTilesAt(boardIndex.tileByHexId, center.hexIds[0]);
+    return Boolean(ring && ring.every((tile) => tileCategory(tile) === "housing"));
   });
   const shelterAndSong = housingGroups.some((group) => group.length >= 4 &&
-    eligible.some((tile) => placedTileCategory(tile) === "social" && group.some((home) => areTilesAdjacent(tile, home))) &&
-    eligible.some((tile) => placedTileCategory(tile) === "wellbeing" && group.some((home) => areTilesAdjacent(tile, home))));
+    eligible.some((tile) => tileCategory(tile) === "social" && group.some((home) => tilesAreAdjacent(tile, home))) &&
+    eligible.some((tile) => tileCategory(tile) === "wellbeing" && group.some((home) => tilesAreAdjacent(tile, home))));
   const careRing = eligible.some((center) => {
-    if (placedTileCategory(center) !== "wellbeing" || center.hexIds.length !== 1) return false;
-    const ring = ringTilesAt(eligible, center.hexIds[0]);
-    return Boolean(ring && ring.filter((tile) => ["housing", "social", "wellbeing"].includes(placedTileCategory(tile))).length >= 4);
+    if (tileCategory(center) !== "wellbeing" || center.hexIds.length !== 1) return false;
+    const ring = ringTilesAt(boardIndex.tileByHexId, center.hexIds[0]);
+    return Boolean(ring && ring.filter((tile) => ["housing", "social", "wellbeing"].includes(tileCategory(tile))).length >= 4);
   });
-  const fairDay = eligible.some((tile) => placedTileCategory(tile) === "merchant" &&
+  const fairDay = eligible.some((tile) => tileCategory(tile) === "merchant" &&
     ["housing", "social", "travel"].every((category) => adjacentToCategory(tile, category as TileCategory)));
   const quietCourtyard = mapCells.some((cell) => {
     if (occupied.has(cell.id)) return false;
-    const ring = ringTilesAt(eligible, cell.id);
-    return Boolean(ring && new Set(ring.map(placedTileCategory)).size >= 4);
+    const ring = ringTilesAt(boardIndex.tileByHexId, cell.id);
+    return Boolean(ring && new Set(ring.map(tileCategory)).size >= 4);
   });
   const marketTrack = eligible.some((track) => track.tileId === "c17_track" &&
-    eligible.filter((tile) => tile.instanceId !== track.instanceId && placedTileCategory(tile) === "crafting" && areTilesAdjacent(track, tile)).length >= 2 &&
-    eligible.filter((tile) => tile.instanceId !== track.instanceId && placedTileCategory(tile) === "merchant" && areTilesAdjacent(track, tile)).length >= 2);
+    eligible.filter((tile) => tileCategory(tile) === "crafting" && tilesAreAdjacent(track, tile)).length >= 2 &&
+    eligible.filter((tile) => tileCategory(tile) === "merchant" && tilesAreAdjacent(track, tile)).length >= 2);
   const workAndRest = eligible.some((tile) => tile.tileId === "c11_washhouse" &&
     ["crafting", "merchant", "social"].every((category) => adjacentToCategory(tile, category as TileCategory)));
   const twinFarmsteads = eligible.filter((tile) => tile.tileId === "c04_farmstead");
@@ -401,7 +441,7 @@ export function evaluateLedgerEntries(state: GameState, campaign: LedgerCampaign
   const allResourceCopies = mainResourceTileIds.every((tileId) => eligible.filter((tile) => tile.tileId === tileId).length >= 2);
   const resourceChain = travelGroups.some((group) =>
     ["c01_lumber_yard", "c02_mine_tunnel", "c04_farmstead"].every((tileId) =>
-      eligible.some((tile) => tile.tileId === tileId && group.some((travel) => areTilesAdjacent(tile, travel)))));
+      eligible.some((tile) => tile.tileId === tileId && group.some((travel) => tilesAreAdjacent(tile, travel)))));
   const resourceTypesAt10 = Object.values(state.warehouse).filter((amount) => amount >= 10).length;
   const specialAdjacentHousing = specialTiles.filter((tile) => adjacentToCategory(tile, "housing")).length;
   const stewardObjectives = evaluateStewardObjectives(state);
@@ -447,7 +487,7 @@ export function evaluateLedgerEntries(state: GameState, campaign: LedgerCampaign
       case "LE-025": { const count = seasons.filter((season) => run.burdenRevealEvents.some((event) => event.season === season) && run.burdenResolutionEvents.some((resolved) => resolved.season === season && run.burdenRevealEvents.some((revealed) => revealed.cardId === resolved.cardId && revealed.round === resolved.round))).length; met = count === 3; progressLabel = formatProgress(count, 3, "Seasons answered in reveal round"); break; }
       case "LE-026": met = overstrained === 0 && strain <= target; progressLabel = `${overstrained} Overstrained · ${strain}/${target} Strain`; break;
       case "LE-027": met = strain === 0; progressLabel = `${strain} Strain tokens`; break;
-      case "LE-028": met = supported.length >= 6 && new Set(supported.map(placedTileCategory)).size >= 3; progressLabel = `${supported.length}/6 Supported · ${new Set(supported.map(placedTileCategory)).size}/3 categories`; break;
+      case "LE-028": met = supported.length >= 6 && supportedCategoryCount >= 3; progressLabel = `${supported.length}/6 Supported · ${supportedCategoryCount}/3 categories`; break;
       case "LE-029": met = run.maxOverstrainedTiles >= 2 && overstrained === 0; progressLabel = `${run.maxOverstrainedTiles}/2 peak Overstrained · ${overstrained} now`; break;
       case "LE-030": { const best = Math.max(0, ...Object.values(run.strainRemovedByRoundCategory).map((byCategory) => Object.values(byCategory).reduce((sum, amount) => sum + (amount ?? 0), 0))); const diverse = Object.values(run.strainRemovedByRoundCategory).some((byCategory) => Object.values(byCategory).filter((amount) => (amount ?? 0) > 0).length >= 2 && Object.values(byCategory).reduce((sum, amount) => sum + (amount ?? 0), 0) >= 3); met = diverse; progressLabel = `${best}/3 Strain removed in best round`; break; }
       case "LE-031": met = (run.upgradeActions ?? 0) >= target; progressLabel = formatProgress(run.upgradeActions ?? 0, target, "upgrades"); break;
@@ -465,7 +505,7 @@ export function evaluateLedgerEntries(state: GameState, campaign: LedgerCampaign
       case "LE-043": { const peak = Math.max(...Object.values(run.warehousePeakByResource)); met = peak <= 8; progressLabel = `${peak}/8 highest Warehouse amount`; break; }
       case "LE-044": met = usesPowerEverySeason(state, "vanguard") && hasConnectedBridgeCrossing(eligible); progressLabel = `${usesPowerEverySeason(state, "vanguard") ? "Power used each Season" : "Power use incomplete"} · ${hasConnectedBridgeCrossing(eligible) ? "crossing ready" : "crossing missing"}`; break;
       case "LE-045": { const largest = Math.max(0, ...housingGroups.map((group) => group.length)); met = usesPowerEverySeason(state, "knight") && largest >= 6; progressLabel = `${largest}/6 Housing cluster · ${usesPowerEverySeason(state, "knight") ? "power complete" : "power incomplete"}`; break; }
-      case "LE-046": { const count = upgradedEligible.filter((tile) => upgradedEligible.some((other) => other.instanceId !== tile.instanceId && areTilesAdjacent(tile, other))).length; met = usesPowerEverySeason(state, "sentinel") && count >= 3; progressLabel = `${count}/3 adjacent upgrades · ${usesPowerEverySeason(state, "sentinel") ? "power complete" : "power incomplete"}`; break; }
+      case "LE-046": { const count = upgradedEligible.filter((tile) => upgradedEligible.some((other) => tilesAreAdjacent(tile, other))).length; met = usesPowerEverySeason(state, "sentinel") && count >= 3; progressLabel = `${count}/3 adjacent upgrades · ${usesPowerEverySeason(state, "sentinel") ? "power complete" : "power incomplete"}`; break; }
       case "LE-047": met = run.rangerPowerTerrainTypes.length >= 3; progressLabel = formatProgress(run.rangerPowerTerrainTypes.length, 3, "Ranger terrains"); break;
       case "LE-048": { const revealSeasons = seasons.filter((season) => run.burdensRevealedBySeason[season] >= 1).length; met = usesPowerEverySeason(state, "warden") && revealSeasons === 3 && overstrained === 0 && activeBurdens <= 1; progressLabel = `${revealSeasons}/3 reveal Seasons · ${usesPowerEverySeason(state, "warden") ? "power complete" : "power incomplete"} · ${activeBurdens} active`; break; }
       case "LE-049": met = usesPowerEverySeason(state, "quartermaster") && resourceTypesAt10 >= target; progressLabel = `${resourceTypesAt10}/${target} resource types · ${usesPowerEverySeason(state, "quartermaster") ? "power complete" : "power incomplete"}`; break;

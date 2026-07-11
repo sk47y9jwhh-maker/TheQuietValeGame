@@ -10,6 +10,34 @@ export const terrainLabels: Record<Terrain, string> = {
   ruins: "Ruins"
 };
 
+export interface MapLayout {
+  columns: number;
+  rows: number;
+  hexRadius: number;
+  hexWidth: number;
+  hexHeight: number;
+  originX: number;
+  originY: number;
+  width: number;
+  height: number;
+}
+
+export type MapArtworkLayerKind = "underlay" | "overlay";
+
+export interface MapArtworkLayer {
+  id: string;
+  label: string;
+  kind: MapArtworkLayerKind;
+  src: string;
+  opacity: number;
+  /**
+   * Artwork is authored against the same SVG viewBox as the playable hex grid.
+   * This keeps clicks, placement rules, and future painted art aligned.
+   */
+  placement: "svg-view-box";
+  notes: string;
+}
+
 const rows: Terrain[][] = [
   [
     "mountains",
@@ -159,6 +187,41 @@ const rows: Terrain[][] = [
 
 export const mapColumns = "ABCDEFGHIJKLMN".split("");
 
+export const mapLayout: MapLayout = {
+  columns: mapColumns.length,
+  rows: rows.length,
+  hexRadius: 30,
+  hexWidth: 60,
+  hexHeight: Math.sqrt(3) * 30,
+  originX: 14,
+  originY: 18,
+  width: 60 + (mapColumns.length - 1) * 30 * 1.5 + 30,
+  height: Math.sqrt(3) * 30 * rows.length + (Math.sqrt(3) * 30) / 2 + 40
+};
+
+export const mapArtworkLayers: MapArtworkLayer[] = [
+  {
+    id: "painted_map_underlay",
+    label: "Painted map underlay",
+    kind: "underlay",
+    src: "",
+    opacity: 1,
+    placement: "svg-view-box",
+    notes:
+      "Optional full-board artwork behind the interactive hex grid. Export at the map SVG viewBox ratio."
+  },
+  {
+    id: "painted_map_overlay",
+    label: "Painted map overlay",
+    kind: "overlay",
+    src: "",
+    opacity: 0.92,
+    placement: "svg-view-box",
+    notes:
+      "Optional transparent PNG/SVG details above the grid. It is click-through so gameplay still uses the hex map."
+  }
+];
+
 export const mapCells: HexData[] = rows.flatMap((row, rowIndex) =>
   row.map((terrain, colIndex) => {
     const col = mapColumns[colIndex];
@@ -184,4 +247,3 @@ export const waterHexIds = mapCells
 export const ruinsHexIds = mapCells
   .filter((cell) => cell.terrain === "ruins")
   .map((cell) => cell.id);
-

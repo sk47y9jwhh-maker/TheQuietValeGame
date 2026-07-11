@@ -56,12 +56,43 @@ describe("current-prototype playtest bot", () => {
     expect(game.boardTiles.every((tile) => Number.isFinite(tile.scoreContribution))).toBe(true);
     expect(game.encounterCardIdsSeen.length).toBeGreaterThan(0);
     expect(game.strategyPlans).toHaveLength(3);
+    expect(game.strategyPlans.every((plan) =>
+      plan.targetEntryIds.join(",") === game.targetEntryIds.join(",")
+    )).toBe(true);
     expect(game.strategyPlans.every((plan) => plan.strategicThesis)).toBe(true);
+    expect(game.strategyPlans.every((plan) => plan.hiddenHandSummary.length > 0)).toBe(true);
+    expect(game.strategyPlans.every((plan) => plan.seededCards[0]?.top && plan.seededCards[0]?.middle && plan.seededCards[0]?.bottom)).toBe(true);
+    expect(game.strategyPlans.every((plan) => Array.isArray(plan.expectedThreats) && Array.isArray(plan.expectedOpportunities))).toBe(true);
+    expect(game.strategyPlans.every((plan) => plan.resourceNeeds.length === 6)).toBe(true);
+    expect(game.strategyPlans.every((plan) => plan.intendedTileFoundation.length > 0 && plan.openingLineReason)).toBe(true);
+    expect(game.strategyPlans.every((plan) => plan.logLines.length === 7)).toBe(true);
     expect(game.strategyPlans.map((plan) => plan.forecasts.length)).toEqual([3, 3, 3]);
     expect(game.strategyPlans.map((plan) => plan.handCardsByPlayer.player_1.length)).toEqual([9, 6, 3]);
     expect(game.actionReasons.length).toBeGreaterThan(0);
-    expect(game.actionReasons.some((action) => action.reasonCode === "EARLY_RESOURCE_DEFICIT")).toBe(true);
+    expect(game.actionReasons.every((action) =>
+      Number.isInteger(action.actionsSpent) && action.actionsSpent >= 0
+    )).toBe(true);
+    expect(game.actionReasons.some((action) => [
+      "RESOURCE_FOR_PLANNED_UPGRADE",
+      "RESOURCE_FOR_SEEDED_ARRIVAL",
+      "RESOURCE_FOR_BURDEN_PAYMENT",
+      "RESOURCE_FOR_HOUSING_CLUSTER",
+      "RESOURCE_FOR_FINAL_SCORE_TILE",
+      "RESOURCE_FLOATING_NO_SPEND_TARGET",
+    ].includes(action.reasonCode))).toBe(true);
+    expect(game.actionReasons.some((action) => action.reasonCode === "EARLY_RESOURCE_DEFICIT")).toBe(false);
+    expect(
+      game.actionReasons
+        .filter((action) =>
+          action.round > 8 && ["place", "upgrade", "activate"].includes(action.actionType)
+        )
+        .some((action) => action.reasonCode === "RESOURCE_FLOATING_NO_SPEND_TARGET"),
+    ).toBe(false);
     expect(game.engineMetrics).toHaveProperty("seeded_cards_exploited");
+    expect(
+      Number(game.engineMetrics.crafting_passive_uses ?? 0) +
+      Number(game.engineMetrics.merchant_passive_uses ?? 0),
+    ).toBeGreaterThan(0);
     expect(game.errors).toEqual([]);
   }, 20_000);
 

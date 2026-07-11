@@ -1,6 +1,6 @@
 import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
-import { areTilesNetworkAdjacent } from "./reachability";
+import { selectConnectedPlacedTileIds } from "./reachability";
 import type { GameState, PlacedTile, TileCategory } from "./types";
 
 function getTileCategory(tile: PlacedTile): TileCategory {
@@ -18,27 +18,6 @@ function hasPrintedPassiveSupport(tile: PlacedTile): boolean {
   return /\.\s*Supported\.?$/i.test(getTileEffectText(tile));
 }
 
-function getConnectedSettlementTileIds(state: GameState, root: PlacedTile): Set<string> {
-  if (root.strain >= 3) return new Set();
-
-  const connected = new Set<string>([root.instanceId]);
-  const queue = [root];
-
-  while (queue.length > 0) {
-    const current = queue.shift();
-    if (!current) continue;
-
-    for (const candidate of state.map.placedTiles) {
-      if (connected.has(candidate.instanceId)) continue;
-      if (!areTilesNetworkAdjacent(current, candidate)) continue;
-      connected.add(candidate.instanceId);
-      queue.push(candidate);
-    }
-  }
-
-  return connected;
-}
-
 function getLanternRoadhouseSupportedTileIds(state: GameState): Set<string> {
   const supportedIds = new Set<string>();
 
@@ -47,7 +26,7 @@ function getLanternRoadhouseSupportedTileIds(state: GameState): Set<string> {
   );
 
   for (const lantern of lanterns) {
-    const connectedIds = getConnectedSettlementTileIds(state, lantern);
+    const connectedIds = selectConnectedPlacedTileIds(state.map.placedTiles, [lantern]);
     for (const tile of state.map.placedTiles) {
       if (!connectedIds.has(tile.instanceId)) continue;
       if (tile.strain >= 3 || getTileCategory(tile) !== "travel") continue;

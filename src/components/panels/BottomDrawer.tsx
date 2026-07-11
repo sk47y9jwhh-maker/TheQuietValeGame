@@ -13,12 +13,7 @@ import {
   X
 } from "lucide-react";
 import { useState } from "react";
-import {
-  countCompletedLedgerEntries,
-  isGoldenMilestoneUnlocked,
-  readLedgerCampaign,
-  type LedgerCampaign
-} from "../../app/ledgerPersistence";
+import { readLedgerCampaign } from "../../app/ledgerPersistence";
 import { InspectIconButton } from "../common/InspectIconButton";
 import { encounterById } from "../../data/encounters";
 import {
@@ -28,6 +23,11 @@ import {
   type LedgerChronicle
 } from "../../data/ledger";
 import { coreTiles, goldenTileById, specialTiles } from "../../data/tiles";
+import {
+  countCompletedLedgerEntries,
+  isGoldenMilestoneUnlocked,
+  type LedgerCampaign
+} from "../../engine/ledgerCampaign";
 import { evaluateStewardObjectives } from "../../engine/scoring";
 import { evaluateLedgerEntries, getLedgerRun } from "../../engine/ledger";
 import { selectCurrentPlayer } from "../../engine/selectors";

@@ -7,7 +7,10 @@ import { mapById, mapCells, mapColumns } from "../../src/data/map";
 import { stewards, stewardById } from "../../src/data/stewards";
 import {
   activateTile,
+  canCompleteArrival,
+  canResolveBurden,
   canStartPlaceTile,
+  canStartUpgradeTile,
   commitSeasonSeeding,
   commitStewardPlacement,
   completeArrival,
@@ -54,7 +57,12 @@ import {
   resolveGoldenScroll,
   resolveGoldenSignet,
 } from "../../src/engine/golden";
-import { getTileFootprintKind, getTilePlacementHexIds } from "../../src/engine/placementRules";
+import {
+  getLegalPlacementHexes,
+  getTileFootprintKind,
+  getTileFootprintSize,
+  getTilePlacementHexIds,
+} from "../../src/engine/placementRules";
 import { applyCostChoice } from "../../src/engine/passiveCosts";
 import { selectReachablePlacedTileIds } from "../../src/engine/reachability";
 import { calculateFinalScore } from "../../src/engine/scoring";
@@ -63,6 +71,7 @@ import {
   buildCardIntent,
   buildHumanSeasonPlan,
   cardPlanPriority,
+  chooseResourceDemandReason,
   chooseHumanLikeSeed,
   emptyHumanPlanningContext,
   resourceDemandDeficit,
@@ -76,6 +85,7 @@ import type {
   PlacedTile,
   PlayerCount,
   ResourceType,
+  Terrain,
   TileCategory,
   TilePlacementDraft,
 } from "../../src/engine/types";
@@ -85,6 +95,11 @@ import { evaluateLedger } from "./lib/evaluator.mjs";
 
 type Profile = "passive_normal" | "guided_ledger" | "achievement_chaser" | "human_like";
 type LedgerSpec = Record<string, any>;
+type HumanChoicePolicy = "best" | "near_best";
+
+interface HumanBehaviorOptions {
+  choicePolicy: HumanChoicePolicy;
+}
 
 interface BotStats {
   placeActions: number;
@@ -119,14 +134,26 @@ interface BotStats {
     actionType: string;
     target: string;
     projectedValue: number;
+    actionsSpent: number;
+    candidateCount: number;
+    bestProjectedValue: number;
+    runnerUpProjectedValue?: number;
+    bestActionType: string;
+    bestTarget: string;
+    selectedWasBest: boolean;
+    projectedRegret: number;
+    choicePolicy: HumanChoicePolicy;
     reasonCode: string;
     reason: string;
     rejectedAlternative?: string;
   }>;
   firstCategoryRound: Partial<Record<TileCategory, number>>;
   firstSupportRound?: number;
+  firstSupportedHousingRound?: number;
   firstHousingClusterRound?: number;
   housingPlacedAfterSupport: number;
+  resourcesProducedByResource: Record<ResourceType, number>;
+  productionActivationsByRound: Record<number, number>;
   craftingPassiveUses: number;
   resourcesSavedByCrafting: number;
   merchantPassiveUses: number;
@@ -137,6 +164,7 @@ interface BotStats {
 const emptySelection: CostChoiceSelection = { selectedOptionIds: [] };
 const playerCounts: PlayerCount[] = [1, 2, 3, 4];
 const profiles: Profile[] = ["passive_normal", "guided_ledger", "achievement_chaser"];
+const resourceTypes: ResourceType[] = ["wood", "stone", "metal", "food", "herbs", "goods"];
 
 function hashSeed(text: string): number {
   let value = 2166136261;
@@ -204,7 +232,14 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
     isTileAdjustmentValid(state, pending.effectText, pending.suggestedAdjustment, sourceTile)
   ) return {};
   if (pending.allowWardenRelief) {
-    const strained = state.map.placedTiles.find((tile) => tile.strain > 0);
+    const stewardAnchors = new Set(state.players.map((player) => player.stewardHexId));
+    const strained = state.map.placedTiles
+      .filter((tile) => tile.strain > 0)
+      .sort((a, b) =>
+        Number(b.hexIds.some((hexId) => stewardAnchors.has(hexId))) -
+          Number(a.hexIds.some((hexId) => stewardAnchors.has(hexId))) ||
+        b.strain - a.strain
+      )[0];
     if (strained) return { tileStrainDeltas: { [strained.instanceId]: -1 } };
     const tile = state.map.placedTiles.find(
       (candidate) => !candidate.support.passive && !candidate.support.singleUse
@@ -263,14 +298,57 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
     }
   }
   if (alternativeRule?.kind === "warehouse_loss_or_strain") {
-    const payable = alternativeRule.resources.find(
-      (resource) => state.warehouse[resource] >= alternativeRule.resourceStep
-    );
+    const payable = alternativeRule.resources
+      .filter((resource) => state.warehouse[resource] >= alternativeRule.resourceStep)
+      .sort((a, b) => state.warehouse[b] - state.warehouse[a])[0];
     if (payable) {
-      return { resourceDeltas: { [payable]: -alternativeRule.resourceStep } };
+      const payment = { resourceDeltas: { [payable]: -alternativeRule.resourceStep } };
+      if (isAlternativeEffectAdjustmentValid(state, pending.effectText, payment, sourceTile)) {
+        return payment;
+      }
     }
+    const activeEffectText = getActiveEffectText(state, pending.effectText, sourceTile);
+    const strainRule = getTileAdjustmentRule(activeEffectText).strain;
+    const strainBranchAvailable = alternativeRule.resources.some(
+      (resource) => state.warehouse[resource] < alternativeRule.resourceStep,
+    );
+    if (strainBranchAvailable && strainRule && alternativeRule.requiredStrainTotal > 0) {
+      const stewardAnchors = new Set(state.players.map((player) => player.stewardHexId));
+      const targets = getValidEffectStrainTargets(state, pending.effectText, sourceTile)
+        .sort((a, b) =>
+          (3 - b.strain) - (3 - a.strain) ||
+          Number(a.hexIds.some((hexId) => stewardAnchors.has(hexId))) -
+            Number(b.hexIds.some((hexId) => stewardAnchors.has(hexId)))
+        );
+      let remaining = alternativeRule.requiredStrainTotal;
+      const tileStrainDeltas: Record<string, number> = {};
+      for (const target of targets.slice(0, strainRule.maxTargets)) {
+        if (remaining <= 0) break;
+        const amount = Math.min(strainRule.maxPerTile, 3 - target.strain, remaining);
+        if (amount <= 0) continue;
+        tileStrainDeltas[target.instanceId] = amount;
+        remaining -= amount;
+      }
+      const strainAdjustment = { tileStrainDeltas };
+      if (
+        remaining === 0 &&
+        isAlternativeEffectAdjustmentValid(
+          state,
+          pending.effectText,
+          strainAdjustment,
+          sourceTile,
+        )
+      ) {
+        return strainAdjustment;
+      }
+    }
+    // This is a recognised all-or-nothing alternative. Returning here keeps
+    // it out of the generic Strain handler, which may otherwise submit a
+    // partial (and therefore rules-invalid) branch.
+    return {};
   }
   if (pending.resourceExchangeLimit !== undefined) {
+    const exchangeResources: ResourceType[] = ["wood", "stone", "metal", "food", "herbs", "goods"];
     const entries = (Object.entries(state.warehouse) as Array<[ResourceType, number]>).sort((a, b) => b[1] - a[1]);
     const isAlchemist = /exchange\s+5\s+total\s+resources\s+for\s+3\s+Goods/i.test(pending.effectText);
     let resourceDeltas: Partial<Record<ResourceType, number>> | undefined;
@@ -286,20 +364,32 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
       if (remaining === 0) resourceDeltas = goodsMode;
     }
     if (!resourceDeltas) {
-      const source = entries[0];
-      const target = entries
-        .filter(([resource]) => resource !== source[0] && (!isAlchemist || resource !== "goods"))
-        .sort((a, b) => a[1] - b[1])[0];
-      const amount = target
+      const deficits = Object.fromEntries(
+        exchangeResources.map((resource) => [
+          resource,
+          plan
+            ? resourceDemandDeficit(state, plan, resource)
+            : Math.max(0, (resource === "food" ? 18 : 12) - state.warehouse[resource]),
+        ]),
+      ) as Record<ResourceType, number>;
+      const targetResource = exchangeResources
+        .filter((resource) => !isAlchemist || resource !== "goods")
+        .sort((a, b) => deficits[b] - deficits[a] || state.warehouse[a] - state.warehouse[b])[0];
+      const sourceResource = exchangeResources
+        .filter((resource) => resource !== targetResource && state.warehouse[resource] > 0)
+        .sort((a, b) =>
+          (state.warehouse[b] - Math.max(0, deficits[b])) -
+          (state.warehouse[a] - Math.max(0, deficits[a]))
+        )[0];
+      const amount = sourceResource && targetResource
         ? Math.min(
           pending.resourceExchangeLimit,
-          source[1],
-          Math.max(0, 15 - target[1]),
-          Math.max(1, 8 - target[1]),
+          state.warehouse[sourceResource],
+          Math.max(1, deficits[targetResource]),
         )
         : 0;
-      resourceDeltas = target && amount > 0
-        ? { [source[0]]: -amount, [target[0]]: amount }
+      resourceDeltas = sourceResource && targetResource && amount > 0
+        ? { [sourceResource]: -amount, [targetResource]: amount }
         : undefined;
     }
     const arrival = /add\s+1\s+timer/i.test(pending.effectText)
@@ -356,7 +446,33 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
       const tileStrainDeltas: Record<string, number> = Object.fromEntries(
         Object.keys(pending.suggestedAdjustment?.tileStrainDeltas ?? {}).map((tileId) => [tileId, 0]),
       );
-      for (const target of targets.slice(0, rule.maxTargets)) {
+      const stewardAnchors = new Set(state.players.map((player) => player.stewardHexId));
+      const strainPriority = (tile: PlacedTile): number => {
+        const category = tileCategory(tile);
+        const face = tile.kind === "special"
+          ? specialTileById[tile.tileId]
+          : tile.side === "upgraded"
+            ? coreTileById[tile.tileId].upgraded
+            : coreTileById[tile.tileId].basic;
+        const printedScore = ("population" in face ? face.population : 0) + ("renown" in face ? face.renown : 0);
+        const isAnchor = tile.hexIds.some((hexId) => stewardAnchors.has(hexId));
+        const valuable =
+          (isAnchor ? 140 : 0) +
+          (tile.strain >= 2 ? 110 : tile.strain * 28) +
+          (category === "housing" ? 80 : 0) +
+          (category === "resource" ? 52 : 0) +
+          (tile.side === "upgraded" ? 34 : 0) +
+          (tile.kind === "special" || tile.tileId.startsWith("golden_tile_") ? 40 : 0) +
+          printedScore * 3;
+        const protection = tile.support.passive || tile.support.singleUse ? 120 : 0;
+        return rule.direction === "remove" ? valuable : valuable - protection;
+      };
+      const orderedTargets = [...targets].sort((a, b) =>
+        rule.direction === "remove"
+          ? strainPriority(b) - strainPriority(a)
+          : strainPriority(a) - strainPriority(b)
+      );
+      for (const target of orderedTargets.slice(0, rule.maxTargets)) {
         if (remaining <= 0) break;
         const capacity = rule.direction === "remove" ? target.strain : 3 - target.strain;
         const amount = Math.min(rule.maxPerTile, capacity, remaining);
@@ -369,7 +485,16 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
   }
 
   if (lower.includes("supported")) {
-    const target = getEffectSupportTargets(state, pending.effectText, sourceTile)[0];
+    const stewardAnchors = new Set(state.players.map((player) => player.stewardHexId));
+    const target = getEffectSupportTargets(state, pending.effectText, sourceTile)
+      .sort((a, b) => {
+        const value = (tile: PlacedTile) =>
+          (tile.hexIds.some((hexId) => stewardAnchors.has(hexId)) ? 100 : 0) +
+          tile.strain * 30 +
+          (tileCategory(tile) === "housing" ? 20 : 0) +
+          (tile.side === "upgraded" ? 10 : 0);
+        return value(b) - value(a);
+      })[0];
     if (target) return { supportTileIds: [target.instanceId] };
   }
 
@@ -407,7 +532,10 @@ function chooseCostSelection(state: GameState): CostChoiceSelection {
   for (const option of selectedOptions) {
     if (option.kind === "discount" && option.resourceChoices?.length) {
       discountResourceByOptionId[option.id] = [...option.resourceChoices].sort(
-        (a, b) => (pending.baseCost[b] ?? 0) - (pending.baseCost[a] ?? 0),
+        (a, b) =>
+          Math.max(0, (pending.baseCost[b] ?? 0) - state.warehouse[b]) -
+            Math.max(0, (pending.baseCost[a] ?? 0) - state.warehouse[a]) ||
+          (pending.baseCost[b] ?? 0) - (pending.baseCost[a] ?? 0),
       )[0];
     }
     if (option.kind === "market" && option.resourceChoices?.length) {
@@ -519,10 +647,11 @@ function drainPending(initial: GameState, stats: BotStats, plan?: HumanSeasonPla
     }
     const pending = state.pendingEffects[0];
     if (!pending) return state;
-    const shouldUseWarden = !plan ||
+    const wardenCanCancel = canCancelPendingBurdenWithWarden(state).ok;
+    const shouldUseWarden = wardenCanCancel || !plan ||
       (pending.sourceId ? plan.highRiskBurdenIds.includes(pending.sourceId) : false) ||
       /housing|each of|overstrained/i.test(pending.effectText);
-    if (pending.canCancelWithWardenPower && shouldUseWarden && canCancelPendingBurdenWithWarden(state).ok) {
+    if (pending.canCancelWithWardenPower && shouldUseWarden && wardenCanCancel) {
       state = cancelPendingBurdenWithWarden(state);
       continue;
     }
@@ -560,8 +689,8 @@ function boonBreaksDeclaredVow(state: GameState, cardId: string, targets: string
   const card = encounterById[cardId];
   if (!card || card.type !== "boon") return false;
   const effect = card.effects[state.season === 1 ? "season1" : state.season === 2 ? "season2" : "season3"].toLowerCase();
-  if (hasV43Target(targets, "LE-041") && /place.*travel|travel tile/.test(effect)) return true;
-  if (hasV43Target(targets, "LE-042") && /upgrade/.test(effect)) return true;
+  if ((targets.includes("LE-041") || hasV43Target(targets, "LE-041")) && /place.*travel|travel tile/.test(effect)) return true;
+  if ((targets.includes("LE-042") || hasV43Target(targets, "LE-042")) && /upgrade/.test(effect)) return true;
   return false;
 }
 
@@ -569,27 +698,139 @@ function hasV43Target(targets: string[], ...entryIds: string[]): boolean {
   return entryIds.some((entryId) => targets.includes(`V43-${entryId.replace("LE-", "")}`));
 }
 
+function hasTarget(targets: string[], ...entryIds: string[]): boolean {
+  return entryIds.some((entryId) => targets.includes(entryId));
+}
+
+function placedCategoryCount(state: GameState, category: TileCategory): number {
+  return state.map.placedTiles.filter((tile) => tile.strain < 3 && tileCategory(tile) === category).length;
+}
+
+function scoreConversionPressure(state: GameState): number {
+  if (state.round >= 11) return 1.65;
+  if (state.round >= 9) return 1.35;
+  if (state.season === 3) return 1.15;
+  return 1;
+}
+
+function isEdgeHex(hexId: string): boolean {
+  const cell = mapById[hexId];
+  return Boolean(cell && cell.terrain !== "water" && (cell.col === "A" || cell.col === "N" || cell.row === 1 || cell.row === 9));
+}
+
+function isCornerHex(hexId: string): boolean {
+  return ["A1", "A9", "N1", "N9"].includes(hexId);
+}
+
+function desiredTravelTileCount(targets: string[], plan: HumanSeasonPlan | undefined): number {
+  if (targets.includes("LE-041") || hasV43Target(targets, "LE-041")) return 0;
+  let desired = plan?.needsTravelAnchor ? 2 : 1;
+  if (hasTarget(targets, "LE-015", "LE-044")) desired = Math.max(desired, 3);
+  if (hasTarget(targets, "LE-018")) desired = Math.max(desired, 4);
+  if (hasTarget(targets, "LE-005", "LE-006")) desired = Math.max(desired, 4);
+  if (hasTarget(targets, "LE-032")) desired = Math.max(desired, 2);
+  if (hasTarget(targets, "LE-035", "LE-040")) desired = Math.max(desired, 3);
+  if (hasTarget(targets, "LE-016", "LE-017")) desired = Math.max(desired, 2);
+  if (hasV43Target(targets, "LE-049")) desired = Math.max(desired, 8);
+  return desired;
+}
+
+function bridgeTileCount(state: GameState): number {
+  return state.map.placedTiles.filter((tile) => tile.strain < 3 && tile.tileId === "c19_bridge").length;
+}
+
 function targetCategoryWeights(targets: string[]): Partial<Record<TileCategory, number>> {
   const weights: Partial<Record<TileCategory, number>> = {};
   const add = (category: TileCategory, amount: number) => { weights[category] = (weights[category] ?? 0) + amount; };
+  const addMany = (categories: TileCategory[], amount: number) => categories.forEach((category) => add(category, amount));
   for (const id of targets) {
     if (id === "LE-001") {
-      add("housing", 5);
-      for (const category of ["crafting","merchant","social","wellbeing","travel"] as TileCategory[]) add(category, 2);
+      add("housing", 42);
+      add("special", 30);
+      addMany(["social", "wellbeing", "merchant", "crafting", "travel"], 16);
     }
-    if (id === "LE-002") add("housing", 15);
+    if (id === "LE-002") add("housing", 60);
     if (id === "LE-003") {
-      for (const category of ["crafting","merchant","social","wellbeing","travel"] as TileCategory[]) add(category, 5);
+      addMany(["social", "wellbeing", "merchant", "crafting", "travel", "special"], 34);
+      add("housing", 12);
     }
-    if (["LE-007","LE-020","LE-033","LE-048","LE-050"].includes(id)) add("housing", 35);
-    if (id === "LE-024") {
-      add("crafting", 35);
-      add("merchant", 35);
+    if (id === "LE-004") {
+      addMany(["wellbeing", "social"], 42);
+      add("special", 30);
     }
-    if (["LE-010","LE-011","LE-012","LE-025","LE-032","LE-049"].includes(id)) add("travel", 35);
-    if (["LE-013","LE-014","LE-015","LE-050"].includes(id)) add("special", 45);
-    if (["LE-008","LE-009","LE-048"].includes(id)) {
-      for (const category of ["crafting","merchant","social","wellbeing"] as TileCategory[]) add(category, 20);
+    if (["LE-005", "LE-006", "LE-007", "LE-016"].includes(id)) {
+      add("travel", 18);
+      add("resource", 28);
+    }
+    if (id === "LE-008") {
+      add("travel", 52);
+      add("housing", 62);
+    }
+    if (["LE-009", "LE-010"].includes(id)) {
+      add("housing", 58);
+      addMany(["social", "wellbeing"], 40);
+    }
+    if (id === "LE-011") add("housing", 76);
+    if (id === "LE-012") addMany(["resource", "housing", "crafting", "merchant", "social", "wellbeing", "travel"], 42);
+    if (id === "LE-013") addMany(["merchant", "housing", "social", "travel"], 46);
+    if (id === "LE-014") addMany(["housing", "social", "wellbeing", "merchant", "crafting", "travel"], 34);
+    if (["LE-015", "LE-018", "LE-044"].includes(id)) add("travel", 45);
+    if (id === "LE-017") addMany(["housing", "merchant", "social", "wellbeing"], 38);
+    if (["LE-019", "LE-022", "LE-023"].includes(id)) {
+      add("special", 76);
+      add("housing", id === "LE-023" ? 46 : 22);
+    }
+    if (["LE-020", "LE-021"].includes(id)) {
+      add("resource", 28);
+      add("housing", 24);
+      add("special", 40);
+    }
+    if (["LE-024", "LE-025", "LE-048"].includes(id)) {
+      add("wellbeing", 52);
+      add("social", 26);
+      add("special", 34);
+      add("resource", 22);
+    }
+    if (["LE-026", "LE-027", "LE-028", "LE-029", "LE-030"].includes(id)) {
+      add("wellbeing", 58);
+      add("social", 30);
+      add("special", 32);
+      add("housing", 18);
+    }
+    if (["LE-031", "LE-046"].includes(id)) {
+      add("crafting", 46);
+      add("resource", 34);
+      add("housing", 32);
+    }
+    if (id === "LE-032") addMany(["travel", "crafting", "merchant"], 68);
+    if (id === "LE-033") addMany(["wellbeing", "crafting", "merchant", "social"], 56);
+    if (id === "LE-034") {
+      add("resource", 66);
+      add("housing", 46);
+    }
+    if (id === "LE-035") {
+      add("resource", 64);
+      add("travel", 48);
+    }
+    if (["LE-036", "LE-037", "LE-038", "LE-047", "LE-049"].includes(id)) {
+      add("resource", 70);
+      if (id === "LE-049") add("merchant", 36);
+      if (id === "LE-047") add("travel", 28);
+    }
+    if (["LE-039", "LE-041", "LE-042"].includes(id)) {
+      add("housing", 58);
+      add("special", 42);
+      addMany(["social", "wellbeing", "merchant", "crafting"], 24);
+      if (id !== "LE-041") add("travel", 14);
+    }
+    if (id === "LE-040") {
+      add("resource", 64);
+      add("travel", 56);
+    }
+    if (id === "LE-045") add("housing", 78);
+    if (id === "LE-050") {
+      addMany(["housing", "travel", "resource", "crafting", "merchant", "wellbeing"], 28);
+      add("special", 24);
     }
     if (["V43-005", "V43-006", "V43-007", "V43-015", "V43-016", "V43-018", "V43-040", "V43-044"].includes(id)) add("travel", 34);
     if (["V43-008", "V43-009", "V43-010", "V43-011", "V43-013", "V43-023", "V43-034", "V43-045"].includes(id)) add("housing", 40);
@@ -615,17 +856,36 @@ function applyHumanPlanCategoryWeights(
   state: GameState,
   weights: Partial<Record<TileCategory, number>>,
   plan: HumanSeasonPlan | undefined,
+  targets: string[],
 ): void {
   if (!plan) return;
   const count = (category: TileCategory) => state.map.placedTiles.filter((tile) => tileCategory(tile) === category).length;
   const add = (category: TileCategory, amount: number) => { weights[category] = (weights[category] ?? 0) + amount; };
-  if (count("resource") < Math.max(2, state.playerCount)) add("resource", 45);
-  if (plan.needsTravelAnchor && count("travel") === 0) add("travel", 28);
-  if (plan.needsCrafting && count("crafting") === 0 && state.season <= 2) add("crafting", 42);
-  if (plan.needsMerchant && count("merchant") === 0 && state.season <= 2) add("merchant", 38);
-  if (plan.needsSupportBeforeHousing && count("wellbeing") === 0) add("wellbeing", 28);
-  if (plan.housingPush) add("housing", state.season === 2 ? 30 : 22);
-  if (!plan.housingPush && state.season === 1) add("housing", -12);
+  const conversion = scoreConversionPressure(state);
+  const resourceCount = count("resource");
+  if (resourceCount < Math.max(2, state.playerCount)) add("resource", state.season === 1 ? 60 : 34);
+  if (state.season >= 2 && resourceCount >= 3) add("resource", -18 * conversion);
+  if (resourceCount >= 3 && !hasTarget(targets, "LE-034", "LE-035", "LE-036", "LE-037", "LE-038", "LE-040", "LE-047", "LE-049")) {
+    add("resource", -92 * conversion);
+  }
+  if (plan.needsTravelAnchor && count("travel") === 0) add("travel", 42);
+  if (plan.needsTravelAnchor && count("travel") > 2 && state.round >= 7) add("travel", -22);
+  if (plan.needsCrafting && count("crafting") === 0 && state.season <= 2) add("crafting", 52);
+  if (plan.needsMerchant && count("merchant") === 0 && state.season <= 2) add("merchant", 48);
+  if (plan.needsSupportBeforeHousing && count("wellbeing") === 0) add("wellbeing", 38);
+  for (const category of plan.targetTileCategories) {
+    if (count(category) === 0) add(category, state.season === 3 ? 36 : 24);
+  }
+  if (plan.housingPush || state.season >= 2) add("housing", (state.season === 1 ? 18 : state.season === 2 ? 48 : 68) * conversion);
+  if (state.round >= 9) {
+    add("special", 44);
+    add("housing", 42);
+    add("social", 18);
+    add("wellbeing", 18);
+    add("merchant", 16);
+    add("crafting", 14);
+  }
+  if (!plan.housingPush && state.season === 1) add("housing", -10);
 }
 
 function placementOptions(tileId: string, cells: typeof mapCells): Array<string | TilePlacementDraft> {
@@ -642,6 +902,133 @@ function tileCostTotal(tileId: string): number {
   return tile ? Object.values(tile.basic.cost).reduce((sum, value) => sum + value, 0) : 0;
 }
 
+function isScoreFocusedTarget(targets: string[]): boolean {
+  return hasTarget(targets, "LE-001", "LE-002", "LE-003", "LE-039", "LE-041", "LE-042");
+}
+
+function projectedPlacementScoreDelta(
+  state: GameState,
+  playerId: string,
+  tileId: string,
+  placement: string | TilePlacementDraft,
+  plan?: HumanSeasonPlan,
+): number {
+  const beforeScore = calculateFinalScore(state).finalScore;
+  const beforeTiles = state.map.placedTiles.length;
+  const stats = createStats(state);
+  const after = drainPending(placeTile(state, playerId, tileId, placement), stats, plan);
+  if (after.map.placedTiles.length <= beforeTiles) return -40;
+  return calculateFinalScore(after).finalScore - beforeScore - stats.errors.length * 40;
+}
+
+function projectedUpgradeScoreDelta(
+  state: GameState,
+  playerId: string,
+  instanceId: string,
+  plan?: HumanSeasonPlan,
+): number {
+  const beforeScore = calculateFinalScore(state).finalScore;
+  const stats = createStats(state);
+  const after = drainPending(upgradeTile(state, playerId, instanceId), stats, plan);
+  const upgraded = after.map.placedTiles.find((tile) => tile.instanceId === instanceId)?.side === "upgraded";
+  if (!upgraded) return -30;
+  return calculateFinalScore(after).finalScore - beforeScore - stats.errors.length * 40;
+}
+
+function findFirstLegalPlacement(
+  state: GameState,
+  playerId: string,
+  tileId: string,
+): string | TilePlacementDraft | null {
+  if (getTileFootprintKind(tileId) !== "detached") {
+    return placementOptions(tileId, mapCells).find((placement) =>
+      canStartPlaceTile(state, playerId, tileId, placement).ok
+    ) ?? null;
+  }
+
+  const expectedSize = getTileFootprintSize(tileId);
+  const search = (draft: TilePlacementDraft): TilePlacementDraft | null => {
+    const selected = getTilePlacementHexIds(tileId, draft);
+    if (selected.length >= expectedSize) {
+      return canStartPlaceTile(state, playerId, tileId, draft).ok ? draft : null;
+    }
+    const legalNext = getLegalPlacementHexes(state, playerId, tileId, draft);
+    for (const hexId of legalNext) {
+      const nextDraft: TilePlacementDraft = selected.length === 0
+        ? { anchorHexId: hexId }
+        : {
+            anchorHexId: selected[0],
+            secondaryHexIds: [...selected.slice(1), hexId],
+          };
+      const completed = search(nextDraft);
+      if (completed) return completed;
+    }
+    return null;
+  };
+  return search({});
+}
+
+function findCheapLegalScorePlacement(
+  state: GameState,
+  playerId: string,
+  plan?: HumanSeasonPlan,
+): HumanActionCandidate | null {
+  const candidates = coreTiles
+    .filter((tile) =>
+      state.tileSupply.core[tile.id] > 0 &&
+      tile.category !== "resource" &&
+      tile.category !== "travel" &&
+      tile.basic.population + tile.basic.renown > 0
+    )
+    .sort((a, b) =>
+      tileCostTotal(a.id) - tileCostTotal(b.id) ||
+      (b.basic.population + b.basic.renown) - (a.basic.population + a.basic.renown)
+    );
+
+  const scored: HumanActionCandidate[] = [];
+  for (const tile of candidates) {
+    const placement = findFirstLegalPlacement(state, playerId, tile.id);
+    if (!placement) continue;
+    const scoreDelta = projectedPlacementScoreDelta(state, playerId, tile.id, placement, plan);
+    if (scoreDelta < 0) continue;
+    scored.push({
+      kind: "place",
+      target: tile.id,
+      placement,
+      score: scoreDelta,
+      reasonCode: "FINAL_SCORE_CONVERSION",
+      reason: `Final-round fallback places the affordable ${tile.basic.name} for ${scoreDelta} immediate projected score.`,
+    });
+  }
+  return scored.sort((a, b) => b.score - a.score)[0] ?? null;
+}
+
+function findLegalSpecialPlacement(
+  state: GameState,
+  playerId: string,
+  plan?: HumanSeasonPlan,
+): HumanActionCandidate | null {
+  const candidates = specialTiles
+    .filter((tile) => state.tileSupply.special[tile.id] > 0)
+    .sort((a, b) => (b.population + b.renown) - (a.population + a.renown));
+  const scored: HumanActionCandidate[] = [];
+  for (const tile of candidates) {
+    const placement = findFirstLegalPlacement(state, playerId, tile.id);
+    if (!placement) continue;
+    const scoreDelta = projectedPlacementScoreDelta(state, playerId, tile.id, placement, plan);
+    if (scoreDelta < 0) continue;
+    scored.push({
+      kind: "place",
+      target: tile.id,
+      placement,
+      score: scoreDelta,
+      reasonCode: "PLACE_UNLOCKED_SPECIAL",
+      reason: `Final-round fallback places unlocked ${tile.name} for ${scoreDelta} immediate projected score and its remaining passive value.`,
+    });
+  }
+  return scored.sort((a, b) => b.score - a.score)[0] ?? null;
+}
+
 function findPlacement(
   state: GameState,
   playerId: string,
@@ -653,12 +1040,13 @@ function findPlacement(
   const player = state.players.find((candidate) => candidate.id === playerId);
   if (!player) return null;
   const categoryWeights = targetCategoryWeights(targets);
+  const scoreFocused = isScoreFocusedTarget(targets);
   if (plan) {
     for (const category of Object.keys(categoryWeights) as TileCategory[]) {
       categoryWeights[category] = (categoryWeights[category] ?? 0) * 0.35;
     }
   }
-  applyHumanPlanCategoryWeights(state, categoryWeights, plan);
+  applyHumanPlanCategoryWeights(state, categoryWeights, plan, targets);
   const placedCategoryCounts = new Map<TileCategory, number>();
   for (const tile of state.map.placedTiles.filter((candidate) => candidate.strain < 3)) {
     const category = tileCategory(tile);
@@ -671,22 +1059,50 @@ function findPlacement(
       }
     }
   }
-  if (targets.includes("LE-024")) {
-    const target = state.playerCount >= 3 ? 2 : 1;
-    for (const category of ["crafting", "merchant"] as TileCategory[]) {
-      const deficit = Math.max(0, target - (placedCategoryCounts.get(category) ?? 0));
-      categoryWeights[category] = (categoryWeights[category] ?? 0) + deficit * 65;
+  if (hasTarget(targets, "LE-012", "LE-017")) {
+    for (const category of ["resource", "housing", "crafting", "merchant", "social", "wellbeing", "travel"] as TileCategory[]) {
+      if ((placedCategoryCounts.get(category) ?? 0) === 0) {
+        categoryWeights[category] = (categoryWeights[category] ?? 0) + 62;
+      }
     }
   }
-  if (targets.some((id) => ["LE-007", "LE-020", "LE-033"].includes(id))) {
+  if (hasTarget(targets, "LE-024", "LE-025", "LE-048")) {
+    const reliefTiles = placedCategoryCount(state, "wellbeing") + placedCategoryCount(state, "social");
+    if (reliefTiles < 2) {
+      categoryWeights.wellbeing = (categoryWeights.wellbeing ?? 0) + 58;
+      categoryWeights.social = (categoryWeights.social ?? 0) + 28;
+    }
+  }
+  if (targets.some((id) => ["LE-002", "LE-008", "LE-009", "LE-010", "LE-011", "LE-023", "LE-045"].includes(id))) {
     categoryWeights.housing = (categoryWeights.housing ?? 0) + 35;
   }
-  if (targets.some((id) => ["LE-012", "LE-025", "LE-049"].includes(id))) {
-    categoryWeights.travel = (categoryWeights.travel ?? 0) + 45;
+  if (targets.some((id) => ["LE-005", "LE-006", "LE-015", "LE-016", "LE-018", "LE-032", "LE-035", "LE-040", "LE-044"].includes(id))) {
+    categoryWeights.travel = (categoryWeights.travel ?? 0) + 26;
   }
-  const noTravel = targets.includes("LE-026") || hasV43Target(targets, "LE-041");
-  const noFarmstead = targets.includes("LE-027");
+  const noTravel = targets.includes("LE-041") || hasV43Target(targets, "LE-041");
+  const noFarmstead = hasV43Target(targets, "LE-027");
+  const resourceLineageTarget = hasTarget(targets, "LE-034", "LE-035", "LE-036", "LE-037", "LE-038", "LE-040", "LE-047", "LE-049") ||
+    hasV43Target(targets, "LE-034", "LE-035", "LE-036", "LE-037", "LE-040");
+  const placedCoreResourceCount = state.map.placedTiles.filter(
+    (tile) => tile.kind === "core" && tileCategory(tile) === "resource",
+  ).length;
+  const missingFoundationTileIds = new Set(
+    (plan?.targetFoundationTileIds ?? []).filter(
+      (tileId) => !state.map.placedTiles.some((placed) => placed.tileId === tileId),
+    ),
+  );
+  const travelTarget = hasTarget(targets, "LE-005", "LE-006", "LE-015", "LE-016", "LE-018", "LE-032", "LE-035", "LE-040", "LE-044") || hasV43Target(targets, "LE-005", "LE-006", "LE-007", "LE-015", "LE-016", "LE-018", "LE-040", "LE-044");
+  const travelCount = placedCategoryCount(state, "travel");
+  const desiredTravel = desiredTravelTileCount(targets, plan);
+  const currentBridgeCount = bridgeTileCount(state);
   const occupied = new Set(state.map.placedTiles.flatMap((tile) => tile.hexIds));
+  const occupiedTerrainTypes = new Set(
+    state.map.placedTiles
+      .filter((tile) => tile.strain < 3)
+      .flatMap((tile) => tile.hexIds)
+      .map((hexId) => mapById[hexId]?.terrain)
+      .filter((terrain): terrain is Terrain => Boolean(terrain && terrain !== "water")),
+  );
   const missingProductionTerrains = new Set<string>();
   if (plan) {
     const produced = new Set<ResourceType>(state.map.placedTiles.flatMap((tile) => {
@@ -700,7 +1116,11 @@ function findPlacement(
       wood: "woodland", stone: "mountains", metal: "ruins", food: "arable", herbs: "heaths",
     };
     for (const resource of Object.keys(plan.expectedResourceDemand) as ResourceType[]) {
-      if (!produced.has(resource) && resourceDemandDeficit(state, plan, resource) >= 4 && terrainByResource[resource]) {
+      if (
+        !produced.has(resource) &&
+        resourceDemandDeficit(state, plan, resource) >= 4 &&
+        terrainByResource[resource]
+      ) {
         missingProductionTerrains.add(terrainByResource[resource]!);
       }
     }
@@ -737,20 +1157,38 @@ function findPlacement(
   const tiles = [
     ...coreTiles.filter((tile) => state.tileSupply.core[tile.id] > 0).map((tile) => ({ ...tile, kind: "core" as const, name: tile.basic.name })),
     ...specialTiles.filter((tile) => state.tileSupply.special[tile.id] > 0).map((tile) => ({ ...tile, kind: "special" as const, name: tile.name })),
-  ].filter((tile) => getTileFootprintKind(tile.id) !== "detached" && !(noTravel && tile.category === "travel"));
+  ].filter((tile) =>
+    getTileFootprintKind(tile.id) !== "detached" &&
+    !(noTravel && tile.category === "travel") &&
+    !(
+      tile.kind === "core" &&
+      tile.category === "resource" &&
+      placedCoreResourceCount >= 3 &&
+      !resourceLineageTarget &&
+      !missingFoundationTileIds.has(tile.id)
+    )
+  );
   const scored = tiles.map((tile) => {
     let score = random() * 3 + (categoryWeights[tile.category] ?? 0);
     let reasonCode = "FINAL_SCORE_CONVERSION";
     let reason = `Place ${tile.name} for its immediate settlement value.`;
     if (tile.kind === "core") {
+      const isMissingFoundation = missingFoundationTileIds.has(tile.id);
+      if (isMissingFoundation) {
+        score += 118;
+        reasonCode = "SETUP_FOR_SEEDED_ARRIVAL";
+        reason = `Place ${tile.name} as the printed foundation for an unlocked or forecast Special Tile.`;
+      }
       if (plan?.needsSupportBeforeHousing && /supported|remove .*strain/i.test(tile.basic.effectText)) {
         score += state.season === 1 ? 38 : 24;
         reasonCode = "SUPPORT_BEFORE_HOUSING";
         reason = "Establish prevention or Strain relief before forecast Burdens can disable the economy or scoring district.";
       }
       score += tile.basic.population + tile.basic.renown;
-      if (hasV43Target(targets, "LE-003")) score += tile.basic.renown * 18;
-      if (hasV43Target(targets, "LE-041", "LE-042")) score += (tile.basic.population + tile.basic.renown) * 5;
+      if (targets.includes("LE-003") || hasV43Target(targets, "LE-003")) score += tile.basic.renown * 18;
+      if (targets.includes("LE-001") || targets.includes("LE-039") || targets.includes("LE-041") || targets.includes("LE-042") || hasV43Target(targets, "LE-041", "LE-042")) {
+        score += (tile.basic.population + tile.basic.renown) * (state.round >= 9 ? 4.5 : 2.5);
+      }
       const scarcityCost = (Object.entries(tile.basic.cost) as Array<[ResourceType, number]>).reduce(
         (total, [resource, amount]) =>
           total + amount * (0.4 + Math.max(0, 8 - state.warehouse[resource]) * 0.35),
@@ -758,6 +1196,10 @@ function findPlacement(
       );
       score -= scarcityCost;
       if (tile.category === "resource") {
+        const producedResources = (Object.entries(tile.basic.production ?? {}) as Array<[ResourceType, number]>)
+          .filter(([, amount]) => amount > 0)
+          .map(([resource]) => resource);
+        const demandReason = chooseResourceDemandReason(state, plan, producedResources);
         const existingProduction = new Set(
           state.map.placedTiles.flatMap((placed) => {
             if (placed.kind !== "core") return [];
@@ -772,12 +1214,50 @@ function findPlacement(
         );
         score += 25 + productionValue * 4;
         if (plan && Object.entries(tile.basic.production ?? {}).some(([resource, amount]) => amount > 0 && !existingProduction.has(resource))) score += 20;
-        reasonCode = "EARLY_RESOURCE_DEFICIT";
-        reason = `Build production against forecast Warehouse demand (${Math.round(productionValue)} readiness value).`;
+        if (state.round >= 8 && !hasTarget(targets, "LE-007", "LE-034", "LE-035", "LE-036", "LE-037", "LE-038", "LE-040", "LE-047", "LE-049")) score -= 28;
+        const concreteSpendTarget = plan && state.round > 8 && tile.basic.production
+          ? findConcreteProductionSpendTarget(state, playerId, plan, tile.basic.production)
+          : null;
+        if (isMissingFoundation) {
+          // Keep the explicit Special-Tile prerequisite rationale assigned above.
+        } else if (state.round > 8 && plan && !concreteSpendTarget) {
+          score = Math.min(-12, score - 120);
+          reasonCode = "RESOURCE_FLOATING_NO_SPEND_TARGET";
+          reason = "Do not place another production tile after Round 8: it has no legal, named spend route before game end.";
+        } else if (concreteSpendTarget) {
+          score += concreteSpendTarget.priority * 0.12;
+          reasonCode = concreteSpendTarget.reasonCode;
+          reason = `Add production specifically to ${concreteSpendTarget.label}; it can contribute ${formatResourceShortfall(concreteSpendTarget.contribution)} before game end.`;
+        } else {
+          reasonCode = demandReason.reasonCode;
+          reason = `Build production against forecast Warehouse demand (${Math.round(productionValue)} readiness value). ${demandReason.reason}`;
+        }
       }
-      if (tile.category === "housing") score += 24;
-      if (tile.category === "travel") score += 8;
-      if (tile.id === "c15_path") score += 8;
+      if (tile.category === "housing") {
+        score += 24 +
+          tile.basic.population * (state.season >= 2 ? 2.2 : 0.9) +
+          (state.season >= 2 ? 24 : 0) +
+          (state.round >= 9 ? 36 : 0);
+      }
+      if (tile.category === "travel") {
+        score += travelTarget ? 18 : 8;
+        if (travelCount >= desiredTravel) score -= 82 + travelCount * 7;
+        if (state.round >= 8 && travelCount >= Math.max(2, desiredTravel - 1)) score -= 38;
+      }
+      if (tile.id === "c15_path") score += travelTarget && travelCount < desiredTravel ? 10 : 2;
+      if (hasTarget(targets, "LE-008") && tile.id === "c18_common_land") score += 130;
+      if (hasTarget(targets, "LE-015", "LE-018", "LE-044") && tile.id === "c19_bridge") {
+        score += 160;
+        if (hasTarget(targets, "LE-015", "LE-044") && currentBridgeCount >= 1) score -= 180;
+        if (hasTarget(targets, "LE-018") && currentBridgeCount >= 2) score -= 180;
+      }
+      if (hasTarget(targets, "LE-032") && tile.id === "c17_track") score += 170;
+      if (hasTarget(targets, "LE-033") && tile.id === "c11_washhouse") score += 140;
+      if (hasTarget(targets, "LE-034") && tile.id === "c04_farmstead") score += 135;
+      if (hasTarget(targets, "LE-035") && tile.id === "c02_mine_tunnel") score += 135;
+      if (hasTarget(targets, "LE-036", "LE-037", "LE-038", "LE-047", "LE-049") && ["c01_lumber_yard", "c02_mine_tunnel", "c03_gathering_outpost", "c04_farmstead", "c20_dig_site"].includes(tile.id)) score += 92;
+      if (hasTarget(targets, "LE-040") && ["c01_lumber_yard", "c02_mine_tunnel", "c04_farmstead"].includes(tile.id)) score += 125;
+      if (hasTarget(targets, "LE-028") && /supported/i.test(tile.basic.effectText)) score += 90;
       if (hasV43Target(targets, "LE-008") && tile.id === "c18_common_land") score += 120;
       if (hasV43Target(targets, "LE-018", "LE-044") && tile.id === "c19_bridge") score += 130;
       if (hasV43Target(targets, "LE-032") && tile.id === "c17_track") score += 150;
@@ -787,9 +1267,8 @@ function findPlacement(
       if (hasV43Target(targets, "LE-036", "LE-037") && ["c01_lumber_yard", "c02_mine_tunnel", "c03_gathering_outpost", "c04_farmstead"].includes(tile.id)) score += 105;
       if (hasV43Target(targets, "LE-040") && ["c01_lumber_yard", "c02_mine_tunnel", "c04_farmstead"].includes(tile.id)) score += 95;
       if (plan && tile.category === "travel") {
-        const travelCount = state.map.placedTiles.filter((placed) => tileCategory(placed) === "travel").length;
-        if (!plan.needsTravelAnchor && travelCount >= 1) score -= 45;
-        if (tile.id === "c15_path" && travelCount >= 2) score -= 55;
+        if (!plan.needsTravelAnchor && !travelTarget && travelCount >= 1) score -= 45;
+        if (tile.id === "c15_path" && !travelTarget && travelCount >= 2) score -= 55;
         reasonCode = "TRAVEL_ENABLES_PLAN";
         reason = "Create only the Travel anchor needed for reachability, engine adjacency, or scoring.";
       }
@@ -813,19 +1292,29 @@ function findPlacement(
           ? "Convert the prepared and protected district into clustered Housing score."
           : "Extend the Housing cluster because the conversion window is closing.";
       }
+      if (missingFoundationTileIds.has(tile.id)) {
+        reasonCode = "SETUP_FOR_SEEDED_ARRIVAL";
+        reason = `Place ${tile.name} as the printed foundation for an unlocked or forecast Special Tile.`;
+      }
       if (noTravel && tile.category === "travel") score -= 1000;
       if (noFarmstead && tile.id === "c04_farmstead") score -= 1000;
-      if (!player.hasPlacedFirstTile && tileCostTotal(tile.id) === 0) score += 80;
+      if (!player.hasPlacedFirstTile && tileCostTotal(tile.id) === 0) {
+        score += tile.category === "resource" ? 180 : tile.category === "travel" ? 45 : 80;
+      }
     } else {
       score += tile.population + tile.renown + 28;
-      if (hasV43Target(targets, "LE-003")) score += tile.renown * 18;
-      if (hasV43Target(targets, "LE-041", "LE-042")) score += (tile.population + tile.renown) * 5;
+      if (hasTarget(targets, "LE-019", "LE-022", "LE-023")) score += 72;
+      if (targets.includes("LE-003") || hasV43Target(targets, "LE-003")) score += tile.renown * 18;
+      if (targets.includes("LE-001") || targets.includes("LE-039") || targets.includes("LE-041") || targets.includes("LE-042") || hasV43Target(targets, "LE-041", "LE-042")) {
+        score += (tile.population + tile.renown) * (state.round >= 9 ? 4.5 : 2.5);
+      }
       if (plan?.needsSupportBeforeHousing && /supported|remove .*strain|resolve 1 active burden/i.test(tile.effectText)) {
         score += 28;
         reasonCode = "PROTECT_AGAINST_FORECAST_BURDEN";
         reason = "Place a Special Tile that directly answers the forecast Burden and Strain risk.";
       }
       if (plan?.targetSpecialTileIds.includes(tile.id)) score += 38;
+      if (hasTarget(targets, "LE-023", "LE-050") && /supported|burden|strain|housing/i.test(tile.effectText)) score += 32;
       if (plan?.targetSpecialTileIds.includes(tile.id)) {
         reasonCode = "SETUP_FOR_SEEDED_ARRIVAL";
         reason = `Place the Special Tile unlocked for this Season's planned Arrival.`;
@@ -856,6 +1345,7 @@ function findPlacement(
       let geometryScore = adjacentTiles.length * 2;
       if (tile.category === "housing" && adjacentCategories.includes("housing")) geometryScore += 18;
       if (tile.category === "travel" && adjacentCategories.includes("travel")) geometryScore += 14;
+      if (tile.category === "travel" && travelCount >= desiredTravel) geometryScore -= 130;
       if (["crafting", "merchant", "social", "wellbeing"].includes(tile.category) && adjacentCategories.includes("housing")) geometryScore += 11;
       if (tile.kind === "special" && adjacentCategories.includes("housing")) geometryScore += 8;
       if (plan?.needsCrafting && tile.category === "crafting" && adjacentCategories.includes("travel")) geometryScore += 18;
@@ -863,7 +1353,8 @@ function findPlacement(
       if (plan && tile.category === "travel" && missingProductionTerrains.size > 0 && placementHexIds.some((hexId) =>
         getHexNeighbors(hexId).some((neighbor) => missingProductionTerrains.has(mapById[neighbor]?.terrain))
       )) geometryScore += 24;
-      if (plan?.needsSupportBeforeHousing && /supported/i.test(tile.kind === "special" ? tile.effectText : tile.basic.effectText)) {
+      const placementEffectText = tile.kind === "special" ? tile.effectText : tile.basic.effectText;
+      if (plan?.needsSupportBeforeHousing && /supported/i.test(placementEffectText)) {
         geometryScore += adjacentCategories.includes("housing") ? 20 : adjacentTiles.length * 3;
       }
       if (adjacentTiles.some((placed) => placed.tileId.startsWith("golden_tile_"))) geometryScore += 9;
@@ -873,6 +1364,27 @@ function findPlacement(
           0,
         );
       }
+      if (hasTarget(targets, "LE-005") && placementHexIds.some(isCornerHex)) geometryScore += 320;
+      if (hasTarget(targets, "LE-006") && placementHexIds.some(isEdgeHex)) geometryScore += 95;
+      if (hasTarget(targets, "LE-007") && placementHexIds.some((hexId) => {
+        const terrain = mapById[hexId]?.terrain;
+        return Boolean(terrain && terrain !== "water" && !occupiedTerrainTypes.has(terrain));
+      })) geometryScore += 125;
+      if (hasTarget(targets, "LE-008") && tile.category === "housing" && adjacentTiles.some((placed) => placed.tileId === "c18_common_land")) geometryScore += 145;
+      if (hasTarget(targets, "LE-009", "LE-010") && tile.category === "housing" && adjacentCategories.some((category) => category === "social" || category === "wellbeing")) geometryScore += 70;
+      if (hasTarget(targets, "LE-011", "LE-045") && tile.category === "housing" && adjacentCategories.includes("housing")) geometryScore += 82;
+      if (hasTarget(targets, "LE-013") && tile.category === "merchant" && adjacentCategories.includes("housing")) geometryScore += 55;
+      if (hasTarget(targets, "LE-013") && ["housing", "social", "travel"].includes(tile.category) && adjacentCategories.includes("merchant")) geometryScore += 82;
+      if (hasTarget(targets, "LE-014")) geometryScore += placementHexIds.reduce((total, hexId) => total + getHexNeighbors(hexId).filter((neighbor) => occupied.has(neighbor)).length * 8, 0);
+      if (hasTarget(targets, "LE-015", "LE-018", "LE-044") && tile.id === "c19_bridge") geometryScore += 125;
+      if (hasTarget(targets, "LE-016", "LE-017") && placementHexIds.some((hexId) => getHexNeighbors(hexId).some((neighbor) => mapById[neighbor]?.terrain === "water"))) geometryScore += 86;
+      if (hasTarget(targets, "LE-023", "LE-050") && tile.kind === "special" && adjacentCategories.includes("housing")) geometryScore += 112;
+      if (hasTarget(targets, "LE-028") && /supported/i.test(tile.kind === "special" ? tile.effectText : tile.basic.effectText) && adjacentTiles.length > 0) geometryScore += 70;
+      if (hasTarget(targets, "LE-032") && ["crafting", "merchant"].includes(tile.category) && adjacentTiles.some((placed) => placed.tileId === "c17_track")) geometryScore += 170;
+      if (hasTarget(targets, "LE-033") && ["crafting", "merchant", "social"].includes(tile.category) && adjacentTiles.some((placed) => placed.tileId === "c11_washhouse")) geometryScore += 130;
+      if (hasTarget(targets, "LE-034") && tile.id === "c04_farmstead" && adjacentCategories.includes("housing")) geometryScore += 145;
+      if (hasTarget(targets, "LE-035") && tile.id === "c02_mine_tunnel" && adjacentCategories.includes("travel")) geometryScore += 145;
+      if (hasTarget(targets, "LE-040") && ["c01_lumber_yard", "c02_mine_tunnel", "c04_farmstead"].includes(tile.id) && adjacentCategories.includes("travel")) geometryScore += 135;
       if (hasV43Target(targets, "LE-005") && placementHexIds.some((hexId) => ["A1", "A9", "N1", "N9"].includes(hexId))) geometryScore += 260;
       if (hasV43Target(targets, "LE-006") && placementHexIds.some((hexId) => {
         const cell = mapById[hexId];
@@ -891,8 +1403,8 @@ function findPlacement(
       if (hasV43Target(targets, "LE-034") && tile.id === "c04_farmstead" && adjacentCategories.includes("housing")) geometryScore += 120;
       if (hasV43Target(targets, "LE-035") && tile.id === "c02_mine_tunnel" && adjacentCategories.includes("travel")) geometryScore += 120;
       if (hasV43Target(targets, "LE-040") && ["c01_lumber_yard", "c02_mine_tunnel", "c04_farmstead"].includes(tile.id) && adjacentCategories.includes("travel")) geometryScore += 110;
-      if (targets.some((id) => ["LE-010", "LE-011", "LE-032"].includes(id)) && tile.id === "c19_bridge") geometryScore += 80;
-      if (targets.includes("LE-012") && placementHexIds.some((hexId) => getHexNeighbors(hexId).some((neighbor) => mapById[neighbor]?.terrain === "water"))) geometryScore += 22;
+      if (targets.some((id) => ["LE-015", "LE-018", "LE-044"].includes(id)) && tile.id === "c19_bridge") geometryScore += 80;
+      if (targets.includes("LE-016") && placementHexIds.some((hexId) => getHexNeighbors(hexId).some((neighbor) => mapById[neighbor]?.terrain === "water"))) geometryScore += 22;
       legalPlacements.push({
         tileId: tile.id,
         placement,
@@ -904,6 +1416,12 @@ function findPlacement(
   }
   legalPlacements.sort((a, b) => b.score - a.score);
   const best = legalPlacements[0];
+  if (!best && plan && !expanded) {
+    return findPlacement(state, playerId, targets, random, plan, true);
+  }
+  if (!best && plan && expanded) {
+    return findPlacement(state, playerId, targets, random, undefined, true);
+  }
   return best ?? null;
 }
 
@@ -913,8 +1431,9 @@ function chooseUpgrade(
   targets: string[],
   plan?: HumanSeasonPlan,
 ): { instanceId: string; score: number; reasonCode: string; reason: string } | null {
-  if (targets.includes("LE-028") || hasV43Target(targets, "LE-042")) return null;
-  const targetBoost = targets.some((id) => ["LE-021","LE-022","LE-034"].includes(id)) || hasV43Target(targets, "LE-031", "LE-036", "LE-046") ? 30 : 0;
+  if (targets.includes("LE-042") || hasV43Target(targets, "LE-042")) return null;
+  const targetBoost = targets.some((id) => ["LE-001", "LE-003", "LE-031", "LE-036", "LE-046"].includes(id)) || hasV43Target(targets, "LE-031", "LE-036", "LE-046") ? 34 : 0;
+  const conversion = scoreConversionPressure(state);
   const candidates = getUpgradeableTileIds(state, playerId).map((instanceId) => {
     const placed = state.map.placedTiles.find((tile) => tile.instanceId === instanceId)!;
     const tile = coreTileById[placed.tileId];
@@ -938,26 +1457,300 @@ function chooseUpgrade(
       0,
     );
     const isHousing = tile.category === "housing";
-    const v43ResourceCrownBoost = hasV43Target(targets, "LE-036") && ["c01_lumber_yard", "c02_mine_tunnel", "c03_gathering_outpost", "c04_farmstead"].includes(placed.tileId) ? 75 : 0;
+    const upgradedResourceCount = state.map.placedTiles.filter(
+      (candidate) => candidate.kind === "core" && candidate.side === "upgraded" && tileCategory(candidate) === "resource",
+    ).length;
+    const resourceLineageBoost = (hasTarget(targets, "LE-036", "LE-037", "LE-038", "LE-040", "LE-047", "LE-049") || hasV43Target(targets, "LE-036")) && ["c01_lumber_yard", "c02_mine_tunnel", "c03_gathering_outpost", "c04_farmstead", "c20_dig_site"].includes(placed.tileId) ? 75 : 0;
+    const adjacencyUpgradeBoost = hasTarget(targets, "LE-046") && state.map.placedTiles.some((other) =>
+      other.instanceId !== placed.instanceId &&
+      other.kind === "core" &&
+      other.side === "upgraded" &&
+      other.hexIds.some((hexId) => placed.hexIds.some((placedHexId) => getHexNeighbors(placedHexId).includes(hexId)))
+    ) ? 70 : 0;
+    const engineUpgradeBoost = plan && state.round <= 7
+      ? placed.tileId === "c13_workshops" && plan.needsCrafting
+        ? 34
+        : placed.tileId === "c14_market_stalls" && plan.needsMerchant
+          ? 32
+          : 0
+      : 0;
+    const lateProductionDamping = tile.category === "resource" && state.round >= 8 && !hasTarget(targets, "LE-036", "LE-037", "LE-038", "LE-040", "LE-047", "LE-049") ? -18 : 0;
+    const excessResourceUpgradePenalty = tile.category === "resource" && upgradedResourceCount >= 2 &&
+      !hasTarget(targets, "LE-036", "LE-037", "LE-038", "LE-040", "LE-047", "LE-049")
+      ? -68
+      : 0;
+    const resourceReason = tile.category === "resource"
+      ? chooseResourceDemandReason(
+        state,
+        plan,
+        (Object.entries(tile.upgraded.production ?? {}) as Array<[ResourceType, number]>)
+          .filter(([, amount]) => amount > 0)
+          .map(([resource]) => resource),
+      )
+      : undefined;
+    const incrementalProduction = tile.category === "resource"
+      ? Object.fromEntries(
+        (Object.entries(tile.upgraded.production ?? {}) as Array<[ResourceType, number]>)
+          .map(([resource, amount]) => [
+            resource,
+            Math.max(0, amount - (tile.basic.production?.[resource] ?? 0)),
+          ] as const)
+          .filter(([, amount]) => amount > 0),
+      ) as Partial<Record<ResourceType, number>>
+      : {};
+    const lateResourceSpendTarget = tile.category === "resource" && plan && state.round > 8
+      ? findConcreteProductionSpendTarget(state, playerId, plan, incrementalProduction)
+      : null;
+    const lateFloatingProductionPenalty = tile.category === "resource" && plan && state.round > 8 && !lateResourceSpendTarget
+      ? -120
+      : 0;
     const score =
       targetBoost +
-      v43ResourceCrownBoost +
-      scoringGain * (plan && isHousing && plan.housingPush ? 2.5 : 1) +
-      productionGain * 2 -
+      resourceLineageBoost +
+      adjacencyUpgradeBoost +
+      engineUpgradeBoost +
+      scoringGain * (plan && isHousing && plan.housingPush ? 3.2 * conversion : 1.4 * conversion) +
+      productionGain * (state.round <= 6 ? 2.2 : state.round <= 8 ? 1.4 : 0.55) -
       scarcityCost +
-      plannedResourceGain * (state.season === 1 ? 2 : 0.8);
+      plannedResourceGain * (state.season === 1 ? 2 : 0.8) +
+      lateProductionDamping +
+      excessResourceUpgradePenalty +
+      lateFloatingProductionPenalty +
+      (lateResourceSpendTarget?.priority ?? 0) * 0.08;
     return {
       instanceId,
       score,
-      reasonCode: isHousing ? "HIGH_VALUE_UPGRADE" : tile.category === "resource" ? "EARLY_RESOURCE_DEFICIT" : "HIGH_VALUE_UPGRADE",
-      reason: isHousing
+      reasonCode: placed.tileId === "c13_workshops"
+        ? "CRAFTING_DISCOUNT_ENGINE"
+        : placed.tileId === "c14_market_stalls"
+          ? "MERCHANT_CONVERSION_ENGINE"
+          : isHousing
+            ? "HIGH_VALUE_UPGRADE"
+            : lateResourceSpendTarget?.reasonCode ??
+              (lateFloatingProductionPenalty < 0 ? "RESOURCE_FLOATING_NO_SPEND_TARGET" : resourceReason?.reasonCode) ??
+              "HIGH_VALUE_UPGRADE",
+      reason: placed.tileId === "c13_workshops" && engineUpgradeBoost > 0
+        ? "Upgrade Workshops while enough future upgrades remain to repay the stronger discount."
+        : placed.tileId === "c14_market_stalls" && engineUpgradeBoost > 0
+          ? "Upgrade Market Stalls while future payments can still exploit stronger Goods conversion."
+          : isHousing
         ? "Convert an established Housing tile into immediate score during the planned expansion window."
         : tile.category === "resource"
-          ? "Upgrade production early because forecast demand will repay it over remaining activations."
+          ? lateResourceSpendTarget
+            ? `Upgrade production specifically to ${lateResourceSpendTarget.label}; the added output has a legal spend route before game end.`
+            : lateFloatingProductionPenalty < 0
+              ? "Do not upgrade production after Round 8 when its added output has no legal, named spend route before game end."
+              : `Upgrade production early only where a named spend can repay it over remaining activations. ${resourceReason?.reason ?? ""}`
           : "Take a positive-value upgrade with useful remaining-season payoff.",
     };
   }).sort((a, b) => b.score - a.score);
   return candidates[0] ?? null;
+}
+
+type ResourceSpendReasonCode =
+  | "RESOURCE_FOR_PLANNED_UPGRADE"
+  | "RESOURCE_FOR_SEEDED_ARRIVAL"
+  | "RESOURCE_FOR_BURDEN_PAYMENT"
+  | "RESOURCE_FOR_HOUSING_CLUSTER"
+  | "RESOURCE_FOR_FINAL_SCORE_TILE";
+
+interface ResourceSpendTarget {
+  label: string;
+  missing: Partial<Record<ResourceType, number>>;
+  contribution: Partial<Record<ResourceType, number>>;
+  reasonCode: ResourceSpendReasonCode;
+  priority: number;
+}
+
+function missingResourcesFromReasons(
+  reasons: string[],
+): Partial<Record<ResourceType, number>> | null {
+  if (reasons.length === 0) return null;
+  const missing: Partial<Record<ResourceType, number>> = {};
+  for (const reason of reasons) {
+    const match = reason.match(/(?:missing|insufficient)\s+(\d+)\s+(wood|stone|metal|food|herbs|goods)/i);
+    if (!match) return null;
+    const resource = match[2].toLowerCase() as ResourceType;
+    missing[resource] = (missing[resource] ?? 0) + Number(match[1]);
+  }
+  return Object.keys(missing).length > 0 ? missing : null;
+}
+
+function spendTargetForShortfall(
+  state: GameState,
+  production: Partial<Record<ResourceType, number>>,
+  label: string,
+  reasons: string[],
+  reasonCode: ResourceSpendReasonCode,
+  priority: number,
+): ResourceSpendTarget | null {
+  const missing = missingResourcesFromReasons(reasons);
+  if (!missing) return null;
+  const shortfalls = Object.entries(missing) as Array<[ResourceType, number]>;
+  const contribution = Object.fromEntries(
+    shortfalls
+      .filter(([resource]) => (production[resource] ?? 0) > 0)
+      .map(([resource, amount]) => [resource, Math.min(amount, production[resource] ?? 0)]),
+  ) as Partial<Record<ResourceType, number>>;
+  if (Object.keys(contribution).length === 0) return null;
+
+  const activatableIds = new Set(getActivatableTileIds(state, state.currentPlayerId));
+  const bestAvailableOutput = (resource: ResourceType): number => state.map.placedTiles.reduce((best, placed) => {
+    if (placed.strain >= 3 || state.round === 12 && !activatableIds.has(placed.instanceId)) return best;
+    const side = placed.kind === "special"
+      ? specialTileById[placed.tileId]
+      : coreTileById[placed.tileId][placed.side === "upgraded" ? "upgraded" : "basic"];
+    const output = "production" in side ? side.production?.[resource] ?? 0 : 0;
+    return Math.max(best, output);
+  }, 0);
+  const outputFor = (resource: ResourceType) => Math.max(production[resource] ?? 0, bestAvailableOutput(resource));
+  if (shortfalls.some(([resource]) => outputFor(resource) <= 0)) return null;
+
+  const activationsNeeded = Math.max(
+    ...shortfalls.map(([resource, amount]) => Math.ceil(amount / outputFor(resource))),
+  );
+  const productionWindowsLeft = 13 - state.round;
+  const actionBudgetLeft = state.actionsRemaining + Math.max(0, 12 - state.round) * 4;
+  if (activationsNeeded > productionWindowsLeft || activationsNeeded + 1 > actionBudgetLeft) return null;
+  return { label, missing, contribution, reasonCode, priority };
+}
+
+function nearNetworkPlacementOptions(
+  state: GameState,
+  playerId: string,
+  tileId: string,
+): Array<string | TilePlacementDraft> {
+  const player = state.players.find((candidate) => candidate.id === playerId);
+  if (!player) return [];
+  if (!player.hasPlacedFirstTile) {
+    const start = mapById[player.stewardHexId];
+    return start ? placementOptions(tileId, [start]) : [];
+  }
+  const occupied = new Set(state.map.placedTiles.flatMap((tile) => tile.hexIds));
+  const reachableIds = selectReachablePlacedTileIds(state, playerId);
+  const frontierIds = new Set(
+    state.map.placedTiles
+      .filter((tile) => reachableIds.has(tile.instanceId))
+      .flatMap((tile) => tile.hexIds)
+      .flatMap(getHexNeighbors)
+      .filter((hexId) => !occupied.has(hexId)),
+  );
+  if (player.temporaryReachHexId && !occupied.has(player.temporaryReachHexId)) {
+    frontierIds.add(player.temporaryReachHexId);
+  }
+  return placementOptions(tileId, mapCells.filter((cell) => frontierIds.has(cell.id)));
+}
+
+function findConcreteProductionSpendTarget(
+  state: GameState,
+  playerId: string,
+  plan: HumanSeasonPlan | undefined,
+  production: Partial<Record<ResourceType, number>>,
+): ResourceSpendTarget | null {
+  const targets: ResourceSpendTarget[] = [];
+  const add = (candidate: ResourceSpendTarget | null) => {
+    if (candidate) targets.push(candidate);
+  };
+
+  for (const active of state.encounters.activeArrivals) {
+    const card = encounterById[active.cardId];
+    if (!card || card.type !== "arrival") continue;
+    add(spendTargetForShortfall(
+      state,
+      production,
+      `complete seeded Arrival ${card.name}`,
+      canCompleteArrival(state, active.cardId).reasons,
+      "RESOURCE_FOR_SEEDED_ARRIVAL",
+      90 + cardPlanPriority(plan, active.cardId) + Math.max(0, 3 - active.timerTokens) * 8,
+    ));
+  }
+
+  for (const cardId of state.encounters.activeBurdens) {
+    const card = encounterById[cardId];
+    if (!card || card.type !== "burden") continue;
+    add(spendTargetForShortfall(
+      state,
+      production,
+      `pay off active Burden ${card.name}`,
+      canResolveBurden(state, cardId).reasons,
+      "RESOURCE_FOR_BURDEN_PAYMENT",
+      84 + cardPlanPriority(plan, cardId),
+    ));
+  }
+
+  for (const placed of state.map.placedTiles) {
+    if (placed.kind !== "core" || placed.side !== "basic") continue;
+    const tile = coreTileById[placed.tileId];
+    const scoreGain =
+      tile.upgraded.population + tile.upgraded.renown -
+      tile.basic.population - tile.basic.renown;
+    const valuePriority = tile.category === "housing" ? 76 : scoreGain > 0 ? 66 : 48;
+    add(spendTargetForShortfall(
+      state,
+      production,
+      `upgrade ${tile.basic.name} to ${tile.upgraded.name}`,
+      canStartUpgradeTile(state, playerId, placed.instanceId).reasons,
+      "RESOURCE_FOR_PLANNED_UPGRADE",
+      valuePriority + Math.max(0, scoreGain),
+    ));
+  }
+
+  const scoringTiles = coreTiles
+    .filter((tile) =>
+      state.tileSupply.core[tile.id] > 0 &&
+      tile.category !== "resource" &&
+      tile.category !== "travel" &&
+      tile.basic.population + tile.basic.renown > 0
+    )
+    .sort((a, b) =>
+      (b.category === "housing" ? 1 : 0) - (a.category === "housing" ? 1 : 0) ||
+      (b.basic.population + b.basic.renown) - (a.basic.population + a.basic.renown)
+    );
+  for (const tile of scoringTiles) {
+    for (const placement of nearNetworkPlacementOptions(state, playerId, tile.id)) {
+      const validation = canStartPlaceTile(state, playerId, tile.id, placement);
+      const candidate = spendTargetForShortfall(
+        state,
+        production,
+        `place ${tile.basic.name}`,
+        validation.reasons,
+        tile.category === "housing" ? "RESOURCE_FOR_HOUSING_CLUSTER" : "RESOURCE_FOR_FINAL_SCORE_TILE",
+        (tile.category === "housing" ? 74 : 58) + tile.basic.population + tile.basic.renown,
+      );
+      if (candidate) {
+        targets.push(candidate);
+        break;
+      }
+    }
+  }
+
+  return targets.sort((a, b) => b.priority - a.priority)[0] ?? null;
+}
+
+function formatResourceShortfall(missing: Partial<Record<ResourceType, number>>): string {
+  return (Object.entries(missing) as Array<[ResourceType, number]>)
+    .map(([resource, amount]) => `${amount} ${resource}`)
+    .join(" and ");
+}
+
+function hasKnownFutureStrainThreat(state: GameState, plan?: HumanSeasonPlan): boolean {
+  const expiringArrivalThreats = state.encounters.activeArrivals.filter((arrival) => arrival.timerTokens <= 1).length;
+  const forecastBurdenThreats = plan?.forecasts.filter((forecast) => {
+    const card = encounterById[forecast.cardId];
+    if (card?.type !== "burden") return false;
+    const alreadyRevealed =
+      state.encounters.discardPile.includes(forecast.cardId) ||
+      state.encounters.activeBurdens.includes(forecast.cardId);
+    return !alreadyRevealed;
+  }).length ?? 0;
+  const protectedTiles = state.map.placedTiles.filter(
+    (tile) => (tile.support.passive || tile.support.singleUse) && !tile.support.preventedThisRound,
+  ).length;
+  // One expiring Arrival normally threatens one Strain; reserve roughly two
+  // protected tiles for each unrevealed Burden whose exact targets are not yet
+  // known. Once that buffer exists, further support activations are action
+  // waste rather than prudent preparation.
+  return expiringArrivalThreats + forecastBurdenThreats * 2 > protectedTiles;
 }
 
 function chooseActivation(
@@ -965,6 +1758,7 @@ function chooseActivation(
   playerId: string,
   plan?: HumanSeasonPlan,
 ): { instanceId: string; score: number; reasonCode: string; reason: string } | null {
+  const stockpile = warehouseTotal(state);
   const candidates = getActivatableTileIds(state, playerId).map((instanceId) => {
     const placed = state.map.placedTiles.find((tile) => tile.instanceId === instanceId)!;
     const side = placed.kind === "special"
@@ -975,30 +1769,69 @@ function chooseActivation(
     const effectText = side.effectText;
     const lower = effectText.toLowerCase();
     const production = "production" in side ? side.production : undefined;
+    const producedResources = production
+      ? (Object.entries(production) as Array<[ResourceType, number]>)
+        .filter(([, amount]) => amount > 0)
+        .map(([resource]) => resource)
+      : [];
+    const demandReason = chooseResourceDemandReason(state, plan, producedResources);
     const productionNeed = production
       ? (Object.entries(production) as Array<[ResourceType, number]>).reduce(
           (score, [resource, amount]) => score + amount * (plan ? resourceDemandDeficit(state, plan, resource) : Math.max(0, 15 - state.warehouse[resource])),
           0,
         )
       : 0;
-    let score = "effectType" in side && side.effectType === "production" ? productionNeed : -1;
-    let reasonCode = "EARLY_RESOURCE_DEFICIT";
-    let reason = "Activate production that fills a current or forecast resource deficit.";
+    const productionTiming = state.round <= 5 ? 1.15 : state.round <= 8 ? 0.78 : 0.42;
+    const isProduction = "effectType" in side && side.effectType === "production";
+    let score = isProduction ? productionNeed * productionTiming : -1;
+    let reasonCode: string = demandReason.reasonCode;
+    let reason = `Activate production only for a named current or forecast spend. ${demandReason.reason}`;
+    if (isProduction) {
+      if (state.round >= 8 && stockpile >= 34) score -= 18;
+      if (state.round >= 10 && stockpile >= 24) score -= 26;
+      if (productionNeed <= 3 && state.round >= 7) score -= 10;
+      if (state.round > 8 && production) {
+        const spendTarget = findConcreteProductionSpendTarget(state, playerId, plan, production);
+        if (spendTarget) {
+          const usefulOutput = Object.values(spendTarget.contribution).reduce((total, amount) => total + (amount ?? 0), 0);
+          score = Math.max(score - 8, 7 + usefulOutput * 5 + spendTarget.priority * 0.08);
+          reasonCode = spendTarget.reasonCode;
+          reason = `Produce ${formatResourceShortfall(spendTarget.contribution)} toward the remaining ${formatResourceShortfall(spendTarget.missing)} needed to ${spendTarget.label}.`;
+        } else {
+          score = Math.min(-2, score - 48);
+          reasonCode = "RESOURCE_FLOATING_NO_SPEND_TARGET";
+          reason = "Late production has no legal, named spend target before game end, so its expected value is negative.";
+        }
+      }
+    }
     if (/timer token/.test(lower)) {
       const timerSpace = state.encounters.activeArrivals.reduce(
         (total, arrival) => total + Math.max(0, 3 - arrival.timerTokens),
         0,
       );
-      if (timerSpace > 0) score = Math.max(score, 18 + timerSpace * 2);
+      if (timerSpace > 0 && state.round <= 10) score = Math.max(score, 18 + timerSpace * 2);
+      if (state.round >= 11) score = Math.min(score, 4);
       reasonCode = "SETUP_FOR_SEEDED_ARRIVAL";
       reason = "Preserve a valuable active Arrival until its planned requirement can be met.";
     }
     if (/remove .*strain/.test(lower)) {
       const targets = getValidEffectStrainTargets(state, effectText, placed);
       const removable = targets.reduce((total, tile) => total + tile.strain, 0);
-      if (removable > 0) score = Math.max(score, 16 + removable * 5);
-      reasonCode = "PROTECT_AGAINST_FORECAST_BURDEN";
-      reason = "Remove Strain before it erases score or disables an engine tile.";
+      const player = state.players.find((candidate) => candidate.id === playerId);
+      const anchorStrain = player
+        ? targets
+          .filter((tile) => tile.hexIds.includes(player.stewardHexId))
+          .reduce((total, tile) => total + tile.strain, 0)
+        : 0;
+      if (anchorStrain > 0) {
+        score = Math.max(score, 72 + anchorStrain * 18);
+        reasonCode = "PROTECT_STEWARD_REACH";
+        reason = "Remove Strain from the Steward's current tile before Overstrain disconnects every later action.";
+      } else if (removable > 0) {
+        score = Math.max(score, 16 + removable * 5);
+        reasonCode = "PROTECT_AGAINST_FORECAST_BURDEN";
+        reason = "Remove Strain before it erases score or disables an engine tile.";
+      }
     }
     if (/resolve 1 active burden/.test(lower) && state.encounters.activeBurdens.length > 0) {
       score = Math.max(score, 35 + state.encounters.activeBurdens.length * 4);
@@ -1014,19 +1847,58 @@ function chooseActivation(
     }
     if (/gain supported|gains supported/.test(lower)) {
       const supportTargets = getEffectSupportTargets(state, effectText, placed);
-      if (supportTargets.length > 0) score = Math.max(score, 12 + supportTargets.length * 3);
-      reasonCode = "SUPPORT_BEFORE_HOUSING";
-      reason = "Add protection to valuable district tiles before forecast Strain arrives.";
+      const player = state.players.find((candidate) => candidate.id === playerId);
+      const anchorTarget = player
+        ? supportTargets.find((tile) => tile.hexIds.includes(player.stewardHexId))
+        : undefined;
+      const anchorNeedsSupport = Boolean(
+        anchorTarget && !anchorTarget.support.passive && !anchorTarget.support.singleUse,
+      );
+      if (supportTargets.length > 0 && hasKnownFutureStrainThreat(state, plan)) {
+        if (anchorNeedsSupport) {
+          score = Math.max(score, 185);
+          reasonCode = "PROTECT_STEWARD_REACH";
+          reason = "Reapply Supported to the Steward's tile before a forecast Strain effect can disconnect the whole settlement.";
+        } else {
+          score = Math.max(score, 12 + supportTargets.length * 3);
+          reasonCode = "SUPPORT_BEFORE_HOUSING";
+          reason = "Add protection to valuable district tiles before a still-unrevealed Burden or expiring Arrival can add Strain.";
+        }
+      } else {
+        score = Math.min(score, -1);
+        reasonCode = "NO_FORECAST_STRAIN_TO_PREVENT";
+        reason = "Do not spend an Action on Supported when no known future Strain source remains this Season.";
+      }
     }
     return { instanceId, score, reasonCode, reason };
   }).filter((candidate) => candidate.score > 0).sort((a, b) => b.score - a.score);
   return candidates[0] ?? null;
 }
 
-function recordTileActivation(state: GameState, instanceId: string, stats: BotStats): void {
-  if (state.map.placedTiles.some((tile) => tile.instanceId === instanceId)) {
+function recordTileActivation(
+  before: GameState,
+  after: GameState,
+  instanceId: string,
+  stats: BotStats,
+): void {
+  const tile = before.map.placedTiles.find((candidate) => candidate.instanceId === instanceId);
+  if (tile) {
     stats.tileActivationCountsByInstance[instanceId] =
       (stats.tileActivationCountsByInstance[instanceId] ?? 0) + 1;
+  }
+  if (!tile) return;
+  const face = tile.kind === "special"
+    ? specialTileById[tile.tileId]
+    : coreTileById[tile.tileId][tile.side === "upgraded" ? "upgraded" : "basic"];
+  if (!face) return;
+  const production = "production" in face ? face.production : undefined;
+  if (!production || !Object.values(production).some((amount) => amount > 0)) return;
+
+  stats.productionActivationsByRound[before.round] =
+    (stats.productionActivationsByRound[before.round] ?? 0) + 1;
+  for (const resource of resourceTypes) {
+    const actualGain = Math.max(0, after.warehouse[resource] - before.warehouse[resource]);
+    stats.resourcesProducedByResource[resource] += actualGain;
   }
 }
 
@@ -1067,7 +1939,7 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
       const completionRound = state.round;
       const completionSeason = state.season;
       const beforeActions = state.actionsRemaining;
-      state = drainPending(completeArrival(state, arrivalId, emptySelection), stats);
+      state = drainPending(completeArrival(state, arrivalId), stats);
       if (state.actionsRemaining < beforeActions) {
         stats.encounterInteractActions += 1;
         if (timerBefore === 1) stats.arrivalsCompletedAtOneTimer += 1;
@@ -1081,7 +1953,7 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
     const wantsBurdens = targets.some((id) => ["LE-004","LE-017","LE-036","LE-040","LE-041","LE-043"].includes(id)) || hasV43Target(targets, "LE-024", "LE-025", "LE-026", "LE-027", "LE-029", "LE-030", "LE-048");
     if (burdenId && (wantsBurdens || state.encounters.activeBurdens.length >= state.playerCount || random() < 0.35)) {
       const beforeActions = state.actionsRemaining;
-      state = drainPending(resolveBurden(state, burdenId, emptySelection), stats);
+      state = drainPending(resolveBurden(state, burdenId), stats);
       if (state.actionsRemaining < beforeActions) {
         stats.encounterInteractActions += 1;
         stats.burdensResolved += 1;
@@ -1102,7 +1974,7 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
       state = drainPending(activateTile(state, playerId, earlyActivation.instanceId), stats);
       if (state.actionsRemaining < beforeActions) {
         stats.activateActions += 1;
-        recordTileActivation(before, earlyActivation.instanceId, stats);
+        recordTileActivation(before, state, earlyActivation.instanceId, stats);
         continue;
       }
     }
@@ -1112,7 +1984,7 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
       const placed = state.map.placedTiles.find((tile) => tile.instanceId === earlyUpgrade.instanceId);
       if (placed?.kind === "core" && coreTileById[placed.tileId].category === "resource") {
         const beforeActions = state.actionsRemaining;
-        state = drainPending(upgradeTile(state, playerId, earlyUpgrade.instanceId, emptySelection), stats);
+        state = drainPending(upgradeTile(state, playerId, earlyUpgrade.instanceId), stats);
         if (state.map.placedTiles.find((tile) => tile.instanceId === earlyUpgrade.instanceId)?.side === "upgraded") {
           stats.upgradeActions += beforeActions - state.actionsRemaining;
           continue;
@@ -1126,7 +1998,7 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
     if (placement && shouldPlace) {
       const beforeActions = state.actionsRemaining;
       const beforeTileCount = state.map.placedTiles.length;
-      state = drainPending(placeTile(state, playerId, placement.tileId, placement.placement, emptySelection), stats);
+      state = drainPending(placeTile(state, playerId, placement.tileId, placement.placement), stats);
       if (state.map.placedTiles.length > beforeTileCount) {
         stats.placeActions += beforeActions - state.actionsRemaining;
         if (beforeActions === state.actionsRemaining) stats.freePlaceEffectsUsed += 1;
@@ -1141,7 +2013,7 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
       state = drainPending(activateTile(state, playerId, activation.instanceId), stats);
       if (state.actionsRemaining < beforeActions) {
         stats.activateActions += 1;
-        recordTileActivation(before, activation.instanceId, stats);
+        recordTileActivation(before, state, activation.instanceId, stats);
         continue;
       }
     }
@@ -1149,7 +2021,7 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
     const upgrade = chooseUpgrade(state, playerId, targets);
     if (upgrade) {
       const beforeActions = state.actionsRemaining;
-      state = drainPending(upgradeTile(state, playerId, upgrade.instanceId, emptySelection), stats);
+      state = drainPending(upgradeTile(state, playerId, upgrade.instanceId), stats);
       if (state.actionsRemaining <= beforeActions && state.map.placedTiles.find((tile) => tile.instanceId === upgrade.instanceId)?.side === "upgraded") {
         stats.upgradeActions += beforeActions - state.actionsRemaining;
         continue;
@@ -1159,7 +2031,7 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
     if (placementWorthwhile) {
       const beforeActions = state.actionsRemaining;
       const beforeTileCount = state.map.placedTiles.length;
-      state = drainPending(placeTile(state, playerId, placement.tileId, placement.placement, emptySelection), stats);
+      state = drainPending(placeTile(state, playerId, placement.tileId, placement.placement), stats);
       if (state.map.placedTiles.length > beforeTileCount) {
         stats.placeActions += beforeActions - state.actionsRemaining;
         if (beforeActions === state.actionsRemaining) stats.freePlaceEffectsUsed += 1;
@@ -1173,7 +2045,7 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
       state = drainPending(activateTile(state, playerId, activation.instanceId), stats);
       if (state.actionsRemaining < beforeActions) {
         stats.activateActions += 1;
-        recordTileActivation(before, activation.instanceId, stats);
+        recordTileActivation(before, state, activation.instanceId, stats);
         continue;
       }
     }
@@ -1204,12 +2076,21 @@ type HumanActionCandidate = {
   placement?: string | TilePlacementDraft;
 };
 
+interface HumanDecisionContext {
+  rankedCandidates: HumanActionCandidate[];
+  choicePolicy: HumanChoicePolicy;
+}
+
 function recordHumanAction(
   state: GameState,
   candidate: HumanActionCandidate,
   rejected: HumanActionCandidate | undefined,
   stats: BotStats,
+  actionsSpent: number,
+  decision: HumanDecisionContext,
 ): void {
+  const best = decision.rankedCandidates[0] ?? candidate;
+  const runnerUp = decision.rankedCandidates[1];
   stats.actionReasons.push({
     round: state.round,
     season: state.season,
@@ -1217,6 +2098,15 @@ function recordHumanAction(
     actionType: candidate.kind,
     target: candidate.target,
     projectedValue: Number(candidate.score.toFixed(1)),
+    actionsSpent,
+    candidateCount: decision.rankedCandidates.length,
+    bestProjectedValue: Number(best.score.toFixed(1)),
+    runnerUpProjectedValue: runnerUp ? Number(runnerUp.score.toFixed(1)) : undefined,
+    bestActionType: best.kind,
+    bestTarget: best.target,
+    selectedWasBest: best.kind === candidate.kind && best.target === candidate.target,
+    projectedRegret: Number(Math.max(0, best.score - candidate.score).toFixed(1)),
+    choicePolicy: decision.choicePolicy,
     reasonCode: candidate.reasonCode,
     reason: candidate.reason,
     rejectedAlternative: rejected ? `${rejected.kind}:${rejected.target} (${rejected.score.toFixed(1)})` : undefined,
@@ -1234,6 +2124,16 @@ function markHumanMilestones(before: GameState, after: GameState, stats: BotStat
   }
   if (stats.firstSupportRound === undefined && after.map.placedTiles.some((tile) => tile.support.passive || tile.support.singleUse)) {
     stats.firstSupportRound = after.round;
+  }
+  if (
+    stats.firstSupportedHousingRound === undefined &&
+    after.map.placedTiles.some(
+      (tile) =>
+        tileCategory(tile) === "housing" &&
+        (tile.support.passive || tile.support.singleUse),
+    )
+  ) {
+    stats.firstSupportedHousingRound = after.round;
   }
   if (stats.firstHousingClusterRound === undefined) {
     const housing = after.map.placedTiles.filter((tile) => tileCategory(tile) === "housing" && tile.strain < 3);
@@ -1255,7 +2155,10 @@ function humanArrivalCandidate(state: GameState, plan: HumanSeasonPlan): HumanAc
     const planBoost = cardPlanPriority(plan, cardId);
     const active = state.encounters.activeArrivals.find((arrival) => arrival.cardId === cardId);
     const urgency = active ? Math.max(0, 4 - active.timerTokens) * 4 : 0;
-    const latePenalty = state.season === 3 ? Math.max(0, 4 - remainingRounds) * 4 : 0;
+    const latePenalty =
+      state.season === 3
+        ? Math.max(0, 4 - remainingRounds) * 4 + (state.round >= 11 ? 24 : state.round >= 10 ? 10 : 0)
+        : 0;
     const score = 8 + rewardValue + planBoost + urgency - totalCost * 0.8 - latePenalty;
     return {
       kind: "arrival" as const,
@@ -1273,6 +2176,8 @@ function humanArrivalCandidate(state: GameState, plan: HumanSeasonPlan): HumanAc
 function humanBurdenCandidate(state: GameState, plan: HumanSeasonPlan): HumanActionCandidate | null {
   const hasRestingHall = state.map.placedTiles.some((tile) => tile.tileId === "special_the_resting_hall" && tile.strain < 3);
   const ledgerPressure = plan.highRiskBurdenIds.length > 0;
+  const burdenRecordTarget = plan.targetEntryIds.includes("LE-024");
+  const wardenVigilTarget = plan.targetEntryIds.includes("LE-048");
   const candidates = getResolvableBurdenIds(state).map((cardId) => {
     const intent = buildCardIntent(state, cardId);
     const cost = Object.values(intent.requiredResources).reduce((sum, value) => sum + (value ?? 0), 0);
@@ -1280,13 +2185,22 @@ function humanBurdenCandidate(state: GameState, plan: HumanSeasonPlan): HumanAct
     const endgame = state.round >= 10 ? 12 : 0;
     const crowding = Math.max(0, state.encounters.activeBurdens.length - 1) * 5;
     const synergy = hasRestingHall ? 8 : 0;
-    const score = 7 + planBoost + endgame + crowding + synergy + (ledgerPressure ? 3 : 0) - cost * 0.7;
+    const targetBoost = burdenRecordTarget
+      ? 84
+      : wardenVigilTarget && (state.encounters.activeBurdens.length > 1 || state.round >= 10)
+        ? 38
+        : 0;
+    const score = 7 + planBoost + endgame + crowding + synergy + targetBoost + (ledgerPressure ? 3 : 0) - cost * 0.7;
     return {
       kind: "burden" as const,
       target: cardId,
       score,
-      reasonCode: "BURDEN_CLEAR_BEATS_PENALTY",
-      reason: hasRestingHall
+      reasonCode: burdenRecordTarget || wardenVigilTarget ? "STEWARD_OBJECTIVE_PROGRESS" : "BURDEN_CLEAR_BEATS_PENALTY",
+      reason: burdenRecordTarget
+        ? "Resolve this Burden while affordable because Burdens Set Down requires two resolutions and no active Burden at game end."
+        : wardenVigilTarget
+          ? "Clear excess active Burdens so the Warden's Vigil can finish with at most one and no Overstrained tiles."
+          : hasRestingHall
         ? "Resolve the Burden because its final penalty and Resting Hall Strain relief outweigh the payment."
         : "Resolve the Burden because its final penalty and district risk now outweigh the payment.",
     };
@@ -1342,14 +2256,16 @@ function humanPowerCandidate(state: GameState, playerId: string, plan: HumanSeas
         .filter(([, amount]) => amount > 0)
         .map(([resource]) => resource);
     }));
-    const missingForecastProduction = (Object.keys(plan.expectedResourceDemand) as ResourceType[]).some(
+    const missingForecastResources = (Object.keys(plan.expectedResourceDemand) as ResourceType[]).filter(
       (resource) => resourceDemandDeficit(state, plan, resource) >= 4 && !produced.has(resource),
     );
+    const missingForecastProduction = missingForecastResources.length > 0;
     if (plan.targetSpecialTileIds.length > 0 || missingForecastProduction) {
       score = missingForecastProduction ? 23 : 17;
-      reasonCode = missingForecastProduction ? "EARLY_RESOURCE_DEFICIT" : "STEWARD_OBJECTIVE_PROGRESS";
+      const demandReason = chooseResourceDemandReason(state, plan, missingForecastResources);
+      reasonCode = missingForecastProduction ? demandReason.reasonCode : "STEWARD_OBJECTIVE_PROGRESS";
       reason = missingForecastProduction
-        ? "Use Ranger to reach terrain for a missing forecast production type."
+        ? `Use Ranger to reach terrain for a missing forecast production type. ${demandReason.reason}`
         : "Use Ranger to open reach for a planned Special Tile or district.";
     }
   } else if (player.stewardId === "quartermaster") {
@@ -1366,12 +2282,157 @@ function humanPowerCandidate(state: GameState, playerId: string, plan: HumanSeas
   return score > 0 ? { kind: "power", target: player.stewardId, score, reasonCode, reason } : null;
 }
 
+function lateGameScoringUpgradeCandidate(
+  state: GameState,
+  playerId: string,
+  plan: HumanSeasonPlan,
+): HumanActionCandidate | null {
+  const candidates = getUpgradeableTileIds(state, playerId).flatMap((instanceId) => {
+    const placed = state.map.placedTiles.find((tile) => tile.instanceId === instanceId);
+    if (!placed || placed.kind !== "core") return [];
+    const data = coreTileById[placed.tileId];
+    if (data.category === "resource" || data.category === "travel") return [];
+    const scoreDelta = projectedUpgradeScoreDelta(state, playerId, instanceId, plan);
+    if (scoreDelta < 0) return [];
+    return [{
+      kind: "upgrade" as const,
+      target: instanceId,
+      score: scoreDelta,
+      reasonCode: "FINAL_SCORE_UPGRADE",
+      reason: `Final-round fallback upgrades ${data.basic.name} to ${data.upgraded.name} for ${scoreDelta} projected score.`,
+    }];
+  }).sort((a, b) => b.score - a.score);
+  return candidates[0] ?? null;
+}
+
+function lateGameBurdenCandidate(state: GameState, plan: HumanSeasonPlan): HumanActionCandidate | null {
+  const candidates = getResolvableBurdenIds(state).map((cardId) => {
+    const card = encounterById[cardId];
+    return {
+      kind: "burden" as const,
+      target: cardId,
+      score: Math.max(0, 8 + cardPlanPriority(plan, cardId)),
+      reasonCode: "BURDEN_CLEAR_BEATS_PENALTY",
+      reason: `Final-round fallback clears ${card?.name ?? cardId} instead of carrying its penalty into final scoring.`,
+    };
+  }).sort((a, b) => b.score - a.score);
+  return candidates[0] ?? null;
+}
+
+function lateGameProtectionCandidate(state: GameState, playerId: string, plan: HumanSeasonPlan): HumanActionCandidate | null {
+  const candidates = getActivatableTileIds(state, playerId).flatMap((instanceId) => {
+    const placed = state.map.placedTiles.find((tile) => tile.instanceId === instanceId);
+    if (!placed) return [];
+    const side = placed.kind === "special"
+      ? specialTileById[placed.tileId]
+      : coreTileById[placed.tileId][placed.side === "upgraded" ? "upgraded" : "basic"];
+    const effectText = side.effectText;
+    const lower = effectText.toLowerCase();
+    if (/remove .*strain/.test(lower)) {
+      const removable = getValidEffectStrainTargets(state, effectText, placed)
+        .reduce((total, tile) => total + tile.strain, 0);
+      if (removable > 0) {
+        return [{
+          kind: "activate" as const,
+          target: instanceId,
+          score: removable * 3,
+          reasonCode: "FINAL_STRAIN_RELIEF",
+          reason: `Final-round fallback removes ${removable} available Strain before final penalties are scored.`,
+        }];
+      }
+    }
+    if (/gain supported|gains supported/.test(lower) && hasKnownFutureStrainThreat(state, plan)) {
+      const supportTargets = getEffectSupportTargets(state, effectText, placed);
+      if (supportTargets.length > 0) {
+        return [{
+          kind: "activate" as const,
+          target: instanceId,
+          score: 0,
+          reasonCode: "FINAL_STRAIN_PREVENTION",
+          reason: `Final-round fallback protects ${supportTargets.length} legal target${supportTargets.length === 1 ? "" : "s"} from remaining Strain risk.`,
+        }];
+      }
+    }
+    return [];
+  }).sort((a, b) => b.score - a.score);
+  return candidates[0] ?? null;
+}
+
+function lateGameArrivalCandidate(state: GameState, plan: HumanSeasonPlan): HumanActionCandidate | null {
+  const candidates = getCompletableArrivalIds(state).map((cardId) => {
+    const card = encounterById[cardId];
+    const active = state.encounters.activeArrivals.find((arrival) => arrival.cardId === cardId);
+    const rewardValue = card?.type === "arrival"
+      ? card.rewardSpecialTileIds.reduce((total, tileId) => {
+          const tile = specialTileById[tileId];
+          return total + (tile?.population ?? 0) + (tile?.renown ?? 0);
+        }, 0)
+      : 0;
+    return {
+      kind: "arrival" as const,
+      target: cardId,
+      score: Math.max(0, rewardValue + cardPlanPriority(plan, cardId) + (active?.timerTokens === 1 ? 4 : 0)),
+      reasonCode: "COMPLETE_FINAL_ARRIVAL",
+      reason: `Final-round fallback completes ${card?.name ?? cardId}, preserving its unlocked Special Tile opportunity.`,
+    };
+  }).sort((a, b) => b.score - a.score);
+  return candidates[0] ?? null;
+}
+
+function lateGameConcreteProductionCandidate(
+  state: GameState,
+  playerId: string,
+  plan: HumanSeasonPlan,
+): HumanActionCandidate | null {
+  const candidates = getActivatableTileIds(state, playerId).flatMap((instanceId) => {
+    const placed = state.map.placedTiles.find((tile) => tile.instanceId === instanceId);
+    if (!placed) return [];
+    const side = placed.kind === "special"
+      ? specialTileById[placed.tileId]
+      : coreTileById[placed.tileId][placed.side === "upgraded" ? "upgraded" : "basic"];
+    const production = "production" in side ? side.production : undefined;
+    if (!production || !("effectType" in side) || side.effectType !== "production") return [];
+    const spendTarget = findConcreteProductionSpendTarget(state, playerId, plan, production);
+    if (!spendTarget) return [];
+    const usefulOutput = Object.values(spendTarget.contribution)
+      .reduce((total, amount) => total + (amount ?? 0), 0);
+    return [{
+      kind: "activate" as const,
+      target: instanceId,
+      score: usefulOutput,
+      reasonCode: spendTarget.reasonCode,
+      reason: `Final-round fallback produces ${formatResourceShortfall(spendTarget.contribution)} toward ${spendTarget.label}; this is the remaining route to an affordable scoring or cleanup action.`,
+    }];
+  }).sort((a, b) => b.score - a.score);
+  return candidates[0] ?? null;
+}
+
+function lateGameFallbackCandidates(
+  state: GameState,
+  playerId: string,
+  plan: HumanSeasonPlan,
+): HumanActionCandidate[] {
+  if (state.round < 10 || state.actionsRemaining <= 0) return [];
+  return [
+    findCheapLegalScorePlacement(state, playerId, plan),
+    lateGameScoringUpgradeCandidate(state, playerId, plan),
+    lateGameBurdenCandidate(state, plan),
+    lateGameProtectionCandidate(state, playerId, plan),
+    lateGameArrivalCandidate(state, plan),
+    findLegalSpecialPlacement(state, playerId, plan),
+    lateGameConcreteProductionCandidate(state, playerId, plan),
+  ]
+    .filter((candidate): candidate is HumanActionCandidate => Boolean(candidate && candidate.score >= 0))
+    .sort((a, b) => b.score - a.score);
+}
+
 function playHumanLikeTurn(
   initial: GameState,
   targets: string[],
   random: () => number,
   stats: BotStats,
   plan: HumanSeasonPlan,
+  behavior: HumanBehaviorOptions,
 ): GameState {
   let state = initial;
   const playerId = state.currentPlayerId;
@@ -1383,19 +2444,41 @@ function playHumanLikeTurn(
     if (state.pendingEffects.length || state.pendingDeckReorder || state.pendingCostChoice) break;
 
     const candidates: HumanActionCandidate[] = [];
+    const scoreFocused = isScoreFocusedTarget(targets);
+    const valueCategories: TileCategory[] = ["housing", "special", "crafting", "merchant", "social", "wellbeing"];
+    const valueTileCount = state.map.placedTiles.filter((tile) => valueCategories.includes(tileCategory(tile))).length;
+    const expectedValueTiles = scoreFocused
+      ? state.round <= 4
+        ? 4
+        : state.round <= 8
+          ? 9
+          : 15
+      : 0;
+    const valueTileDeficit = Math.max(0, expectedValueTiles - valueTileCount);
     const arrival = humanArrivalCandidate(state, plan);
     const burden = humanBurdenCandidate(state, plan);
     const boon = !boonUsed ? humanBoonCandidate(state, plan) : null;
     const power = !powerUsed ? humanPowerCandidate(state, playerId, plan) : null;
+    const unlockedSpecial = specialTiles.some((tile) => state.tileSupply.special[tile.id] > 0)
+      ? findLegalSpecialPlacement(state, playerId, plan)
+      : null;
     const freeChoice = [boon, power].filter(Boolean).sort((a, b) => b!.score - a!.score)[0];
     if (freeChoice) {
       candidates.push(freeChoice);
     } else {
       if (arrival) candidates.push(arrival);
       if (burden) candidates.push(burden);
+      if (unlockedSpecial) {
+        const plannedReward = plan.targetSpecialTileIds.includes(unlockedSpecial.target);
+        candidates.push({
+          ...unlockedSpecial,
+          score: unlockedSpecial.score + (plannedReward ? 62 : 44) + (state.round >= 9 ? 20 : 0),
+          reason: `${unlockedSpecial.reason} ${plannedReward ? "It is a named reward in this Season Plan." : "Placing it now converts a completed Arrival into board value."}`,
+        });
+      }
       const urgentEncounter = [arrival, burden].filter(Boolean).some((candidate) => candidate!.score >= 34);
       if (!urgentEncounter) {
-        const placement = findPlacement(state, playerId, targets, random, plan);
+        const placement = findPlacement(state, playerId, targets, random, plan, state.round >= 8);
         const activation = chooseActivation(state, playerId, plan);
         const upgrade = chooseUpgrade(state, playerId, targets, plan);
         if (placement && placement.score > 4) {
@@ -1405,26 +2488,119 @@ function playHumanLikeTurn(
           if (category === "travel" && (plan.needsCrafting || plan.needsMerchant)) lookahead += 7;
           if (category === "crafting" || category === "merchant") lookahead += state.season <= 2 ? 8 : 1;
           if (/supported/i.test(coreTileById[placement.tileId]?.basic.effectText ?? specialTileById[placement.tileId]?.effectText ?? "") && plan.housingPush) lookahead += 7;
+          if (category === "housing" && state.season >= 2) lookahead += 12;
+          if (category !== "resource" && state.round >= 9) lookahead += 14;
+          if (specialTileById[placement.tileId] && state.round <= 10) lookahead += 10;
+          if (scoreFocused && category && valueCategories.includes(category)) lookahead += 12 + valueTileDeficit * (state.round >= 9 ? 8 : 5);
+          if (scoreFocused && category === "resource" && state.round >= 6 && valueTileDeficit > 0) lookahead -= 12 + valueTileDeficit * 3;
+          const placementWeight = state.round >= 9 ? 0.82 : state.round >= 6 ? 0.72 : 0.62;
           candidates.push({
             kind: "place",
             target: placement.tileId,
             placement: placement.placement,
-            score: placement.score * 0.55 + lookahead,
+            score: placement.score * placementWeight + lookahead,
             reasonCode: placement.reasonCode,
             reason: `${placement.reason} Short lookahead adds ${lookahead} for the likely follow-up action.`,
           });
         }
-        if (activation) candidates.push({ kind: "activate", target: activation.instanceId, score: activation.score, reasonCode: activation.reasonCode, reason: activation.reason });
-        if (upgrade && upgrade.score > 2) candidates.push({ kind: "upgrade", target: upgrade.instanceId, score: upgrade.score * 1.15, reasonCode: upgrade.reasonCode, reason: upgrade.reason });
+        if (activation) {
+          const activatedTile = state.map.placedTiles.find((tile) => tile.instanceId === activation.instanceId);
+          const activatedCategory = activatedTile ? tileCategory(activatedTile) : undefined;
+          const productionPenalty = scoreFocused &&
+            state.round >= 5 &&
+            valueTileDeficit > 0 &&
+            activatedCategory === "resource"
+            ? Math.min(42, 10 + valueTileDeficit * 6)
+            : 0;
+          candidates.push({
+            kind: "activate",
+            target: activation.instanceId,
+            score: activation.score - productionPenalty,
+            reasonCode: activation.reasonCode,
+            reason: productionPenalty > 0
+              ? `${activation.reason} Score plan is behind on value tiles, so production is discounted by ${productionPenalty}.`
+              : activation.reason,
+          });
+        }
+        if (upgrade && upgrade.score > 2) {
+          const upgradeTileCandidate = state.map.placedTiles.find((tile) => tile.instanceId === upgrade.instanceId);
+          const upgradeCategory = upgradeTileCandidate ? tileCategory(upgradeTileCandidate) : undefined;
+          const valueUpgradeBoost = scoreFocused && upgradeCategory && valueCategories.includes(upgradeCategory)
+            ? 10 + valueTileDeficit * (state.round >= 9 ? 4 : 2)
+            : 0;
+          const resourceUpgradePenalty = scoreFocused && upgradeCategory === "resource" && state.round >= 7 && valueTileDeficit > 0
+            ? 8 + valueTileDeficit * 2
+            : 0;
+          const upgradeWeight = state.round >= 9 ? 1.45 : state.round >= 6 ? 1.28 : 1.12;
+          candidates.push({
+            kind: "upgrade",
+            target: upgrade.instanceId,
+            score: upgrade.score * upgradeWeight + valueUpgradeBoost - resourceUpgradePenalty,
+            reasonCode: upgrade.reasonCode,
+            reason: upgrade.reason,
+          });
+        }
       }
     }
 
     const ranked = candidates
-      .filter((candidate) => !failed.has(`${candidate.kind}:${candidate.target}`))
+      .filter((candidate) => candidate.score >= 0 && !failed.has(`${candidate.kind}:${candidate.target}`))
       .sort((a, b) => b.score - a.score);
+    let rankedDecision = ranked;
     let selected = ranked[0];
     let rejected = ranked[1];
-    if (!selected) break;
+    if (!selected && state.round >= 10) {
+      const fallbacks = lateGameFallbackCandidates(state, playerId, plan)
+        .filter((candidate) => !failed.has(`${candidate.kind}:${candidate.target}`));
+      rankedDecision = fallbacks;
+      selected = fallbacks[0];
+      rejected = fallbacks[1];
+    }
+    if (!selected && scoreFocused && state.round >= 8 && state.round < 10) {
+      const fallbackPlacement = findPlacement(state, playerId, targets, random, undefined, true);
+      if (fallbackPlacement) {
+        selected = {
+          kind: "place",
+          target: fallbackPlacement.tileId,
+          placement: fallbackPlacement.placement,
+          score: 18,
+          reasonCode: fallbackPlacement.reasonCode,
+          reason: `Late score fallback: ${fallbackPlacement.reason}`,
+        };
+        rankedDecision = [selected];
+      }
+    }
+    if (selected && behavior.choicePolicy === "near_best" && rankedDecision.length > 1) {
+      const best = rankedDecision[0];
+      const tolerance = Math.max(6, Math.abs(best.score) * 0.12);
+      const nearBestAlternatives = rankedDecision.slice(1).filter(
+        (candidate) => best.score - candidate.score <= tolerance,
+      );
+      const alternative = nearBestAlternatives.find((candidate) => candidate.kind !== best.kind) ??
+        nearBestAlternatives[0];
+      if (alternative) {
+        selected = alternative;
+        rejected = best;
+      }
+    }
+    if (!selected) {
+      if (state.actionsRemaining > 0 && stats.decisionNotes.length < 80) {
+        const upgradeDiagnostics = state.map.placedTiles
+          .filter((tile) => tile.kind === "core" && tile.side === "basic")
+          .slice(0, 6)
+          .map((tile) => {
+            const validation = canStartUpgradeTile(state, playerId, tile.instanceId);
+            return `${tileName(tile)}: ${validation.ok ? "legal" : validation.reasons.join(" / ")}`;
+          })
+          .join("; ");
+        stats.decisionNotes.push(
+          state.round >= 10
+            ? `R${state.round} ${playerId}: no non-negative legal action remained with ${state.actionsRemaining} Action(s) after checking scoring placement, scoring upgrade, Burden clearance, Strain protection, Arrival completion, and unlocked Special placement. Considered: ${candidates.map((candidate) => `${candidate.kind}:${candidate.target}=${candidate.score.toFixed(1)}${failed.has(`${candidate.kind}:${candidate.target}`) ? " failed" : ""}`).join(", ") || "none"}. Upgrade checks: ${upgradeDiagnostics || "no basic Core Tiles"}.`
+            : `R${state.round} ${playerId}: the current Season plan found no positive-value legal action.`,
+        );
+      }
+      break;
+    }
     const before = state;
     const beforeActions = state.actionsRemaining;
     const beforeTiles = state.map.placedTiles.length;
@@ -1443,7 +2619,7 @@ function playHumanLikeTurn(
       const timerBefore = state.encounters.activeArrivals.find((arrival) => arrival.cardId === selected.target)?.timerTokens;
       const completionRound = state.round;
       const completionSeason = state.season;
-      state = drainPending(completeArrival(state, selected.target, emptySelection), stats, plan);
+      state = drainPending(completeArrival(state, selected.target), stats, plan);
       if (state.actionsRemaining < beforeActions) {
         stats.encounterInteractActions += 1;
         if (timerBefore === 1) stats.arrivalsCompletedAtOneTimer += 1;
@@ -1451,7 +2627,7 @@ function playHumanLikeTurn(
         stats.arrivalCompletionEvents.push({ cardId: selected.target, round: completionRound, season: completionSeason, specialTileIds: completed?.specialTileIds ?? [] });
       }
     } else if (selected.kind === "burden") {
-      state = drainPending(resolveBurden(state, selected.target, emptySelection), stats, plan);
+      state = drainPending(resolveBurden(state, selected.target), stats, plan);
       if (state.actionsRemaining < beforeActions) {
         stats.encounterInteractActions += 1;
         stats.burdensResolved += 1;
@@ -1462,7 +2638,7 @@ function playHumanLikeTurn(
         }
       }
     } else if (selected.kind === "place" && selected.placement !== undefined) {
-      state = drainPending(placeTile(state, playerId, selected.target, selected.placement, emptySelection), stats, plan);
+      state = drainPending(placeTile(state, playerId, selected.target, selected.placement), stats, plan);
       if (state.map.placedTiles.length > beforeTiles) {
         stats.placeActions += beforeActions - state.actionsRemaining;
         if (beforeActions === state.actionsRemaining) stats.freePlaceEffectsUsed += 1;
@@ -1471,10 +2647,10 @@ function playHumanLikeTurn(
       state = drainPending(activateTile(state, playerId, selected.target), stats, plan);
       if (state.actionsRemaining < beforeActions) {
         stats.activateActions += 1;
-        recordTileActivation(before, selected.target, stats);
+        recordTileActivation(before, state, selected.target, stats);
       }
     } else if (selected.kind === "upgrade") {
-      state = drainPending(upgradeTile(state, playerId, selected.target, emptySelection), stats, plan);
+      state = drainPending(upgradeTile(state, playerId, selected.target), stats, plan);
       if (state.map.placedTiles.find((tile) => tile.instanceId === selected.target)?.side === "upgraded") {
         stats.upgradeActions += beforeActions - state.actionsRemaining;
       }
@@ -1490,7 +2666,17 @@ function playHumanLikeTurn(
       selected.kind === "boon"
     );
     if (succeeded) {
-      recordHumanAction(before, selected, rejected, stats);
+      recordHumanAction(
+        before,
+        selected,
+        rejected,
+        stats,
+        Math.max(0, beforeActions - state.actionsRemaining),
+        {
+          rankedCandidates: rankedDecision,
+          choicePolicy: behavior.choicePolicy,
+        },
+      );
       markHumanMilestones(before, state, stats);
       failed.clear();
       continue;
@@ -1511,8 +2697,11 @@ function playTurn(
   random: () => number,
   stats: BotStats,
   plan?: HumanSeasonPlan,
+  behavior: HumanBehaviorOptions = { choicePolicy: "best" },
 ): GameState {
-  if (profile === "human_like" && plan) return playHumanLikeTurn(initial, targets, random, stats, plan);
+  if (profile === "human_like" && plan) {
+    return playHumanLikeTurn(initial, targets, random, stats, plan, behavior);
+  }
   return playLegacyTurn(initial, targets, profile, random, stats);
 }
 
@@ -1618,6 +2807,41 @@ function buildGameLog(state: GameState, stats: BotStats, input: any) {
   const housingTiles = eligible.filter((tile) => tileCategory(tile) === "housing");
   const completedSpecials = state.encounters.completedArrivals.flatMap((arrival) => arrival.specialTileIds);
   const placedSpecialIds = state.map.placedTiles.filter((tile) => tile.kind === "special").map((tile) => tile.tileId);
+  const remainingPlacedSpecials = new Map<string, number>();
+  for (const tileId of placedSpecialIds) {
+    remainingPlacedSpecials.set(tileId, (remainingPlacedSpecials.get(tileId) ?? 0) + 1);
+  }
+  let unlockedSpecialsPlaced = 0;
+  for (const tileId of completedSpecials) {
+    const remaining = remainingPlacedSpecials.get(tileId) ?? 0;
+    if (remaining <= 0) continue;
+    unlockedSpecialsPlaced += 1;
+    remainingPlacedSpecials.set(tileId, remaining - 1);
+  }
+  const seededCardIds = [
+    ...new Set(stats.strategyPlans.flatMap((plan) => plan.forecasts.map((forecast) => forecast.cardId))),
+  ];
+  const seenCardIds = new Set([
+    ...state.encounters.discardPile,
+    ...state.encounters.activeBurdens,
+    ...state.encounters.activeArrivals.map((arrival) => arrival.cardId),
+    ...state.encounters.faceUpBoons.map((boon) => boon.cardId),
+    ...state.encounters.completedArrivals.map((arrival) => arrival.cardId),
+  ]);
+  const exploitedCardIds = new Set([
+    ...state.encounters.completedArrivals.map((arrival) => arrival.cardId),
+    ...stats.usedBoonIds,
+    ...stats.resolvedBurdenIds,
+  ]);
+  const seededCardsSeen = seededCardIds.filter((cardId) => seenCardIds.has(cardId));
+  const seededCardsExploited = seededCardIds.filter((cardId) => exploitedCardIds.has(cardId));
+  const seededCardsIgnoredOrExpired = seededCardsSeen.filter((cardId) => !exploitedCardIds.has(cardId));
+  const resourcesProducedButUnspent = Object.fromEntries(
+    resourceTypes.map((resource) => [
+      resource,
+      Math.min(stats.resourcesProducedByResource[resource], state.warehouse[resource]),
+    ]),
+  );
   const objectives = stewardObjectives(state, board);
   const declaredVows = input.targets.filter((id: string) =>
     input.specs
@@ -1631,6 +2855,10 @@ function buildGameLog(state: GameState, stats: BotStats, input: any) {
     seed: input.seed,
     player_count: state.playerCount,
     strategy_profile: input.profile,
+    experiment: {
+      choice_policy: input.choicePolicy === "near_best" ? "near_best" : "best",
+      banned_tile_ids: [...(input.bannedTileIds ?? [])],
+    },
     chosen_stewards: state.players.map((player) => stewardById[player.stewardId].name),
     declared_vows: declaredVows.slice(0, 1),
     targeted_ledger_entries: input.targets,
@@ -1663,7 +2891,8 @@ function buildGameLog(state: GameState, stats: BotStats, input: any) {
       arrivals_expired: stats.arrivalsExpired,
       special_tiles_unlocked: completedSpecials.length,
       special_tiles_placed: specialCount,
-      unlocked_special_tiles_unplaced: completedSpecials.filter((id) => !placedSpecialIds.includes(id)).length,
+      unlocked_special_tiles_placed: unlockedSpecialsPlaced,
+      unlocked_special_tiles_unplaced: completedSpecials.length - unlockedSpecialsPlaced,
       standard_reveals: state.playerCount * 12,
       golden_bonus_reveals: 0,
       total_reveals: state.playerCount * 12,
@@ -1699,6 +2928,7 @@ function buildGameLog(state: GameState, stats: BotStats, input: any) {
       first_crafting_round: stats.firstCategoryRound.crafting ?? null,
       first_merchant_round: stats.firstCategoryRound.merchant ?? null,
       first_support_round: stats.firstSupportRound ?? null,
+      first_supported_housing_round: stats.firstSupportedHousingRound ?? null,
       first_housing_round: stats.firstCategoryRound.housing ?? null,
       first_housing_cluster_round: stats.firstHousingClusterRound ?? null,
       support_tokens_present: state.map.placedTiles.filter((tile) => tile.support.passive || tile.support.singleUse).length,
@@ -1715,17 +2945,19 @@ function buildGameLog(state: GameState, stats: BotStats, input: any) {
       burdens_resolved_same_round_by_season: stats.burdensResolvedSameRoundBySeason,
       burdens_left_active: state.encounters.activeBurdens.length,
       max_overstrained_tiles: stats.maxOverstrainedTiles,
-      seeded_cards_seen: stats.strategyPlans.flatMap((plan) => plan.forecasts).filter((forecast) =>
-        state.encounters.discardPile.includes(forecast.cardId) ||
-        state.encounters.activeBurdens.includes(forecast.cardId) ||
-        state.encounters.activeArrivals.some((arrival) => arrival.cardId === forecast.cardId) ||
-        state.encounters.completedArrivals.some((arrival) => arrival.cardId === forecast.cardId)
-      ).length,
-      seeded_cards_exploited: stats.strategyPlans.flatMap((plan) => plan.forecasts).filter((forecast) =>
-        state.encounters.completedArrivals.some((arrival) => arrival.cardId === forecast.cardId) ||
-        stats.usedBoonIds.includes(forecast.cardId) ||
-        stats.resolvedBurdenIds.includes(forecast.cardId)
-      ).length,
+      resources_produced_by_resource: { ...stats.resourcesProducedByResource },
+      resources_produced_but_unspent: resourcesProducedButUnspent,
+      resources_produced_but_unspent_definition: "Actual production gains still represented in the final Warehouse, capped by output produced per resource.",
+      production_activations_by_round: { ...stats.productionActivationsByRound },
+      production_activations_after_round_8: Object.entries(stats.productionActivationsByRound)
+        .filter(([round]) => Number(round) > 8)
+        .reduce((total, [, count]) => total + count, 0),
+      seeded_cards_seen: seededCardsSeen.length,
+      seeded_card_ids_seen: seededCardsSeen,
+      seeded_cards_exploited: seededCardsExploited.length,
+      seeded_card_ids_exploited: seededCardsExploited,
+      seeded_cards_ignored_or_expired: seededCardsIgnoredOrExpired.length,
+      seeded_card_ids_ignored_or_expired: seededCardsIgnoredOrExpired,
     },
     stewards: { objectives_completed: objectives, powers_used_by_steward: Object.fromEntries(state.players.map((player) => [stewardById[player.stewardId].name, Object.values(player.stewardPowerUsesBySeason).reduce((a, b) => a + b, 0)])) },
     tile_counts: {
@@ -1773,19 +3005,37 @@ function buildGameLog(state: GameState, stats: BotStats, input: any) {
 
 function chooseStewardIds(playerCount: PlayerCount, targets: string[], campaignState: any, random: () => number): string[] {
   const requiredByEntry: Record<string, string> = {
-    "LE-032": "vanguard", "LE-033": "knight", "LE-034": "sentinel", "LE-035": "ranger", "LE-036": "warden", "LE-037": "quartermaster",
+    "LE-044": "vanguard", "LE-045": "knight", "LE-046": "sentinel", "LE-047": "ranger", "LE-048": "warden", "LE-049": "quartermaster",
     "V43-044": "vanguard", "V43-045": "knight", "V43-046": "sentinel", "V43-047": "ranger", "V43-048": "warden", "V43-049": "quartermaster",
   };
   const required = targets.map((id) => requiredByEntry[id]).filter(Boolean);
   const usedNames = new Set(campaignState.chosen_stewards ?? []);
-  const rotate = targets.some((id) => ["LE-031","LE-038", "V43-050"].includes(id));
+  const rotate = targets.some((id) => ["LE-050", "V43-050"].includes(id));
   const breaksVow = (stewardId: string) =>
-    (hasV43Target(targets, "LE-041") && stewardId === "vanguard") ||
-    (hasV43Target(targets, "LE-042") && stewardId === "sentinel");
+    ((targets.includes("LE-041") || hasV43Target(targets, "LE-041")) && stewardId === "vanguard") ||
+    ((targets.includes("LE-042") || hasV43Target(targets, "LE-042")) && stewardId === "sentinel");
   const availableStewards = stewards.filter((steward) => !breaksVow(steward.id));
+  const defaultPriority = ["knight", "quartermaster", "sentinel", "vanguard", "ranger", "warden"];
+  const targetPriority = [
+    ...(hasTarget(targets, "LE-001", "LE-003", "LE-039") ? ["knight", "quartermaster"] : []),
+    ...(hasTarget(targets, "LE-038", "LE-049") ? ["quartermaster"] : []),
+    ...(hasTarget(targets, "LE-031", "LE-036", "LE-046") ? ["sentinel"] : []),
+    ...(hasTarget(targets, "LE-015", "LE-018", "LE-044") ? ["vanguard"] : []),
+    ...(hasTarget(targets, "LE-048") ? ["warden"] : []),
+    "knight",
+    "quartermaster",
+    "sentinel",
+    "vanguard",
+    "ranger",
+    "warden",
+  ];
+  const ordered = [...availableStewards].sort((a, b) => {
+    const priority = rotate ? defaultPriority : targetPriority;
+    return priority.indexOf(a.id) - priority.indexOf(b.id) || random() - 0.5;
+  });
   const pool = rotate
-    ? [...availableStewards.filter((steward) => !usedNames.has(steward.name)), ...availableStewards.filter((steward) => usedNames.has(steward.name))]
-    : shuffled(random, availableStewards);
+    ? [...ordered.filter((steward) => !usedNames.has(steward.name)), ...ordered.filter((steward) => usedNames.has(steward.name))]
+    : ordered;
   return [...new Set([...required, ...pool.map((steward) => steward.id)])].slice(0, playerCount);
 }
 
@@ -1857,6 +3107,8 @@ function createStats(state: GameState): BotStats {
     actionReasons: [],
     firstCategoryRound: {},
     housingPlacedAfterSupport: 0,
+    resourcesProducedByResource: { wood: 0, stone: 0, metal: 0, food: 0, herbs: 0, goods: 0 },
+    productionActivationsByRound: {},
     craftingPassiveUses: 0,
     resourcesSavedByCrafting: 0,
     merchantPassiveUses: 0,
@@ -1915,7 +3167,12 @@ function chooseGoldenSetupHex(state: GameState): string | undefined {
 
 export function simulateCurrentGame(input: any): any {
   const random = randomFor(input.seed);
-  const stewardIds = chooseStewardIds(input.playerCount, input.targets, input.campaignState, random);
+  const behavior: HumanBehaviorOptions = {
+    choicePolicy: input.choicePolicy === "near_best" ? "near_best" : "best",
+  };
+  const stewardIds = input.stewardIds?.length
+    ? input.stewardIds.slice(0, input.playerCount)
+    : chooseStewardIds(input.playerCount, input.targets, input.campaignState, random);
   const declaredVowId = input.declaredVowId ?? input.targets.find(
     (entryId: string) => ledgerEntries.find((entry) => entry.id === entryId)?.declaredVow,
   );
@@ -1930,6 +3187,26 @@ export function simulateCurrentGame(input: any): any {
     declaredVowId,
     ...golden,
   });
+  const bannedTileIds = new Set<string>(input.bannedTileIds ?? []);
+  if (bannedTileIds.size > 0) {
+    state = {
+      ...state,
+      tileSupply: {
+        core: Object.fromEntries(
+          Object.entries(state.tileSupply.core).map(([tileId, count]) => [
+            tileId,
+            bannedTileIds.has(tileId) ? 0 : count,
+          ]),
+        ),
+        special: Object.fromEntries(
+          Object.entries(state.tileSupply.special).map(([tileId, count]) => [
+            tileId,
+            bannedTileIds.has(tileId) ? 0 : count,
+          ]),
+        ),
+      },
+    };
+  }
   const stats = createStats(state);
   const humanPlanning = emptyHumanPlanningContext();
   for (const player of state.players) state = commitStewardPlacement(state, state.currentPlayerId, state.players.find((candidate) => candidate.id === state.currentPlayerId)!.stewardHexId);
@@ -1950,12 +3227,28 @@ export function simulateCurrentGame(input: any): any {
         const seasonHands = humanPlanning.handsBySeason[state.season] ?? {};
         seasonHands[playerId] = [...(state.encounters.handsByPlayerId[playerId] ?? [])];
         humanPlanning.handsBySeason[state.season] = seasonHands;
-        const plannedSeed = chooseHumanLikeSeed(state, playerId);
+        const burdenLedgerTarget = input.targets.some(
+          (entryId: string) => entryId === "LE-024" || entryId === "LE-048",
+        );
+        const plannedSeed = chooseHumanLikeSeed(
+          state,
+          playerId,
+          burdenLedgerTarget
+              ? {
+                minimumBurdens: 1,
+                maximumBurdens: input.targets.includes("LE-048") ? 1 : 3,
+                preferredBurdenWindow: input.targets.includes("LE-048") ? "middle" : "early",
+                burdenReason: input.targets.includes("LE-048")
+                  ? "Seeded after the opening build so the Warden's Vigil can trigger Warden Power in this Season."
+                  : "Seeded early to leave enough rounds and resources to resolve two Burdens for Burdens Set Down.",
+              }
+            : {},
+        );
         const existingForecasts = humanPlanning.forecastsBySeason[state.season] ?? [];
         const forecasts = [...existingForecasts, ...plannedSeed.forecasts];
         humanPlanning.forecastsBySeason[state.season] = forecasts;
         state = commitSeasonSeeding(state, playerId, plannedSeed.selection);
-        const plan = buildHumanSeasonPlan(state, forecasts, seasonHands);
+        const plan = buildHumanSeasonPlan(state, forecasts, seasonHands, input.targets);
         humanPlanning.plansBySeason[state.season] = plan;
         stats.strategyPlans = [...stats.strategyPlans.filter((candidate) => candidate.season !== state.season), plan];
       } else {
@@ -1982,9 +3275,10 @@ export function simulateCurrentGame(input: any): any {
           state,
           humanPlanning.forecastsBySeason[state.season] ?? [],
           humanPlanning.handsBySeason[state.season] ?? {},
+          input.targets,
         )
         : undefined;
-      state = playTurn(state, input.targets, input.profile, random, stats, plan);
+      state = playTurn(state, input.targets, input.profile, random, stats, plan, behavior);
       updatePeak(state, stats);
       continue;
     }

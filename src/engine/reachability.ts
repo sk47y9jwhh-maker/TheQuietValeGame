@@ -87,6 +87,35 @@ export function areTilesNetworkAdjacent(a: PlacedTile, b: PlacedTile): boolean {
   );
 }
 
+export function selectConnectedPlacedTileIds(
+  tiles: readonly PlacedTile[],
+  roots: readonly PlacedTile[]
+): Set<string> {
+  const activeTiles = tiles.filter((tile) => !isOverstrained(tile));
+  const activeById = new Map(activeTiles.map((tile) => [tile.instanceId, tile]));
+  const connected = new Set<string>();
+  const queue: PlacedTile[] = [];
+
+  for (const root of roots) {
+    const activeRoot = activeById.get(root.instanceId);
+    if (!activeRoot || connected.has(activeRoot.instanceId)) continue;
+    connected.add(activeRoot.instanceId);
+    queue.push(activeRoot);
+  }
+
+  for (let index = 0; index < queue.length; index += 1) {
+    const current = queue[index];
+    for (const candidate of activeTiles) {
+      if (connected.has(candidate.instanceId)) continue;
+      if (!areTilesNetworkAdjacent(current, candidate)) continue;
+      connected.add(candidate.instanceId);
+      queue.push(candidate);
+    }
+  }
+
+  return connected;
+}
+
 export function selectReachablePlacedTileIds(
   state: GameState,
   playerId: string
@@ -109,22 +138,7 @@ export function selectReachablePlacedTileIds(
     );
   });
 
-  const reachable = new Set<string>(startingTiles.map((tile) => tile.instanceId));
-  const queue = [...startingTiles];
-
-  while (queue.length > 0) {
-    const current = queue.shift();
-    if (!current) continue;
-
-    for (const candidate of state.map.placedTiles) {
-      if (reachable.has(candidate.instanceId)) continue;
-      if (!areTilesNetworkAdjacent(current, candidate)) continue;
-      reachable.add(candidate.instanceId);
-      queue.push(candidate);
-    }
-  }
-
-  return reachable;
+  return selectConnectedPlacedTileIds(state.map.placedTiles, startingTiles);
 }
 
 export function isTileReachable(

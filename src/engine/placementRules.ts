@@ -151,6 +151,12 @@ function hasAdjacentTerrain(hexIds: string[], terrains: string[]): boolean {
   });
 }
 
+function formatTerrainList(terrains: string[]): string {
+  return terrains
+    .map((terrain) => terrainLabels[terrain as keyof typeof terrainLabels] ?? terrain)
+    .join(" or ");
+}
+
 function isHexAdjacentToWater(hexId: string): boolean {
   const cell = mapById[hexId];
   if (!cell || cell.terrain === "water") return false;
@@ -306,8 +312,19 @@ function getPlacementFailuresInternal(
     !hasAdjacentTerrain(selectedHexIds, placement.adjacentToTerrain)
   ) {
     reasons.push(
-      `Cannot place here: this tile must be adjacent to ${placement.adjacentToTerrain.join(
-        " or "
+      `Cannot place here: this tile must be adjacent to ${formatTerrainList(
+        placement.adjacentToTerrain
+      )} terrain.`
+    );
+  }
+
+  if (
+    placement?.notAdjacentToTerrain &&
+    hasAdjacentTerrain(selectedHexIds, placement.notAdjacentToTerrain)
+  ) {
+    reasons.push(
+      `Cannot place here: this tile must not be adjacent to ${formatTerrainList(
+        placement.notAdjacentToTerrain
       )} terrain.`
     );
   }

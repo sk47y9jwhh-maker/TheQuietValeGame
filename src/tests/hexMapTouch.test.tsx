@@ -108,7 +108,7 @@ describe("hex map touch controls", () => {
     };
     const placedTile = state.map.placedTiles[0];
 
-    render(
+    const view = render(
       <HexMap
         state={state}
         selectedTileId={coreTiles[0].id}
@@ -121,7 +121,27 @@ describe("hex map touch controls", () => {
       />
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Inspect Lumber Yard" }));
+    const inspectControl = screen.getByRole("button", { name: "Inspect Lumber Yard" });
+    expect(inspectControl).toHaveAttribute("tabindex", "-1");
+
+    view.rerender(
+      <HexMap
+        state={state}
+        selectedTileId={coreTiles[0].id}
+        actionMode="place"
+        selectedHexIds={["G1"]}
+        placementOrientation={3}
+        onHexSelect={vi.fn()}
+        onHexContextMenu={vi.fn()}
+        onTileInspect={onTileInspect}
+      />
+    );
+
+    const activeInspectControl = screen.getByRole("button", {
+      name: "Inspect Lumber Yard"
+    });
+    expect(activeInspectControl).toHaveAttribute("tabindex", "0");
+    fireEvent.click(activeInspectControl);
 
     expect(onTileInspect).toHaveBeenCalledWith(placedTile.instanceId);
   });

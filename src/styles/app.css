@@ -2166,6 +2166,18 @@ button.effect-row {
   user-select: none;
 }
 
+.map-artwork-layer {
+  pointer-events: none;
+}
+
+.hex-map.has-map-artwork .hex-cell:not(.is-placed) polygon {
+  fill-opacity: 0.72;
+}
+
+.hex-map.has-map-artwork .hex-cell.is-placed polygon {
+  fill-opacity: 0.9;
+}
+
 .map-panel.setup-overview-panel,
 .map-panel.setup-map-panel,
 .map-panel.seeding-card-board {
@@ -5201,4 +5213,709 @@ button.effect-row {
 .setup-vow-warning {
   color: #8b3f2f;
   font-weight: 700;
+}
+
+/* Visual system refinement: quiet field journal, not nested dashboard chrome. */
+body,
+button,
+select,
+input {
+  font-family: var(--font-ui);
+}
+
+.setup-copy h1,
+.setup-table-header h1,
+.seeding-board-header h1,
+.seeding-header h1 {
+  font-family: var(--font-display);
+  font-weight: 650;
+}
+
+.eyebrow {
+  color: var(--qv-brass-dark);
+  font-weight: 750;
+  letter-spacing: 0.1em;
+}
+
+.muted,
+.top-brand span,
+.turn-chip span,
+.warehouse-title,
+.setup-step-card small,
+.setup-overview-grid span,
+.unlock-preview-chip small {
+  color: var(--text-muted);
+}
+
+button,
+select,
+input,
+.segmented button,
+.primary-action,
+.secondary-action {
+  border-radius: var(--control-radius);
+}
+
+.primary-action,
+.secondary-action,
+.segmented button,
+.action-grid button {
+  font-weight: 700;
+}
+
+.setup-card,
+.action-console,
+.right-panel,
+.flow-card,
+.bottom-drawer {
+  border-color: var(--border-paper);
+  background: var(--qv-parchment);
+  box-shadow: none;
+}
+
+.map-panel {
+  border-color: rgba(125, 93, 47, 0.28);
+  background: var(--qv-parchment);
+  box-shadow: 0 7px 22px rgba(0, 0, 0, 0.16);
+}
+
+/* One continuous command rail with rules, instead of five cards in a card. */
+.top-bar {
+  border-bottom-color: rgba(66, 54, 38, 0.28);
+  background: var(--qv-parchment);
+  box-shadow: 0 5px 16px rgba(21, 23, 17, 0.13);
+}
+
+.top-bar::after {
+  display: none;
+}
+
+.top-brand,
+.season-card,
+.turn-chip,
+.warehouse-strip,
+.top-actions {
+  border: 0;
+  border-left: 1px solid rgba(66, 54, 38, 0.2);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.top-brand {
+  border-left: 0;
+}
+
+.top-brand strong,
+.turn-chip strong {
+  font-weight: 750;
+}
+
+.top-brand span,
+.turn-chip span {
+  font-weight: 650;
+}
+
+.season-metrics small,
+.resource-pill small {
+  color: rgba(36, 31, 26, 0.68);
+  font-weight: 700;
+}
+
+.resource-pill {
+  border: 0;
+  border-left: 1px solid rgba(66, 54, 38, 0.14);
+  border-radius: 0;
+  background: transparent;
+}
+
+.resource-pill:first-of-type {
+  border-left: 0;
+}
+
+.resource-fill {
+  height: 3px;
+  background: rgba(36, 31, 26, 0.12);
+}
+
+.top-actions button {
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+}
+
+.top-actions button:hover:not(:disabled),
+.top-actions button:focus-visible {
+  background: rgba(80, 107, 79, 0.12);
+}
+
+/* Setup uses a compact journey and progressive disclosure. */
+.setup-table-header,
+.seeding-board-header {
+  padding-inline: 4px;
+  border: 0;
+  border-bottom: 1px solid rgba(66, 54, 38, 0.2);
+  border-radius: 0;
+  background: transparent;
+}
+
+.setup-step-board {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+}
+
+.setup-step-card {
+  min-height: 84px;
+  padding: 10px 12px;
+  border: 0;
+  border-top: 2px solid rgba(66, 54, 38, 0.16);
+  border-radius: 0;
+  background: transparent;
+}
+
+.setup-step-card + .setup-step-card {
+  border-left: 1px solid rgba(66, 54, 38, 0.14);
+}
+
+.setup-step-card.active {
+  border-top-color: var(--qv-muted-green);
+  box-shadow: none;
+  background: rgba(80, 107, 79, 0.06);
+}
+
+.setup-step-card span {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-weight: 750;
+}
+
+.setup-overview-grid {
+  gap: 0;
+  border-top: 1px solid rgba(66, 54, 38, 0.16);
+}
+
+.setup-overview-grid .detail-stack {
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.setup-overview-grid .detail-stack + .detail-stack {
+  border-left: 1px solid rgba(66, 54, 38, 0.14);
+}
+
+.setup-golden-legacy {
+  gap: 0;
+  padding: 0;
+  border: 0;
+  border-block: 1px solid rgba(125, 93, 47, 0.24);
+  border-radius: 0;
+  background: transparent;
+}
+
+.setup-golden-legacy summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 2px;
+  color: var(--qv-ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.setup-golden-legacy summary::-webkit-details-marker {
+  display: none;
+}
+
+.setup-golden-legacy summary::after {
+  content: "+";
+  color: var(--qv-brass-dark);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.setup-golden-legacy[open] summary::after {
+  content: "–";
+}
+
+.setup-golden-legacy summary > span {
+  display: grid;
+  gap: 1px;
+}
+
+.setup-golden-legacy summary small,
+.setup-golden-fields > p,
+.setup-golden-fields label small {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.setup-golden-fields {
+  display: grid;
+  gap: 10px;
+  padding: 3px 2px 12px;
+}
+
+.setup-golden-fields > p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.setup-golden-fields label {
+  display: grid;
+  grid-template-columns: minmax(92px, auto) minmax(0, 1fr);
+  gap: 6px 10px;
+  align-items: center;
+}
+
+.setup-golden-fields label small {
+  grid-column: 1 / -1;
+}
+
+.mini-card,
+.setup-roster-list .mini-card {
+  border-color: rgba(66, 54, 38, 0.17);
+  border-radius: 4px;
+  background: rgba(251, 244, 226, 0.46);
+  box-shadow: none;
+}
+
+/* Let terrain remain the board's primary information layer. */
+.terrain-key {
+  padding: 2px 0 4px;
+  border: 0;
+  border-bottom: 1px solid rgba(66, 54, 38, 0.18);
+  border-radius: 0;
+  background: transparent;
+}
+
+.terrain-key-item {
+  justify-content: flex-start;
+  min-height: 22px;
+  padding-inline: 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: rgba(36, 31, 26, 0.76);
+  font-weight: 700;
+}
+
+.map-canvas {
+  border: 0;
+  border-radius: 2px;
+  background: rgba(251, 244, 226, 0.42);
+}
+
+.hex-cell.is-placed polygon {
+  filter: saturate(0.82) brightness(0.96);
+  stroke: rgba(36, 31, 26, 0.58);
+  stroke-width: 1.7;
+}
+
+.hex-cell.is-placed.terrain-grasslands polygon {
+  fill: var(--terrain-grasslands);
+}
+
+.hex-cell.is-placed.terrain-woodland polygon {
+  fill: var(--terrain-woodland);
+}
+
+.hex-cell.is-placed.terrain-water polygon {
+  fill: var(--terrain-water);
+}
+
+.hex-cell.is-placed.terrain-mountains polygon {
+  fill: var(--terrain-mountains);
+}
+
+.hex-cell.is-placed.terrain-heaths polygon {
+  fill: var(--terrain-heaths);
+}
+
+.hex-cell.is-placed.terrain-arable polygon {
+  fill: var(--terrain-arable);
+}
+
+.hex-cell.is-placed.terrain-ruins polygon {
+  fill: var(--terrain-ruins);
+}
+
+.tile-category-marker {
+  pointer-events: none;
+}
+
+.tile-category-marker circle {
+  fill: var(--qv-graphite);
+  stroke: rgba(251, 244, 226, 0.88);
+  stroke-width: 1;
+}
+
+.tile-category-marker text {
+  fill: var(--qv-cream-text);
+  stroke: none;
+  font-size: 6.5px;
+  font-weight: 750;
+}
+
+.tile-category-resource circle { fill: #526d4c; }
+.tile-category-housing circle { fill: #8a573c; }
+.tile-category-crafting circle { fill: #53626a; }
+.tile-category-merchant circle { fill: #8a682f; }
+.tile-category-social circle { fill: #694d74; }
+.tile-category-wellbeing circle { fill: #456d63; }
+.tile-category-travel circle { fill: #486487; }
+.tile-category-special circle { fill: var(--qv-brass-dark); }
+
+.hex-label-backplate {
+  fill: rgba(251, 244, 226, 0.54);
+  stroke: none;
+}
+
+.hex-cell .hex-label,
+.hex-cell.is-placed .hex-label {
+  fill: var(--qv-ink);
+  stroke: rgba(251, 244, 226, 0.78);
+  stroke-width: 1.25px;
+  font-weight: 750;
+}
+
+.tile-inspect-control {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease;
+}
+
+.tile-inspect-control.is-active,
+.tile-inspect-control:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tile-inspect-control .tile-inspect-backplate {
+  fill: rgba(251, 244, 226, 0.88);
+  stroke-width: 1;
+}
+
+.support-marker path:first-child {
+  fill: var(--qv-muted-green-dark);
+  stroke: var(--qv-cream-text);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.support-marker .support-marker-check {
+  fill: none;
+  stroke: var(--qv-cream-text);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.strain-marker circle {
+  fill: var(--qv-danger-rust);
+}
+
+.hex-cell.is-reachable polygon,
+.hex-cell.is-supported polygon {
+  stroke: rgba(36, 31, 26, 0.58);
+  stroke-width: 1.7;
+}
+
+.hex-cell.is-legal polygon {
+  stroke: var(--qv-brass-dark);
+  stroke-width: 3;
+  stroke-dasharray: 4 3;
+}
+
+.hex-cell.is-footprint polygon {
+  stroke: var(--qv-muted-green-dark);
+  stroke-width: 4;
+  stroke-dasharray: none;
+}
+
+.hex-cell.is-selected polygon {
+  stroke: var(--qv-brass);
+  stroke-width: 5;
+  stroke-dasharray: none;
+}
+
+.hex-cell.is-overstrained polygon {
+  fill: rgba(139, 76, 53, 0.8);
+  stroke: var(--qv-danger-rust);
+  stroke-width: 3;
+  stroke-dasharray: none;
+}
+
+/* Encounter history is reference material, not a permanently expanded card wall. */
+.completed-arrivals-section {
+  display: block;
+}
+
+.completed-arrivals-section > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+}
+
+.completed-arrivals-section > summary::-webkit-details-marker {
+  display: none;
+}
+
+.completed-arrivals-section > summary h3 {
+  margin: 0;
+}
+
+.completed-arrivals-section > summary > span {
+  min-width: 24px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(80, 107, 79, 0.12);
+  color: var(--qv-muted-green-dark);
+  font-size: 11px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.completed-arrivals-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.completed-arrival-card {
+  border: 0;
+  border-left: 3px solid var(--qv-river-blue);
+  border-radius: 2px;
+  background: rgba(251, 244, 226, 0.46);
+}
+
+/* The reference tray reads as one instrument panel, not five independent pills. */
+.bottom-drawer {
+  border-top-width: 2px;
+}
+
+.tray-tabs {
+  gap: 0;
+}
+
+.tray-summary-item {
+  border: 0;
+  border-right: 1px solid rgba(66, 54, 38, 0.18);
+  border-radius: 0;
+  background: transparent;
+}
+
+.tray-summary-item:last-child {
+  border-right: 0;
+}
+
+.tray-summary-item.selected {
+  color: var(--qv-ink);
+  background: rgba(80, 107, 79, 0.08);
+  box-shadow: inset 0 -3px 0 var(--qv-muted-green);
+}
+
+.tray-summary-item.selected span {
+  color: var(--text-muted);
+}
+
+@media (max-width: 767px) {
+  .top-bar {
+    gap: 3px;
+    padding: 5px 7px 7px;
+  }
+
+  .top-brand,
+  .season-card,
+  .turn-chip,
+  .warehouse-strip,
+  .top-actions {
+    border-left: 0;
+  }
+
+  .season-card,
+  .top-actions {
+    border-left: 1px solid rgba(66, 54, 38, 0.18);
+  }
+
+  .top-brand span,
+  .turn-chip span,
+  .season-metrics small,
+  .resource-pill small {
+    font-size: 10px;
+  }
+
+  .warehouse-strip {
+    border-top: 1px solid rgba(66, 54, 38, 0.16);
+    padding-top: 5px;
+  }
+
+  .resource-pill {
+    flex-basis: 72px;
+  }
+
+  .setup-control-panel > .primary-action {
+    bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
+  .setup-step-board {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-step-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    min-height: 64px;
+    align-items: center;
+  }
+
+  .setup-step-card + .setup-step-card {
+    border-left: 0;
+  }
+
+  .setup-step-card small {
+    grid-column: 2;
+  }
+
+  .setup-overview-grid .detail-stack + .detail-stack {
+    border-left: 0;
+    border-top: 1px solid rgba(66, 54, 38, 0.14);
+  }
+
+  .setup-roster-list .mini-card p:last-child {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+  }
+
+  .terrain-key {
+    gap: 2px 8px;
+  }
+
+  .terrain-key-item {
+    font-size: 10px;
+  }
+
+  .hex-cell.is-placed .hex-label,
+  .hex-cell.is-placed .hex-label-backplate {
+    opacity: 0;
+  }
+
+  .hex-cell.is-selected .hex-label,
+  .hex-cell.is-selected .hex-label-backplate {
+    opacity: 1;
+  }
+
+  .tile-category-marker circle {
+    r: 7px;
+  }
+
+  .completed-arrivals-section:not([open]) {
+    padding-bottom: 12px;
+  }
+
+  .tray-summary-item {
+    min-width: 76px;
+    justify-content: center;
+    padding-inline: 8px;
+  }
+}
+
+.resource-pill {
+  flex-basis: 54px;
+  min-width: 48px;
+  padding-inline: 6px;
+}
+
+.map-panel.setup-overview-panel {
+  position: relative;
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  overflow: hidden;
+}
+
+.setup-overview-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.setup-overview-panel::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 58%;
+  width: min(20%, 150px);
+  aspect-ratio: 152 / 218;
+  transform: translate(-50%, -50%);
+  background: url("../assets/quiet_vale_tree_brass_transparent.png") center / contain no-repeat;
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.setup-progress-item {
+  border: 0;
+  border-right: 1px solid rgba(66, 54, 38, 0.18);
+  border-radius: 0;
+  background: transparent;
+}
+
+.setup-progress-item:last-child {
+  border-right: 0;
+}
+
+.setup-progress-item.active {
+  border-color: rgba(66, 54, 38, 0.18);
+  background: rgba(80, 107, 79, 0.07);
+  box-shadow: inset 0 -3px 0 var(--qv-muted-green);
+}
+
+@media (max-width: 767px) {
+  .top-brand {
+    gap: 3px;
+  }
+
+  .top-brand span {
+    display: none;
+  }
+
+  .top-brand strong {
+    font-size: 12px;
+  }
+
+  .brand-mark {
+    width: 22px;
+    height: 25px;
+  }
+
+  .top-actions {
+    gap: 1px;
+    padding-inline: 2px;
+  }
+
+  .top-actions button {
+    flex-basis: 27px;
+    width: 27px;
+    height: 29px;
+  }
+
+  .season-card {
+    min-width: 68px;
+  }
+
+  .setup-overview-panel::after {
+    display: none;
+  }
+
+  .resource-pill {
+    flex-basis: 72px;
+    min-width: 72px;
+  }
 }
