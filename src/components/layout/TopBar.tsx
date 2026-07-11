@@ -1,12 +1,9 @@
 import {
-  CalendarDays,
   Maximize2,
   Minimize2,
-  Package,
   Redo2,
   RotateCcw,
-  Undo2,
-  UserRound
+  Undo2
 } from "lucide-react";
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { resourceLabels, resources, warehouseCap } from "../../data/resources";
@@ -119,7 +116,6 @@ export function TopBar({
         </div>
       </div>
       <div className="season-card">
-        <CalendarDays size={18} />
         <div className="season-metrics">
           <span>
             <small>Season</small>
@@ -132,7 +128,6 @@ export function TopBar({
         </div>
       </div>
       <div className="turn-chip">
-        <UserRound size={18} />
         <div>
           <span>
             {getCompactPlayerName(currentPlayer.name)} / {steward.name}
@@ -141,10 +136,7 @@ export function TopBar({
         </div>
       </div>
       <div className="warehouse-strip" aria-label="Warehouse resources">
-        <span className="warehouse-title">
-          <Package size={18} />
-          Warehouse
-        </span>
+        <span className="warehouse-title">Warehouse</span>
         {resources.map((resource) => (
           <span
             className="resource-pill"

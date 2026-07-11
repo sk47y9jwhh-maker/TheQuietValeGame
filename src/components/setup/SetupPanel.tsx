@@ -1,5 +1,4 @@
 import {
-  CalendarDays,
   Package,
   ScrollText,
   UserRound
@@ -95,7 +94,6 @@ export function SetupPanel({
           </div>
         </div>
         <div className="season-card">
-          <CalendarDays size={18} />
           <div className="season-metrics">
             <span>
               <small>Season</small>
@@ -108,17 +106,13 @@ export function SetupPanel({
           </div>
         </div>
         <div className="turn-chip">
-          <UserRound size={18} />
           <div>
             <span>Stewards</span>
             <strong>{playerLabel}</strong>
           </div>
         </div>
         <div className="warehouse-strip setup-resource-strip" aria-label="Starting resources">
-          <span className="warehouse-title">
-            <Package size={18} />
-            Start
-          </span>
+          <span className="warehouse-title">Start</span>
           {resources.map((resource) => (
             <span
               className="resource-pill"
