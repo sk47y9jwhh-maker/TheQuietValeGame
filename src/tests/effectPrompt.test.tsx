@@ -46,16 +46,49 @@ describe("effect prompt controls", () => {
 
     render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
 
-    const addWood = screen.getByRole("button", { name: "Add 1 Wood" });
-    fireEvent.click(addWood);
+    const addGoods = screen.getByRole("button", { name: "Add 1 Goods" });
+    fireEvent.click(addGoods);
     expect(screen.getByText("1/4 resources selected")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /apply effect/i })).toBeDisabled();
 
-    fireEvent.click(addWood);
-    fireEvent.click(screen.getByRole("button", { name: "Add 1 Food" }));
-    fireEvent.click(screen.getByRole("button", { name: "Add 1 Goods" }));
+    fireEvent.click(addGoods);
+    fireEvent.click(addGoods);
+    fireEvent.click(addGoods);
 
     expect(screen.getByText("4/4 resources selected")).toBeInTheDocument();
+    expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Gain 4 Goods");
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
+  });
+
+  it("calculates Trade Festival Goods from the chosen Merchant", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 2;
+    const [housingHex, travelHex] = getHexNeighbors("G5");
+    state.map.placedTiles = [
+      coreTile("c14_market_stalls", "merchant", "G5"),
+      coreTile("c05_cabin", "housing", housingHex),
+      coreTile("c15_path", "travel", travelHex)
+    ];
+    const effect: PendingEffectState = {
+      id: "effect_trade_festival",
+      sourceType: "card",
+      sourceId: "boon_festival_of_trade",
+      sourceName: "Trade Festival",
+      title: "Revealed Trade Festival",
+      effectText:
+        "Choose 1 Merchant Tile. Gain 1 Goods for each different tile category adjacent to it, max 4 Goods. If one adjacent tile is Housing, that Housing Tile gains Supported.",
+      requiresManualChoice: true
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(screen.queryByRole("button", { name: "Add 1 Goods" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Choose Market Stalls" }));
+
+    expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Gain 2 Goods");
+    expect(screen.getByLabelText("Effect preview")).toHaveTextContent(
+      "Cabin"
+    );
     expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
   });
 
@@ -177,6 +210,17 @@ describe("effect prompt controls", () => {
   it("keeps Settlement of Plenty disabled until all five resources are chosen", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.season = 3;
+    const connectedHexes = ["G5"];
+    while (connectedHexes.length < 5) {
+      const next = getHexNeighbors(connectedHexes.at(-1) ?? "G5").find(
+        (hexId) => !connectedHexes.includes(hexId)
+      );
+      if (!next) throw new Error("Unable to build connected test layout");
+      connectedHexes.push(next);
+    }
+    state.map.placedTiles = connectedHexes.map((hexId, index) =>
+      coreTile("c15_path", `settlement_${index}`, hexId)
+    );
     const effect: PendingEffectState = {
       id: "effect_settlement",
       sourceType: "card",

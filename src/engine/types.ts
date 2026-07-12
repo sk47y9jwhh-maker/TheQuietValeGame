@@ -243,6 +243,7 @@ export interface EffectAdjustment {
   resourceDeltas?: Partial<Record<ResourceType, number>>;
   arrivalTimerDeltas?: Record<string, number>;
   tileStrainDeltas?: Record<string, number>;
+  selectedTileIds?: string[];
   supportTileIds?: string[];
   stewardHexUpdates?: Record<string, string>;
   temporaryReachHexUpdates?: Record<string, string>;

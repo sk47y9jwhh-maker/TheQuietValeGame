@@ -3,6 +3,15 @@ import { encounterById } from "../data/encounters";
 import { mapById } from "../data/map";
 import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
+import {
+  getClusteredHousingIds,
+  getComplexBoonRule,
+  getSettlementOfPlentyGroups,
+  getSettlementOfPlentyTargetIds,
+  getTradeFestivalOptions,
+  isComplexBoonAdjustmentValid,
+  isSelfOrAdjacentStrainReliefEffect
+} from "./complexEffectRules";
 import { applyStrainToState, removeStrainFromTile } from "./strainRules";
 import { recalculatePassiveSupported } from "./supportRules";
 import type {
@@ -48,7 +57,8 @@ export function isWardenReliefAdjustmentValid(
     hasStringRecordChanges(adjustment.stewardHexUpdates) ||
     hasStringRecordChanges(adjustment.temporaryReachHexUpdates) ||
     Boolean(adjustment.ignoredBurdenIds?.length) ||
-    Boolean(adjustment.resolvedBurdenIds?.length)
+    Boolean(adjustment.resolvedBurdenIds?.length) ||
+    Boolean(adjustment.selectedTileIds?.length)
   ) {
     return false;
   }
@@ -140,6 +150,7 @@ export function hasEffectAdjustment(adjustment: EffectAdjustment): boolean {
     hasRecordChanges(adjustment.arrivalTimerDeltas) ||
     hasRecordChanges(adjustment.tileStrainDeltas) ||
     Boolean(adjustment.supportTileIds?.length) ||
+    Boolean(adjustment.selectedTileIds?.length) ||
     hasStringRecordChanges(adjustment.stewardHexUpdates) ||
     hasStringRecordChanges(adjustment.temporaryReachHexUpdates) ||
     Boolean(adjustment.ignoredBurdenIds?.length) ||
@@ -453,9 +464,11 @@ function getTileTargetsForText(
     lower.includes("adjacent") &&
     adjacentCategories.length === 0
   ) {
+    const includesSource = isSelfOrAdjacentStrainReliefEffect(sourceTile, effectText);
     candidates = candidates.filter(
       (tile) =>
-        tile.instanceId !== sourceTile.instanceId && isAdjacentToTile(tile, sourceTile)
+        (includesSource && tile.instanceId === sourceTile.instanceId) ||
+        (tile.instanceId !== sourceTile.instanceId && isAdjacentToTile(tile, sourceTile))
     );
   }
 
@@ -644,8 +657,16 @@ export function getValidEffectStrainTargets(
 ): PlacedTile[] {
   const activeText = getActiveEffectText(state, effectText, sourceTile);
   const rule = getTileAdjustmentRule(activeText).strain;
-  const targets = getEffectTileTargets(state, effectText, sourceTile);
+  const complexRule = getComplexBoonRule(activeText);
+  let targets = getEffectTileTargets(state, effectText, sourceTile);
   if (!rule) return [];
+  if (complexRule?.kind === "settlementOfPlenty") {
+    const legalIds = getSettlementOfPlentyTargetIds(state, activeText);
+    targets = targets.filter((tile) => legalIds.has(tile.instanceId));
+  } else if (complexRule?.kind === "hearthsSoftenFeuds") {
+    const clusteredHousingIds = getClusteredHousingIds(state);
+    targets = targets.filter((tile) => clusteredHousingIds.has(tile.instanceId));
+  }
   return targets.filter((tile) =>
     rule.direction === "remove" ? tile.strain > 0 : tile.strain < 3
   );
@@ -846,9 +867,11 @@ function parseStrainSuggestion(
   const removeMatch = effectText.match(/remove\s+(?:up to\s+)?(\d+)\s+strain/i);
   if (removeMatch) {
     const amount = Number(removeMatch[1]);
+    const includesSource = isSelfOrAdjacentStrainReliefEffect(sourceTile, effectText);
     const candidates = getValidEffectStrainTargets(state, effectText, sourceTile).filter((tile) => {
       return sourceTile && effectText.toLowerCase().includes("adjacent")
-        ? isAdjacentToTile(tile, sourceTile)
+        ? (includesSource && tile.instanceId === sourceTile.instanceId) ||
+            isAdjacentToTile(tile, sourceTile)
         : true;
     });
 
@@ -1226,6 +1249,14 @@ export function effectHasNoValidChoiceTargets(
   effectText: string,
   sourceTile?: PlacedTile
 ): boolean {
+  const activeText = getActiveEffectText(state, effectText, sourceTile);
+  const complexRule = getComplexBoonRule(activeText);
+  if (complexRule?.kind === "tradeFestival") {
+    return getTradeFestivalOptions(state, activeText).length === 0;
+  }
+  if (complexRule?.kind === "settlementOfPlenty") {
+    return getSettlementOfPlentyGroups(state, activeText).length === 0;
+  }
   const alternativeRule = getAlternativeEffectRule(state, effectText, sourceTile);
   if (alternativeRule) {
     return !hasAnyAlternativeEffectOutcome(state, alternativeRule);
@@ -1317,6 +1348,30 @@ export function suggestEffectAdjustment(
   sourceTile?: PlacedTile
 ): { adjustment?: EffectAdjustment; requiresManualChoice?: boolean } {
   const activeText = getActiveEffectText(state, effectText, sourceTile);
+  const complexRule = getComplexBoonRule(activeText);
+  if (complexRule?.kind === "tradeFestival") {
+    const options = getTradeFestivalOptions(state, activeText);
+    if (options.length !== 1) {
+      return { requiresManualChoice: options.length > 0 };
+    }
+    const [option] = options;
+    const adjustment: EffectAdjustment = {
+      selectedTileIds: [option.tile.instanceId],
+      resourceDeltas: { goods: option.goodsGain },
+      supportTileIds:
+        option.supportTargetIds.length === 1 ? [option.supportTargetIds[0]] : undefined
+    };
+    return {
+      adjustment,
+      requiresManualChoice: option.supportTargetIds.length > 1
+    };
+  }
+  if (
+    complexRule?.kind === "settlementOfPlenty" &&
+    getSettlementOfPlentyGroups(state, activeText).length === 0
+  ) {
+    return { requiresManualChoice: false };
+  }
   const helpStandsRule = getHelpStandsRule(state, activeText);
   if (helpStandsRule) {
     const adjustment = Object.keys(helpStandsRule.tileStrainDeltas).length > 0
@@ -1466,6 +1521,16 @@ export function resolvePendingEffect(
           (tile) => tile.instanceId === pendingEffect.sourceId
         )
       : undefined;
+  if (
+    !pendingEffect.allowWardenRelief &&
+    !isComplexBoonAdjustmentValid(
+      state,
+      pendingEffect.effectText,
+      effectiveAdjustment
+    )
+  ) {
+    return state;
+  }
   if (
     !pendingEffect.allowWardenRelief &&
     !isAlternativeEffectAdjustmentValid(
@@ -1681,6 +1746,7 @@ export function mergeEffectAdjustment(
     resourceDeltas: { ...base.resourceDeltas, ...next.resourceDeltas },
     arrivalTimerDeltas: { ...base.arrivalTimerDeltas, ...next.arrivalTimerDeltas },
     tileStrainDeltas: { ...base.tileStrainDeltas, ...next.tileStrainDeltas },
+    selectedTileIds: next.selectedTileIds ?? base.selectedTileIds,
     supportTileIds: next.supportTileIds ?? base.supportTileIds,
     stewardHexUpdates: { ...base.stewardHexUpdates, ...next.stewardHexUpdates },
     temporaryReachHexUpdates: {

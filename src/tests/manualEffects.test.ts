@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  getClusteredHousingIds,
+  getSettlementOfPlentyGroups,
+  getTradeFestivalOptions,
+  isComplexBoonAdjustmentValid
+} from "../engine/complexEffectRules";
+import { getHexNeighbors } from "../engine/hex";
+import {
   effectHasNoValidChoiceTargets,
   getActiveEffectText,
   getAlternativeEffectRule,
@@ -47,6 +54,18 @@ const coreTile = (
 });
 
 describe("manual effect suggestions", () => {
+  function connectedHexes(count: number): string[] {
+    const hexes = ["G5"];
+    while (hexes.length < count) {
+      const next = getHexNeighbors(hexes.at(-1) ?? "G5").find(
+        (hexId) => !hexes.includes(hexId)
+      );
+      if (!next) throw new Error("Unable to build connected test layout");
+      hexes.push(next);
+    }
+    return hexes;
+  }
+
   it("suggests exact typed resource gains", () => {
     const state = createNewGame(1, ["vanguard"]);
     const suggestion = suggestEffectAdjustment(state, "Gain 2 Metal and 2 Goods.");
@@ -129,6 +148,100 @@ describe("manual effect suggestions", () => {
     expect(
       isResourceGainChoiceAdjustmentValid(state, effectText, {
         resourceDeltas: { wood: 1, food: 1 }
+      })
+    ).toBe(true);
+  });
+
+  it("validates Trade Festival's calculated Goods and adjacent Housing", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 2;
+    const [merchantHex, housingHex, travelHex] = connectedHexes(3);
+    state.map.placedTiles = [
+      coreTile("c14_market_stalls", "merchant", merchantHex),
+      coreTile("c05_cabin", "housing", housingHex),
+      coreTile("c15_path", "travel", travelHex)
+    ];
+    const effectText = getCurrentSeasonCardEffectText(
+      state,
+      "boon_festival_of_trade"
+    );
+    const option = getTradeFestivalOptions(state, effectText)[0];
+
+    expect(option.goodsGain).toBe(1);
+    expect(option.supportTargetIds).toEqual(["housing"]);
+    expect(
+      isComplexBoonAdjustmentValid(state, effectText, {
+        selectedTileIds: ["merchant"],
+        resourceDeltas: { goods: 1 },
+        supportTileIds: ["housing"]
+      })
+    ).toBe(true);
+    expect(
+      isComplexBoonAdjustmentValid(state, effectText, {
+        selectedTileIds: ["merchant"],
+        resourceDeltas: { goods: 99 },
+        supportTileIds: ["housing"]
+      })
+    ).toBe(false);
+  });
+
+  it("requires Settlement of Plenty choices to come from a qualifying group", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 3;
+    const effectText = getCurrentSeasonCardEffectText(
+      state,
+      "boon_the_settlement_of_plenty"
+    );
+    state.map.placedTiles = [pathTile("isolated", "G5", 1)];
+
+    expect(getSettlementOfPlentyGroups(state, effectText)).toHaveLength(0);
+    expect(effectHasNoValidChoiceTargets(state, effectText)).toBe(true);
+    expect(
+      isComplexBoonAdjustmentValid(state, effectText, {
+        resourceDeltas: { goods: 5 }
+      })
+    ).toBe(false);
+
+    state.map.placedTiles = connectedHexes(5).map((hexId, index) =>
+      pathTile(`group_${index}`, hexId, index === 0 ? 1 : 0)
+    );
+    expect(getSettlementOfPlentyGroups(state, effectText)).toHaveLength(1);
+    expect(
+      isComplexBoonAdjustmentValid(state, effectText, {
+        tileStrainDeltas: { group_0: -1 }
+      })
+    ).toBe(true);
+  });
+
+  it("only removes Hearths Soften Feuds Strain from a Housing cluster", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const effectText = getCurrentSeasonCardEffectText(
+      state,
+      "boon_hearths_soften_feuds"
+    );
+    state.map.placedTiles = [coreTile("c05_cabin", "housing_1", "G5", 1)];
+
+    expect(getClusteredHousingIds(state).size).toBe(0);
+    expect(
+      isComplexBoonAdjustmentValid(state, effectText, {
+        supportTileIds: ["housing_1"]
+      })
+    ).toBe(true);
+    expect(
+      isComplexBoonAdjustmentValid(state, effectText, {
+        supportTileIds: ["housing_1"],
+        tileStrainDeltas: { housing_1: -1 }
+      })
+    ).toBe(false);
+
+    state.map.placedTiles.push(
+      coreTile("c06_cottage", "housing_2", getHexNeighbors("G5")[0])
+    );
+    expect(getClusteredHousingIds(state)).toContain("housing_1");
+    expect(
+      isComplexBoonAdjustmentValid(state, effectText, {
+        supportTileIds: ["housing_1"],
+        tileStrainDeltas: { housing_1: -1 }
       })
     ).toBe(true);
   });
@@ -219,6 +332,9 @@ describe("manual effect suggestions", () => {
     const effectText = getCurrentSeasonCardEffectText(
       state,
       "boon_the_settlement_of_plenty"
+    );
+    state.map.placedTiles = connectedHexes(5).map((hexId, index) =>
+      pathTile(`settlement_${index}`, hexId)
     );
     state.pendingEffects = [
       {

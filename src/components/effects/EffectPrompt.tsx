@@ -34,6 +34,11 @@ import {
   mergeEffectAdjustment
 } from "../../engine/manualEffects";
 import { mapCells, terrainLabels } from "../../data/map";
+import {
+  getComplexBoonRule,
+  getTradeFestivalOptions,
+  isComplexBoonAdjustmentValid
+} from "../../engine/complexEffectRules";
 import { selectEncounterName, selectTileName } from "../../engine/selectors";
 import type {
   EffectAdjustment,
@@ -93,6 +98,9 @@ export function EffectPrompt({
       effect.suggestedAdjustment?.tileStrainDeltas ??
       {}
   );
+  const [selectedTileIds, setSelectedTileIds] = useState<string[]>(
+    effect.suggestedAdjustment?.selectedTileIds ?? []
+  );
   const [supportTileIds, setSupportTileIds] = useState<string[]>(
     effect.suggestedAdjustment?.supportTileIds ?? []
   );
@@ -117,6 +125,7 @@ export function EffectPrompt({
         effect.suggestedAdjustment?.tileStrainDeltas ??
         {}
     );
+    setSelectedTileIds(effect.suggestedAdjustment?.selectedTileIds ?? []);
     setSupportTileIds(effect.suggestedAdjustment?.supportTileIds ?? []);
     setStewardHexUpdates(effect.suggestedAdjustment?.stewardHexUpdates ?? {});
     setTemporaryReachHexUpdates(
@@ -132,6 +141,7 @@ export function EffectPrompt({
         resourceDeltas,
         arrivalTimerDeltas,
         tileStrainDeltas,
+        selectedTileIds,
         supportTileIds,
         stewardHexUpdates,
         temporaryReachHexUpdates,
@@ -144,6 +154,7 @@ export function EffectPrompt({
       ignoredBurdenIds,
       resolvedBurdenIds,
       resourceDeltas,
+      selectedTileIds,
       stewardHexUpdates,
       temporaryReachHexUpdates,
       supportTileIds,
@@ -184,6 +195,14 @@ export function EffectPrompt({
       ? state.map.placedTiles.find((tile) => tile.instanceId === effect.sourceId)
       : undefined;
   const activeEffectText = getActiveEffectText(state, effect.effectText, sourceTile);
+  const complexBoonRule = getComplexBoonRule(activeEffectText);
+  const tradeFestivalOptions =
+    complexBoonRule?.kind === "tradeFestival"
+      ? getTradeFestivalOptions(state, activeEffectText)
+      : [];
+  const selectedTradeFestivalOption = tradeFestivalOptions.find(
+    (option) => selectedTileIds.includes(option.tile.instanceId)
+  );
   const effectText = activeEffectText.toLowerCase();
   const alternativeEffectRule = getAlternativeEffectRule(
     state,
@@ -205,7 +224,13 @@ export function EffectPrompt({
       effect.effectText,
       sourceTile
     );
-    const supportTargets = getEffectSupportTargets(state, effect.effectText, sourceTile);
+    const supportTargets = complexBoonRule?.kind === "tradeFestival"
+      ? selectedTradeFestivalOption
+        ? state.map.placedTiles.filter((tile) =>
+            selectedTradeFestivalOption.supportTargetIds.includes(tile.instanceId)
+          )
+        : []
+      : getEffectSupportTargets(state, effect.effectText, sourceTile);
     const legalTargetIds = new Set(legalTargets.map((tile) => tile.instanceId));
     const supportTargetIds = new Set(supportTargets.map((tile) => tile.instanceId));
     for (const tileId of suggestedStrainIds) legalTargetIds.add(tileId);
@@ -225,7 +250,14 @@ export function EffectPrompt({
       strainTargetIds: legalTargetIds,
       supportTargetIds
     };
-  }, [effect.effectText, effect.suggestedAdjustment, sourceTile, state]);
+  }, [
+    complexBoonRule,
+    effect.effectText,
+    effect.suggestedAdjustment,
+    selectedTradeFestivalOption,
+    sourceTile,
+    state
+  ]);
   const tileControlTargets = tileControlData.targets;
   const tileAdjustmentRule = useMemo(
     () => getTileAdjustmentRule(activeEffectText),
@@ -277,10 +309,11 @@ export function EffectPrompt({
     broadResourceChoice ||
     hasExplicitResourceAlternative;
   const showResourceControls =
-    hasEditableResourceChoice ||
-    Boolean(
-      effect.requiresManualChoice && hasResourceAction && !hasResourceSuggestion
-    );
+    complexBoonRule?.kind !== "tradeFestival" &&
+    (hasEditableResourceChoice ||
+      Boolean(
+        effect.requiresManualChoice && hasResourceAction && !hasResourceSuggestion
+      ));
   const hasTimerSuggestion = Object.values(
     effect.suggestedAdjustment?.arrivalTimerDeltas ?? {}
   ).some((delta) => delta !== 0);
@@ -324,6 +357,11 @@ export function EffectPrompt({
     adjustment,
     sourceTile
   );
+  const complexBoonInvalid = !isComplexBoonAdjustmentValid(
+    state,
+    effect.effectText,
+    adjustment
+  );
   const allowsResourceInsteadOfTile = Boolean(
     alternativeEffectRule?.kind === "pay_or_strain" ||
     alternativeEffectRule?.kind === "warehouse_loss_or_strain" ||
@@ -345,11 +383,21 @@ export function EffectPrompt({
     exchangeInvalid ||
     alternativeEffectInvalid ||
     resourceGainChoiceInvalid ||
+    complexBoonInvalid ||
     Boolean(burdenResolveInvalid) ||
     Boolean(wardenReliefInvalid) ||
     tileAdjustmentInvalid;
   const previewItems = useMemo(() => {
     const items: string[] = [];
+
+    for (const tileId of adjustment.selectedTileIds ?? []) {
+      const tile = state.map.placedTiles.find(
+        (candidate) => candidate.instanceId === tileId
+      );
+      items.push(
+        tile ? `Target ${selectTileName(tile)} (${tile.hexIds.join(", ")})` : `Target ${tileId}`
+      );
+    }
 
     for (const resource of resources) {
       const delta = adjustment.resourceDeltas?.[resource] ?? 0;
@@ -500,6 +548,20 @@ export function EffectPrompt({
     if (alternativeEffectRule?.kind === "warehouse_loss_or_strain" && delta < 0) {
       setTileStrainDeltas({});
     }
+  }
+
+  function chooseTradeFestivalTarget(tileId: string) {
+    const option = tradeFestivalOptions.find(
+      (candidate) => candidate.tile.instanceId === tileId
+    );
+    if (!option) return;
+
+    setSelectedTileIds([tileId]);
+    setResourceDeltas({ ...emptyResourceDeltas(), goods: option.goodsGain });
+    setTileStrainDeltas({});
+    setSupportTileIds(
+      option.supportTargetIds.length === 1 ? [option.supportTargetIds[0]] : []
+    );
   }
 
   function adjustTimer(cardId: string, delta: number) {
@@ -761,6 +823,34 @@ export function EffectPrompt({
           </button>
         </div>
       </div>
+
+      {complexBoonRule?.kind === "tradeFestival" && !isPreparedPreview && (
+        <section className="effect-control-group">
+          <div className="effect-control-heading">
+            <h3>Merchant Tile</h3>
+            <span>Goods are calculated from adjacent tile categories</span>
+          </div>
+          <div className="effect-list tile-effect-list">
+            {tradeFestivalOptions.map((option) => (
+              <button
+                aria-label={`Choose ${selectTileName(option.tile)}`}
+                className={`effect-row tile-effect-row ${
+                  selectedTileIds.includes(option.tile.instanceId) ? "selected" : ""
+                }`}
+                key={option.tile.instanceId}
+                onClick={() => chooseTradeFestivalTarget(option.tile.instanceId)}
+                type="button"
+              >
+                <span>
+                  {selectTileName(option.tile)} {option.tile.hexIds.join(", ")}
+                  <small>Gain {option.goodsGain} Goods</small>
+                </span>
+                <MapPin size={16} />
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {showResourceControls && !isPreparedPreview && (
       <section className="effect-control-group">
