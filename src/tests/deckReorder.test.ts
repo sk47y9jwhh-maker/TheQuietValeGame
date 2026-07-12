@@ -1,19 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   confirmDeckReorder,
-  parseDeckPeekCount,
   queueDeckReorderFromEffect
 } from "../engine/deckReorder";
 import { createNewGame } from "../engine/setup";
 
 describe("deck reorder effects", () => {
-  it("parses top-card peek counts", () => {
-    expect(
-      parseDeckPeekCount("Look at the top 3 cards of the Encounter Deck.")
-    ).toBe(3);
-    expect(parseDeckPeekCount("Gain 2 Wood.")).toBeNull();
-  });
-
   it("queues and confirms a reordered deck top", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.encounters.deck = ["card_a", "card_b", "card_c", "card_d"];
@@ -24,6 +16,7 @@ describe("deck reorder effects", () => {
       "Clear Nights and Plans",
       "Revealed Clear Nights and Plans",
       "Look at the top 3 cards of the Encounter Deck. Return them in any order.",
+      3,
       "boon_clear_nights_make_for_clear_plans"
     );
 
@@ -47,7 +40,8 @@ describe("deck reorder effects", () => {
       "card",
       "Clear Nights and Plans",
       "Revealed Clear Nights and Plans",
-      "Look at the top 2 cards of the Encounter Deck. Return them in any order."
+      "Look at the top 2 cards of the Encounter Deck. Return them in any order.",
+      2
     );
 
     const next = confirmDeckReorder(queued, ["card_a", "card_c"]);

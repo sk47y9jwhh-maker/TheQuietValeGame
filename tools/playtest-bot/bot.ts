@@ -7,6 +7,7 @@ import {
 } from "../../src/app/ledgerPersistence";
 import { ledgerEntries, type LedgerEntry } from "../../src/data/ledger";
 import { stewardById } from "../../src/data/stewards";
+import { coreTileById } from "../../src/data/tiles";
 import {
   evaluateLedgerEntries,
   recordLedgerGame,
@@ -248,7 +249,7 @@ function summarizeGame(
   for (const tile of state.map.placedTiles) {
     const category = tile.kind === "special"
       ? "special"
-      : log.board.tiles.find((loggedTile: any) => loggedTile.tile_id === tile.tileId)?.category?.toLowerCase() ?? "unknown";
+      : coreTileById[tile.tileId]?.category ?? "unknown";
     categoryCounts[category] = (categoryCounts[category] ?? 0) + 1;
   }
   return {

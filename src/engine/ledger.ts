@@ -6,6 +6,7 @@ import {
 import { ledgerEntries, type LedgerEntry } from "../data/ledger";
 import { mapById, mapCells } from "../data/map";
 import { coreTileById, goldenTileById, specialTileById } from "../data/tiles";
+import { stewardById } from "../data/stewards";
 import { getHexNeighbors } from "./hex";
 import { hasConnectedBridgeCrossing } from "./reachability";
 import { calculateFinalScore, evaluateStewardObjectives } from "./scoring";
@@ -454,7 +455,7 @@ export function evaluateLedgerEntries(state: GameState, campaign: LedgerCampaign
   return ledgerEntries.map((entry) => {
     const target = thresholdFor(entry, state.playerCount);
     const locked = completedCount < entry.unlockAt;
-    const stewardPresent = !entry.requiredSteward || state.players.some((player) => player.stewardId === entry.requiredSteward?.toLowerCase());
+    const stewardPresent = !entry.requiredSteward || state.players.some((player) => player.stewardId === entry.requiredSteward);
     const vowSelected = !entry.declaredVow || run.declaredVowId === entry.id;
     const vowFailed = entry.declaredVow && vowSelected && run.violatedVowReasons.length > 0;
     let met = false;
@@ -515,7 +516,7 @@ export function evaluateLedgerEntries(state: GameState, campaign: LedgerCampaign
     const unavailableReason = locked
       ? `Complete ${entry.unlockAt} named entries first.`
       : !stewardPresent
-        ? `${entry.requiredSteward} must be chosen.`
+        ? `${stewardById[entry.requiredSteward!]?.name ?? entry.requiredSteward} must be chosen.`
         : !vowSelected
           ? "This Vow was not declared before setup."
           : vowFailed

@@ -1,6 +1,10 @@
 import { encounterById } from "../data/encounters";
+import { getEffectRule } from "../data/effectRules";
 import { resources } from "../data/resources";
-import { getCurrentSeasonCardEffectText } from "./manualEffects";
+import {
+  getCurrentSeasonCardEffectRuleId,
+  getCurrentSeasonCardEffectText
+} from "./manualEffects";
 import { applyFlexibleCostReduction, emptyCost } from "./passiveCosts";
 import type {
   ActiveBoonModifier,
@@ -29,33 +33,6 @@ function costTotal(cost: ResourceCost): number {
   return resources.reduce((total, resource) => total + cost[resource], 0);
 }
 
-function parseAmount(effectText: string): number | undefined {
-  const costMatch =
-    effectText.match(/costs?\s+(\d+)\s+fewer resource/i) ??
-    effectText.match(/reduce[s]?\s+.*cost\s+by\s+(\d+)\s+resource/i);
-  return costMatch ? Number(costMatch[1]) : undefined;
-}
-
-function parseAllowedCategories(effectText: string): TileCategory[] | undefined {
-  const categories: TileCategory[] = [];
-  if (/travel tile/i.test(effectText)) categories.push("travel");
-  if (/resource tile/i.test(effectText)) categories.push("resource");
-  if (/housing tile/i.test(effectText)) categories.push("housing");
-  return categories.length ? categories : undefined;
-}
-
-function parseModifierActions(effectText: string): BoonModifierAction[] {
-  const lower = effectText.toLowerCase();
-  if (lower.includes("active burden resolved")) return ["burden"];
-  if (lower.includes("arrival completed")) return ["arrival"];
-  if (lower.includes("placed or upgraded") || lower.includes("place or upgrade")) {
-    return ["place", "upgrade"];
-  }
-  if (lower.includes("upgraded")) return ["upgrade"];
-  if (lower.includes("placed") || lower.includes("place the next")) return ["place"];
-  return [];
-}
-
 export function createBoonModifierFromCard(
   state: GameState,
   cardId: string
@@ -64,12 +41,8 @@ export function createBoonModifierFromCard(
   if (!card || card.type !== "boon") return null;
 
   const effectText = getCurrentSeasonCardEffectText(state, cardId);
-  const actions = parseModifierActions(effectText);
-  const zeroAction = /0 actions/i.test(effectText);
-  const amount = parseAmount(effectText);
-
-  if (!zeroAction && amount === undefined) return null;
-  if (actions.length === 0) return null;
+  const modifier = getEffectRule(getCurrentSeasonCardEffectRuleId(state, cardId)).modifier;
+  if (!modifier) return null;
 
   return {
     id: `modifier_${state.boonModifiers.length + state.log.length + 1}_${Date.now()}`,
@@ -77,12 +50,12 @@ export function createBoonModifierFromCard(
     sourceType: "boon",
     name: card.name,
     effectText,
-    actions,
+    actions: modifier.actions,
     remainingUses: 1,
-    amount,
-    zeroAction,
-    allowedCategories: parseAllowedCategories(effectText),
-    coreOnly: /core tile/i.test(effectText)
+    amount: modifier.amount,
+    zeroAction: modifier.zeroAction,
+    allowedCategories: modifier.allowedCategories,
+    coreOnly: modifier.coreOnly
   };
 }
 

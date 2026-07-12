@@ -23,46 +23,6 @@ describe("browser persistence", () => {
     expect(readSavedGame()?.state.currentPlayerId).toBe("player_1");
   });
 
-  it("normalizes version 1 saves before the current rule state existed", () => {
-    const state = createNewGame(1, ["vanguard"]);
-    const legacyState = structuredClone(state) as unknown as Record<string, unknown>;
-    delete legacyState.boonModifiers;
-    delete legacyState.ignoredBurdenIdsThisRound;
-    delete legacyState.tileActivationRecords;
-    delete legacyState.pendingEffects;
-    delete legacyState.pendingDeckReorder;
-    delete legacyState.pendingCostChoice;
-    const legacyPlayer = (legacyState.players as Array<Record<string, unknown>>)[0];
-    delete legacyPlayer.hasPlacedFirstTile;
-    delete legacyPlayer.stewardPowerUsesBySeason;
-
-    window.localStorage.setItem(
-      "quietVale.activeGame.v1",
-      JSON.stringify({
-        version: 1,
-        savedAt: new Date().toISOString(),
-        playerCount: 1,
-        stewardIds: ["vanguard"],
-        encounterSeed: "QV-LEGACY",
-        state: legacyState
-      })
-    );
-
-    const restored = readSavedGame()?.state;
-    expect(restored?.players[0].hasPlacedFirstTile).toBe(false);
-    expect(restored?.players[0].stewardPowerUsesBySeason).toEqual({
-      1: 0,
-      2: 0,
-      3: 0
-    });
-    expect(restored?.boonModifiers).toEqual([]);
-    expect(restored?.ignoredBurdenIdsThisRound).toEqual([]);
-    expect(restored?.tileActivationRecords).toEqual({});
-    expect(restored?.pendingEffects).toEqual([]);
-    expect(restored?.pendingDeckReorder).toBeNull();
-    expect(restored?.pendingCostChoice).toBeNull();
-  });
-
   it("ignores a corrupt active game save instead of restoring a broken state", () => {
     window.localStorage.setItem(
       "quietVale.activeGame.v1",

@@ -1,5 +1,19 @@
 import { encounterById } from "../../src/data/encounters";
+import {
+  cardEffectRuleId,
+  tileEffectRuleId,
+} from "../../src/data/effectRules";
+import {
+  arrivalRequirementRules,
+  getBurdenResolutionCost,
+} from "../../src/data/contentRules";
 import { coreTileById, coreTiles, specialTileById, specialTiles } from "../../src/data/tiles";
+import {
+  effectRuleTargetsCategory,
+  getEffectSemanticTags,
+  hasStructuredEffectRule,
+  type EffectSemanticTag,
+} from "../../src/engine/effectSemantics";
 import type {
   EncounterData,
   GameState,
@@ -142,29 +156,10 @@ export interface HumanPlanningContext {
 
 const resources: ResourceType[] = ["wood", "stone", "metal", "food", "herbs", "goods"];
 
-function currentText(card: EncounterData, season: Season): string {
-  if (card.type === "arrival") return card.requirementText;
-  if (card.type === "goldenBoon") return card.effectText;
-  return card.effects[season === 1 ? "season1" : season === 2 ? "season2" : "season3"];
-}
-
-function parseResourceAmounts(
-  text: string,
-  season: Season,
-): Partial<Record<ResourceType, number>> {
-  const result: Partial<Record<ResourceType, number>> = {};
-  for (const resource of resources) {
-    const seasonalMatch = text.match(
-      new RegExp(`(\\d+)\\s*\\/\\s*(\\d+)\\s*\\/\\s*(\\d+)\\s+${resource}\\b`, "i"),
-    );
-    if (seasonalMatch) {
-      result[resource] = Number(seasonalMatch[season]);
-      continue;
-    }
-    const match = text.match(new RegExp(`(\\d+)\\s+${resource}\\b`, "i"));
-    if (match) result[resource] = Number(match[1]);
-  }
-  return result;
+function cardRuleId(card: EncounterData, season: Season): string | undefined {
+  return card.type === "boon" || card.type === "burden"
+    ? cardEffectRuleId(card.id, season)
+    : undefined;
 }
 
 function resourceReadiness(state: GameState, demand: Partial<Record<ResourceType, number>>): number {
@@ -191,39 +186,37 @@ function boardCategoryCount(state: GameState, category: TileCategory): number {
   ).length;
 }
 
-function tagsForText(text: string): string[] {
-  const lower = text.toLowerCase();
+function threatTags(ruleId: string | undefined): string[] {
+  if (!ruleId) return [];
+  const semantics = getEffectSemanticTags(ruleId);
   const tags: string[] = [];
-  if (lower.includes("supported")) tags.push("support");
-  if (lower.includes("strain")) tags.push("strain_relief");
-  if (lower.includes("burden")) tags.push("burden_control");
-  if (lower.includes("timer token")) tags.push("arrival_time");
-  if (lower.includes("exchange") || lower.includes("goods as")) tags.push("resource_conversion");
-  if (lower.includes("upgrade") || lower.includes("upgrading")) tags.push("upgrade_value");
-  if (lower.includes("travel")) tags.push("travel_value");
-  if (lower.includes("housing")) tags.push("housing_value");
-  if (lower.includes("merchant")) tags.push("merchant_value");
-  if (lower.includes("crafting")) tags.push("crafting_value");
-  if (lower.includes("0 actions") || lower.includes("without spending an action")) tags.push("action_tempo");
-  return [...new Set(tags)];
-}
-
-function threatTags(text: string): string[] {
-  const lower = text.toLowerCase();
-  const tags: string[] = [];
-  if (lower.includes("strain")) tags.push("strain");
-  if (lower.includes("housing")) tags.push("strain_housing");
-  if (lower.includes("resource tile")) tags.push("strain_resource");
-  if (lower.includes("arrival") || lower.includes("timer")) tags.push("arrival_pressure");
-  if (/lose|pay/.test(lower)) tags.push("resource_loss");
-  if (lower.includes("adjacent")) tags.push("adjacency_punish");
+  if (semantics.includes("strain")) tags.push("strain");
+  if (effectRuleTargetsCategory(ruleId, "housing")) tags.push("strain_housing");
+  if (effectRuleTargetsCategory(ruleId, "resource")) tags.push("strain_resource");
+  if (semantics.includes("arrival_time")) tags.push("arrival_pressure");
+  if (semantics.includes("resource_loss")) tags.push("resource_loss");
+  if (semantics.includes("adjacency_punish")) tags.push("adjacency_punish");
   return tags;
 }
 
-function requiredCategories(text: string): TileCategory[] {
-  const lower = text.toLowerCase();
-  return (["resource", "housing", "crafting", "merchant", "social", "wellbeing", "travel"] as TileCategory[])
-    .filter((category) => lower.includes(category));
+function requiredCategories(card: EncounterData, season: Season): TileCategory[] {
+  const categories = new Set<TileCategory>();
+  if (card.type === "arrival") {
+    if (arrivalRequirementRules[card.id]?.requiresHousing) categories.add("housing");
+    for (const tileId of card.rewardSpecialTileIds) {
+      for (const category of specialTileById[tileId]?.placement?.adjacentToCategory ?? []) {
+        categories.add(category);
+      }
+    }
+  } else {
+    const ruleId = cardRuleId(card, season);
+    if (ruleId) {
+      for (const category of ["resource", "housing", "crafting", "merchant", "social", "wellbeing", "travel"] as TileCategory[]) {
+        if (effectRuleTargetsCategory(ruleId, category)) categories.add(category);
+      }
+    }
+  }
+  return [...categories];
 }
 
 function rewardValue(card: EncounterData): { tileIds: string[]; tags: string[]; value: number } {
@@ -232,7 +225,10 @@ function rewardValue(card: EncounterData): { tileIds: string[]; tags: string[]; 
   const tiles = tileIds.map((id) => specialTileById[id]).filter(Boolean);
   return {
     tileIds,
-    tags: [...new Set(tiles.flatMap((tile) => tagsForText(tile.effectText)))],
+    tags: [...new Set(tiles.flatMap((tile) => {
+      const ruleId = tileEffectRuleId(tile.id, "special");
+      return hasStructuredEffectRule(ruleId) ? getEffectSemanticTags(ruleId) : [];
+    }))],
     value: tiles.reduce((sum, tile) => sum + tile.population + tile.renown, 0),
   };
 }
@@ -240,20 +236,23 @@ function rewardValue(card: EncounterData): { tileIds: string[]; tags: string[]; 
 export function buildCardIntent(state: GameState, cardId: string): CardIntent {
   const card = encounterById[cardId];
   if (!card) throw new Error(`Unknown Encounter card ${cardId}`);
-  const text = currentText(card, state.season);
-  const demand = card.type === "arrival"
-    ? parseResourceAmounts(card.requirementText, state.season)
+  const ruleId = cardRuleId(card, state.season);
+  const demand: Partial<Record<ResourceType, number>> = card.type === "arrival"
+    ? arrivalRequirementRules[card.id]?.cost ?? {}
     : card.type === "burden"
-      ? parseResourceAmounts(card.resolutionText ?? "", state.season)
+      ? Object.fromEntries(
+          Object.entries(getBurdenResolutionCost(card.id, state.season) ?? {})
+            .filter(([, amount]) => amount > 0)
+        )
       : {};
   const readiness = resourceReadiness(state, demand);
   const reward = rewardValue(card);
   const categories = boardCategories(state);
-  const neededCategories = requiredCategories(`${text} ${card.type === "arrival" ? reward.tileIds.map((id) => specialTileById[id]?.placement?.text ?? "").join(" ") : ""}`);
+  const neededCategories = requiredCategories(card, state.season);
   const missingCategories = neededCategories.filter((category) => !categories.has(category)).length;
   const totalDemand = resources.reduce((sum, resource) => sum + (demand[resource] ?? 0), 0);
-  const opportunities = tagsForText(text);
-  const threats = card.type === "burden" ? threatTags(text) : [];
+  const opportunities: EffectSemanticTag[] = ruleId ? getEffectSemanticTags(ruleId) : [];
+  const threats = card.type === "burden" ? threatTags(ruleId) : [];
   const boardReadyForOpportunity = opportunities.some((tag) => {
     if (tag === "housing_value") return categories.has("housing");
     if (tag === "travel_value") return categories.has("travel");

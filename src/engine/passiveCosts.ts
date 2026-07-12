@@ -2,6 +2,7 @@ import { resources } from "../data/resources";
 import { mapById } from "../data/map";
 import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
+import { getPlacedTileName } from "./placedTiles";
 import { isTileReachable } from "./reachability";
 import { canAfford } from "./resources";
 import type {
@@ -58,12 +59,6 @@ export function applyFlexibleCostReduction(
   }
 
   return next;
-}
-
-function getPlacedTileName(tile: PlacedTile): string {
-  if (tile.kind === "special") return specialTileById[tile.tileId]?.name ?? tile.tileId;
-  const data = coreTileById[tile.tileId];
-  return tile.side === "upgraded" ? data.upgraded.name : data.basic.name;
 }
 
 function areHexSetsAdjacent(aHexIds: string[], bHexIds: string[]): boolean {

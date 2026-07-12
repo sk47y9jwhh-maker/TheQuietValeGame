@@ -1,21 +1,11 @@
-import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
+import { intrinsicallySupportedTileSides } from "../data/contentRules";
+import { getPlacedTileCategory } from "./placedTiles";
 import { selectConnectedPlacedTileIds } from "./reachability";
-import type { GameState, PlacedTile, TileCategory } from "./types";
-
-function getTileCategory(tile: PlacedTile): TileCategory {
-  if (tile.kind === "special") return specialTileById[tile.tileId].category;
-  return coreTileById[tile.tileId].category;
-}
-
-function getTileEffectText(tile: PlacedTile): string {
-  if (tile.kind === "special") return specialTileById[tile.tileId]?.effectText ?? "";
-  const data = coreTileById[tile.tileId];
-  return tile.side === "upgraded" ? data.upgraded.effectText : data.basic.effectText;
-}
+import type { GameState, PlacedTile } from "./types";
 
 function hasPrintedPassiveSupport(tile: PlacedTile): boolean {
-  return /\.\s*Supported\.?$/i.test(getTileEffectText(tile));
+  return intrinsicallySupportedTileSides.has(`${tile.tileId}:${tile.side}`);
 }
 
 function getLanternRoadhouseSupportedTileIds(state: GameState): Set<string> {
@@ -29,7 +19,7 @@ function getLanternRoadhouseSupportedTileIds(state: GameState): Set<string> {
     const connectedIds = selectConnectedPlacedTileIds(state.map.placedTiles, [lantern]);
     for (const tile of state.map.placedTiles) {
       if (!connectedIds.has(tile.instanceId)) continue;
-      if (tile.strain >= 3 || getTileCategory(tile) !== "travel") continue;
+      if (tile.strain >= 3 || getPlacedTileCategory(tile) !== "travel") continue;
       supportedIds.add(tile.instanceId);
     }
   }
@@ -44,7 +34,7 @@ function getGoldenHearthSupportedTileIds(state: GameState): Set<string> {
   );
 
   for (const tile of state.map.placedTiles) {
-    if (tile.strain >= 3 || getTileCategory(tile) !== "housing") continue;
+    if (tile.strain >= 3 || getPlacedTileCategory(tile) !== "housing") continue;
     if (
       hearths.some((hearth) =>
         hearth.hexIds.some((hexId) =>
@@ -77,7 +67,7 @@ function getCommonLandSupportedTileIds(
         (tile) =>
           tile.instanceId !== source.instanceId &&
           tile.strain < 3 &&
-          getTileCategory(tile) === "housing" &&
+          getPlacedTileCategory(tile) === "housing" &&
           source.hexIds.some((hexId) =>
             getHexNeighbors(hexId).some((neighborId) => tile.hexIds.includes(neighborId))
           )

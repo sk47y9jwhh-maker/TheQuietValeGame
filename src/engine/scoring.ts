@@ -2,9 +2,15 @@ import { mapById, terrainLabels } from "../data/map";
 import { encounterById } from "../data/encounters";
 import { stewardById } from "../data/stewards";
 import { coreTileById, specialTileById } from "../data/tiles";
+import { tileScoringRules } from "../data/contentRules";
 import { getHexNeighbors } from "./hex";
+import {
+  arePlacedTilesAdjacent,
+  getPlacedTileCategory,
+  getPlacedTileRenown
+} from "./placedTiles";
 import { hasConnectedBridgeCrossing } from "./reachability";
-import type { GameState, PlacedTile, TileSideData } from "./types";
+import type { GameState, PlacedTile } from "./types";
 
 const activeBurdenPenalty = 5;
 const strainPenalty = 5;
@@ -22,29 +28,6 @@ function getPrintedPopulation(tile: PlacedTile): number {
   return tile.side === "upgraded" ? data.upgraded.population : data.basic.population;
 }
 
-function getPrintedRenown(tile: PlacedTile): number {
-  if (tile.kind === "special") return specialTileById[tile.tileId]?.renown ?? 0;
-  const data = coreTileById[tile.tileId];
-  return tile.side === "upgraded" ? data.upgraded.renown : data.basic.renown;
-}
-
-function getTileCategory(tile: PlacedTile): string {
-  if (tile.kind === "special") return specialTileById[tile.tileId]?.category ?? "special";
-  return coreTileById[tile.tileId]?.category ?? "unknown";
-}
-
-function getTileSide(tile: PlacedTile): TileSideData | null {
-  if (tile.kind === "special") return null;
-  const data = coreTileById[tile.tileId];
-  return tile.side === "upgraded" ? data.upgraded : data.basic;
-}
-
-function arePlacedTilesAdjacent(a: PlacedTile, b: PlacedTile): boolean {
-  return a.hexIds.some((hexId) =>
-    getHexNeighbors(hexId).some((neighborId) => b.hexIds.includes(neighborId))
-  );
-}
-
 function getAdjacentTiles(tile: PlacedTile, tiles: PlacedTile[]): PlacedTile[] {
   return tiles.filter(
     (candidate) =>
@@ -53,16 +36,16 @@ function getAdjacentTiles(tile: PlacedTile, tiles: PlacedTile[]): PlacedTile[] {
 }
 
 function isPartOfHousingCluster(tile: PlacedTile, tiles: PlacedTile[]): boolean {
-  if (getTileCategory(tile) !== "housing") return false;
+  if (getPlacedTileCategory(tile) !== "housing") return false;
   return getAdjacentTiles(tile, tiles).some(
-    (candidate) => getTileCategory(candidate) === "housing"
+    (candidate) => getPlacedTileCategory(candidate) === "housing"
   );
 }
 
 function getTravelGroup(tile: PlacedTile, tiles: PlacedTile[]): PlacedTile[] {
-  if (getTileCategory(tile) !== "travel") return [];
+  if (getPlacedTileCategory(tile) !== "travel") return [];
 
-  const travelTiles = tiles.filter((candidate) => getTileCategory(candidate) === "travel");
+  const travelTiles = tiles.filter((candidate) => getPlacedTileCategory(candidate) === "travel");
   const visited = new Set<string>([tile.instanceId]);
   const queue = [tile];
 
@@ -82,42 +65,44 @@ function getTravelGroup(tile: PlacedTile, tiles: PlacedTile[]): PlacedTile[] {
 }
 
 function getPassivePopulationBonus(tile: PlacedTile, tiles: PlacedTile[]): number {
-  const side = getTileSide(tile);
-  if (!side || !isPartOfHousingCluster(tile, tiles)) return 0;
-
-  const match = side.effectText.match(/\+(\d+)\s+Population if part of a Housing cluster/i);
-  return match ? Number(match[1]) : 0;
+  if (tile.kind !== "core" || !isPartOfHousingCluster(tile, tiles)) return 0;
+  const side = tile.side === "upgraded" ? "upgraded" : "basic";
+  return tileScoringRules[tile.tileId]?.[side]?.housingClusterPopulation ?? 0;
 }
 
 function getPassiveRenownBonus(tile: PlacedTile, tiles: PlacedTile[]): number {
-  const side = getTileSide(tile);
-  if (!side) return 0;
+  if (tile.kind !== "core") return 0;
+  const side = tile.side === "upgraded" ? "upgraded" : "basic";
+  const rule = tileScoringRules[tile.tileId]?.[side];
+  if (!rule) return 0;
 
   let total = 0;
   const adjacentTiles = getAdjacentTiles(tile, tiles);
-  const adjacentCategories = adjacentTiles.map(getTileCategory);
+  const adjacentCategories = adjacentTiles.map(getPlacedTileCategory);
 
-  const adjacentTravelMatch = side.effectText.match(/\+(\d+)\s+Renown if adjacent to Travel/i);
-  if (adjacentTravelMatch && adjacentCategories.includes("travel")) {
-    total += Number(adjacentTravelMatch[1]);
+  if (rule.adjacentTravelRenown && adjacentCategories.includes("travel")) {
+    total += rule.adjacentTravelRenown;
   }
 
   if (
-    /\+1 Renown if adjacent to 3 or more non-Travel Tiles/i.test(side.effectText) &&
+    rule.adjacentNonTravelRenown &&
     adjacentCategories.filter((category) => category !== "travel").length >= 3
   ) {
-    total += 1;
+    total += rule.adjacentNonTravelRenown;
   }
 
-  if (/connected Travel group, max \+4/i.test(side.effectText)) {
-    total += Math.min(4, Math.max(0, getTravelGroup(tile, tiles).length - 1));
+  if (rule.connectedTravelRenownMax) {
+    total += Math.min(
+      rule.connectedTravelRenownMax,
+      Math.max(0, getTravelGroup(tile, tiles).length - 1)
+    );
   }
 
   return total;
 }
 
 function largestHousingClusterSize(tiles: PlacedTile[]): number {
-  const housingTiles = tiles.filter((tile) => getTileCategory(tile) === "housing");
+  const housingTiles = tiles.filter((tile) => getPlacedTileCategory(tile) === "housing");
   const visited = new Set<string>();
   let largest = 0;
 
@@ -159,8 +144,8 @@ function scoreGoldenTiles(state: GameState, eligibleTiles: PlacedTile[]): number
     if (golden.tileId === "golden_tile_the_golden_charter") {
       const categories = new Set(
         getAdjacentTiles(golden, eligibleTiles)
-          .map(getTileCategory)
-          .filter((category) => category !== "special" && category !== "unknown")
+          .map(getPlacedTileCategory)
+          .filter((category) => category !== "special")
       );
       met = categories.size >= 4;
     } else if (golden.tileId === "golden_tile_the_golden_hearth") {
@@ -297,7 +282,7 @@ export function calculateFinalScore(state: GameState) {
     0
   );
   const population = printedPopulation + passivePopulation;
-  const printedRenown = eligibleTiles.reduce((total, tile) => total + getPrintedRenown(tile), 0);
+  const printedRenown = eligibleTiles.reduce((total, tile) => total + getPlacedTileRenown(tile), 0);
   const passiveRenown = eligibleTiles.reduce(
     (total, tile) => total + getPassiveRenownBonus(tile, eligibleTiles),
     0

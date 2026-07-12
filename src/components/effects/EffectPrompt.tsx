@@ -9,6 +9,7 @@ import {
   X
 } from "lucide-react";
 import { encounterById } from "../../data/encounters";
+import { getEffectRule } from "../../data/effectRules";
 import { resourceLabels, resources } from "../../data/resources";
 import {
   getBurdenResolutionCurrentText,
@@ -17,7 +18,6 @@ import {
 import {
   getEffectSupportTargets,
   getAlternativeEffectRule,
-  getActiveEffectText,
   getHelpStandsRule,
   getResourceGainChoiceRule,
   getTileAdjustmentRule,
@@ -33,12 +33,8 @@ import {
   isTimerAdjustmentValid,
   mergeEffectAdjustment
 } from "../../engine/manualEffects";
+import { describeEffectControls } from "../../engine/effectControls";
 import { mapCells, terrainLabels } from "../../data/map";
-import {
-  getComplexBoonRule,
-  getTradeFestivalOptions,
-  isComplexBoonAdjustmentValid
-} from "../../engine/complexEffectRules";
 import { selectEncounterName, selectTileName } from "../../engine/selectors";
 import type {
   EffectAdjustment,
@@ -86,7 +82,7 @@ export function EffectPrompt({
   canCancelWithWarden,
   onCancelWithWarden
 }: EffectPromptProps) {
-  const helpStandsRule = getHelpStandsRule(state, effect.effectText);
+  const helpStandsRule = getHelpStandsRule(state, effect.ruleId);
   const [resourceDeltas, setResourceDeltas] = useState(
     normalizeResourceDeltas(effect.suggestedAdjustment)
   );
@@ -97,9 +93,6 @@ export function EffectPrompt({
     helpStandsRule?.tileStrainDeltas ??
       effect.suggestedAdjustment?.tileStrainDeltas ??
       {}
-  );
-  const [selectedTileIds, setSelectedTileIds] = useState<string[]>(
-    effect.suggestedAdjustment?.selectedTileIds ?? []
   );
   const [supportTileIds, setSupportTileIds] = useState<string[]>(
     effect.suggestedAdjustment?.supportTileIds ?? []
@@ -121,11 +114,10 @@ export function EffectPrompt({
     setResourceDeltas(normalizeResourceDeltas(effect.suggestedAdjustment));
     setArrivalTimerDeltas(effect.suggestedAdjustment?.arrivalTimerDeltas ?? {});
     setTileStrainDeltas(
-      getHelpStandsRule(state, effect.effectText)?.tileStrainDeltas ??
+      getHelpStandsRule(state, effect.ruleId)?.tileStrainDeltas ??
         effect.suggestedAdjustment?.tileStrainDeltas ??
         {}
     );
-    setSelectedTileIds(effect.suggestedAdjustment?.selectedTileIds ?? []);
     setSupportTileIds(effect.suggestedAdjustment?.supportTileIds ?? []);
     setStewardHexUpdates(effect.suggestedAdjustment?.stewardHexUpdates ?? {});
     setTemporaryReachHexUpdates(
@@ -141,7 +133,6 @@ export function EffectPrompt({
         resourceDeltas,
         arrivalTimerDeltas,
         tileStrainDeltas,
-        selectedTileIds,
         supportTileIds,
         stewardHexUpdates,
         temporaryReachHexUpdates,
@@ -154,7 +145,6 @@ export function EffectPrompt({
       ignoredBurdenIds,
       resolvedBurdenIds,
       resourceDeltas,
-      selectedTileIds,
       stewardHexUpdates,
       temporaryReachHexUpdates,
       supportTileIds,
@@ -165,7 +155,7 @@ export function EffectPrompt({
     effect.resourceExchangeLimit !== undefined &&
     !isResourceExchangeAdjustmentValid(
       state,
-      effect.effectText,
+      effect.ruleId,
       { resourceDeltas },
       effect.resourceExchangeLimit,
       effect.resourceExchangeOptional
@@ -180,7 +170,7 @@ export function EffectPrompt({
     effect.allowWardenRelief && !isWardenReliefAdjustmentValid(state, adjustment);
   const timerInvalid = !isTimerAdjustmentValid(
     state,
-    effect.effectText,
+    effect.ruleId,
     arrivalTimerDeltas
   );
   const hasChanges = hasEffectAdjustment(adjustment);
@@ -194,43 +184,28 @@ export function EffectPrompt({
     effect.sourceType === "tile" && effect.sourceId
       ? state.map.placedTiles.find((tile) => tile.instanceId === effect.sourceId)
       : undefined;
-  const activeEffectText = getActiveEffectText(state, effect.effectText, sourceTile);
-  const complexBoonRule = getComplexBoonRule(activeEffectText);
-  const tradeFestivalOptions =
-    complexBoonRule?.kind === "tradeFestival"
-      ? getTradeFestivalOptions(state, activeEffectText)
-      : [];
-  const selectedTradeFestivalOption = tradeFestivalOptions.find(
-    (option) => selectedTileIds.includes(option.tile.instanceId)
-  );
-  const effectText = activeEffectText.toLowerCase();
+  const controlHints = effect.controlHints ?? describeEffectControls(effect.ruleId);
   const alternativeEffectRule = getAlternativeEffectRule(
     state,
-    effect.effectText,
+    effect.ruleId,
     sourceTile
   );
   const resourceGainChoiceRule = getResourceGainChoiceRule(
     state,
-    effect.effectText,
+    effect.ruleId,
     sourceTile
   );
-  const timerRule = getTimerAdjustmentRule(activeEffectText);
+  const timerRule = getTimerAdjustmentRule(state, effect.ruleId, sourceTile);
   const tileControlData = useMemo(() => {
     const suggestedStrainIds = Object.keys(effect.suggestedAdjustment?.tileStrainDeltas ?? {});
     const suggestedSupportIds = effect.suggestedAdjustment?.supportTileIds ?? [];
     const suggestedTileIds = new Set([...suggestedStrainIds, ...suggestedSupportIds]);
     const legalTargets = getValidEffectStrainTargets(
       state,
-      effect.effectText,
+      effect.ruleId,
       sourceTile
     );
-    const supportTargets = complexBoonRule?.kind === "tradeFestival"
-      ? selectedTradeFestivalOption
-        ? state.map.placedTiles.filter((tile) =>
-            selectedTradeFestivalOption.supportTargetIds.includes(tile.instanceId)
-          )
-        : []
-      : getEffectSupportTargets(state, effect.effectText, sourceTile);
+    const supportTargets = getEffectSupportTargets(state, effect.ruleId, sourceTile);
     const legalTargetIds = new Set(legalTargets.map((tile) => tile.instanceId));
     const supportTargetIds = new Set(supportTargets.map((tile) => tile.instanceId));
     for (const tileId of suggestedStrainIds) legalTargetIds.add(tileId);
@@ -250,18 +225,11 @@ export function EffectPrompt({
       strainTargetIds: legalTargetIds,
       supportTargetIds
     };
-  }, [
-    complexBoonRule,
-    effect.effectText,
-    effect.suggestedAdjustment,
-    selectedTradeFestivalOption,
-    sourceTile,
-    state
-  ]);
+  }, [effect.ruleId, effect.suggestedAdjustment, sourceTile, state]);
   const tileControlTargets = tileControlData.targets;
   const tileAdjustmentRule = useMemo(
-    () => getTileAdjustmentRule(activeEffectText),
-    [activeEffectText]
+    () => getTileAdjustmentRule(state, effect.ruleId, sourceTile),
+    [effect.ruleId, sourceTile, state]
   );
   const canAdjustTileStrain = Boolean(tileAdjustmentRule.strain);
   const canToggleTileSupport = Boolean(tileAdjustmentRule.support);
@@ -276,12 +244,7 @@ export function EffectPrompt({
     (resource) => (effect.suggestedAdjustment?.resourceDeltas?.[resource] ?? 0) !== 0
   );
   const broadResourceChoice =
-    effect.resourceExchangeLimit !== undefined ||
-    effectText.includes("exchange") ||
-    effectText.includes("any type") ||
-    effectText.includes("of any type") ||
-    /\bgain\s+\d+\s+resource/.test(effectText) ||
-    /\bgain\s+\d+\s+resources/.test(effectText);
+    effect.resourceExchangeLimit !== undefined || controlHints.broadResourceChoice;
   const visibleResources = alternativeEffectRule
     ? alternativeEffectRule.resources
     : resourceGainChoiceRule
@@ -290,30 +253,20 @@ export function EffectPrompt({
     ? resources
     : resources.filter(
         (resource) =>
-          effectText.includes(resource) ||
+          controlHints.mentionedResources.includes(resource) ||
           (effect.suggestedAdjustment?.resourceDeltas?.[resource] ?? 0) !== 0
       );
-  const hasResourceAction =
-    broadResourceChoice ||
-    /\b(?:gain|lose|pay)\s+(?:up to\s+)?\d+\s+(?:wood|stone|metal|food|herbs|goods|resource|resources)\b/.test(
-      effectText
-    );
-  const hasExplicitResourceAlternative =
-    /\b(?:gain|lose|pay)\s+(?:up to\s+)?\d+\s+(?:wood|stone|metal|food|herbs|goods)[^.]*\b(?:or|and\/or)\b/i.test(
-      activeEffectText
-    );
   const hasEditableResourceChoice =
     Boolean(alternativeEffectRule) ||
     Boolean(resourceGainChoiceRule && resourceGainChoiceRule.amount > 0) ||
     effect.resourceExchangeLimit !== undefined ||
     broadResourceChoice ||
-    hasExplicitResourceAlternative;
+    controlHints.hasExplicitResourceAlternative;
   const showResourceControls =
-    complexBoonRule?.kind !== "tradeFestival" &&
-    (hasEditableResourceChoice ||
-      Boolean(
-        effect.requiresManualChoice && hasResourceAction && !hasResourceSuggestion
-      ));
+    hasEditableResourceChoice ||
+    Boolean(
+      effect.requiresManualChoice && controlHints.hasResourceAction && !hasResourceSuggestion
+    );
   const hasTimerSuggestion = Object.values(
     effect.suggestedAdjustment?.arrivalTimerDeltas ?? {}
   ).some((delta) => delta !== 0);
@@ -321,18 +274,13 @@ export function EffectPrompt({
     state.encounters.activeArrivals.length > 0 &&
     (hasTimerSuggestion ||
       Boolean(
-        effect.requiresManualChoice &&
-          (effectText.includes("timer") || effectText.includes("active arrival"))
+        effect.requiresManualChoice && controlHints.timerChoice
       ));
   const hasTileSuggestion =
     Object.values(effect.suggestedAdjustment?.tileStrainDeltas ?? {}).some(
       (delta) => delta !== 0
     ) || Boolean(effect.suggestedAdjustment?.supportTileIds?.length);
-  const needsTileChoice =
-    Boolean(effect.requiresManualChoice) &&
-    /\b(strain|supported|tile|tiles|housing|resource|crafting|merchant|social|wellbeing|travel|overstrained|adjacent)\b/.test(
-      effectText
-    );
+  const needsTileChoice = Boolean(effect.requiresManualChoice && controlHints.tileChoice);
   const showTileControls =
     !helpStandsRule &&
     tileControlTargets.length > 0 &&
@@ -341,26 +289,21 @@ export function EffectPrompt({
     !effect.allowWardenRelief &&
     !isTileAdjustmentValid(
       state,
-      effect.effectText,
+      effect.ruleId,
       adjustment,
       sourceTile
     );
   const alternativeEffectInvalid = !isAlternativeEffectAdjustmentValid(
     state,
-    effect.effectText,
+    effect.ruleId,
     adjustment,
     sourceTile
   );
   const resourceGainChoiceInvalid = !isResourceGainChoiceAdjustmentValid(
     state,
-    effect.effectText,
+    effect.ruleId,
     adjustment,
     sourceTile
-  );
-  const complexBoonInvalid = !isComplexBoonAdjustmentValid(
-    state,
-    effect.effectText,
-    adjustment
   );
   const allowsResourceInsteadOfTile = Boolean(
     alternativeEffectRule?.kind === "pay_or_strain" ||
@@ -383,21 +326,11 @@ export function EffectPrompt({
     exchangeInvalid ||
     alternativeEffectInvalid ||
     resourceGainChoiceInvalid ||
-    complexBoonInvalid ||
     Boolean(burdenResolveInvalid) ||
     Boolean(wardenReliefInvalid) ||
     tileAdjustmentInvalid;
   const previewItems = useMemo(() => {
     const items: string[] = [];
-
-    for (const tileId of adjustment.selectedTileIds ?? []) {
-      const tile = state.map.placedTiles.find(
-        (candidate) => candidate.instanceId === tileId
-      );
-      items.push(
-        tile ? `Target ${selectTileName(tile)} (${tile.hexIds.join(", ")})` : `Target ${tileId}`
-      );
-    }
 
     for (const resource of resources) {
       const delta = adjustment.resourceDeltas?.[resource] ?? 0;
@@ -489,7 +422,7 @@ export function EffectPrompt({
     }
     return isAlternativeEffectAdjustmentValid(
       state,
-      effect.effectText,
+      effect.ruleId,
       adjustment,
       sourceTile
     ) ? 1 : 0;
@@ -548,20 +481,6 @@ export function EffectPrompt({
     if (alternativeEffectRule?.kind === "warehouse_loss_or_strain" && delta < 0) {
       setTileStrainDeltas({});
     }
-  }
-
-  function chooseTradeFestivalTarget(tileId: string) {
-    const option = tradeFestivalOptions.find(
-      (candidate) => candidate.tile.instanceId === tileId
-    );
-    if (!option) return;
-
-    setSelectedTileIds([tileId]);
-    setResourceDeltas({ ...emptyResourceDeltas(), goods: option.goodsGain });
-    setTileStrainDeltas({});
-    setSupportTileIds(
-      option.supportTargetIds.length === 1 ? [option.supportTargetIds[0]] : []
-    );
   }
 
   function adjustTimer(cardId: string, delta: number) {
@@ -823,34 +742,6 @@ export function EffectPrompt({
           </button>
         </div>
       </div>
-
-      {complexBoonRule?.kind === "tradeFestival" && !isPreparedPreview && (
-        <section className="effect-control-group">
-          <div className="effect-control-heading">
-            <h3>Merchant Tile</h3>
-            <span>Goods are calculated from adjacent tile categories</span>
-          </div>
-          <div className="effect-list tile-effect-list">
-            {tradeFestivalOptions.map((option) => (
-              <button
-                aria-label={`Choose ${selectTileName(option.tile)}`}
-                className={`effect-row tile-effect-row ${
-                  selectedTileIds.includes(option.tile.instanceId) ? "selected" : ""
-                }`}
-                key={option.tile.instanceId}
-                onClick={() => chooseTradeFestivalTarget(option.tile.instanceId)}
-                type="button"
-              >
-                <span>
-                  {selectTileName(option.tile)} {option.tile.hexIds.join(", ")}
-                  <small>Gain {option.goodsGain} Goods</small>
-                </span>
-                <MapPin size={16} />
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
 
       {showResourceControls && !isPreparedPreview && (
       <section className="effect-control-group">
@@ -1166,9 +1057,7 @@ export function EffectPrompt({
       )}
       {effect.resourceExchangeLimit !== undefined && exchangeInvalid && (
         <p className="failure-note">
-          {/exchange\s+5\s+total\s+resources\s+for\s+3\s+Goods/i.test(
-            effect.effectText
-          )
+          {getEffectRule(effect.ruleId).exchangeGoodsMode
             ? "Exchange up to 5 resources one-for-one into non-Goods, or spend exactly 5 resources to gain 3 Goods."
             : `Exchange the same number of resources in and out, up to ${effect.resourceExchangeLimit}.`}
         </p>

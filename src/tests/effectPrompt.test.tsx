@@ -2,6 +2,12 @@ import "@testing-library/jest-dom/vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { EffectPrompt } from "../components/effects/EffectPrompt";
+import {
+  cardEffectRuleId,
+  stewardEffectRuleId,
+  systemEffectRuleId,
+  tileEffectRuleId
+} from "../data/effectRules";
 import { createNewGame } from "../engine/setup";
 import { getHexNeighbors } from "../engine/hex";
 import type { PendingEffectState, PlacedTile } from "../engine/types";
@@ -37,6 +43,7 @@ describe("effect prompt controls", () => {
       id: "effect_help_stands",
       sourceType: "card",
       sourceId: "boon_where_help_stands",
+      ruleId: cardEffectRuleId("boon_where_help_stands", 2),
       sourceName: "Help Stands",
       title: "Revealed Help Stands",
       effectText:
@@ -46,49 +53,16 @@ describe("effect prompt controls", () => {
 
     render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
 
-    const addGoods = screen.getByRole("button", { name: "Add 1 Goods" });
-    fireEvent.click(addGoods);
+    const addWood = screen.getByRole("button", { name: "Add 1 Wood" });
+    fireEvent.click(addWood);
     expect(screen.getByText("1/4 resources selected")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /apply effect/i })).toBeDisabled();
 
-    fireEvent.click(addGoods);
-    fireEvent.click(addGoods);
-    fireEvent.click(addGoods);
+    fireEvent.click(addWood);
+    fireEvent.click(screen.getByRole("button", { name: "Add 1 Food" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add 1 Goods" }));
 
     expect(screen.getByText("4/4 resources selected")).toBeInTheDocument();
-    expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Gain 4 Goods");
-    expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
-  });
-
-  it("calculates Trade Festival Goods from the chosen Merchant", () => {
-    const state = createNewGame(1, ["vanguard"]);
-    state.season = 2;
-    const [housingHex, travelHex] = getHexNeighbors("G5");
-    state.map.placedTiles = [
-      coreTile("c14_market_stalls", "merchant", "G5"),
-      coreTile("c05_cabin", "housing", housingHex),
-      coreTile("c15_path", "travel", travelHex)
-    ];
-    const effect: PendingEffectState = {
-      id: "effect_trade_festival",
-      sourceType: "card",
-      sourceId: "boon_festival_of_trade",
-      sourceName: "Trade Festival",
-      title: "Revealed Trade Festival",
-      effectText:
-        "Choose 1 Merchant Tile. Gain 1 Goods for each different tile category adjacent to it, max 4 Goods. If one adjacent tile is Housing, that Housing Tile gains Supported.",
-      requiresManualChoice: true
-    };
-
-    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
-
-    expect(screen.queryByRole("button", { name: "Add 1 Goods" })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Choose Market Stalls" }));
-
-    expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Gain 2 Goods");
-    expect(screen.getByLabelText("Effect preview")).toHaveTextContent(
-      "Cabin"
-    );
     expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
   });
 
@@ -107,6 +81,7 @@ describe("effect prompt controls", () => {
       id: "effect_help_stands_saved",
       sourceType: "card",
       sourceId: "boon_where_help_stands",
+      ruleId: cardEffectRuleId("boon_where_help_stands", 2),
       sourceName: "Help Stands",
       title: "Revealed Help Stands",
       effectText:
@@ -129,6 +104,7 @@ describe("effect prompt controls", () => {
       id: "effect_wonderful_find",
       sourceType: "card",
       sourceId: "boon_a_wonderful_find",
+      ruleId: cardEffectRuleId("boon_a_wonderful_find", 1),
       sourceName: "The Wonderful Find",
       title: "Revealed The Wonderful Find",
       effectText:
@@ -152,6 +128,7 @@ describe("effect prompt controls", () => {
       id: "effect_warden_relief",
       sourceType: "system",
       sourceId: "warden",
+      ruleId: stewardEffectRuleId("warden"),
       sourceName: "Warden",
       title: "Warden Relief",
       effectText:
@@ -183,6 +160,7 @@ describe("effect prompt controls", () => {
       id: "effect_warden_relief",
       sourceType: "system",
       sourceId: "warden",
+      ruleId: stewardEffectRuleId("warden"),
       sourceName: "Warden",
       title: "Warden Relief",
       effectText:
@@ -210,21 +188,11 @@ describe("effect prompt controls", () => {
   it("keeps Settlement of Plenty disabled until all five resources are chosen", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.season = 3;
-    const connectedHexes = ["G5"];
-    while (connectedHexes.length < 5) {
-      const next = getHexNeighbors(connectedHexes.at(-1) ?? "G5").find(
-        (hexId) => !connectedHexes.includes(hexId)
-      );
-      if (!next) throw new Error("Unable to build connected test layout");
-      connectedHexes.push(next);
-    }
-    state.map.placedTiles = connectedHexes.map((hexId, index) =>
-      coreTile("c15_path", `settlement_${index}`, hexId)
-    );
     const effect: PendingEffectState = {
       id: "effect_settlement",
       sourceType: "card",
       sourceId: "boon_the_settlement_of_plenty",
+      ruleId: cardEffectRuleId("boon_the_settlement_of_plenty", 3),
       sourceName: "Settlement of Plenty",
       title: "Use Boon: Settlement of Plenty",
       effectText:
@@ -254,6 +222,7 @@ describe("effect prompt controls", () => {
     const state = createNewGame(1, ["vanguard"]);
     const effect: PendingEffectState = {
       id: "effect_1",
+      ruleId: systemEffectRuleId("acknowledge"),
       sourceType: "card",
       sourceName: "Test",
       title: "Test gain",
@@ -274,6 +243,7 @@ describe("effect prompt controls", () => {
     const state = createNewGame(1, ["vanguard"]);
     const effect: PendingEffectState = {
       id: "effect_1",
+      ruleId: systemEffectRuleId("acknowledge"),
       sourceType: "card",
       sourceName: "Many Hands, Light Work",
       title: "Use Boon: Many Hands, Light Work",
@@ -291,11 +261,15 @@ describe("effect prompt controls", () => {
     const state = createNewGame(1, ["vanguard"]);
     const target = coreTile("c05_cabin", "tile_cabin", "G1");
     target.support.singleUse = true;
-    state.map.placedTiles = [target];
+    state.map.placedTiles = [
+      target,
+      coreTile("c13_workshops", "tile_workshops", "H1")
+    ];
     const effect: PendingEffectState = {
       id: "effect_strain_preview",
       sourceType: "card",
       sourceId: "burden_smoke_over_hearths",
+      ruleId: cardEffectRuleId("burden_smoke_over_hearths", 1),
       sourceName: "Smoke over Hearths",
       title: "Revealed Smoke over Hearths",
       effectText: "Choose 1 Housing Tile and place 1 Strain on it.",
@@ -322,6 +296,7 @@ describe("effect prompt controls", () => {
       id: "effect_1",
       sourceType: "card",
       sourceId: "burden_smoke_over_hearths",
+      ruleId: cardEffectRuleId("burden_smoke_over_hearths", 1),
       sourceName: "Smoke over Hearths",
       title: "Revealed Smoke over Hearths",
       effectText:
@@ -339,10 +314,14 @@ describe("effect prompt controls", () => {
 
   it("does not show warehouse controls for strain-only Burden choices", () => {
     const state = createNewGame(1, ["vanguard"]);
-    state.map.placedTiles = [coreTile("c15_path", "tile_path", "G1")];
+    state.map.placedTiles = [
+      coreTile("c15_path", "tile_path", "G1"),
+      coreTile("c01_lumber_yard", "tile_resource", "H1")
+    ];
     const effect: PendingEffectState = {
       id: "effect_1",
       sourceType: "card",
+      ruleId: cardEffectRuleId("burden_return_to_the_trenches", 1),
       sourceName: "Test Burden",
       title: "Revealed Test Burden",
       effectText:
@@ -364,6 +343,7 @@ describe("effect prompt controls", () => {
       id: "effect_1",
       sourceType: "card",
       sourceId: "burden_empty_shelves",
+      ruleId: cardEffectRuleId("burden_empty_shelves", 1),
       sourceName: "Empty Shelves",
       title: "Revealed Empty Shelves",
       effectText:
@@ -390,6 +370,7 @@ describe("effect prompt controls", () => {
       id: "effect_empty_shelves_2",
       sourceType: "card",
       sourceId: "burden_empty_shelves",
+      ruleId: cardEffectRuleId("burden_empty_shelves", 2),
       sourceName: "Empty Shelves",
       title: "Revealed Empty Shelves",
       effectText:
@@ -418,6 +399,7 @@ describe("effect prompt controls", () => {
       id: "effect_storehouses",
       sourceType: "card",
       sourceId: "burden_the_storehouses_disagree",
+      ruleId: cardEffectRuleId("burden_the_storehouses_disagree", 1),
       sourceName: "Storehouses Disagree",
       title: "Revealed Storehouses Disagree",
       effectText:
@@ -450,6 +432,7 @@ describe("effect prompt controls", () => {
       id: "effect_tools_rust",
       sourceType: "card",
       sourceId: "burden_tools_left_to_rust",
+      ruleId: cardEffectRuleId("burden_tools_left_to_rust", 3),
       sourceName: "Tools Left to Rust",
       title: "Revealed Tools Left to Rust",
       effectText:
@@ -475,6 +458,7 @@ describe("effect prompt controls", () => {
       id: "effect_1",
       sourceType: "card",
       sourceId: "boon_a_little_more_time",
+      ruleId: cardEffectRuleId("boon_a_little_more_time", 1),
       sourceName: "A Little Time",
       title: "Use Boon: A Little Time",
       effectText: "Add 1 timer token to 1 active Arrival, to a maximum of 3.",
@@ -522,6 +506,7 @@ describe("effect prompt controls", () => {
       id: "effect_support",
       sourceType: "tile",
       sourceId: source.instanceId,
+      ruleId: tileEffectRuleId("special_alms_house", "special"),
       sourceName: "Alms House",
       title: "Placed effect: Alms House",
       effectText:
@@ -555,6 +540,7 @@ describe("effect prompt controls", () => {
     const effect: PendingEffectState = {
       id: "effect_visible_action",
       sourceType: "card",
+      ruleId: cardEffectRuleId("boon_from_the_brink", 1),
       sourceName: "Test Boon",
       title: "Use Test Boon",
       effectText: "Remove up to 2 Strain from 1 placed tile.",

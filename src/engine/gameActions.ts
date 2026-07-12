@@ -2,6 +2,19 @@ import { encounterById } from "../data/encounters";
 import { mapById, terrainLabels } from "../data/map";
 import { stewardById } from "../data/stewards";
 import { coreTileById, specialTileById } from "../data/tiles";
+import {
+  getEffectRule,
+  stewardEffectRuleId,
+  systemEffectRuleId,
+  tileEffectRuleId
+} from "../data/effectRules";
+import {
+  arrivalRequirementRules,
+  getBurdenResolutionCost,
+  persistentBoonIds,
+  productionPassiveRules,
+  specialTileBehaviors
+} from "../data/contentRules";
 import { resources, warehouseCap } from "../data/resources";
 import {
   getPlacementFailures,
@@ -11,6 +24,7 @@ import {
 } from "./placementRules";
 import {
   effectHasNoValidChoiceTargets,
+  getCurrentSeasonCardEffectRuleId,
   getCurrentSeasonCardEffectText,
   hasWardenReliefTarget,
   queuePendingEffect,
@@ -19,10 +33,7 @@ import {
   resolvePendingEffect,
   suggestEffectAdjustment
 } from "./manualEffects";
-import {
-  parseDeckPeekCount,
-  queueDeckReorderFromEffect
-} from "./deckReorder";
+import { queueDeckReorderFromEffect } from "./deckReorder";
 import {
   consumeBoonModifiers,
   createBoonModifierFromCard,
@@ -32,6 +43,13 @@ import {
 } from "./boonModifiers";
 import { canAfford, spendResources } from "./resources";
 import { getHexNeighbors } from "./hex";
+import {
+  arePlacedTilesAdjacent,
+  getPlacedTileCategory,
+  getPlacedTileEffectText as getTileEffectText,
+  getPlacedTileName,
+  isPlacedTileAdjacentToCategory as isAdjacentToCategory
+} from "./placedTiles";
 import { getSeasonForRound, isSeasonStartRound, revealCountForPlayers } from "./season";
 import { isTileReachable } from "./reachability";
 import { applyStrainToState, refreshPassiveSupported } from "./strainRules";
@@ -80,6 +98,17 @@ function emptyCost(): ResourceCost {
   return { wood: 0, stone: 0, metal: 0, food: 0, herbs: 0, goods: 0 };
 }
 
+function getResourceShortfalls(
+  warehouse: GameState["warehouse"],
+  cost: ResourceCost
+): Partial<Record<ResourceType, number>> {
+  return Object.fromEntries(
+    resources
+      .filter((resource) => warehouse[resource] < cost[resource])
+      .map((resource) => [resource, cost[resource] - warehouse[resource]])
+  );
+}
+
 function hasPendingEffects(state: GameState): boolean {
   return (
     state.pendingEffects.length > 0 ||
@@ -95,37 +124,6 @@ function hasNonCostPendingEffects(state: GameState): boolean {
     Boolean(state.pendingDeckReorder) ||
     Boolean(state.pendingGoldenEffect)
   );
-}
-
-function parseResourceCost(text: string): ResourceCost {
-  const cost = emptyCost();
-  const matches = text.matchAll(/(\d+)\s+(Wood|Stone|Metal|Food|Herbs|Goods)/gi);
-
-  for (const match of matches) {
-    const amount = Number(match[1]);
-    const resource = match[2].toLowerCase() as keyof ResourceCost;
-    cost[resource] += amount;
-  }
-
-  return cost;
-}
-
-function parseSeasonScaledResolutionCost(
-  text: string | undefined,
-  season: number
-): ResourceCost | null {
-  if (!text) return null;
-
-  const match = text.match(/pay\s+2\/4\/6\s+(Wood|Stone|Metal|Food|Herbs|Goods)/i);
-  if (!match) return null;
-
-  const amountBySeason = season === 1 ? 2 : season === 2 ? 4 : 6;
-  const resource = match[1].toLowerCase() as keyof ResourceCost;
-  return { ...emptyCost(), [resource]: amountBySeason };
-}
-
-function isInsufficientResourceReason(reason: string): boolean {
-  return reason.includes("insufficient");
 }
 
 function canPayNowOrWithPassiveOptions(
@@ -187,15 +185,7 @@ function recordSelectedCostOptions(
 }
 
 function getBoonUsesForSeason(state: GameState, cardId: string): number {
-  const card = encounterById[cardId];
-  if (!card || card.type !== "boon") return 1;
-  if (!card.lifecycle.toLowerCase().includes("all uses")) return 1;
-
-  const effectText = getCurrentSeasonCardEffectText(state, cardId);
-  const nextUsesMatch = effectText.match(/next\s+(\d+)/i);
-  if (nextUsesMatch) return Number(nextUsesMatch[1]);
-
-  return 1;
+  return getEffectRule(getCurrentSeasonCardEffectRuleId(state, cardId)).modifier?.uses ?? 1;
 }
 
 function queueBoonEffectPrompt(state: GameState, boon: ActiveBoon): GameState {
@@ -203,23 +193,27 @@ function queueBoonEffectPrompt(state: GameState, boon: ActiveBoon): GameState {
   if (!card || card.type !== "boon") return state;
 
   const effectText = getCurrentSeasonCardEffectText(state, boon.cardId);
-  if (parseDeckPeekCount(effectText)) {
+  const ruleId = getCurrentSeasonCardEffectRuleId(state, boon.cardId);
+  const rule = getEffectRule(ruleId);
+  if (rule.deckReorder) {
     return queueDeckReorderFromEffect(
       state,
       "card",
       card.name,
       `Use Boon: ${card.name}`,
       effectText,
+      rule.deckReorder.count,
       boon.cardId,
       { canSkip: true, skipLabel: "Skip Boon" }
     );
   }
 
-  const suggestion = suggestEffectAdjustment(state, effectText);
-  const noValidTarget = effectHasNoValidChoiceTargets(state, effectText);
+  const suggestion = suggestEffectAdjustment(state, ruleId);
+  const noValidTarget = effectHasNoValidChoiceTargets(state, ruleId);
 
   return queuePendingEffect(state, {
     sourceType: "card",
+    ruleId,
     sourceId: boon.cardId,
     sourceName: card.name,
     title: `Use Boon: ${card.name}`,
@@ -231,7 +225,7 @@ function queueBoonEffectPrompt(state: GameState, boon: ActiveBoon): GameState {
       .filter(Boolean)
       .join(" "),
     suggestedAdjustment: suggestion.adjustment,
-    requiresManualChoice: suggestion.requiresManualChoice,
+    requiresManualChoice: noValidTarget ? false : suggestion.requiresManualChoice,
     canSkip: true,
     skipLabel: "Skip Boon",
     confirmLabel: noValidTarget ? "Acknowledge" : undefined
@@ -266,32 +260,12 @@ function movePlayerStewardToHex(
   };
 }
 
-function getPlacedTileName(tile: PlacedTile): string {
-  if (tile.kind === "special") return specialTileById[tile.tileId]?.name ?? tile.tileId;
-  const data = coreTileById[tile.tileId];
-  return tile.side === "upgraded" ? data.upgraded.name : data.basic.name;
+function tileEffectTriggersOnPlacement(tile: PlacedTile): boolean {
+  return specialTileBehaviors[tile.tileId]?.trigger === "placedOrActivated";
 }
 
-function getPlacedTileCategory(tile: PlacedTile): TileCategory {
-  if (tile.kind === "special") return specialTileById[tile.tileId].category;
-  return coreTileById[tile.tileId].category;
-}
-
-function getTileEffectText(tile: PlacedTile): string {
-  if (tile.kind === "special") {
-    return specialTileById[tile.tileId]?.effectText ?? tile.tileId;
-  }
-
-  const data = coreTileById[tile.tileId];
-  return tile.side === "upgraded" ? data.upgraded.effectText : data.basic.effectText;
-}
-
-function tileEffectTriggersOnPlacement(effectText: string): boolean {
-  return /\bwhen placed\b/i.test(effectText);
-}
-
-function tileEffectTriggersOnUpgrade(effectText: string): boolean {
-  return /\bwhen upgraded\b/i.test(effectText);
+function tileEffectTriggersOnUpgrade(_tile: PlacedTile): boolean {
+  return false;
 }
 
 function getTileProduction(tile: PlacedTile): ResourceCost | undefined {
@@ -299,12 +273,6 @@ function getTileProduction(tile: PlacedTile): ResourceCost | undefined {
   const data = coreTileById[tile.tileId];
   const side = tile.side === "upgraded" ? data.upgraded : data.basic;
   return side.production;
-}
-
-function arePlacedTilesAdjacent(a: PlacedTile, b: PlacedTile): boolean {
-  return a.hexIds.some((aHexId) =>
-    b.hexIds.some((bHexId) => getHexNeighbors(aHexId).includes(bHexId))
-  );
 }
 
 export function getLinkedProductionTileId(
@@ -323,20 +291,6 @@ export function getLinkedProductionTileId(
       Boolean(getTileProduction(candidate)) &&
       arePlacedTilesAdjacent(tile, candidate)
   )?.instanceId;
-}
-
-function isAdjacentToCategory(
-  tile: PlacedTile,
-  tiles: PlacedTile[],
-  category: TileCategory
-): boolean {
-  return tiles.some(
-    (candidate) =>
-      candidate.instanceId !== tile.instanceId &&
-      candidate.strain < 3 &&
-      getPlacedTileCategory(candidate) === category &&
-      arePlacedTilesAdjacent(tile, candidate)
-  );
 }
 
 function isAdjacentToUpgradedCore(tile: PlacedTile, tiles: PlacedTile[]): boolean {
@@ -385,7 +339,7 @@ function getProducedResourceTypes(production: ResourceCost): ResourceType[] {
 }
 
 function hasIntrinsicPassiveSupport(tile: PlacedTile): boolean {
-  return /\.\s*Supported\.?$/i.test(getTileEffectText(tile));
+  return tile.tileId === "c19_bridge" && tile.side === "upgraded";
 }
 
 function withIntrinsicPassiveSupport(tile: PlacedTile): PlacedTile {
@@ -399,23 +353,17 @@ function withIntrinsicPassiveSupport(tile: PlacedTile): PlacedTile {
   };
 }
 
-function getActivationLimit(effectText: string): "round" | "season" | null {
-  const lower = effectText.toLowerCase();
-  if (!lower.includes("activated") && !lower.includes("activate:")) return null;
-  if (lower.includes("once per season")) return "season";
-  if (lower.includes("once per round")) return "round";
-  return null;
+function getActivationLimit(tile: PlacedTile): "round" | "season" | null {
+  return specialTileBehaviors[tile.tileId]?.cadence ?? null;
 }
 
-function isExplicitlyActivatedSpecialEffect(effectText: string): boolean {
-  return (
-    /^Activated Effect\b/i.test(effectText.trim()) ||
-    /^When placed or activated\b/i.test(effectText.trim())
-  );
+function isExplicitlyActivatedSpecialEffect(tile: PlacedTile): boolean {
+  const trigger = specialTileBehaviors[tile.tileId]?.trigger;
+  return trigger === "activated" || trigger === "placedOrActivated";
 }
 
 function canUseActivationLimit(state: GameState, tile: PlacedTile): boolean {
-  const limit = getActivationLimit(getTileEffectText(tile));
+  const limit = getActivationLimit(tile);
   if (!limit) return true;
 
   const record = state.tileActivationRecords[tile.instanceId];
@@ -424,7 +372,7 @@ function canUseActivationLimit(state: GameState, tile: PlacedTile): boolean {
 }
 
 function recordTileActivation(state: GameState, tile: PlacedTile): GameState {
-  const limit = getActivationLimit(getTileEffectText(tile));
+  const limit = getActivationLimit(tile);
   if (!limit) return state;
 
   return {
@@ -453,22 +401,14 @@ function recordRoundPassiveUse(state: GameState, tile: PlacedTile): GameState {
 }
 
 function getProductionPassiveSuggestion(
-  effectText: string,
+  passiveTile: PlacedTile,
   production: ResourceCost
 ): Partial<Record<ResourceType, number>> | undefined {
-  if (/\+2 Herbs/i.test(effectText)) return { herbs: 2 };
-  if (/\+2 Food/i.test(effectText)) return { food: 2 };
-
-  if (
-    /gain\s+\+?2\s+(?:additional\s+)?resources of types that tile can produce/i.test(
-      effectText
-    )
-  ) {
-    const producedTypes = getProducedResourceTypes(production);
-    if (producedTypes.length > 0) return { [producedTypes[0]]: 2 };
-  }
-
-  return undefined;
+  const rule = productionPassiveRules[passiveTile.tileId];
+  if (!rule) return undefined;
+  if (rule.gain.kind === "fixed") return rule.gain.resources;
+  const producedTypes = getProducedResourceTypes(production);
+  return producedTypes.length > 0 ? { [producedTypes[0]]: rule.gain.amount } : undefined;
 }
 
 function shouldProductionPassiveTrigger(
@@ -484,11 +424,7 @@ function shouldProductionPassiveTrigger(
     return false;
   }
 
-  const effectText = specialTileById[passiveTile.tileId]?.effectText.toLowerCase() ?? "";
-  if (!effectText.includes("activated for production")) return false;
-
-  const requiredTileIds = specialTileById[passiveTile.tileId]?.placement?.adjacentToTileIds;
-  return requiredTileIds ? requiredTileIds.includes(activatedTile.tileId) : false;
+  return productionPassiveRules[passiveTile.tileId]?.sourceTileId === activatedTile.tileId;
 }
 
 function applyResourceGain(
@@ -517,8 +453,7 @@ function applyAdjacentProductionPassiveEffects(
   );
 
   for (const passiveTile of passiveTiles) {
-    const effectText = specialTileById[passiveTile.tileId]?.effectText ?? passiveTile.tileId;
-    const resourceDeltas = getProductionPassiveSuggestion(effectText, production);
+    const resourceDeltas = getProductionPassiveSuggestion(passiveTile, production);
     if (!resourceDeltas) continue;
     const gainText = resources
       .filter((resource) => (resourceDeltas[resource] ?? 0) > 0)
@@ -542,24 +477,27 @@ function queueTileEffectPrompt(
   suggestedProduction?: ResourceCost
 ): GameState {
   const effectText = getTileEffectText(tile);
-  if (parseDeckPeekCount(effectText)) {
+  const ruleId = tileEffectRuleId(tile.tileId, tile.side);
+  const rule = getEffectRule(ruleId);
+  if (rule.deckReorder) {
     return queueDeckReorderFromEffect(
       state,
       "tile",
       getPlacedTileName(tile),
       `${titlePrefix}: ${getPlacedTileName(tile)}`,
       effectText,
+      rule.deckReorder.count,
       tile.instanceId
     );
   }
 
-  const allowsBurdenResolve = /resolve\s+1\s+active\s+burden/i.test(effectText);
+  const allowsBurdenResolve = Boolean(rule.resolveBurden);
   const suggestion = suggestedProduction
     ? { adjustment: { resourceDeltas: suggestedProduction } }
-    : suggestEffectAdjustment(state, effectText, tile);
+    : suggestEffectAdjustment(state, ruleId, tile);
   const noValidTarget =
-    !suggestedProduction && effectHasNoValidChoiceTargets(state, effectText, tile);
-  if (noValidTarget && /\bup to\b/i.test(effectText)) return state;
+    !suggestedProduction && effectHasNoValidChoiceTargets(state, ruleId, tile);
+  if (noValidTarget && rule.optional) return state;
   const suggestedAdjustment = allowsBurdenResolve
     ? {
         ...suggestion.adjustment,
@@ -572,6 +510,7 @@ function queueTileEffectPrompt(
     (allowsBurdenResolve && state.encounters.activeBurdens.length > 0);
   const queued = queuePendingEffect(state, {
     sourceType: "tile",
+    ruleId,
     sourceId: tile.instanceId,
     sourceName: getPlacedTileName(tile),
     title: `${titlePrefix}: ${getPlacedTileName(tile)}`,
@@ -583,8 +522,8 @@ function queueTileEffectPrompt(
     skipLabel: allowsBurdenResolve ? "Skip Burden Resolve" : undefined,
     confirmLabel: noValidTarget ? "Acknowledge" : undefined,
     allowBurdenResolve: allowsBurdenResolve,
-    resourceExchangeLimit:
-      tile.tileId === "special_alchemist_s_workshop" ? 5 : undefined
+    resourceExchangeLimit: rule.exchangeLimit,
+    resourceExchangeOptional: rule.exchangeOptional
   });
   return suggestedAdjustment && !requiresManualChoice && !noValidTarget
     ? resolvePendingEffect(queued)
@@ -802,6 +741,7 @@ function queueEncounterCardEffectPrompt(
   if (card.type === "arrival") {
     return queuePendingEffect(state, {
       sourceType: "card",
+      ruleId: systemEffectRuleId("acknowledge"),
       sourceId: cardId,
       sourceName: card.name,
       title,
@@ -819,13 +759,16 @@ function queueEncounterCardEffectPrompt(
   }
 
   const effectText = getCurrentSeasonCardEffectText(state, cardId);
-  if (parseDeckPeekCount(effectText)) {
+  const ruleId = getCurrentSeasonCardEffectRuleId(state, cardId);
+  const rule = getEffectRule(ruleId);
+  if (rule.deckReorder) {
     return queueDeckReorderFromEffect(
       state,
       "card",
       card.name,
       title,
       effectText,
+      rule.deckReorder.count,
       cardId,
       options.canSkipBoon && card.type === "boon"
         ? { canSkip: true, skipLabel: "Skip Boon" }
@@ -834,12 +777,12 @@ function queueEncounterCardEffectPrompt(
   }
 
   const detailText = getEncounterEffectDetail(card);
-  const noValidTarget = effectHasNoValidChoiceTargets(state, effectText);
+  const noValidTarget = effectHasNoValidChoiceTargets(state, ruleId);
   const noEffectContext = options.noEffectContext ?? "this reveal";
   const acknowledgeOnlyBoon =
     card.type === "boon" &&
     Boolean(options.canSkipBoon) &&
-    card.lifecycle.toLowerCase().includes("keep face-up");
+    persistentBoonIds.has(card.id);
   const resolvedDetailText = [
     options.detailPrefix,
     detailText,
@@ -847,10 +790,11 @@ function queueEncounterCardEffectPrompt(
   ]
     .filter(Boolean)
     .join(" ");
-  const suggestion = suggestEffectAdjustment(state, effectText);
+  const suggestion = suggestEffectAdjustment(state, ruleId);
 
   return queuePendingEffect(state, {
     sourceType: "card",
+    ruleId,
     sourceId: cardId,
     sourceName: card.name,
     title,
@@ -862,7 +806,8 @@ function queueEncounterCardEffectPrompt(
         ? `No effect ${noEffectContext}: ${card.name}.`
         : undefined,
     suggestedAdjustment: suggestion.adjustment,
-    requiresManualChoice: suggestion.requiresManualChoice,
+    requiresManualChoice:
+      acknowledgeOnlyBoon || noValidTarget ? false : suggestion.requiresManualChoice,
     canCancelWithWardenPower:
       card.type === "burden" && Boolean(options.canCancelWithWardenPower),
     canSkip: card.type === "boon" && Boolean(options.canSkipBoon),
@@ -920,7 +865,7 @@ export function revealEncounters(state: GameState): GameState {
     } else if (card.type === "burden") {
       activeBurdens.push(cardId);
     } else if (card.type === "boon") {
-      if (card.lifecycle.toLowerCase().includes("keep face-up")) {
+      if (persistentBoonIds.has(card.id)) {
         faceUpBoons.push({
           cardId,
           remainingUses: getBoonUsesForSeason(state, cardId)
@@ -1011,9 +956,9 @@ export function canStartPlaceTile(
   }
 
   reasons.push(
-    ...getPlacementFailures(state, playerId, tileId, placementInput).filter(
-      (reason) => !isInsufficientResourceReason(reason)
-    )
+    ...getPlacementFailures(state, playerId, tileId, placementInput, {
+      ignoreCost: true
+    })
   );
 
   const options = getPassiveCostOptions(state, {
@@ -1025,15 +970,20 @@ export function canStartPlaceTile(
     cost: actionPreview.cost
   });
 
-  if (!canPayNowOrWithPassiveOptions(state, actionPreview.cost, options)) {
-    for (const missing of resources
-      .filter((resource) => state.warehouse[resource] < actionPreview.cost[resource])
-      .map((resource) => `${actionPreview.cost[resource] - state.warehouse[resource]} ${resource}`)) {
-      reasons.push(`Cannot place here: insufficient ${missing}.`);
+  const missingResources = canPayNowOrWithPassiveOptions(state, actionPreview.cost, options)
+    ? {}
+    : getResourceShortfalls(state.warehouse, actionPreview.cost);
+  for (const [resource, amount] of Object.entries(missingResources)) {
+    if (amount) {
+      reasons.push(`Cannot place here: insufficient ${amount} ${resource}.`);
     }
   }
 
-  return { ok: reasons.length === 0, reasons };
+  return {
+    ok: reasons.length === 0,
+    reasons,
+    missingResources: Object.keys(missingResources).length ? missingResources : undefined
+  };
 }
 
 export function placeTile(
@@ -1063,8 +1013,12 @@ export function placeTile(
   const actionPreview = getBoonActionPreview(state, boonTarget);
   if (state.actionsRemaining < actionPreview.actionCost) return state;
 
-  const placementFailures = getPlacementFailures(state, playerId, tileId, placementInput).filter(
-    (reason) => !isInsufficientResourceReason(reason)
+  const placementFailures = getPlacementFailures(
+    state,
+    playerId,
+    tileId,
+    placementInput,
+    { ignoreCost: true }
   );
   if (placementFailures.length > 0) return state;
 
@@ -1216,7 +1170,7 @@ export function placeTile(
     paymentOptions,
     resolvedCostSelection
   );
-  return tileEffectTriggersOnPlacement(getTileEffectText(placedTiles[0]))
+  return tileEffectTriggersOnPlacement(placedTiles[0])
     ? queueTileEffectPrompt(nextState, placedTiles[0], "Placed effect")
     : nextState;
 }
@@ -1267,15 +1221,20 @@ export function canStartUpgradeTile(
     targetTile: tile,
     cost: actionPreview.cost
   });
-  if (!canPayNowOrWithPassiveOptions(state, actionPreview.cost, options)) {
-    for (const missing of resources
-      .filter((resource) => state.warehouse[resource] < actionPreview.cost[resource])
-      .map((resource) => `${actionPreview.cost[resource] - state.warehouse[resource]} ${resource}`)) {
-      reasons.push(`Cannot upgrade: missing ${missing}.`);
+  const missingResources = canPayNowOrWithPassiveOptions(state, actionPreview.cost, options)
+    ? {}
+    : getResourceShortfalls(state.warehouse, actionPreview.cost);
+  for (const [resource, amount] of Object.entries(missingResources)) {
+    if (amount) {
+      reasons.push(`Cannot upgrade: missing ${amount} ${resource}.`);
     }
   }
 
-  return { ok: reasons.length === 0, reasons };
+  return {
+    ok: reasons.length === 0,
+    reasons,
+    missingResources: Object.keys(missingResources).length ? missingResources : undefined
+  };
 }
 
 export function upgradeTile(
@@ -1373,7 +1332,7 @@ export function upgradeTile(
     resolvedCostSelection
   );
   nextState = log(nextState, `Upgraded ${data.basic.name} to ${data.upgraded.name}.`);
-  return tileEffectTriggersOnUpgrade(getTileEffectText(upgradedTile))
+  return tileEffectTriggersOnUpgrade(upgradedTile)
     ? queueTileEffectPrompt(nextState, upgradedTile, "Upgraded effect")
     : nextState;
 }
@@ -1387,16 +1346,16 @@ export function getActivatableTileIds(state: GameState, playerId: string): strin
       if (!canUseActivationLimit(state, tile)) return false;
 
       if (tile.kind === "special") {
-        const effectText = specialTileById[tile.tileId]?.effectText ?? "";
-        if (!isExplicitlyActivatedSpecialEffect(effectText)) return false;
-        if (/resolve\s+1\s+active\s+burden/i.test(effectText)) {
+        if (!isExplicitlyActivatedSpecialEffect(tile)) return false;
+        const rule = getEffectRule(tileEffectRuleId(tile.tileId, tile.side));
+        if (rule.resolveBurden) {
           return state.encounters.activeBurdens.length > 0;
         }
         if (tile.tileId === "special_alchemist_s_workshop") {
           return resources.some((resource) => state.warehouse[resource] > 0);
         }
-        if (parseDeckPeekCount(effectText)) return state.encounters.deck.length > 0;
-        return !effectHasNoValidChoiceTargets(state, effectText, tile);
+        if (rule.deckReorder) return state.encounters.deck.length > 0;
+        return !effectHasNoValidChoiceTargets(state, rule.id, tile);
       }
 
       const data = coreTileById[tile.tileId];
@@ -1404,7 +1363,11 @@ export function getActivatableTileIds(state: GameState, playerId: string): strin
       return (
         side.effectType === "production" ||
         (side.effectType === "activated" &&
-          !effectHasNoValidChoiceTargets(state, side.effectText, tile))
+          !effectHasNoValidChoiceTargets(
+            state,
+            tileEffectRuleId(tile.tileId, tile.side),
+            tile
+          ))
       );
     })
     .map((tile) => tile.instanceId);
@@ -1493,24 +1456,24 @@ export function canCompleteArrival(
 
   const cost = getBoonModifiedCost(state, {
     action: "arrival",
-    baseCost: parseResourceCost(card.requirementText)
+    baseCost: arrivalRequirementRules[card.id].cost
   });
   const options = getPassiveCostOptions(state, {
     action: "arrival",
     playerId: state.currentPlayerId,
     cost
   });
-  if (!canPayNowOrWithPassiveOptions(state, cost, options)) {
-    const missing = resources
-      .filter((resource) => state.warehouse[resource] < cost[resource])
-      .map((resource) => `${cost[resource] - state.warehouse[resource]} ${resource}`);
-    for (const resourceText of missing) {
-      reasons.push(`Cannot complete Arrival: missing ${resourceText}.`);
+  const missingResources = canPayNowOrWithPassiveOptions(state, cost, options)
+    ? {}
+    : getResourceShortfalls(state.warehouse, cost);
+  for (const [resource, amount] of Object.entries(missingResources)) {
+    if (amount) {
+      reasons.push(`Cannot complete Arrival: missing ${amount} ${resource}.`);
     }
   }
 
   if (
-    card.requirementText.toLowerCase().includes("housing tile") &&
+    arrivalRequirementRules[card.id].requiresHousing &&
     !state.map.placedTiles.some(
       (tile) =>
         tile.strain < 3 &&
@@ -1521,7 +1484,11 @@ export function canCompleteArrival(
     reasons.push("Cannot complete Arrival: requires at least 1 Housing Tile.");
   }
 
-  return { ok: reasons.length === 0, reasons };
+  return {
+    ok: reasons.length === 0,
+    reasons,
+    missingResources: Object.keys(missingResources).length ? missingResources : undefined
+  };
 }
 
 export function getCompletableArrivalIds(state: GameState): string[] {
@@ -1718,6 +1685,7 @@ export function cancelPendingBurdenWithWarden(state: GameState): GameState {
 
   return queuePendingEffectFirst(cancelledState, {
     sourceType: "system",
+    ruleId: stewardEffectRuleId("warden"),
     sourceId: "warden",
     sourceName: "Warden",
     title: "Warden Relief",
@@ -1863,6 +1831,7 @@ export function useStewardPower(state: GameState, playerId: string): GameState {
 
   let pendingEffect: Omit<PendingEffectState, "id"> = {
     sourceType: "system" as const,
+    ruleId: stewardEffectRuleId(player.stewardId),
     sourceId: player.stewardId,
     sourceName: steward.name,
     title: `Steward Power: ${steward.name}`,
@@ -2003,7 +1972,7 @@ export function completeArrival(
   );
   if (!activeArrival) return state;
   if (
-    card.requirementText.toLowerCase().includes("housing tile") &&
+    arrivalRequirementRules[card.id].requiresHousing &&
     !state.map.placedTiles.some(
       (tile) =>
         tile.strain < 3 &&
@@ -2014,7 +1983,7 @@ export function completeArrival(
     return state;
   }
 
-  const baseCost = parseResourceCost(card.requirementText);
+  const baseCost = arrivalRequirementRules[card.id].cost;
   const boonTarget = {
     action: "arrival",
     baseCost
@@ -2091,6 +2060,7 @@ export function completeArrival(
   nextState = recordSelectedCostOptions(nextState, paymentOptions, costSelection);
   return queuePendingEffect(nextState, {
     sourceType: "card",
+    ruleId: systemEffectRuleId("acknowledge"),
     sourceId: arrivalCardId,
     sourceName: card.name,
     title: `Arrival completed: ${card.name}`,
@@ -2124,7 +2094,7 @@ export function canResolveBurden(
   }
   if (!card || card.type !== "burden") return { ok: reasons.length === 0, reasons };
 
-  const baseCost = parseSeasonScaledResolutionCost(card.resolutionText, state.season);
+  const baseCost = getBurdenResolutionCost(card.id, state.season);
   if (!baseCost) {
     reasons.push("Cannot resolve Burden: this Burden has no current resolution line.");
     return { ok: false, reasons };
@@ -2139,16 +2109,20 @@ export function canResolveBurden(
     cost
   });
 
-  if (!canPayNowOrWithPassiveOptions(state, cost, options)) {
-    const missing = resources
-      .filter((resource) => state.warehouse[resource] < cost[resource])
-      .map((resource) => `${cost[resource] - state.warehouse[resource]} ${resource}`);
-    for (const resourceText of missing) {
-      reasons.push(`Cannot resolve Burden: missing ${resourceText}.`);
+  const missingResources = canPayNowOrWithPassiveOptions(state, cost, options)
+    ? {}
+    : getResourceShortfalls(state.warehouse, cost);
+  for (const [resource, amount] of Object.entries(missingResources)) {
+    if (amount) {
+      reasons.push(`Cannot resolve Burden: missing ${amount} ${resource}.`);
     }
   }
 
-  return { ok: reasons.length === 0, reasons };
+  return {
+    ok: reasons.length === 0,
+    reasons,
+    missingResources: Object.keys(missingResources).length ? missingResources : undefined
+  };
 }
 
 export function getResolvableBurdenIds(state: GameState): string[] {
@@ -2170,7 +2144,7 @@ export function resolveBurden(
   if (state.phase !== "turns" || state.actionsRemaining <= 0) return state;
   if (!state.encounters.activeBurdens.includes(burdenCardId)) return state;
 
-  const baseCost = parseSeasonScaledResolutionCost(card.resolutionText, state.season);
+  const baseCost = getBurdenResolutionCost(card.id, state.season);
   if (!baseCost) return state;
   const boonTarget = {
     action: "burden",
@@ -2387,6 +2361,7 @@ export function resolveEndRound(state: GameState): GameState {
     );
     nextState = queuePendingEffect(nextState, {
       sourceType: "card",
+      ruleId: systemEffectRuleId("arrival-expired"),
       sourceId: expiredArrival.cardId,
       sourceName: card?.name ?? expiredArrival.cardId,
       title: `Arrival expired: ${card?.name ?? expiredArrival.cardId}`,

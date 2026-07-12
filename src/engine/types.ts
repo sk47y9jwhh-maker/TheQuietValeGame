@@ -243,7 +243,6 @@ export interface EffectAdjustment {
   resourceDeltas?: Partial<Record<ResourceType, number>>;
   arrivalTimerDeltas?: Record<string, number>;
   tileStrainDeltas?: Record<string, number>;
-  selectedTileIds?: string[];
   supportTileIds?: string[];
   stewardHexUpdates?: Record<string, string>;
   temporaryReachHexUpdates?: Record<string, string>;
@@ -251,8 +250,18 @@ export interface EffectAdjustment {
   resolvedBurdenIds?: string[];
 }
 
+export interface EffectControlHints {
+  broadResourceChoice: boolean;
+  hasResourceAction: boolean;
+  hasExplicitResourceAlternative: boolean;
+  mentionedResources: ResourceType[];
+  timerChoice: boolean;
+  tileChoice: boolean;
+}
+
 export interface PendingEffectState {
   id: string;
+  ruleId: string;
   sourceType: PendingEffectSourceType;
   sourceId?: string;
   sourceName: string;
@@ -261,6 +270,7 @@ export interface PendingEffectState {
   detailText?: string;
   resolutionLogMessage?: string;
   suggestedAdjustment?: EffectAdjustment;
+  controlHints?: EffectControlHints;
   requiresManualChoice?: boolean;
   canCancelWithWardenPower?: boolean;
   canSkip?: boolean;
@@ -458,4 +468,5 @@ export interface GameState {
 export interface ValidationResult {
   ok: boolean;
   reasons: string[];
+  missingResources?: Partial<Record<ResourceType, number>>;
 }

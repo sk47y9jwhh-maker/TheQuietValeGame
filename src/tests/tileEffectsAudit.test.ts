@@ -117,33 +117,6 @@ describe("complete tile effect audit", () => {
     ["c21_the_vaults", "basic", 1],
     ["c21_the_vaults", "upgraded", 2]
   ] as const)(
-    "%s %s can remove Strain from itself",
-    (tileId, side, removed) => {
-      const state = readyState([
-        placed("source", tileId, "G1", side, 2)
-      ]);
-
-      expect(getActivatableTileIds(state, "player_1")).toContain("source");
-      const next = activateTile(state, "player_1", "source");
-
-      expect(next.map.placedTiles[0].strain).toBe(2 - removed);
-      expect(next.pendingEffects).toHaveLength(0);
-      expect(next.actionsRemaining).toBe(3);
-    }
-  );
-
-  it.each([
-    ["c09_tavern", "basic", 1],
-    ["c09_tavern", "upgraded", 1],
-    ["c10_eatery", "basic", 1],
-    ["c10_eatery", "upgraded", 1],
-    ["c11_washhouse", "basic", 1],
-    ["c11_washhouse", "upgraded", 1],
-    ["c12_apothecary", "basic", 1],
-    ["c12_apothecary", "upgraded", 2],
-    ["c21_the_vaults", "basic", 1],
-    ["c21_the_vaults", "upgraded", 2]
-  ] as const)(
     "%s %s applies its deterministic Strain removal immediately",
     (tileId, side, removed) => {
       const state = readyState([

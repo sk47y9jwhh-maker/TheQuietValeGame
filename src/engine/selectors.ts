@@ -1,5 +1,5 @@
 import { encounterById } from "../data/encounters";
-import { coreTileById, specialTileById } from "../data/tiles";
+import { getPlacedTileName } from "./placedTiles";
 import { calculateFinalScore } from "./scoring";
 import type { GameState, PlacedTile } from "./types";
 
@@ -8,9 +8,7 @@ export function selectCurrentPlayer(state: GameState) {
 }
 
 export function selectTileName(tile: PlacedTile): string {
-  if (tile.kind === "special") return specialTileById[tile.tileId]?.name ?? tile.tileId;
-  const data = coreTileById[tile.tileId];
-  return tile.side === "upgraded" ? data.upgraded.name : data.basic.name;
+  return getPlacedTileName(tile);
 }
 
 export function selectAlerts(state: GameState): string[] {

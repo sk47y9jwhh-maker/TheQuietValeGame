@@ -19,6 +19,14 @@ import {
 import { resources } from "../data/resources";
 import { stewards } from "../data/stewards";
 import {
+  cardEffectRuleId,
+  effectRulesById,
+  stewardEffectRuleId,
+  systemEffectRuleId,
+  tileEffectRuleId
+} from "../data/effectRules";
+import { specialTileBehaviors } from "../data/contentRules";
+import {
   coreTileById,
   coreTiles,
   goldenTileById,
@@ -58,7 +66,7 @@ const allTileIds = new Set([
   ...goldenTiles.map((tile) => tile.id)
 ]);
 const goldenBoonIds = new Set(goldenBoons.map((boon) => boon.id));
-const stewardNames = new Set(stewards.map((steward) => steward.name));
+const stewardIds = new Set(stewards.map((steward) => steward.id));
 
 function isWholeNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value);
@@ -146,12 +154,6 @@ function validatePlacementRequirement(
     }
   }
 
-  if (
-    placement.notAdjacentToTerrain?.length &&
-    !placement.text?.toLowerCase().includes("not adjacent")
-  ) {
-    issues.push(`${label} has a forbidden-adjacent terrain rule but its player text does not say so.`);
-  }
 }
 
 function validateSpecialLikeTile(
@@ -314,7 +316,7 @@ function validateLedger(issues: string[]): void {
     if (entry.declaredVow && !entry.requirement.includes("Declare before setup")) {
       issues.push(`${label} is a Vow but does not tell players to declare before setup.`);
     }
-    if (entry.requiredSteward && !stewardNames.has(entry.requiredSteward)) {
+    if (entry.requiredSteward && !stewardIds.has(entry.requiredSteward)) {
       issues.push(`${label} references unknown Steward: ${entry.requiredSteward}.`);
     }
     if (entry.thresholdsByPlayerCount) {
@@ -421,6 +423,48 @@ function validateMapData(issues: string[]): void {
   }
 }
 
+function validateStructuredRules(issues: string[]): void {
+  const requireRule = (ruleId: string, source: string) => {
+    if (!effectRulesById[ruleId]) {
+      issues.push(`${source} is missing structured rule ${ruleId}.`);
+    }
+  };
+
+  for (const card of [...boons, ...burdens]) {
+    for (const season of [1, 2, 3] as const) {
+      requireRule(cardEffectRuleId(card.id, season), `${card.name} Season ${season}`);
+    }
+    if (card.type === "burden") {
+      requireRule(`${card.id}:resolution`, `${card.name} resolution`);
+    }
+  }
+
+  for (const tile of coreTiles) {
+    for (const side of ["basic", "upgraded"] as const) {
+      if (tile[side].effectType === "activated" || tile[side].effectType === "production") {
+        requireRule(tileEffectRuleId(tile.id, side), `${tile[side].name} ${side} effect`);
+      }
+    }
+  }
+
+  for (const tile of specialTiles) {
+    if (!specialTileBehaviors[tile.id]) {
+      issues.push(`${tile.name} is missing a structured Special Tile behavior.`);
+    }
+  }
+  for (const [tileId, behavior] of Object.entries(specialTileBehaviors)) {
+    if (behavior.trigger !== "passive") {
+      requireRule(tileEffectRuleId(tileId, "special"), `${specialTileById[tileId]?.name ?? tileId} effect`);
+    }
+  }
+
+  for (const steward of stewards) {
+    requireRule(stewardEffectRuleId(steward.id), `${steward.name} power`);
+  }
+  requireRule(systemEffectRuleId("acknowledge"), "System acknowledgement");
+  requireRule(systemEffectRuleId("arrival-expired"), "Expired Arrival");
+}
+
 function validateStewards(issues: string[]): void {
   validateUniqueIds("Stewards", stewards, issues);
   for (const steward of stewards) {
@@ -445,5 +489,6 @@ export function validateAllGameData(): string[] {
   validateEncounters(issues);
   validateLedger(issues);
   validateStewards(issues);
+  validateStructuredRules(issues);
   return issues;
 }

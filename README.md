@@ -26,7 +26,6 @@ Implemented playable loop:
 - Free Stables movement between placed Stables and adjacent non-Overstrained destinations.
 - Core and unlocked Special Tile placement.
 - Upgrade and Activate flows for reachable eligible tiles.
-- Linked Production activates adjacent matching Resource producers together for one action.
 - Activated Special Tile effects that resolve an active Burden with a player choice prompt.
 - Docks passive reachability connecting active settlement networks to water-adjacent tiles.
 - Once-per-season/round activation limits for tile effects that declare them.
@@ -81,6 +80,7 @@ npm run dev
 npm run test
 npm run build
 npm run preview
+npm run loc
 ```
 
 ## Architecture
@@ -96,6 +96,8 @@ src/
 ```
 
 The engine returns validation reasons for illegal actions so the UI can explain why a move is blocked instead of silently disabling controls.
+
+`npm run loc` reports application, content data, rules, styles, tests, and research tooling separately. Generated playtest output and local analysis archives are intentionally ignored and are not part of the maintained source count.
 
 ## Deployment
 

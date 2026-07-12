@@ -23,6 +23,7 @@ import {
   type LedgerChronicle
 } from "../../data/ledger";
 import { coreTiles, goldenTileById, specialTiles } from "../../data/tiles";
+import { stewardById } from "../../data/stewards";
 import {
   countCompletedLedgerEntries,
   isGoldenMilestoneUnlocked,
@@ -606,7 +607,9 @@ export function BottomDrawer({
                           <footer>
                             <span>{entry.scope}</span>
                             <span>{entry.pacingBand}</span>
-                            {entry.requiredSteward && <span>{entry.requiredSteward}</span>}
+                            {entry.requiredSteward && (
+                              <span>{stewardById[entry.requiredSteward]?.name ?? entry.requiredSteward}</span>
+                            )}
                             {entry.declaredVow && <span>One Vow per game</span>}
                           </footer>
                           {entry.playerCountPrestige && (

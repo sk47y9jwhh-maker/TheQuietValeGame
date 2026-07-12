@@ -83,7 +83,7 @@ function isSavedGameStateShape(value: unknown): value is GameState {
     Array.isArray(encounters.activeBurdens) &&
     Array.isArray(encounters.faceUpBoons) &&
     Array.isArray(encounters.completedArrivals) &&
-    (value.pendingEffects === undefined || Array.isArray(value.pendingEffects)) &&
+    Array.isArray(value.pendingEffects) &&
     Array.isArray(value.log)
   );
 }
@@ -120,15 +120,6 @@ export function readSavedGame(): SavedGame | null {
     version: saveVersion,
     state: {
       ...saved.state,
-      players: saved.state.players.map((player) => ({
-        ...player,
-        hasPlacedFirstTile: player.hasPlacedFirstTile ?? false,
-        stewardPowerUsesBySeason: player.stewardPowerUsesBySeason ?? {
-          1: 0,
-          2: 0,
-          3: 0
-        }
-      })),
       goldenSetup: saved.state.goldenSetup ?? {
         selectedTileId: saved.selectedGoldenTileId,
         selectedBoonId: saved.selectedGoldenBoonId,
@@ -138,12 +129,6 @@ export function readSavedGame(): SavedGame | null {
       pendingGoldenEffect: saved.state.pendingGoldenEffect ?? null,
       bonusTurnsPending: saved.state.bonusTurnsPending ?? false,
       bonusTurnsActive: saved.state.bonusTurnsActive ?? false,
-      boonModifiers: saved.state.boonModifiers ?? [],
-      ignoredBurdenIdsThisRound: saved.state.ignoredBurdenIdsThisRound ?? [],
-      tileActivationRecords: saved.state.tileActivationRecords ?? {},
-      pendingEffects: saved.state.pendingEffects ?? [],
-      pendingDeckReorder: saved.state.pendingDeckReorder ?? null,
-      pendingCostChoice: saved.state.pendingCostChoice ?? null,
       encounters: {
         ...saved.state.encounters,
         reserveBoonIds: saved.state.encounters.reserveBoonIds ?? [],

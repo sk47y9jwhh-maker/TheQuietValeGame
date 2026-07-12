@@ -10,3 +10,6 @@ playwright-report
 test-results
 .codex-work
 .pnpm-store
+outputs
+analysis
+.codex-live-release

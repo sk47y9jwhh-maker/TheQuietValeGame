@@ -2,6 +2,7 @@ import { mapById, mapCells, terrainLabels } from "../data/map";
 import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexLine, getHexNeighbors } from "./hex";
 import { getBoonModifiedCost } from "./boonModifiers";
+import { getPlacedTileCategory } from "./placedTiles";
 import { canAfford, getMissingResources } from "./resources";
 import { getPlacedTileAtHex, isOverstrained, selectReachablePlacedTileIds } from "./reachability";
 import type {
@@ -36,10 +37,7 @@ export function getTileData(
   return coreTileById[tileId] ?? specialTileById[tileId];
 }
 
-export function getTileCategory(tile: PlacedTile): TileCategory {
-  if (tile.kind === "special") return specialTileById[tile.tileId].category;
-  return coreTileById[tile.tileId].category;
-}
+export const getTileCategory = getPlacedTileCategory;
 
 function getPlacement(tileId: string): TilePlacementRequirement | undefined {
   const data = getTileData(tileId);
@@ -381,9 +379,10 @@ export function getPlacementFailures(
   state: GameState,
   playerId: string,
   tileId: string,
-  placementInput: PlacementInput
+  placementInput: PlacementInput,
+  options: PlacementFailureOptions = {}
 ): string[] {
-  return getPlacementFailuresInternal(state, playerId, tileId, placementInput);
+  return getPlacementFailuresInternal(state, playerId, tileId, placementInput, options);
 }
 
 export function canPlaceTile(

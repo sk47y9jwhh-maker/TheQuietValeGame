@@ -4,17 +4,12 @@ import type {
   PendingEffectSourceType
 } from "./types";
 
-export function parseDeckPeekCount(effectText: string): number | null {
-  const match = effectText.match(/look at the top\s+(\d+)\s+cards?/i);
-  return match ? Number(match[1]) : null;
-}
-
 export function queueDeckReorder(
   state: GameState,
+  count: number,
   input: Omit<PendingDeckReorderState, "id" | "cardIds">
 ): GameState {
-  const count = parseDeckPeekCount(input.effectText);
-  if (!count) return state;
+  if (count <= 0) return state;
 
   return {
     ...state,
@@ -32,10 +27,11 @@ export function queueDeckReorderFromEffect(
   sourceName: string,
   title: string,
   effectText: string,
+  count: number,
   sourceId?: string,
   options: Pick<PendingDeckReorderState, "canSkip" | "skipLabel"> = {}
 ): GameState {
-  return queueDeckReorder(state, {
+  return queueDeckReorder(state, count, {
     sourceType,
     sourceId,
     sourceName,
