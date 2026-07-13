@@ -5543,14 +5543,15 @@ input,
     font-size: 10px;
   }
 
+  /* Mobile has no hover state, so tile identity and inspection must stay visible. */
   .hex-cell.is-placed .hex-label,
-  .hex-cell.is-placed .hex-label-backplate {
-    opacity: 0;
+  .hex-cell.is-placed .hex-label-backplate,
+  .tile-inspect-control {
+    opacity: 1;
   }
 
-  .hex-cell.is-selected .hex-label,
-  .hex-cell.is-selected .hex-label-backplate {
-    opacity: 1;
+  .tile-inspect-control {
+    pointer-events: auto;
   }
 
   .tile-category-marker circle {
