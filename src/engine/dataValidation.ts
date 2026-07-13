@@ -419,6 +419,9 @@ function validateMapData(issues: string[]): void {
     if (layer.opacity < 0 || layer.opacity > 1) {
       issues.push(`Map artwork layer ${layer.id} opacity must be between 0 and 1.`);
     }
+    if (layer.frame.width <= 0 || layer.frame.height <= 0) {
+      issues.push(`Map artwork layer ${layer.id} must have a positive frame size.`);
+    }
     if (!layer.label.trim()) issues.push(`Map artwork layer ${layer.id} has a blank label.`);
   }
 }

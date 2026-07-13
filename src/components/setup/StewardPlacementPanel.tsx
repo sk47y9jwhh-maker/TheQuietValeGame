@@ -5,6 +5,11 @@ import { stewardById } from "../../data/stewards";
 import { selectCurrentPlayer } from "../../engine/selectors";
 import { validateStewardPlacement } from "../../engine/gameActions";
 import type { GameState } from "../../engine/types";
+import {
+  hasMapArtwork,
+  MapArtworkCredit,
+  MapArtworkImage
+} from "../map/MapArtwork";
 
 const setupRadius = 17;
 const setupHexHeight = Math.sqrt(3) * setupRadius;
@@ -125,21 +130,30 @@ export function StewardPlacementPanel({
       </section>
 
       <section className="map-panel setup-map-panel" aria-label="Steward starting map">
-        <div className="terrain-key setup-terrain-key" aria-label="Terrain colour key">
-          {setupTerrainKey.map((terrain) => (
-            <span className="terrain-key-item" key={terrain}>
-              <span className={`terrain-swatch terrain-${terrain}`} />
-              {terrainLabels[terrain]}
-            </span>
-          ))}
+        <div className="setup-map-meta">
+          <div className="terrain-key setup-terrain-key" aria-label="Terrain colour key">
+            {setupTerrainKey.map((terrain) => (
+              <span className="terrain-key-item" key={terrain}>
+                <span className={`terrain-swatch terrain-${terrain}`} />
+                {terrainLabels[terrain]}
+              </span>
+            ))}
+          </div>
         </div>
-        <div className="steward-placement-board map-canvas">
-          <svg
-            className="steward-start-map"
+        <div className="map-artwork-frame">
+          <div className="steward-placement-board map-canvas">
+            <svg
+            className={`steward-start-map ${hasMapArtwork ? "has-map-artwork" : ""}`}
             role="img"
             aria-label={`${steward.name} starting map`}
             viewBox={`0 0 ${setupMapWidth} ${setupMapHeight}`}
           >
+            <MapArtworkImage
+              hexRadius={setupRadius}
+              kind="underlay"
+              originX={14}
+              originY={17}
+            />
             {setupMapGeometry.map(({ cell, x, y, points }) => {
               const allowed = steward.startingTerrains.includes(cell.terrain);
               const occupiedPlayerIndex = occupiedPlayerIndexByHex.get(cell.id);
@@ -203,7 +217,15 @@ export function StewardPlacementPanel({
                 </g>
               );
             })}
-          </svg>
+            <MapArtworkImage
+              hexRadius={setupRadius}
+              kind="overlay"
+              originX={14}
+              originY={17}
+            />
+            </svg>
+          </div>
+          <MapArtworkCredit />
         </div>
       </section>
 

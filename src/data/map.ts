@@ -1,4 +1,5 @@
 import type { HexData, Terrain } from "../engine/types";
+import quietValeMapArtwork from "../assets/quiet_vale_map_v02.webp";
 
 export const terrainLabels: Record<Terrain, string> = {
   grasslands: "Grasslands",
@@ -30,9 +31,15 @@ export interface MapArtworkLayer {
   kind: MapArtworkLayerKind;
   src: string;
   opacity: number;
+  frame: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
   /**
-   * Artwork is authored against the same SVG viewBox as the playable hex grid.
-   * This keeps clicks, placement rules, and future painted art aligned.
+   * Artwork is positioned in the SVG viewBox used by the playable hex grid.
+   * The frame can extend outside the viewBox when the source has outer margins.
    */
   placement: "svg-view-box";
   notes: string;
@@ -204,11 +211,19 @@ export const mapArtworkLayers: MapArtworkLayer[] = [
     id: "painted_map_underlay",
     label: "Painted map underlay",
     kind: "underlay",
-    src: "",
+    src: quietValeMapArtwork,
     opacity: 1,
+    frame: {
+      // Measured from the artist's 14 x 9 lattice. The slight bleed places the
+      // painted hex centres directly beneath the interactive SVG hit areas.
+      x: -19.6663,
+      y: -7.7617,
+      width: 714.1339,
+      height: 545.4286
+    },
     placement: "svg-view-box",
     notes:
-      "Optional full-board artwork behind the interactive hex grid. Export at the map SVG viewBox ratio."
+      "Artist map V02 aligned to the interactive 14 x 9 hex lattice."
   },
   {
     id: "painted_map_overlay",
@@ -216,6 +231,12 @@ export const mapArtworkLayers: MapArtworkLayer[] = [
     kind: "overlay",
     src: "",
     opacity: 0.92,
+    frame: {
+      x: 0,
+      y: 0,
+      width: mapLayout.width,
+      height: mapLayout.height
+    },
     placement: "svg-view-box",
     notes:
       "Optional transparent PNG/SVG details above the grid. It is click-through so gameplay still uses the hex map."

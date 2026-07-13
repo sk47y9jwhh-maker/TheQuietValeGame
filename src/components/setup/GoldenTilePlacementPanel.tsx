@@ -7,6 +7,11 @@ import {
   validateGoldenTileSetupPlacement
 } from "../../engine/golden";
 import type { GameState } from "../../engine/types";
+import {
+  hasMapArtwork,
+  MapArtworkCredit,
+  MapArtworkImage
+} from "../map/MapArtwork";
 
 const radius = 17;
 const hexHeight = Math.sqrt(3) * radius;
@@ -117,13 +122,20 @@ export function GoldenTilePlacementPanel({
       </section>
 
       <section className="map-panel setup-map-panel" aria-label="Golden Tile setup map">
-        <div className="steward-placement-board map-canvas">
-          <svg
-            className="steward-start-map golden-setup-map"
+        <div className="map-artwork-frame">
+          <div className="steward-placement-board map-canvas">
+            <svg
+            className={`steward-start-map golden-setup-map ${hasMapArtwork ? "has-map-artwork" : ""}`}
             role="img"
             aria-label={`${tile?.name ?? "Golden Tile"} placement map`}
             viewBox={`0 0 ${mapWidth} ${mapHeight}`}
           >
+            <MapArtworkImage
+              hexRadius={radius}
+              kind="underlay"
+              originX={14}
+              originY={17}
+            />
             {geometry.map(({ cell, x, y, points }) => {
               const legal = legalHexIds.has(cell.id);
               const selected = selectedHexId === cell.id;
@@ -160,7 +172,15 @@ export function GoldenTilePlacementPanel({
                 </g>
               );
             })}
-          </svg>
+            <MapArtworkImage
+              hexRadius={radius}
+              kind="overlay"
+              originX={14}
+              originY={17}
+            />
+            </svg>
+          </div>
+          <MapArtworkCredit />
         </div>
       </section>
     </main>

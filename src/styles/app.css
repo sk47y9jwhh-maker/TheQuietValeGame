@@ -1906,6 +1906,68 @@ button.effect-row {
   background: var(--terrain-ruins);
 }
 
+.map-symbol-key {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 3px 6px;
+  padding: 1px 4px 5px;
+  border-bottom: 1px solid rgba(66, 54, 38, 0.18);
+  color: rgba(36, 31, 26, 0.78);
+}
+
+.tile-type-key-item,
+.map-marker-key-item {
+  display: flex;
+  align-items: center;
+}
+
+.tile-type-key-item,
+.map-marker-key-item {
+  gap: 3px;
+  font-size: 8px;
+  font-weight: 750;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.tile-key-type,
+.map-key-marker {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.tile-key-type circle {
+  fill: var(--qv-graphite);
+  stroke: rgba(251, 244, 226, 0.9);
+  stroke-width: 1;
+}
+
+.tile-key-type text {
+  fill: var(--qv-cream-text);
+  stroke: none;
+  font-size: 6.5px;
+  font-weight: 750;
+}
+
+.tile-key-type.tile-category-resource circle { fill: #526d4c; }
+.tile-key-type.tile-category-housing circle { fill: #8a573c; }
+.tile-key-type.tile-category-crafting circle { fill: #53626a; }
+.tile-key-type.tile-category-merchant circle { fill: #8a682f; }
+.tile-key-type.tile-category-social circle { fill: #694d74; }
+.tile-key-type.tile-category-wellbeing circle { fill: #456d63; }
+.tile-key-type.tile-category-travel circle { fill: #486487; }
+.tile-key-type.tile-category-special circle { fill: var(--qv-brass-dark); }
+
+.map-key-marker.support-marker {
+  width: 17px;
+  height: 17px;
+}
+
 .map-gesture-hint {
   margin: 0;
   padding: 0 6px;
@@ -1913,6 +1975,42 @@ button.effect-row {
   font-size: 11px;
   font-weight: 700;
   text-align: center;
+}
+
+.map-artwork-credit {
+  margin: 0;
+  padding: 0 6px;
+  color: rgba(36, 31, 26, 0.58);
+  font-size: 9px;
+  font-weight: 650;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.map-artwork-credit a {
+  color: inherit;
+  text-decoration-color: rgba(36, 31, 26, 0.32);
+  text-underline-offset: 2px;
+}
+
+.map-artwork-frame {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 3px;
+}
+
+.setup-map-panel > .map-artwork-frame:only-child {
+  grid-row: 1 / -1;
+}
+
+.setup-map-meta {
+  width: 100%;
+  display: grid;
+  gap: 2px;
 }
 
 .touch-hint {
@@ -1948,12 +2046,15 @@ button.effect-row {
   pointer-events: none;
 }
 
-.hex-map.has-map-artwork .hex-cell:not(.is-placed) polygon {
-  fill-opacity: 0.72;
+.hex-map.has-map-artwork .hex-cell polygon {
+  fill: transparent;
+  stroke: transparent;
+  filter: none;
 }
 
-.hex-map.has-map-artwork .hex-cell.is-placed polygon {
-  fill-opacity: 0.9;
+.steward-start-map.has-map-artwork .steward-start-cell polygon {
+  fill: transparent;
+  stroke: transparent;
 }
 
 .map-panel.setup-overview-panel,
@@ -5240,6 +5341,55 @@ input,
 .hex-cell.is-overstrained polygon {
   fill: rgba(139, 76, 53, 0.8);
   stroke: var(--qv-danger-rust);
+  stroke-width: 3;
+  stroke-dasharray: none;
+}
+
+/* Painted-map interaction states: invisible at rest, grounded when active. */
+.hex-map.has-map-artwork .hex-cell.is-placed polygon {
+  fill: transparent;
+  stroke: transparent;
+  filter: none;
+}
+
+.hex-map.has-map-artwork .hex-cell polygon {
+  transition: fill 120ms ease, stroke 120ms ease, stroke-width 120ms ease;
+  vector-effect: non-scaling-stroke;
+}
+
+@media (hover: hover) {
+  .hex-map.has-map-artwork .hex-cell:hover polygon {
+    fill: rgba(255, 246, 223, 0.16);
+    stroke: rgba(36, 31, 26, 0.62);
+    stroke-width: 1.5;
+    stroke-dasharray: none;
+  }
+}
+
+.hex-map.has-map-artwork .hex-cell:focus-visible polygon {
+  fill: rgba(255, 246, 223, 0.2);
+  stroke: rgba(36, 31, 26, 0.72);
+  stroke-width: 2;
+  stroke-dasharray: none;
+}
+
+.hex-map.has-map-artwork .hex-cell.is-legal polygon {
+  fill: rgba(184, 138, 58, 0.08);
+  stroke: rgba(125, 93, 47, 0.76);
+  stroke-width: 1.75;
+  stroke-dasharray: 4 3;
+}
+
+.hex-map.has-map-artwork .hex-cell.is-footprint polygon {
+  fill: rgba(80, 107, 79, 0.16);
+  stroke: var(--qv-muted-green-dark);
+  stroke-width: 2.5;
+  stroke-dasharray: none;
+}
+
+.hex-map.has-map-artwork .hex-cell.is-selected polygon {
+  fill: rgba(184, 138, 58, 0.2);
+  stroke: var(--qv-brass);
   stroke-width: 3;
   stroke-dasharray: none;
 }

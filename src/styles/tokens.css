@@ -16,13 +16,14 @@
   --qv-danger-rust: #8b4c35;
   --qv-ink: #241f1a;
   --qv-cream-text: #f4ead2;
-  --terrain-grasslands: #d8cfae;
-  --terrain-woodland: #8f9b6a;
-  --terrain-heaths: #a99ab2;
-  --terrain-water: #6f91a2;
-  --terrain-mountains: #898d8c;
-  --terrain-arable: #c6a96d;
-  --terrain-ruins: #9a8875;
+  /* Sampled from the painted board so the key reads as a true map legend. */
+  --terrain-grasslands: #cdc7a7;
+  --terrain-woodland: #819e60;
+  --terrain-heaths: #b7aeb0;
+  --terrain-water: #b1c0b9;
+  --terrain-mountains: #98a088;
+  --terrain-arable: #d6c375;
+  --terrain-ruins: #cc9c7c;
   --font-display: "Almendra", "Iowan Old Style", "Palatino Linotype", Palatino,
     Georgia, serif;
   --font-body: "Alegreya", Georgia, "Times New Roman", serif;

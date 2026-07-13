@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useRef } from "react";
 import {
-  mapArtworkLayers,
   mapCells,
   mapLayout,
   terrainLabels
@@ -23,6 +22,11 @@ import type {
   TileCategory,
   TilePlacementDraft
 } from "../../engine/types";
+import {
+  hasMapArtwork,
+  MapArtworkCredit,
+  MapArtworkImage
+} from "./MapArtwork";
 
 interface HexMapProps {
   state: GameState;
@@ -63,6 +67,19 @@ const tileCategoryGlyphs: Record<TileCategory, string> = {
   special: "✦"
 };
 
+const tileCategoryLabels: Record<TileCategory, string> = {
+  resource: "Resource",
+  housing: "Housing",
+  crafting: "Crafting",
+  merchant: "Merchant",
+  social: "Social",
+  wellbeing: "Wellbeing",
+  travel: "Travel",
+  special: "Special"
+};
+
+const tileCategoryKey = Object.keys(tileCategoryGlyphs) as TileCategory[];
+
 function polygonPoints(cx: number, cy: number): string {
   return Array.from({ length: 6 }, (_, index) => {
     const angle = (Math.PI / 180) * (60 * index);
@@ -90,32 +107,6 @@ const mapGeometry = mapCells.map((cell) => {
 const mapGeometryById = new Map(
   mapGeometry.map((geometry) => [geometry.cell.id, geometry])
 );
-
-const activeMapArtworkLayers = mapArtworkLayers.filter((layer) => layer.src);
-const hasMapArtwork = activeMapArtworkLayers.length > 0;
-
-function MapArtworkImage({ kind }: { kind: "underlay" | "overlay" }) {
-  return (
-    <>
-      {activeMapArtworkLayers
-        .filter((layer) => layer.kind === kind)
-        .map((layer) => (
-          <image
-            aria-hidden="true"
-            className={`map-artwork-layer map-artwork-${layer.kind}`}
-            height={mapHeight}
-            href={layer.src}
-            key={layer.id}
-            opacity={layer.opacity}
-            preserveAspectRatio="xMidYMid meet"
-            width={mapWidth}
-            x={0}
-            y={0}
-          />
-        ))}
-    </>
-  );
-}
 
 function getTileLabelLines(tileName: string): string[] {
   if (!tileName) return [];
@@ -282,12 +273,51 @@ export function HexMap({
             </span>
           ))}
         </div>
+        <div className="map-symbol-key" aria-label="Tile and marker key">
+          {tileCategoryKey.map((category) => (
+            <span className="tile-type-key-item" key={category}>
+              <svg
+                aria-hidden="true"
+                className={`tile-key-type tile-category-${category}`}
+                viewBox="0 0 16 16"
+              >
+                <circle cx={8} cy={8} r={6} />
+                <text x={8} y={10.5} textAnchor="middle">
+                  {tileCategoryGlyphs[category]}
+                </text>
+              </svg>
+              <span>{tileCategoryLabels[category]}</span>
+            </span>
+          ))}
+          <span className="map-marker-key-item" title="The number shows current Strain">
+            <svg aria-hidden="true" className="map-key-marker strain-marker" viewBox="0 0 20 20">
+              <circle cx={10} cy={10} r={7} />
+              <text x={10} y={13} textAnchor="middle">2</text>
+            </svg>
+            Strain
+          </span>
+          <span className="map-marker-key-item">
+            <svg aria-hidden="true" className="map-key-marker support-marker" viewBox="0 0 20 20">
+              <path d="M3,5 L10,2 L17,5 L16,13 L10,17 L4,13 Z" />
+              <path className="support-marker-check" d="M6.5,9.5 L9,12 L14,7" />
+            </svg>
+            Supported
+          </span>
+          <span className="map-marker-key-item" title="The number identifies the player">
+            <svg aria-hidden="true" className="map-key-marker steward-marker" viewBox="0 0 20 20">
+              <circle cx={10} cy={10} r={7} />
+              <text x={10} y={13} textAnchor="middle">1</text>
+            </svg>
+            Steward
+          </span>
+        </div>
         <p className="map-gesture-hint">
           <span className="desktop-hint">Right-click a hex for quick actions.</span>
           <span className="touch-hint">Tap a hex to select. Long-press for quick actions.</span>
         </p>
       </div>
-      <div className="map-canvas">
+      <div className="map-artwork-frame">
+        <div className="map-canvas">
         <svg
           className={`hex-map zoom-high ${hasMapArtwork ? "has-map-artwork" : ""}`}
           style={{
@@ -554,6 +584,8 @@ export function HexMap({
             })}
           </g>
         </svg>
+        </div>
+        <MapArtworkCredit />
       </div>
     </section>
   );

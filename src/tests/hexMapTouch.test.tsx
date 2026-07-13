@@ -11,6 +11,63 @@ describe("hex map touch controls", () => {
     vi.useRealTimers();
   });
 
+  it("explains tile types and map markers in the expanded key", () => {
+    const state = {
+      ...createNewGame(1, ["vanguard"]),
+      phase: "turns" as const
+    };
+
+    render(
+      <HexMap
+        state={state}
+        selectedTileId={coreTiles[0].id}
+        actionMode="place"
+        selectedHexIds={[]}
+        placementOrientation={3}
+        onHexSelect={vi.fn()}
+      />
+    );
+
+    const key = screen.getByLabelText("Tile and marker key");
+    expect(key).toHaveTextContent("Resource");
+    expect(key).toHaveTextContent("Special");
+    expect(key).toHaveTextContent("Strain");
+    expect(key).toHaveTextContent("Supported");
+    expect(key).toHaveTextContent("Steward");
+  });
+
+  it("credits the map artists and identifies the image and site owner", () => {
+    const state = {
+      ...createNewGame(1, ["vanguard"]),
+      phase: "turns" as const
+    };
+
+    render(
+      <HexMap
+        state={state}
+        selectedTileId={coreTiles[0].id}
+        actionMode="place"
+        selectedHexIds={[]}
+        placementOrientation={3}
+        onHexSelect={vi.fn()}
+      />
+    );
+
+    const credit = screen.getByText(
+      /Map artwork by Giovanni Spadaro & Daniele Nicotra/
+    );
+    expect(credit).toHaveTextContent(
+      "Map image and site © 2026 Robert@thequietvalegame.com"
+    );
+    expect(
+      screen.getByRole("img", { name: "The Quiet Vale map" }).closest(".map-artwork-frame")
+        ?.lastElementChild
+    ).toBe(credit);
+    expect(
+      screen.getByRole("link", { name: "Robert@thequietvalegame.com" })
+    ).toHaveAttribute("href", "mailto:Robert@thequietvalegame.com");
+  });
+
   it("opens the map context menu callback on long press", () => {
     vi.useFakeTimers();
     const onHexSelect = vi.fn();

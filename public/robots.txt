@@ -1,0 +1,30 @@
+# Standard search engines may index the public prototype. The content signal
+# reserves AI training and reference-use rights where supported.
+User-agent: *
+Content-signal: search=yes, ai-train=no, use=reference
+Allow: /
+
+# AI training crawlers
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
