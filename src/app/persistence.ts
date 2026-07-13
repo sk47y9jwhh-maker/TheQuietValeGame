@@ -1,10 +1,14 @@
 import { resources } from "../data/resources";
+import { coreTiles } from "../data/tiles";
 import type { GamePhase, GameState, PlayerCount, Season } from "../engine/types";
 import { readStoredJson, removeStoredItems, writeStoredJson } from "./browserStorage";
 
-const saveVersion = 2;
+const saveVersion = 3;
 const gameSaveKey = "quietVale.activeGame.v1";
 const setupSaveKey = "quietVale.setup.v1";
+const resourceTileIds = new Set(
+  coreTiles.filter((tile) => tile.category === "resource").map((tile) => tile.id)
+);
 
 export interface SavedSetup {
   version: number;
@@ -91,7 +95,7 @@ function isSavedGameStateShape(value: unknown): value is GameState {
 function isSavedSetup(value: unknown): value is SavedSetup {
   if (!isRecord(value)) return false;
   return (
-    (value.version === 1 || value.version === saveVersion) &&
+    (value.version === 1 || value.version === 2 || value.version === saveVersion) &&
     isPlayerCount(value.playerCount) &&
     Array.isArray(value.stewardIds) &&
     value.stewardIds.every((id) => typeof id === "string") &&
@@ -115,11 +119,23 @@ export function readSavedSetup(): SavedSetup | null {
 export function readSavedGame(): SavedGame | null {
   const saved = readStoredJson(gameSaveKey);
   if (!isSavedGame(saved)) return null;
+  const tileSupply = saved.version < 3
+    ? {
+        ...saved.state.tileSupply,
+        core: Object.fromEntries(
+          Object.entries(saved.state.tileSupply.core).map(([tileId, remaining]) => [
+            tileId,
+            resourceTileIds.has(tileId) ? remaining + 1 : remaining
+          ])
+        )
+      }
+    : saved.state.tileSupply;
   return {
     ...saved,
     version: saveVersion,
     state: {
       ...saved.state,
+      tileSupply,
       goldenSetup: saved.state.goldenSetup ?? {
         selectedTileId: saved.selectedGoldenTileId,
         selectedBoonId: saved.selectedGoldenBoonId,

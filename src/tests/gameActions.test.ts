@@ -10,7 +10,7 @@ import {
   confirmCostChoice,
   endCurrentTurn,
   getActivatableTileIds,
-  getLinkedProductionTileId,
+  getLinkedProductionTileIds,
   getStableMoveDestinationTileIds,
   moveStewardViaStables,
   placeTile,
@@ -51,7 +51,7 @@ describe("game actions", () => {
 
     expect(next.map.placedTiles).toHaveLength(1);
     expect(next.actionsRemaining).toBe(3);
-    expect(next.tileSupply.core.c01_lumber_yard).toBe(1);
+    expect(next.tileSupply.core.c01_lumber_yard).toBe(2);
     expect(next.pendingEffects).toHaveLength(0);
   });
 
@@ -199,7 +199,7 @@ describe("game actions", () => {
     expect(activated.actionsRemaining).toBe(2);
   });
 
-  it("activates two adjacent matching Resource producers for one action", () => {
+  it("activates all three immediately adjacent matching Resource producers for one action", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
@@ -231,21 +231,91 @@ describe("game actions", () => {
             hexIds: ["H1"],
             strain: 0,
             support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "farm_3",
+            tileId: "c04_farmstead",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G2"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
           }
         ]
       }
     };
 
-    expect(getLinkedProductionTileId(ready, "farm_1")).toBe("farm_2");
+    expect(getLinkedProductionTileIds(ready, "farm_1")).toEqual([
+      "farm_2",
+      "farm_3"
+    ]);
+
+    const activated = activateTile(ready, "player_1", "farm_1");
+
+    expect(activated.warehouse.food).toBe(6);
+    expect(activated.actionsRemaining).toBe(3);
+    expect(activated.players[0].stewardHexId).toBe("G1");
+    expect(
+      activated.log.filter(
+        (entry) => entry.message === "Linked production activated Farmstead."
+      )
+    ).toHaveLength(2);
+  });
+
+  it("does not chain Linked Production through a non-adjacent third producer", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      phase: "turns" as const,
+      warehouse: { ...state.warehouse, food: 0 },
+      players: [
+        {
+          ...state.players[0],
+          hasPlacedFirstTile: true,
+          stewardHexId: "G1"
+        }
+      ],
+      map: {
+        placedTiles: [
+          {
+            instanceId: "farm_1",
+            tileId: "c04_farmstead",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "farm_2",
+            tileId: "c04_farmstead",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["H1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          },
+          {
+            instanceId: "farm_3",
+            tileId: "c04_farmstead",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["I1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    expect(getLinkedProductionTileIds(ready, "farm_1")).toEqual(["farm_2"]);
 
     const activated = activateTile(ready, "player_1", "farm_1");
 
     expect(activated.warehouse.food).toBe(4);
-    expect(activated.actionsRemaining).toBe(3);
-    expect(activated.players[0].stewardHexId).toBe("G1");
-    expect(activated.log.some((entry) =>
-      entry.message === "Linked production activated Farmstead."
-    )).toBe(true);
+    expect(
+      activated.log.filter((entry) => entry.message.startsWith("Linked production"))
+    ).toHaveLength(1);
   });
 
   it("uses each linked producer's current side and skips an Overstrained partner", () => {
@@ -300,7 +370,7 @@ describe("game actions", () => {
     };
     const activatedWithoutLink = activateTile(overstrained, "player_1", "farm_1");
 
-    expect(getLinkedProductionTileId(overstrained, "farm_1")).toBeUndefined();
+    expect(getLinkedProductionTileIds(overstrained, "farm_1")).toEqual([]);
     expect(activatedWithoutLink.warehouse.food).toBe(2);
     expect(activatedWithoutLink.warehouse.goods).toBe(0);
   });
