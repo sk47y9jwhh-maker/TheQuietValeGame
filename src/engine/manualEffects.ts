@@ -23,6 +23,7 @@ import type {
   AlternativeEffectDefinition,
   EffectRule,
   ResourceGainChoiceDefinition,
+  StrainCascadeRule,
   TileAdjustmentRule,
   TileTargetRule,
   TimerAdjustmentRule
@@ -69,6 +70,7 @@ export function isWardenReliefAdjustmentValid(
     hasRecordChanges(adjustment.arrivalTimerDeltas) ||
     hasStringRecordChanges(adjustment.stewardHexUpdates) ||
     hasStringRecordChanges(adjustment.temporaryReachHexUpdates) ||
+    Boolean(adjustment.strainCascadeAnchorTileId) ||
     Boolean(adjustment.ignoredBurdenIds?.length) ||
     Boolean(adjustment.resolvedBurdenIds?.length)
   ) {
@@ -159,6 +161,7 @@ export function hasEffectAdjustment(adjustment: EffectAdjustment): boolean {
     hasResourceChanges(adjustment) ||
     hasRecordChanges(adjustment.arrivalTimerDeltas) ||
     hasRecordChanges(adjustment.tileStrainDeltas) ||
+    Boolean(adjustment.strainCascadeAnchorTileId) ||
     Boolean(adjustment.supportTileIds?.length) ||
     hasStringRecordChanges(adjustment.stewardHexUpdates) ||
     hasStringRecordChanges(adjustment.temporaryReachHexUpdates) ||
@@ -279,7 +282,8 @@ function activeRule(
   sourceTile?: PlacedTile
 ): EffectRule {
   const rule = getEffectRule(ruleId);
-  const hasTileTargets = !rule.target || targetsForDefinition(state, rule.target, sourceTile).length > 0;
+  const primaryTarget = rule.strainCascade?.anchorTarget ?? rule.target;
+  const hasTileTargets = !primaryTarget || targetsForDefinition(state, primaryTarget, sourceTile).length > 0;
   return getActiveEffectRule(rule, hasTileTargets, state.encounters.activeArrivals.length > 0);
 }
 
@@ -288,7 +292,52 @@ export function getEffectTileTargets(
   ruleId: string | undefined,
   sourceTile?: PlacedTile
 ): PlacedTile[] {
-  return targetsForDefinition(state, activeRule(state, ruleId, sourceTile).target, sourceTile);
+  const rule = activeRule(state, ruleId, sourceTile);
+  return targetsForDefinition(
+    state,
+    rule.strainCascade?.anchorTarget ?? rule.target,
+    sourceTile
+  );
+}
+
+export function getStrainCascadeRule(
+  state: GameState,
+  ruleId: string | undefined,
+  sourceTile?: PlacedTile
+): StrainCascadeRule | null {
+  return activeRule(state, ruleId, sourceTile).strainCascade ?? null;
+}
+
+export function getStrainCascadeAnchorTargets(
+  state: GameState,
+  ruleId: string | undefined,
+  sourceTile?: PlacedTile
+): PlacedTile[] {
+  const cascade = getStrainCascadeRule(state, ruleId, sourceTile);
+  return cascade
+    ? targetsForDefinition(state, cascade.anchorTarget, sourceTile)
+    : [];
+}
+
+export function getStrainCascadeSpreadTargets(
+  state: GameState,
+  ruleId: string | undefined,
+  anchorTileId: string | undefined,
+  sourceTile?: PlacedTile
+): PlacedTile[] {
+  const cascade = getStrainCascadeRule(state, ruleId, sourceTile);
+  if (!cascade || !anchorTileId) return [];
+  const anchor = getStrainCascadeAnchorTargets(state, ruleId, sourceTile).find(
+    (tile) => tile.instanceId === anchorTileId
+  );
+  if (!anchor) return [];
+  return state.map.placedTiles.filter(
+    (tile) =>
+      tile.instanceId !== anchor.instanceId &&
+      tile.strain < 3 &&
+      arePlacedTilesAdjacent(tile, anchor) &&
+      matchesTargetRule(state, tile, cascade.spreadTarget, sourceTile)
+  );
 }
 
 export function getEffectSupportTargets(
@@ -341,8 +390,38 @@ export function isTileAdjustmentValid(
 ): boolean {
   const helpStandsRule = getHelpStandsRule(state, ruleId);
   const rule = getTileAdjustmentRule(state, ruleId, sourceTile);
+  const cascade = getStrainCascadeRule(state, ruleId, sourceTile);
   const strainEntries = Object.entries(adjustment.tileStrainDeltas ?? {}).filter(([, delta]) => delta !== 0);
   const supportIds = [...new Set(adjustment.supportTileIds ?? [])];
+
+  if (cascade) {
+    const anchorTileId = adjustment.strainCascadeAnchorTileId;
+    const legalAnchorIds = new Set(
+      getStrainCascadeAnchorTargets(state, ruleId, sourceTile).map((tile) => tile.instanceId)
+    );
+    if (legalAnchorIds.size === 0) {
+      return !anchorTileId && strainEntries.length === 0 && supportIds.length === 0;
+    }
+    if (!anchorTileId || !legalAnchorIds.has(anchorTileId) || supportIds.length > 0) {
+      return false;
+    }
+    const legalSpreadTargets = getStrainCascadeSpreadTargets(
+      state,
+      ruleId,
+      anchorTileId,
+      sourceTile
+    );
+    const legalSpreadIds = new Set(legalSpreadTargets.map((tile) => tile.instanceId));
+    const requiredSpreadTargets = Math.min(
+      cascade.maxSpreadTargets,
+      legalSpreadTargets.length
+    );
+    return strainEntries.length === requiredSpreadTargets &&
+      strainEntries.every(
+        ([tileId, delta]) => legalSpreadIds.has(tileId) && delta === cascade.spreadStrain
+      );
+  }
+  if (adjustment.strainCascadeAnchorTileId) return false;
 
   if (helpStandsRule) {
     const requiredEntries = Object.entries(helpStandsRule.tileStrainDeltas);
@@ -566,6 +645,9 @@ export function effectHasNoValidChoiceTargets(
   const resourceGain = getResourceGainChoiceRule(state, ruleId, sourceTile);
   if (resourceGain && resourceGain.amount > 0 && !resourceGain.alternativeToStrainRemoval) return false;
   if (rule.resolveBurden && state.encounters.activeBurdens.length === 0) return true;
+  if (rule.strainCascade &&
+      getStrainCascadeAnchorTargets(state, ruleId, sourceTile).length === 0 &&
+      !rule.fixedResources && !rule.resourceGainChoice) return true;
   if ((rule.tileAdjustment?.strain || rule.tileAdjustment?.support) &&
       getValidEffectStrainTargets(state, ruleId, sourceTile).length === 0 &&
       getEffectSupportTargets(state, ruleId, sourceTile).length === 0 &&
@@ -590,6 +672,31 @@ function strainSuggestion(state: GameState, ruleId: string | undefined, sourceTi
   return amount > 0 ? { tileStrainDeltas: { [tile.instanceId]: rule.direction === "remove" ? -amount : amount } } : {};
 }
 
+function strainCascadeSuggestion(
+  state: GameState,
+  ruleId: string | undefined,
+  sourceTile?: PlacedTile
+): EffectAdjustment {
+  const cascade = getStrainCascadeRule(state, ruleId, sourceTile);
+  const anchors = getStrainCascadeAnchorTargets(state, ruleId, sourceTile);
+  if (!cascade || anchors.length !== 1) return {};
+  const anchorTileId = anchors[0].instanceId;
+  const spreadTargets = getStrainCascadeSpreadTargets(
+    state,
+    ruleId,
+    anchorTileId,
+    sourceTile
+  );
+  return {
+    strainCascadeAnchorTileId: anchorTileId,
+    tileStrainDeltas: spreadTargets.length <= cascade.maxSpreadTargets
+      ? Object.fromEntries(
+          spreadTargets.map((tile) => [tile.instanceId, cascade.spreadStrain])
+        )
+      : undefined
+  };
+}
+
 function supportSuggestion(state: GameState, ruleId: string | undefined, sourceTile?: PlacedTile): EffectAdjustment {
   const rule = getTileAdjustmentRule(state, ruleId, sourceTile).support;
   const targets = getEffectSupportTargets(state, ruleId, sourceTile);
@@ -611,6 +718,7 @@ export function suggestEffectAdjustment(
     { resourceDeltas: fixedResourceDeltas(state, rule) },
     timerSuggestion(state, rule)
   );
+  adjustment = mergeEffectAdjustment(adjustment, strainCascadeSuggestion(state, ruleId, sourceTile));
   adjustment = mergeEffectAdjustment(adjustment, strainSuggestion(state, ruleId, sourceTile));
   adjustment = mergeEffectAdjustment(adjustment, supportSuggestion(state, ruleId, sourceTile));
   if (rule.resolveBurden && state.encounters.activeBurdens.length === 1) {
@@ -623,9 +731,23 @@ export function suggestEffectAdjustment(
   const strainTargets = getValidEffectStrainTargets(state, ruleId, sourceTile).length;
   const supportTargets = getEffectSupportTargets(state, ruleId, sourceTile).length;
   const timerTargets = state.encounters.activeArrivals.length;
+  const cascade = getStrainCascadeRule(state, ruleId, sourceTile);
+  const cascadeAnchors = getStrainCascadeAnchorTargets(state, ruleId, sourceTile);
+  const cascadeSpreadTargets = finalAdjustment?.strainCascadeAnchorTileId
+    ? getStrainCascadeSpreadTargets(
+        state,
+        ruleId,
+        finalAdjustment.strainCascadeAnchorTileId,
+        sourceTile
+      ).length
+    : 0;
+  const cascadeNeedsChoice = Boolean(
+    cascade &&
+      (cascadeAnchors.length > 1 || cascadeSpreadTargets > cascade.maxSpreadTargets)
+  );
   const requiresManualChoice = Boolean(rule.manualChoice && (
     rule.exchangeLimit !== undefined || rule.resourceGainChoice || rule.alternative ||
-    strainTargets > 1 || supportTargets > 1 ||
+    strainTargets > 1 || supportTargets > 1 || cascadeNeedsChoice ||
     (rule.timer && timerTargets > 1) ||
     (rule.resolveBurden && state.encounters.activeBurdens.length > 1) ||
     (!finalAdjustment && !effectHasNoValidChoiceTargets(state, ruleId, sourceTile))
@@ -745,6 +867,11 @@ export function resolvePendingEffect(
   ) {
     return state;
   }
+  const strainCascade = getStrainCascadeRule(
+    state,
+    pendingEffect.ruleId,
+    sourceTile
+  );
 
   let nextState: GameState = {
     ...state,
@@ -788,8 +915,23 @@ export function resolvePendingEffect(
     };
   }
 
-  if (effectiveAdjustment.tileStrainDeltas || effectiveAdjustment.supportTileIds?.length) {
+  if (
+    effectiveAdjustment.tileStrainDeltas ||
+    effectiveAdjustment.supportTileIds?.length ||
+    effectiveAdjustment.strainCascadeAnchorTileId
+  ) {
     const supportedIds = new Set(effectiveAdjustment.supportTileIds ?? []);
+    if (
+      strainCascade &&
+      strainCascade.anchorStrain > 0 &&
+      effectiveAdjustment.strainCascadeAnchorTileId
+    ) {
+      nextState = applyStrainToState(
+        nextState,
+        effectiveAdjustment.strainCascadeAnchorTileId,
+        strainCascade.anchorStrain
+      );
+    }
     for (const [tileId, strainDelta] of Object.entries(
       effectiveAdjustment.tileStrainDeltas ?? {}
     )) {
@@ -927,6 +1069,8 @@ export function mergeEffectAdjustment(
     resourceDeltas: { ...base.resourceDeltas, ...next.resourceDeltas },
     arrivalTimerDeltas: { ...base.arrivalTimerDeltas, ...next.arrivalTimerDeltas },
     tileStrainDeltas: { ...base.tileStrainDeltas, ...next.tileStrainDeltas },
+    strainCascadeAnchorTileId:
+      next.strainCascadeAnchorTileId ?? base.strainCascadeAnchorTileId,
     supportTileIds: next.supportTileIds ?? base.supportTileIds,
     stewardHexUpdates: { ...base.stewardHexUpdates, ...next.stewardHexUpdates },
     temporaryReachHexUpdates: {

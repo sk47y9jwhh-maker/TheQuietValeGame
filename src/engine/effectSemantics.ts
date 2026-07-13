@@ -48,6 +48,8 @@ export function effectRuleTargetsCategory(
 ): boolean {
   return effectRuleMatches(ruleOrId, (rule) =>
     visitTargets(rule.target, (target) => Boolean(target.categories?.includes(category))) ||
+    visitTargets(rule.strainCascade?.anchorTarget, (target) => Boolean(target.categories?.includes(category))) ||
+    visitTargets(rule.strainCascade?.spreadTarget, (target) => Boolean(target.categories?.includes(category))) ||
     (typeof rule.supportTarget === "object" &&
       visitTargets(rule.supportTarget, (target) => Boolean(target.categories?.includes(category)))) ||
     (rule.supportTarget === "housingAdjacentToPrimary" && category === "housing") ||
@@ -67,7 +69,7 @@ export function getEffectSemanticTags(ruleOrId: EffectRule | string | undefined)
   const tags = new Set<EffectSemanticTag>();
   visit(rule, (candidate) => {
     if (candidate.tileAdjustment?.support) tags.add("support");
-    if (candidate.tileAdjustment?.strain?.direction === "place") tags.add("strain");
+    if (candidate.tileAdjustment?.strain?.direction === "place" || candidate.strainCascade) tags.add("strain");
     if (candidate.tileAdjustment?.strain?.direction === "remove" || candidate.helpStands) tags.add("strain_relief");
     if (candidate.resolveBurden) tags.add("burden_control");
     if (candidate.timer) tags.add("arrival_time");
@@ -78,10 +80,15 @@ export function getEffectSemanticTags(ruleOrId: EffectRule | string | undefined)
     ) tags.add("resource_loss");
     if (candidate.modifier?.actions.includes("upgrade")) tags.add("upgrade_value");
     if (candidate.modifier?.zeroAction) tags.add("action_tempo");
-    const targets = [candidate.target, typeof candidate.supportTarget === "object" ? candidate.supportTarget : undefined];
+    const targets = [
+      candidate.target,
+      candidate.strainCascade?.anchorTarget,
+      candidate.strainCascade?.spreadTarget,
+      typeof candidate.supportTarget === "object" ? candidate.supportTarget : undefined
+    ];
     if (targets.some((target) => visitTargets(target, (item) => Boolean(
       item.adjacentToCategories || item.notAdjacentToCategories || item.adjacentToTerrain
-    )))) tags.add("adjacency_punish");
+    ))) || candidate.strainCascade) tags.add("adjacency_punish");
     return false;
   });
   for (const [category, tag] of [

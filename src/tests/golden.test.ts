@@ -6,6 +6,7 @@ import {
   endCurrentTurn,
   placeTile,
   revealEncounters,
+  resolveEndRound,
   useFaceUpBoon
 } from "../engine/gameActions";
 import {
@@ -180,6 +181,31 @@ describe("Golden Legacy", () => {
     expect(first.map.placedTiles.find((tile) => tile.instanceId === "target")?.strain).toBe(0);
     const second = applyStrainToState(first, "target", 1);
     expect(second.map.placedTiles.find((tile) => tile.instanceId === "target")?.strain).toBe(1);
+  });
+
+  it("charges season-end Garden prevention to the round that just ended", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.phase = "endRound";
+    state.round = 4;
+    const source = placed("source", "c15_path", "G1");
+    source.strain = 3;
+    state.map.placedTiles = [
+      source,
+      placed("target", "c15_path", "H1"),
+      placed("garden", "golden_tile_the_golden_garden", "I1", "special")
+    ];
+    state.tileActivationRecords.garden = { round: 4 };
+
+    const seasonStarted = resolveEndRound(state);
+    expect(seasonStarted.round).toBe(5);
+    expect(seasonStarted.map.placedTiles.find((tile) => tile.instanceId === "target")?.strain)
+      .toBe(1);
+    expect(seasonStarted.tileActivationRecords.garden?.round).toBe(4);
+
+    const roundFiveStrain = applyStrainToState(seasonStarted, "target", 1);
+    expect(roundFiveStrain.map.placedTiles.find((tile) => tile.instanceId === "target")?.strain)
+      .toBe(1);
+    expect(roundFiveStrain.tileActivationRecords.garden?.round).toBe(5);
   });
 
   it("repositions tiles and their Steward tokens with The Golden Signet Ring", () => {

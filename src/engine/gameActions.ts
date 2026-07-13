@@ -539,7 +539,7 @@ function queueTileEffectPrompt(
     : queued;
 }
 
-function applySeasonEndStrainSpread(state: GameState): {
+function applySeasonEndStrainSpread(state: GameState, preventionRound: number): {
   state: GameState;
   spreadCount: number;
 } {
@@ -558,7 +558,7 @@ function applySeasonEndStrainSpread(state: GameState): {
 
     if (!target) continue;
 
-    nextState = applyStrainToState(nextState, target.instanceId, 1);
+    nextState = applyStrainToState(nextState, target.instanceId, 1, preventionRound);
     spreadCount += 1;
   }
 
@@ -2385,7 +2385,7 @@ export function resolveEndRound(state: GameState): GameState {
   }
 
   if (shouldSpreadStrain) {
-    const result = applySeasonEndStrainSpread(nextState);
+    const result = applySeasonEndStrainSpread(nextState, state.round);
     nextState = result.state;
     if (result.spreadCount > 0) {
       nextState = log(

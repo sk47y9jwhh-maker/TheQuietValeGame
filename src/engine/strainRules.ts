@@ -50,7 +50,8 @@ function areTilesAdjacent(a: PlacedTile, b: PlacedTile): boolean {
 export function applyStrainToState(
   state: GameState,
   targetTileId: string,
-  amount: number
+  amount: number,
+  preventionRound = state.round
 ): GameState {
   const target = state.map.placedTiles.find((tile) => tile.instanceId === targetTileId);
   if (!target || amount <= 0) return state;
@@ -59,7 +60,7 @@ export function applyStrainToState(
       tile.tileId === "golden_tile_the_golden_garden" &&
       tile.strain < 3 &&
       areTilesAdjacent(tile, target) &&
-      state.tileActivationRecords[tile.instanceId]?.round !== state.round
+      state.tileActivationRecords[tile.instanceId]?.round !== preventionRound
   );
   const nextTarget = applyStrainToTile(target, Math.max(0, amount - (garden ? 1 : 0)));
 
@@ -75,7 +76,7 @@ export function applyStrainToState(
           ...state.tileActivationRecords,
           [garden.instanceId]: {
             ...state.tileActivationRecords[garden.instanceId],
-            round: state.round
+            round: preventionRound
           }
         }
       : state.tileActivationRecords,
@@ -83,7 +84,7 @@ export function applyStrainToState(
       ? [
           {
             id: `log_${state.log.length + 1}_${Date.now()}`,
-            round: state.round,
+            round: preventionRound,
             message: "The Golden Garden prevented 1 Strain."
           },
           ...state.log

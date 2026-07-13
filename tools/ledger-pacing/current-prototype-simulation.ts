@@ -39,6 +39,9 @@ import {
   getEffectSupportTargets,
   getAlternativeEffectRule,
   getEffectTileTargets,
+  getStrainCascadeAnchorTargets,
+  getStrainCascadeRule,
+  getStrainCascadeSpreadTargets,
   getTileAdjustmentRule,
   getTimerAdjustmentRule,
   getValidEffectStrainTargets,
@@ -449,6 +452,24 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
   }
 
   const pendingRule = getEffectRule(pending.ruleId);
+  const strainCascadeRule = getStrainCascadeRule(state, pending.ruleId, sourceTile);
+  if (strainCascadeRule) {
+    const anchor = getStrainCascadeAnchorTargets(state, pending.ruleId, sourceTile)[0];
+    if (anchor) {
+      const spreadTargets = getStrainCascadeSpreadTargets(
+        state,
+        pending.ruleId,
+        anchor.instanceId,
+        sourceTile
+      ).slice(0, strainCascadeRule.maxSpreadTargets);
+      return {
+        strainCascadeAnchorTileId: anchor.instanceId,
+        tileStrainDeltas: Object.fromEntries(
+          spreadTargets.map((tile) => [tile.instanceId, strainCascadeRule.spreadStrain])
+        )
+      };
+    }
+  }
   if (pendingRule.tileAdjustment?.strain) {
     const rule = getTileAdjustmentRule(state, pending.ruleId, sourceTile).strain;
     const targets = getValidEffectStrainTargets(state, pending.ruleId, sourceTile);
@@ -641,7 +662,10 @@ function drainPending(initial: GameState, stats: BotStats, plan?: HumanSeasonPla
     const wardenCanCancel = canCancelPendingBurdenWithWarden(state).ok;
     const shouldUseWarden = wardenCanCancel || !plan ||
       (pending.sourceId ? plan.highRiskBurdenIds.includes(pending.sourceId) : false) ||
-      Boolean(getEffectRule(pending.ruleId).tileAdjustment?.strain);
+      Boolean(
+        getEffectRule(pending.ruleId).tileAdjustment?.strain ||
+        getEffectRule(pending.ruleId).strainCascade
+      );
     if (pending.canCancelWithWardenPower && shouldUseWarden && wardenCanCancel) {
       state = cancelPendingBurdenWithWarden(state);
       continue;

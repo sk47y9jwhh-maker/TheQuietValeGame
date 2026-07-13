@@ -30,6 +30,14 @@ export interface TileAdjustmentRule {
   support?: { maxTargets: number };
 }
 
+export interface StrainCascadeRule {
+  anchorTarget: TileTargetRule;
+  anchorStrain: number;
+  spreadTarget: TileTargetRule;
+  spreadStrain: number;
+  maxSpreadTargets: number;
+}
+
 export interface TimerAdjustmentRule {
   direction: "add" | "remove";
   limit: number;
@@ -80,6 +88,7 @@ export interface EffectRule {
   target?: TileTargetRule;
   supportTarget?: TileTargetRule | "housingAdjacentToPrimary";
   tileAdjustment?: TileAdjustmentRule;
+  strainCascade?: StrainCascadeRule;
   timer?: TimerAdjustmentRule;
   fixedResources?: Partial<Record<ResourceType, number>>;
   resourceGainChoice?: ResourceGainChoiceDefinition;

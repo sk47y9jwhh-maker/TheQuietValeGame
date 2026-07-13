@@ -20,6 +20,9 @@ import {
   getAlternativeEffectRule,
   getHelpStandsRule,
   getResourceGainChoiceRule,
+  getStrainCascadeAnchorTargets,
+  getStrainCascadeRule,
+  getStrainCascadeSpreadTargets,
   getTileAdjustmentRule,
   getValidEffectStrainTargets,
   getTimerAdjustmentRule,
@@ -94,6 +97,9 @@ export function EffectPrompt({
       effect.suggestedAdjustment?.tileStrainDeltas ??
       {}
   );
+  const [strainCascadeAnchorTileId, setStrainCascadeAnchorTileId] = useState<
+    string | undefined
+  >(effect.suggestedAdjustment?.strainCascadeAnchorTileId);
   const [supportTileIds, setSupportTileIds] = useState<string[]>(
     effect.suggestedAdjustment?.supportTileIds ?? []
   );
@@ -118,6 +124,9 @@ export function EffectPrompt({
         effect.suggestedAdjustment?.tileStrainDeltas ??
         {}
     );
+    setStrainCascadeAnchorTileId(
+      effect.suggestedAdjustment?.strainCascadeAnchorTileId
+    );
     setSupportTileIds(effect.suggestedAdjustment?.supportTileIds ?? []);
     setStewardHexUpdates(effect.suggestedAdjustment?.stewardHexUpdates ?? {});
     setTemporaryReachHexUpdates(
@@ -133,6 +142,7 @@ export function EffectPrompt({
         resourceDeltas,
         arrivalTimerDeltas,
         tileStrainDeltas,
+        strainCascadeAnchorTileId,
         supportTileIds,
         stewardHexUpdates,
         temporaryReachHexUpdates,
@@ -145,6 +155,7 @@ export function EffectPrompt({
       ignoredBurdenIds,
       resolvedBurdenIds,
       resourceDeltas,
+      strainCascadeAnchorTileId,
       stewardHexUpdates,
       temporaryReachHexUpdates,
       supportTileIds,
@@ -196,6 +207,39 @@ export function EffectPrompt({
     sourceTile
   );
   const timerRule = getTimerAdjustmentRule(state, effect.ruleId, sourceTile);
+  const strainCascadeRule = useMemo(
+    () => getStrainCascadeRule(state, effect.ruleId, sourceTile),
+    [effect.ruleId, sourceTile, state]
+  );
+  const strainCascadeAnchorTargets = useMemo(
+    () => getStrainCascadeAnchorTargets(state, effect.ruleId, sourceTile),
+    [effect.ruleId, sourceTile, state]
+  );
+  const strainCascadeSpreadTargets = useMemo(
+    () => getStrainCascadeSpreadTargets(
+      state,
+      effect.ruleId,
+      strainCascadeAnchorTileId,
+      sourceTile
+    ),
+    [effect.ruleId, sourceTile, state, strainCascadeAnchorTileId]
+  );
+  const requiredCascadeSpreadTargets = strainCascadeRule
+    ? Math.min(
+        strainCascadeRule.maxSpreadTargets,
+        strainCascadeSpreadTargets.length
+      )
+    : 0;
+  const cascadeSpreadTargetIds = new Set(
+    strainCascadeSpreadTargets.map((tile) => tile.instanceId)
+  );
+  const selectedCascadeSpreadIds = Object.entries(tileStrainDeltas)
+    .filter(
+      ([tileId, delta]) =>
+        cascadeSpreadTargetIds.has(tileId) &&
+        delta === strainCascadeRule?.spreadStrain
+    )
+    .map(([tileId]) => tileId);
   const tileControlData = useMemo(() => {
     const suggestedStrainIds = Object.keys(effect.suggestedAdjustment?.tileStrainDeltas ?? {});
     const suggestedSupportIds = effect.suggestedAdjustment?.supportTileIds ?? [];
@@ -283,8 +327,15 @@ export function EffectPrompt({
   const needsTileChoice = Boolean(effect.requiresManualChoice && controlHints.tileChoice);
   const showTileControls =
     !helpStandsRule &&
+    !strainCascadeRule &&
     tileControlTargets.length > 0 &&
     (hasTileSuggestion || needsTileChoice);
+  const showStrainCascadeControls = Boolean(
+    !helpStandsRule &&
+      strainCascadeRule &&
+      strainCascadeAnchorTargets.length > 0 &&
+      (effect.requiresManualChoice || effect.suggestedAdjustment?.strainCascadeAnchorTileId)
+  );
   const tileAdjustmentInvalid =
     !effect.allowWardenRelief &&
     !isTileAdjustmentValid(
@@ -351,6 +402,29 @@ export function EffectPrompt({
       }
     }
 
+    if (adjustment.strainCascadeAnchorTileId && strainCascadeRule) {
+      const anchor = state.map.placedTiles.find(
+        (tile) => tile.instanceId === adjustment.strainCascadeAnchorTileId
+      );
+      const anchorName = anchor
+        ? `${selectTileName(anchor)} (${anchor.hexIds.join(", ")})`
+        : adjustment.strainCascadeAnchorTileId;
+      if (strainCascadeRule.anchorStrain > 0) {
+        const supportWillPrevent = Boolean(
+          anchor &&
+            (anchor.support.passive || anchor.support.singleUse) &&
+            !anchor.support.preventedThisRound
+        );
+        items.push(
+          `${anchorName}: +${strainCascadeRule.anchorStrain} Strain${
+            supportWillPrevent ? " — Supported prevents 1" : ""
+          }`
+        );
+      } else {
+        items.push(`${anchorName}: cascade anchor`);
+      }
+    }
+
     for (const [tileId, delta] of Object.entries(adjustment.tileStrainDeltas ?? {})) {
       if (delta === 0) continue;
       const tile = state.map.placedTiles.find(
@@ -398,7 +472,7 @@ export function EffectPrompt({
     }
 
     return items;
-  }, [adjustment, state.map.placedTiles, state.players]);
+  }, [adjustment, state.map.placedTiles, state.players, strainCascadeRule]);
   const isPreparedPreview = !effect.requiresManualChoice && previewItems.length > 0;
 
   const alternativeResolvedChoices = (() => {
@@ -617,6 +691,31 @@ export function EffectPrompt({
     ) {
       setResourceDeltas(emptyResourceDeltas());
     }
+  }
+
+  function chooseStrainCascadeAnchor(tileId: string) {
+    if (tileId === strainCascadeAnchorTileId) return;
+    setStrainCascadeAnchorTileId(tileId);
+    setTileStrainDeltas({});
+  }
+
+  function toggleStrainCascadeSpread(tileId: string) {
+    if (!strainCascadeRule || !cascadeSpreadTargetIds.has(tileId)) return;
+    setTileStrainDeltas((current) => {
+      const selected = current[tileId] === strainCascadeRule.spreadStrain;
+      if (selected) {
+        const next = { ...current };
+        delete next[tileId];
+        return next;
+      }
+      const selectedCount = Object.entries(current).filter(
+        ([candidateId, delta]) =>
+          cascadeSpreadTargetIds.has(candidateId) &&
+          delta === strainCascadeRule.spreadStrain
+      ).length;
+      if (selectedCount >= requiredCascadeSpreadTargets) return current;
+      return { ...current, [tileId]: strainCascadeRule.spreadStrain };
+    });
   }
 
   function toggleSupported(tileId: string) {
@@ -839,6 +938,70 @@ export function EffectPrompt({
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {showStrainCascadeControls && !isPreparedPreview && strainCascadeRule && (
+        <section className="effect-control-group">
+          <div className="effect-control-heading">
+            <h3>Strain Cascade</h3>
+            <span>
+              Choose an anchor, then {requiredCascadeSpreadTargets} adjacent tile
+              {requiredCascadeSpreadTargets === 1 ? "" : "s"}: {selectedCascadeSpreadIds.length} selected
+            </span>
+          </div>
+          <div className="effect-list tile-effect-list">
+            {strainCascadeAnchorTargets.map((tile) => {
+              const selected = strainCascadeAnchorTileId === tile.instanceId;
+              return (
+                <button
+                  aria-label={`Choose ${selectTileName(tile)} as cascade anchor`}
+                  className={`effect-row tile-effect-row ${selected ? "selected" : ""}`}
+                  key={tile.instanceId}
+                  onClick={() => chooseStrainCascadeAnchor(tile.instanceId)}
+                  type="button"
+                >
+                  <span>
+                    {selectTileName(tile)} {tile.hexIds.join(", ")} | Strain {tile.strain}
+                    <small>
+                      {strainCascadeRule.anchorStrain > 0
+                        ? `Receives ${strainCascadeRule.anchorStrain} Strain before the cascade`
+                        : "Overstrained anchor; receives no additional Strain"}
+                    </small>
+                  </span>
+                  <MapPin size={16} />
+                </button>
+              );
+            })}
+          </div>
+
+          {strainCascadeAnchorTileId && (
+            <div className="effect-list tile-effect-list">
+              {strainCascadeSpreadTargets.length === 0 ? (
+                <p className="muted">No eligible adjacent tile can receive Strain.</p>
+              ) : strainCascadeSpreadTargets.map((tile) => {
+                const selected = selectedCascadeSpreadIds.includes(tile.instanceId);
+                return (
+                  <button
+                    aria-label={`Place ${strainCascadeRule.spreadStrain} Strain on adjacent ${selectTileName(tile)}`}
+                    className={`effect-row tile-effect-row ${selected ? "selected" : ""}`}
+                    disabled={
+                      !selected &&
+                      selectedCascadeSpreadIds.length >= requiredCascadeSpreadTargets
+                    }
+                    key={tile.instanceId}
+                    onClick={() => toggleStrainCascadeSpread(tile.instanceId)}
+                    type="button"
+                  >
+                    <span>
+                      {selectTileName(tile)} {tile.hexIds.join(", ")} | Strain {tile.strain}
+                    </span>
+                    {selected ? <Check size={16} /> : <Plus size={16} />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </section>
       )}
 

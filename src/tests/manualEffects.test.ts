@@ -12,6 +12,9 @@ import {
   getEffectTileTargets,
   getHelpStandsRule,
   getResourceGainChoiceRule,
+  getStrainCascadeAnchorTargets,
+  getStrainCascadeRule,
+  getStrainCascadeSpreadTargets,
   getTileAdjustmentRule,
   getTimerAdjustmentRule,
   isAlternativeEffectAdjustmentValid,
@@ -138,6 +141,184 @@ describe("structured effect rules", () => {
       cardEffectRuleId("burden_forest_s_grudge", 1)
     );
     expect(targets.map((tile) => tile.instanceId)).toEqual(["lumber"]);
+  });
+
+  it.each([
+    ["burden_forest_s_grudge", "c01_lumber_yard"],
+    ["burden_blighted_lands", "c04_farmstead"],
+    ["burden_awoken_in_the_deep", "c02_mine_tunnel"],
+    ["burden_stampede", "c03_gathering_outpost"]
+  ] as const)("applies %s's Season III primary and adjacent Strain", (cardId, anchorTileId) => {
+    const state = stateWith([
+      placed("anchor", anchorTileId, "G1"),
+      placed("adjacent", "c15_path", "H1"),
+      placed("remote", "c15_path", "J1")
+    ]);
+    const ruleId = cardEffectRuleId(cardId, 3);
+    const suggestion = suggestEffectAdjustment(state, ruleId);
+
+    expect(getStrainCascadeAnchorTargets(state, ruleId).map((tile) => tile.instanceId))
+      .toEqual(["anchor"]);
+    expect(getStrainCascadeSpreadTargets(state, ruleId, "anchor").map((tile) => tile.instanceId))
+      .toEqual(["adjacent"]);
+    expect(suggestion).toMatchObject({
+      adjustment: {
+        strainCascadeAnchorTileId: "anchor",
+        tileStrainDeltas: { adjacent: 1 }
+      },
+      requiresManualChoice: false
+    });
+    expect(isTileAdjustmentValid(state, ruleId, suggestion.adjustment ?? {})).toBe(true);
+
+    state.pendingEffects = [{
+      id: "effect_cascade",
+      ruleId,
+      sourceType: "card",
+      sourceId: cardId,
+      sourceName: cardId,
+      title: "Season III cascade",
+      effectText: "Display text only"
+    }];
+    const resolved = resolvePendingEffect(state, suggestion.adjustment);
+    expect(resolved.map.placedTiles.map((tile) => tile.strain)).toEqual([2, 1, 0]);
+  });
+
+  it("allows a cascade Burden with no valid anchor to be acknowledged as no effect", () => {
+    const state = stateWith([placed("path", "c15_path", "G1")]);
+    const ruleId = cardEffectRuleId("burden_awoken_in_the_deep", 3);
+    expect(effectHasNoValidChoiceTargets(state, ruleId)).toBe(true);
+    expect(isTileAdjustmentValid(state, ruleId, {})).toBe(true);
+    state.pendingEffects = [{
+      id: "effect_no_anchor",
+      ruleId,
+      sourceType: "card",
+      sourceName: "Awoken Below",
+      title: "Awoken Below",
+      effectText: "Display text only"
+    }];
+    expect(resolvePendingEffect(state).pendingEffects).toHaveLength(0);
+  });
+
+  it.each([
+    ["burden_awoken_in_the_deep", "c02_mine_tunnel", "c05_cabin"],
+    ["burden_stampede", "c03_gathering_outpost", "c01_lumber_yard"]
+  ] as const)("restricts %s's adjacent cascade categories", (cardId, anchorTileId, disallowedTileId) => {
+    const state = stateWith([
+      placed("anchor", anchorTileId, "G1"),
+      placed("disallowed", disallowedTileId, "H1")
+    ]);
+    const ruleId = cardEffectRuleId(cardId, 3);
+    expect(getStrainCascadeSpreadTargets(state, ruleId, "anchor")).toEqual([]);
+  });
+
+  it("applies a cascade's full printed primary amount before Supported prevention", () => {
+    const anchor = placed("anchor", "c01_lumber_yard", "G1", 2);
+    anchor.support.singleUse = true;
+    const state = stateWith([anchor, placed("adjacent", "c15_path", "H1")]);
+    const ruleId = cardEffectRuleId("burden_forest_s_grudge", 3);
+    const suggestion = suggestEffectAdjustment(state, ruleId);
+    state.pendingEffects = [{
+      id: "effect_supported_cascade",
+      ruleId,
+      sourceType: "card",
+      sourceName: "Forest's Grudge",
+      title: "Forest's Grudge",
+      effectText: "Display text only"
+    }];
+
+    const resolved = resolvePendingEffect(state, suggestion.adjustment);
+    expect(resolved.map.placedTiles[0].strain).toBe(3);
+    expect(resolved.map.placedTiles[0].support.preventedThisRound).toBe(true);
+    expect(resolved.map.placedTiles[1].strain).toBe(1);
+  });
+
+  it("enforces The Quiet Fractures' Season II anchor, adjacency, and zero-Strain target", () => {
+    const state = stateWith([
+      placed("anchor", "c15_path", "G1", 1),
+      placed("adjacent", "c05_cabin", "H1"),
+      placed("remote", "c13_workshops", "J1")
+    ]);
+    const ruleId = cardEffectRuleId("burden_the_quiet_fractures", 2);
+    const suggestion = suggestEffectAdjustment(state, ruleId);
+
+    expect(getStrainCascadeAnchorTargets(state, ruleId).map((tile) => tile.instanceId))
+      .toEqual(["anchor"]);
+    expect(getStrainCascadeSpreadTargets(state, ruleId, "anchor").map((tile) => tile.instanceId))
+      .toEqual(["adjacent"]);
+    expect(isTileAdjustmentValid(state, ruleId, {
+      strainCascadeAnchorTileId: "anchor",
+      tileStrainDeltas: { remote: 1 }
+    })).toBe(false);
+    expect(suggestion.adjustment).toMatchObject({
+      strainCascadeAnchorTileId: "anchor",
+      tileStrainDeltas: { adjacent: 1 }
+    });
+
+    state.pendingEffects = [{
+      id: "effect_quiet_s2",
+      ruleId,
+      sourceType: "card",
+      sourceName: "The Quiet Fractures",
+      title: "The Quiet Fractures",
+      effectText: "Display text only"
+    }];
+    const resolved = resolvePendingEffect(state, suggestion.adjustment);
+    expect(resolved.map.placedTiles.map((tile) => tile.strain)).toEqual([2, 1, 0]);
+  });
+
+  it("uses an Overstrained Quiet Fractures anchor without treating it as a Strain target", () => {
+    const state = stateWith([
+      placed("anchor", "c15_path", "G1", 3),
+      placed("left", "c05_cabin", "F1"),
+      placed("right", "c13_workshops", "H1"),
+      placed("remote", "c09_tavern", "J1")
+    ]);
+    const ruleId = cardEffectRuleId("burden_the_quiet_fractures", 3);
+    const suggestion = suggestEffectAdjustment(state, ruleId);
+
+    expect(getStrainCascadeRule(state, ruleId)).toMatchObject({
+      anchorStrain: 0,
+      maxSpreadTargets: 2
+    });
+    expect(getStrainCascadeAnchorTargets(state, ruleId).map((tile) => tile.instanceId))
+      .toEqual(["anchor"]);
+    expect(getStrainCascadeSpreadTargets(state, ruleId, "anchor").map((tile) => tile.instanceId))
+      .toEqual(["left", "right"]);
+    expect(suggestion.adjustment).toMatchObject({
+      strainCascadeAnchorTileId: "anchor",
+      tileStrainDeltas: { left: 1, right: 1 }
+    });
+    expect(isTileAdjustmentValid(state, ruleId, {
+      strainCascadeAnchorTileId: "anchor",
+      tileStrainDeltas: { left: 1, remote: 1 }
+    })).toBe(false);
+
+    state.pendingEffects = [{
+      id: "effect_quiet_s3",
+      ruleId,
+      sourceType: "card",
+      sourceName: "The Quiet Fractures",
+      title: "The Quiet Fractures",
+      effectText: "Display text only"
+    }];
+    const resolved = resolvePendingEffect(state, suggestion.adjustment);
+    expect(resolved.map.placedTiles.map((tile) => tile.strain)).toEqual([3, 1, 1, 0]);
+  });
+
+  it("uses The Quiet Fractures' adjacent Season II pattern as its Season III fallback", () => {
+    const state = stateWith([
+      placed("anchor", "c15_path", "G1", 2),
+      placed("adjacent", "c05_cabin", "H1")
+    ]);
+    const ruleId = cardEffectRuleId("burden_the_quiet_fractures", 3);
+    expect(getStrainCascadeRule(state, ruleId)).toMatchObject({
+      anchorStrain: 1,
+      maxSpreadTargets: 1
+    });
+    expect(suggestEffectAdjustment(state, ruleId).adjustment).toMatchObject({
+      strainCascadeAnchorTileId: "anchor",
+      tileStrainDeltas: { adjacent: 1 }
+    });
   });
 
   it("enforces category adjacency through typed target filters", () => {

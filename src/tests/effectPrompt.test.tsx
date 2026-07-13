@@ -285,6 +285,52 @@ describe("effect prompt controls", () => {
     expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
   });
 
+  it("lets an Overstrained Quiet Fractures anchor select only adjacent zero-Strain tiles", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [
+      coreTile("c15_path", "anchor", "G1", 3),
+      coreTile("c05_cabin", "left", "F1"),
+      coreTile("c13_workshops", "right", "H1"),
+      coreTile("c09_tavern", "remote", "J1")
+    ];
+    const applied: unknown[] = [];
+    const effect: PendingEffectState = {
+      id: "effect_quiet_fractures",
+      sourceType: "card",
+      sourceId: "burden_the_quiet_fractures",
+      ruleId: cardEffectRuleId("burden_the_quiet_fractures", 3),
+      sourceName: "The Quiet Fractures",
+      title: "Revealed The Quiet Fractures",
+      effectText:
+        "Choose 1 Overstrained tile. Then place 1 Strain on each of 2 adjacent placed tiles with 0 Strain.",
+      requiresManualChoice: true
+    };
+
+    render(
+      <EffectPrompt
+        state={state}
+        effect={effect}
+        onApply={(adjustment) => applied.push(adjustment)}
+      />
+    );
+
+    const apply = screen.getByRole("button", { name: /apply effect/i });
+    expect(screen.getByText("Strain Cascade")).toBeInTheDocument();
+    expect(apply).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Choose Path as cascade anchor" }));
+    expect(screen.queryByRole("button", { name: "Place 1 Strain on adjacent Tavern" }))
+      .not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Place 1 Strain on adjacent Cabin" }));
+    expect(apply).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Place 1 Strain on adjacent Workshops" }));
+    expect(apply).toBeEnabled();
+    fireEvent.click(apply);
+    expect(applied).toMatchObject([{
+      strainCascadeAnchorTileId: "anchor",
+      tileStrainDeltas: { left: 1, right: 1 }
+    }]);
+  });
+
   it("only shows valid tile targets for a tile-targeted Burden", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.map.placedTiles = [

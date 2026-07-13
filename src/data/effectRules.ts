@@ -1,6 +1,11 @@
 import { resources } from "./resources";
 import { burdenResolutionResources } from "./contentRules";
-import type { EffectRule, TileAdjustmentRule, TileTargetRule } from "../engine/effectRuleTypes";
+import type {
+  EffectRule,
+  StrainCascadeRule,
+  TileAdjustmentRule,
+  TileTargetRule
+} from "../engine/effectRuleTypes";
 import type { Season } from "../engine/types";
 
 const rules: Record<string, EffectRule> = {};
@@ -29,6 +34,18 @@ const strain = (
 ): TileAdjustmentRule => ({ strain: { direction, maxTotal, maxPerTile, maxTargets } });
 
 const support = (maxTargets: number): TileAdjustmentRule => ({ support: { maxTargets } });
+const strainCascade = (
+  anchorTarget: TileTargetRule,
+  anchorStrain: number,
+  spreadTarget: TileTargetRule,
+  maxSpreadTargets: number
+): StrainCascadeRule => ({
+  anchorTarget,
+  anchorStrain,
+  spreadTarget,
+  spreadStrain: 1,
+  maxSpreadTargets
+});
 const combined = (ruleA: TileAdjustmentRule, ruleB: TileAdjustmentRule): TileAdjustmentRule => ({
   ...ruleA,
   ...ruleB
@@ -155,17 +172,42 @@ const burden = (id: string, definitions: Array<Omit<EffectRule, "id">>) => seaso
 const placed = (categories?: TileTargetRule["categories"], extra: TileTargetRule = {}): TileTargetRule => ({ categories, strain: "below3", ...extra });
 
 burden("burden_smoke_over_hearths", [1, 2, 3].map((count) => ({ target: placed(["housing"], { adjacentToCategories: ["crafting"] }), tileAdjustment: strain("place", count, 1, count), fallback: count === 3 ? { when: "noTileTarget", rule: { id: "burden_smoke_over_hearths:s3:fallback", target: placed(["crafting"]), tileAdjustment: strain("place", 1, 1, 1) } } : undefined })));
-burden("burden_forest_s_grudge", [1, 2, 2].map((amount) => ({ target: placed(undefined, { tileIds: ["c01_lumber_yard"] }), tileAdjustment: strain("place", amount, amount, 1) })));
-burden("burden_blighted_lands", [1, 2, 2].map((amount) => ({ target: placed(undefined, { tileIds: ["c04_farmstead"] }), tileAdjustment: strain("place", amount, amount, 1) })));
-burden("burden_awoken_in_the_deep", [1, 2, 2].map((amount) => ({ target: placed(undefined, { tileIds: ["c02_mine_tunnel"] }), tileAdjustment: strain("place", amount, amount, 1) })));
-burden("burden_stampede", [1, 2, 2].map((amount) => ({ target: placed(undefined, { tileIds: ["c03_gathering_outpost"] }), tileAdjustment: strain("place", amount, amount, 1) })));
+burden("burden_forest_s_grudge", [
+  { target: placed(undefined, { tileIds: ["c01_lumber_yard"] }), tileAdjustment: strain("place", 1, 1, 1) },
+  { target: placed(undefined, { tileIds: ["c01_lumber_yard"] }), tileAdjustment: strain("place", 2, 2, 1) },
+  { strainCascade: strainCascade(placed(undefined, { tileIds: ["c01_lumber_yard"] }), 2, placed(), 1) }
+]);
+burden("burden_blighted_lands", [
+  { target: placed(undefined, { tileIds: ["c04_farmstead"] }), tileAdjustment: strain("place", 1, 1, 1) },
+  { target: placed(undefined, { tileIds: ["c04_farmstead"] }), tileAdjustment: strain("place", 2, 2, 1) },
+  { strainCascade: strainCascade(placed(undefined, { tileIds: ["c04_farmstead"] }), 2, placed(), 1) }
+]);
+burden("burden_awoken_in_the_deep", [
+  { target: placed(undefined, { tileIds: ["c02_mine_tunnel"] }), tileAdjustment: strain("place", 1, 1, 1) },
+  { target: placed(undefined, { tileIds: ["c02_mine_tunnel"] }), tileAdjustment: strain("place", 2, 2, 1) },
+  { strainCascade: strainCascade(placed(undefined, { tileIds: ["c02_mine_tunnel"] }), 2, placed(["travel", "resource"]), 1) }
+]);
+burden("burden_stampede", [
+  { target: placed(undefined, { tileIds: ["c03_gathering_outpost"] }), tileAdjustment: strain("place", 1, 1, 1) },
+  { target: placed(undefined, { tileIds: ["c03_gathering_outpost"] }), tileAdjustment: strain("place", 2, 2, 1) },
+  { strainCascade: strainCascade(placed(undefined, { tileIds: ["c03_gathering_outpost"] }), 2, placed(["housing", "travel"]), 1) }
+]);
 burden("burden_return_to_the_trenches", [1, 2, 3].map((count) => ({ target: placed(["travel"], { adjacentToCategories: ["resource"] }), tileAdjustment: strain("place", count, 1, count), fallback: count === 3 ? { when: "noTileTarget", rule: { id: "burden_return_to_the_trenches:s3:fallback", target: placed(["resource"]), tileAdjustment: strain("place", 1, 1, 1) } } : undefined })));
 burden("burden_wares_of_war", [1, 2, 3].map((count) => ({ target: placed(["housing"], { adjacentToCategories: ["merchant"] }), tileAdjustment: strain("place", count, 1, count), fallback: count === 3 ? { when: "noTileTarget", rule: { id: "burden_wares_of_war:s3:fallback", target: placed(["merchant"]), tileAdjustment: strain("place", 1, 1, 1) } } : undefined })));
 burden("burden_old_names_old_debts", [1, 2, 3].map((count) => ({ target: placed(undefined, { hasRenown: true }), tileAdjustment: strain("place", count, 1, count) })));
 burden("burden_the_quiet_fractures", [
   { target: { strain: "oneToTwo" }, tileAdjustment: strain("place", 1, 1, 1) },
-  { target: { strain: "oneToTwo" }, tileAdjustment: strain("place", 2, 1, 2) },
-  { target: { strain: "overstrained" }, tileAdjustment: strain("place", 2, 1, 2), fallback: { when: "noTileTarget", rule: { id: "burden_the_quiet_fractures:s3:fallback", target: { strain: "oneToTwo" }, tileAdjustment: strain("place", 2, 1, 2) } } }
+  { strainCascade: strainCascade({ strain: "oneToTwo" }, 1, { strain: "zero" }, 1) },
+  {
+    strainCascade: strainCascade({ strain: "overstrained" }, 0, { strain: "zero" }, 2),
+    fallback: {
+      when: "noTileTarget",
+      rule: {
+        id: "burden_the_quiet_fractures:s3:fallback",
+        strainCascade: strainCascade({ strain: "oneToTwo" }, 1, { strain: "zero" }, 1)
+      }
+    }
+  }
 ]);
 burden("burden_tools_left_to_rust", [
   { target: placed(["crafting", "merchant"]), tileAdjustment: strain("place", 1, 1, 1) },

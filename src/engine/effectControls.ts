@@ -41,7 +41,12 @@ export function describeEffectControls(ruleId: string | undefined): EffectContro
     timerChoice: has(rule, (candidate) => Boolean(candidate.timer)),
     tileChoice: has(
       rule,
-      (candidate) => Boolean(candidate.target || candidate.tileAdjustment || candidate.supportTarget)
+      (candidate) => Boolean(
+        candidate.target ||
+        candidate.tileAdjustment ||
+        candidate.strainCascade ||
+        candidate.supportTarget
+      )
     )
   };
 }
