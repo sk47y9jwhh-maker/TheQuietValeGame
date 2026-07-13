@@ -1,12 +1,8 @@
 import {
   BookMarked,
-  BookOpen,
   CheckCircle2,
   History,
-  Layers,
   LockKeyhole,
-  ScrollText,
-  Sparkles,
   Target,
   Trash2,
   Trophy,
@@ -276,21 +272,19 @@ export function BottomDrawer({
     ...specialTiles.filter((tile) => (state.tileSupply.special[tile.id] ?? 0) <= 0)
   ];
   const trayItems = [
-    { id: "tiles", label: "Tiles", detail: `${coreRemaining} core left`, icon: Layers },
-    { id: "hand", label: "Hand", detail: `${hand.length} hidden`, icon: ScrollText },
-    { id: "specials", label: "Specials", detail: `${readySpecialTiles.length} ready`, icon: Sparkles },
+    { id: "tiles", label: "Tiles", detail: `${coreRemaining} core left` },
+    { id: "hand", label: "Hand", detail: `${hand.length} hidden` },
+    { id: "specials", label: "Specials", detail: `${readySpecialTiles.length} ready` },
     {
       id: "ledger",
       label: "Ledger",
-      detail: `${completedLedgerCount}/50 complete`,
-      icon: BookMarked
+      detail: `${completedLedgerCount}/50 complete`
     },
-    { id: "rules", label: "Rules", detail: "guide & rules", icon: BookOpen }
+    { id: "rules", label: "Rules", detail: "guide & rules" }
   ] satisfies Array<{
     id: DrawerSection;
     label: string;
     detail: string;
-    icon: typeof Layers;
   }>;
   const activeItem = trayItems.find((item) => item.id === activeSection);
 
@@ -872,7 +866,6 @@ export function BottomDrawer({
 
       <div className="tray-tabs" role="tablist" aria-label="Reference sections">
         {trayItems.map((item) => {
-          const Icon = item.icon;
           const selected = activeSection === item.id;
           return (
             <button
@@ -883,7 +876,6 @@ export function BottomDrawer({
               role="tab"
               type="button"
             >
-              <Icon size={17} />
               <strong>{item.label}</strong>
               <span>{item.detail}</span>
             </button>

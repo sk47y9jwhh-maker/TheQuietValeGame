@@ -11,9 +11,12 @@ describe("bottom drawer", () => {
       phase: "turns" as const
     };
 
-    render(<BottomDrawer state={state} onTileInspect={() => {}} />);
+    const { container } = render(
+      <BottomDrawer state={state} onTileInspect={() => {}} />
+    );
 
     expect(screen.queryByRole("heading", { name: "Tiles" })).not.toBeInTheDocument();
+    expect(container.querySelectorAll(".tray-tabs svg")).toHaveLength(0);
 
     fireEvent.click(screen.getByRole("tab", { name: /tiles/i }));
 
