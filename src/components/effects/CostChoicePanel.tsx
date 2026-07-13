@@ -25,10 +25,17 @@ export function CostChoicePanel({
   onCancel
 }: CostChoicePanelProps) {
   const isBurdenResolution = pending.action.type === "burden";
+  const hasMarketExchange = pending.options.some(
+    (option) => option.kind === "market"
+  );
   const paymentPrompt = isBurdenResolution
-    ? "Confirm this payment to resolve the Burden."
+    ? hasMarketExchange
+      ? "A Merchant exchange is available below. Choose whether to use it, then confirm this payment to resolve the Burden."
+      : "Confirm this payment to resolve the Burden."
     : pending.options.length > 0
-      ? "Review prepared and passive effects before paying the cost."
+      ? hasMarketExchange
+        ? "A Merchant exchange is available below. Choose whether to use it before confirming this payment."
+        : "Review prepared and passive effects before paying the cost."
       : "Confirm this payment before spending the action.";
   const confirmLabel = isBurdenResolution
     ? "Confirm Payment and Resolve"
@@ -84,6 +91,25 @@ export function CostChoicePanel({
     );
   }
 
+  function chooseMarketResource(optionId: string, resource: ResourceType | "") {
+    if (resource) {
+      setMarketResourceByOptionId((current) => ({
+        ...current,
+        [optionId]: resource
+      }));
+    }
+
+    setSelectedOptionIds((current) => {
+      if (resource) {
+        return current.includes(optionId) ? current : [...current, optionId];
+      }
+      if (pending.options.find((option) => option.id === optionId)?.required) {
+        return current;
+      }
+      return current.filter((candidate) => candidate !== optionId);
+    });
+  }
+
   return (
     <section className="cost-choice-screen">
       <div className="seeding-header">
@@ -105,15 +131,32 @@ export function CostChoicePanel({
         )}
         {pending.options.map((option) => {
           const selected = selectedOptionIds.includes(option.id);
+          const marketResource = marketResourceByOptionId[option.id];
           return (
             <article
-              className={`cost-option ${selected ? "selected" : ""}`}
+              className={`cost-option ${option.kind === "market" ? "market-cost-option" : ""} ${
+                selected ? "selected" : ""
+              }`}
               key={option.id}
             >
-              <button onClick={() => toggleOption(option.id)} type="button">
-                <span>{option.sourceName}</span>
-                <strong>{getOptionLabel(option)}</strong>
-              </button>
+              {option.kind === "market" ? (
+                <div className="cost-option-heading market-cost-option-heading">
+                  <span>
+                    <small>Merchant exchange available</small>
+                    {option.sourceName}
+                  </span>
+                  <strong>{getOptionLabel(option)}</strong>
+                </div>
+              ) : (
+                <button
+                  aria-pressed={selected}
+                  onClick={() => toggleOption(option.id)}
+                  type="button"
+                >
+                  <span>{option.sourceName}</span>
+                  <strong>{getOptionLabel(option)}</strong>
+                </button>
+              )}
               <p>{option.effectText}</p>
               {option.required && <small>Required prepared effect.</small>}
               {option.kind === "discount" &&
@@ -138,24 +181,39 @@ export function CostChoicePanel({
                     </select>
                   </label>
                 )}
-              {option.kind === "market" && selected && (
-                <label>
-                  Goods counts as
+              {option.kind === "market" && (
+                <label className="market-exchange-control">
+                  <span>Exchange 1 Goods for</span>
                   <select
-                    value={marketResourceByOptionId[option.id]}
+                    aria-label={`${option.sourceName}: exchange 1 Goods for`}
+                    value={selected ? marketResource ?? "" : ""}
                     onChange={(event) =>
-                      setMarketResourceByOptionId((current) => ({
-                        ...current,
-                        [option.id]: event.target.value as ResourceType
-                      }))
+                      chooseMarketResource(
+                        option.id,
+                        event.target.value as ResourceType | ""
+                      )
                     }
                   >
+                    <option disabled={option.required} value="">
+                      Do not use this exchange
+                    </option>
                     {(option.resourceChoices ?? []).map((resource) => (
                       <option key={resource} value={resource}>
+                        {option.marketRate === 2 ? "Up to 2 " : "1 "}
                         {resourceLabels[resource]}
                       </option>
                     ))}
                   </select>
+                  <small
+                    aria-live="polite"
+                    className={`market-exchange-status ${
+                      selected ? "is-active" : ""
+                    }`}
+                  >
+                    {selected
+                      ? "Selected — the adjusted cost above includes this exchange."
+                      : "Optional — choose a resource to apply the exchange."}
+                  </small>
                 </label>
               )}
             </article>
@@ -203,7 +261,9 @@ function CostLine({ label, cost }: { label: string; cost: ResourceCost }) {
 function getOptionLabel(option: PendingCostChoiceState["options"][number]): string {
   if (option.kind === "zero") return "0 resources";
   if (option.kind === "market") {
-    return `1 Goods as ${option.marketRate ?? 1}`;
+    return option.marketRate === 2
+      ? "Trade 1 Goods for up to 2 resources"
+      : "Trade 1 Goods for 1 resource";
   }
   return `-${option.amount ?? 0} resources`;
 }
