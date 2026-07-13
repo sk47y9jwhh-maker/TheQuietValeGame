@@ -99,7 +99,7 @@ const rules: RuleReferenceCard[] = [
       "Place: spend 1 action and pay the shown Core Tile cost.",
       "Upgrade: spend 1 action and pay the upgraded cost of a reachable basic Core Tile.",
       "Activate: spend 1 action to use an eligible reachable tile’s production or activated effect.",
-      "Linked Production: activating a Resource producer also activates one adjacent, non-Overstrained producer from the same tile stack for no additional action.",
+      "Linked Production: activating a Resource producer also activates every immediately adjacent, non-Overstrained producer from the same tile stack for no additional action (up to all three copies).",
       "Complete an Arrival or resolve a Burden: spend 1 action and pay its requirement or current resolution cost.",
       "Using a face-up Boon, moving through Stables, and using a Steward Power do not spend an action unless their text says otherwise."
     ]

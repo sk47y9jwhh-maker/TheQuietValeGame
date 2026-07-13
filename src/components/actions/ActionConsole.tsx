@@ -21,7 +21,7 @@ import {
   canUseStewardPower,
   canCancelPendingBurdenWithWarden,
   canResolveBurden,
-  getLinkedProductionTileId,
+  getLinkedProductionTileIds,
   getStableMoveDestinationTileIds,
   getUsableFaceUpBoonIds,
   getUpgradeableTileIds
@@ -617,8 +617,8 @@ export function ActionConsole({
           </div>
           <p className="muted">
             Passive effects—including Shrines and cost reductions—trigger automatically
-            when their condition is met. Adjacent matching Resource producers activate
-            together for one action.
+            when their condition is met. All immediately adjacent matching Resource
+            producers activate together for one action.
           </p>
           {activatableIds.length === 0 ? (
             <p className="muted">No reachable activated effects are available.</p>
@@ -628,12 +628,10 @@ export function ActionConsole({
                 const tile = state.map.placedTiles.find(
                   (candidate) => candidate.instanceId === placedTileId
                 );
-                const linkedTileId = getLinkedProductionTileId(state, placedTileId);
-                const linkedTile = linkedTileId
-                  ? state.map.placedTiles.find(
-                      (candidate) => candidate.instanceId === linkedTileId
-                    )
-                  : undefined;
+                const linkedTileIds = getLinkedProductionTileIds(state, placedTileId);
+                const linkedTiles = state.map.placedTiles.filter((candidate) =>
+                  linkedTileIds.includes(candidate.instanceId)
+                );
                 return (
                   <button
                     key={placedTileId}
@@ -641,8 +639,10 @@ export function ActionConsole({
                     type="button"
                   >
                     <strong>Activate {tile ? selectTileName(tile) : placedTileId}</strong>
-                    {linkedTile && (
-                      <span>Also activates {selectTileName(linkedTile)}</span>
+                    {linkedTiles.length > 0 && (
+                      <span>
+                        Also activates {linkedTiles.map(selectTileName).join(", ")}
+                      </span>
                     )}
                   </button>
                 );

@@ -26,6 +26,7 @@ Implemented playable loop:
 - Free Stables movement between placed Stables and adjacent non-Overstrained destinations.
 - Core and unlocked Special Tile placement.
 - Upgrade and Activate flows for reachable eligible tiles.
+- Three-copy supply for every Core Resource Tile, with Linked Production activating all immediately adjacent, non-Overstrained matching producers for one action.
 - Activated Special Tile effects that resolve an active Burden with a player choice prompt.
 - Docks passive reachability connecting active settlement networks to water-adjacent tiles.
 - Once-per-season/round activation limits for tile effects that declare them.

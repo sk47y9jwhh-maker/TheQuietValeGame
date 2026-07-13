@@ -75,14 +75,25 @@ describe("action console", () => {
         hexIds: ["H1"],
         strain: 0,
         support: { passive: false, singleUse: false, preventedThisRound: false }
+      },
+      {
+        instanceId: "farm_3",
+        tileId: "c04_farmstead",
+        kind: "core",
+        side: "basic",
+        hexIds: ["G2"],
+        strain: 0,
+        support: { passive: false, singleUse: false, preventedThisRound: false }
       }
     ];
 
     renderActionConsole({ state, actionMode: "activate" });
 
-    expect(screen.getByText("Also activates Artisan Farm")).toBeInTheDocument();
     expect(
-      screen.getByText(/Adjacent matching Resource producers activate together/i)
+      screen.getByText("Also activates Artisan Farm, Farmstead")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/All immediately adjacent matching Resource producers/i)
     ).toBeInTheDocument();
   });
 

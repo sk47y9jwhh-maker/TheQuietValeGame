@@ -23,6 +23,39 @@ describe("browser persistence", () => {
     expect(readSavedGame()?.state.currentPlayerId).toBe("player_1");
   });
 
+  it("adds the third Resource Tile copy when restoring an older active game", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const resourceTileIds = [
+      "c01_lumber_yard",
+      "c02_mine_tunnel",
+      "c03_gathering_outpost",
+      "c04_farmstead",
+      "c20_dig_site"
+    ];
+    for (const tileId of resourceTileIds) {
+      state.tileSupply.core[tileId] = 2;
+    }
+
+    window.localStorage.setItem(
+      "quietVale.activeGame.v1",
+      JSON.stringify({
+        version: 2,
+        savedAt: new Date().toISOString(),
+        playerCount: 1,
+        stewardIds: ["vanguard"],
+        encounterSeed: "QV-RESOURCE-STOCK",
+        state
+      })
+    );
+
+    const restored = readSavedGame();
+
+    expect(restored?.version).toBe(3);
+    expect(
+      resourceTileIds.map((tileId) => restored?.state.tileSupply.core[tileId])
+    ).toEqual([3, 3, 3, 3, 3]);
+  });
+
   it("ignores a corrupt active game save instead of restoring a broken state", () => {
     window.localStorage.setItem(
       "quietVale.activeGame.v1",

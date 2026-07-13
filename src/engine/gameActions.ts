@@ -275,22 +275,31 @@ function getTileProduction(tile: PlacedTile): ResourceCost | undefined {
   return side.production;
 }
 
+export function getLinkedProductionTileIds(
+  state: GameState,
+  placedTileId: string
+): string[] {
+  const tile = getPlacedTile(state, placedTileId);
+  if (!tile || tile.strain >= 3 || !getTileProduction(tile)) return [];
+
+  return state.map.placedTiles
+    .filter(
+      (candidate) =>
+        candidate.instanceId !== tile.instanceId &&
+        candidate.kind === "core" &&
+        candidate.tileId === tile.tileId &&
+        candidate.strain < 3 &&
+        Boolean(getTileProduction(candidate)) &&
+        arePlacedTilesAdjacent(tile, candidate)
+    )
+    .map((candidate) => candidate.instanceId);
+}
+
 export function getLinkedProductionTileId(
   state: GameState,
   placedTileId: string
 ): string | undefined {
-  const tile = getPlacedTile(state, placedTileId);
-  if (!tile || tile.strain >= 3 || !getTileProduction(tile)) return undefined;
-
-  return state.map.placedTiles.find(
-    (candidate) =>
-      candidate.instanceId !== tile.instanceId &&
-      candidate.kind === "core" &&
-      candidate.tileId === tile.tileId &&
-      candidate.strain < 3 &&
-      Boolean(getTileProduction(candidate)) &&
-      arePlacedTilesAdjacent(tile, candidate)
-  )?.instanceId;
+  return getLinkedProductionTileIds(state, placedTileId)[0];
 }
 
 function isAdjacentToUpgradedCore(tile: PlacedTile, tiles: PlacedTile[]): boolean {
@@ -1402,28 +1411,31 @@ export function activateTile(
     );
     nextState = applyAdjacentProductionPassiveEffects(nextState, tile, production);
 
-    const linkedTileId = getLinkedProductionTileId(state, tile.instanceId);
-    const linkedTile = linkedTileId ? getPlacedTile(state, linkedTileId) : undefined;
-    const linkedProduction = linkedTile ? getTileProduction(linkedTile) : undefined;
-    if (!linkedTile || !linkedProduction) return nextState;
+    for (const linkedTileId of getLinkedProductionTileIds(state, tile.instanceId)) {
+      const linkedTile = getPlacedTile(state, linkedTileId);
+      const linkedProduction = linkedTile ? getTileProduction(linkedTile) : undefined;
+      if (!linkedTile || !linkedProduction) continue;
 
-    nextState = log(
-      nextState,
-      `Linked production activated ${getPlacedTileName(linkedTile)}.`
-    );
-    nextState = recordTileActivation(nextState, linkedTile);
-    nextState = applyResourceGain(
-      nextState,
-      linkedProduction,
-      `${getPlacedTileName(linkedTile)} produced resources.`
-    );
-    return applyAdjacentProductionPassiveEffects(
-      nextState,
-      linkedTile,
-      linkedProduction
-    );
+      nextState = log(
+        nextState,
+        `Linked production activated ${getPlacedTileName(linkedTile)}.`
+      );
+      nextState = recordTileActivation(nextState, linkedTile);
+      nextState = applyResourceGain(
+        nextState,
+        linkedProduction,
+        `${getPlacedTileName(linkedTile)} produced resources.`
+      );
+      nextState = applyAdjacentProductionPassiveEffects(
+        nextState,
+        linkedTile,
+        linkedProduction
+      );
+    }
   }
-  return queueTileEffectPrompt(nextState, tile, "Activated effect");
+  return production
+    ? nextState
+    : queueTileEffectPrompt(nextState, tile, "Activated effect");
 }
 
 export function canCompleteArrival(

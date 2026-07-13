@@ -15,17 +15,20 @@ const cost = (values: Partial<ResourceCost>): ResourceCost => ({
   ...values
 });
 
+const withLinkedProduction = (activationText: string): string =>
+  `${activationText} Passive: Linked Production — when this tile is chosen for an Activate action, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action.`;
+
 export const coreTiles: CoreTileData[] = [
   {
     id: "c01_lumber_yard",
     category: "resource",
-    count: 2,
+    count: 3,
     size: 1,
     placement: { terrain: ["woodland"], text: "Place on Woodland." },
     basic: {
       name: "Lumber Yard",
       cost: cost({}),
-      effectText: "Activate: Gain 2 Wood.",
+      effectText: withLinkedProduction("Activate: Gain 2 Wood."),
       effectType: "production",
       production: cost({ wood: 2 }),
       population: 0,
@@ -34,7 +37,7 @@ export const coreTiles: CoreTileData[] = [
     upgraded: {
       name: "Sustainable Lumber Yard",
       cost: cost({}),
-      effectText: "Activate: Gain 3 Wood and 2 Food.",
+      effectText: withLinkedProduction("Activate: Gain 3 Wood and 2 Food."),
       effectType: "production",
       production: cost({ wood: 3, food: 2 }),
       population: 0,
@@ -44,13 +47,13 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c02_mine_tunnel",
     category: "resource",
-    count: 2,
+    count: 3,
     size: 1,
     placement: { terrain: ["mountains"], text: "Place on Mountains." },
     basic: {
       name: "Mine Tunnel",
       cost: cost({}),
-      effectText: "Activate: Gain 2 Stone.",
+      effectText: withLinkedProduction("Activate: Gain 2 Stone."),
       effectType: "production",
       production: cost({ stone: 2 }),
       population: 0,
@@ -59,7 +62,7 @@ export const coreTiles: CoreTileData[] = [
     upgraded: {
       name: "Mine Shaft",
       cost: cost({}),
-      effectText: "Activate: Gain 3 Stone and 2 Metal.",
+      effectText: withLinkedProduction("Activate: Gain 3 Stone and 2 Metal."),
       effectType: "production",
       production: cost({ stone: 3, metal: 2 }),
       population: 0,
@@ -69,13 +72,13 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c03_gathering_outpost",
     category: "resource",
-    count: 2,
+    count: 3,
     size: 1,
     placement: { terrain: ["heaths"], text: "Place on Heaths." },
     basic: {
       name: "Gathering Outpost",
       cost: cost({}),
-      effectText: "Activate: Gain 2 Herbs.",
+      effectText: withLinkedProduction("Activate: Gain 2 Herbs."),
       effectType: "production",
       production: cost({ herbs: 2 }),
       population: 0,
@@ -84,7 +87,7 @@ export const coreTiles: CoreTileData[] = [
     upgraded: {
       name: "Gathering Lodge",
       cost: cost({}),
-      effectText: "Activate: Gain 3 Herbs and 2 Food.",
+      effectText: withLinkedProduction("Activate: Gain 3 Herbs and 2 Food."),
       effectType: "production",
       production: cost({ herbs: 3, food: 2 }),
       population: 0,
@@ -94,13 +97,13 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c04_farmstead",
     category: "resource",
-    count: 2,
+    count: 3,
     size: 1,
     placement: { terrain: ["arable"], text: "Place on Arable Land." },
     basic: {
       name: "Farmstead",
       cost: cost({}),
-      effectText: "Activate: Gain 2 Food.",
+      effectText: withLinkedProduction("Activate: Gain 2 Food."),
       effectType: "production",
       production: cost({ food: 2 }),
       population: 0,
@@ -109,7 +112,7 @@ export const coreTiles: CoreTileData[] = [
     upgraded: {
       name: "Artisan Farm",
       cost: cost({}),
-      effectText: "Activate: Gain 3 Food and 2 Goods.",
+      effectText: withLinkedProduction("Activate: Gain 3 Food and 2 Goods."),
       effectType: "production",
       production: cost({ food: 3, goods: 2 }),
       population: 0,
@@ -498,13 +501,13 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c20_dig_site",
     category: "resource",
-    count: 2,
+    count: 3,
     size: 1,
     placement: { terrain: ["ruins"], text: "Place on Ruins." },
     basic: {
       name: "Dig Site",
       cost: cost({}),
-      effectText: "Activate: Gain 2 Metal.",
+      effectText: withLinkedProduction("Activate: Gain 2 Metal."),
       effectType: "production",
       production: cost({ metal: 2 }),
       population: 0,
@@ -513,7 +516,7 @@ export const coreTiles: CoreTileData[] = [
     upgraded: {
       name: "Excavation Site",
       cost: cost({}),
-      effectText: "Activate: Gain 3 Metal and 2 Goods.",
+      effectText: withLinkedProduction("Activate: Gain 3 Metal and 2 Goods."),
       effectType: "production",
       production: cost({ metal: 3, goods: 2 }),
       population: 0,
