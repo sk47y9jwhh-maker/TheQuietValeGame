@@ -48,7 +48,7 @@ The bot:
 - enters the same Workshop/Market cost-choice flow as a player, including
   choosing discounts against the resource that is actually short;
 - resolves current manual effect, timer, resource exchange, Supported, Strain,
-  movement, Burden, deck reorder, and cost-choice prompts;
+  Overstrain-chain, movement, Burden, deck reorder, and cost-choice prompts;
 - records the completed game through the live Ledger evaluator.
 
 The human profile also compares the best current actions across placement,

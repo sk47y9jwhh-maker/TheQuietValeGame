@@ -36,7 +36,7 @@ Implemented playable loop:
 - Automatic Shrine production passives after adjacent matching Resource Tile activation, with once-per-round tracking and no separate Shrine activation.
 - Common Land/The Pleasance automatically maintains Supported on eligible adjacent Housing Tiles.
 - Lantern Roadhouse passive Supported recalculation for connected Travel networks.
-- Arrival expiry Strain consequence and end-of-season Strain spread.
+- Arrival expiry Strain consequence and player-chosen chain reactions whenever a tile becomes Overstrained.
 - Pending effect prompts for revealed cards, placed/upgraded/activated tiles, Arrival rewards, Burden resolution, and expired Arrivals.
 - Full-stage pending effect prompts so card, tile, and Steward choices remain visible across screen sizes.
 - App smoke tests for setup, seeded start, seeding, and reveal flow.

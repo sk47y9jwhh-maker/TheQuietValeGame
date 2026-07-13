@@ -5,6 +5,7 @@ import {
   cardEffectRuleId,
   getActiveEffectRule,
   getEffectRule,
+  systemEffectRuleId,
   tileEffectRuleId
 } from "../data/effectRules";
 import { coreTileById, specialTileById } from "../data/tiles";
@@ -202,6 +203,80 @@ export function queuePendingEffectFirst(
       ...state.pendingEffects
     ]
   };
+}
+
+const overstrainSpreadRuleId = systemEffectRuleId("overstrain-spread");
+
+function queueOverstrainSpreadEffects(
+  state: GameState,
+  sourceTileIds: string[]
+): GameState {
+  let nextState = state;
+
+  for (const sourceTileId of [...sourceTileIds].reverse()) {
+    const sourceTile = nextState.map.placedTiles.find(
+      (tile) => tile.instanceId === sourceTileId
+    );
+    if (
+      !sourceTile ||
+      sourceTile.strain < 3 ||
+      getValidEffectStrainTargets(
+        nextState,
+        overstrainSpreadRuleId,
+        sourceTile
+      ).length === 0
+    ) {
+      continue;
+    }
+
+    const sourceName = getPlacedTileName(sourceTile);
+    nextState = queuePendingEffectFirst(nextState, {
+      sourceType: "tile",
+      ruleId: overstrainSpreadRuleId,
+      sourceId: sourceTile.instanceId,
+      sourceName,
+      title: `Overstrain chain: ${sourceName}`,
+      effectText:
+        "This tile just became Overstrained. After the triggering effect finishes, it spreads 1 Strain to one adjacent placed tile with fewer than 3 Strain.",
+      detailText:
+        "Choose the adjacent tile. If it becomes Overstrained, it will spread next.",
+      resolutionLogMessage: `${sourceName} spread 1 Strain after becoming Overstrained.`,
+      requiresManualChoice: true,
+      confirmLabel: "Spread Strain"
+    });
+  }
+
+  return nextState;
+}
+
+function discardBlockedOverstrainSpreadEffects(state: GameState): GameState {
+  let nextState = state;
+
+  while (nextState.pendingEffects[0]?.ruleId === overstrainSpreadRuleId) {
+    const pendingEffect = nextState.pendingEffects[0];
+    const sourceTile = pendingEffect.sourceId
+      ? nextState.map.placedTiles.find(
+          (tile) => tile.instanceId === pendingEffect.sourceId
+        )
+      : undefined;
+    if (
+      sourceTile &&
+      sourceTile.strain >= 3 &&
+      getValidEffectStrainTargets(
+        nextState,
+        overstrainSpreadRuleId,
+        sourceTile
+      ).length > 0
+    ) {
+      break;
+    }
+    nextState = {
+      ...nextState,
+      pendingEffects: nextState.pendingEffects.slice(1)
+    };
+  }
+
+  return nextState;
 }
 
 export function getCurrentSeasonCardEffectText(
@@ -887,6 +962,27 @@ export function resolvePendingEffect(
       placedTiles: state.map.placedTiles.map((tile) => ({ ...tile }))
     }
   };
+  const newlyOverstrainedTileIds: string[] = [];
+  const recordedOverstrainTileIds = new Set<string>();
+  const applyStrainAndRecordOverstrain = (tileId: string, amount: number) => {
+    const strainBefore = nextState.map.placedTiles.find(
+      (tile) => tile.instanceId === tileId
+    )?.strain;
+    nextState = applyStrainToState(nextState, tileId, amount);
+    const strainAfter = nextState.map.placedTiles.find(
+      (tile) => tile.instanceId === tileId
+    )?.strain;
+    if (
+      strainBefore !== undefined &&
+      strainAfter !== undefined &&
+      strainBefore < 3 &&
+      strainAfter >= 3 &&
+      !recordedOverstrainTileIds.has(tileId)
+    ) {
+      recordedOverstrainTileIds.add(tileId);
+      newlyOverstrainedTileIds.push(tileId);
+    }
+  };
 
   for (const resource of resources) {
     const delta = effectiveAdjustment.resourceDeltas?.[resource] ?? 0;
@@ -926,8 +1022,7 @@ export function resolvePendingEffect(
       strainCascade.anchorStrain > 0 &&
       effectiveAdjustment.strainCascadeAnchorTileId
     ) {
-      nextState = applyStrainToState(
-        nextState,
+      applyStrainAndRecordOverstrain(
         effectiveAdjustment.strainCascadeAnchorTileId,
         strainCascade.anchorStrain
       );
@@ -936,7 +1031,7 @@ export function resolvePendingEffect(
       effectiveAdjustment.tileStrainDeltas ?? {}
     )) {
       if (strainDelta > 0) {
-        nextState = applyStrainToState(nextState, tileId, strainDelta);
+        applyStrainAndRecordOverstrain(tileId, strainDelta);
       } else if (strainDelta < 0) {
         nextState = {
           ...nextState,
@@ -1030,7 +1125,7 @@ export function resolvePendingEffect(
     }
   }
 
-  return {
+  nextState = {
     ...nextState,
     log: [
       {
@@ -1041,6 +1136,11 @@ export function resolvePendingEffect(
       ...nextState.log
     ].slice(0, 80)
   };
+  nextState = queueOverstrainSpreadEffects(
+    nextState,
+    newlyOverstrainedTileIds
+  );
+  return discardBlockedOverstrainSpreadEffects(nextState);
 }
 
 export function skipPendingEffect(state: GameState): GameState {

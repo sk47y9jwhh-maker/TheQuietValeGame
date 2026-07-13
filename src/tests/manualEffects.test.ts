@@ -409,6 +409,165 @@ describe("structured effect rules", () => {
     });
   });
 
+  it("finishes the triggering effect before queuing every new Overstrain spread", () => {
+    const state = stateWith([
+      placed("left", "c15_path", "F1"),
+      placed("anchor", "c01_lumber_yard", "G1", 1),
+      placed("adjacent", "c15_path", "H1", 2),
+      placed("right", "c15_path", "I1")
+    ]);
+    const ruleId = cardEffectRuleId("burden_forest_s_grudge", 3);
+    state.pendingEffects = [{
+      id: "effect_two_overstrain_triggers",
+      ruleId,
+      sourceType: "card",
+      sourceName: "Forest's Grudge",
+      title: "Forest's Grudge",
+      effectText: "Display text only"
+    }];
+
+    const resolved = resolvePendingEffect(state, {
+      strainCascadeAnchorTileId: "anchor",
+      tileStrainDeltas: { adjacent: 1 }
+    });
+
+    expect(resolved.map.placedTiles.map((tile) => tile.strain)).toEqual([0, 3, 3, 0]);
+    expect(resolved.pendingEffects.map((effect) => effect.sourceId)).toEqual([
+      "anchor",
+      "adjacent"
+    ]);
+    expect(resolved.pendingEffects[0]).toMatchObject({
+      ruleId: systemEffectRuleId("overstrain-spread"),
+      requiresManualChoice: true,
+      confirmLabel: "Spread Strain"
+    });
+  });
+
+  it("chains a player-chosen spread whenever the target becomes Overstrained", () => {
+    const state = stateWith([
+      placed("source", "c15_path", "G1", 2),
+      placed("middle", "c05_cabin", "H1", 2),
+      placed("tail", "c13_workshops", "I1")
+    ]);
+    state.pendingEffects = [{
+      id: "effect_start_chain",
+      ruleId: systemEffectRuleId("arrival-expired"),
+      sourceType: "system",
+      sourceName: "Test",
+      title: "Place Strain",
+      effectText: "Display text only",
+      requiresManualChoice: true
+    }];
+
+    const triggered = resolvePendingEffect(state, {
+      tileStrainDeltas: { source: 1 }
+    });
+    expect(triggered.map.placedTiles.map((tile) => tile.strain)).toEqual([3, 2, 0]);
+    expect(triggered.pendingEffects[0].sourceId).toBe("source");
+
+    const rejectedRemoteTarget = resolvePendingEffect(triggered, {
+      tileStrainDeltas: { tail: 1 }
+    });
+    expect(rejectedRemoteTarget).toBe(triggered);
+
+    const chained = resolvePendingEffect(triggered, {
+      tileStrainDeltas: { middle: 1 }
+    });
+    expect(chained.map.placedTiles.map((tile) => tile.strain)).toEqual([3, 3, 0]);
+    expect(chained.pendingEffects[0]).toMatchObject({
+      ruleId: systemEffectRuleId("overstrain-spread"),
+      sourceId: "middle"
+    });
+
+    const finished = resolvePendingEffect(chained, {
+      tileStrainDeltas: { tail: 1 }
+    });
+    expect(finished.map.placedTiles.map((tile) => tile.strain)).toEqual([3, 3, 1]);
+    expect(finished.pendingEffects).toHaveLength(0);
+  });
+
+  it("checks Supported before starting or continuing an Overstrain chain", () => {
+    const protectedSource = placed("source", "c15_path", "G1", 2);
+    protectedSource.support.singleUse = true;
+    const stoppedAtSource = stateWith([
+      protectedSource,
+      placed("target", "c05_cabin", "H1", 2)
+    ]);
+    stoppedAtSource.pendingEffects = [{
+      id: "effect_supported_source",
+      ruleId: systemEffectRuleId("arrival-expired"),
+      sourceType: "system",
+      sourceName: "Test",
+      title: "Place Strain",
+      effectText: "Display text only",
+      requiresManualChoice: true
+    }];
+
+    const sourceProtected = resolvePendingEffect(stoppedAtSource, {
+      tileStrainDeltas: { source: 1 }
+    });
+    expect(sourceProtected.map.placedTiles[0].strain).toBe(2);
+    expect(sourceProtected.pendingEffects).toHaveLength(0);
+
+    const protectedTarget = placed("target", "c05_cabin", "H1", 2);
+    protectedTarget.support.singleUse = true;
+    const stoppedDuringSpread = stateWith([
+      placed("source", "c15_path", "G1", 2),
+      protectedTarget
+    ]);
+    stoppedDuringSpread.pendingEffects = [{
+      id: "effect_supported_target",
+      ruleId: systemEffectRuleId("arrival-expired"),
+      sourceType: "system",
+      sourceName: "Test",
+      title: "Place Strain",
+      effectText: "Display text only",
+      requiresManualChoice: true
+    }];
+
+    const spreadReady = resolvePendingEffect(stoppedDuringSpread, {
+      tileStrainDeltas: { source: 1 }
+    });
+    const targetProtected = resolvePendingEffect(spreadReady, {
+      tileStrainDeltas: { target: 1 }
+    });
+    expect(targetProtected.map.placedTiles[1].strain).toBe(2);
+    expect(targetProtected.map.placedTiles[1].support.preventedThisRound).toBe(true);
+    expect(targetProtected.pendingEffects).toHaveLength(0);
+  });
+
+  it("drops a later spread prompt if an earlier chain consumes its last eligible target", () => {
+    const state = stateWith([
+      placed("left", "c09_tavern", "G1", 2),
+      placed("shared", "c15_path", "H1", 2),
+      placed("right", "c11_washhouse", "I1", 2)
+    ]);
+    const ruleId = cardEffectRuleId("burden_the_long_cough", 2);
+    state.pendingEffects = [{
+      id: "effect_shared_chain_target",
+      ruleId,
+      sourceType: "card",
+      sourceName: "The Long Cough",
+      title: "The Long Cough",
+      effectText: "Display text only",
+      requiresManualChoice: true
+    }];
+
+    const bothTriggered = resolvePendingEffect(state, {
+      tileStrainDeltas: { left: 1, right: 1 }
+    });
+    expect(bothTriggered.pendingEffects.map((effect) => effect.sourceId)).toEqual([
+      "left",
+      "right"
+    ]);
+
+    const targetConsumed = resolvePendingEffect(bothTriggered, {
+      tileStrainDeltas: { shared: 1 }
+    });
+    expect(targetConsumed.map.placedTiles.map((tile) => tile.strain)).toEqual([3, 3, 3]);
+    expect(targetConsumed.pendingEffects).toHaveLength(0);
+  });
+
   it("applies and logs a structured pending effect", () => {
     const state = stateWith([placed("path", "c15_path", "G1", 1)]);
     state.pendingEffects = [{

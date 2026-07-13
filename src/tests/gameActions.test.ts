@@ -2264,12 +2264,16 @@ describe("game actions", () => {
     expect(resolved.map.placedTiles[0].strain).toBe(1);
   });
 
-  it("Overstrained tiles spread Strain at the end of Seasons I and II", () => {
+  it.each([
+    [4, 1],
+    [8, 2]
+  ] as const)("does not spread existing Overstrained tiles when round %i ends", (round, season) => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
       phase: "endRound" as const,
-      round: 4,
+      round,
+      season,
       map: {
         placedTiles: [
           {
@@ -2296,7 +2300,8 @@ describe("game actions", () => {
 
     const next = resolveEndRound(ready);
 
-    expect(next.map.placedTiles[1].strain).toBe(1);
+    expect(next.map.placedTiles[1].strain).toBe(0);
+    expect(next.pendingEffects).toHaveLength(0);
     expect(next.phase).toBe("seeding");
   });
 

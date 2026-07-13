@@ -331,6 +331,48 @@ describe("effect prompt controls", () => {
     }]);
   });
 
+  it("offers only eligible adjacent targets for an Overstrain chain", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [
+      coreTile("c15_path", "source", "G1", 3),
+      coreTile("c05_cabin", "adjacent", "H1", 2),
+      coreTile("c13_workshops", "blocked", "F1", 3),
+      coreTile("c09_tavern", "remote", "J1")
+    ];
+    const applied: unknown[] = [];
+    const effect: PendingEffectState = {
+      id: "effect_overstrain_chain",
+      sourceType: "tile",
+      sourceId: "source",
+      ruleId: systemEffectRuleId("overstrain-spread"),
+      sourceName: "Path",
+      title: "Overstrain chain: Path",
+      effectText: "Choose one adjacent placed tile with fewer than 3 Strain.",
+      requiresManualChoice: true,
+      confirmLabel: "Spread Strain"
+    };
+
+    render(
+      <EffectPrompt
+        state={state}
+        effect={effect}
+        onApply={(adjustment) => applied.push(adjustment)}
+      />
+    );
+
+    expect(screen.getByText(/Cabin H1 \| Strain 2/)).toBeInTheDocument();
+    expect(screen.queryByText(/Workshops F1 \| Strain 3/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Tavern J1 \| Strain 0/)).not.toBeInTheDocument();
+    const apply = screen.getByRole("button", { name: "Spread Strain" });
+    expect(apply).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", {
+      name: "Increase Strain adjustment for Cabin"
+    }));
+    expect(apply).toBeEnabled();
+    fireEvent.click(apply);
+    expect(applied).toMatchObject([{ tileStrainDeltas: { adjacent: 1 } }]);
+  });
+
   it("only shows valid tile targets for a tile-targeted Burden", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.map.placedTiles = [

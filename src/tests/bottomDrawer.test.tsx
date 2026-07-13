@@ -104,6 +104,9 @@ describe("bottom drawer", () => {
 
     expect(screen.getByText("Placement and reach")).toBeInTheDocument();
     expect(screen.getByText("Boons, Arrivals, and Burdens")).toBeInTheDocument();
+    expect(screen.getByText(/each tile that became Overstrained spreads 1 Strain/)).toBeInTheDocument();
+    expect(screen.getByText(/If that tile becomes Overstrained, it spreads next/)).toBeInTheDocument();
+    expect(screen.queryByText(/After rounds 4 and 8/)).not.toBeInTheDocument();
     expect(screen.getByText("Final scoring")).toBeInTheDocument();
     expect(
       screen.getByText("Lose 5 Renown for each failed Arrival, each active Burden, and every Strain token on the map.")

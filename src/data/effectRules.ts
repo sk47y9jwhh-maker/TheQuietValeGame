@@ -270,6 +270,13 @@ for (const stewardId of ["vanguard", "knight", "sentinel"]) add({ id: stewardEff
 
 add({ id: systemEffectRuleId("acknowledge") });
 add({ id: systemEffectRuleId("arrival-expired"), target: { strain: "below3" }, tileAdjustment: strain("place", 1, 1, 1), manualChoice: true });
+add({
+  id: systemEffectRuleId("overstrain-spread"),
+  target: { adjacentToSource: true, excludeSource: true, strain: "below3" },
+  tileAdjustment: strain("place", 1, 1, 1),
+  manualChoice: true,
+  noEffectWhenNoTarget: true
+});
 
 export function getEffectRule(ruleId: string | undefined): EffectRule {
   if (!ruleId) return rules[systemEffectRuleId("acknowledge")];

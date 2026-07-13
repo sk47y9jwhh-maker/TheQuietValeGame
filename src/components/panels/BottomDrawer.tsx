@@ -123,7 +123,9 @@ const rules: RuleReferenceCard[] = [
       "Overstrained tiles cannot be activated or upgraded, break reachable connections, and contribute no Population, Renown, or passive scoring.",
       "Supported prevents the first Strain that would be placed on that tile during the round.",
       "Single-use Supported is then spent; printed or passive Supported can protect again next round.",
-      "After rounds 4 and 8, each Overstrained tile spreads 1 Strain to an adjacent eligible tile when possible."
+      "After an effect finishes, each tile that became Overstrained spreads 1 Strain to one adjacent placed tile with fewer than 3 Strain, if possible.",
+      "Players choose each spread target. If that tile becomes Overstrained, it spreads next; continue until no newly Overstrained tile can spread.",
+      "Supported and the Golden Garden prevent Strain before checking for a new Overstrained tile. An already Overstrained tile triggers again only if relieved below 3 and later Overstrained again."
     ]
   },
   {

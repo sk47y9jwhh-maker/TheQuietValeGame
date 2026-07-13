@@ -52,7 +52,7 @@ import {
 } from "./placedTiles";
 import { getSeasonForRound, isSeasonStartRound, revealCountForPlayers } from "./season";
 import { isTileReachable } from "./reachability";
-import { applyStrainToState, refreshPassiveSupported } from "./strainRules";
+import { refreshPassiveSupported } from "./strainRules";
 import { recalculatePassiveSupported } from "./supportRules";
 import { queueGoldenBoonResolution } from "./golden";
 import {
@@ -537,32 +537,6 @@ function queueTileEffectPrompt(
   return suggestedAdjustment && !requiresManualChoice && !noValidTarget
     ? resolvePendingEffect(queued)
     : queued;
-}
-
-function applySeasonEndStrainSpread(state: GameState, preventionRound: number): {
-  state: GameState;
-  spreadCount: number;
-} {
-  let nextState = state;
-  let spreadCount = 0;
-  const spreadingTiles = state.map.placedTiles.filter((tile) => tile.strain >= 3);
-
-  for (const sourceTile of spreadingTiles) {
-    const adjacentHexes = new Set(sourceTile.hexIds.flatMap((hexId) => getHexNeighbors(hexId)));
-    const target = nextState.map.placedTiles.find(
-      (tile) =>
-        tile.instanceId !== sourceTile.instanceId &&
-        tile.strain < 3 &&
-        tile.hexIds.some((hexId) => adjacentHexes.has(hexId))
-    );
-
-    if (!target) continue;
-
-    nextState = applyStrainToState(nextState, target.instanceId, 1, preventionRound);
-    spreadCount += 1;
-  }
-
-  return { state: nextState, spreadCount };
 }
 
 export function validateStewardPlacement(
@@ -2326,7 +2300,6 @@ export function resolveEndRound(state: GameState): GameState {
   const gameEnd = state.round >= 12;
   const nextSeason = gameEnd ? state.season : getSeasonForRound(nextRound);
   const shouldSeed = !gameEnd && isSeasonStartRound(nextRound);
-  const shouldSpreadStrain = state.round === 4 || state.round === 8;
 
   let nextState: GameState = {
     ...state,
@@ -2382,17 +2355,6 @@ export function resolveEndRound(state: GameState): GameState {
       detailText: card && card.type === "arrival" ? `Requirement: ${card.requirementText}` : undefined,
       requiresManualChoice: hasValidTarget
     });
-  }
-
-  if (shouldSpreadStrain) {
-    const result = applySeasonEndStrainSpread(nextState, state.round);
-    nextState = result.state;
-    if (result.spreadCount > 0) {
-      nextState = log(
-        nextState,
-        `End of Season ${state.season}: ${result.spreadCount} Overstrained tile(s) spread Strain.`
-      );
-    }
   }
 
   nextState = {

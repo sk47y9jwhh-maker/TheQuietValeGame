@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { goldenBoons } from "../data/encounters";
+import { systemEffectRuleId } from "../data/effectRules";
 import { ledgerMilestones } from "../data/ledger";
 import { goldenTiles } from "../data/tiles";
 import {
   endCurrentTurn,
   placeTile,
   revealEncounters,
-  resolveEndRound,
   useFaceUpBoon
 } from "../engine/gameActions";
 import {
@@ -17,6 +17,7 @@ import {
   validateGoldenSignetPlacements
 } from "../engine/golden";
 import { getPassiveCostOptions } from "../engine/passiveCosts";
+import { resolvePendingEffect } from "../engine/manualEffects";
 import { calculateFinalScore } from "../engine/scoring";
 import { createNewGame } from "../engine/setup";
 import { applyStrainToState } from "../engine/strainRules";
@@ -183,29 +184,45 @@ describe("Golden Legacy", () => {
     expect(second.map.placedTiles.find((tile) => tile.instanceId === "target")?.strain).toBe(1);
   });
 
-  it("charges season-end Garden prevention to the round that just ended", () => {
+  it("checks Golden Garden prevention before continuing an Overstrain chain", () => {
     const state = createNewGame(1, ["vanguard"]);
-    state.phase = "endRound";
+    state.phase = "turns";
     state.round = 4;
     const source = placed("source", "c15_path", "G1");
-    source.strain = 3;
+    source.strain = 2;
+    const target = placed("target", "c15_path", "H1");
+    target.strain = 2;
     state.map.placedTiles = [
       source,
-      placed("target", "c15_path", "H1"),
+      target,
       placed("garden", "golden_tile_the_golden_garden", "I1", "special")
     ];
-    state.tileActivationRecords.garden = { round: 4 };
+    state.pendingEffects = [{
+      id: "effect_garden_chain",
+      ruleId: systemEffectRuleId("arrival-expired"),
+      sourceType: "system",
+      sourceName: "Test",
+      title: "Place Strain",
+      effectText: "Display text only",
+      requiresManualChoice: true
+    }];
 
-    const seasonStarted = resolveEndRound(state);
-    expect(seasonStarted.round).toBe(5);
-    expect(seasonStarted.map.placedTiles.find((tile) => tile.instanceId === "target")?.strain)
-      .toBe(1);
-    expect(seasonStarted.tileActivationRecords.garden?.round).toBe(4);
+    const chainReady = resolvePendingEffect(state, {
+      tileStrainDeltas: { source: 1 }
+    });
+    expect(chainReady.map.placedTiles.find((tile) => tile.instanceId === "source")?.strain)
+      .toBe(3);
+    expect(chainReady.pendingEffects[0].ruleId).toBe(
+      systemEffectRuleId("overstrain-spread")
+    );
 
-    const roundFiveStrain = applyStrainToState(seasonStarted, "target", 1);
-    expect(roundFiveStrain.map.placedTiles.find((tile) => tile.instanceId === "target")?.strain)
-      .toBe(1);
-    expect(roundFiveStrain.tileActivationRecords.garden?.round).toBe(5);
+    const prevented = resolvePendingEffect(chainReady, {
+      tileStrainDeltas: { target: 1 }
+    });
+    expect(prevented.map.placedTiles.find((tile) => tile.instanceId === "target")?.strain)
+      .toBe(2);
+    expect(prevented.tileActivationRecords.garden?.round).toBe(4);
+    expect(prevented.pendingEffects).toHaveLength(0);
   });
 
   it("repositions tiles and their Steward tokens with The Golden Signet Ring", () => {
