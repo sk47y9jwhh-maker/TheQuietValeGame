@@ -2,7 +2,7 @@ import { resources } from "../data/resources";
 import { mapById } from "../data/map";
 import { coreTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
-import { getPlacedTileName } from "./placedTiles";
+import { getPlacedTileCategory, getPlacedTileName } from "./placedTiles";
 import { isTileReachable } from "./reachability";
 import { canAfford } from "./resources";
 import type {
@@ -76,6 +76,33 @@ function isPassiveUsed(
   return cadence === "season"
     ? record?.season === state.season
     : record?.round === state.round;
+}
+
+function getPassiveRefreshModifier(
+  state: GameState,
+  tile: PlacedTile
+) {
+  const category = getPlacedTileCategory(tile);
+  return state.boonModifiers.find((modifier) => {
+    if (!modifier.actions.includes("passive") || !modifier.refreshPassiveUse) {
+      return false;
+    }
+    if (modifier.allowedCategories && !modifier.allowedCategories.includes(category)) {
+      return false;
+    }
+    if (modifier.allowedTileIds && !modifier.allowedTileIds.includes(tile.tileId)) {
+      return false;
+    }
+    return !modifier.requiresAdjacentCategories?.length ||
+      modifier.requiresAdjacentCategories.every((requiredCategory) =>
+        state.map.placedTiles.some(
+          (candidate) =>
+            candidate.instanceId !== tile.instanceId &&
+            getPlacedTileCategory(candidate) === requiredCategory &&
+            areHexSetsAdjacent(tile.hexIds, candidate.hexIds)
+        )
+      );
+  });
 }
 
 function makeOption(
@@ -191,7 +218,8 @@ export function getPassiveCostOptions(
       context.targetTile?.kind === "core" &&
       tile.kind === "core" &&
       tile.tileId === "c13_workshops" &&
-      !isPassiveUsed(state, tile, "round")
+      (!isPassiveUsed(state, tile, "round") ||
+        Boolean(getPassiveRefreshModifier(state, tile)))
     ) {
       const isBasicWorkshop = tile.side === "basic";
       const applies = isBasicWorkshop
@@ -203,6 +231,9 @@ export function getPassiveCostOptions(
             kind: "discount",
             cadence: "round",
             amount: isBasicWorkshop ? 1 : 2,
+            boonModifierId: isPassiveUsed(state, tile, "round")
+              ? getPassiveRefreshModifier(state, tile)?.id
+              : undefined,
             required: true
           })
         );
@@ -212,7 +243,8 @@ export function getPassiveCostOptions(
     if (
       tile.kind === "core" &&
       tile.tileId === "c14_market_stalls" &&
-      !isPassiveUsed(state, tile, "round") &&
+      (!isPassiveUsed(state, tile, "round") ||
+        Boolean(getPassiveRefreshModifier(state, tile))) &&
       state.warehouse.goods > 0
     ) {
       const resourceChoices = getMarketResourceChoices(context.cost);
@@ -222,6 +254,9 @@ export function getPassiveCostOptions(
             kind: "market",
             cadence: "round",
             marketRate: tile.side === "upgraded" ? 2 : 1,
+            boonModifierId: isPassiveUsed(state, tile, "round")
+              ? getPassiveRefreshModifier(state, tile)?.id
+              : undefined,
             resourceChoices
           })
         );
@@ -268,6 +303,15 @@ export function applyCostChoice(
         ...next,
         [resource]: next[resource] - reduction,
         goods: next.goods + 1
+      };
+    } else if (option.kind === "substitute") {
+      const from = option.substituteFrom;
+      const to = option.resourceChoices?.[0];
+      if (!from || !to || next[from] <= 0) continue;
+      next = {
+        ...next,
+        [from]: next[from] - 1,
+        [to]: next[to] + 1
       };
     }
   }
@@ -381,8 +425,17 @@ export function recordPassiveCostChoices(
   );
   if (selectedOptions.length === 0) return state;
 
+  const consumedBoonModifierIds = new Set(
+    selectedOptions.flatMap((option) =>
+      option.boonModifierId ? [option.boonModifierId] : []
+    )
+  );
+
   return {
     ...state,
+    boonModifiers: state.boonModifiers.filter(
+      (modifier) => !consumedBoonModifierIds.has(modifier.id)
+    ),
     tileActivationRecords: {
       ...state.tileActivationRecords,
       ...Object.fromEntries(

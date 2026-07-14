@@ -260,6 +260,15 @@ function CostLine({ label, cost }: { label: string; cost: ResourceCost }) {
 
 function getOptionLabel(option: PendingCostChoiceState["options"][number]): string {
   if (option.kind === "zero") return "0 resources";
+  if (option.kind === "substitute") {
+    const from = option.substituteFrom
+      ? resourceLabels[option.substituteFrom]
+      : "resource";
+    const to = option.resourceChoices?.[0]
+      ? resourceLabels[option.resourceChoices[0]]
+      : "resource";
+    return `Use 1 ${to} instead of 1 ${from}`;
+  }
   if (option.kind === "market") {
     return option.marketRate === 2
       ? "Trade 1 Goods for up to 2 resources"

@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Check, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, RotateCcw, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { encounterById } from "../../data/encounters";
 import { EncounterSeasonEffects } from "../common/EncounterSeasonEffects";
@@ -11,7 +11,7 @@ import type {
 interface DeckReorderPanelProps {
   pending: PendingDeckReorderState;
   season: Season;
-  onConfirm: (orderedCardIds: string[]) => void;
+  onConfirm: (orderedCardIds: string[], bottomCardId?: string) => void;
   onSkip?: () => void;
 }
 
@@ -22,9 +22,11 @@ export function DeckReorderPanel({
   onSkip
 }: DeckReorderPanelProps) {
   const [orderedCardIds, setOrderedCardIds] = useState(pending.cardIds);
+  const [bottomCardId, setBottomCardId] = useState<string | undefined>();
 
   useEffect(() => {
     setOrderedCardIds(pending.cardIds);
+    setBottomCardId(undefined);
   }, [pending.id, pending.cardIds]);
 
   function moveCard(index: number, direction: -1 | 1) {
@@ -35,6 +37,16 @@ export function DeckReorderPanel({
       const next = [...current];
       const [cardId] = next.splice(index, 1);
       next.splice(nextIndex, 0, cardId);
+      return next;
+    });
+  }
+
+  function moveCardToBottom(index: number) {
+    setBottomCardId(orderedCardIds[index]);
+    setOrderedCardIds((current) => {
+      const next = [...current];
+      const [cardId] = next.splice(index, 1);
+      next.push(cardId);
       return next;
     });
   }
@@ -65,20 +77,34 @@ export function DeckReorderPanel({
                 <EncounterSeasonEffects card={card} currentSeason={season} />
               </div>
               <div className="deck-order-controls">
-                <button
-                  disabled={index === 0}
-                  onClick={() => moveCard(index, -1)}
-                  type="button"
-                >
-                  <ArrowUp size={16} />
-                </button>
-                <button
-                  disabled={index === orderedCardIds.length - 1}
-                  onClick={() => moveCard(index, 1)}
-                  type="button"
-                >
-                  <ArrowDown size={16} />
-                </button>
+                {pending.mode === "moveOneToBottom" ? (
+                  <button
+                    aria-label={`Move ${card?.name ?? cardId} to the bottom of the Encounter Deck`}
+                    disabled={bottomCardId === cardId}
+                    onClick={() => moveCardToBottom(index)}
+                    type="button"
+                  >
+                    <ArrowDown size={16} />
+                    Deck bottom
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      disabled={index === 0}
+                      onClick={() => moveCard(index, -1)}
+                      type="button"
+                    >
+                      <ArrowUp size={16} />
+                    </button>
+                    <button
+                      disabled={index === orderedCardIds.length - 1}
+                      onClick={() => moveCard(index, 1)}
+                      type="button"
+                    >
+                      <ArrowDown size={16} />
+                    </button>
+                  </>
+                )}
               </div>
             </article>
           );
@@ -86,6 +112,19 @@ export function DeckReorderPanel({
       </div>
 
       <div className="effect-actions">
+        {pending.mode === "moveOneToBottom" && bottomCardId && (
+            <button
+              className="secondary-action"
+              onClick={() => {
+                setOrderedCardIds(pending.cardIds);
+                setBottomCardId(undefined);
+              }}
+              type="button"
+            >
+              <RotateCcw size={18} />
+              Keep all five on top
+            </button>
+          )}
         {pending.canSkip && onSkip && (
           <button className="secondary-action" onClick={onSkip} type="button">
             <X size={18} />
@@ -94,7 +133,7 @@ export function DeckReorderPanel({
         )}
         <button
           className="primary-action"
-          onClick={() => onConfirm(orderedCardIds)}
+          onClick={() => onConfirm(orderedCardIds, bottomCardId)}
           type="button"
         >
           <Check size={18} />

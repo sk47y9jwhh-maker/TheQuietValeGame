@@ -284,6 +284,13 @@ export function EffectPrompt({
     (total, [, delta]) => total + Math.abs(delta),
     0
   );
+  const strainSelectionLabel = tileAdjustmentRule.strain
+    ? `${tileAdjustmentRule.strain.direction === "place" ? "Place" : "Remove"} ${
+        tileAdjustmentRule.strain.requiredTotal !== undefined
+          ? `${tileAdjustmentRule.strain.requiredTotal} Strain where possible`
+          : `up to ${tileAdjustmentRule.strain.maxTotal} Strain`
+      }: ${selectedStrainTotal} selected`
+    : "";
   const hasResourceSuggestion = resources.some(
     (resource) => (effect.suggestedAdjustment?.resourceDeltas?.[resource] ?? 0) !== 0
   );
@@ -359,6 +366,8 @@ export function EffectPrompt({
   const allowsResourceInsteadOfTile = Boolean(
     alternativeEffectRule?.kind === "pay_or_strain" ||
     alternativeEffectRule?.kind === "warehouse_loss_or_strain" ||
+    alternativeEffectRule?.kind === "pay_total_or_strain" ||
+    alternativeEffectRule?.kind === "most_stocked_loss_then_strain" ||
     resourceGainChoiceRule?.alternativeToStrainRemoval
   );
   const missingRequiredTileChoice =
@@ -509,9 +518,13 @@ export function EffectPrompt({
     : null;
 
   function resourceStepFor(resource: ResourceType): number {
-    return alternativeEffectRule?.resources.includes(resource)
-      ? alternativeEffectRule.resourceStep
-      : 1;
+    if (!alternativeEffectRule?.resources.includes(resource)) return 1;
+    if (alternativeEffectRule.kind === "most_stocked_loss_then_strain") {
+      return state.warehouse[resource] > 0
+        ? Math.min(alternativeEffectRule.resourceStep, state.warehouse[resource])
+        : alternativeEffectRule.resourceStep;
+    }
+    return alternativeEffectRule.resourceStep;
   }
 
   function canAdjustResource(resource: ResourceType, delta: number): boolean {
@@ -525,9 +538,16 @@ export function EffectPrompt({
     if (delta > 0) return current < 0;
     const next = current + delta;
     if (next < -state.warehouse[resource] || next > 0) return false;
-    const maxSpend = alternativeEffectRule.kind === "warehouse_loss_or_strain"
-      ? alternativeEffectRule.resourceStep
-      : alternativeEffectRule.resourceStep * alternativeEffectRule.requiredChoices;
+    const maxSpend =
+      alternativeEffectRule.kind === "warehouse_loss_or_strain" ||
+      alternativeEffectRule.kind === "pay_total_or_strain"
+        ? alternativeEffectRule.resourceStep
+        : alternativeEffectRule.kind === "most_stocked_loss_then_strain"
+          ? Math.min(
+              alternativeEffectRule.resourceStep,
+              state.warehouse[resource]
+            )
+          : alternativeEffectRule.resourceStep * alternativeEffectRule.requiredChoices;
     const otherSpend = alternativeEffectRule.resources.reduce(
       (total, candidate) =>
         candidate === resource
@@ -540,7 +560,11 @@ export function EffectPrompt({
 
   function adjustResource(resource: ResourceType, delta: number) {
     setResourceDeltas((current) => {
-      const next = alternativeEffectRule?.kind === "warehouse_loss_or_strain" && delta < 0
+      const exclusiveSpend =
+        alternativeEffectRule?.kind === "warehouse_loss_or_strain" ||
+        alternativeEffectRule?.kind === "pay_total_or_strain" ||
+        alternativeEffectRule?.kind === "most_stocked_loss_then_strain";
+      const next = exclusiveSpend && delta < 0
         ? emptyResourceDeltas()
         : { ...current };
       next[resource] = (next[resource] ?? 0) + delta;
@@ -552,7 +576,18 @@ export function EffectPrompt({
     ) {
       setTileStrainDeltas({});
     }
-    if (alternativeEffectRule?.kind === "warehouse_loss_or_strain" && delta < 0) {
+    if (
+      (alternativeEffectRule?.kind === "warehouse_loss_or_strain" ||
+        alternativeEffectRule?.kind === "pay_total_or_strain") &&
+      delta < 0
+    ) {
+      setTileStrainDeltas({});
+    }
+    if (
+      alternativeEffectRule?.kind === "most_stocked_loss_then_strain" &&
+      delta < 0 &&
+      Math.abs(delta) >= alternativeEffectRule.resourceStep
+    ) {
       setTileStrainDeltas({});
     }
   }
@@ -645,20 +680,36 @@ export function EffectPrompt({
     if (!tile) return tileStrainDeltas[tileId] ?? 0;
 
     const currentDelta = tileStrainDeltas[tileId] ?? 0;
-    if (
-      alternativeEffectRule?.kind === "warehouse_loss_or_strain" &&
-      requestedDelta > 0 &&
-      !alternativeEffectRule.resources.some(
-        (resource) => state.warehouse[resource] < alternativeEffectRule.resourceStep
-      )
-    ) {
-      return currentDelta;
+    if (requestedDelta > 0 && alternativeEffectRule) {
+      if (
+        alternativeEffectRule.kind === "warehouse_loss_or_strain" &&
+        !alternativeEffectRule.resources.some(
+          (resource) => state.warehouse[resource] < alternativeEffectRule.resourceStep
+        )
+      ) {
+        return currentDelta;
+      }
+      if (alternativeEffectRule.kind === "most_stocked_loss_then_strain") {
+        const stocked = Math.max(
+          ...alternativeEffectRule.resources.map(
+            (resource) => state.warehouse[resource]
+          )
+        );
+        const strainRequired =
+          alternativeEffectRule.strainWhen === "noneLost"
+            ? stocked === 0
+            : stocked < alternativeEffectRule.resourceStep;
+        if (!strainRequired) return currentDelta;
+      }
     }
     const nextDelta = currentDelta + requestedDelta;
     if (rule.direction === "place" && nextDelta < 0) return currentDelta;
     if (rule.direction === "remove" && nextDelta > 0) return currentDelta;
     if (Math.abs(nextDelta) > rule.maxPerTile) return currentDelta;
     if (rule.direction === "remove" && Math.abs(nextDelta) > tile.strain) {
+      return currentDelta;
+    }
+    if (rule.direction === "place" && nextDelta > 3 - tile.strain) {
       return currentDelta;
     }
 
@@ -682,7 +733,11 @@ export function EffectPrompt({
   function adjustStrain(tileId: string, delta: number) {
     const nextDelta = getNextStrainDelta(tileId, delta);
     setTileStrainDeltas((current) => ({ ...current, [tileId]: nextDelta }));
-    if (alternativeEffectRule?.kind === "warehouse_loss_or_strain" && nextDelta > 0) {
+    if (
+      (alternativeEffectRule?.kind === "warehouse_loss_or_strain" ||
+        alternativeEffectRule?.kind === "pay_total_or_strain") &&
+      nextDelta > 0
+    ) {
       setResourceDeltas(emptyResourceDeltas());
     }
     if (
@@ -848,7 +903,9 @@ export function EffectPrompt({
           <h3>Resources</h3>
           {alternativeEffectRule && alternativeResolvedChoices !== null && (
             <span>
-              {alternativeEffectRule.kind === "warehouse_loss_or_strain"
+              {alternativeEffectRule.kind === "warehouse_loss_or_strain" ||
+               alternativeEffectRule.kind === "pay_total_or_strain" ||
+               alternativeEffectRule.kind === "most_stocked_loss_then_strain"
                 ? `${alternativeResolvedChoices}/1 outcome selected`
                 : `${alternativeResolvedChoices}/${alternativeEffectRule.requiredChoices} outcomes selected`}
             </span>
@@ -1011,7 +1068,7 @@ export function EffectPrompt({
             <h3>Tiles</h3>
             <span>
               {tileAdjustmentRule.strain &&
-                `${tileAdjustmentRule.strain.direction === "place" ? "Place" : "Remove"} up to ${tileAdjustmentRule.strain.maxTotal} Strain: ${selectedStrainTotal} selected`}
+                strainSelectionLabel}
               {tileAdjustmentRule.strain && tileAdjustmentRule.support && " | "}
               {tileAdjustmentRule.support &&
                 `Supported up to ${tileAdjustmentRule.support.maxTargets} tiles: ${supportTileIds.length} selected`}

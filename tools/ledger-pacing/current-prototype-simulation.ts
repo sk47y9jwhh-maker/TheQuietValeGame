@@ -74,6 +74,7 @@ import {
   getTilePlacementHexIds,
 } from "../../src/engine/placementRules";
 import { applyCostChoice } from "../../src/engine/passiveCosts";
+import { arePlacedTilesAdjacent } from "../../src/engine/placedTiles";
 import { selectReachablePlacedTileIds } from "../../src/engine/reachability";
 import { calculateFinalScore } from "../../src/engine/scoring";
 import { createNewGame } from "../../src/engine/setup";
@@ -504,15 +505,96 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
           ? strainPriority(b) - strainPriority(a)
           : strainPriority(a) - strainPriority(b)
       );
-      for (const target of orderedTargets.slice(0, rule.maxTargets)) {
-        if (remaining <= 0) break;
+      const stewardOccupiedHexes = new Set(
+        state.players.map((player) => player.stewardHexId)
+      );
+      const selectedTargetIds = new Set<string>();
+      const selectedCategoryCounts: Partial<Record<TileCategory, number>> = {};
+      let selectedStewardTargets = 0;
+      let selectedOtherTargets = 0;
+      const isStewardOccupiedTarget = (target: PlacedTile): boolean =>
+        target.hexIds.some((hexId) => stewardOccupiedHexes.has(hexId));
+
+      const trySelectTarget = (target: PlacedTile): boolean => {
+        if (
+          selectedTargetIds.has(target.instanceId) ||
+          selectedTargetIds.size >= rule.maxTargets ||
+          remaining <= 0
+        ) return false;
+
+        const category = tileCategory(target);
+        const categoryLimit = rule.categoryLimits?.[category];
+        if (
+          categoryLimit &&
+          (selectedCategoryCounts[category] ?? 0) >= categoryLimit.max
+        ) return false;
+
+        const isStewardOccupied = isStewardOccupiedTarget(target);
+        if (
+          isStewardOccupied &&
+          selectedStewardTargets >=
+            (rule.maxStewardOccupiedTargets ?? Number.MAX_SAFE_INTEGER)
+        ) return false;
+        if (
+          !isStewardOccupied &&
+          selectedOtherTargets >=
+            (rule.maxOtherTargets ?? Number.MAX_SAFE_INTEGER)
+        ) return false;
+        if (
+          !isStewardOccupied &&
+          rule.linkedStewardTargets &&
+          !targets.some(
+            (candidate) =>
+              selectedTargetIds.has(candidate.instanceId) &&
+              isStewardOccupiedTarget(candidate) &&
+              arePlacedTilesAdjacent(target, candidate)
+          )
+        ) return false;
+
         const capacity = rule.direction === "remove" ? target.strain : 3 - target.strain;
         const amount = Math.min(rule.maxPerTile, capacity, remaining);
-        if (amount <= 0) continue;
+        if (amount <= 0) return false;
         tileStrainDeltas[target.instanceId] = rule.direction === "remove" ? -amount : amount;
         remaining -= amount;
+        selectedTargetIds.add(target.instanceId);
+        selectedCategoryCounts[category] =
+          (selectedCategoryCounts[category] ?? 0) + 1;
+        if (isStewardOccupied) selectedStewardTargets += 1;
+        else selectedOtherTargets += 1;
+        return true;
+      };
+
+      for (const [category, limits] of Object.entries(
+        rule.categoryLimits ?? {}
+      ) as Array<[TileCategory, { min?: number; max: number }]>) {
+        while ((selectedCategoryCounts[category] ?? 0) < (limits.min ?? 0)) {
+          const requiredTarget = orderedTargets.find(
+            (target) =>
+              tileCategory(target) === category &&
+              !selectedTargetIds.has(target.instanceId)
+          );
+          if (!requiredTarget || !trySelectTarget(requiredTarget)) break;
+        }
       }
-      if (Object.keys(tileStrainDeltas).length > 0) return { tileStrainDeltas };
+      if (rule.linkedStewardTargets) {
+        for (const target of orderedTargets.filter(isStewardOccupiedTarget)) {
+          trySelectTarget(target);
+        }
+        for (const target of orderedTargets.filter(
+          (target) => !isStewardOccupiedTarget(target)
+        )) {
+          trySelectTarget(target);
+        }
+      } else {
+        for (const target of orderedTargets) {
+          trySelectTarget(target);
+        }
+      }
+      const candidate = { tileStrainDeltas };
+      if (
+        Object.keys(tileStrainDeltas).length > 0 &&
+        isTileAdjustmentValid(state, pending.ruleId, candidate, sourceTile)
+      ) return candidate;
     }
   }
 

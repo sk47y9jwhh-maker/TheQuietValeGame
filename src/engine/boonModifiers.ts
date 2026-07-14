@@ -6,11 +6,13 @@ import {
   getCurrentSeasonCardEffectText
 } from "./manualEffects";
 import { applyFlexibleCostReduction, emptyCost } from "./passiveCosts";
+import { isPlacedTileAdjacentToCategory } from "./placedTiles";
 import type {
   ActiveBoonModifier,
   BoonModifierAction,
   GameState,
   PassiveCostOption,
+  PlacedTile,
   ResourceCost,
   TileCategory
 } from "./types";
@@ -20,6 +22,7 @@ interface BoonModifierTarget {
   tileId?: string;
   category?: TileCategory;
   kind?: "core" | "special";
+  placedTile?: PlacedTile;
   baseCost: ResourceCost;
 }
 
@@ -51,15 +54,33 @@ export function createBoonModifierFromCard(
     name: card.name,
     effectText,
     actions: modifier.actions,
-    remainingUses: 1,
+    remainingUses:
+      modifier.duration === "round" ? Number.MAX_SAFE_INTEGER : 1,
     amount: modifier.amount,
     zeroAction: modifier.zeroAction,
+    zeroResourceCost: modifier.zeroResourceCost,
     allowedCategories: modifier.allowedCategories,
-    coreOnly: modifier.coreOnly
+    allowedCategoriesByAction: modifier.allowedCategoriesByAction,
+    allowedTileIds: modifier.allowedTileIds,
+    requiresAdjacentCategories: modifier.requiresAdjacentCategories,
+    coreOnly: modifier.coreOnly,
+    expiresAfterRound:
+      modifier.duration === "round" ? state.round : undefined,
+    productionGain: modifier.productionGain,
+    followUpRuleId: modifier.productionGain?.choice
+      ? `${getCurrentSeasonCardEffectRuleId(state, cardId)}:production`
+      : undefined,
+    refreshPassiveUse: modifier.refreshPassiveUse,
+    supportActionTile: modifier.supportActionTile,
+    postActionRuleId: modifier.postActionRuleId,
+    postActionRequiresAdjacentCategories:
+      modifier.postActionRequiresAdjacentCategories,
+    postActionRequiresAdjacentTerrain: modifier.postActionRequiresAdjacentTerrain
   };
 }
 
 function matchesModifier(
+  state: GameState,
   modifier: ActiveBoonModifier,
   target: BoonModifierTarget
 ): boolean {
@@ -77,10 +98,33 @@ function matchesModifier(
   ) {
     return false;
   }
+  const actionCategories = modifier.allowedCategoriesByAction?.[target.action];
+  if (
+    actionCategories &&
+    (!target.category || !actionCategories.includes(target.category))
+  ) {
+    return false;
+  }
+  if (
+    modifier.requiresAdjacentCategories?.length &&
+    (!target.placedTile ||
+      modifier.requiresAdjacentCategories.some(
+        (category) =>
+          !isPlacedTileAdjacentToCategory(
+            target.placedTile!,
+            state.map.placedTiles,
+            category,
+            { includeOverstrained: true }
+          )
+      ))
+  ) {
+    return false;
+  }
   return true;
 }
 
 function selectCostModifierIds(
+  state: GameState,
   modifiers: ActiveBoonModifier[],
   target: BoonModifierTarget
 ): string[] {
@@ -89,7 +133,7 @@ function selectCostModifierIds(
 
   for (const modifier of modifiers) {
     if (remainingCost <= 0) break;
-    if (!matchesModifier(modifier, target) || !modifier.amount) continue;
+    if (!matchesModifier(state, modifier, target) || !modifier.amount) continue;
 
     selected.push(modifier.id);
     remainingCost = Math.max(0, remainingCost - modifier.amount);
@@ -103,25 +147,39 @@ export function getBoonActionPreview(
   target: BoonModifierTarget
 ): BoonActionPreview {
   const matchingModifiers = state.boonModifiers.filter((modifier) =>
-    matchesModifier(modifier, target)
+    matchesModifier(state, modifier, target)
   );
-  const costModifierIds = selectCostModifierIds(matchingModifiers, target);
+  const costModifierIds = selectCostModifierIds(state, matchingModifiers, target);
   const zeroActionModifier = matchingModifiers.find((modifier) => modifier.zeroAction);
+  const zeroResourceModifier = matchingModifiers.find(
+    (modifier) => modifier.zeroResourceCost
+  );
   const totalReduction = matchingModifiers
     .filter((modifier) => costModifierIds.includes(modifier.id))
     .reduce((total, modifier) => total + (modifier.amount ?? 0), 0);
-  const cost =
-    totalReduction > 0
+  const cost = zeroResourceModifier
+    ? emptyCost()
+    : totalReduction > 0
       ? applyFlexibleCostReduction(target.baseCost, state.warehouse, totalReduction)
       : target.baseCost;
+
+  const effectOnlyModifierIds = matchingModifiers
+    .filter(
+      (modifier) =>
+        modifier.supportActionTile ||
+        modifier.postActionRuleId
+    )
+    .map((modifier) => modifier.id);
 
   return {
     cost,
     actionCost: zeroActionModifier ? 0 : 1,
     appliedModifierIds: [
       ...costModifierIds,
-      ...(zeroActionModifier ? [zeroActionModifier.id] : [])
-    ]
+      ...(zeroActionModifier ? [zeroActionModifier.id] : []),
+      ...(zeroResourceModifier ? [zeroResourceModifier.id] : []),
+      ...effectOnlyModifierIds
+    ].filter((id, index, ids) => ids.indexOf(id) === index)
   };
 }
 
@@ -137,11 +195,11 @@ export function getBoonCostOptions(
   target: BoonModifierTarget
 ): PassiveCostOption[] {
   const matchingModifiers = state.boonModifiers.filter((modifier) =>
-    matchesModifier(modifier, target)
+    matchesModifier(state, modifier, target)
   );
-  const costModifierIds = selectCostModifierIds(matchingModifiers, target);
+  const costModifierIds = selectCostModifierIds(state, matchingModifiers, target);
 
-  return matchingModifiers
+  const reductionOptions = matchingModifiers
     .filter(
       (modifier) =>
         costModifierIds.includes(modifier.id) &&
@@ -166,6 +224,30 @@ export function getBoonCostOptions(
       }))
     )
     .filter((option) => option.resourceChoices.length > 0);
+
+  const zeroOptions: PassiveCostOption[] = matchingModifiers
+    .filter((modifier) => modifier.zeroResourceCost)
+    .map((modifier) => ({
+      id: `boon:${modifier.id}:zero`,
+      sourceTileId: modifier.id,
+      sourceKind: "boon" as const,
+      sourceName: modifier.name,
+      effectText: modifier.effectText,
+      kind: "zero" as const,
+      cadence: "round" as const,
+      required: true
+    }));
+
+  return [...reductionOptions, ...zeroOptions];
+}
+
+export function getMatchingBoonModifiers(
+  state: GameState,
+  target: BoonModifierTarget
+): ActiveBoonModifier[] {
+  return state.boonModifiers.filter((modifier) =>
+    matchesModifier(state, modifier, target)
+  );
 }
 
 export function consumeBoonModifiers(

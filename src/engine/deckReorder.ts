@@ -29,7 +29,7 @@ export function queueDeckReorderFromEffect(
   effectText: string,
   count: number,
   sourceId?: string,
-  options: Pick<PendingDeckReorderState, "canSkip" | "skipLabel"> = {}
+  options: Pick<PendingDeckReorderState, "canSkip" | "skipLabel" | "mode"> = {}
 ): GameState {
   return queueDeckReorder(state, count, {
     sourceType,
@@ -43,7 +43,8 @@ export function queueDeckReorderFromEffect(
 
 export function confirmDeckReorder(
   state: GameState,
-  orderedCardIds: string[]
+  orderedCardIds: string[],
+  bottomCardId?: string
 ): GameState {
   const pending = state.pendingDeckReorder;
   if (!pending) return state;
@@ -57,12 +58,50 @@ export function confirmDeckReorder(
     return state;
   }
 
+  let nextDeck: string[];
+  if (pending.mode === "moveOneToBottom") {
+    const originalOrder = pending.cardIds;
+    if (!bottomCardId) {
+      if (
+        orderedCardIds.some(
+          (cardId, index) => cardId !== originalOrder[index]
+        )
+      ) {
+        return state;
+      }
+      nextDeck = [...state.encounters.deck];
+    } else {
+      if (!originalOrder.includes(bottomCardId)) return state;
+      const expectedTop = originalOrder.filter(
+        (cardId) => cardId !== bottomCardId
+      );
+      const proposedTop = orderedCardIds.slice(0, -1);
+      if (
+        orderedCardIds.at(-1) !== bottomCardId ||
+        expectedTop.length !== proposedTop.length ||
+        expectedTop.some((cardId, index) => cardId !== proposedTop[index])
+      ) {
+        return state;
+      }
+      nextDeck = [
+        ...proposedTop,
+        ...state.encounters.deck.slice(pending.cardIds.length),
+        bottomCardId
+      ];
+    }
+  } else {
+    nextDeck = [
+      ...orderedCardIds,
+      ...state.encounters.deck.slice(pending.cardIds.length)
+    ];
+  }
+
   return {
     ...state,
     pendingDeckReorder: null,
     encounters: {
       ...state.encounters,
-      deck: [...orderedCardIds, ...state.encounters.deck.slice(pending.cardIds.length)]
+      deck: nextDeck
     },
     log: [
       {

@@ -322,6 +322,8 @@ function matchesTargetRule(
   }
   if (rule.categories && !rule.categories.includes(getPlacedTileCategory(tile))) return false;
   if (rule.tileIds && !rule.tileIds.includes(tile.tileId)) return false;
+  if (rule.sourceOnly && sourceTile?.instanceId !== tile.instanceId) return false;
+  if (rule.side && tile.side !== rule.side) return false;
   if (rule.excludeSource && sourceTile?.instanceId === tile.instanceId) return false;
   if (rule.adjacentToSource && (!sourceTile || !arePlacedTilesAdjacent(tile, sourceTile))) return false;
   if (rule.adjacentToTerrain && !rule.adjacentToTerrain.some((terrain) => isAdjacentToTerrain(tile, terrain))) return false;
@@ -331,15 +333,107 @@ function matchesTargetRule(
   if (rule.notAdjacentToCategories?.some((category) =>
     isPlacedTileAdjacentToCategory(tile, state.map.placedTiles, category, { includeOverstrained: true })
   )) return false;
+  if (rule.adjacentToCategoryWithPositiveStrain) {
+    const category = rule.adjacentToCategoryWithPositiveStrain;
+    const hasMatchingNeighbor = state.map.placedTiles.some(
+      (candidate) =>
+        candidate.instanceId !== tile.instanceId &&
+        candidate.strain > 0 &&
+        getPlacedTileCategory(candidate) === category &&
+        arePlacedTilesAdjacent(tile, candidate)
+    );
+    if (!hasMatchingNeighbor) return false;
+  }
+  if (rule.exactAdjacentCategoryCount) {
+    const adjacentCount = state.map.placedTiles.filter(
+      (candidate) =>
+        candidate.instanceId !== tile.instanceId &&
+        getPlacedTileCategory(candidate) === rule.exactAdjacentCategoryCount?.category &&
+        arePlacedTilesAdjacent(tile, candidate)
+    ).length;
+    if (adjacentCount !== rule.exactAdjacentCategoryCount.count) return false;
+  }
+  if (rule.minAdjacentPlaced !== undefined) {
+    const adjacentCount = state.map.placedTiles.filter(
+      (candidate) =>
+        candidate.instanceId !== tile.instanceId &&
+        arePlacedTilesAdjacent(tile, candidate)
+    ).length;
+    if (adjacentCount < rule.minAdjacentPlaced) return false;
+  }
   if (rule.hasRenown && getPlacedTileRenown(tile) <= 0) return false;
   if (rule.supported && !tile.support.passive && !tile.support.singleUse) return false;
   if (rule.stewardOccupied && !getStewardOccupiedTileTargets(state).some((candidate) => candidate.instanceId === tile.instanceId)) return false;
+  if (
+    rule.adjacentToStewardOccupied &&
+    !getStewardOccupiedTileTargets(state).some(
+      (candidate) =>
+        candidate.instanceId !== tile.instanceId &&
+        candidate.strain < 3 &&
+        arePlacedTilesAdjacent(tile, candidate)
+    )
+  ) return false;
   if (rule.strain === "below3" && tile.strain >= 3) return false;
   if (rule.strain === "positive" && tile.strain <= 0) return false;
   if (rule.strain === "oneToTwo" && (tile.strain < 1 || tile.strain > 2)) return false;
   if (rule.strain === "zero" && tile.strain !== 0) return false;
   if (rule.strain === "overstrained" && tile.strain < 3) return false;
   return true;
+}
+
+function connectedGroupExists(
+  state: GameState,
+  definition: NonNullable<EffectRule["connectedGroup"]>
+): boolean {
+  const eligible = state.map.placedTiles.filter((tile) => tile.strain < 3);
+  const remaining = new Set(eligible.map((tile) => tile.instanceId));
+
+  while (remaining.size > 0) {
+    const firstId = remaining.values().next().value as string;
+    const stack = [firstId];
+    const component: PlacedTile[] = [];
+    remaining.delete(firstId);
+
+    while (stack.length > 0) {
+      const currentId = stack.pop();
+      const current = eligible.find((tile) => tile.instanceId === currentId);
+      if (!current) continue;
+      component.push(current);
+      for (const candidate of eligible) {
+        if (
+          remaining.has(candidate.instanceId) &&
+          arePlacedTilesAdjacent(current, candidate)
+        ) {
+          remaining.delete(candidate.instanceId);
+          stack.push(candidate.instanceId);
+        }
+      }
+    }
+
+    const categories = new Set(component.map(getPlacedTileCategory));
+    const hasRequired = definition.requiredCategories.every((category) =>
+      categories.has(category)
+    );
+    const hasAnyOf =
+      !definition.anyOfCategories?.length ||
+      definition.anyOfCategories.some((category) => categories.has(category));
+    if (hasRequired && hasAnyOf) return true;
+  }
+
+  return false;
+}
+
+function canAffordRequiredFixedCosts(state: GameState, rule: EffectRule): boolean {
+  if (!rule.mustAffordFixedCosts) return true;
+  return resources.every((resource) => {
+    const delta = rule.fixedResources?.[resource] ?? 0;
+    return delta >= 0 || state.warehouse[resource] >= Math.abs(delta);
+  });
+}
+
+function isEffectRuleAvailable(state: GameState, rule: EffectRule): boolean {
+  return canAffordRequiredFixedCosts(state, rule) &&
+    (!rule.connectedGroup || connectedGroupExists(state, rule.connectedGroup));
 }
 
 function targetsForDefinition(
@@ -368,6 +462,7 @@ export function getEffectTileTargets(
   sourceTile?: PlacedTile
 ): PlacedTile[] {
   const rule = activeRule(state, ruleId, sourceTile);
+  if (!isEffectRuleAvailable(state, rule)) return [];
   return targetsForDefinition(
     state,
     rule.strainCascade?.anchorTarget ?? rule.target,
@@ -380,7 +475,8 @@ export function getStrainCascadeRule(
   ruleId: string | undefined,
   sourceTile?: PlacedTile
 ): StrainCascadeRule | null {
-  return activeRule(state, ruleId, sourceTile).strainCascade ?? null;
+  const rule = activeRule(state, ruleId, sourceTile);
+  return isEffectRuleAvailable(state, rule) ? rule.strainCascade ?? null : null;
 }
 
 export function getStrainCascadeAnchorTargets(
@@ -421,6 +517,7 @@ export function getEffectSupportTargets(
   sourceTile?: PlacedTile
 ): PlacedTile[] {
   const rule = activeRule(state, ruleId, sourceTile);
+  if (!isEffectRuleAvailable(state, rule)) return [];
   let targets: PlacedTile[];
   if (rule.supportTarget === "housingAdjacentToPrimary") {
     const primary = targetsForDefinition(state, rule.target, sourceTile);
@@ -503,19 +600,111 @@ export function isTileAdjustmentValid(
     return supportIds.length === 0 && strainEntries.length === requiredEntries.length &&
       requiredEntries.every(([tileId, delta]) => adjustment.tileStrainDeltas?.[tileId] === delta);
   }
-  if (strainEntries.length > 0) {
-    if (!rule.strain) return false;
-    const legalIds = new Set(getValidEffectStrainTargets(state, ruleId, sourceTile).map((tile) => tile.instanceId));
+  if (strainEntries.length > 0 && !rule.strain) return false;
+  if (rule.strain) {
+    const strainRule = rule.strain;
+    const legalTargets = getValidEffectStrainTargets(state, ruleId, sourceTile);
+    const legalIds = new Set(legalTargets.map((tile) => tile.instanceId));
     const total = strainEntries.reduce((sum, [, delta]) => sum + Math.abs(delta), 0);
-    if (strainEntries.length > rule.strain.maxTargets || total > rule.strain.maxTotal) return false;
+    if (strainEntries.length > strainRule.maxTargets || total > strainRule.maxTotal) return false;
     for (const [tileId, delta] of strainEntries) {
-      if (!legalIds.has(tileId) || Math.abs(delta) > rule.strain.maxPerTile) return false;
-      if (rule.strain.direction === "place" && delta < 0) return false;
-      if (rule.strain.direction === "remove" && delta > 0) return false;
+      if (!legalIds.has(tileId) || Math.abs(delta) > strainRule.maxPerTile) return false;
+      if (strainRule.direction === "place" && delta < 0) return false;
+      if (strainRule.direction === "remove" && delta > 0) return false;
       const tile = state.map.placedTiles.find((candidate) => candidate.instanceId === tileId);
       if (!tile) return false;
-      if (rule.strain.direction === "remove" && Math.abs(delta) > tile.strain) return false;
-      if (rule.strain.direction === "place" && delta > 3 - tile.strain) return false;
+      if (strainRule.direction === "remove" && Math.abs(delta) > tile.strain) return false;
+      if (strainRule.direction === "place" && delta > 3 - tile.strain) return false;
+    }
+
+    const achievableCapacities = legalTargets
+      .map((tile) => Math.min(
+        strainRule.maxPerTile,
+        strainRule.direction === "remove" ? tile.strain : 3 - tile.strain
+      ))
+      .sort((a, b) => b - a)
+      .slice(0, strainRule.maxTargets);
+    const requiredTargets = Math.min(
+      strainRule.requiredTargets ?? 0,
+      achievableCapacities.length
+    );
+    const requiredTotal = Math.min(
+      strainRule.requiredTotal ?? 0,
+      strainRule.maxTotal,
+      achievableCapacities.reduce((sum, capacity) => sum + capacity, 0)
+    );
+    if (strainEntries.length < requiredTargets || total < requiredTotal) return false;
+
+    if (strainRule.categoryLimits) {
+      for (const [category, limits] of Object.entries(
+        strainRule.categoryLimits
+      )) {
+        if (!limits) continue;
+        const count = strainEntries.filter(([tileId]) => {
+          const tile = state.map.placedTiles.find(
+            (candidate) => candidate.instanceId === tileId
+          );
+          return tile && getPlacedTileCategory(tile) === category;
+        }).length;
+        if (count > limits.max || count < (limits.min ?? 0)) return false;
+      }
+    }
+    if (
+      strainRule.maxStewardOccupiedTargets !== undefined ||
+      strainRule.maxOtherTargets !== undefined ||
+      strainRule.linkedStewardTargets !== undefined
+    ) {
+      const stewardIds = new Set(
+        getStewardOccupiedTileTargets(state).map((tile) => tile.instanceId)
+      );
+      const stewardCount = strainEntries.filter(([tileId]) =>
+        stewardIds.has(tileId)
+      ).length;
+      const otherCount = strainEntries.length - stewardCount;
+      if (
+        stewardCount >
+          (strainRule.maxStewardOccupiedTargets ?? Number.MAX_SAFE_INTEGER) ||
+        otherCount > (strainRule.maxOtherTargets ?? Number.MAX_SAFE_INTEGER)
+      ) return false;
+
+      if (strainRule.linkedStewardTargets) {
+        const selectedStewardTiles = strainEntries
+          .filter(([tileId]) => stewardIds.has(tileId))
+          .map(([tileId]) => state.map.placedTiles.find(
+            (tile) => tile.instanceId === tileId
+          ))
+          .filter((tile): tile is PlacedTile => Boolean(tile));
+        const selectedOtherEntries = strainEntries.filter(
+          ([tileId]) => !stewardIds.has(tileId)
+        );
+        const everyOtherTargetIsLinked = selectedOtherEntries.every(
+          ([tileId]) => {
+            const tile = state.map.placedTiles.find(
+              (candidate) => candidate.instanceId === tileId
+            );
+            return Boolean(
+              tile && selectedStewardTiles.some(
+                (stewardTile) => arePlacedTilesAdjacent(tile, stewardTile)
+              )
+            );
+          }
+        );
+        if (!everyOtherTargetIsLinked) return false;
+
+        const availableLinkedOtherTargets = legalTargets.filter(
+          (tile) =>
+            !stewardIds.has(tile.instanceId) &&
+            selectedStewardTiles.some(
+              (stewardTile) => arePlacedTilesAdjacent(tile, stewardTile)
+            )
+        ).length;
+        const requiredOtherTargets = Math.min(
+          strainRule.linkedStewardTargets.requiredOtherTargetsIfAvailable ?? 0,
+          strainRule.maxOtherTargets ?? Number.MAX_SAFE_INTEGER,
+          availableLinkedOtherTargets
+        );
+        if (selectedOtherEntries.length < requiredOtherTargets) return false;
+      }
     }
   }
   if (supportIds.length > 0) {
@@ -523,15 +712,43 @@ export function isTileAdjustmentValid(
     const legalIds = new Set(getEffectSupportTargets(state, ruleId, sourceTile).map((tile) => tile.instanceId));
     if (supportIds.some((tileId) => !legalIds.has(tileId))) return false;
   }
+  if (rule.supportCoversStrainTargets) {
+    const supportedIds = new Set(supportIds);
+    const everyStrainTargetIsSupported = strainEntries.every(([tileId]) => {
+      if (supportedIds.has(tileId)) return true;
+      const tile = state.map.placedTiles.find(
+        (candidate) => candidate.instanceId === tileId
+      );
+      return Boolean(tile?.support.passive || tile?.support.singleUse);
+    });
+    if (!everyStrainTargetIsSupported) return false;
+  }
   return true;
 }
 
 function fixedResourceDeltas(state: GameState, rule: EffectRule): Partial<Record<ResourceType, number>> {
+  if (!isEffectRuleAvailable(state, rule)) return {};
   return Object.fromEntries(
     Object.entries(rule.fixedResources ?? {}).map(([resource, delta]) => [
       resource,
       delta < 0 ? -Math.min(Math.abs(delta), state.warehouse[resource as ResourceType]) : delta
     ])
+  );
+}
+
+export function isFixedResourceAdjustmentValid(
+  state: GameState,
+  ruleId: string | undefined,
+  adjustment: EffectAdjustment,
+  sourceTile?: PlacedTile
+): boolean {
+  const rule = activeRule(state, ruleId, sourceTile);
+  if (!rule.fixedResources) return true;
+  const expected = fixedResourceDeltas(state, rule);
+  return resources.every(
+    (resource) =>
+      (adjustment.resourceDeltas?.[resource] ?? 0) ===
+      (expected[resource] ?? 0)
   );
 }
 
@@ -636,14 +853,28 @@ export function getAlternativeEffectRule(
   if (rule.alternative.kind === "pay_or_strain") {
     return { ...rule.alternative, requiredChoices: Math.min(rule.alternative.requiredChoices, getValidEffectStrainTargets(state, ruleId, sourceTile).length) };
   }
+  const alternative =
+    rule.alternative.kind === "most_stocked_loss_then_strain"
+      ? {
+          ...rule.alternative,
+          resources: rule.alternative.resources.filter((resource) => {
+            const maximum = Math.max(
+              ...rule.alternative!.resources.map(
+                (candidate) => state.warehouse[candidate]
+              )
+            );
+            return state.warehouse[resource] === maximum;
+          })
+        }
+      : rule.alternative;
   const tileRule = rule.tileAdjustment?.strain;
   const legalTargets = getValidEffectStrainTargets(state, ruleId, sourceTile);
   const requiredStrainTotal = tileRule
     ? legalTargets.slice(0, tileRule.maxTargets).reduce(
         (total, tile) => total + Math.min(tileRule.maxPerTile, Math.max(0, 3 - tile.strain)), 0
       )
-    : rule.alternative.requiredStrainTotal;
-  return { ...rule.alternative, requiredStrainTotal };
+    : alternative.requiredStrainTotal;
+  return { ...alternative, requiredStrainTotal };
 }
 
 function resourceSpend(adjustment: EffectAdjustment, resource: ResourceType): number {
@@ -689,6 +920,31 @@ export function isAlternativeEffectAdjustmentValid(
     )) return false;
     return totalSpent / rule.resourceStep + totalTimersRemoved / rule.timerPerChoice === rule.requiredChoices;
   }
+  if (rule.kind === "pay_total_or_strain") {
+    const paymentBranch =
+      totalSpent === rule.resourceStep && totalStrain === 0;
+    const strainBranch =
+      totalSpent === 0 && totalStrain === rule.requiredStrainTotal;
+    return totalTimersRemoved === 0 && (paymentBranch || strainBranch);
+  }
+  if (rule.kind === "most_stocked_loss_then_strain") {
+    const expectedLoss = Math.min(
+      rule.resourceStep,
+      Math.max(...rule.resources.map((resource) => state.warehouse[resource]))
+    );
+    const losingResources = rule.resources.filter(
+      (resource) => resourceSpend(adjustment, resource) > 0
+    );
+    const lossIsValid =
+      totalSpent === expectedLoss &&
+      (expectedLoss === 0 ? losingResources.length === 0 : losingResources.length === 1);
+    const strainRequired =
+      rule.strainWhen === "noneLost"
+        ? expectedLoss === 0
+        : expectedLoss < rule.resourceStep;
+    return totalTimersRemoved === 0 && lossIsValid &&
+      totalStrain === (strainRequired ? rule.requiredStrainTotal : 0);
+  }
   const paymentBranch = totalSpent === rule.resourceStep && totalStrain === 0 &&
     rule.resources.filter((resource) => resourceSpend(adjustment, resource) > 0).length === 1;
   const strainBranchAvailable = rule.resources.some((resource) => state.warehouse[resource] < rule.resourceStep);
@@ -703,6 +959,15 @@ function hasAnyAlternativeEffectOutcome(state: GameState, rule: AlternativeEffec
     const removable = state.encounters.activeArrivals.filter((arrival) => arrival.timerTokens >= rule.timerPerChoice).length;
     return payable + removable >= rule.requiredChoices;
   }
+  if (rule.kind === "pay_total_or_strain") {
+    return rule.resources.some(
+      (resource) => state.warehouse[resource] >= rule.resourceStep
+    ) || rule.requiredStrainTotal > 0;
+  }
+  if (rule.kind === "most_stocked_loss_then_strain") {
+    return rule.resources.some((resource) => state.warehouse[resource] > 0) ||
+      rule.requiredStrainTotal > 0;
+  }
   return rule.resources.some((resource) => state.warehouse[resource] >= rule.resourceStep) ||
     (rule.requiredStrainTotal > 0 && rule.resources.some((resource) => state.warehouse[resource] < rule.resourceStep));
 }
@@ -713,6 +978,13 @@ export function effectHasNoValidChoiceTargets(
   sourceTile?: PlacedTile
 ): boolean {
   const rule = activeRule(state, ruleId, sourceTile);
+  if (!isEffectRuleAvailable(state, rule)) return true;
+  if (
+    rule.noEffectWhenNoTarget &&
+    !rule.timer &&
+    !rule.tileAdjustment &&
+    !rule.strainCascade
+  ) return true;
   if (rule.timer?.direction === "add" && !state.encounters.activeArrivals.some((arrival) => arrival.timerTokens < 3)) return true;
   if (rule.timer?.direction === "remove" && state.encounters.activeArrivals.length === 0 && rule.noEffectWhenNoTarget) return true;
   const alternative = getAlternativeEffectRule(state, ruleId, sourceTile);
@@ -784,6 +1056,9 @@ export function suggestEffectAdjustment(
   sourceTile?: PlacedTile
 ): { adjustment?: EffectAdjustment; requiresManualChoice?: boolean } {
   const rule = activeRule(state, ruleId, sourceTile);
+  if (!isEffectRuleAvailable(state, rule)) {
+    return { requiresManualChoice: false };
+  }
   const help = getHelpStandsRule(state, ruleId);
   if (help) {
     const adjustment = Object.keys(help.tileStrainDeltas).length ? { tileStrainDeltas: help.tileStrainDeltas } : undefined;
@@ -909,6 +1184,17 @@ export function resolvePendingEffect(
           (tile) => tile.instanceId === pendingEffect.sourceId
         )
       : undefined;
+  if (
+    !pendingEffect.allowWardenRelief &&
+    !isFixedResourceAdjustmentValid(
+      state,
+      pendingEffect.ruleId,
+      effectiveAdjustment,
+      sourceTile
+    )
+  ) {
+    return state;
+  }
   if (
     !pendingEffect.allowWardenRelief &&
     !isAlternativeEffectAdjustmentValid(

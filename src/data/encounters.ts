@@ -187,6 +187,131 @@ export const boons: BoonData[] = [
       "Choose 1 connected group of 5 or more non-Overstrained tiles. Remove up to 3 Strain among tiles in that group. If none is removed, gain 5 Food and/or Goods."
     ),
     lifecycle: "Resolve, then discard."
+  },
+  {
+    id: "boon_a_light_on_the_long_dark_lanterns_illuminated_the_way_to_a_safer_day",
+    type: "boon",
+    name: "Lanterns in the Dark",
+    effects: season(
+      "You may pay 2 Metal to remove 1 Strain from 1 placed tile.",
+      "You may pay 4 Metal to remove up to 2 Strain from 1 Travel or Housing Tile. That tile gains Supported.",
+      "You may pay 6 Metal to remove up to 3 Strain from up to 2 Travel or Housing Tiles. Each chosen tile gains Supported."
+    ),
+    lifecycle: "Resolve, then discard."
+  },
+  {
+    id: "boon_bounty_of_the_first_harvest",
+    type: "boon",
+    name: "First Harvest Bounty",
+    effects: season(
+      "For the next Farmstead / Artisan Farm Production this Season, gain +1 Food.",
+      "For the next 2 Farmstead / Artisan Farm Productions this Season, gain +1 Food and +1 Goods each.",
+      "For each Farmstead / Artisan Farm Production this round, gain +2 Food or Goods."
+    ),
+    lifecycle:
+      "Keep face-up until its listed uses are spent; Season III lasts through the current round. Otherwise discard at Season end."
+  },
+  {
+    id: "boon_carts_before_sunrise",
+    type: "boon",
+    name: "Carts Before Sunrise",
+    effects: season(
+      "The next Resource Tile adjacent to Travel activated for Production this Season costs 0 Actions.",
+      "The next time this Season a Crafting or Merchant Passive adjacent to Travel would apply, it may apply one additional time without counting against its once-per-round limit.",
+      "The next 2 qualifying uses this Season: either a Resource Tile adjacent to Travel activates Production for 0 Actions, or a Crafting/Merchant Passive adjacent to Travel may apply one additional time without counting against its once-per-round limit."
+    ),
+    lifecycle: "Keep face-up until used, or discard at Season end."
+  },
+  {
+    id: "boon_craft_fair",
+    type: "boon",
+    name: "Crafting Fair",
+    effects: season(
+      "The next Crafting Tile placed or upgraded this Season costs 1 fewer resource. If it is adjacent to a Housing Tile, that Housing Tile gains Supported.",
+      "The next Crafting Tile placed or upgraded this Season costs 2 fewer resources. If it is adjacent to a Housing or Merchant Tile, remove 1 Strain from 1 adjacent tile.",
+      "The next Crafting Tile placed or upgraded this Season has 0 resource cost. If it is adjacent to a Housing or Merchant Tile, up to 2 adjacent tiles gain Supported. Pay the normal Action cost."
+    ),
+    lifecycle: "Keep face-up until used, or discard at Season end."
+  },
+  {
+    id: "boon_ledgers_flow",
+    type: "boon",
+    name: "Ledgers Flow",
+    effects: season(
+      "If 1 Resource Tile is connected to 1 Crafting or Merchant Tile, gain 2 Goods.",
+      "If 1 Resource Tile, 1 Crafting Tile, and 1 Merchant Tile form a connected group, gain 3 Goods.",
+      "If 1 Resource Tile, 1 Crafting Tile, and 1 Merchant Tile form a connected group, gain 4 Goods."
+    ),
+    lifecycle: "Resolve, then discard. If no valid group exists, discard with no effect."
+  },
+  {
+    id: "boon_old_foundations_still_remain",
+    type: "boon",
+    name: "Old Foundations",
+    effects: season(
+      "The next Housing Tile placed this Season gains Supported after placement. If it is adjacent to Ruins terrain, remove 1 Strain from an adjacent placed tile.",
+      "The next Housing Tile placed this Season gains Supported after placement. If it is adjacent to Ruins terrain or another Housing Tile, remove up to 2 Strain from adjacent placed tiles.",
+      "The next Housing Tile placed or upgraded this Season gains Supported. If it is adjacent to Ruins terrain or another Housing Tile, remove up to 3 Strain from adjacent placed tiles."
+    ),
+    lifecycle: "Keep face-up until used, or discard at Season end."
+  },
+  {
+    id: "boon_one_thousand_swings_of_the_pickaxe_opens_up_a_new_path",
+    type: "boon",
+    name: "Pickaxe Reveals Passage",
+    effects: season(
+      "For the next Mine Tunnel / Mine Shaft Production this Season, gain +1 Stone.",
+      "For the next 2 Mine Tunnel / Mine Shaft Productions this Season, gain +1 Stone and +1 Metal each.",
+      "For each Mine Tunnel / Mine Shaft Production this round, gain +2 Stone or Metal."
+    ),
+    lifecycle:
+      "Keep face-up until its listed uses are spent; Season III lasts through the current round. Otherwise discard at Season end."
+  },
+  {
+    id: "boon_the_ancient_ways_gradually_reemerge",
+    type: "boon",
+    name: "Ancient Paths Reopen",
+    effects: season(
+      "For the next Lumber Yard / Sustainable Lumber Yard Production this Season, gain +1 Wood.",
+      "For the next 2 Lumber Yard / Sustainable Lumber Yard Productions this Season, gain +2 Wood each.",
+      "For each Lumber Yard / Sustainable Lumber Yard Production this round, gain +2 Wood or Food."
+    ),
+    lifecycle:
+      "Keep face-up until its listed uses are spent; Season III lasts through the current round. Otherwise discard at Season end."
+  },
+  {
+    id: "boon_the_rains_that_we_sheltered_from_now_yield_the_bounty_of_nature",
+    type: "boon",
+    name: "Rain Brings Bounty",
+    effects: season(
+      "For the next Gathering Outpost / Gathering Lodge Production this Season, gain +1 Herbs.",
+      "For the next 2 Gathering Outpost / Gathering Lodge Productions this Season, gain +2 Herbs each.",
+      "For each Gathering Outpost / Gathering Lodge Production this round, gain +2 Herbs or Food."
+    ),
+    lifecycle:
+      "Keep face-up until its listed uses are spent; Season III lasts through the current round. Otherwise discard at Season end."
+  },
+  {
+    id: "boon_the_scent_of_herb_and_tonic",
+    type: "boon",
+    name: "Herb & Tonic",
+    effects: season(
+      "You may pay 2 Herbs to remove 1 Strain from 1 placed tile.",
+      "You may pay 4 Herbs to remove up to 2 Strain from 1 placed tile.",
+      "You may pay 6 Herbs to remove up to 3 Strain from up to 2 placed tiles."
+    ),
+    lifecycle: "Resolve, then discard."
+  },
+  {
+    id: "boon_what_is_written_in_the_stars_can_finally_be_heeded",
+    type: "boon",
+    name: "Stars Guide Plans",
+    effects: season(
+      "Look at the top 5 cards of the Encounter Deck. Return them in the same order, then you may move 1 of them to the bottom.",
+      "Look at the top 5 cards of the Encounter Deck. Return them in any order.",
+      "Look at the remaining Encounter Deck. Return the cards in any order."
+    ),
+    lifecycle: "Resolve, then discard."
   }
 ];
 
@@ -366,6 +491,128 @@ export const burdens: BurdenData[] = [
       "Choose up to 3 active Arrivals. For each, pay 1 Herbs or remove 1 timer token. If there are none, place 1 Strain on each of 2 placed tiles with fewer than 3 Strain."
     ),
     resolutionText: "Spend 1 Action and pay 2/4/6 Herbs by Season. Then discard."
+  },
+  {
+    id: "burden_coin_before_craft",
+    type: "burden",
+    name: "Coin Before Craft",
+    effects: season(
+      "Choose 1 Merchant or Crafting Tile with fewer than 3 Strain adjacent to the other type and place 1 Strain on it.",
+      "Choose 1 Merchant Tile and 1 Crafting Tile, each with fewer than 3 Strain and adjacent to the other type. Place 1 Strain on each.",
+      "Choose up to 2 Merchant Tiles and up to 2 Crafting Tiles, each with fewer than 3 Strain and adjacent to the other type. Place 1 Strain on each. If none, choose 1 Merchant or Crafting Tile with fewer than 3 Strain instead."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+  },
+  {
+    id: "burden_foundations_remember_war",
+    type: "burden",
+    name: "Foundations Remember War",
+    effects: season(
+      "Choose 1 upgraded Core Tile with fewer than 3 Strain and place 1 Strain on it.",
+      "Choose 1 upgraded Core Tile with fewer than 3 Strain and place 1 Strain on it. Then place 1 Strain on 1 adjacent placed tile with fewer than 3 Strain.",
+      "Choose 1 upgraded Core Tile with fewer than 3 Strain and place 2 Strain on it. Then place 2 Strain on 1 adjacent placed tile with fewer than 3 Strain."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Stone by Season. Then discard."
+  },
+  {
+    id: "burden_ill_omen_of_discontent",
+    type: "burden",
+    name: "Omen of Discontent",
+    effects: season(
+      "Choose 1 Travel Tile with fewer than 3 Strain adjacent to a Housing Tile with 1+ Strain and place 1 Strain on it.",
+      "Choose 2 Travel Tiles with fewer than 3 Strain each adjacent to a Housing Tile with 1+ Strain. Place 1 Strain on each.",
+      "Choose 3 Travel Tiles with fewer than 3 Strain each adjacent to a Housing Tile with 1+ Strain. Place 1 Strain on each. If none, choose 1 Travel Tile with fewer than 3 Strain instead."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Herbs by Season. Then discard."
+  },
+  {
+    id: "burden_old_wounds_reopen",
+    type: "burden",
+    name: "Old Wounds Reopen",
+    effects: season(
+      "Choose 1 Social or Wellbeing Tile with fewer than 3 Strain. Pay 2 Herbs, or place 1 Strain on it.",
+      "Choose 2 Social and/or Wellbeing Tiles with fewer than 3 Strain. Pay 4 Herbs total, or place 1 Strain on each.",
+      "Choose 3 Social and/or Wellbeing Tiles with fewer than 3 Strain. Pay 6 Herbs total, or place 1 Strain on each."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Herbs by Season. Then discard."
+  },
+  {
+    id: "burden_only_road_in",
+    type: "burden",
+    name: "Only Road In",
+    effects: season(
+      "Choose 1 Merchant or Crafting Tile with fewer than 3 Strain that is adjacent to exactly 1 Travel Tile. Place 1 Strain on it.",
+      "Choose 2 Merchant and/or Crafting Tiles with fewer than 3 Strain that are each adjacent to exactly 1 Travel Tile. Place 1 Strain on each.",
+      "Choose 3 Merchant and/or Crafting Tiles with fewer than 3 Strain that are each adjacent to exactly 1 Travel Tile. Place 1 Strain on each."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+  },
+  {
+    id: "burden_roads_carry_needs",
+    type: "burden",
+    name: "Roads Carry Needs",
+    effects: season(
+      "Choose 1 Travel Tile with fewer than 3 Strain that is adjacent to at least 2 placed tiles. Place 1 Strain on it.",
+      "Choose 1 Travel Tile with fewer than 3 Strain that is adjacent to at least 3 placed tiles. Place 2 Strain on it.",
+      "Choose 2 Travel Tiles with fewer than 3 Strain that are each adjacent to at least 3 placed tiles. Place 1 Strain on each."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+  },
+  {
+    id: "burden_roads_too_far_from_home",
+    type: "burden",
+    name: "Roads Too Far",
+    effects: season(
+      "Choose 1 Travel Tile with fewer than 3 Strain not adjacent to any Housing Tile and place 1 Strain on it.",
+      "Choose 2 Travel Tiles with fewer than 3 Strain not adjacent to any Housing Tile. Place 1 Strain on each.",
+      "Choose 3 Travel Tiles with fewer than 3 Strain not adjacent to any Housing Tile. Place 1 Strain on each."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Wood by Season. Then discard."
+  },
+  {
+    id: "burden_stores_run_thin",
+    type: "burden",
+    name: "Stores Run Thin",
+    effects: season(
+      "Identify the most-stocked resource type. If tied, players choose. Lose 2 of it. If none is lost, place 1 Strain on 1 placed tile with fewer than 3 Strain.",
+      "Identify the most-stocked resource type. If tied, players choose. Lose 4 of it. If fewer than 4 are lost, place 1 Strain on each of 2 placed tiles with fewer than 3 Strain.",
+      "Identify the most-stocked resource type. If tied, players choose. Lose 6 of it. If fewer than 6 are lost, place 2 Strain on each of 2 placed tiles with fewer than 3 Strain."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+  },
+  {
+    id: "burden_the_burden_of_command",
+    type: "burden",
+    name: "Burden of Command",
+    effects: season(
+      "Choose up to 2 Steward-occupied tiles with fewer than 3 Strain. Place 1 Strain on each.",
+      "Choose up to 2 Steward-occupied tiles with fewer than 3 Strain. Place 1 Strain on each. Then place 1 Strain on 1 adjacent tile with fewer than 3 Strain, if any.",
+      "Choose up to 3 Steward-occupied tiles with fewer than 3 Strain. Place 1 Strain on each. Then place 1 Strain on each of up to 2 adjacent tiles with fewer than 3 Strain."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+  },
+  {
+    id: "burden_the_rot_within_the_vault",
+    type: "burden",
+    name: "Rot in the Vault",
+    effects: season(
+      "Choose 1 Dig Site / Excavation Site with fewer than 3 Strain and place 1 Strain on it.",
+      "Choose 1 Dig Site / Excavation Site with fewer than 3 Strain and place 2 Strain on it.",
+      "Choose 1 Dig Site / Excavation Site with fewer than 3 Strain and place 2 Strain on it. Then choose 1 adjacent placed tile with fewer than 3 Strain and place 1 Strain on it."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Herbs by Season. Then discard."
+  },
+  {
+    id: "burden_too_many_houses_too_little_homes",
+    type: "burden",
+    name: "Houses, Not Homes",
+    effects: season(
+      "Choose 1 Housing Tile with fewer than 3 Strain. Pay 1 Food or 1 Goods, or place 1 Strain on it.",
+      "Choose 2 Housing Tiles with fewer than 3 Strain. For each, pay 1 Food or 1 Goods, or place 1 Strain on it.",
+      "Choose 3 Housing Tiles with fewer than 3 Strain. For each, pay 1 Food or 1 Goods, or place 1 Strain on it."
+    ),
+    resolutionText:
+      "Spend 1 Action and pay 2/4/6 Food and/or Goods by Season. Then discard."
   }
 ];
 
@@ -633,6 +880,28 @@ const encounterFlavorById: Record<string, string> = {
     "Fewer quarrels reached the board this week. Shared meals, mended fences, and small courtesies did more than any order could have done. Trust returned by degrees, carried in bowls of stew and quiet apologies.",
   boon_the_settlement_of_plenty:
     "We set aside what could be spared and sent it where hardship had taken root. Each parcel was small, yet the effect was not. Generosity, carefully tended, multiplied faster than the stores diminished.",
+  boon_a_light_on_the_long_dark_lanterns_illuminated_the_way_to_a_safer_day:
+    "Lanterns were hung along roads and crossings fighting back the dark. Fewer feet slipped, fewer travellers lost heart, and confidence grew in the night.",
+  boon_bounty_of_the_first_harvest:
+    "The first harvest looked modest at dawn. By midday the bins were fuller than any careful count had promised, and by evening the streets carried the scent of bread, broth, and relief. Each shared basket made the settlement feel less temporary.",
+  boon_carts_before_sunrise:
+    "By sunrise, carts had already rolled between storehouse, stall, and workshop a half dozen times. Nothing grand was announced, yet the day’s work had begun before anyone thought to ask.",
+  boon_craft_fair:
+    "Tools, cloth, carvings, and cookfires filled the square. The fair was louder in spirit than in sound. Pride in honest work passed from hand to hand, and knowledge moved almost unnoticed between neighbours who had come only to look.",
+  boon_ledgers_flow:
+    "Once the paths were known, ledgers, tools, and goods began to move before anyone had to ask. What was needed was provided.",
+  boon_old_foundations_still_remain:
+    "While clearing soft earth for new walls, we found footings older than any living witness. The stone still held. Work laid down generations before us now bears our weight, and asks only that we build with equal care.",
+  boon_one_thousand_swings_of_the_pickaxe_opens_up_a_new_path:
+    "After weeks of patient strikes, the stone gave way. The miners returned grey with dust and pride, bearing news of a passage veined with promise. In the ledger I marked the day the old depths exhaled, and the settlement listened.",
+  boon_the_ancient_ways_gradually_reemerge:
+    "The foresters took only what the woodland could spare. Under bramble and leaf mould, old paths began to show themselves again: game trails, hidden groves, and turns once thought lost. Each discovery suggested the forest might recover its rhythm beside us.",
+  boon_the_rains_that_we_sheltered_from_now_yield_the_bounty_of_nature:
+    "Rain held the Vale quiet for a day and a night. When the clouds cleared, moss had thickened, herbs had risen, and wounded soil answered with green abundance. Water that once barred the way had, for once, become provision.",
+  boon_the_scent_of_herb_and_tonic:
+    "Herbal smoke curled above the roofs long after sunset. Careful hands prepared tonics, poultices, and warm cups for those who needed them. By morning the sickrooms were quieter, and the settlement’s strength had been preserved without ceremony.",
+  boon_what_is_written_in_the_stars_can_finally_be_heeded:
+    "For the first time in years, the settlement was quiet enough to study the night sky. Lanterns burned beside maps and ledgers while patient eyes followed the stars. By morning, our plans felt less like guesses and more like care.",
   burden_smoke_over_hearths:
     "The workshops burned day and night, filling nearby homes with sound and smoke. Children coughed behind shuttered windows while neighbours tried to keep out the very labour meant to sustain them.",
   burden_forest_s_grudge:
@@ -665,6 +934,28 @@ const encounterFlavorById: Record<string, string> = {
     "Word travels faster than preparation. The settlement's welcome is now spoken of beyond the hills, but open doors require more than roofs and food. Every promise made must still be carried.",
   burden_welcome_wears_thin:
     "Kind words fade when action can no longer follow. Provisions are scarce, and hands now pause at once-welcoming doors. Shame gathers on both sides of the threshold.",
+  burden_coin_before_craft:
+    "The markets have grown faster than the workshops can sustain. Good hands set down precious tools to argue over time, price, and fairness. Even after compromise, resentment remains on the bench.",
+  burden_foundations_remember_war:
+    "Beneath the new walls, the mason found old iron set for a harder purpose than housing. Rust had split the footing, and with it the confidence that peaceful homes could stand there.",
+  burden_ill_omen_of_discontent:
+    "The signs were nothing at first: cracked paving, a twisted tree, a rumour carried from a tired doorstep. By dusk, every weary household had given them meaning, and the route lay empty.",
+  burden_old_wounds_reopen:
+    "Peace does not close every hurt. A song, a sigil, a name spoken too lightly can uncover wounds only just beginning to heal. Afterwards, silence does the damage words began.",
+  burden_only_road_in:
+    "Every cart and errand passed through the same narrow way until they did not. One broken wheel, one flooded rut, and the whole settlement remembered how fragile a single road can be.",
+  burden_roads_carry_needs:
+    "The busiest paths became the hungriest ones, worn down by every errand, repair, and request. A road can serve everyone and still be neglected by all.",
+  burden_roads_too_far_from_home:
+    "The roads stretch faster than we can tend them. A path laid for welcome now sits beyond easy care, its ruts filling with mud and its lanterns unlit. A late traveller arrived tonight already doubting the road.",
+  burden_stores_run_thin:
+    "The shelves are full in one corner and bare in another, which may be worse than general scarcity. People see waste beside want, and frustration grows in the space between them.",
+  burden_the_burden_of_command:
+    "Those who guide the settlement carry its weight first, and not always well. Three decisions signed before breakfast had disappointed two households by noon. By nightfall, all of them still felt necessary.",
+  burden_the_rot_within_the_vault:
+    "The vault opened cleanly, but damp had worked there for centuries. Pages clung together like old wounds, and ink bled where hope had been stored. Care may save some of it; haste will ruin the rest.",
+  burden_too_many_houses_too_little_homes:
+    "New houses rise quickly, but walls alone are not enough. I counted roofs fit for shelter, yet too few warm meals, blankets, and outstretched hands to make those roofs feel like home.",
   arrival_acorns_and_oak_trees:
     "The smallest hands brought acorns; the oldest brought names of groves burned before those children were born. I wrote them together in the ledger. Renewal begins when memory is entrusted to those who will outlive us.",
   arrival_blessed_harvest:

@@ -13,11 +13,17 @@ export interface TileTargetRule {
   notAdjacentToCategories?: TileCategory[];
   adjacentToTerrain?: Terrain[];
   adjacentToSource?: boolean;
+  sourceOnly?: boolean;
   excludeSource?: boolean;
+  side?: "basic" | "upgraded" | "special";
+  adjacentToCategoryWithPositiveStrain?: TileCategory;
+  exactAdjacentCategoryCount?: { category: TileCategory; count: number };
+  minAdjacentPlaced?: number;
   strain?: "any" | "below3" | "positive" | "oneToTwo" | "zero" | "overstrained";
   supported?: boolean;
   hasRenown?: boolean;
   stewardOccupied?: boolean;
+  adjacentToStewardOccupied?: boolean;
 }
 
 export interface TileAdjustmentRule {
@@ -26,8 +32,25 @@ export interface TileAdjustmentRule {
     maxTotal: number;
     maxPerTile: number;
     maxTargets: number;
+    /** Resolve this much Strain when legal capacity permits. */
+    requiredTotal?: number;
+    /** Select this many distinct targets when enough legal targets exist. */
+    requiredTargets?: number;
+    categoryLimits?: Partial<
+      Record<TileCategory, { min?: number; max: number }>
+    >;
+    maxStewardOccupiedTargets?: number;
+    maxOtherTargets?: number;
+    /**
+     * Treat non-Steward targets as a second, linked group. Every such target
+     * must be adjacent to a selected Steward-occupied target.
+     */
+    linkedStewardTargets?: {
+      requiredOtherTargetsIfAvailable?: number;
+    };
   };
   support?: { maxTargets: number };
+  supportCoversStrainTargets?: boolean;
 }
 
 export interface StrainCascadeRule {
@@ -65,6 +88,21 @@ export type AlternativeEffectDefinition =
       resourceStep: number;
       requiredChoices: 1;
       requiredStrainTotal: number;
+    }
+  | {
+      kind: "pay_total_or_strain";
+      resources: ResourceType[];
+      resourceStep: number;
+      requiredChoices: 1;
+      requiredStrainTotal: number;
+    }
+  | {
+      kind: "most_stocked_loss_then_strain";
+      resources: ResourceType[];
+      resourceStep: number;
+      requiredChoices: 1;
+      requiredStrainTotal: number;
+      strainWhen: "noneLost" | "lessThanRequired";
     };
 
 export interface ResourceGainChoiceDefinition {
@@ -78,9 +116,25 @@ export interface ModifierRule {
   actions: BoonModifierAction[];
   amount?: number;
   zeroAction?: boolean;
+  zeroResourceCost?: boolean;
   allowedCategories?: TileCategory[];
+  allowedCategoriesByAction?: Partial<
+    Record<BoonModifierAction, TileCategory[]>
+  >;
+  allowedTileIds?: string[];
+  requiresAdjacentCategories?: TileCategory[];
   coreOnly?: boolean;
   uses: number;
+  duration?: "once" | "round";
+  productionGain?: {
+    fixed?: Partial<Record<ResourceType, number>>;
+    choice?: { resources: ResourceType[]; amount: number };
+  };
+  refreshPassiveUse?: boolean;
+  supportActionTile?: boolean;
+  postActionRuleId?: string;
+  postActionRequiresAdjacentCategories?: TileCategory[];
+  postActionRequiresAdjacentTerrain?: Terrain[];
 }
 
 export interface EffectRule {
@@ -91,14 +145,22 @@ export interface EffectRule {
   strainCascade?: StrainCascadeRule;
   timer?: TimerAdjustmentRule;
   fixedResources?: Partial<Record<ResourceType, number>>;
+  mustAffordFixedCosts?: boolean;
   resourceGainChoice?: ResourceGainChoiceDefinition;
   alternative?: AlternativeEffectDefinition;
   exchangeLimit?: number;
   exchangeOptional?: boolean;
   exchangeGoodsMode?: boolean;
   resolveBurden?: { maxTargets: number };
-  deckReorder?: { count: number };
+  deckReorder?: {
+    count: number | "all";
+    mode?: "reorder" | "moveOneToBottom";
+  };
   modifier?: ModifierRule;
+  connectedGroup?: {
+    requiredCategories: TileCategory[];
+    anyOfCategories?: TileCategory[];
+  };
   helpStands?: { gainPerUnstrained: number; cap: number };
   manualChoice?: boolean;
   optional?: boolean;

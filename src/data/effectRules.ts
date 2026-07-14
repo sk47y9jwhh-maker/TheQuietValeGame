@@ -6,7 +6,7 @@ import type {
   TileAdjustmentRule,
   TileTargetRule
 } from "../engine/effectRuleTypes";
-import type { Season } from "../engine/types";
+import type { ResourceType, Season } from "../engine/types";
 
 const rules: Record<string, EffectRule> = {};
 
@@ -33,17 +33,34 @@ const strain = (
   maxTargets: number
 ): TileAdjustmentRule => ({ strain: { direction, maxTotal, maxPerTile, maxTargets } });
 
+const requiredStrain = (
+  direction: "place" | "remove",
+  total: number,
+  maxPerTile: number,
+  targets: number
+): TileAdjustmentRule => ({
+  strain: {
+    direction,
+    maxTotal: total,
+    maxPerTile,
+    maxTargets: targets,
+    requiredTotal: total,
+    requiredTargets: targets
+  }
+});
+
 const support = (maxTargets: number): TileAdjustmentRule => ({ support: { maxTargets } });
 const strainCascade = (
   anchorTarget: TileTargetRule,
   anchorStrain: number,
   spreadTarget: TileTargetRule,
-  maxSpreadTargets: number
+  maxSpreadTargets: number,
+  spreadStrain = 1
 ): StrainCascadeRule => ({
   anchorTarget,
   anchorStrain,
   spreadTarget,
-  spreadStrain: 1,
+  spreadStrain,
   maxSpreadTargets
 });
 const combined = (ruleA: TileAdjustmentRule, ruleB: TileAdjustmentRule): TileAdjustmentRule => ({
@@ -168,6 +185,299 @@ seasonal("boon_the_settlement_of_plenty", [
   { target: { strain: "positive" }, tileAdjustment: strain("remove", 3, 3, 3), resourceGainChoice: { resources: ["food", "goods"], amount: 5, alternativeToStrainRemoval: true }, manualChoice: true }
 ]);
 
+seasonal(
+  "boon_a_light_on_the_long_dark_lanterns_illuminated_the_way_to_a_safer_day",
+  [
+    {
+      target: { strain: "positive" },
+      tileAdjustment: strain("remove", 1, 1, 1),
+      fixedResources: { metal: -2 },
+      mustAffordFixedCosts: true,
+      manualChoice: true
+    },
+    {
+      target: { categories: ["travel", "housing"] },
+      supportTarget: { categories: ["travel", "housing"] },
+      tileAdjustment: {
+        ...combined(strain("remove", 2, 2, 1), support(1)),
+        supportCoversStrainTargets: true
+      },
+      fixedResources: { metal: -4 },
+      mustAffordFixedCosts: true,
+      manualChoice: true
+    },
+    {
+      target: { categories: ["travel", "housing"] },
+      supportTarget: { categories: ["travel", "housing"] },
+      tileAdjustment: {
+        ...combined(strain("remove", 3, 3, 2), support(2)),
+        supportCoversStrainTargets: true
+      },
+      fixedResources: { metal: -6 },
+      mustAffordFixedCosts: true,
+      manualChoice: true
+    }
+  ]
+);
+
+const productionBoon = (
+  cardId: string,
+  tileId: string,
+  season1Gain: NonNullable<EffectRule["modifier"]>["productionGain"],
+  season2Gain: NonNullable<EffectRule["modifier"]>["productionGain"],
+  season3Resources: ResourceType[]
+) => {
+  seasonal(cardId, [
+    {
+      modifier: {
+        actions: ["production"],
+        allowedTileIds: [tileId],
+        uses: 1,
+        productionGain: season1Gain
+      }
+    },
+    {
+      modifier: {
+        actions: ["production"],
+        allowedTileIds: [tileId],
+        uses: 2,
+        productionGain: season2Gain
+      }
+    },
+    {
+      modifier: {
+        actions: ["production"],
+        allowedTileIds: [tileId],
+        uses: 1,
+        duration: "round",
+        productionGain: {
+          choice: { resources: season3Resources, amount: 2 }
+        }
+      }
+    }
+  ]);
+  add({
+    id: `${cardEffectRuleId(cardId, 3)}:production`,
+    resourceGainChoice: { resources: season3Resources, amount: 2 },
+    manualChoice: true
+  });
+};
+
+productionBoon(
+  "boon_bounty_of_the_first_harvest",
+  "c04_farmstead",
+  { fixed: { food: 1 } },
+  { fixed: { food: 1, goods: 1 } },
+  ["food", "goods"]
+);
+productionBoon(
+  "boon_one_thousand_swings_of_the_pickaxe_opens_up_a_new_path",
+  "c02_mine_tunnel",
+  { fixed: { stone: 1 } },
+  { fixed: { stone: 1, metal: 1 } },
+  ["stone", "metal"]
+);
+productionBoon(
+  "boon_the_ancient_ways_gradually_reemerge",
+  "c01_lumber_yard",
+  { fixed: { wood: 1 } },
+  { fixed: { wood: 2 } },
+  ["wood", "food"]
+);
+productionBoon(
+  "boon_the_rains_that_we_sheltered_from_now_yield_the_bounty_of_nature",
+  "c03_gathering_outpost",
+  { fixed: { herbs: 1 } },
+  { fixed: { herbs: 2 } },
+  ["herbs", "food"]
+);
+
+seasonal("boon_carts_before_sunrise", [
+  {
+    modifier: {
+      actions: ["activate"],
+      zeroAction: true,
+      allowedCategories: ["resource"],
+      requiresAdjacentCategories: ["travel"],
+      uses: 1
+    }
+  },
+  {
+    modifier: {
+      actions: ["passive"],
+      allowedCategories: ["crafting", "merchant"],
+      requiresAdjacentCategories: ["travel"],
+      refreshPassiveUse: true,
+      uses: 1
+    }
+  },
+  {
+    modifier: {
+      actions: ["activate", "passive"],
+      zeroAction: true,
+      allowedCategoriesByAction: {
+        activate: ["resource"],
+        passive: ["crafting", "merchant"]
+      },
+      requiresAdjacentCategories: ["travel"],
+      refreshPassiveUse: true,
+      uses: 2
+    }
+  }
+]);
+
+seasonal("boon_craft_fair", [
+  {
+    modifier: {
+      actions: ["place", "upgrade"],
+      amount: 1,
+      allowedCategories: ["crafting"],
+      uses: 1,
+      postActionRuleId: "boon_craft_fair:s1:post",
+      postActionRequiresAdjacentCategories: ["housing"]
+    }
+  },
+  {
+    modifier: {
+      actions: ["place", "upgrade"],
+      amount: 2,
+      allowedCategories: ["crafting"],
+      uses: 1,
+      postActionRuleId: "boon_craft_fair:s2:post",
+      postActionRequiresAdjacentCategories: ["housing", "merchant"]
+    }
+  },
+  {
+    modifier: {
+      actions: ["place", "upgrade"],
+      zeroResourceCost: true,
+      allowedCategories: ["crafting"],
+      uses: 1,
+      postActionRuleId: "boon_craft_fair:s3:post",
+      postActionRequiresAdjacentCategories: ["housing", "merchant"]
+    }
+  }
+]);
+add({
+  id: "boon_craft_fair:s1:post",
+  target: { categories: ["housing"], adjacentToSource: true },
+  supportTarget: { categories: ["housing"], adjacentToSource: true },
+  tileAdjustment: support(1),
+  manualChoice: true,
+  optional: true
+});
+add({
+  id: "boon_craft_fair:s2:post",
+  target: { adjacentToSource: true, excludeSource: true, strain: "positive" },
+  tileAdjustment: strain("remove", 1, 1, 1),
+  manualChoice: true,
+  optional: true
+});
+add({
+  id: "boon_craft_fair:s3:post",
+  target: { adjacentToSource: true, excludeSource: true },
+  supportTarget: { adjacentToSource: true, excludeSource: true },
+  tileAdjustment: support(2),
+  manualChoice: true,
+  optional: true
+});
+
+seasonal("boon_ledgers_flow", [
+  {
+    fixedResources: { goods: 2 },
+    connectedGroup: {
+      requiredCategories: ["resource"],
+      anyOfCategories: ["crafting", "merchant"]
+    }
+  },
+  {
+    fixedResources: { goods: 3 },
+    connectedGroup: {
+      requiredCategories: ["resource", "crafting", "merchant"]
+    }
+  },
+  {
+    fixedResources: { goods: 4 },
+    connectedGroup: {
+      requiredCategories: ["resource", "crafting", "merchant"]
+    }
+  }
+]);
+
+seasonal("boon_old_foundations_still_remain", [
+  {
+    modifier: {
+      actions: ["place"],
+      allowedCategories: ["housing"],
+      uses: 1,
+      supportActionTile: true,
+      postActionRuleId: "boon_old_foundations_still_remain:s1:post",
+      postActionRequiresAdjacentTerrain: ["ruins"]
+    }
+  },
+  {
+    modifier: {
+      actions: ["place"],
+      allowedCategories: ["housing"],
+      uses: 1,
+      supportActionTile: true,
+      postActionRuleId: "boon_old_foundations_still_remain:s2:post",
+      postActionRequiresAdjacentCategories: ["housing"],
+      postActionRequiresAdjacentTerrain: ["ruins"]
+    }
+  },
+  {
+    modifier: {
+      actions: ["place", "upgrade"],
+      allowedCategories: ["housing"],
+      uses: 1,
+      supportActionTile: true,
+      postActionRuleId: "boon_old_foundations_still_remain:s3:post",
+      postActionRequiresAdjacentCategories: ["housing"],
+      postActionRequiresAdjacentTerrain: ["ruins"]
+    }
+  }
+]);
+for (const [seasonNumber, amount] of [[1, 1], [2, 2], [3, 3]] as const) {
+  add({
+    id: `boon_old_foundations_still_remain:s${seasonNumber}:post`,
+    target: { adjacentToSource: true, excludeSource: true, strain: "positive" },
+    tileAdjustment: strain("remove", amount, amount, amount),
+    manualChoice: true,
+    optional: true
+  });
+}
+
+seasonal("boon_the_scent_of_herb_and_tonic", [
+  {
+    target: { strain: "positive" },
+    tileAdjustment: strain("remove", 1, 1, 1),
+    fixedResources: { herbs: -2 },
+    mustAffordFixedCosts: true,
+    manualChoice: true
+  },
+  {
+    target: { strain: "positive" },
+    tileAdjustment: strain("remove", 2, 2, 1),
+    fixedResources: { herbs: -4 },
+    mustAffordFixedCosts: true,
+    manualChoice: true
+  },
+  {
+    target: { strain: "positive" },
+    tileAdjustment: strain("remove", 3, 3, 2),
+    fixedResources: { herbs: -6 },
+    mustAffordFixedCosts: true,
+    manualChoice: true
+  }
+]);
+
+seasonal("boon_what_is_written_in_the_stars_can_finally_be_heeded", [
+  { deckReorder: { count: 5, mode: "moveOneToBottom" }, optional: true },
+  { deckReorder: { count: 5 }, optional: true },
+  { deckReorder: { count: "all" }, optional: true }
+]);
+
 const burden = (id: string, definitions: Array<Omit<EffectRule, "id">>) => seasonal(id, definitions.map((definition) => ({ manualChoice: true, ...definition })));
 const placed = (categories?: TileTargetRule["categories"], extra: TileTargetRule = {}): TileTargetRule => ({ categories, strain: "below3", ...extra });
 
@@ -211,8 +521,30 @@ burden("burden_the_quiet_fractures", [
 ]);
 burden("burden_tools_left_to_rust", [
   { target: placed(["crafting", "merchant"]), tileAdjustment: strain("place", 1, 1, 1) },
-  { target: placed(["crafting", "merchant"]), tileAdjustment: strain("place", 1, 1, 1), fixedResources: { metal: -1 } },
-  { target: placed(["crafting", "merchant"]), tileAdjustment: strain("place", 2, 1, 2), fixedResources: { metal: -2 } }
+  {
+    target: placed(["crafting", "merchant"]),
+    tileAdjustment: strain("place", 1, 1, 1),
+    fixedResources: { metal: -1 },
+    fallback: {
+      when: "noTileTarget",
+      rule: {
+        id: "burden_tools_left_to_rust:s2:fallback",
+        noEffectWhenNoTarget: true
+      }
+    }
+  },
+  {
+    target: placed(["crafting", "merchant"]),
+    tileAdjustment: strain("place", 2, 1, 2),
+    fixedResources: { metal: -2 },
+    fallback: {
+      when: "noTileTarget",
+      rule: {
+        id: "burden_tools_left_to_rust:s3:fallback",
+        noEffectWhenNoTarget: true
+      }
+    }
+  }
 ]);
 burden("burden_the_long_cough", [
   { target: placed(["social", "wellbeing"]), tileAdjustment: strain("place", 1, 1, 1) },
@@ -234,6 +566,236 @@ for (const [id, resource] of [["burden_promises_overstretched", "goods"], ["burd
     fallback: count === 3 ? { when: "noArrival", rule: { id: `${id}:s3:fallback`, target: placed(), tileAdjustment: strain("place", 2, 1, 2) } } : undefined
   })));
 }
+
+const merchantOrCraftingBesideOther: TileTargetRule = {
+  anyOf: [
+    placed(["merchant"], { adjacentToCategories: ["crafting"] }),
+    placed(["crafting"], { adjacentToCategories: ["merchant"] })
+  ]
+};
+burden("burden_coin_before_craft", [
+  {
+    target: merchantOrCraftingBesideOther,
+    tileAdjustment: strain("place", 1, 1, 1)
+  },
+  {
+    target: merchantOrCraftingBesideOther,
+    tileAdjustment: {
+      strain: {
+        ...strain("place", 2, 1, 2).strain!,
+        categoryLimits: {
+          merchant: { min: 1, max: 1 },
+          crafting: { min: 1, max: 1 }
+        }
+      }
+    }
+  },
+  {
+    target: merchantOrCraftingBesideOther,
+    tileAdjustment: {
+      strain: {
+        ...strain("place", 4, 1, 4).strain!,
+        categoryLimits: {
+          merchant: { max: 2 },
+          crafting: { max: 2 }
+        }
+      }
+    },
+    fallback: {
+      when: "noTileTarget",
+      rule: {
+        id: "burden_coin_before_craft:s3:fallback",
+        target: placed(["merchant", "crafting"]),
+        tileAdjustment: strain("place", 1, 1, 1)
+      }
+    }
+  }
+]);
+
+const upgradedCore = placed(undefined, { side: "upgraded" });
+burden("burden_foundations_remember_war", [
+  {
+    target: upgradedCore,
+    tileAdjustment: strain("place", 1, 1, 1)
+  },
+  {
+    strainCascade: strainCascade(upgradedCore, 1, placed(), 1)
+  },
+  {
+    strainCascade: strainCascade(upgradedCore, 2, placed(), 1, 2)
+  }
+]);
+
+const discontentedRoad = placed(["travel"], {
+  adjacentToCategoryWithPositiveStrain: "housing"
+});
+burden("burden_ill_omen_of_discontent", [
+  {
+    target: discontentedRoad,
+    tileAdjustment: requiredStrain("place", 1, 1, 1)
+  },
+  {
+    target: discontentedRoad,
+    tileAdjustment: requiredStrain("place", 2, 1, 2)
+  },
+  {
+    target: discontentedRoad,
+    tileAdjustment: requiredStrain("place", 3, 1, 3),
+    fallback: {
+      when: "noTileTarget",
+      rule: {
+        id: "burden_ill_omen_of_discontent:s3:fallback",
+        target: placed(["travel"]),
+        tileAdjustment: strain("place", 1, 1, 1)
+      }
+    }
+  }
+]);
+
+burden("burden_old_wounds_reopen", [1, 2, 3].map((count) => ({
+  target: placed(["social", "wellbeing"]),
+  tileAdjustment: strain("place", count, 1, count),
+  alternative: {
+    kind: "pay_total_or_strain",
+    resources: ["herbs"],
+    resourceStep: count * 2,
+    requiredChoices: 1,
+    requiredStrainTotal: count
+  }
+})));
+
+const singleRoadDependency = placed(["merchant", "crafting"], {
+  exactAdjacentCategoryCount: { category: "travel", count: 1 }
+});
+burden("burden_only_road_in", [1, 2, 3].map((count) => ({
+  target: singleRoadDependency,
+  tileAdjustment: requiredStrain("place", count, 1, count)
+})));
+
+burden("burden_roads_carry_needs", [
+  {
+    target: placed(["travel"], { minAdjacentPlaced: 2 }),
+    tileAdjustment: requiredStrain("place", 1, 1, 1)
+  },
+  {
+    target: placed(["travel"], { minAdjacentPlaced: 3 }),
+    tileAdjustment: requiredStrain("place", 2, 2, 1)
+  },
+  {
+    target: placed(["travel"], { minAdjacentPlaced: 3 }),
+    tileAdjustment: requiredStrain("place", 2, 1, 2)
+  }
+]);
+
+burden("burden_roads_too_far_from_home", [1, 2, 3].map((count) => ({
+  target: placed(["travel"], { notAdjacentToCategories: ["housing"] }),
+  tileAdjustment: requiredStrain("place", count, 1, count)
+})));
+
+burden("burden_stores_run_thin", [
+  {
+    target: placed(),
+    tileAdjustment: strain("place", 1, 1, 1),
+    alternative: {
+      kind: "most_stocked_loss_then_strain",
+      resources: [...resources],
+      resourceStep: 2,
+      requiredChoices: 1,
+      requiredStrainTotal: 1,
+      strainWhen: "noneLost"
+    }
+  },
+  {
+    target: placed(),
+    tileAdjustment: strain("place", 2, 1, 2),
+    alternative: {
+      kind: "most_stocked_loss_then_strain",
+      resources: [...resources],
+      resourceStep: 4,
+      requiredChoices: 1,
+      requiredStrainTotal: 2,
+      strainWhen: "lessThanRequired"
+    }
+  },
+  {
+    target: placed(),
+    tileAdjustment: strain("place", 4, 2, 2),
+    alternative: {
+      kind: "most_stocked_loss_then_strain",
+      resources: [...resources],
+      resourceStep: 6,
+      requiredChoices: 1,
+      requiredStrainTotal: 4,
+      strainWhen: "lessThanRequired"
+    }
+  }
+]);
+
+const stewardOrNeighbor: TileTargetRule = {
+  anyOf: [
+    placed(undefined, { stewardOccupied: true }),
+    placed(undefined, { adjacentToStewardOccupied: true })
+  ]
+};
+burden("burden_the_burden_of_command", [
+  {
+    target: placed(undefined, { stewardOccupied: true }),
+    tileAdjustment: strain("place", 2, 1, 2)
+  },
+  {
+    target: stewardOrNeighbor,
+    tileAdjustment: {
+      strain: {
+        ...strain("place", 3, 1, 3).strain!,
+        maxStewardOccupiedTargets: 2,
+        maxOtherTargets: 1,
+        linkedStewardTargets: { requiredOtherTargetsIfAvailable: 1 }
+      }
+    }
+  },
+  {
+    target: stewardOrNeighbor,
+    tileAdjustment: {
+      strain: {
+        ...strain("place", 5, 1, 5).strain!,
+        maxStewardOccupiedTargets: 3,
+        maxOtherTargets: 2,
+        linkedStewardTargets: {}
+      }
+    }
+  }
+]);
+
+burden("burden_the_rot_within_the_vault", [
+  {
+    target: placed(undefined, { tileIds: ["c20_dig_site"] }),
+    tileAdjustment: requiredStrain("place", 1, 1, 1)
+  },
+  {
+    target: placed(undefined, { tileIds: ["c20_dig_site"] }),
+    tileAdjustment: requiredStrain("place", 2, 2, 1)
+  },
+  {
+    strainCascade: strainCascade(
+      placed(undefined, { tileIds: ["c20_dig_site"] }),
+      2,
+      placed(),
+      1
+    )
+  }
+]);
+
+burden("burden_too_many_houses_too_little_homes", [1, 2, 3].map((count) => ({
+  target: placed(["housing"]),
+  tileAdjustment: strain("place", count, 1, count),
+  alternative: {
+    kind: "pay_or_strain",
+    resources: ["food", "goods"],
+    resourceStep: 1,
+    requiredChoices: count,
+    strainPerChoice: 1
+  }
+})));
 
 for (const [id, resource] of Object.entries(burdenResolutionResources)) {
   add({ id: `${id}:resolution`, fixedResources: { [resource]: -2 } });

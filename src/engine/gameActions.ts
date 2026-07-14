@@ -11,6 +11,7 @@ import {
 import {
   arrivalRequirementRules,
   getBurdenResolutionCost,
+  getBurdenResolutionCostOptions,
   persistentBoonIds,
   productionPassiveRules,
   specialTileBehaviors
@@ -39,7 +40,8 @@ import {
   createBoonModifierFromCard,
   getBoonActionPreview,
   getBoonCostOptions,
-  getBoonModifiedCost
+  getBoonModifiedCost,
+  getMatchingBoonModifiers
 } from "./boonModifiers";
 import { canAfford, spendResources } from "./resources";
 import { getHexNeighbors } from "./hex";
@@ -75,6 +77,7 @@ import type {
   PlayerState,
   ResourceCost,
   ResourceType,
+  Terrain,
   TileCategory,
   TilePlacementDraft,
   ValidationResult
@@ -202,9 +205,15 @@ function queueBoonEffectPrompt(state: GameState, boon: ActiveBoon): GameState {
       card.name,
       `Use Boon: ${card.name}`,
       effectText,
-      rule.deckReorder.count,
+      rule.deckReorder.count === "all"
+        ? state.encounters.deck.length
+        : rule.deckReorder.count,
       boon.cardId,
-      { canSkip: true, skipLabel: "Skip Boon" }
+      {
+        canSkip: true,
+        skipLabel: "Skip Boon",
+        mode: rule.deckReorder.mode
+      }
     );
   }
 
@@ -479,6 +488,153 @@ function applyAdjacentProductionPassiveEffects(
   return nextState;
 }
 
+function applyPreparedProductionBoonEffects(
+  state: GameState,
+  activatedTile: PlacedTile
+): GameState {
+  const modifiers = getMatchingBoonModifiers(state, {
+    action: "production",
+    tileId: activatedTile.tileId,
+    category: getPlacedTileCategory(activatedTile),
+    kind: activatedTile.kind,
+    placedTile: activatedTile,
+    baseCost: emptyCost()
+  });
+  let nextState = state;
+  const consumedModifierIds: string[] = [];
+
+  for (const modifier of modifiers) {
+    if (modifier.productionGain?.fixed) {
+      const gainText = resources
+        .filter((resource) => (modifier.productionGain?.fixed?.[resource] ?? 0) > 0)
+        .map(
+          (resource) =>
+            `${modifier.productionGain?.fixed?.[resource]} ${resource}`
+        )
+        .join(" and ");
+      nextState = applyResourceGain(
+        nextState,
+        modifier.productionGain.fixed,
+        `${modifier.name} added ${gainText} after ${getPlacedTileName(activatedTile)} produced.`
+      );
+    }
+
+    if (modifier.productionGain?.choice && modifier.followUpRuleId) {
+      nextState = queuePendingEffect(nextState, {
+        sourceType: "card",
+        ruleId: modifier.followUpRuleId,
+        sourceId: modifier.sourceCardId,
+        sourceName: modifier.name,
+        title: `${modifier.name}: production bonus`,
+        effectText: modifier.effectText,
+        detailText: `${getPlacedTileName(activatedTile)} produced. Choose the bonus resource.`,
+        requiresManualChoice: true,
+        confirmLabel: "Gain Production Bonus"
+      });
+    }
+
+    if (modifier.expiresAfterRound === undefined) {
+      consumedModifierIds.push(modifier.id);
+    }
+  }
+
+  return consumeBoonModifiers(nextState, consumedModifierIds);
+}
+
+function isPlacedTileAdjacentToTerrain(
+  tile: PlacedTile,
+  terrains: Terrain[]
+): boolean {
+  return tile.hexIds.some((hexId) =>
+    getHexNeighbors(hexId).some((neighborId) => {
+      const terrain = mapById[neighborId]?.terrain;
+      return terrain !== undefined && terrains.includes(terrain);
+    })
+  );
+}
+
+function applyBoonPostActionEffects(
+  state: GameState,
+  actionTile: PlacedTile,
+  modifierIds: string[]
+): GameState {
+  const selectedIds = new Set(modifierIds);
+  const modifiers = state.boonModifiers.filter((modifier) =>
+    selectedIds.has(modifier.id)
+  );
+  let nextState = state;
+
+  if (modifiers.some((modifier) => modifier.supportActionTile)) {
+    nextState = replacePlacedTile(
+      nextState,
+      withSingleUseSupport(
+        nextState.map.placedTiles.find(
+          (tile) => tile.instanceId === actionTile.instanceId
+        ) ?? actionTile
+      )
+    );
+    nextState = recalculatePassiveSupported(nextState);
+  }
+
+  nextState = consumeBoonModifiers(nextState, modifierIds);
+
+  for (const modifier of modifiers) {
+    if (!modifier.postActionRuleId) continue;
+    const currentActionTile = nextState.map.placedTiles.find(
+      (tile) => tile.instanceId === actionTile.instanceId
+    );
+    if (!currentActionTile) continue;
+    const categoryMatch = modifier.postActionRequiresAdjacentCategories?.some(
+      (category) =>
+        isAdjacentToCategory(
+          currentActionTile,
+          nextState.map.placedTiles,
+          category,
+          { includeOverstrained: true }
+        )
+    );
+    const terrainMatch = modifier.postActionRequiresAdjacentTerrain?.length
+      ? isPlacedTileAdjacentToTerrain(
+          currentActionTile,
+          modifier.postActionRequiresAdjacentTerrain
+        )
+      : false;
+    const hasCondition = Boolean(
+      modifier.postActionRequiresAdjacentCategories?.length ||
+      modifier.postActionRequiresAdjacentTerrain?.length
+    );
+    if (hasCondition && !categoryMatch && !terrainMatch) continue;
+    if (
+      effectHasNoValidChoiceTargets(
+        nextState,
+        modifier.postActionRuleId,
+        currentActionTile
+      )
+    ) {
+      continue;
+    }
+
+    const suggestion = suggestEffectAdjustment(
+      nextState,
+      modifier.postActionRuleId,
+      currentActionTile
+    );
+    nextState = queuePendingEffect(nextState, {
+      sourceType: "tile",
+      ruleId: modifier.postActionRuleId,
+      sourceId: currentActionTile.instanceId,
+      sourceName: modifier.name,
+      title: `${modifier.name}: follow-up`,
+      effectText: modifier.effectText,
+      suggestedAdjustment: suggestion.adjustment,
+      requiresManualChoice: suggestion.requiresManualChoice,
+      confirmLabel: "Apply Follow-up"
+    });
+  }
+
+  return nextState;
+}
+
 function queueTileEffectPrompt(
   state: GameState,
   tile: PlacedTile,
@@ -495,8 +651,11 @@ function queueTileEffectPrompt(
       getPlacedTileName(tile),
       `${titlePrefix}: ${getPlacedTileName(tile)}`,
       effectText,
-      rule.deckReorder.count,
-      tile.instanceId
+      rule.deckReorder.count === "all"
+        ? state.encounters.deck.length
+        : rule.deckReorder.count,
+      tile.instanceId,
+      { mode: rule.deckReorder.mode }
     );
   }
 
@@ -751,11 +910,17 @@ function queueEncounterCardEffectPrompt(
       card.name,
       title,
       effectText,
-      rule.deckReorder.count,
+      rule.deckReorder.count === "all"
+        ? state.encounters.deck.length
+        : rule.deckReorder.count,
       cardId,
       options.canSkipBoon && card.type === "boon"
-        ? { canSkip: true, skipLabel: "Skip Boon" }
-        : undefined
+        ? {
+            canSkip: true,
+            skipLabel: "Skip Boon",
+            mode: rule.deckReorder.mode
+          }
+        : { mode: rule.deckReorder.mode }
     );
   }
 
@@ -849,9 +1014,15 @@ export function revealEncounters(state: GameState): GameState {
       activeBurdens.push(cardId);
     } else if (card.type === "boon") {
       if (persistentBoonIds.has(card.id)) {
+        const modifier = getEffectRule(
+          getCurrentSeasonCardEffectRuleId(state, cardId)
+        ).modifier;
         faceUpBoons.push({
           cardId,
-          remainingUses: getBoonUsesForSeason(state, cardId)
+          remainingUses: getBoonUsesForSeason(state, cardId),
+          ...(modifier?.duration === "round"
+            ? { expiresAfterRound: state.round }
+            : {})
         });
       } else {
         discardPile.push(cardId);
@@ -1147,7 +1318,11 @@ export function placeTile(
       ", "
     )}.`
   );
-  nextState = consumeBoonModifiers(nextState, actionPreview.appliedModifierIds);
+  nextState = applyBoonPostActionEffects(
+    nextState,
+    placedTiles[0],
+    actionPreview.appliedModifierIds
+  );
   nextState = recordSelectedCostOptions(
     nextState,
     paymentOptions,
@@ -1308,7 +1483,11 @@ export function upgradeTile(
     warehouse: spendResources(state.warehouse, finalCost)
   };
   nextState = movePlayerStewardToHex(nextState, playerId, upgradedTile.hexIds[0]);
-  nextState = consumeBoonModifiers(nextState, actionPreview.appliedModifierIds);
+  nextState = applyBoonPostActionEffects(
+    nextState,
+    upgradedTile,
+    actionPreview.appliedModifierIds
+  );
   nextState = recordSelectedCostOptions(
     nextState,
     paymentOptions,
@@ -1362,16 +1541,25 @@ export function activateTile(
   placedTileId: string
 ): GameState {
   if (hasPendingEffects(state)) return state;
-  if (state.phase !== "turns" || state.actionsRemaining <= 0) return state;
+  if (state.phase !== "turns") return state;
   if (!getActivatableTileIds(state, playerId).includes(placedTileId)) return state;
 
   const tile = getPlacedTile(state, placedTileId);
   if (!tile) return state;
+  const actionPreview = getBoonActionPreview(state, {
+    action: "activate",
+    tileId: tile.tileId,
+    category: getPlacedTileCategory(tile),
+    kind: tile.kind,
+    placedTile: tile,
+    baseCost: emptyCost()
+  });
+  if (state.actionsRemaining < actionPreview.actionCost) return state;
   const production = getTileProduction(tile);
 
   let nextState: GameState = {
     ...state,
-    actionsRemaining: state.actionsRemaining - 1
+    actionsRemaining: state.actionsRemaining - actionPreview.actionCost
   };
 
   nextState = movePlayerStewardToHex(nextState, playerId, tile.hexIds[0]);
@@ -1384,6 +1572,7 @@ export function activateTile(
       `${getPlacedTileName(tile)} produced resources.`
     );
     nextState = applyAdjacentProductionPassiveEffects(nextState, tile, production);
+    nextState = applyPreparedProductionBoonEffects(nextState, tile);
 
     for (const linkedTileId of getLinkedProductionTileIds(state, tile.instanceId)) {
       const linkedTile = getPlacedTile(state, linkedTileId);
@@ -1405,8 +1594,13 @@ export function activateTile(
         linkedTile,
         linkedProduction
       );
+      nextState = applyPreparedProductionBoonEffects(nextState, linkedTile);
     }
   }
+  nextState = consumeBoonModifiers(
+    nextState,
+    actionPreview.appliedModifierIds
+  );
   return production
     ? nextState
     : queueTileEffectPrompt(nextState, tile, "Activated effect");
@@ -1487,6 +1681,14 @@ export function getUsableFaceUpBoonIds(state: GameState): string[] {
   if (state.phase !== "turns" || hasPendingEffects(state)) return [];
   return state.encounters.faceUpBoons
     .filter((boon) => {
+      if (
+        encounterById[boon.cardId]?.type === "boon" &&
+        state.boonModifiers.some(
+          (modifier) => modifier.sourceCardId === boon.cardId
+        )
+      ) {
+        return false;
+      }
       if (boon.cardId !== "golden_boon_the_golden_vial") return true;
       return (
         boon.lastUsedRound !== state.round &&
@@ -2094,6 +2296,7 @@ export function canResolveBurden(
     playerId: state.currentPlayerId,
     cost
   });
+  options.push(...getBurdenResolutionCostOptions(card.id, state.season));
 
   const missingResources = canPayNowOrWithPassiveOptions(state, cost, options)
     ? {}
@@ -2143,7 +2346,11 @@ export function resolveBurden(
     playerId: state.currentPlayerId,
     cost: baseCost
   });
-  const paymentOptions = [...boonCostOptions, ...passiveCostOptions];
+  const paymentOptions = [
+    ...boonCostOptions,
+    ...passiveCostOptions,
+    ...getBurdenResolutionCostOptions(card.id, state.season)
+  ];
 
   if (!costSelection) {
     return queueCostChoice(state, {
@@ -2300,6 +2507,11 @@ export function resolveEndRound(state: GameState): GameState {
   const gameEnd = state.round >= 12;
   const nextSeason = gameEnd ? state.season : getSeasonForRound(nextRound);
   const shouldSeed = !gameEnd && isSeasonStartRound(nextRound);
+  const expiredRoundBoons = state.encounters.faceUpBoons.filter(
+    (boon) =>
+      boon.expiresAfterRound !== undefined &&
+      boon.expiresAfterRound <= state.round
+  );
 
   let nextState: GameState = {
     ...state,
@@ -2317,7 +2529,10 @@ export function resolveEndRound(state: GameState): GameState {
     bonusTurnsPending: false,
     bonusTurnsActive: false,
     boonModifiers: (shouldSeed ? [] : state.boonModifiers).filter(
-      (modifier) => modifier.sourceCardId !== "golden_boon_the_golden_vial"
+      (modifier) =>
+        modifier.sourceCardId !== "golden_boon_the_golden_vial" &&
+        (modifier.expiresAfterRound === undefined ||
+          modifier.expiresAfterRound > state.round)
     ),
     ignoredBurdenIdsThisRound: [],
     encounters: {
@@ -2325,13 +2540,25 @@ export function resolveEndRound(state: GameState): GameState {
       activeArrivals,
       discardPile: [
         ...state.encounters.discardPile,
-        ...expiredArrivals.map((arrival) => arrival.cardId)
+        ...expiredArrivals.map((arrival) => arrival.cardId),
+        ...expiredRoundBoons
+          .map((boon) => boon.cardId)
+          .filter((cardId) => !state.encounters.discardPile.includes(cardId))
       ],
       faceUpBoons: shouldSeed
         ? state.encounters.faceUpBoons.filter(
-            (boon) => encounterById[boon.cardId]?.type === "goldenBoon"
+            (boon) =>
+              encounterById[boon.cardId]?.type === "goldenBoon" &&
+              !expiredRoundBoons.some(
+                (expired) => expired.cardId === boon.cardId
+              )
           )
-        : state.encounters.faceUpBoons
+        : state.encounters.faceUpBoons.filter(
+            (boon) =>
+              !expiredRoundBoons.some(
+                (expired) => expired.cardId === boon.cardId
+              )
+          )
     }
   };
 

@@ -1,6 +1,6 @@
 import { resourceLabels, resources } from "../../data/resources";
 import { coreTileById, specialTileById } from "../../data/tiles";
-import { burdenResolutionResources } from "../../data/contentRules";
+import { burdenResolutionResourceOptions } from "../../data/contentRules";
 import type { EncounterData, ResourceCost, Season, TileCategory } from "../../engine/types";
 
 export function formatCost(cost: ResourceCost): string {
@@ -38,9 +38,12 @@ export function getBurdenResolutionCurrentText(
     return null;
   }
 
-  const resource = burdenResolutionResources[card.id];
-  if (!resource) return null;
-  return `Spend 1 Action and pay ${season * 2} ${resourceLabels[resource]}. Then discard.`;
+  const choices = burdenResolutionResourceOptions[card.id];
+  if (!choices?.length) return null;
+  const resourceText = choices.length === 1
+    ? resourceLabels[choices[0]]
+    : choices.map((resource) => resourceLabels[resource]).join(" and/or ");
+  return `Spend 1 Action and pay ${season * 2} ${resourceText}. Then discard.`;
 }
 
 export function getBurdenResolutionFullText(

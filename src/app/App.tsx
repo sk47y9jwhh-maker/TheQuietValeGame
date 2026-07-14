@@ -600,8 +600,10 @@ export function App() {
         <DeckReorderPanel
           pending={state.pendingDeckReorder}
           season={state.season}
-          onConfirm={(orderedCardIds) =>
-            commitGameState((current) => confirmDeckReorder(current, orderedCardIds))
+          onConfirm={(orderedCardIds, bottomCardId) =>
+            commitGameState((current) =>
+              confirmDeckReorder(current, orderedCardIds, bottomCardId)
+            )
           }
           onSkip={() => commitGameState((current) => skipDeckReorder(current))}
         />

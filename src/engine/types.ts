@@ -218,9 +218,17 @@ export interface ActiveBoon {
   cardId: string;
   remainingUses: number;
   lastUsedRound?: number;
+  expiresAfterRound?: number;
 }
 
-export type BoonModifierAction = "place" | "upgrade" | "arrival" | "burden";
+export type BoonModifierAction =
+  | "place"
+  | "upgrade"
+  | "arrival"
+  | "burden"
+  | "activate"
+  | "production"
+  | "passive";
 
 export interface ActiveBoonModifier {
   id: string;
@@ -232,9 +240,25 @@ export interface ActiveBoonModifier {
   remainingUses: number;
   amount?: number;
   zeroAction?: boolean;
+  zeroResourceCost?: boolean;
   allowedCategories?: TileCategory[];
+  allowedCategoriesByAction?: Partial<
+    Record<BoonModifierAction, TileCategory[]>
+  >;
   allowedTileIds?: string[];
+  requiresAdjacentCategories?: TileCategory[];
   coreOnly?: boolean;
+  expiresAfterRound?: number;
+  productionGain?: {
+    fixed?: Partial<Record<ResourceType, number>>;
+    choice?: { resources: ResourceType[]; amount: number };
+  };
+  followUpRuleId?: string;
+  refreshPassiveUse?: boolean;
+  supportActionTile?: boolean;
+  postActionRuleId?: string;
+  postActionRequiresAdjacentCategories?: TileCategory[];
+  postActionRequiresAdjacentTerrain?: Terrain[];
 }
 
 export type PendingEffectSourceType = "card" | "tile" | "system";
@@ -294,6 +318,7 @@ export interface PendingDeckReorderState {
   title: string;
   effectText: string;
   cardIds: string[];
+  mode?: "reorder" | "moveOneToBottom";
   canSkip?: boolean;
   skipLabel?: string;
 }
@@ -315,10 +340,12 @@ export interface PassiveCostOption {
   sourceKind?: "tile" | "boon";
   sourceName: string;
   effectText: string;
-  kind: "discount" | "zero" | "market";
+  kind: "discount" | "zero" | "market" | "substitute";
   cadence: "round" | "season";
   amount?: number;
   marketRate?: 1 | 2;
+  substituteFrom?: ResourceType;
+  boonModifierId?: string;
   resourceChoices?: ResourceType[];
   required?: boolean;
 }

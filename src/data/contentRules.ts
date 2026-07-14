@@ -1,4 +1,9 @@
-import type { ResourceCost, ResourceType, Season } from "../engine/types";
+import type {
+  PassiveCostOption,
+  ResourceCost,
+  ResourceType,
+  Season
+} from "../engine/types";
 
 const cost = (values: Partial<ResourceCost>): ResourceCost => ({
   wood: 0,
@@ -59,7 +64,28 @@ export const burdenResolutionResources: Record<string, ResourceType> = {
   burden_bare_walls: "wood",
   burden_empty_shelves: "goods",
   burden_promises_overstretched: "goods",
-  burden_welcome_wears_thin: "herbs"
+  burden_welcome_wears_thin: "herbs",
+  burden_coin_before_craft: "goods",
+  burden_foundations_remember_war: "stone",
+  burden_ill_omen_of_discontent: "herbs",
+  burden_old_wounds_reopen: "herbs",
+  burden_only_road_in: "goods",
+  burden_roads_carry_needs: "goods",
+  burden_roads_too_far_from_home: "wood",
+  burden_stores_run_thin: "goods",
+  burden_the_burden_of_command: "goods",
+  burden_the_rot_within_the_vault: "herbs",
+  burden_too_many_houses_too_little_homes: "goods"
+};
+
+export const burdenResolutionResourceOptions: Record<string, ResourceType[]> = {
+  ...Object.fromEntries(
+    Object.entries(burdenResolutionResources).map(([id, resource]) => [
+      id,
+      [resource]
+    ])
+  ),
+  burden_too_many_houses_too_little_homes: ["food", "goods"]
 };
 
 export function getBurdenResolutionCost(
@@ -70,6 +96,24 @@ export function getBurdenResolutionCost(
   return resource ? cost({ [resource]: season * 2 }) : undefined;
 }
 
+export function getBurdenResolutionCostOptions(
+  cardId: string,
+  season: Season
+): PassiveCostOption[] {
+  if (cardId !== "burden_too_many_houses_too_little_homes") return [];
+  return Array.from({ length: season * 2 }, (_, index) => ({
+    id: `burden-flex:${cardId}:${index + 1}`,
+    sourceTileId: cardId,
+    sourceKind: "boon" as const,
+    sourceName: `Flexible payment ${index + 1}/${season * 2}`,
+    effectText: "Pay this part of the resolution cost with Food instead of Goods.",
+    kind: "substitute" as const,
+    cadence: "round" as const,
+    substituteFrom: "goods" as const,
+    resourceChoices: ["food" as const]
+  }));
+}
+
 export const persistentBoonIds = new Set([
   "boon_a_little_more_time",
   "boon_many_hands_make_light_work",
@@ -77,7 +121,14 @@ export const persistentBoonIds = new Set([
   "boon_when_the_roads_filled_once_more",
   "boon_shared_hands_lighter_loads",
   "boon_the_apprentice_steward",
-  "boon_a_welcome_well_met"
+  "boon_a_welcome_well_met",
+  "boon_bounty_of_the_first_harvest",
+  "boon_carts_before_sunrise",
+  "boon_craft_fair",
+  "boon_old_foundations_still_remain",
+  "boon_one_thousand_swings_of_the_pickaxe_opens_up_a_new_path",
+  "boon_the_ancient_ways_gradually_reemerge",
+  "boon_the_rains_that_we_sheltered_from_now_yield_the_bounty_of_nature"
 ]);
 
 export interface SpecialTileBehavior {
