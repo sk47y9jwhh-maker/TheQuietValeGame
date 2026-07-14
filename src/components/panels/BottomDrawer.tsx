@@ -31,10 +31,10 @@ import { selectCurrentPlayer } from "../../engine/selectors";
 import type { GameState } from "../../engine/types";
 import { EncounterSeasonEffects } from "../common/EncounterSeasonEffects";
 import { formatCategory, formatCost, getEncounterTypeLabel } from "../common/gameText";
+import { RulesGuide } from "./RulesGuide";
 
 type DrawerSection = "tiles" | "hand" | "specials" | "ledger" | "rules";
 type LedgerView = "game" | "chronicles" | "unlocks" | "log";
-type RulesView = "howTo" | "gameRules";
 
 interface BottomDrawerProps {
   state: GameState;
@@ -52,152 +52,6 @@ interface TileReferenceCardProps {
   placement: string;
   status: string;
 }
-
-interface RuleReferenceCard {
-  category: string;
-  title: string;
-  summary?: string;
-  bullets: string[];
-  note?: string;
-}
-
-const rules: RuleReferenceCard[] = [
-  {
-    category: "Overview",
-    title: "Aim and campaign",
-    summary: "Build one shared settlement and finish with the strongest combined score.",
-    bullets: [
-      "Play 12 rounds: Season I is rounds 1–4, Season II is 5–8, and Season III is 9–12.",
-      "Card effects and Burden resolution costs use the current Season line.",
-      "Final scoring happens after round 12."
-    ]
-  },
-  {
-    category: "Getting started",
-    title: "Setup and seeding",
-    bullets: [
-      "Choose unique Stewards, then place each Steward on one of their allowed starting terrains.",
-      "At each Season start, every player seeds one hidden Encounter at the top, middle, and bottom of the deck.",
-      "Your first placed tile must include your Steward Token’s starting hex."
-    ],
-    note: "Encounter cards are freshly randomised when each new game starts."
-  },
-  {
-    category: "Round structure",
-    title: "Round flow",
-    bullets: [
-      "At a new Season, resolve active Burden effects before seeding.",
-      "Reveal 1 Encounter per player and resolve the reveal queue in order.",
-      "Each player takes one turn with up to 4 actions and may end early.",
-      "At round end, reduce every active Arrival timer by 1, then advance the round."
-    ]
-  },
-  {
-    category: "Your turn",
-    title: "Actions and free interactions",
-    bullets: [
-      "Place: spend 1 action and pay the shown Core Tile cost.",
-      "Upgrade: spend 1 action and pay the upgraded cost of a reachable basic Core Tile.",
-      "Activate: spend 1 action to use an eligible reachable tile’s production or activated effect.",
-      "Linked Production: activating a Resource producer also activates every immediately adjacent, non-Overstrained producer from the same tile stack for no additional action (up to all three copies).",
-      "Complete an Arrival or resolve a Burden: spend 1 action and pay its requirement or current resolution cost.",
-      "Using a face-up Boon, moving through Stables, and using a Steward Power do not spend an action unless their text says otherwise."
-    ]
-  },
-  {
-    category: "Settlement",
-    title: "Placement and reach",
-    bullets: [
-      "After your first tile, new placements must connect to your Steward’s reachable settlement network.",
-      "Your reachable network begins at the tile beneath your Steward and continues through adjacent, non-Overstrained tiles.",
-      "Upgrading or activating a tile moves your Steward to it; placing moves the Steward to the new tile.",
-      "Follow every printed terrain, adjacency, footprint, River/Water, and supply restriction shown by the tile picker."
-    ],
-    note: "Docks and the Ranger Power can create additional points of reach."
-  },
-  {
-    category: "Settlement",
-    title: "Strain and Supported",
-    bullets: [
-      "Tiles hold at most 3 Strain. At 3, a tile is Overstrained.",
-      "Overstrained tiles cannot be activated or upgraded, break reachable connections, and contribute no Population, Renown, or passive scoring.",
-      "Supported prevents the first Strain that would be placed on that tile during the round.",
-      "Single-use Supported is then spent; printed or passive Supported can protect again next round.",
-      "After an effect finishes, each tile that became Overstrained spreads 1 Strain to one adjacent placed tile with fewer than 3 Strain, if possible.",
-      "Players choose each spread target. If that tile becomes Overstrained, it spreads next; continue until no newly Overstrained tile can spread.",
-      "Supported and the Golden Garden prevent Strain before checking for a new Overstrained tile. An already Overstrained tile triggers again only if relieved below 3 and later Overstrained again."
-    ]
-  },
-  {
-    category: "Encounters",
-    title: "Boons, Arrivals, and Burdens",
-    bullets: [
-      "Boons resolve on reveal or remain face-up when their lifecycle says so. Face-up Boons show their remaining uses.",
-      "Arrivals enter with 3 timer tokens. Complete one by spending 1 action and paying its requirement to unlock its Special Tile reward.",
-      "An unresolved Arrival at 0 timers is discarded, places 1 Strain on an eligible placed tile, and counts as a failed Arrival.",
-      "An Arrival still showing any timer tokens when the game ends does not count as failed.",
-      "Burdens trigger when revealed, remain active, and trigger again at each later Season start until resolved.",
-      "Resolve a Burden by spending 1 action and paying its Season-scaled resolution cost."
-    ]
-  },
-  {
-    category: "Golden Legacy",
-    title: "Golden Tiles and Boons",
-    bullets: [
-      "Ledger milestones unlock Golden Tiles and Golden Boons for future games.",
-      "During setup, choose up to one unlocked Golden Tile and one unlocked Golden Boon independently.",
-      "Place the Golden Tile after Steward starts for 0 Actions, following its printed setup restriction.",
-      "The Golden Boon is shuffled into the Encounter Deck, is never dealt to a hand, and grants a bonus reveal when drawn.",
-      "Golden Tile scoring conditions are worth +5 Renown when achieved."
-    ]
-  },
-  {
-    category: "Steward’s Ledger",
-    title: "Achievements, Vows, and Golden unlocks",
-    bullets: [
-      "Ledger Entries are persistent achievements awarded when a completed game is recorded; each named entry advances Golden unlocks only once.",
-      "Entries marked by player count also keep separate 1P–4P prestige ticks, but those extra ticks do not advance the Golden milestones again.",
-      "Some entries are locked until the shown number of named entries is complete. Locked entries cannot be earned early.",
-      "A Vow must be declared before setup and only one may be attempted. Any effect from a Steward, Boon, or Golden source can break it if it performs the forbidden action.",
-      "During-game timing entries are tracked automatically, including Arrival timers, same-round Burden answers, recovery, and Ranger-enabled terrain actions.",
-      "Golden Tiles and Golden Boons unlock at 5, 12, 18, 25, and 32 completed named entries."
-    ],
-    note: "Open Ledger → Chronicles to read every requirement and see live progress."
-  },
-  {
-    category: "Stewards",
-    title: "Powers and objectives",
-    bullets: [
-      "Each Steward Power is normally available once per Season.",
-      "Vanguard, Knight, and Sentinel prepare a benefit for the next matching placement or upgrade.",
-      "Ranger creates temporary reach for the current turn; Quartermaster exchanges resources and may aid an Arrival.",
-      "Warden is offered reactively when a Burden is revealed. The Burden remains active even if its reveal effect is prevented.",
-      "Each completed Steward objective is worth +15 Renown at final scoring."
-    ]
-  },
-  {
-    category: "Payments",
-    title: "Warehouse and prepared effects",
-    bullets: [
-      "All players spend from and add to the shared Warehouse.",
-      "When a Boon or tile passive can modify a payment, the game offers those choices before anything is spent.",
-      "Prepared Effects on the Stewards Board show discounts, zero-action benefits, and remaining uses.",
-      "A cancelled payment spends neither resources nor actions."
-    ]
-  },
-  {
-    category: "End game",
-    title: "Final scoring",
-    bullets: [
-      "Add Population and Renown from every non-Overstrained tile, including eligible passive bonuses.",
-      "Add +15 Renown for each Steward objective achieved.",
-      "Add +5 Renown for each placed Golden Tile whose scoring condition is achieved.",
-      "Lose 5 Renown for each failed Arrival, each active Burden, and every Strain token on the map.",
-      "Final score = Population + Renown after all bonuses and penalties."
-    ],
-    note: "Use the End screen breakdown to audit the playtest result."
-  }
-];
 
 function TileReferenceCard({
   className = "",
@@ -240,7 +94,6 @@ export function BottomDrawer({
 }: BottomDrawerProps) {
   const [activeSection, setActiveSection] = useState<DrawerSection | null>(null);
   const [ledgerView, setLedgerView] = useState<LedgerView>("game");
-  const [rulesView, setRulesView] = useState<RulesView>("howTo");
   const [ledgerChronicle, setLedgerChronicle] = useState<LedgerChronicle>(
     ledgerChronicles[1]
   );
@@ -710,158 +563,13 @@ export function BottomDrawer({
             </div>
           )}
           {activeSection === "rules" && (
-            <div className="rules-guide">
-              <section className="rules-quick-start" aria-label="Current game and quick start">
-                <div>
-                  <p className="eyebrow">Playtester Guide</p>
-                  <strong>Build together. Resolve every prompt. Keep Strain under control.</strong>
-                </div>
-                <div className="rules-status-row" aria-label="Current game status">
-                  <span>Season {state.season}</span>
-                  <span>Round {state.round}/12</span>
-                  <span>{state.actionsRemaining} actions left</span>
-                </div>
-              </section>
-              <nav className="rules-view-tabs" aria-label="Guide sections" role="tablist">
-                <button
-                  aria-selected={rulesView === "howTo"}
-                  className={rulesView === "howTo" ? "selected" : ""}
-                  onClick={() => setRulesView("howTo")}
-                  role="tab"
-                  type="button"
-                >
-                  How to use
-                </button>
-                <button
-                  aria-selected={rulesView === "gameRules"}
-                  className={rulesView === "gameRules" ? "selected" : ""}
-                  onClick={() => setRulesView("gameRules")}
-                  role="tab"
-                  type="button"
-                >
-                  Game rules
-                </button>
-              </nav>
-
-              {rulesView === "howTo" && (
-                <div className="how-to-guide">
-                  <section className="how-to-flow" aria-labelledby="first-game-flow-title">
-                    <div>
-                      <p className="eyebrow">First game in 60 seconds</p>
-                      <strong id="first-game-flow-title">Follow the screen from left to right</strong>
-                    </div>
-                    <ol>
-                      <li>Resolve any prompt</li>
-                      <li>Choose an action</li>
-                      <li>Follow the highlights</li>
-                      <li>Confirm the choice</li>
-                      <li>End your turn</li>
-                    </ol>
-                  </section>
-
-                  <div className="how-to-grid">
-                    <article className="mini-card how-to-card">
-                      <span className="how-to-step-number">1</span>
-                      <div>
-                        <strong>Start with the action buttons</strong>
-                        <p>
-                          Use Place, Upgrade, Activate, Interact, or Power in the left panel.
-                          You can also right-click a map hex to open its available quick actions;
-                          on a touch device, use the standard action buttons. Unavailable choices
-                          stay visible and explain what is missing. End finishes your turn early.
-                        </p>
-                      </div>
-                    </article>
-
-                    <article className="mini-card how-to-card">
-                      <span className="how-to-step-number">2</span>
-                      <div>
-                        <strong>Place or upgrade a tile</strong>
-                        <p>
-                          Choose a tile, then select one of the highlighted map hexes. Check the
-                          preview, cost, and any discounts before confirming. The eye button opens
-                          the tile’s full reference.
-                        </p>
-                      </div>
-                    </article>
-
-                    <article className="mini-card how-to-card">
-                      <span className="how-to-step-number">3</span>
-                      <div>
-                        <strong>Finish multi-part placements</strong>
-                        <p>
-                          Street and Track need a starting hex and a direction. Stables need two
-                          separate highlighted hexes; they do not need to touch, but each must
-                          connect legally. The prompt shows what still needs choosing.
-                        </p>
-                      </div>
-                    </article>
-
-                    <article className="mini-card how-to-card">
-                      <span className="how-to-step-number">4</span>
-                      <div>
-                        <strong>Resolve prompts before continuing</strong>
-                        <p>
-                          Boons, Burdens, payments, and other effects open a focused choice. Select
-                          the full amount or one complete alternative, review exactly where changes
-                          will land, then apply. A no-effect result still needs acknowledging.
-                        </p>
-                      </div>
-                    </article>
-
-                    <article className="mini-card how-to-card">
-                      <span className="how-to-step-number">5</span>
-                      <div>
-                        <strong>Use the Stewards Board and bottom drawer</strong>
-                        <p>
-                          The right board holds face-up Boons, prepared effects, Arrivals, and
-                          Burdens. The bottom drawer contains tile references, your hidden hand,
-                          unlocked Specials, Ledger progress, and these guides.
-                        </p>
-                      </div>
-                    </article>
-
-                    <article className="mini-card how-to-card">
-                      <span className="how-to-step-number">6</span>
-                      <div>
-                        <strong>Undo, leave, and resume safely</strong>
-                        <p>
-                          Use the top-right undo and redo controls for recent actions. The current
-                          game and Steward’s Ledger save automatically in this browser, so you can
-                          close the page and return later. Clearing browser storage removes them.
-                        </p>
-                      </div>
-                    </article>
-                  </div>
-
-                  <aside className="how-to-help-note">
-                    <strong>If a choice looks blocked:</strong>
-                    <span>
-                      Read the reason beside it, then check actions, resources, tile supply,
-                      settlement reach, terrain, Strain, and whether another prompt is waiting.
-                    </span>
-                  </aside>
-                </div>
-              )}
-
-              {rulesView === "gameRules" && (
-                <div className="rules-grid">
-                  {rules.map((rule) => (
-                    <article className="mini-card rule-reference-card" key={rule.title}>
-                      <span className="rule-category">{rule.category}</span>
-                      <strong>{rule.title}</strong>
-                      {rule.summary && <p className="rule-summary">{rule.summary}</p>}
-                      <ul>
-                        {rule.bullets.map((bullet) => (
-                          <li key={bullet}>{bullet}</li>
-                        ))}
-                      </ul>
-                      {rule.note && <small className="rule-note">{rule.note}</small>}
-                    </article>
-                  ))}
-                </div>
-              )}
-            </div>
+            <RulesGuide
+              gameStatus={{
+                actionsRemaining: state.actionsRemaining,
+                round: state.round,
+                season: state.season
+              }}
+            />
           )}
         </section>
       )}

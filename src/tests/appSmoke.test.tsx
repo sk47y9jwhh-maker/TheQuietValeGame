@@ -16,6 +16,32 @@ describe("app smoke flow", () => {
     expect(screen.getAllByText("1 Player").length).toBeGreaterThan(0);
   });
 
+  it("opens the complete rules drawer before a game starts", () => {
+    render(<App />);
+
+    const rulesButton = screen.getByRole("button", { name: /rules how to play/i });
+    expect(rulesButton).toHaveAttribute("aria-expanded", "false");
+
+    fireEvent.click(rulesButton);
+
+    expect(rulesButton).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("heading", { name: "Rules" })).toBeInTheDocument();
+    expect(screen.getByText("Learn to Play")).toBeInTheDocument();
+    expect(screen.getByText("1–4 players")).toBeInTheDocument();
+    expect(screen.getByText("Prepare one shared settlement")).toBeInTheDocument();
+    expect(screen.getByText("Example first turn")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Full rules" }));
+
+    expect(screen.getByText("The aim of the game")).toBeInTheDocument();
+    expect(screen.getByText(/Warehouse begins with 15 of each resource at 1P/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Close rules drawer" }));
+
+    expect(screen.queryByRole("heading", { name: "Rules" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /start season i/i })).toBeInTheDocument();
+  });
+
   it("starts with an automatic shuffle and asks for Steward placement first", () => {
     render(<App />);
 

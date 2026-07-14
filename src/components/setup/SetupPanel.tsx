@@ -1,7 +1,9 @@
 import {
+  BookOpen,
   Package,
   ScrollText,
-  UserRound
+  UserRound,
+  X
 } from "lucide-react";
 import { useState, type CSSProperties } from "react";
 import { getStartingWarehouseAmount } from "../../engine/setup";
@@ -15,6 +17,7 @@ import type {
   PlayerCount
 } from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
+import { RulesGuide } from "../panels/RulesGuide";
 
 type ResourceFillStyle = CSSProperties & { "--resource-fill": string };
 
@@ -76,6 +79,7 @@ export function SetupPanel({
       availableGoldenBoons.length > 0 ||
       Boolean(selectedGoldenTileId || selectedGoldenBoonId)
   );
+  const [rulesOpen, setRulesOpen] = useState(false);
   const vowCompatibilityWarning = declaredVowId === "LE-041" &&
     (selectedStewards.some((steward) => steward.id === "vanguard") || selectedGoldenBoonId === "golden_boon_the_golden_vial")
     ? "Vanguard’s Power and The Golden Vial can place Travel Tiles. Using either would break No Roads Raised."
@@ -328,7 +332,29 @@ export function SetupPanel({
         </aside>
       </main>
 
-      <footer className="setup-progress-strip" aria-label="Setup progress">
+      <footer
+        className={`setup-progress-strip setup-rules-drawer ${rulesOpen ? "expanded" : ""}`}
+        aria-label="Setup progress and game rules"
+      >
+        {rulesOpen && (
+          <section className="tray-panel setup-rules-panel" id="setup-rules-panel" aria-label="Rules">
+            <div className="tray-panel-header">
+              <div>
+                <p className="eyebrow">Before You Begin</p>
+                <h2>Rules</h2>
+              </div>
+              <button
+                aria-label="Close rules drawer"
+                className="tray-close"
+                onClick={() => setRulesOpen(false)}
+                type="button"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <RulesGuide />
+          </section>
+        )}
         <div className="setup-progress-grid">
           <div className="setup-progress-item active">
             <UserRound size={17} />
@@ -345,6 +371,17 @@ export function SetupPanel({
             <strong>Encounters</strong>
             <span>seed ready</span>
           </div>
+          <button
+            aria-controls="setup-rules-panel"
+            aria-expanded={rulesOpen}
+            className={`setup-progress-item setup-rules-trigger ${rulesOpen ? "selected" : ""}`}
+            onClick={() => setRulesOpen((current) => !current)}
+            type="button"
+          >
+            <BookOpen size={17} />
+            <strong>Rules</strong>
+            <span>how to play</span>
+          </button>
         </div>
       </footer>
     </div>

@@ -662,6 +662,8 @@ button:disabled {
 }
 
 .setup-progress-strip {
+  display: grid;
+  gap: 8px;
   padding: 8px 12px;
   border-top: 4px solid var(--qv-brass);
   background:
@@ -670,9 +672,19 @@ button:disabled {
   color: var(--qv-ink);
 }
 
+.setup-rules-drawer .setup-rules-panel {
+  max-height: min(440px, 58dvh);
+}
+
+.setup-rules-panel h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  line-height: 1.08;
+}
+
 .setup-progress-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -703,6 +715,19 @@ button:disabled {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.setup-rules-trigger {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  font-family: var(--font-ui);
+  text-align: left;
+}
+
+.setup-rules-trigger.selected {
+  background: rgba(78, 103, 72, 0.12);
+  box-shadow: inset 0 -3px 0 var(--qv-muted-green);
 }
 
 .setup-map-panel {
@@ -3109,6 +3134,38 @@ button.effect-row {
   color: var(--qv-ink);
 }
 
+.first-turn-example {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.8fr) minmax(0, 2fr);
+  gap: 14px;
+  align-items: start;
+  padding: 10px 12px;
+  border: 1px solid rgba(75, 102, 107, 0.3);
+  border-left: 5px solid var(--qv-river-blue);
+  border-radius: 8px;
+  background: rgba(75, 102, 107, 0.08);
+}
+
+.first-turn-example p,
+.first-turn-example strong {
+  margin: 0;
+}
+
+.first-turn-example ol {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 20px;
+  color: rgba(38, 34, 27, 0.78);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.first-turn-example li::marker {
+  color: var(--qv-river-blue);
+  font-weight: 700;
+}
+
 .rules-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
@@ -4619,7 +4676,8 @@ button.effect-row {
   }
 
   .setup-progress-grid {
-    grid-template-columns: repeat(3, minmax(86px, 1fr));
+    grid-template-columns: repeat(4, minmax(86px, 1fr));
+    gap: 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -4627,7 +4685,12 @@ button.effect-row {
   .setup-progress-item {
     min-width: 86px;
     grid-template-columns: auto minmax(0, 1fr);
-    padding: 6px 8px;
+    gap: 4px;
+    padding: 6px 5px;
+  }
+
+  .setup-progress-item strong {
+    font-size: 11px;
   }
 
   .setup-progress-item span {
@@ -4852,7 +4915,8 @@ button.effect-row {
   }
 
   .rules-quick-start,
-  .how-to-flow {
+  .how-to-flow,
+  .first-turn-example {
     grid-template-columns: 1fr;
     align-items: start;
   }

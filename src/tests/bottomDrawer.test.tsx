@@ -88,30 +88,30 @@ describe("bottom drawer", () => {
     expect(screen.getByText("Playtester Guide")).toBeInTheDocument();
     expect(screen.getByText("Round 1/12")).toBeInTheDocument();
     expect(screen.getByText("3 actions left")).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "How to use" })).toHaveAttribute(
+    expect(screen.getByRole("tab", { name: "How to play" })).toHaveAttribute(
       "aria-selected",
       "true"
     );
-    expect(screen.getByText("First game in 60 seconds")).toBeInTheDocument();
-    expect(screen.getByText(/right-click a map hex to open its available quick actions/)).toBeInTheDocument();
-    expect(screen.getByText("Finish multi-part placements")).toBeInTheDocument();
-    expect(screen.getByText(/Street and Track need a starting hex and a direction/)).toBeInTheDocument();
-    expect(screen.getByText(/save automatically in this browser/)).toBeInTheDocument();
+    expect(screen.getByText("The whole game at a glance")).toBeInTheDocument();
+    expect(screen.getByText("Spend up to 4 actions")).toBeInTheDocument();
+    expect(screen.getByText("Example first turn")).toBeInTheDocument();
+    expect(screen.getByText(/Street and Track need a direction/)).toBeInTheDocument();
+    expect(screen.getByText(/Progress saves automatically in this browser/)).toBeInTheDocument();
     expect(container.querySelectorAll(".how-to-card")).toHaveLength(6);
     expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(0);
 
-    fireEvent.click(screen.getByRole("tab", { name: "Game rules" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Full rules" }));
 
-    expect(screen.getByText("Placement and reach")).toBeInTheDocument();
+    expect(screen.getByText("Placement, reach, and movement")).toBeInTheDocument();
     expect(screen.getByText("Boons, Arrivals, and Burdens")).toBeInTheDocument();
     expect(screen.getByText(/each tile that became Overstrained spreads 1 Strain/)).toBeInTheDocument();
-    expect(screen.getByText(/If that tile becomes Overstrained, it spreads next/)).toBeInTheDocument();
+    expect(screen.getByText(/If that target becomes Overstrained, it spreads next/)).toBeInTheDocument();
     expect(screen.queryByText(/After rounds 4 and 8/)).not.toBeInTheDocument();
     expect(screen.getByText("Final scoring")).toBeInTheDocument();
     expect(
       screen.getByText("Lose 5 Renown for each failed Arrival, each active Burden, and every Strain token on the map.")
     ).toBeInTheDocument();
-    expect(screen.getByText("Achievements, Vows, and Golden unlocks")).toBeInTheDocument();
+    expect(screen.getByText("Achievements, Vows, and unlocks")).toBeInTheDocument();
     expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(12);
   });
 });
