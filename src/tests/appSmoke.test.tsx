@@ -28,13 +28,13 @@ describe("app smoke flow", () => {
     expect(screen.getByRole("heading", { name: "Rules" })).toBeInTheDocument();
     expect(screen.getByText("Learn to Play")).toBeInTheDocument();
     expect(screen.getByText("1–4 players")).toBeInTheDocument();
-    expect(screen.getByText("Prepare one shared settlement")).toBeInTheDocument();
+    expect(screen.getByText("Set up together")).toBeInTheDocument();
     expect(screen.getByText("Example first turn")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: "Full rules" }));
 
     expect(screen.getByText("The aim of the game")).toBeInTheDocument();
-    expect(screen.getByText(/Warehouse begins with 15 of each resource at 1P/)).toBeInTheDocument();
+    expect(screen.getByText(/Start with 15 of each resource for 1 player/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Close rules drawer" }));
 

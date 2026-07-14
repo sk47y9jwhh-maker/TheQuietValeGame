@@ -662,6 +662,7 @@ button:disabled {
 }
 
 .setup-progress-strip {
+  position: relative;
   display: grid;
   gap: 8px;
   padding: 8px 12px;
@@ -673,7 +674,16 @@ button:disabled {
 }
 
 .setup-rules-drawer .setup-rules-panel {
+  position: fixed;
+  z-index: 40;
+  right: 10px;
+  bottom: calc(64px + env(safe-area-inset-bottom));
+  left: 10px;
+  width: auto;
   max-height: min(440px, 58dvh);
+  background: var(--qv-parchment);
+  box-shadow: 0 -12px 30px rgba(38, 34, 27, 0.3);
+  overscroll-behavior: contain;
 }
 
 .setup-rules-panel h2 {

@@ -95,8 +95,8 @@ describe("bottom drawer", () => {
     expect(screen.getByText("The whole game at a glance")).toBeInTheDocument();
     expect(screen.getByText("Spend up to 4 actions")).toBeInTheDocument();
     expect(screen.getByText("Example first turn")).toBeInTheDocument();
-    expect(screen.getByText(/Street and Track need a direction/)).toBeInTheDocument();
-    expect(screen.getByText(/Progress saves automatically in this browser/)).toBeInTheDocument();
+    expect(screen.getByText(/Street and Track need a starting hex and direction/)).toBeInTheDocument();
+    expect(screen.getByText(/progress saves automatically in this browser/)).toBeInTheDocument();
     expect(container.querySelectorAll(".how-to-card")).toHaveLength(6);
     expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(0);
 
@@ -105,7 +105,7 @@ describe("bottom drawer", () => {
     expect(screen.getByText("Placement, reach, and movement")).toBeInTheDocument();
     expect(screen.getByText("Boons, Arrivals, and Burdens")).toBeInTheDocument();
     expect(screen.getByText(/each tile that became Overstrained spreads 1 Strain/)).toBeInTheDocument();
-    expect(screen.getByText(/If that target becomes Overstrained, it spreads next/)).toBeInTheDocument();
+    expect(screen.getByText(/If the target also becomes Overstrained, it spreads next/)).toBeInTheDocument();
     expect(screen.queryByText(/After rounds 4 and 8/)).not.toBeInTheDocument();
     expect(screen.getByText("Final scoring")).toBeInTheDocument();
     expect(
