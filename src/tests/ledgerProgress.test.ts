@@ -39,12 +39,18 @@ function endGame(state: GameState): GameState {
 }
 
 describe("v4.6 Ledger game tracking", () => {
-  it("carries the Small Storehouse Vow into setup and detects its initial violation", () => {
-    const state = createNewGame(1, ["vanguard"], { declaredVowId: "LE-043" });
+  it.each([1, 2] as const)("rejects the Small Storehouse Vow at %ip", (playerCount) => {
+    const stewardIds = ["vanguard", "knight"].slice(0, playerCount);
+    const state = createNewGame(playerCount, stewardIds, { declaredVowId: "LE-043" });
+    expect(state.ledgerRun?.declaredVowId).toBeUndefined();
+    expect(state.ledgerRun?.violatedVowReasons).toEqual([]);
+  });
+
+  it.each([3, 4] as const)("allows the Small Storehouse Vow at %ip", (playerCount) => {
+    const stewardIds = ["vanguard", "knight", "sentinel", "ranger"].slice(0, playerCount);
+    const state = createNewGame(playerCount, stewardIds, { declaredVowId: "LE-043" });
     expect(state.ledgerRun?.declaredVowId).toBe("LE-043");
-    expect(state.ledgerRun?.violatedVowReasons).toContain(
-      "The starting Warehouse already exceeds 8 of a resource."
-    );
+    expect(state.ledgerRun?.violatedVowReasons).toEqual([]);
   });
 
   it("records revealed Encounter types and their Season", () => {

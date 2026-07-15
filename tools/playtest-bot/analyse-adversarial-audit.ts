@@ -6,13 +6,13 @@ import { encounterById } from "../../src/data/encounters";
 const scoreThresholds: Record<number, number> = {
   1: 140,
   2: 200,
-  3: 320,
+  3: 280,
   4: 320,
 };
 
 const vowScoreThresholds: Record<string, Record<number, number>> = {
-  "LE-041": { 1: 80, 2: 120, 3: 170, 4: 190 },
-  "LE-042": { 1: 60, 2: 80, 3: 110, 4: 130 },
+  "LE-041": { 1: 90, 2: 130, 3: 190, 4: 240 },
+  "LE-042": { 1: 110, 2: 85, 3: 75, 4: 40 },
 };
 
 const mean = (values: number[]) =>

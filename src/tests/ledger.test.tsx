@@ -41,6 +41,15 @@ describe("Steward's Ledger", () => {
     expect(ledgerMilestones.map((milestone) => milestone.threshold)).toEqual([
       5, 12, 18, 25, 32
     ]);
+    expect(ledgerEntries.find((entry) => entry.id === "LE-001")?.thresholdsByPlayerCount).toEqual({
+      1: 140, 2: 200, 3: 280, 4: 320
+    });
+    expect(ledgerEntries.find((entry) => entry.id === "LE-041")?.thresholdsByPlayerCount).toEqual({
+      1: 90, 2: 130, 3: 190, 4: 240
+    });
+    expect(ledgerEntries.find((entry) => entry.id === "LE-042")?.thresholdsByPlayerCount).toEqual({
+      1: 110, 2: 85, 3: 75, 4: 40
+    });
   });
 
   it("stages entry eligibility so a first game cannot cascade through the Ledger", () => {

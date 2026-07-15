@@ -55,6 +55,12 @@ It is deliberately a conservative fix, not a complete cure for repetitive activa
 
 Unless a later section explicitly says otherwise, scores and exploit measurements below are historical evidence from the pre-intervention audited build. They explain why these changes were selected; they are not claims about the post-intervention balance.
 
+## Player-count and Vow recalibration — 15 July 2026
+
+The requested player-count and Vow pass is now implemented from the post-intervention distributions. LE-001 retains its working 1p / 2p / 4p targets and corrects the anomalous shared 3p/4p target to **140 / 200 / 280 / 320**. No Roads Raised is rescaled to **90 / 130 / 190 / 240**, reflecting its increasing multiplayer ceiling. No Fine Work is rescaled to **110 / 85 / 75 / 40**, reflecting the severe multiplayer cost of forbidding every Core upgrade. The Small Storehouse is now explicitly **3–4 players only**: it is hidden during 1p/2p setup, invalid saved setup selections are cleared, and the engine defensively rejects a direct invalid declaration.
+
+These are evidence-led playtest targets, not claims of permanent balance. Resource creation and spending remain untouched by design; objective rewards, Golden rewards, and Special Tile parity are intentionally deferred.
+
 ## Executive verdict
 
 The current game contains a compelling high-score engine, but the best line is much narrower and more repetitive than the breadth of the tile set suggests. The dominant loop is:

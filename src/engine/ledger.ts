@@ -3,7 +3,7 @@ import {
   type LedgerCampaign,
   type LedgerGameRecord
 } from "./ledgerCampaign";
-import { ledgerEntries, type LedgerEntry } from "../data/ledger";
+import { isVowAvailableForPlayerCount, ledgerEntries, type LedgerEntry } from "../data/ledger";
 import { mapById, mapCells } from "../data/map";
 import { coreTileById, goldenTileById, specialTileById } from "../data/tiles";
 import { stewardById } from "../data/stewards";
@@ -56,15 +56,19 @@ function emptySeasonCounts(): Record<Season, number> {
 export function createLedgerRunState(
   warehouse: WarehouseState,
   declaredVowId?: string,
+  playerCount = 4,
   gameId = `qv_game_${Date.now().toString(36)}`
 ): LedgerRunState {
+  const validDeclaredVowId = isVowAvailableForPlayerCount(declaredVowId, playerCount)
+    ? declaredVowId
+    : undefined;
   const initialVowViolations =
-    declaredVowId === "LE-043" && Math.max(...Object.values(warehouse)) > 8
+    validDeclaredVowId === "LE-043" && Math.max(...Object.values(warehouse)) > 8
       ? ["The starting Warehouse already exceeds 8 of a resource."]
       : [];
   return {
     gameId,
-    declaredVowId: declaredVowId || undefined,
+    declaredVowId: validDeclaredVowId || undefined,
     recorded: false,
     arrivalsRevealed: 0,
     arrivalsCompleted: 0,
@@ -89,7 +93,10 @@ export function createLedgerRunState(
 }
 
 export function getLedgerRun(state: GameState): LedgerRunState {
-  const fallback = createLedgerRunState(state.warehouse, state.ledgerRun?.declaredVowId, state.ledgerRun?.gameId ?? "legacy_game");
+  const declaredVowId = isVowAvailableForPlayerCount(state.ledgerRun?.declaredVowId, state.playerCount)
+    ? state.ledgerRun?.declaredVowId
+    : undefined;
+  const fallback = createLedgerRunState(state.warehouse, declaredVowId, state.playerCount, state.ledgerRun?.gameId ?? "legacy_game");
   const run = state.ledgerRun;
   if (!run) return fallback;
   return {
@@ -105,7 +112,8 @@ export function getLedgerRun(state: GameState): LedgerRunState {
     rangerPowerTerrainTypes: [...(run.rangerPowerTerrainTypes ?? [])],
     warehousePeakByResource: { ...fallback.warehousePeakByResource, ...run.warehousePeakByResource },
     seasonSnapshots: { ...run.seasonSnapshots },
-    violatedVowReasons: [...run.violatedVowReasons]
+    declaredVowId,
+    violatedVowReasons: declaredVowId ? [...run.violatedVowReasons] : []
   };
 }
 

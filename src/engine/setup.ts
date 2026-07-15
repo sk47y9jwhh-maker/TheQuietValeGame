@@ -229,7 +229,7 @@ export function createNewGame(
     pendingEffects: [],
     pendingDeckReorder: null,
     pendingCostChoice: null,
-    ledgerRun: createLedgerRunState(startingWarehouse, options.declaredVowId),
+    ledgerRun: createLedgerRunState(startingWarehouse, options.declaredVowId, playerCount),
     log: [
       {
         id: "log_setup",

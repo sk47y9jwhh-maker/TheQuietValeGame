@@ -28,7 +28,7 @@ import { StewardPlacementPanel } from "../components/setup/StewardPlacementPanel
 import { GoldenTilePlacementPanel } from "../components/setup/GoldenTilePlacementPanel";
 import { stewards } from "../data/stewards";
 import { goldenBoons } from "../data/encounters";
-import { ledgerEntries, ledgerMilestones } from "../data/ledger";
+import { isVowAvailableForPlayerCount, ledgerEntries, ledgerMilestones } from "../data/ledger";
 import { coreTiles, goldenTiles } from "../data/tiles";
 import {
   activateTile,
@@ -164,7 +164,9 @@ export function App() {
     return {
       completedCount,
       availableVows: ledgerEntries.filter(
-        (entry) => entry.declaredVow && completedCount >= entry.unlockAt
+        (entry) => entry.declaredVow &&
+          completedCount >= entry.unlockAt &&
+          isVowAvailableForPlayerCount(entry.id, playerCount)
       ),
       availableGoldenTiles: goldenTiles.filter((_tile, index) =>
         isMilestoneUnlocked(index)
@@ -173,7 +175,13 @@ export function App() {
         isMilestoneUnlocked(index)
       )
     };
-  }, [ledgerCampaign]);
+  }, [ledgerCampaign, playerCount]);
+
+  useEffect(() => {
+    if (!isVowAvailableForPlayerCount(declaredVowId || undefined, playerCount)) {
+      setDeclaredVowId("");
+    }
+  }, [declaredVowId, playerCount]);
 
   useEffect(() => {
     stateRef.current = state;
