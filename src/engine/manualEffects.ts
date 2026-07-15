@@ -640,13 +640,21 @@ export function isTileAdjustmentValid(
         strainRule.categoryLimits
       )) {
         if (!limits) continue;
+        const availableInCategory = legalTargets.filter(
+          (tile) => getPlacedTileCategory(tile) === category
+        ).length;
+        const requiredInCategory = Math.min(
+          limits.min ?? 0,
+          limits.max,
+          availableInCategory
+        );
         const count = strainEntries.filter(([tileId]) => {
           const tile = state.map.placedTiles.find(
             (candidate) => candidate.instanceId === tileId
           );
           return tile && getPlacedTileCategory(tile) === category;
         }).length;
-        if (count > limits.max || count < (limits.min ?? 0)) return false;
+        if (count > limits.max || count < requiredInCategory) return false;
       }
     }
     if (
@@ -1105,6 +1113,166 @@ export function suggestEffectAdjustment(
   return { adjustment: finalAdjustment, requiresManualChoice };
 }
 
+function getPendingEffectSourceTile(
+  state: GameState,
+  pendingEffect: PendingEffectState
+): PlacedTile | undefined {
+  return pendingEffect.sourceType === "tile" && pendingEffect.sourceId
+    ? state.map.placedTiles.find(
+        (tile) => tile.instanceId === pendingEffect.sourceId
+      )
+    : undefined;
+}
+
+/**
+ * Checks the structured parts of a pending-effect adjustment against the
+ * current state. This deliberately does not enforce the UI's "make a choice"
+ * guard, so callers can distinguish an invalid stale suggestion from a legal
+ * no-target acknowledgement.
+ */
+export function isPendingEffectAdjustmentValid(
+  state: GameState,
+  pendingEffect: PendingEffectState,
+  adjustment: EffectAdjustment
+): boolean {
+  if (
+    !hasEffectAdjustment(adjustment) &&
+    canResolvePendingEffectWithoutAdjustment(state, pendingEffect)
+  ) return true;
+  const sourceTile = getPendingEffectSourceTile(state, pendingEffect);
+  if (
+    !isTimerAdjustmentValid(
+      state,
+      pendingEffect.ruleId,
+      adjustment.arrivalTimerDeltas,
+      sourceTile
+    )
+  ) return false;
+  if (
+    pendingEffect.resourceExchangeLimit !== undefined &&
+    !isResourceExchangeAdjustmentValid(
+      state,
+      pendingEffect.ruleId,
+      adjustment,
+      pendingEffect.resourceExchangeLimit,
+      pendingEffect.resourceExchangeOptional
+    )
+  ) return false;
+  if (
+    pendingEffect.allowWardenRelief &&
+    !isWardenReliefAdjustmentValid(state, adjustment)
+  ) return false;
+  if (pendingEffect.allowWardenRelief) return true;
+  return isFixedResourceAdjustmentValid(
+    state,
+    pendingEffect.ruleId,
+    adjustment,
+    sourceTile
+  ) && isAlternativeEffectAdjustmentValid(
+    state,
+    pendingEffect.ruleId,
+    adjustment,
+    sourceTile
+  ) && isResourceGainChoiceAdjustmentValid(
+    state,
+    pendingEffect.ruleId,
+    adjustment,
+    sourceTile
+  ) && isTileAdjustmentValid(
+    state,
+    pendingEffect.ruleId,
+    adjustment,
+    sourceTile
+  );
+}
+
+export function canResolvePendingEffectWithoutAdjustment(
+  state: GameState,
+  pendingEffect: PendingEffectState
+): boolean {
+  if (pendingEffect.resourceExchangeOptional) return true;
+  if (pendingEffect.allowWardenRelief && !hasWardenReliefTarget(state)) {
+    return true;
+  }
+  if (
+    pendingEffect.allowBurdenIgnore &&
+    state.encounters.activeBurdens.length === 0
+  ) return true;
+  if (
+    pendingEffect.allowBurdenResolve &&
+    state.encounters.activeBurdens.length === 0
+  ) return true;
+  return effectHasNoValidChoiceTargets(
+    state,
+    pendingEffect.ruleId,
+    getPendingEffectSourceTile(state, pendingEffect)
+  );
+}
+
+/**
+ * Pending effects can wait behind other effects that mutate their targets.
+ * Rebase only stale structured suggestions, preserving custom suggestions
+ * such as production gains when they are still legal.
+ */
+export function refreshPendingEffectForCurrentState(
+  state: GameState,
+  pendingEffect: PendingEffectState
+): PendingEffectState {
+  const storedSuggestion = pendingEffect.suggestedAdjustment;
+  const storedSuggestionIsCurrent = Boolean(
+    storedSuggestion &&
+      isPendingEffectAdjustmentValid(state, pendingEffect, storedSuggestion)
+  );
+  const generatedSuggestion = !storedSuggestionIsCurrent &&
+    !pendingEffect.allowWardenRelief
+    ? suggestEffectAdjustment(
+        state,
+        pendingEffect.ruleId,
+        getPendingEffectSourceTile(state, pendingEffect)
+      )
+    : undefined;
+  const currentSuggestion = storedSuggestionIsCurrent
+    ? storedSuggestion
+    : pendingEffect.allowWardenRelief
+      ? undefined
+      : generatedSuggestion?.adjustment;
+  const canResolveWithoutChoice = canResolvePendingEffectWithoutAdjustment(
+    state,
+    pendingEffect
+  );
+  const requiresManualChoice = canResolveWithoutChoice
+    ? false
+    : Boolean(
+        pendingEffect.requiresManualChoice ||
+        generatedSuggestion?.requiresManualChoice
+      );
+
+  if (
+    currentSuggestion === pendingEffect.suggestedAdjustment &&
+    requiresManualChoice === pendingEffect.requiresManualChoice
+  ) return pendingEffect;
+
+  return {
+    ...pendingEffect,
+    suggestedAdjustment: currentSuggestion,
+    requiresManualChoice,
+    confirmLabel: canResolveWithoutChoice
+      ? pendingEffect.confirmLabel ?? "Acknowledge"
+      : pendingEffect.confirmLabel
+  };
+}
+
+function refreshPendingEffectQueueHead(state: GameState): GameState {
+  const pendingEffect = state.pendingEffects[0];
+  if (!pendingEffect) return state;
+  const refreshed = refreshPendingEffectForCurrentState(state, pendingEffect);
+  if (refreshed === pendingEffect) return state;
+  return {
+    ...state,
+    pendingEffects: [refreshed, ...state.pendingEffects.slice(1)]
+  };
+}
+
 
 export function queueRestingHallBurdenPassive(state: GameState): GameState {
   const restingHall = state.map.placedTiles.find(
@@ -1139,95 +1307,27 @@ export function resolvePendingEffect(
   state: GameState,
   adjustment: EffectAdjustment = {}
 ): GameState {
-  const [pendingEffect, ...remainingEffects] = state.pendingEffects;
-  if (!pendingEffect) return state;
+  const [queuedPendingEffect, ...remainingEffects] = state.pendingEffects;
+  if (!queuedPendingEffect) return state;
+  const pendingEffect = refreshPendingEffectForCurrentState(
+    state,
+    queuedPendingEffect
+  );
   const effectiveAdjustment = mergeEffectAdjustment(
     pendingEffect.suggestedAdjustment,
     adjustment
   );
   if (
     pendingEffect.requiresManualChoice &&
-    !hasEffectAdjustment(effectiveAdjustment)
+    !hasEffectAdjustment(effectiveAdjustment) &&
+    !canResolvePendingEffectWithoutAdjustment(state, pendingEffect)
   ) {
     return state;
   }
-  if (
-    !isTimerAdjustmentValid(
-      state,
-      pendingEffect.ruleId,
-      effectiveAdjustment.arrivalTimerDeltas
-    )
-  ) {
+  if (!isPendingEffectAdjustmentValid(state, pendingEffect, effectiveAdjustment)) {
     return state;
   }
-  if (
-    pendingEffect.resourceExchangeLimit !== undefined &&
-    !isResourceExchangeAdjustmentValid(
-      state,
-      pendingEffect.ruleId,
-      effectiveAdjustment,
-      pendingEffect.resourceExchangeLimit,
-      pendingEffect.resourceExchangeOptional
-    )
-  ) {
-    return state;
-  }
-  if (
-    pendingEffect.allowWardenRelief &&
-    !isWardenReliefAdjustmentValid(state, effectiveAdjustment)
-  ) {
-    return state;
-  }
-  const sourceTile =
-    pendingEffect.sourceType === "tile" && pendingEffect.sourceId
-      ? state.map.placedTiles.find(
-          (tile) => tile.instanceId === pendingEffect.sourceId
-        )
-      : undefined;
-  if (
-    !pendingEffect.allowWardenRelief &&
-    !isFixedResourceAdjustmentValid(
-      state,
-      pendingEffect.ruleId,
-      effectiveAdjustment,
-      sourceTile
-    )
-  ) {
-    return state;
-  }
-  if (
-    !pendingEffect.allowWardenRelief &&
-    !isAlternativeEffectAdjustmentValid(
-      state,
-      pendingEffect.ruleId,
-      effectiveAdjustment,
-      sourceTile
-    )
-  ) {
-    return state;
-  }
-  if (
-    !pendingEffect.allowWardenRelief &&
-    !isResourceGainChoiceAdjustmentValid(
-      state,
-      pendingEffect.ruleId,
-      effectiveAdjustment,
-      sourceTile
-    )
-  ) {
-    return state;
-  }
-  if (
-    !pendingEffect.allowWardenRelief &&
-    !isTileAdjustmentValid(
-      state,
-      pendingEffect.ruleId,
-      effectiveAdjustment,
-      sourceTile
-    )
-  ) {
-    return state;
-  }
+  const sourceTile = getPendingEffectSourceTile(state, pendingEffect);
   const strainCascade = getStrainCascadeRule(
     state,
     pendingEffect.ruleId,
@@ -1426,7 +1526,9 @@ export function resolvePendingEffect(
     nextState,
     newlyOverstrainedTileIds
   );
-  return discardBlockedOverstrainSpreadEffects(nextState);
+  return refreshPendingEffectQueueHead(
+    discardBlockedOverstrainSpreadEffects(nextState)
+  );
 }
 
 export function skipPendingEffect(state: GameState): GameState {

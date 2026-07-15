@@ -26,6 +26,7 @@ import {
   getTileAdjustmentRule,
   getValidEffectStrainTargets,
   getTimerAdjustmentRule,
+  canResolvePendingEffectWithoutAdjustment,
   hasWardenReliefTarget,
   hasEffectAdjustment,
   isResourceExchangeAdjustmentValid,
@@ -185,6 +186,8 @@ export function EffectPrompt({
     arrivalTimerDeltas
   );
   const hasChanges = hasEffectAdjustment(adjustment);
+  const isNoChoiceAcknowledgement =
+    !hasChanges && canResolvePendingEffectWithoutAdjustment(state, effect);
   const sourceCard =
     effect.sourceType === "card" && effect.sourceId
       ? encounterById[effect.sourceId]
@@ -379,7 +382,7 @@ export function EffectPrompt({
     !allowsResourceInsteadOfTile &&
     !helpStandsRule &&
     !wardenReliefHasNoTarget;
-  const cannotApply =
+  const cannotApply = !isNoChoiceAcknowledgement && (
     Boolean(effect.requiresManualChoice && !hasChanges && !wardenReliefHasNoTarget) ||
     missingRequiredTileChoice ||
     timerInvalid ||
@@ -388,7 +391,8 @@ export function EffectPrompt({
     resourceGainChoiceInvalid ||
     Boolean(burdenResolveInvalid) ||
     Boolean(wardenReliefInvalid) ||
-    tileAdjustmentInvalid;
+    tileAdjustmentInvalid
+  );
   const previewItems = useMemo(() => {
     const items: string[] = [];
 

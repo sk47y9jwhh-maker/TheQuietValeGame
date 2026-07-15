@@ -52,7 +52,11 @@ import {
   useStewardPower
 } from "../engine/gameActions";
 import { confirmDeckReorder, skipDeckReorder } from "../engine/deckReorder";
-import { resolvePendingEffect, skipPendingEffect } from "../engine/manualEffects";
+import {
+  refreshPendingEffectForCurrentState,
+  resolvePendingEffect,
+  skipPendingEffect
+} from "../engine/manualEffects";
 import { getTileFootprintKind } from "../engine/placementRules";
 import { getPlacedTileAtHex } from "../engine/reachability";
 import { createNewGame } from "../engine/setup";
@@ -646,7 +650,10 @@ export function App() {
   }
 
   if (state.pendingEffects[0]) {
-    const pendingEffect = state.pendingEffects[0];
+    const pendingEffect = refreshPendingEffectForCurrentState(
+      state,
+      state.pendingEffects[0]
+    );
     return (
       <ResolutionShell
         state={state}

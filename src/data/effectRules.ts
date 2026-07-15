@@ -820,7 +820,7 @@ for (const tileId of ["c12_apothecary", "c21_the_vaults"]) {
 const adjacentSupportSpecials = ["special_alms_house", "special_atelier_workshop", "special_house_of_learning", "special_the_iron_roots_respite", "special_the_lorekeepers_respite", "special_the_reavers_respite", "special_the_root_weavers_respite", "special_the_tamers_respite", "special_theater"];
 for (const tileId of adjacentSupportSpecials) add({ id: tileEffectRuleId(tileId, "special"), target: { adjacentToSource: true, excludeSource: true }, supportTarget: { adjacentToSource: true, excludeSource: true }, tileAdjustment: support(2), manualChoice: true, optional: true });
 for (const tileId of ["special_adventurers_guild", "special_reliquary"]) add({ id: tileEffectRuleId(tileId, "special"), resolveBurden: { maxTargets: 1 }, manualChoice: true, optional: true });
-add({ id: tileEffectRuleId("special_alchemist_s_workshop", "special"), exchangeLimit: 5, exchangeGoodsMode: true, manualChoice: true });
+add({ id: tileEffectRuleId("special_alchemist_s_workshop", "special"), exchangeLimit: 5, exchangeOptional: true, exchangeGoodsMode: true, manualChoice: true });
 add({ id: tileEffectRuleId("special_hearth_garden", "special"), target: { categories: ["housing", "social", "wellbeing"], strain: "positive" }, tileAdjustment: strain("remove", 2, 2, 2), manualChoice: true, optional: true });
 add({ id: tileEffectRuleId("special_the_waystation", "special"), deckReorder: { count: 3 } });
 add({ id: tileEffectRuleId("special_the_resting_hall", "special"), target: { strain: "positive" }, tileAdjustment: strain("remove", 1, 1, 1) });

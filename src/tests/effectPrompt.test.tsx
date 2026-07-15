@@ -185,6 +185,54 @@ describe("effect prompt controls", () => {
     expect(applied).toHaveLength(1);
   });
 
+  it("enables acknowledgement when a queued alternative has no complete branch left", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 3;
+    state.encounters.activeArrivals = [
+      { cardId: "arrival_moving_mountains", timerTokens: 0 },
+      { cardId: "arrival_the_quiet_quest", timerTokens: 0 }
+    ];
+    state.warehouse.goods = 0;
+    const effect: PendingEffectState = {
+      id: "effect_promises_no_branch",
+      sourceType: "card",
+      sourceId: "burden_promises_overstretched",
+      ruleId: cardEffectRuleId("burden_promises_overstretched", 3),
+      sourceName: "Promises Overstretched",
+      title: "Promises Overstretched",
+      effectText: "Remove timers or lose Goods.",
+      requiresManualChoice: true,
+      confirmLabel: "Acknowledge"
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(screen.getByRole("button", { name: "Acknowledge" })).toBeEnabled();
+  });
+
+  it("allows a wholly optional empty Quartermaster exchange", () => {
+    const state = createNewGame(1, ["quartermaster"]);
+    const effect: PendingEffectState = {
+      id: "effect_quartermaster_optional",
+      sourceType: "system",
+      sourceId: "quartermaster",
+      ruleId: stewardEffectRuleId("quartermaster"),
+      sourceName: "Quartermaster",
+      title: "Steward Power: Quartermaster",
+      effectText: "Exchange up to 5 resources and optionally add a timer.",
+      requiresManualChoice: true,
+      resourceExchangeLimit: 5,
+      resourceExchangeOptional: true,
+      confirmLabel: "Use Quartermaster Power"
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(
+      screen.getByRole("button", { name: "Use Quartermaster Power" })
+    ).toBeEnabled();
+  });
+
   it("keeps Settlement of Plenty disabled until all five resources are chosen", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.season = 3;

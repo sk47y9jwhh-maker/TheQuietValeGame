@@ -18,7 +18,9 @@ import {
   getTileAdjustmentRule,
   getTimerAdjustmentRule,
   isAlternativeEffectAdjustmentValid,
+  canResolvePendingEffectWithoutAdjustment,
   isResourceGainChoiceAdjustmentValid,
+  refreshPendingEffectForCurrentState,
   isTileAdjustmentValid,
   isTimerAdjustmentValid,
   resolvePendingEffect,
@@ -129,6 +131,216 @@ describe("structured effect rules", () => {
       direction: "place",
       maxTotal: 2
     });
+  });
+
+  it.each([
+    ["no Merchant or Crafting tile", []],
+    ["only a Merchant tile", [placed("merchant", "c14_market_stalls", "G1")]],
+    ["only a Crafting tile", [placed("crafting", "c13_workshops", "G1")]]
+  ])("acknowledges Coin Before Craft Season II with %s", (_label, tiles) => {
+    const state = stateWith(tiles);
+    const ruleId = cardEffectRuleId("burden_coin_before_craft", 2);
+    expect(effectHasNoValidChoiceTargets(state, ruleId)).toBe(true);
+    expect(isTileAdjustmentValid(state, ruleId, {})).toBe(true);
+    state.pendingEffects = [{
+      id: "effect_coin_no_pair",
+      ruleId,
+      sourceType: "card",
+      sourceId: "burden_coin_before_craft",
+      sourceName: "Coin Before Craft",
+      title: "Coin Before Craft",
+      effectText: "Display text only"
+    }];
+    expect(resolvePendingEffect(state).pendingEffects).toHaveLength(0);
+  });
+
+  it("requires both halves of an available Coin Before Craft pair", () => {
+    const state = stateWith([
+      placed("merchant", "c14_market_stalls", "G1"),
+      placed("crafting", "c13_workshops", "H1")
+    ]);
+    const ruleId = cardEffectRuleId("burden_coin_before_craft", 2);
+    expect(isTileAdjustmentValid(state, ruleId, {
+      tileStrainDeltas: { merchant: 1 }
+    })).toBe(false);
+    const adjustment = {
+      tileStrainDeltas: { merchant: 1, crafting: 1 }
+    };
+    expect(isTileAdjustmentValid(state, ruleId, adjustment)).toBe(true);
+    state.pendingEffects = [{
+      id: "effect_coin_pair",
+      ruleId,
+      sourceType: "card",
+      sourceId: "burden_coin_before_craft",
+      sourceName: "Coin Before Craft",
+      title: "Coin Before Craft",
+      effectText: "Display text only",
+      requiresManualChoice: true
+    }];
+    const resolved = resolvePendingEffect(state, adjustment);
+    expect(resolved.map.placedTiles.map((tile) => tile.strain)).toEqual([1, 1]);
+    expect(resolved.pendingEffects).toHaveLength(0);
+  });
+
+  it("rebases a stale deterministic suggestion onto the active fallback", () => {
+    const state = stateWith([
+      placed("home", "c05_cabin", "G1", 1),
+      placed("old_target", "c15_path", "H1"),
+      placed("fallback_target", "c15_path", "J1")
+    ]);
+    const ruleId = cardEffectRuleId("burden_ill_omen_of_discontent", 3);
+    const suggestion = suggestEffectAdjustment(state, ruleId).adjustment;
+    expect(suggestion?.tileStrainDeltas).toEqual({ old_target: 1 });
+    state.pendingEffects = [{
+      id: "effect_stale_fallback",
+      ruleId,
+      sourceType: "card",
+      sourceId: "burden_ill_omen_of_discontent",
+      sourceName: "Omen of Discontent",
+      title: "Omen of Discontent",
+      effectText: "Display text only",
+      suggestedAdjustment: suggestion,
+      requiresManualChoice: false
+    }];
+
+    state.map.placedTiles[1].strain = 3;
+    const refreshed = refreshPendingEffectForCurrentState(
+      state,
+      state.pendingEffects[0]
+    );
+    expect(refreshed.suggestedAdjustment?.tileStrainDeltas).toEqual({
+      fallback_target: 1
+    });
+    const resolved = resolvePendingEffect(state);
+    expect(resolved.map.placedTiles[2].strain).toBe(1);
+    expect(resolved.pendingEffects).toHaveLength(0);
+  });
+
+  it("rebases a stale Strain cascade after its spread target changes", () => {
+    const state = stateWith([
+      placed("anchor", "c15_path", "G1", 1),
+      placed("stale_spread", "c05_cabin", "H1")
+    ]);
+    const ruleId = cardEffectRuleId("burden_the_quiet_fractures", 2);
+    const suggestion = suggestEffectAdjustment(state, ruleId).adjustment;
+    expect(suggestion).toMatchObject({
+      strainCascadeAnchorTileId: "anchor",
+      tileStrainDeltas: { stale_spread: 1 }
+    });
+    state.pendingEffects = [{
+      id: "effect_stale_cascade",
+      ruleId,
+      sourceType: "card",
+      sourceId: "burden_the_quiet_fractures",
+      sourceName: "The Quiet Fractures",
+      title: "The Quiet Fractures",
+      effectText: "Display text only",
+      suggestedAdjustment: suggestion,
+      requiresManualChoice: false
+    }];
+
+    state.map.placedTiles[1].strain = 3;
+    const refreshed = refreshPendingEffectForCurrentState(
+      state,
+      state.pendingEffects[0]
+    );
+    expect(refreshed.suggestedAdjustment).toMatchObject({
+      strainCascadeAnchorTileId: "anchor"
+    });
+    expect(refreshed.suggestedAdjustment?.tileStrainDeltas).toEqual({});
+    const resolved = resolvePendingEffect(state);
+    expect(resolved.map.placedTiles[0].strain).toBe(2);
+    expect(resolved.pendingEffects).toHaveLength(0);
+  });
+
+  it("restores manual choice when earlier effects create multiple legal targets", () => {
+    const state = stateWith([
+      placed("social_a", "c09_tavern", "G1", 3),
+      placed("social_b", "c10_eatery", "H1", 3)
+    ]);
+    const ruleId = cardEffectRuleId("burden_the_long_cough", 2);
+    state.pendingEffects = [{
+      id: "effect_targets_reopened",
+      ruleId,
+      sourceType: "card",
+      sourceId: "burden_the_long_cough",
+      sourceName: "The Long Cough",
+      title: "The Long Cough",
+      effectText: "Display text only",
+      requiresManualChoice: false
+    }];
+
+    state.map.placedTiles = state.map.placedTiles.map((tile) => ({
+      ...tile,
+      strain: 2
+    }));
+    const refreshed = refreshPendingEffectForCurrentState(
+      state,
+      state.pendingEffects[0]
+    );
+    expect(refreshed.requiresManualChoice).toBe(true);
+    expect(refreshed.suggestedAdjustment).toBeUndefined();
+  });
+
+  it.each([
+    ["Tools Left to Rust", cardEffectRuleId("burden_tools_left_to_rust", 3)],
+    ["Arrival expiry", systemEffectRuleId("arrival-expired")]
+  ])("turns a vanished %s choice into a legal acknowledgement", (_label, ruleId) => {
+    const state = stateWith();
+    state.pendingEffects = [{
+      id: "effect_vanished_choice",
+      ruleId,
+      sourceType: "system",
+      sourceName: "Vanished choice",
+      title: "Vanished choice",
+      effectText: "Display text only",
+      requiresManualChoice: true
+    }];
+    expect(canResolvePendingEffectWithoutAdjustment(
+      state,
+      state.pendingEffects[0]
+    )).toBe(true);
+    expect(resolvePendingEffect(state).pendingEffects).toHaveLength(0);
+  });
+
+  it("acknowledges Promises Overstretched when no complete branch remains", () => {
+    const state = stateWith();
+    state.encounters.activeArrivals = [
+      { cardId: "arrival_a", timerTokens: 0 },
+      { cardId: "arrival_b", timerTokens: 0 }
+    ];
+    state.warehouse.goods = 0;
+    const ruleId = cardEffectRuleId("burden_promises_overstretched", 3);
+    state.pendingEffects = [{
+      id: "effect_no_complete_branch",
+      ruleId,
+      sourceType: "card",
+      sourceId: "burden_promises_overstretched",
+      sourceName: "Promises Overstretched",
+      title: "Promises Overstretched",
+      effectText: "Display text only",
+      requiresManualChoice: true
+    }];
+    expect(effectHasNoValidChoiceTargets(state, ruleId)).toBe(true);
+    expect(resolvePendingEffect(state).pendingEffects).toHaveLength(0);
+  });
+
+  it("allows Quartermaster's wholly optional power to resolve with no choice", () => {
+    const state = stateWith();
+    const ruleId = stewardEffectRuleId("quartermaster");
+    state.pendingEffects = [{
+      id: "effect_quartermaster_empty",
+      ruleId,
+      sourceType: "system",
+      sourceId: "quartermaster",
+      sourceName: "Quartermaster",
+      title: "Steward Power: Quartermaster",
+      effectText: "Display text only",
+      requiresManualChoice: true,
+      resourceExchangeLimit: 5,
+      resourceExchangeOptional: true
+    }];
+    expect(resolvePendingEffect(state).pendingEffects).toHaveLength(0);
   });
 
   it("targets named tiles through stable tile ids", () => {

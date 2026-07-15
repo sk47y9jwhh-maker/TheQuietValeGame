@@ -39,6 +39,7 @@ import {
   getEffectSupportTargets,
   getAlternativeEffectRule,
   getEffectTileTargets,
+  getResourceGainChoiceRule,
   getStrainCascadeAnchorTargets,
   getStrainCascadeRule,
   getStrainCascadeSpreadTargets,
@@ -49,6 +50,7 @@ import {
   isAlternativeEffectAdjustmentValid,
   isTileAdjustmentValid,
   isTimerAdjustmentValid,
+  refreshPendingEffectForCurrentState,
   resolvePendingEffect,
   skipPendingEffect,
 } from "../../src/engine/manualEffects";
@@ -125,6 +127,12 @@ function tileHasStrategicProtection(tileId: string, side: PlacedTile["side"]): b
 
 interface HumanBehaviorOptions {
   choicePolicy: HumanChoicePolicy;
+}
+
+interface PlacementSearchLimits {
+  maxCells?: number;
+  maxTiles?: number;
+  maxPlacementsPerTile?: number;
 }
 
 interface BotStats {
@@ -246,17 +254,41 @@ function totalStrain(state: GameState): number {
   return state.map.placedTiles.reduce((sum, tile) => sum + tile.strain, 0);
 }
 
+function buildExactAlternativeStrainAdjustment(
+  state: GameState,
+  ruleId: string | undefined,
+  sourceTile: PlacedTile | undefined,
+  requiredTotal: number,
+): EffectAdjustment | undefined {
+  if (requiredTotal <= 0) return {};
+  const strainRule = getTileAdjustmentRule(state, ruleId, sourceTile).strain;
+  if (!strainRule) return undefined;
+  const stewardAnchors = new Set(state.players.map((player) => player.stewardHexId));
+  const targets = getValidEffectStrainTargets(state, ruleId, sourceTile)
+    .sort((a, b) =>
+      (3 - b.strain) - (3 - a.strain) ||
+      Number(a.hexIds.some((hexId) => stewardAnchors.has(hexId))) -
+        Number(b.hexIds.some((hexId) => stewardAnchors.has(hexId)))
+    );
+  let remaining = requiredTotal;
+  const tileStrainDeltas: Record<string, number> = {};
+  for (const target of targets.slice(0, strainRule.maxTargets)) {
+    if (remaining <= 0) break;
+    const amount = Math.min(strainRule.maxPerTile, 3 - target.strain, remaining);
+    if (amount <= 0) continue;
+    tileStrainDeltas[target.instanceId] = amount;
+    remaining -= amount;
+  }
+  return remaining === 0 ? { tileStrainDeltas } : undefined;
+}
+
 function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): EffectAdjustment {
-  const pending = state.pendingEffects[0];
-  if (!pending) return {};
+  const queuedPending = state.pendingEffects[0];
+  if (!queuedPending) return {};
+  const pending = refreshPendingEffectForCurrentState(state, queuedPending);
   const sourceTile = pending.sourceType === "tile" && pending.sourceId
     ? state.map.placedTiles.find((tile) => tile.instanceId === pending.sourceId)
     : undefined;
-  if (
-    pending.suggestedAdjustment &&
-    hasEffectAdjustment(pending.suggestedAdjustment) &&
-    isTileAdjustmentValid(state, pending.ruleId, pending.suggestedAdjustment, sourceTile)
-  ) return {};
   if (pending.allowWardenRelief) {
     const stewardAnchors = new Set(state.players.map((player) => player.stewardHexId));
     const strained = state.map.placedTiles
@@ -298,6 +330,31 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
     pending.ruleId,
     sourceTile
   );
+  const resourceGainRule = getResourceGainChoiceRule(
+    state,
+    pending.ruleId,
+    sourceTile,
+  );
+  if (
+    resourceGainRule &&
+    (!resourceGainRule.alternativeToStrainRemoval ||
+      getValidEffectStrainTargets(state, pending.ruleId, sourceTile).length === 0)
+  ) {
+    const resource = [...resourceGainRule.resources].sort((a, b) =>
+      (plan
+        ? resourceDemandDeficit(state, plan, b) - resourceDemandDeficit(state, plan, a)
+        : state.warehouse[a] - state.warehouse[b])
+    )[0];
+    if (resource && resourceGainRule.amount > 0) {
+      return { resourceDeltas: { [resource]: resourceGainRule.amount } };
+    }
+  }
+  if (
+    pending.suggestedAdjustment &&
+    hasEffectAdjustment(pending.suggestedAdjustment) &&
+    isTileAdjustmentValid(state, pending.ruleId, pending.suggestedAdjustment, sourceTile) &&
+    !pending.requiresManualChoice
+  ) return {};
   if (alternativeRule?.kind === "pay_or_strain") {
     const resource = alternativeRule.resources[0];
     const totalCost = alternativeRule.resourceStep * alternativeRule.requiredChoices;
@@ -322,6 +379,67 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
         arrivalTimerDeltas
       };
     }
+    return {};
+  }
+  if (alternativeRule?.kind === "pay_total_or_strain") {
+    const payable = alternativeRule.resources.find(
+      (resource) => state.warehouse[resource] >= alternativeRule.resourceStep,
+    );
+    if (payable) {
+      const payment: EffectAdjustment = {
+        resourceDeltas: { [payable]: -alternativeRule.resourceStep },
+      };
+      if (isAlternativeEffectAdjustmentValid(state, pending.ruleId, payment, sourceTile)) {
+        return payment;
+      }
+    }
+    const strainAdjustment = buildExactAlternativeStrainAdjustment(
+      state,
+      pending.ruleId,
+      sourceTile,
+      alternativeRule.requiredStrainTotal,
+    );
+    if (
+      strainAdjustment &&
+      isAlternativeEffectAdjustmentValid(
+        state,
+        pending.ruleId,
+        strainAdjustment,
+        sourceTile,
+      )
+    ) return strainAdjustment;
+    return {};
+  }
+  if (alternativeRule?.kind === "most_stocked_loss_then_strain") {
+    const resource = [...alternativeRule.resources].sort(
+      (a, b) => state.warehouse[b] - state.warehouse[a],
+    )[0];
+    const expectedLoss = resource
+      ? Math.min(alternativeRule.resourceStep, state.warehouse[resource])
+      : 0;
+    const strainRequired = alternativeRule.strainWhen === "noneLost"
+      ? expectedLoss === 0
+      : expectedLoss < alternativeRule.resourceStep;
+    const strainAdjustment = strainRequired
+      ? buildExactAlternativeStrainAdjustment(
+          state,
+          pending.ruleId,
+          sourceTile,
+          alternativeRule.requiredStrainTotal,
+        )
+      : {};
+    if (strainAdjustment) {
+      const adjustment: EffectAdjustment = {
+        ...strainAdjustment,
+        resourceDeltas: resource && expectedLoss > 0
+          ? { [resource]: -expectedLoss }
+          : undefined,
+      };
+      if (isAlternativeEffectAdjustmentValid(state, pending.ruleId, adjustment, sourceTile)) {
+        return adjustment;
+      }
+    }
+    return {};
   }
   if (alternativeRule?.kind === "warehouse_loss_or_strain") {
     const payable = alternativeRule.resources
@@ -333,30 +451,18 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
         return payment;
       }
     }
-    const strainRule = getTileAdjustmentRule(state, pending.ruleId, sourceTile).strain;
     const strainBranchAvailable = alternativeRule.resources.some(
       (resource) => state.warehouse[resource] < alternativeRule.resourceStep,
     );
-    if (strainBranchAvailable && strainRule && alternativeRule.requiredStrainTotal > 0) {
-      const stewardAnchors = new Set(state.players.map((player) => player.stewardHexId));
-      const targets = getValidEffectStrainTargets(state, pending.ruleId, sourceTile)
-        .sort((a, b) =>
-          (3 - b.strain) - (3 - a.strain) ||
-          Number(a.hexIds.some((hexId) => stewardAnchors.has(hexId))) -
-            Number(b.hexIds.some((hexId) => stewardAnchors.has(hexId)))
-        );
-      let remaining = alternativeRule.requiredStrainTotal;
-      const tileStrainDeltas: Record<string, number> = {};
-      for (const target of targets.slice(0, strainRule.maxTargets)) {
-        if (remaining <= 0) break;
-        const amount = Math.min(strainRule.maxPerTile, 3 - target.strain, remaining);
-        if (amount <= 0) continue;
-        tileStrainDeltas[target.instanceId] = amount;
-        remaining -= amount;
-      }
-      const strainAdjustment = { tileStrainDeltas };
+    if (strainBranchAvailable && alternativeRule.requiredStrainTotal > 0) {
+      const strainAdjustment = buildExactAlternativeStrainAdjustment(
+        state,
+        pending.ruleId,
+        sourceTile,
+        alternativeRule.requiredStrainTotal,
+      );
       if (
-        remaining === 0 &&
+        strainAdjustment &&
         isAlternativeEffectAdjustmentValid(
           state,
           pending.ruleId,
@@ -463,11 +569,19 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
         anchor.instanceId,
         sourceTile
       ).slice(0, strainCascadeRule.maxSpreadTargets);
+      const clearedSuggestedStrain = Object.fromEntries(
+        Object.keys(pending.suggestedAdjustment?.tileStrainDeltas ?? {}).map(
+          (tileId) => [tileId, 0],
+        ),
+      );
       return {
         strainCascadeAnchorTileId: anchor.instanceId,
-        tileStrainDeltas: Object.fromEntries(
-          spreadTargets.map((tile) => [tile.instanceId, strainCascadeRule.spreadStrain])
-        )
+        tileStrainDeltas: {
+          ...clearedSuggestedStrain,
+          ...Object.fromEntries(
+            spreadTargets.map((tile) => [tile.instanceId, strainCascadeRule.spreadStrain])
+          ),
+        },
       };
     }
   }
@@ -1140,6 +1254,7 @@ function findPlacement(
   random: () => number,
   plan?: HumanSeasonPlan,
   expanded = false,
+  searchLimits: PlacementSearchLimits = {},
 ): { tileId: string; placement: string | TilePlacementDraft; score: number; reasonCode: string; reason: string } | null {
   const player = state.players.find((candidate) => candidate.id === playerId);
   if (!player) return null;
@@ -1245,8 +1360,8 @@ function findPlacement(
     }
     candidateCells = mapCells.filter((cell) => candidateIds.has(cell.id) && !occupied.has(cell.id));
   }
-  const cellLimit = expanded ? 24 : 12;
-  if (plan && candidateCells.length > cellLimit) {
+  const cellLimit = searchLimits.maxCells ?? (expanded ? 24 : 12);
+  if ((plan || searchLimits.maxCells !== undefined) && candidateCells.length > cellLimit) {
     candidateCells = candidateCells
       .map((cell) => ({
         cell,
@@ -1442,8 +1557,10 @@ function findPlacement(
     reasonCode: string;
     reason: string;
   }> = [];
-  const placementTileCandidates = plan ? scored.slice(0, expanded ? 12 : 6) : scored;
+  const tileLimit = searchLimits.maxTiles ?? (plan ? (expanded ? 12 : 6) : undefined);
+  const placementTileCandidates = tileLimit === undefined ? scored : scored.slice(0, tileLimit);
   for (const { tile, score: tileScore, reasonCode, reason } of placementTileCandidates) {
+    let legalPlacementsForTile = 0;
     for (const placement of placementOptions(tile.id, candidateCells)) {
       if (!canStartPlaceTile(state, playerId, tile.id, placement).ok) continue;
       const placementHexIds = getTilePlacementHexIds(tile.id, placement);
@@ -1523,15 +1640,20 @@ function findPlacement(
         reasonCode,
         reason,
       });
+      legalPlacementsForTile += 1;
+      if (
+        searchLimits.maxPlacementsPerTile !== undefined &&
+        legalPlacementsForTile >= searchLimits.maxPlacementsPerTile
+      ) break;
     }
   }
   legalPlacements.sort((a, b) => b.score - a.score);
   const best = legalPlacements[0];
   if (!best && plan && !expanded) {
-    return findPlacement(state, playerId, targets, random, plan, true);
+    return findPlacement(state, playerId, targets, random, plan, true, searchLimits);
   }
   if (!best && plan && expanded) {
-    return findPlacement(state, playerId, targets, random, undefined, true);
+    return findPlacement(state, playerId, targets, random, undefined, true, searchLimits);
   }
   return best ?? null;
 }
@@ -2002,7 +2124,14 @@ function recordTileActivation(
   }
 }
 
-function playLegacyTurn(initial: GameState, targets: string[], profile: Profile, random: () => number, stats: BotStats): GameState {
+function playLegacyTurn(
+  initial: GameState,
+  targets: string[],
+  profile: Profile,
+  random: () => number,
+  stats: BotStats,
+  searchLimits: PlacementSearchLimits = {},
+): GameState {
   let state = initial;
   const playerId = state.currentPlayerId;
   let boonUsed = false;
@@ -2092,7 +2221,15 @@ function playLegacyTurn(initial: GameState, targets: string[], profile: Profile,
       }
     }
 
-    const placement = findPlacement(state, playerId, targets, random);
+    const placement = findPlacement(
+      state,
+      playerId,
+      targets,
+      random,
+      undefined,
+      false,
+      searchLimits,
+    );
     const placementWorthwhile = placement;
     const shouldPlace = placementWorthwhile && (warehouseTotal(state) >= 8 || !state.map.placedTiles.some((tile) => tile.kind === "core" && coreTileById[tile.tileId].category === "resource"));
     if (placement && shouldPlace) {
@@ -2797,16 +2934,44 @@ function playTurn(
   stats: BotStats,
   plan?: HumanSeasonPlan,
   behavior: HumanBehaviorOptions = { choicePolicy: "best" },
+  searchLimits: PlacementSearchLimits = {},
 ): GameState {
   if (profile === "human_like" && plan) {
     return playHumanLikeTurn(initial, targets, random, stats, plan, behavior);
   }
-  return playLegacyTurn(initial, targets, profile, random, stats);
+  return playLegacyTurn(initial, targets, profile, random, stats, searchLimits);
 }
 
-function chooseSeed(state: GameState, playerId: string, profile: Profile, random: () => number) {
+function chooseSeed(
+  state: GameState,
+  playerId: string,
+  profile: Profile,
+  random: () => number,
+  seedingPolicy?: string,
+) {
   const hand = state.encounters.handsByPlayerId[playerId] ?? [];
-  const ordered = shuffled(random, hand).sort((a, b) => {
+  const randomised = shuffled(random, hand);
+  const policyTypes: Record<string, Array<"boon" | "burden" | "arrival">> = {
+    boon_top: ["boon", "burden", "arrival"],
+    burden_top: ["burden", "boon", "arrival"],
+    burden_bottom: ["boon", "arrival", "burden"],
+    arrival_top: ["arrival", "boon", "burden"],
+  };
+  const preferredTypes = policyTypes[seedingPolicy ?? ""];
+  if (preferredTypes) {
+    const used = new Set<string>();
+    const selected = preferredTypes.map((type) => {
+      const cardId = randomised.find(
+        (candidate) => !used.has(candidate) && encounterById[candidate]?.type === type,
+      ) ?? randomised.find((candidate) => !used.has(candidate));
+      if (cardId) used.add(cardId);
+      return cardId;
+    });
+    return { top: selected[0]!, middle: selected[1]!, bottom: selected[2]! };
+  }
+  const ordered = seedingPolicy === "random"
+    ? randomised
+    : randomised.sort((a, b) => {
     const typeScore = (id: string) => {
       const type = encounterById[id]?.type;
       if (profile === "achievement_chaser") return type === "arrival" ? 3 : type === "boon" ? 2 : 1;
@@ -3269,6 +3434,19 @@ export function simulateCurrentGame(input: any): any {
   const behavior: HumanBehaviorOptions = {
     choicePolicy: input.choicePolicy === "near_best" ? "near_best" : "best",
   };
+  const searchLimits: PlacementSearchLimits = {
+    maxCells: Number.isInteger(input.searchLimits?.maxCells) && input.searchLimits.maxCells > 0
+      ? input.searchLimits.maxCells
+      : undefined,
+    maxTiles: Number.isInteger(input.searchLimits?.maxTiles) && input.searchLimits.maxTiles > 0
+      ? input.searchLimits.maxTiles
+      : undefined,
+    maxPlacementsPerTile:
+      Number.isInteger(input.searchLimits?.maxPlacementsPerTile) &&
+      input.searchLimits.maxPlacementsPerTile > 0
+        ? input.searchLimits.maxPlacementsPerTile
+        : undefined,
+  };
   const stewardIds = input.stewardIds?.length
     ? input.stewardIds.slice(0, input.playerCount)
     : chooseStewardIds(input.playerCount, input.targets, input.campaignState, random);
@@ -3351,7 +3529,13 @@ export function simulateCurrentGame(input: any): any {
         humanPlanning.plansBySeason[state.season] = plan;
         stats.strategyPlans = [...stats.strategyPlans.filter((candidate) => candidate.season !== state.season), plan];
       } else {
-        const selection = chooseSeed(state, playerId, input.profile, random);
+        const selection = chooseSeed(
+          state,
+          playerId,
+          input.profile,
+          random,
+          input.seedingPolicy,
+        );
         state = commitSeasonSeeding(state, playerId, selection);
       }
       continue;
@@ -3377,7 +3561,16 @@ export function simulateCurrentGame(input: any): any {
           input.targets,
         )
         : undefined;
-      state = playTurn(state, input.targets, input.profile, random, stats, plan, behavior);
+      state = playTurn(
+        state,
+        input.targets,
+        input.profile,
+        random,
+        stats,
+        plan,
+        behavior,
+        searchLimits,
+      );
       updatePeak(state, stats);
       continue;
     }
@@ -3422,12 +3615,19 @@ export function simulateCurrentGame(input: any): any {
     (tile) => tile.kind === "core" && tile.side === "upgraded",
   ).length;
   const peak = Math.max(...Object.values(stats.warehousePeak));
-  const violations: string[] = [];
-  if (declaredVowId === "LE-026" && placedTravel > 0) violations.push("A Travel Tile was placed.");
-  if (declaredVowId === "LE-027" && placedFarmsteads > 0) violations.push("A Farmstead was placed.");
-  if (declaredVowId === "LE-028" && upgradedCore > 0) violations.push("A Core Tile was upgraded.");
-  if (declaredVowId === "LE-029" && stats.arrivalsExpired > 0) violations.push("An Arrival expired.");
-  if (declaredVowId === "LE-030" && peak > 8) violations.push("The Warehouse exceeded 8 of a resource.");
+  const violations: string[] = [...(state.ledgerRun?.violatedVowReasons ?? [])];
+  const addViolation = (reason: string) => {
+    if (!violations.includes(reason)) violations.push(reason);
+  };
+  if (declaredVowId === "LE-041" && placedTravel > 0) {
+    addViolation("A Travel Tile was placed.");
+  }
+  if (declaredVowId === "LE-042" && upgradedCore > 0) {
+    addViolation("A Core Tile was upgraded.");
+  }
+  if (declaredVowId === "LE-043" && peak > 8) {
+    addViolation("The Warehouse exceeded 8 of a resource.");
+  }
   const seasonOne = stats.seasonSnapshots.end_season_1;
   const seasonTwo = stats.seasonSnapshots.end_season_2;
   state = {
