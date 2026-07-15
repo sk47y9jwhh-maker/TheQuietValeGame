@@ -47,6 +47,44 @@ function areTilesAdjacent(a: PlacedTile, b: PlacedTile): boolean {
   );
 }
 
+function getAvailableGoldenGarden(
+  state: GameState,
+  target: PlacedTile,
+  preventionRound: number
+): PlacedTile | undefined {
+  return state.map.placedTiles.find(
+    (tile) =>
+      tile.tileId === "golden_tile_the_golden_garden" &&
+      tile.strain < 3 &&
+      areTilesAdjacent(tile, target) &&
+      state.tileActivationRecords[tile.instanceId]?.round !== preventionRound
+  );
+}
+
+export function getStrainPlacementCapacity(
+  state: GameState,
+  target: PlacedTile,
+  maxAmount = Number.MAX_SAFE_INTEGER,
+  preventionRound = state.round
+): number {
+  const supportedPrevention =
+    (target.support.passive || target.support.singleUse) &&
+    !target.support.preventedThisRound
+      ? 1
+      : 0;
+  const gardenPrevention = getAvailableGoldenGarden(
+    state,
+    target,
+    preventionRound
+  )
+    ? 1
+    : 0;
+  return Math.min(
+    maxAmount,
+    Math.max(0, 3 - target.strain) + supportedPrevention + gardenPrevention
+  );
+}
+
 export function applyStrainToState(
   state: GameState,
   targetTileId: string,
@@ -55,13 +93,7 @@ export function applyStrainToState(
 ): GameState {
   const target = state.map.placedTiles.find((tile) => tile.instanceId === targetTileId);
   if (!target || amount <= 0) return state;
-  const garden = state.map.placedTiles.find(
-    (tile) =>
-      tile.tileId === "golden_tile_the_golden_garden" &&
-      tile.strain < 3 &&
-      areTilesAdjacent(tile, target) &&
-      state.tileActivationRecords[tile.instanceId]?.round !== preventionRound
-  );
+  const garden = getAvailableGoldenGarden(state, target, preventionRound);
   const nextTarget = applyStrainToTile(target, Math.max(0, amount - (garden ? 1 : 0)));
 
   return {

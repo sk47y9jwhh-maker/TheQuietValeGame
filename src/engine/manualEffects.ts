@@ -18,7 +18,11 @@ import {
   getPlacedTileRenown,
   isPlacedTileAdjacentToCategory
 } from "./placedTiles";
-import { applyStrainToState, removeStrainFromTile } from "./strainRules";
+import {
+  applyStrainToState,
+  getStrainPlacementCapacity,
+  removeStrainFromTile
+} from "./strainRules";
 import { recalculatePassiveSupported } from "./supportRules";
 import type {
   AlternativeEffectDefinition,
@@ -614,13 +618,18 @@ export function isTileAdjustmentValid(
       const tile = state.map.placedTiles.find((candidate) => candidate.instanceId === tileId);
       if (!tile) return false;
       if (strainRule.direction === "remove" && Math.abs(delta) > tile.strain) return false;
-      if (strainRule.direction === "place" && delta > 3 - tile.strain) return false;
+      if (
+        strainRule.direction === "place" &&
+        delta > getStrainPlacementCapacity(state, tile, strainRule.maxPerTile)
+      ) return false;
     }
 
     const achievableCapacities = legalTargets
       .map((tile) => Math.min(
         strainRule.maxPerTile,
-        strainRule.direction === "remove" ? tile.strain : 3 - tile.strain
+        strainRule.direction === "remove"
+          ? tile.strain
+          : getStrainPlacementCapacity(state, tile, strainRule.maxPerTile)
       ))
       .sort((a, b) => b - a)
       .slice(0, strainRule.maxTargets);
@@ -878,9 +887,11 @@ export function getAlternativeEffectRule(
   const tileRule = rule.tileAdjustment?.strain;
   const legalTargets = getValidEffectStrainTargets(state, ruleId, sourceTile);
   const requiredStrainTotal = tileRule
-    ? legalTargets.slice(0, tileRule.maxTargets).reduce(
-        (total, tile) => total + Math.min(tileRule.maxPerTile, Math.max(0, 3 - tile.strain)), 0
-      )
+    ? legalTargets
+        .map((tile) => getStrainPlacementCapacity(state, tile, tileRule.maxPerTile))
+        .sort((a, b) => b - a)
+        .slice(0, tileRule.maxTargets)
+        .reduce((total, capacity) => total + capacity, 0)
     : alternative.requiredStrainTotal;
   return { ...alternative, requiredStrainTotal };
 }
@@ -1022,7 +1033,9 @@ function strainSuggestion(state: GameState, ruleId: string | undefined, sourceTi
   const targets = getValidEffectStrainTargets(state, ruleId, sourceTile);
   if (!rule || targets.length !== 1) return {};
   const tile = targets[0];
-  const capacity = rule.direction === "remove" ? tile.strain : 3 - tile.strain;
+  const capacity = rule.direction === "remove"
+    ? tile.strain
+    : getStrainPlacementCapacity(state, tile, rule.maxPerTile);
   const amount = Math.min(rule.maxTotal, rule.maxPerTile, capacity);
   return amount > 0 ? { tileStrainDeltas: { [tile.instanceId]: rule.direction === "remove" ? -amount : amount } } : {};
 }

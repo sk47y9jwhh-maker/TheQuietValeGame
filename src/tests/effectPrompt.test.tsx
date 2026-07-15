@@ -333,6 +333,51 @@ describe("effect prompt controls", () => {
     expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
   });
 
+  it("allows the full direct Burden amount before Supported prevention", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const supported = coreTile("c01_lumber_yard", "supported_lumber", "G1", 2);
+    supported.support.singleUse = true;
+    state.map.placedTiles = [
+      supported,
+      coreTile("c01_lumber_yard", "other_lumber", "J1")
+    ];
+    const applied: unknown[] = [];
+    const effect: PendingEffectState = {
+      id: "effect_supported_direct_controls",
+      sourceType: "card",
+      sourceId: "burden_forest_s_grudge",
+      ruleId: cardEffectRuleId("burden_forest_s_grudge", 2),
+      sourceName: "Forest's Grudge",
+      title: "Revealed Forest's Grudge",
+      effectText:
+        "Choose 1 Lumber Yard / Sustainable Lumber Yard with fewer than 3 Strain and place 2 Strain on it.",
+      requiresManualChoice: true
+    };
+
+    render(
+      <EffectPrompt
+        state={state}
+        effect={effect}
+        onApply={(adjustment) => applied.push(adjustment)}
+      />
+    );
+
+    const apply = screen.getByRole("button", { name: /apply effect/i });
+    const addSupported = screen.getAllByRole("button", {
+      name: "Increase Strain adjustment for Lumber Yard"
+    })[0];
+    fireEvent.click(addSupported);
+    expect(apply).toBeDisabled();
+    fireEvent.click(addSupported);
+    expect(screen.getByText("Place 2 Strain where possible: 2 selected"))
+      .toBeInTheDocument();
+    expect(apply).toBeEnabled();
+    fireEvent.click(apply);
+    expect(applied).toMatchObject([{
+      tileStrainDeltas: { supported_lumber: 2 }
+    }]);
+  });
+
   it("lets an Overstrained Quiet Fractures anchor select only adjacent zero-Strain tiles", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.map.placedTiles = [
