@@ -156,6 +156,7 @@ function summarize(games: any[]) {
           (game) =>
             game.score.burdenPenalty +
             game.score.failedArrivalPenalty +
+            (game.score.unfulfilledPromisePenalty ?? 0) +
             game.score.strainPenalty,
         ),
       ),
@@ -180,6 +181,23 @@ function summarize(games: any[]) {
         ),
       ),
       2,
+    ),
+    meanUnfulfilledPromises: round(
+      mean(
+        games.map(
+          (game) =>
+            game.score.unfulfilledPromises ?? game.activeArrivals ?? 0,
+        ),
+      ),
+      2,
+    ),
+    meanUnfulfilledPromisePenalty: round(
+      mean(
+        games.map(
+          (game) => game.score.unfulfilledPromisePenalty ?? 0,
+        ),
+      ),
+      1,
     ),
     meanSpentActions: round(mean(games.map(spentActions)), 1),
     meanActivateActions: round(

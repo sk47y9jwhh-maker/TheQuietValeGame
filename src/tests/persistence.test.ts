@@ -13,6 +13,7 @@ describe("browser persistence", () => {
 
   it("restores a well-formed active game save", () => {
     const state = createNewGame(1, ["vanguard"]);
+    state.tileActivationRecords.farm_1 = { linkedProductionRound: 4 };
     writeSavedGame({
       playerCount: 1,
       stewardIds: ["vanguard"],
@@ -21,6 +22,29 @@ describe("browser persistence", () => {
     });
 
     expect(readSavedGame()?.state.currentPlayerId).toBe("player_1");
+    expect(
+      readSavedGame()?.state.tileActivationRecords.farm_1.linkedProductionRound
+    ).toBe(4);
+  });
+
+  it("defaults missing activation records when restoring a legacy save", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const legacyState = { ...state } as Partial<typeof state>;
+    delete legacyState.tileActivationRecords;
+
+    window.localStorage.setItem(
+      "quietVale.activeGame.v1",
+      JSON.stringify({
+        version: 2,
+        savedAt: new Date().toISOString(),
+        playerCount: 1,
+        stewardIds: ["vanguard"],
+        encounterSeed: "QV-LEGACY-ACTIVATIONS",
+        state: legacyState
+      })
+    );
+
+    expect(readSavedGame()?.state.tileActivationRecords).toEqual({});
   });
 
   it("adds the third Resource Tile copy when restoring an older active game", () => {

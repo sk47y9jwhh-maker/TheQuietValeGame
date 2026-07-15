@@ -1,6 +1,9 @@
 import { Check, X } from "lucide-react";
 import { resourceLabels, resources } from "../../data/resources";
-import { applyCostChoice } from "../../engine/passiveCosts";
+import {
+  applyCostChoice,
+  validateCostChoiceSelection
+} from "../../engine/passiveCosts";
 import { canAfford } from "../../engine/resources";
 import type {
   CostChoiceSelection,
@@ -80,14 +83,36 @@ export function CostChoicePanel({
     pending.options,
     selection
   );
-  const canConfirm = canAfford(state.warehouse, adjustedCost);
+  const canConfirm =
+    validateCostChoiceSelection(pending.options, selection) &&
+    canAfford(state.warehouse, adjustedCost);
+
+  function selectExclusiveRefresh(
+    current: string[],
+    optionId: string
+  ): string[] {
+    const option = pending.options.find((candidate) => candidate.id === optionId);
+    if (!option?.boonModifierId) {
+      return current.includes(optionId) ? current : [...current, optionId];
+    }
+
+    return [
+      ...current.filter((candidateId) => {
+        const candidate = pending.options.find(
+          (pendingOption) => pendingOption.id === candidateId
+        );
+        return candidate?.boonModifierId !== option.boonModifierId;
+      }),
+      optionId
+    ];
+  }
 
   function toggleOption(optionId: string) {
     if (pending.options.find((option) => option.id === optionId)?.required) return;
     setSelectedOptionIds((current) =>
       current.includes(optionId)
         ? current.filter((candidate) => candidate !== optionId)
-        : [...current, optionId]
+        : selectExclusiveRefresh(current, optionId)
     );
   }
 
@@ -101,7 +126,7 @@ export function CostChoicePanel({
 
     setSelectedOptionIds((current) => {
       if (resource) {
-        return current.includes(optionId) ? current : [...current, optionId];
+        return selectExclusiveRefresh(current, optionId);
       }
       if (pending.options.find((option) => option.id === optionId)?.required) {
         return current;
@@ -159,6 +184,9 @@ export function CostChoicePanel({
               )}
               <p>{option.effectText}</p>
               {option.required && <small>Required prepared effect.</small>}
+              {option.boonModifierId && (
+                <small>Carts refresh — choose at most one eligible passive.</small>
+              )}
               {option.kind === "discount" &&
                 option.resourceChoices?.length &&
                 selected && (

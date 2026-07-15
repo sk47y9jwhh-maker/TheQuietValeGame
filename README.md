@@ -14,6 +14,7 @@ Implemented playable loop:
 - Encounter reveal into active Arrivals, active Burdens, face-up Boons, and discard.
 - Face-up Boons with visible remaining-use tracking and Use buttons.
 - Prepared Boon effects for reduced costs and 0 Action placement/upgrade benefits.
+- Carts Before Sunrise refreshes at most one chosen used Crafting/Merchant passive per prepared modifier; declining every eligible passive preserves that modifier.
 - Automatic mandatory cost passives for Brewery of Legends, Labourers' Yard, and Workshops/Makers Conclave, with an optional payment choice for Market Stalls/The Seldes.
 - Deck-peek effects with a seeding-style reorder panel and arrow movement controls.
 - Steward Power flow with seasonal use tracking, shared effect prompts, prepared placement/upgrade benefits, Ranger movement, Warden Burden reveal cancellation/round-ignore markers, and Quartermaster resource exchange.
@@ -26,7 +27,7 @@ Implemented playable loop:
 - Free Stables movement between placed Stables and adjacent non-Overstrained destinations.
 - Core and unlocked Special Tile placement.
 - Upgrade and Activate flows for reachable eligible tiles.
-- Three-copy supply for every Core Resource Tile, with Linked Production activating all immediately adjacent, non-Overstrained matching producers for one action.
+- Three-copy supply for every Core Resource Tile, with the first Linked Production in each adjacent group each round activating all non-Overstrained matching producers; repeats produce only from the chosen tile.
 - Activated Special Tile effects that resolve an active Burden with a player choice prompt.
 - Docks passive reachability connecting active settlement networks to water-adjacent tiles.
 - Once-per-season/round activation limits for tile effects that declare them.
@@ -63,7 +64,7 @@ Locked decisions for this build:
 - All selected standard Encounter Cards are used: `9` hidden cards per player plus `3` standard Encounter Deck cards per player. Hands are intentionally not required to be `3/3/3` by type.
 - Steward objectives are worth `+15 Renown`.
 - Warden scores if active Burdens are fewer than player count.
-- Final penalties are `-5 Renown` per failed Arrival, active Burden, and Strain token.
+- Final penalties are `-5 Renown` per failed Arrival, Unfulfilled Promise (an Arrival still active at game end), active Burden, and Strain token. Unfulfilled Promises do not add Strain.
 - Final scoring shows raw final score only, with no success bands/ratings for now.
 - Steward’s Ledger milestones unlock five Golden Tiles and five Golden Boons for optional online setup.
 - Council Variant is not supported in the online prototype.

@@ -83,4 +83,81 @@ describe("cost choice panel", () => {
       discountResourceByOptionId: {}
     });
   });
+
+  it("switches a shared Carts refresh instead of selecting two passives", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.warehouse = { ...state.warehouse, stone: 4 };
+    const pending: PendingCostChoiceState = {
+      id: "cost_carts_refresh",
+      title: "Upgrade Cabin",
+      action: {
+        type: "upgrade",
+        playerId: state.currentPlayerId,
+        placedTileId: "tile_cabin"
+      },
+      baseCost: {
+        wood: 0,
+        stone: 4,
+        metal: 0,
+        food: 0,
+        herbs: 0,
+        goods: 0
+      },
+      actionCost: 1,
+      boonModifierIds: [],
+      options: [
+        {
+          id: "workshop_a:discount",
+          sourceTileId: "workshop_a",
+          sourceName: "Workshop A",
+          effectText: "Reduce an upgrade cost by 1 resource.",
+          kind: "discount",
+          cadence: "round",
+          amount: 1,
+          boonModifierId: "carts_1"
+        },
+        {
+          id: "workshop_b:discount",
+          sourceTileId: "workshop_b",
+          sourceName: "Workshop B",
+          effectText: "Reduce an upgrade cost by 2 resources.",
+          kind: "discount",
+          cadence: "round",
+          amount: 2,
+          boonModifierId: "carts_1"
+        }
+      ]
+    };
+    const onConfirm = vi.fn();
+
+    render(
+      <CostChoicePanel
+        state={state}
+        pending={pending}
+        onConfirm={onConfirm}
+        onCancel={() => {}}
+      />
+    );
+
+    const workshopA = screen.getByRole("button", { name: /Workshop A/ });
+    const workshopB = screen.getByRole("button", { name: /Workshop B/ });
+    fireEvent.click(workshopA);
+    expect(workshopA).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("Adjusted Cost").closest(".cost-line"))
+      .toHaveTextContent("3 Stone");
+
+    fireEvent.click(workshopB);
+    expect(workshopA).toHaveAttribute("aria-pressed", "false");
+    expect(workshopB).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("Adjusted Cost").closest(".cost-line"))
+      .toHaveTextContent("2 Stone");
+    expect(screen.getAllByText(/choose at most one eligible passive/i)).toHaveLength(2);
+
+    fireEvent.click(screen.getByRole("button", { name: "Confirm Payment" }));
+    expect(onConfirm).toHaveBeenCalledWith({
+      selectedOptionIds: ["workshop_b:discount"],
+      marketResourceByOptionId: {},
+      discountResourceByOptionId: {}
+    });
+  });
 });

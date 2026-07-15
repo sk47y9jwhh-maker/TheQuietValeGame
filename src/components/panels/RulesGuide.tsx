@@ -65,7 +65,7 @@ const rules: RuleReferenceCard[] = [
       "Upgrade — Spend 1 action and pay the upgraded cost of a reachable basic Core Tile.",
       "Activate — Spend 1 action to use an eligible, reachable tile’s production or activated effect.",
       "Interact — Spend 1 action and pay the shown cost to complete an Arrival or resolve a Burden.",
-      "Linked Production — When you activate a Resource Tile, immediately adjacent, non-Overstrained copies of that same Resource Tile also produce for no extra action, up to all three copies.",
+      "Linked Production — The first time a linked Resource group is activated each round, the chosen tile and every immediately adjacent, non-Overstrained copy from the same tile stack produce for no extra action. Later activations in that group produce only from the chosen tile.",
       "Face-up Boons, movement through Stables, and Steward Powers cost no actions unless their text says otherwise."
     ],
     note:
@@ -104,10 +104,11 @@ const rules: RuleReferenceCard[] = [
     title: "Boons, Arrivals, and Burdens",
     bullets: [
       "Boons help the settlement. Some resolve at once; others stay face-up and show their remaining uses on the Stewards Board.",
+      "A Carts Before Sunrise passive refresh applies to at most one chosen eligible Crafting or Merchant passive. If you decline every refreshed passive, the prepared Carts use remains available.",
       "An Arrival enters with 3 timers. Spend 1 action and pay its requirement to complete it and unlock the named Special Tile.",
       "At the end of each round, every active Arrival loses 1 timer.",
       "An Arrival that reaches 0 is discarded, places 1 Strain on an eligible tile, and counts as failed.",
-      "An Arrival with at least 1 timer left when the game ends does not count as failed.",
+      "An Arrival with at least 1 timer left when the game ends is an Unfulfilled Promise: lose 5 Renown, but place no Strain for it.",
       "A Burden applies its reveal effect, stays active, and applies its Season effect again at the start of each later Season.",
       "Spend 1 action and pay the current Season’s cost to resolve and discard an active Burden."
     ]
@@ -318,7 +319,7 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
                 <strong>Score after round 12</strong>
                 <p>
                   Add Population and Renown, including Steward objective and Golden Tile bonuses.
-                  Failed Arrivals, active Burdens, and every Strain token reduce the shared score.
+                  Failed Arrivals, Unfulfilled Promises, active Burdens, and every Strain token reduce the shared score.
                 </p>
               </div>
             </article>

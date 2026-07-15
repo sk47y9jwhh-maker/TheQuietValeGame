@@ -21,6 +21,7 @@ import {
   costTotal,
   getPassiveCostOptions,
   recordPassiveCostChoices,
+  validateCostChoiceSelection,
 } from "../../src/engine/passiveCosts";
 import {
   calculateFinalScore,
@@ -112,7 +113,7 @@ function cartsRefreshFanOutProbe() {
     cost: baseCost,
   });
   const refreshed = options.filter((option) => option.boonModifierId === modifier?.id);
-  const selection: CostChoiceSelection = {
+  const fanOutSelection: CostChoiceSelection = {
     selectedOptionIds: refreshed.map((option) => option.id),
     marketResourceByOptionId: Object.fromEntries(
       refreshed
@@ -120,13 +121,27 @@ function cartsRefreshFanOutProbe() {
         .map((option) => [option.id, "stone"]),
     ),
   };
+  const chosen = refreshed.find((option) => option.kind === "discount") ?? refreshed[0];
+  const selection: CostChoiceSelection = {
+    selectedOptionIds: chosen ? [chosen.id] : [],
+    ...(chosen?.kind === "market"
+      ? { marketResourceByOptionId: { [chosen.id]: "stone" } }
+      : {}),
+  };
   const finalCost = applyCostChoice(state, baseCost, options, selection);
+  const defensivelyBoundedFanOutCost = applyCostChoice(
+    state,
+    baseCost,
+    options,
+    fanOutSelection,
+  );
   const recorded = recordPassiveCostChoices(state, options, selection);
 
   return {
     modifierId: modifier?.id,
     modifierRemainingUsesBefore: modifier?.remainingUses,
-    refreshedPassiveCount: refreshed.length,
+    eligibleRefreshedPassiveCount: refreshed.length,
+    requiredRefreshedPassiveCount: refreshed.filter((option) => option.required).length,
     refreshedSources: refreshed.map((option) => ({
       sourceTileId: option.sourceTileId,
       kind: option.kind,
@@ -134,12 +149,16 @@ function cartsRefreshFanOutProbe() {
       boonModifierId: option.boonModifierId,
     })),
     uniqueRefreshModifierIds: [...new Set(refreshed.map((option) => option.boonModifierId))],
+    fanOutSelectionValid: validateCostChoiceSelection(options, fanOutSelection),
+    selectedRefreshCount: selection.selectedOptionIds.length,
+    selectedRefreshSource: chosen?.sourceTileId,
     baseCost,
     finalCost,
+    defensivelyBoundedFanOutCost,
     baseCostTotal: costTotal(baseCost),
     finalCostTotal: costTotal(finalCost),
     netResourceSaving: costTotal(baseCost) - costTotal(finalCost),
-    modifierCountAfterRecordingAllFour: recorded.boonModifiers.length,
+    modifierCountAfterRecordingOne: recorded.boonModifiers.length,
   };
 }
 
@@ -171,6 +190,8 @@ function arrivalEndgameShieldProbe() {
       ),
       failedArrivals: shieldedScore.failedArrivals,
       failedArrivalPenalty: shieldedScore.failedArrivalPenalty,
+      unfulfilledPromises: shieldedScore.unfulfilledPromises,
+      unfulfilledPromisePenalty: shieldedScore.unfulfilledPromisePenalty,
       strainPenalty: shieldedScore.strainPenalty,
       finalScore: shieldedScore.finalScore,
     },
@@ -180,6 +201,8 @@ function arrivalEndgameShieldProbe() {
       ),
       failedArrivals: expiredScore.failedArrivals,
       failedArrivalPenalty: expiredScore.failedArrivalPenalty,
+      unfulfilledPromises: expiredScore.unfulfilledPromises,
+      unfulfilledPromisePenalty: expiredScore.unfulfilledPromisePenalty,
       strainPenalty: expiredScore.strainPenalty,
       finalScore: expiredScore.finalScore,
     },
@@ -208,20 +231,30 @@ function zeroActionLinkedProductionProbe() {
   );
   state.boonModifiers = modifier ? [modifier] : [];
   const activated = activateTile(state, "player_1", "producer_1");
+  const repeated = activateTile(activated, "player_1", "producer_2");
 
   return {
     actionsBefore: state.actionsRemaining,
     actionsAfter: activated.actionsRemaining,
+    actionsAfterRepeat: repeated.actionsRemaining,
     warehouseBefore: state.warehouse,
     warehouseAfter: activated.warehouse,
+    warehouseAfterRepeat: repeated.warehouse,
     resourcesProduced: Object.values(activated.warehouse).reduce(
+      (total, amount) => total + amount,
+      0,
+    ),
+    resourcesProducedByRepeat: Object.values(repeated.warehouse).reduce(
+      (total, amount) => total + amount,
+      0,
+    ) - Object.values(activated.warehouse).reduce(
       (total, amount) => total + amount,
       0,
     ),
     modifierRemainingAfter: activated.boonModifiers.find(
       (candidate) => candidate.id === modifier?.id,
     )?.remainingUses ?? 0,
-    activationRecords: activated.tileActivationRecords,
+    activationRecords: repeated.tileActivationRecords,
   };
 }
 

@@ -27,6 +27,7 @@ const sampleStandardDeviation = (values: number[]) => {
 const totalPenalty = (game: any) =>
   game.score.burdenPenalty +
   game.score.failedArrivalPenalty +
+  (game.score.unfulfilledPromisePenalty ?? 0) +
   game.score.strainPenalty;
 
 function summarize(games: any[]) {

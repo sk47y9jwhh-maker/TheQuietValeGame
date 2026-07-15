@@ -21,10 +21,12 @@ import {
 import {
   applyCostChoice,
   getPassiveCostOptions,
-  recordPassiveCostChoices
+  recordPassiveCostChoices,
+  validateCostChoiceSelection
 } from "../engine/passiveCosts";
 import { createNewGame } from "../engine/setup";
 import type {
+  CostChoiceSelection,
   GameState,
   PlacedTile,
   ResourceType,
@@ -193,6 +195,108 @@ describe("formerly physical-only Encounter Cards", () => {
       selectedOptionIds: [refreshed?.id ?? ""]
     });
     expect(next.boonModifiers).toHaveLength(0);
+  });
+
+  it("limits one Carts modifier to one chosen passive even when four are eligible", () => {
+    const state = stateWith([
+      tile("road_1", "c15_path", "G1"),
+      tile("workshop_1", "c13_workshops", "H1", 0, "upgraded"),
+      tile("road_2", "c15_path", "G2"),
+      tile("workshop_2", "c13_workshops", "H2", 0, "upgraded"),
+      tile("target", "c05_cabin", "I1"),
+      tile("market_1", "c14_market_stalls", "J1", 0, "upgraded"),
+      tile("road_3", "c15_path", "K1"),
+      tile("market_2", "c14_market_stalls", "J2", 0, "upgraded"),
+      tile("road_4", "c15_path", "K2")
+    ]);
+    state.season = 2;
+    state.warehouse = {
+      wood: 20,
+      stone: 20,
+      metal: 20,
+      food: 20,
+      herbs: 20,
+      goods: 20
+    };
+    for (const id of ["workshop_1", "workshop_2", "market_1", "market_2"]) {
+      state.tileActivationRecords[id] = { round: state.round };
+    }
+    const modifier = createBoonModifierFromCard(
+      state,
+      "boon_carts_before_sunrise"
+    );
+    state.boonModifiers = modifier ? [modifier] : [];
+    const baseCost = { ...emptyWarehouse(), stone: 8, metal: 8 };
+    const options = getPassiveCostOptions(state, {
+      action: "upgrade",
+      playerId: "player_1",
+      category: "housing",
+      kind: "core",
+      targetTile: state.map.placedTiles.find(
+        (candidate) => candidate.instanceId === "target"
+      ),
+      cost: baseCost
+    });
+    const refreshed = options.filter(
+      (option) => option.boonModifierId === modifier?.id
+    );
+    expect(refreshed).toHaveLength(4);
+    expect(refreshed.every((option) => !option.required)).toBe(true);
+
+    const fanOutSelection: CostChoiceSelection = {
+      selectedOptionIds: refreshed.map((option) => option.id),
+      marketResourceByOptionId: Object.fromEntries(
+        refreshed
+          .filter((option) => option.kind === "market")
+          .map((option) => [option.id, "stone"])
+      )
+    };
+    expect(validateCostChoiceSelection(options, fanOutSelection)).toBe(false);
+    expect(applyCostChoice(state, baseCost, options, fanOutSelection)).toEqual({
+      ...baseCost,
+      stone: 6
+    });
+
+    const chosen = refreshed.find((option) => option.sourceTileId === "workshop_2");
+    const validSelection = { selectedOptionIds: [chosen?.id ?? ""] };
+    expect(validateCostChoiceSelection(options, validSelection)).toBe(true);
+    expect(applyCostChoice(state, baseCost, options, validSelection)).toEqual({
+      ...baseCost,
+      stone: 6
+    });
+
+    const recorded = recordPassiveCostChoices(state, options, validSelection);
+    expect(recorded.boonModifiers).toHaveLength(0);
+    expect(recorded.tileActivationRecords.workshop_2?.round).toBe(state.round);
+  });
+
+  it("does not spend Carts when every refreshed passive is declined", () => {
+    const state = stateWith([
+      tile("road", "c15_path", "G1"),
+      tile("workshop", "c13_workshops", "H1"),
+      tile("target", "c05_cabin", "I1")
+    ]);
+    state.season = 2;
+    state.tileActivationRecords.workshop = { round: state.round };
+    const modifier = createBoonModifierFromCard(
+      state,
+      "boon_carts_before_sunrise"
+    );
+    state.boonModifiers = modifier ? [modifier] : [];
+    const options = getPassiveCostOptions(state, {
+      action: "upgrade",
+      playerId: "player_1",
+      category: "housing",
+      kind: "core",
+      targetTile: state.map.placedTiles[2],
+      cost: { ...emptyWarehouse(), stone: 2 }
+    });
+
+    expect(options.find((option) => option.sourceTileId === "workshop")?.required)
+      .toBe(false);
+    expect(validateCostChoiceSelection(options, { selectedOptionIds: [] })).toBe(true);
+    expect(recordPassiveCostChoices(state, options, { selectedOptionIds: [] }))
+      .toBe(state);
   });
 
   it("applies Crafting Fair's zero cost and post-placement support", () => {

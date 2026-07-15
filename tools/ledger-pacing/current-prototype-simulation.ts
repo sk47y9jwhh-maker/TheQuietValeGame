@@ -732,9 +732,16 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
 function chooseCostSelection(state: GameState): CostChoiceSelection {
   const pending = state.pendingCostChoice;
   if (!pending) return emptySelection;
-  const selectedOptions = pending.options.filter(
-    (option) => option.required || option.kind === "zero" || option.kind === "discount",
-  );
+  const selectedRefreshModifierIds = new Set<string>();
+  const selectedOptions = pending.options.filter((option) => {
+    if (!(option.required || option.kind === "zero" || option.kind === "discount")) {
+      return false;
+    }
+    if (!option.boonModifierId) return true;
+    if (selectedRefreshModifierIds.has(option.boonModifierId)) return false;
+    selectedRefreshModifierIds.add(option.boonModifierId);
+    return true;
+  });
   const discountResourceByOptionId: Record<string, ResourceType> = {};
   const marketResourceByOptionId: Record<string, ResourceType> = {};
   for (const option of selectedOptions) {
@@ -764,6 +771,10 @@ function chooseCostSelection(state: GameState): CostChoiceSelection {
     provisionalSelection,
   );
   for (const option of pending.options.filter((candidate) => candidate.kind === "market")) {
+    if (
+      option.boonModifierId &&
+      selectedRefreshModifierIds.has(option.boonModifierId)
+    ) continue;
     const resource = option.resourceChoices
       ?.filter((candidate) => candidate !== "goods")
       .sort(
@@ -775,6 +786,9 @@ function chooseCostSelection(state: GameState): CostChoiceSelection {
     const goodsAfter = provisionalCost.goods + 1;
     if (goodsAfter > state.warehouse.goods) continue;
     selectedOptions.push(option);
+    if (option.boonModifierId) {
+      selectedRefreshModifierIds.add(option.boonModifierId);
+    }
     marketResourceByOptionId[option.id] = resource;
     provisionalSelection = {
       selectedOptionIds: selectedOptions.map((candidate) => candidate.id),

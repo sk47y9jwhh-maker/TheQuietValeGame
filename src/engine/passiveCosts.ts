@@ -213,13 +213,19 @@ export function getPassiveCostOptions(
       );
     }
 
+    const workshopPassiveUsed =
+      tile.kind === "core" &&
+      tile.tileId === "c13_workshops" &&
+      isPassiveUsed(state, tile, "round");
+    const workshopRefreshModifier = workshopPassiveUsed
+      ? getPassiveRefreshModifier(state, tile)
+      : undefined;
     if (
       context.action === "upgrade" &&
       context.targetTile?.kind === "core" &&
       tile.kind === "core" &&
       tile.tileId === "c13_workshops" &&
-      (!isPassiveUsed(state, tile, "round") ||
-        Boolean(getPassiveRefreshModifier(state, tile)))
+      (!workshopPassiveUsed || Boolean(workshopRefreshModifier))
     ) {
       const isBasicWorkshop = tile.side === "basic";
       const applies = isBasicWorkshop
@@ -231,20 +237,24 @@ export function getPassiveCostOptions(
             kind: "discount",
             cadence: "round",
             amount: isBasicWorkshop ? 1 : 2,
-            boonModifierId: isPassiveUsed(state, tile, "round")
-              ? getPassiveRefreshModifier(state, tile)?.id
-              : undefined,
-            required: true
+            boonModifierId: workshopRefreshModifier?.id,
+            required: !workshopPassiveUsed
           })
         );
       }
     }
 
+    const marketPassiveUsed =
+      tile.kind === "core" &&
+      tile.tileId === "c14_market_stalls" &&
+      isPassiveUsed(state, tile, "round");
+    const marketRefreshModifier = marketPassiveUsed
+      ? getPassiveRefreshModifier(state, tile)
+      : undefined;
     if (
       tile.kind === "core" &&
       tile.tileId === "c14_market_stalls" &&
-      (!isPassiveUsed(state, tile, "round") ||
-        Boolean(getPassiveRefreshModifier(state, tile))) &&
+      (!marketPassiveUsed || Boolean(marketRefreshModifier)) &&
       state.warehouse.goods > 0
     ) {
       const resourceChoices = getMarketResourceChoices(context.cost);
@@ -254,9 +264,7 @@ export function getPassiveCostOptions(
             kind: "market",
             cadence: "round",
             marketRate: tile.side === "upgraded" ? 2 : 1,
-            boonModifierId: isPassiveUsed(state, tile, "round")
-              ? getPassiveRefreshModifier(state, tile)?.id
-              : undefined,
+            boonModifierId: marketRefreshModifier?.id,
             resourceChoices
           })
         );
@@ -267,6 +275,22 @@ export function getPassiveCostOptions(
   return options;
 }
 
+function getEffectiveSelectedOptions(
+  options: PassiveCostOption[],
+  selection: CostChoiceSelection
+): PassiveCostOption[] {
+  const selectedIds = new Set(selection.selectedOptionIds);
+  const spentRefreshModifierIds = new Set<string>();
+
+  return options.filter((option) => {
+    if (!selectedIds.has(option.id)) return false;
+    if (!option.boonModifierId) return true;
+    if (spentRefreshModifierIds.has(option.boonModifierId)) return false;
+    spentRefreshModifierIds.add(option.boonModifierId);
+    return true;
+  });
+}
+
 export function applyCostChoice(
   state: GameState,
   baseCost: ResourceCost,
@@ -274,10 +298,8 @@ export function applyCostChoice(
   selection: CostChoiceSelection = { selectedOptionIds: [] }
 ): ResourceCost {
   let next = { ...baseCost };
-  const selectedIds = new Set(selection.selectedOptionIds);
 
-  for (const option of options) {
-    if (!selectedIds.has(option.id)) continue;
+  for (const option of getEffectiveSelectedOptions(options, selection)) {
 
     if (option.kind === "zero") {
       next = emptyCost();
@@ -390,6 +412,9 @@ export function validateCostChoiceSelection(
 ): boolean {
   const optionsById = new Map(options.map((option) => [option.id, option]));
   const selectedIds = new Set(selection.selectedOptionIds);
+  const spentRefreshModifierIds = new Set<string>();
+
+  if (selectedIds.size !== selection.selectedOptionIds.length) return false;
 
   if (options.some((option) => option.required && !selectedIds.has(option.id))) {
     return false;
@@ -398,6 +423,11 @@ export function validateCostChoiceSelection(
   for (const optionId of selection.selectedOptionIds) {
     const option = optionsById.get(optionId);
     if (!option) return false;
+
+    if (option.boonModifierId) {
+      if (spentRefreshModifierIds.has(option.boonModifierId)) return false;
+      spentRefreshModifierIds.add(option.boonModifierId);
+    }
 
     if (option.kind === "market") {
       const resource = selection.marketResourceByOptionId?.[option.id];
@@ -419,9 +449,8 @@ export function recordPassiveCostChoices(
   selection: CostChoiceSelection = { selectedOptionIds: [] }
 ): GameState {
   if (selection.selectedOptionIds.length === 0) return state;
-  const selectedIds = new Set(selection.selectedOptionIds);
-  const selectedOptions = options.filter(
-    (option) => selectedIds.has(option.id) && (option.sourceKind ?? "tile") === "tile"
+  const selectedOptions = getEffectiveSelectedOptions(options, selection).filter(
+    (option) => (option.sourceKind ?? "tile") === "tile"
   );
   if (selectedOptions.length === 0) return state;
 
@@ -433,9 +462,11 @@ export function recordPassiveCostChoices(
 
   return {
     ...state,
-    boonModifiers: state.boonModifiers.filter(
-      (modifier) => !consumedBoonModifierIds.has(modifier.id)
-    ),
+    boonModifiers: state.boonModifiers.flatMap((modifier) => {
+      if (!consumedBoonModifierIds.has(modifier.id)) return [modifier];
+      const remainingUses = modifier.remainingUses - 1;
+      return remainingUses > 0 ? [{ ...modifier, remainingUses }] : [];
+    }),
     tileActivationRecords: {
       ...state.tileActivationRecords,
       ...Object.fromEntries(

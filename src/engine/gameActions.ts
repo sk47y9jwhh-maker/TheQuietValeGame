@@ -284,7 +284,7 @@ function getTileProduction(tile: PlacedTile): ResourceCost | undefined {
   return side.production;
 }
 
-export function getLinkedProductionTileIds(
+function getAdjacentLinkedProductionTileIds(
   state: GameState,
   placedTileId: string
 ): string[] {
@@ -302,6 +302,27 @@ export function getLinkedProductionTileIds(
         arePlacedTilesAdjacent(tile, candidate)
     )
     .map((candidate) => candidate.instanceId);
+}
+
+export function hasUsedLinkedProductionThisRound(
+  state: GameState,
+  placedTileId: string
+): boolean {
+  const linkedTileIds = getAdjacentLinkedProductionTileIds(state, placedTileId);
+  if (linkedTileIds.length === 0) return false;
+
+  return [placedTileId, ...linkedTileIds].some(
+    (tileId) =>
+      state.tileActivationRecords[tileId]?.linkedProductionRound === state.round
+  );
+}
+
+export function getLinkedProductionTileIds(
+  state: GameState,
+  placedTileId: string
+): string[] {
+  if (hasUsedLinkedProductionThisRound(state, placedTileId)) return [];
+  return getAdjacentLinkedProductionTileIds(state, placedTileId);
 }
 
 export function getLinkedProductionTileId(
@@ -416,6 +437,20 @@ function recordRoundPassiveUse(state: GameState, tile: PlacedTile): GameState {
       }
     }
   };
+}
+
+function recordLinkedProductionUse(
+  state: GameState,
+  participatingTileIds: string[]
+): GameState {
+  const tileActivationRecords = { ...state.tileActivationRecords };
+  for (const tileId of participatingTileIds) {
+    tileActivationRecords[tileId] = {
+      ...tileActivationRecords[tileId],
+      linkedProductionRound: state.round
+    };
+  }
+  return { ...state, tileActivationRecords };
 }
 
 function getProductionPassiveSuggestion(
@@ -1556,6 +1591,15 @@ export function activateTile(
   });
   if (state.actionsRemaining < actionPreview.actionCost) return state;
   const production = getTileProduction(tile);
+  const adjacentLinkedTileIds = production
+    ? getAdjacentLinkedProductionTileIds(state, tile.instanceId)
+    : [];
+  const linkedProductionDiminished = production
+    ? hasUsedLinkedProductionThisRound(state, tile.instanceId)
+    : false;
+  const linkedTileIds = linkedProductionDiminished
+    ? []
+    : adjacentLinkedTileIds;
 
   let nextState: GameState = {
     ...state,
@@ -1574,7 +1618,20 @@ export function activateTile(
     nextState = applyAdjacentProductionPassiveEffects(nextState, tile, production);
     nextState = applyPreparedProductionBoonEffects(nextState, tile);
 
-    for (const linkedTileId of getLinkedProductionTileIds(state, tile.instanceId)) {
+    if (linkedProductionDiminished) {
+      nextState = log(
+        nextState,
+        `Linked production already fired for this group in Round ${state.round}; only ${getPlacedTileName(tile)} produced.`
+      );
+    }
+    if (adjacentLinkedTileIds.length > 0) {
+      nextState = recordLinkedProductionUse(nextState, [
+        tile.instanceId,
+        ...adjacentLinkedTileIds
+      ]);
+    }
+
+    for (const linkedTileId of linkedTileIds) {
       const linkedTile = getPlacedTile(state, linkedTileId);
       const linkedProduction = linkedTile ? getTileProduction(linkedTile) : undefined;
       if (!linkedTile || !linkedProduction) continue;

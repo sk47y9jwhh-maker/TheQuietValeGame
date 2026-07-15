@@ -52,7 +52,7 @@ describe("final scoring", () => {
     expect(score.finalScore).toBe(-10);
   });
 
-  it("does not count an active Arrival with timer tokens at game end as failed", () => {
+  it("applies a separate -5 Unfulfilled Promise penalty per active Arrival without Strain", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.phase = "gameEnd";
     state.encounters.activeArrivals.push({
@@ -64,6 +64,29 @@ describe("final scoring", () => {
 
     expect(score.failedArrivals).toBe(0);
     expect(score.failedArrivalPenalty).toBe(0);
+    expect(score.unfulfilledPromises).toBe(1);
+    expect(score.unfulfilledPromisePenalty).toBe(5);
+    expect(score.strainPenalty).toBe(0);
+    expect(score.finalScore).toBe(-5);
+    expect(state.map.placedTiles).toHaveLength(0);
+  });
+
+  it("stacks failed and unfulfilled Arrival penalties without conflating them", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.phase = "gameEnd";
+    state.encounters.discardPile.push("arrival_acorns_and_oak_trees");
+    state.encounters.activeArrivals = [
+      { cardId: "arrival_blessed_harvest", timerTokens: 1 },
+      { cardId: "arrival_the_quiet_quest", timerTokens: 2 }
+    ];
+
+    const score = calculateFinalScore(state);
+
+    expect(score.failedArrivals).toBe(1);
+    expect(score.failedArrivalPenalty).toBe(5);
+    expect(score.unfulfilledPromises).toBe(2);
+    expect(score.unfulfilledPromisePenalty).toBe(10);
+    expect(score.finalScore).toBe(-15);
   });
 
   it("does not count Overstrained tile population or renown", () => {

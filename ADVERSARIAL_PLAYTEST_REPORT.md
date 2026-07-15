@@ -16,7 +16,44 @@ The hard-lock intervention package identified by this report has now been implem
 - Every registered structured effect is property-checked in boundary and target-rich states with empty and stocked Warehouses. A second deterministic property test drains 1,024 queued effects after randomized board, Warehouse, Arrival, and timer mutations.
 - All 113 previously failing deterministic games replay clean: 68/68 from the main sweep, 38/38 from the paired seeding experiment, and 7/7 from the targeted Vow sweep.
 
-These changes deliberately do not alter scoring, production cadence, Vow thresholds, or the Priority 1+ balance recommendations below.
+The Priority 0 changes deliberately did not alter scoring, production cadence, Vow thresholds, or the Priority 1+ balance recommendations below.
+
+## Priority 1–2 interventions — 15 July 2026
+
+All three selected Priority 1–2 interventions have now been implemented in the prototype:
+
+- **Single-use Carts refresh:** one prepared Carts modifier can refresh at most one chosen already-used Crafting or Merchant passive. All eligible choices remain visible, declining them preserves the modifier, and choosing a different refreshed passive replaces the earlier choice.
+- **Diminishing Linked Production:** the first activation in each linked Resource group per round produces from the chosen tile and every immediately adjacent eligible matching producer. Every later activation in an overlapping group that round produces only from the chosen tile. Disconnected groups retain independent first harvests, and the cadence refreshes when the round number advances.
+- **Unfulfilled Promise:** every Arrival still active at final scoring costs 5 Renown. It remains distinct from a failed Arrival and adds no Strain.
+
+The Carts choice validator rejects two passive options that share a modifier, while the cost application and passive recorder independently cap a malformed direct selection to one effect. A refreshed Workshop is optional rather than incorrectly mandatory. The implementation records a full linked harvest against every participating tile, preventing a player from bypassing the cadence by selecting another tile in the same group. The record is save-persistent and coexists with existing round/Season activation limits. Final scoring and audit telemetry expose failed Arrivals and Unfulfilled Promises as separate components.
+
+### Post-intervention verification
+
+The exact Carts probe still exposes all four eligible used passives so the player retains agency, but marks none as required. Selecting all four is invalid; both the chosen-one path and the defensive malformed-selection path reduce the 16-resource test cost only to 14, not the exploitable 10, and consume one modifier once. The exact production probe preserves the high point of the engine but removes its repeated group multiplier: three upgraded linked producers yield 15 resources on the first activation and 5 from the chosen producer on a later activation that round. Choosing a different member, adding an overlapping producer, changing Strain, or relocating a stamped producer cannot manufacture another full harvest. A new round restores one full harvest. The exact Round 12 probe now scores a surviving Arrival as a 5-Renown Unfulfilled Promise with zero Strain, reducing the former parking advantage from 10 points to 5.
+
+The Linked Production and Unfulfilled Promise post-intervention sweep ran **1,536 deterministic full-engine games**: the original 1,344-game matrix plus 192 games from the three targeted Vow/exploit arms. All **1,536/1,536 reached `gameEnd` with zero simulation errors**. This includes all 68 main-sweep seeds that the audited build had excluded.
+
+After the final Carts exclusivity fix, the same expanded matrix was started again. At release time, **576/576 completed games had reached `gameEnd` with zero simulation errors**; the remaining long-running shards were stopped at the user's request to publish. This final all-four release sample spans three deterministic shards across all strategy arms and player counts. The exact four-passive Carts probe, 372-test suite, type-check, and production build provide the focused release gate; the 1,536-game figures and paired metrics below quantify the Linked Production and Unfulfilled Promise interventions, not a completed post-Carts matrix.
+
+For the 1,276 seed-identical games that were clean in both builds:
+
+| Metric | Audited build | Post-intervention | Change |
+|---|---:|---:|---:|
+| Mean final score | 83.6 | 82.6 | -1.0 |
+| 90th-percentile score | 177 | 168 | -9 |
+| Maximum score | 364 | 326 | -38 |
+| Mean resources produced | 153.0 | 152.3 | -0.6 |
+| 95th-percentile production | 336 | 327 | -9 |
+| Maximum resources produced | 489 | 462 | -27 |
+| Mean completed Arrivals | 6.63 | 6.67 | +0.04 |
+| Mean Unfulfilled Promise penalty | 0 | 1.7 | +1.7 |
+
+The former 364-point seed fell to **326**, with production falling from **470 to 406**. Threshold hits across paired games fell from 14 to 10. The median paired change was zero for both score and production, Warehouse totals were effectively unchanged, and completed Arrivals did not fall. That is evidence against broad resource starvation: the intervention primarily trims the high-output tail while ordinary simulated games remain close to baseline.
+
+It is deliberately a conservative fix, not a complete cure for repetitive activation. Mean activation count and maximum single-tile activation count were essentially flat, and the expanded sweep still reached 326 points and 462 produced resources. The linked multiplier can no longer repeat within a round, but repeatedly activating one upgraded producer remains legal and sometimes dominant. Human playtests should now test whether the retained five-resource action is satisfying or still too grind-prone before considering exhaustion or a stronger infrastructure constraint.
+
+Unless a later section explicitly says otherwise, scores and exploit measurements below are historical evidence from the pre-intervention audited build. They explain why these changes were selected; they are not claims about the post-intervention balance.
 
 ## Executive verdict
 
@@ -31,10 +68,10 @@ The current game contains a compelling high-score engine, but the best line is m
 
 That loop produced the highest score in the audit: **364 points** at four players. The game used **95 production activations**, generated **470 resources**, placed **42 tiles**, upgraded **25**, placed **14 Specials**, completed **16 Arrivals**, resolved **16 Burdens**, and earned all four Steward objectives. This was not a malformed state; it reached `gameEnd` with one unused action and no simulation errors.
 
-The audit found two confirmed implementation defects:
+The audit found two confirmed implementation defects, both remediated in the 15 July intervention package:
 
-- **Coin Before Craft can create an unresolvable prompt.** This caused 49 of the 68 failures in the 1,344-game main sweep.
-- **Carts Before Sunrise can refresh four already-used Crafting/Merchant passives with one use**, despite the card saying one passive may apply one additional time.
+- **Coin Before Craft created an unresolvable prompt.** This caused 49 of the 68 failures in the 1,344-game main sweep; legal-target degradation and pending-effect invariants now close it.
+- **Carts Before Sunrise refreshed four already-used Crafting/Merchant passives with one use.** Selection exclusivity, defensive application bounds, and interaction regressions now close it.
 
 It also found several repeatable rules/balance vulnerabilities:
 
@@ -410,11 +447,13 @@ One Season II Carts modifier with one remaining use was attached to four passive
 
 All four options shared the same `boonModifierId`. Selecting them together reduced a 16-resource cost to 10, then consumed the modifier once. The wording permits **a** Crafting or Merchant Passive to apply one additional time, not every eligible passive in the same transaction.
 
-Likely fix:
+Remediation implemented 15 July 2026:
 
-- while validating a cost selection, group chosen options by `boonModifierId` and reject a selected count greater than the modifier's remaining uses;
-- alternatively allocate the modifier to one selected passive only, then recompute the other options as unavailable;
-- add a regression test with two used Workshops and two used Markets.
+- options sharing a Carts `boonModifierId` are mutually exclusive and validation rejects a selected count above one;
+- direct cost application and passive recording independently ignore fan-out after the first selected option, so bypassing the UI cannot multiply the effect;
+- already-used Workshops refreshed by Carts are optional, while genuinely unused Workshop passives remain mandatory;
+- the payment UI switches the selected Carts passive when another is chosen and explains the one-passive limit;
+- exact regression coverage uses two used Workshops and two used Markets, plus a decline-all case that confirms the modifier remains available.
 
 ### QV-AUD-03 — Additional invalid pending-effect states
 
@@ -530,13 +569,13 @@ Balance tests are much easier to trust after every legal game can finish.
 
 ### Priority 1 — close the two clearest action-economy leaks
 
-1. Restrict one Carts passive refresh to one passive.
+1. Restrict one Carts passive refresh to one passive. **Implemented and exact-regression tested.**
 2. Add a production cadence.
 
 Three production variants worth prototyping:
 
 - **Exhaustion:** every producer that produces becomes exhausted until next round. Cleanest rule, strongest cap.
-- **Diminishing linked output:** the first linked activation each round produces the whole group; later activations produce only the chosen tile.
+- **Diminishing linked output (selected and implemented):** the first linked activation each round produces the whole group; later activations produce only the chosen tile.
 - **Infrastructure requirement:** Linked Production only chains through a connected Travel/logistics network. This also repairs the no-road Vow's thematic weakness.
 
 Do not select a production nerf from theory alone. Rerun the same 1,344 seeds after each variant and compare resource production, unused actions, Housing completion, and penalty load. The current game may depend on abundant production to pay Encounter costs; a hard once-per-round cap could overcorrect.
@@ -546,7 +585,7 @@ Do not select a production nerf from theory alone. Rerun the same 1,344 seeds af
 Choose one Arrival rule:
 
 - count every active Arrival at game end as failed and apply the normal penalty/Strain;
-- apply a separate “unfulfilled promise” penalty of 5 without Strain;
+- **apply a separate “unfulfilled promise” penalty of 5 without Strain (selected and implemented);**
 - expire all active Arrivals after Round 12 before final scoring;
 - award partial credit only if a visible final requirement was met.
 
@@ -637,7 +676,7 @@ Reward Supported variety or connected protected districts, while limiting how ma
 
 After fixes, rerun the same deterministic seeds so changes are paired. Suggested order:
 
-1. Coin/Carts hotfix regression: all 1,344 broad seeds.
+1. Coin/Carts hotfix regression: all 1,344 broad seeds. **Coin and the selected production/scoring changes passed the expanded 1,536-game sweep; the final Carts release replay reached 576/576 clean completed games before publication.**
 2. Arrival-finalisation A/B: current rule versus active-as-failed.
 3. Production A/B/C: current, exhaustion, diminishing linked output, logistics requirement.
 4. Score thresholds: current versus candidate 3p/4p values.
@@ -683,12 +722,16 @@ The key health target should be: **top scores can remain exciting, but the top d
 Human-readable summaries:
 
 - `outputs/adversarial-audit/analysis.md`
+- `outputs/adversarial-audit/priority-1-2/analysis.md`
 - `outputs/adversarial-audit/seeding/analysis.md`
 - `outputs/adversarial-audit/hybrids-v2/analysis.md`
 
 Machine-readable evidence:
 
 - `outputs/adversarial-audit/analysis.json`
+- `outputs/adversarial-audit/priority-1-2/analysis.json`
+- `outputs/adversarial-audit/priority-1-2/combined.json`
+- `outputs/adversarial-audit/priority-all-four/shard-3.json`, `shard-4.json`, and `shard-7.json`
 - `outputs/adversarial-audit/seeding/analysis.json`
 - `outputs/adversarial-audit/hybrids-v2/analysis.json`
 - `outputs/adversarial-audit/focused-rules-probes.json`
@@ -706,11 +749,11 @@ Audit programs:
 
 ## Final prioritised recommendation
 
-If only four changes can be made before the next serious playtest, make them:
+All four recommended changes are now implemented and verified in the working release:
 
-1. fix Coin Before Craft so every legal game can resolve;
-2. fix Carts so one modifier refreshes one passive;
-3. treat active Arrivals consistently at final scoring;
-4. prototype a once-per-round or diminishing Linked Production rule and rerun the paired seed set.
+1. Coin Before Craft degrades mandatory category targets to the legal board state so every legal game can resolve;
+2. Carts allows one modifier to refresh exactly one chosen passive;
+3. active Arrivals score as 5-Renown Unfulfilled Promises without Strain;
+4. Diminishing Linked Production gives the whole eligible group its first linked activation each round and only the chosen tile thereafter; the paired seed set and expanded 1,536-game adversarial matrix were rerun, followed by 576 clean final-release games including the Carts fix.
 
-Those changes address the confirmed hard lock, the clearest implementation exploit, the largest endgame score shield, and the dominant repetitive economy. Player-count thresholds, Vows, Steward objectives, Golden goals, and Special Tile parity should be the next balance layer once those systemic effects are stable.
+These changes close the confirmed hard lock and Carts implementation exploit, halve the largest endgame score shield, and remove repeated linked-group multiplication. Player-count thresholds, Vows, Steward objectives, Golden goals, Special Tile parity, and the still-legal single-producer grind are the next balance layer.

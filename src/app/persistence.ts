@@ -145,6 +145,7 @@ export function readSavedGame(): SavedGame | null {
       pendingGoldenEffect: saved.state.pendingGoldenEffect ?? null,
       bonusTurnsPending: saved.state.bonusTurnsPending ?? false,
       bonusTurnsActive: saved.state.bonusTurnsActive ?? false,
+      tileActivationRecords: saved.state.tileActivationRecords ?? {},
       encounters: {
         ...saved.state.encounters,
         reserveBoonIds: saved.state.encounters.reserveBoonIds ?? [],

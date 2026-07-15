@@ -260,6 +260,43 @@ describe("game actions", () => {
         (entry) => entry.message === "Linked production activated Farmstead."
       )
     ).toHaveLength(2);
+
+    expect(
+      ["farm_1", "farm_2", "farm_3"].map(
+        (tileId) =>
+          activated.tileActivationRecords[tileId]?.linkedProductionRound
+      )
+    ).toEqual([1, 1, 1]);
+
+    const repeated = activateTile(activated, "player_1", "farm_2");
+
+    expect(getLinkedProductionTileIds(repeated, "farm_2")).toEqual([]);
+    expect(repeated.warehouse.food).toBe(8);
+    expect(repeated.actionsRemaining).toBe(2);
+    expect(
+      repeated.log.some((entry) =>
+        entry.message.includes("only Farmstead produced")
+      )
+    ).toBe(true);
+
+    const nextRound = {
+      ...repeated,
+      round: 2,
+      actionsRemaining: 4
+    };
+
+    expect(getLinkedProductionTileIds(nextRound, "farm_3")).toEqual([
+      "farm_1",
+      "farm_2"
+    ]);
+    const refreshed = activateTile(nextRound, "player_1", "farm_3");
+    expect(refreshed.warehouse.food).toBe(14);
+    expect(
+      ["farm_1", "farm_2", "farm_3"].map(
+        (tileId) =>
+          refreshed.tileActivationRecords[tileId]?.linkedProductionRound
+      )
+    ).toEqual([2, 2, 2]);
   });
 
   it("does not chain Linked Production through a non-adjacent third producer", () => {
@@ -316,6 +353,17 @@ describe("game actions", () => {
     expect(
       activated.log.filter((entry) => entry.message.startsWith("Linked production"))
     ).toHaveLength(1);
+
+    const overlappingRepeat = activateTile(
+      activated,
+      "player_1",
+      "farm_3"
+    );
+
+    expect(overlappingRepeat.warehouse.food).toBe(6);
+    expect(
+      overlappingRepeat.tileActivationRecords.farm_3?.linkedProductionRound
+    ).toBe(1);
   });
 
   it("uses each linked producer's current side and skips an Overstrained partner", () => {
@@ -426,7 +474,7 @@ describe("game actions", () => {
 
     expect(firstActivation.warehouse.food).toBe(6);
     expect(firstActivation.tileActivationRecords.shrine.round).toBe(1);
-    expect(secondActivation.warehouse.food).toBe(10);
+    expect(secondActivation.warehouse.food).toBe(8);
   });
 
   it("applies adjacent Shrine production passives automatically once per round", () => {
@@ -2262,6 +2310,45 @@ describe("game actions", () => {
     });
 
     expect(resolved.map.placedTiles[0].strain).toBe(1);
+  });
+
+  it("keeps a Round 12 Arrival as an Unfulfilled Promise without adding Strain", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const ready = {
+      ...state,
+      phase: "endRound" as const,
+      round: 12,
+      season: 3 as const,
+      encounters: {
+        ...state.encounters,
+        activeArrivals: [
+          { cardId: "arrival_the_quiet_quest", timerTokens: 2 }
+        ]
+      },
+      map: {
+        placedTiles: [
+          {
+            instanceId: "home",
+            tileId: "c05_cabin",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: ["G1"],
+            strain: 0,
+            support: { passive: false, singleUse: false, preventedThisRound: false }
+          }
+        ]
+      }
+    };
+
+    const next = resolveEndRound(ready);
+
+    expect(next.phase).toBe("gameEnd");
+    expect(next.encounters.activeArrivals).toEqual([
+      { cardId: "arrival_the_quiet_quest", timerTokens: 1 }
+    ]);
+    expect(next.encounters.discardPile).not.toContain("arrival_the_quiet_quest");
+    expect(next.map.placedTiles[0].strain).toBe(0);
+    expect(next.pendingEffects).toHaveLength(0);
   });
 
   it.each([

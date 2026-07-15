@@ -23,5 +23,8 @@ describe("tile inspector", () => {
     expect(effectTexts[0]).toHaveTextContent(
       /every immediately adjacent, non-Overstrained producer from the same tile stack/i
     );
+    expect(effectTexts[0]).toHaveTextContent(
+      /Later activations that round produce only from the chosen tile/i
+    );
   });
 });

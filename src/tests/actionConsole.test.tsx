@@ -93,13 +93,55 @@ describe("action console", () => {
       screen.getByText("Also activates Artisan Farm, Farmstead")
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/All immediately adjacent matching Resource producers/i)
+      screen.getByText(/first linked Resource activation each round/i)
     ).toBeInTheDocument();
+  });
+
+  it("labels a used linked group as chosen-tile-only", () => {
+    const state = { ...createNewGame(1, ["vanguard"]), phase: "turns" as const };
+    state.players[0] = {
+      ...state.players[0],
+      hasPlacedFirstTile: true,
+      stewardHexId: "G1"
+    };
+    state.map.placedTiles = [
+      {
+        instanceId: "farm_1",
+        tileId: "c04_farmstead",
+        kind: "core",
+        side: "basic",
+        hexIds: ["G1"],
+        strain: 0,
+        support: { passive: false, singleUse: false, preventedThisRound: false }
+      },
+      {
+        instanceId: "farm_2",
+        tileId: "c04_farmstead",
+        kind: "core",
+        side: "basic",
+        hexIds: ["H1"],
+        strain: 0,
+        support: { passive: false, singleUse: false, preventedThisRound: false }
+      }
+    ];
+    state.tileActivationRecords.farm_1 = { linkedProductionRound: state.round };
+    state.tileActivationRecords.farm_2 = { linkedProductionRound: state.round };
+
+    renderActionConsole({ state, actionMode: "activate" });
+
+    expect(
+      screen.getAllByText("Linked group already produced this round; chosen tile only")
+    ).toHaveLength(2);
+    expect(screen.queryByText(/Also activates/)).not.toBeInTheDocument();
   });
 
   it("shows the local Encounter penalty trial in final scoring", () => {
     const state = { ...createNewGame(1, ["vanguard"]), phase: "gameEnd" as const };
     state.encounters.discardPile.push("arrival_acorns_and_oak_trees");
+    state.encounters.activeArrivals.push({
+      cardId: "arrival_blessed_harvest",
+      timerTokens: 2
+    });
     state.encounters.activeBurdens.push("burden_smoke_over_hearths");
     state.map.placedTiles.push({
       instanceId: "tile_1",
@@ -114,6 +156,9 @@ describe("action console", () => {
     renderActionConsole({ state });
 
     expect(screen.getByText("Failed Arrival Penalty -5 (1 failed)")).toBeInTheDocument();
+    expect(
+      screen.getByText("Unfulfilled Promise Penalty -5 (1 active Arrival)")
+    ).toBeInTheDocument();
     expect(screen.getByText("Burden Penalty -5")).toBeInTheDocument();
     expect(screen.getByText("Strain Penalty -5")).toBeInTheDocument();
   });

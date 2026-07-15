@@ -417,6 +417,7 @@ export interface LogEntry {
 export interface TileActivationRecord {
   round?: number;
   season?: Season;
+  linkedProductionRound?: number;
 }
 
 export interface LedgerSeasonSnapshot {

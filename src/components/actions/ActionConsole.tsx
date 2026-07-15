@@ -22,6 +22,7 @@ import {
   canCancelPendingBurdenWithWarden,
   canResolveBurden,
   getLinkedProductionTileIds,
+  hasUsedLinkedProductionThisRound,
   getStableMoveDestinationTileIds,
   getUsableFaceUpBoonIds,
   getUpgradeableTileIds
@@ -337,6 +338,12 @@ export function ActionConsole({
               ? ` (${finalScore.failedArrivals} failed)`
               : ""}
           </span>
+          <span>
+            Unfulfilled Promise Penalty -{finalScore.unfulfilledPromisePenalty}
+            {finalScore.unfulfilledPromises > 0
+              ? ` (${finalScore.unfulfilledPromises} active Arrival${finalScore.unfulfilledPromises === 1 ? "" : "s"})`
+              : ""}
+          </span>
           <span>Strain Penalty -{finalScore.strainPenalty}</span>
           <strong>Final Score {finalScore.finalScore}</strong>
         </div>
@@ -617,8 +624,9 @@ export function ActionConsole({
           </div>
           <p className="muted">
             Passive effects—including Shrines and cost reductions—trigger automatically
-            when their condition is met. All immediately adjacent matching Resource
-            producers activate together for one action.
+            when their condition is met. The first linked Resource activation each round
+            produces from the whole adjacent group; later activations produce only from
+            the chosen tile.
           </p>
           {activatableIds.length === 0 ? (
             <p className="muted">No reachable activated effects are available.</p>
@@ -632,6 +640,8 @@ export function ActionConsole({
                 const linkedTiles = state.map.placedTiles.filter((candidate) =>
                   linkedTileIds.includes(candidate.instanceId)
                 );
+                const linkedProductionDiminished =
+                  hasUsedLinkedProductionThisRound(state, placedTileId);
                 return (
                   <button
                     key={placedTileId}
@@ -643,6 +653,9 @@ export function ActionConsole({
                       <span>
                         Also activates {linkedTiles.map(selectTileName).join(", ")}
                       </span>
+                    )}
+                    {linkedProductionDiminished && (
+                      <span>Linked group already produced this round; chosen tile only</span>
                     )}
                   </button>
                 );

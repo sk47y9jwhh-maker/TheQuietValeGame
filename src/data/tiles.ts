@@ -16,7 +16,7 @@ const cost = (values: Partial<ResourceCost>): ResourceCost => ({
 });
 
 const withLinkedProduction = (activationText: string): string =>
-  `${activationText} Passive: Linked Production — when this tile is chosen for an Activate action, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action.`;
+  `${activationText} Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.`;
 
 export const coreTiles: CoreTileData[] = [
   {
