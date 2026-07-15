@@ -38,6 +38,7 @@ import {
   mergeEffectAdjustment
 } from "../../engine/manualEffects";
 import { describeEffectControls } from "../../engine/effectControls";
+import { getStrainPlacementCapacity } from "../../engine/strainRules";
 import { mapCells, terrainLabels } from "../../data/map";
 import { selectEncounterName, selectTileName } from "../../engine/selectors";
 import type {
@@ -713,7 +714,10 @@ export function EffectPrompt({
     if (rule.direction === "remove" && Math.abs(nextDelta) > tile.strain) {
       return currentDelta;
     }
-    if (rule.direction === "place" && nextDelta > 3 - tile.strain) {
+    if (
+      rule.direction === "place" &&
+      nextDelta > getStrainPlacementCapacity(state, tile, rule.maxPerTile)
+    ) {
       return currentDelta;
     }
 

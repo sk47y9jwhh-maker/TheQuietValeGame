@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   cardEffectRuleId,
+  getEffectRule,
   stewardEffectRuleId,
   systemEffectRuleId,
   tileEffectRuleId
@@ -129,8 +130,30 @@ describe("structured effect rules", () => {
     expect(getEffectTileTargets(state, late).map((tile) => tile.instanceId)).toEqual(["path"]);
     expect(getTileAdjustmentRule(state, late).strain).toMatchObject({
       direction: "place",
-      maxTotal: 2
+      maxTotal: 2,
+      requiredTotal: 2,
+      requiredTargets: 2
     });
+  });
+
+  it("requires both Season III no-Arrival fallback Strain targets when available", () => {
+    const state = stateWith([
+      placed("path_a", "c15_path", "G1"),
+      placed("path_b", "c15_path", "J1")
+    ]);
+
+    for (const cardId of [
+      "burden_promises_overstretched",
+      "burden_welcome_wears_thin"
+    ]) {
+      const ruleId = cardEffectRuleId(cardId, 3);
+      expect(isTileAdjustmentValid(state, ruleId, {
+        tileStrainDeltas: { path_a: 1 }
+      })).toBe(false);
+      expect(isTileAdjustmentValid(state, ruleId, {
+        tileStrainDeltas: { path_a: 1, path_b: 1 }
+      })).toBe(true);
+    }
   });
 
   it.each([
@@ -444,6 +467,32 @@ describe("structured effect rules", () => {
     expect(resolved.map.placedTiles[1].strain).toBe(1);
   });
 
+  it("applies a direct Burden's full printed amount before Supported prevention", () => {
+    const lumber = placed("lumber", "c01_lumber_yard", "G1", 2);
+    lumber.support.singleUse = true;
+    const state = stateWith([lumber]);
+    const ruleId = cardEffectRuleId("burden_forest_s_grudge", 2);
+    const suggestion = suggestEffectAdjustment(state, ruleId);
+    state.pendingEffects = [{
+      id: "effect_supported_direct",
+      ruleId,
+      sourceType: "card",
+      sourceName: "Forest's Grudge",
+      title: "Forest's Grudge",
+      effectText: "Display text only"
+    }];
+
+    expect(suggestion.adjustment).toMatchObject({
+      tileStrainDeltas: { lumber: 2 }
+    });
+    const resolved = resolvePendingEffect(state, suggestion.adjustment);
+    expect(resolved.map.placedTiles[0].strain).toBe(3);
+    expect(resolved.map.placedTiles[0].support).toMatchObject({
+      singleUse: false,
+      preventedThisRound: true
+    });
+  });
+
   it("enforces The Quiet Fractures' Season II anchor, adjacency, and zero-Strain target", () => {
     const state = stateWith([
       placed("anchor", "c15_path", "G1", 1),
@@ -545,6 +594,73 @@ describe("structured effect rules", () => {
     ).toEqual(["housing"]);
   });
 
+  it("requires the printed number of eligible Burden targets where possible", () => {
+    const state = stateWith([
+      placed("home_a", "c05_cabin", "G1"),
+      placed("craft_a", "c13_workshops", "H1"),
+      placed("home_b", "c05_cabin", "J1"),
+      placed("craft_b", "c13_workshops", "K1"),
+      placed("home_c", "c05_cabin", "M1"),
+      placed("craft_c", "c13_workshops", "N1")
+    ]);
+    const ruleId = cardEffectRuleId("burden_smoke_over_hearths", 3);
+
+    expect(isTileAdjustmentValid(state, ruleId, {
+      tileStrainDeltas: { home_a: 1 }
+    })).toBe(false);
+    expect(isTileAdjustmentValid(state, ruleId, {
+      tileStrainDeltas: { home_a: 1, home_b: 1, home_c: 1 }
+    })).toBe(true);
+  });
+
+  it("requires one Social and one Wellbeing target for The Long Cough when available", () => {
+    const state = stateWith([
+      placed("social_a", "c09_tavern", "G1"),
+      placed("social_b", "c10_eatery", "J1"),
+      placed("wellbeing", "c12_apothecary", "M1")
+    ]);
+    const ruleId = cardEffectRuleId("burden_the_long_cough", 2);
+
+    expect(isTileAdjustmentValid(state, ruleId, {
+      tileStrainDeltas: { social_a: 1 }
+    })).toBe(false);
+    expect(isTileAdjustmentValid(state, ruleId, {
+      tileStrainDeltas: { social_a: 1, social_b: 1 }
+    })).toBe(false);
+    expect(isTileAdjustmentValid(state, ruleId, {
+      tileStrainDeltas: { social_a: 1, wellbeing: 1 }
+    })).toBe(true);
+
+    state.map.placedTiles = state.map.placedTiles.filter(
+      (tile) => tile.instanceId !== "wellbeing"
+    );
+    expect(isTileAdjustmentValid(state, ruleId, {
+      tileStrainDeltas: { social_a: 1 }
+    })).toBe(true);
+  });
+
+  it.each([
+    ["burden_smoke_over_hearths", 2, 2, 2],
+    ["burden_smoke_over_hearths", 3, 3, 3],
+    ["burden_forest_s_grudge", 2, 2, 1],
+    ["burden_blighted_lands", 2, 2, 1],
+    ["burden_awoken_in_the_deep", 2, 2, 1],
+    ["burden_stampede", 2, 2, 1],
+    ["burden_return_to_the_trenches", 2, 2, 2],
+    ["burden_return_to_the_trenches", 3, 3, 3],
+    ["burden_wares_of_war", 2, 2, 2],
+    ["burden_wares_of_war", 3, 3, 3],
+    ["burden_old_names_old_debts", 2, 2, 2],
+    ["burden_old_names_old_debts", 3, 3, 3],
+    ["burden_tools_left_to_rust", 3, 2, 2]
+  ] as const)(
+    "marks %s Season %i's printed Strain as required",
+    (cardId, season, requiredTotal, requiredTargets) => {
+      expect(getEffectRule(cardEffectRuleId(cardId, season)).tileAdjustment?.strain)
+        .toMatchObject({ requiredTotal, requiredTargets });
+    }
+  );
+
   it("uses the typed fallback when a primary category has no targets", () => {
     const state = stateWith([placed("merchant", "c14_market_stalls", "G1")]);
     expect(
@@ -589,6 +705,33 @@ describe("structured effect rules", () => {
     });
     expect(isAlternativeEffectAdjustmentValid(state, ruleId, {
       tileStrainDeltas: { resource: 1 }
+    })).toBe(true);
+  });
+
+  it("requires the greatest available Strain amount for a warehouse-loss fallback", () => {
+    const state = stateWith([
+      placed("nearly_full", "c01_lumber_yard", "G1", 2),
+      placed("open", "c02_mine_tunnel", "J1")
+    ]);
+    state.warehouse = {
+      wood: 0,
+      stone: 0,
+      metal: 0,
+      food: 0,
+      herbs: 0,
+      goods: 0
+    };
+    const ruleId = cardEffectRuleId("burden_the_storehouses_disagree", 2);
+
+    expect(getAlternativeEffectRule(state, ruleId)).toMatchObject({
+      kind: "warehouse_loss_or_strain",
+      requiredStrainTotal: 2
+    });
+    expect(isAlternativeEffectAdjustmentValid(state, ruleId, {
+      tileStrainDeltas: { nearly_full: 1 }
+    })).toBe(false);
+    expect(isAlternativeEffectAdjustmentValid(state, ruleId, {
+      tileStrainDeltas: { open: 2 }
     })).toBe(true);
   });
 

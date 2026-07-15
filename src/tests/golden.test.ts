@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { goldenBoons } from "../data/encounters";
-import { systemEffectRuleId } from "../data/effectRules";
+import { cardEffectRuleId, systemEffectRuleId } from "../data/effectRules";
 import { ledgerMilestones } from "../data/ledger";
 import { goldenTiles } from "../data/tiles";
 import {
@@ -17,7 +17,7 @@ import {
   validateGoldenSignetPlacements
 } from "../engine/golden";
 import { getPassiveCostOptions } from "../engine/passiveCosts";
-import { resolvePendingEffect } from "../engine/manualEffects";
+import { resolvePendingEffect, suggestEffectAdjustment } from "../engine/manualEffects";
 import { calculateFinalScore } from "../engine/scoring";
 import { createNewGame } from "../engine/setup";
 import { applyStrainToState } from "../engine/strainRules";
@@ -182,6 +182,35 @@ describe("Golden Legacy", () => {
     expect(first.map.placedTiles.find((tile) => tile.instanceId === "target")?.strain).toBe(0);
     const second = applyStrainToState(first, "target", 1);
     expect(second.map.placedTiles.find((tile) => tile.instanceId === "target")?.strain).toBe(1);
+  });
+
+  it("counts Golden Garden prevention before suggesting direct Burden Strain", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.phase = "turns";
+    const target = placed("lumber", "c01_lumber_yard", "N1");
+    target.strain = 2;
+    state.map.placedTiles = [
+      placed("garden", "golden_tile_the_golden_garden", "M1", "special"),
+      target
+    ];
+    const ruleId = cardEffectRuleId("burden_forest_s_grudge", 2);
+    const suggestion = suggestEffectAdjustment(state, ruleId);
+    state.pendingEffects = [{
+      id: "effect_garden_direct",
+      ruleId,
+      sourceType: "card",
+      sourceName: "Forest's Grudge",
+      title: "Forest's Grudge",
+      effectText: "Display text only"
+    }];
+
+    expect(suggestion.adjustment).toMatchObject({
+      tileStrainDeltas: { lumber: 2 }
+    });
+    const resolved = resolvePendingEffect(state, suggestion.adjustment);
+    expect(resolved.map.placedTiles.find((tile) => tile.instanceId === "lumber")?.strain)
+      .toBe(3);
+    expect(resolved.tileActivationRecords.garden?.round).toBe(state.round);
   });
 
   it("checks Golden Garden prevention before continuing an Overstrain chain", () => {
