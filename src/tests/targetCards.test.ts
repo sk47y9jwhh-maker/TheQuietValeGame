@@ -10,6 +10,7 @@ import {
   countAdjacentPlacedTiles,
   createTargetCardDeckState,
   drawTargetCard,
+  normalizeTargetCardDeckState,
   selectTargetWithCard
 } from "../engine/targetCards";
 import type {
@@ -84,7 +85,7 @@ function pendingBurden(
 }
 
 describe("experimental Target Cards", () => {
-  it("contains the locked 12-card balanced distribution", () => {
+  it("contains the locked 24-card opposite-arrow distribution", () => {
     expect(targetCards).toEqual([
       { id: 1, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "strained", direction: "NE" },
       { id: 2, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "unstrained", direction: "SW" },
@@ -97,43 +98,92 @@ describe("experimental Target Cards", () => {
       { id: 9, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "strained", direction: "W" },
       { id: 10, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "unstrained", direction: "E" },
       { id: 11, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "strained", direction: "NW" },
-      { id: 12, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "unstrained", direction: "SE" }
+      { id: 12, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "unstrained", direction: "SE" },
+      { id: 13, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "strained", direction: "SW" },
+      { id: 14, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "unstrained", direction: "NE" },
+      { id: 15, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "strained", direction: "W" },
+      { id: 16, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "unstrained", direction: "E" },
+      { id: 17, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "strained", direction: "NW" },
+      { id: 18, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "unstrained", direction: "SE" },
+      { id: 19, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "strained", direction: "NE" },
+      { id: 20, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "unstrained", direction: "SW" },
+      { id: 21, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "strained", direction: "E" },
+      { id: 22, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "unstrained", direction: "W" },
+      { id: 23, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "strained", direction: "SE" },
+      { id: 24, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "unstrained", direction: "NW" }
     ]);
-    expect(new Set(targetCards.map((card) => card.id)).size).toBe(12);
-    expect(targetCards.filter((card) => card.tileClass === "core")).toHaveLength(8);
-    expect(targetCards.filter((card) => card.tileClass === "specialOrGolden")).toHaveLength(4);
-    expect(targetCards.filter((card) => card.side === "basic")).toHaveLength(4);
-    expect(targetCards.filter((card) => card.side === "upgraded")).toHaveLength(4);
-    expect(targetCards.filter((card) => card.side === "either")).toHaveLength(4);
-    expect(targetCards.filter((card) => card.adjacency === "threePlus")).toHaveLength(6);
-    expect(targetCards.filter((card) => card.adjacency === "zeroToTwo")).toHaveLength(6);
-    expect(targetCards.filter((card) => card.strain === "strained")).toHaveLength(6);
-    expect(targetCards.filter((card) => card.strain === "unstrained")).toHaveLength(6);
+    expect(new Set(targetCards.map((card) => card.id)).size).toBe(24);
+    expect(targetCards.filter((card) => card.tileClass === "core")).toHaveLength(16);
+    expect(targetCards.filter((card) => card.tileClass === "specialOrGolden")).toHaveLength(8);
+    expect(targetCards.filter((card) => card.side === "basic")).toHaveLength(8);
+    expect(targetCards.filter((card) => card.side === "upgraded")).toHaveLength(8);
+    expect(targetCards.filter((card) => card.side === "either")).toHaveLength(8);
+    expect(targetCards.filter((card) => card.adjacency === "threePlus")).toHaveLength(12);
+    expect(targetCards.filter((card) => card.adjacency === "zeroToTwo")).toHaveLength(12);
+    expect(targetCards.filter((card) => card.strain === "strained")).toHaveLength(12);
+    expect(targetCards.filter((card) => card.strain === "unstrained")).toHaveLength(12);
     for (const direction of ["NE", "E", "SE", "SW", "W", "NW"] as const) {
       const directionalCards = targetCards.filter(
         (card) => card.direction === direction
       );
-      expect(directionalCards).toHaveLength(2);
+      expect(directionalCards).toHaveLength(4);
       expect(new Set(directionalCards.map((card) => card.strain))).toEqual(
         new Set(["strained", "unstrained"])
       );
     }
+    const opposite = {
+      NE: "SW",
+      E: "W",
+      SE: "NW",
+      SW: "NE",
+      W: "E",
+      NW: "SE"
+    } as const;
+    for (let index = 0; index < 12; index += 1) {
+      const original = targetCards[index];
+      const partner = targetCards[index + 12];
+      expect({ ...partner, id: original.id, direction: original.direction }).toEqual(
+        original
+      );
+      expect(partner.direction).toBe(opposite[original.direction]);
+    }
   });
 
-  it("uses every card before a deterministic reshuffle", () => {
-    let deck = createTargetCardDeckState(true, "RESHUFFLE");
+  it("returns every draw to the bottom without reshuffling", () => {
+    let deck = createTargetCardDeckState(true, "CONTINUOUS-DECK");
+    const startingOrder = [...deck.drawPile];
     const firstCycle: number[] = [];
-    for (let index = 0; index < 12; index += 1) {
+    for (let index = 0; index < 24; index += 1) {
       const drawn = drawTargetCard(deck);
       deck = drawn.deckState;
       firstCycle.push(drawn.card.id);
     }
     expect(new Set(firstCycle)).toEqual(new Set(targetCards.map((card) => card.id)));
-    expect(deck.drawPile).toHaveLength(0);
-    const thirteenth = drawTargetCard(deck);
-    expect(thirteenth.deckState.reshuffleCount).toBe(1);
-    expect(thirteenth.deckState.drawCount).toBe(13);
-    expect(targetCardById[thirteenth.card.id]).toBeDefined();
+    expect(deck.drawPile).toEqual(startingOrder);
+    const twentyFifth = drawTargetCard(deck);
+    expect(twentyFifth.card.id).toBe(firstCycle[0]);
+    expect(twentyFifth.deckState.drawPile).toHaveLength(24);
+    expect(twentyFifth.deckState.drawPile.at(-1)).toBe(firstCycle[0]);
+    expect(twentyFifth.deckState.drawCount).toBe(25);
+  });
+
+  it("migrates the old draw and discard piles into one 24-card queue", () => {
+    const legacy = {
+      ...createTargetCardDeckState(true, "LEGACY-DECK"),
+      drawPile: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      discardPile: [1, 2],
+      drawCount: 2,
+      reshuffleCount: 1
+    };
+    const migrated = normalizeTargetCardDeckState(legacy);
+
+    expect(migrated.drawPile).toEqual([
+      3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2,
+      13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24
+    ]);
+    expect(migrated).not.toHaveProperty("discardPile");
+    expect(migrated.drawCount).toBe(2);
+    expect(migrated).not.toHaveProperty("reshuffleCount");
   });
 
   it("narrows sequentially and never restores an eliminated candidate", () => {
@@ -253,6 +303,30 @@ describe("experimental Target Cards", () => {
       actualStrainPlaced: 1,
       strainApplied: true
     });
+  });
+
+  it("replaces a generic Strain suggestion with the card-selected target", () => {
+    const west = placed("west", "c15_path", "A1");
+    const east = placed("east", "c05_cabin", "C1");
+    const state = experimentalState([west, east], [3]);
+    state.pendingEffects = [{
+      id: "replace_generic_target",
+      ruleId: systemEffectRuleId("arrival-expired"),
+      sourceType: "system",
+      sourceName: "Expired Arrival",
+      title: "Replace generic target",
+      effectText: "Place 1 Strain.",
+      suggestedAdjustment: { tileStrainDeltas: { west: 1 } },
+      requiresManualChoice: true
+    }];
+
+    const prepared = preparePendingEffectQueueHead(state);
+
+    expect(prepared.pendingEffects[0].targetCardTargetTileIds).toEqual(["east"]);
+    expect(
+      prepared.pendingEffects[0].suggestedAdjustment?.tileStrainDeltas
+    ).toEqual({ east: 1 });
+    expect(resolvePendingEffect(prepared).pendingEffects).toHaveLength(0);
   });
 
   it("draws one card per distinct target and satisfies category quotas", () => {

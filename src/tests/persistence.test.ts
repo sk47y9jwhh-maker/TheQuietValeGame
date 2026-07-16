@@ -5,6 +5,7 @@ import {
 } from "../app/ledgerPersistence";
 import { readSavedGame, writeSavedGame } from "../app/persistence";
 import { createNewGame } from "../engine/setup";
+import { drawTargetCard } from "../engine/targetCards";
 
 describe("browser persistence", () => {
   beforeEach(() => {
@@ -99,7 +100,7 @@ describe("browser persistence", () => {
     const restored = readSavedGame();
     expect(restored?.experimentalTargetCards).toBe(false);
     expect(restored?.state.targetCards?.enabled).toBe(false);
-    expect(restored?.state.targetCards?.drawPile).toHaveLength(12);
+    expect(restored?.state.targetCards?.drawPile).toHaveLength(24);
   });
 
   it("persists an enabled Target Deck and its deterministic draw state", () => {
@@ -107,9 +108,9 @@ describe("browser persistence", () => {
       encounterSeed: "QV-SAVED-TARGETS",
       experimentalTargetCards: true
     });
-    state.targetCards!.drawCount = 2;
-    state.targetCards!.discardPile = state.targetCards!.drawPile.slice(0, 2);
-    state.targetCards!.drawPile = state.targetCards!.drawPile.slice(2);
+    const first = drawTargetCard(state.targetCards!);
+    const second = drawTargetCard(first.deckState);
+    state.targetCards = second.deckState;
 
     writeSavedGame({
       playerCount: 1,

@@ -16,6 +16,11 @@ import type {
 const historyLimit = 500;
 const mapCellOrder = new Map(mapCells.map((cell, index) => [cell.id, index]));
 
+type LegacyTargetCardDeckState = TargetCardDeckState & {
+  discardPile?: number[];
+  reshuffleCount?: number;
+};
+
 function createSeededRandom(seed: string): () => number {
   let hash = 1779033703 ^ seed.length;
   for (let index = 0; index < seed.length; index += 1) {
@@ -53,22 +58,26 @@ export function createTargetCardDeckState(
       targetCards.map((card) => card.id),
       `${normalizedSeed}:initial`
     ),
-    discardPile: [],
     drawCount: 0,
-    reshuffleCount: 0,
     history: []
   };
 }
 
 export function normalizeTargetCardDeckState(
-  state: TargetCardDeckState | undefined,
+  state: LegacyTargetCardDeckState | undefined,
   fallbackSeed = "QV-TARGET-CARDS"
 ): TargetCardDeckState {
   if (!state) return createTargetCardDeckState(false, fallbackSeed);
   const validIds = new Set(targetCards.map((card) => card.id));
-  const drawPile = (state.drawPile ?? []).filter((id) => validIds.has(id));
-  const discardPile = (state.discardPile ?? []).filter((id) => validIds.has(id));
-  const representedIds = new Set([...drawPile, ...discardPile]);
+  const representedIds = new Set<number>();
+  const drawPile = [
+    ...(state.drawPile ?? []),
+    ...(state.discardPile ?? [])
+  ].filter((id) => {
+    if (!validIds.has(id) || representedIds.has(id)) return false;
+    representedIds.add(id);
+    return true;
+  });
   const missingIds = targetCards
     .map((card) => card.id)
     .filter((id) => !representedIds.has(id));
@@ -76,34 +85,18 @@ export function normalizeTargetCardDeckState(
     enabled: state.enabled === true,
     seed: state.seed?.trim() || fallbackSeed,
     drawPile: [...drawPile, ...missingIds],
-    discardPile,
     drawCount: Number.isFinite(state.drawCount) ? state.drawCount : 0,
-    reshuffleCount: Number.isFinite(state.reshuffleCount)
-      ? state.reshuffleCount
-      : 0,
-    history: Array.isArray(state.history) ? state.history.slice(-historyLimit) : []
+    history: Array.isArray(state.history)
+      ? state.history.slice(-historyLimit)
+      : []
   };
 }
 
 export function drawTargetCard(
   deckState: TargetCardDeckState
 ): { deckState: TargetCardDeckState; card: TargetCardDefinition } {
-  let drawPile = [...deckState.drawPile];
-  let discardPile = [...deckState.discardPile];
-  let reshuffleCount = deckState.reshuffleCount;
-
-  if (drawPile.length === 0) {
-    reshuffleCount += 1;
-    drawPile = shuffleWithSeed(
-      discardPile.length > 0
-        ? discardPile
-        : targetCards.map((card) => card.id),
-      `${deckState.seed}:reshuffle:${reshuffleCount}`
-    );
-    discardPile = [];
-  }
-
-  const cardId = drawPile.shift();
+  const normalized = normalizeTargetCardDeckState(deckState, deckState.seed);
+  const [cardId, ...remainingCards] = normalized.drawPile;
   const card = cardId === undefined ? undefined : targetCardById[cardId];
   if (!card) {
     return drawTargetCard(createTargetCardDeckState(deckState.enabled, deckState.seed));
@@ -112,11 +105,9 @@ export function drawTargetCard(
   return {
     card,
     deckState: {
-      ...deckState,
-      drawPile,
-      discardPile: [...discardPile, card.id],
-      drawCount: deckState.drawCount + 1,
-      reshuffleCount
+      ...normalized,
+      drawPile: [...remainingCards, card.id],
+      drawCount: normalized.drawCount + 1
     }
   };
 }

@@ -42,7 +42,9 @@ describe("Target Card UI", () => {
     expect(toggle).not.toBeChecked();
     fireEvent.click(toggle);
     expect(toggle).toBeChecked();
-    expect(screen.getByText(/removes player choice from harmful strain targets/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/return every drawn card to the bottom/i)
+    ).toBeInTheDocument();
   });
 
   it("shows the card, every filter result, final target, and prevention timing", () => {
