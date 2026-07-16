@@ -41,6 +41,16 @@ function dealtCardIds(
 }
 
 describe("setup and round authority", () => {
+  it("keeps Target Cards disabled by default and enables them only when requested", () => {
+    expect(createNewGame(1, ["vanguard"]).targetCards?.enabled).toBe(false);
+    expect(
+      createNewGame(1, ["vanguard"], {
+        encounterSeed: "QV-TARGET-OPT-IN",
+        experimentalTargetCards: true
+      }).targetCards?.enabled
+    ).toBe(true);
+  });
+
   it("includes three Dig Sites so all Ruins producers can be linked", () => {
     const state = createNewGame(1, ["vanguard"]);
 

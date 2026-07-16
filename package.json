@@ -11,6 +11,7 @@
     "test:watch": "vitest --config vitest.config.ts",
     "lint": "tsc -b --pretty false",
     "bot": "QV_BOT_CLI=1 vite-node tools/playtest-bot/bot.ts",
+    "simulate:target-cards": "vite-node tools/target-card-simulation.ts",
     "loc": "node tools/loc-report.mjs"
   },
   "dependencies": {

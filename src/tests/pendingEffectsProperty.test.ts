@@ -18,12 +18,14 @@ import {
   getTileAdjustmentRule,
   getTimerAdjustmentRule,
   getValidEffectStrainTargets,
+  preparePendingEffectQueueHead,
   refreshPendingEffectForCurrentState,
   resolvePendingEffect,
   skipPendingEffect,
   suggestEffectAdjustment
 } from "../engine/manualEffects";
 import { createNewGame } from "../engine/setup";
+import { createTargetCardDeckState } from "../engine/targetCards";
 import type {
   EffectAdjustment,
   GameState,
@@ -548,6 +550,31 @@ describe("pending-effect resolution properties", () => {
         const state = scenario(ruleId, variant);
         if (!state) continue;
         if (!resolveFirstLegalOutcome(state)) failures.push(`${ruleId}@${variant}`);
+      }
+    }
+    expect(failures).toEqual([]);
+  });
+
+  it("keeps every structured effect resolvable with Target Cards enabled", () => {
+    const failures: string[] = [];
+    const variants: ScenarioVariant[] = [
+      "boundary-empty",
+      "boundary-stocked",
+      "rich-empty",
+      "rich-stocked"
+    ];
+    for (const ruleId of Object.keys(effectRulesById).sort()) {
+      for (const variant of variants) {
+        const state = scenario(ruleId, variant);
+        if (!state) continue;
+        state.targetCards = createTargetCardDeckState(
+          true,
+          `property:${ruleId}:${variant}`
+        );
+        const prepared = preparePendingEffectQueueHead(state);
+        if (!resolveFirstLegalOutcome(prepared)) {
+          failures.push(`${ruleId}@${variant}`);
+        }
       }
     }
     expect(failures).toEqual([]);

@@ -12,6 +12,12 @@ import { encounterById } from "../../data/encounters";
 import { getEffectRule } from "../../data/effectRules";
 import { resourceLabels, resources } from "../../data/resources";
 import {
+  describeTargetCard,
+  targetCardById,
+  targetCardFilterLabels,
+  targetCardRulesText
+} from "../../data/targetCards";
+import {
   getBurdenResolutionCurrentText,
   getEncounterTypeLabel
 } from "../common/gameText";
@@ -32,10 +38,10 @@ import {
   isResourceExchangeAdjustmentValid,
   isAlternativeEffectAdjustmentValid,
   isResourceGainChoiceAdjustmentValid,
+  isPendingEffectAdjustmentValid,
   isTileAdjustmentValid,
   isWardenReliefAdjustmentValid,
-  isTimerAdjustmentValid,
-  mergeEffectAdjustment
+  isTimerAdjustmentValid
 } from "../../engine/manualEffects";
 import { describeEffectControls } from "../../engine/effectControls";
 import { getStrainPlacementCapacity } from "../../engine/strainRules";
@@ -78,6 +84,15 @@ function normalizeResourceDeltas(
   }
   return next;
 }
+
+const targetDirectionArrows = {
+  NE: "↗",
+  E: "→",
+  SE: "↘",
+  SW: "↙",
+  W: "←",
+  NW: "↖"
+} as const;
 
 export function EffectPrompt({
   state,
@@ -139,8 +154,7 @@ export function EffectPrompt({
   }, [effect.id, effect.suggestedAdjustment]);
 
   const adjustment = useMemo(
-    () =>
-      mergeEffectAdjustment(effect.suggestedAdjustment, {
+    () => ({
         resourceDeltas,
         arrivalTimerDeltas,
         tileStrainDeltas,
@@ -248,10 +262,15 @@ export function EffectPrompt({
     const suggestedStrainIds = Object.keys(effect.suggestedAdjustment?.tileStrainDeltas ?? {});
     const suggestedSupportIds = effect.suggestedAdjustment?.supportTileIds ?? [];
     const suggestedTileIds = new Set([...suggestedStrainIds, ...suggestedSupportIds]);
+    const lockedTargetIds = effect.targetCardPrepared
+      ? new Set(effect.targetCardTargetTileIds ?? [])
+      : null;
     const legalTargets = getValidEffectStrainTargets(
       state,
       effect.ruleId,
       sourceTile
+    ).filter(
+      (tile) => !lockedTargetIds || lockedTargetIds.has(tile.instanceId)
     );
     const supportTargets = getEffectSupportTargets(state, effect.ruleId, sourceTile);
     const legalTargetIds = new Set(legalTargets.map((tile) => tile.instanceId));
@@ -349,12 +368,14 @@ export function EffectPrompt({
   );
   const tileAdjustmentInvalid =
     !effect.allowWardenRelief &&
-    !isTileAdjustmentValid(
-      state,
-      effect.ruleId,
-      adjustment,
-      sourceTile
-    );
+    !(effect.targetCardPrepared
+      ? isPendingEffectAdjustmentValid(state, effect, adjustment)
+      : isTileAdjustmentValid(
+          state,
+          effect.ruleId,
+          adjustment,
+          sourceTile
+        ));
   const alternativeEffectInvalid = !isAlternativeEffectAdjustmentValid(
     state,
     effect.ruleId,
@@ -685,6 +706,12 @@ export function EffectPrompt({
     if (!tile) return tileStrainDeltas[tileId] ?? 0;
 
     const currentDelta = tileStrainDeltas[tileId] ?? 0;
+    const targetCardMaximum = effect.targetCardPrepared
+      ? effect.targetCardPlannedStrainByTileId?.[tileId]
+      : undefined;
+    if (effect.targetCardPrepared && targetCardMaximum === undefined) {
+      return currentDelta;
+    }
     if (requestedDelta > 0 && alternativeEffectRule) {
       if (
         alternativeEffectRule.kind === "warehouse_loss_or_strain" &&
@@ -710,12 +737,16 @@ export function EffectPrompt({
     const nextDelta = currentDelta + requestedDelta;
     if (rule.direction === "place" && nextDelta < 0) return currentDelta;
     if (rule.direction === "remove" && nextDelta > 0) return currentDelta;
-    if (Math.abs(nextDelta) > rule.maxPerTile) return currentDelta;
+    if (
+      Math.abs(nextDelta) > rule.maxPerTile ||
+      (targetCardMaximum !== undefined && nextDelta > targetCardMaximum)
+    ) return currentDelta;
     if (rule.direction === "remove" && Math.abs(nextDelta) > tile.strain) {
       return currentDelta;
     }
     if (
       rule.direction === "place" &&
+      targetCardMaximum === undefined &&
       nextDelta > getStrainPlacementCapacity(state, tile, rule.maxPerTile)
     ) {
       return currentDelta;
@@ -853,6 +884,95 @@ export function EffectPrompt({
         <strong>{effect.effectText}</strong>
         {effect.detailText && <span>{effect.detailText}</span>}
       </div>
+
+      {state.targetCards?.enabled && effect.targetCardPrepared && (
+        <section className="target-card-resolution" aria-label="Automatic Target Card resolution">
+          <div className="target-card-resolution-heading">
+            <div>
+              <p className="eyebrow">Automatic targeting</p>
+              <h3>Target Card result</h3>
+            </div>
+            <span>{effect.targetCardDiagnostics?.length ?? 0} card{effect.targetCardDiagnostics?.length === 1 ? "" : "s"} drawn</span>
+          </div>
+
+          {effect.targetCardDiagnostics?.length ? (
+            <div className="target-card-diagnostic-list">
+              {effect.targetCardDiagnostics.map((diagnostic, index) => {
+                const card = targetCardById[diagnostic.cardId];
+                const description = card ? describeTargetCard(card) : null;
+                const selectedTile = state.map.placedTiles.find(
+                  (tile) => tile.instanceId === diagnostic.selectedTileId
+                );
+                return (
+                  <article className="target-card-diagnostic" key={diagnostic.id}>
+                    <div className="target-card-diagnostic-heading">
+                      <strong>
+                        Card {diagnostic.cardId} · {diagnostic.role === "primary"
+                          ? "Primary"
+                          : diagnostic.role === "spread"
+                            ? "Linked target"
+                            : `Target ${index + 1}`}
+                      </strong>
+                      <span className="target-card-arrow" aria-label={`${diagnostic.direction} arrow`}>
+                        {targetDirectionArrows[diagnostic.direction]} {diagnostic.direction}
+                      </span>
+                    </div>
+                    {description && (
+                      <div className="target-card-preferences" aria-label="Card preferences">
+                        <span>{description.tileClass}</span>
+                        <span>{description.side}</span>
+                        <span>{description.adjacency}</span>
+                        <span>{description.strain}</span>
+                      </div>
+                    )}
+                    <ol className="target-card-filter-results">
+                      {diagnostic.filters.map((filter) => (
+                        <li className={filter.applied ? "applied" : "ignored"} key={filter.filter}>
+                          <span>{targetCardFilterLabels[filter.filter]}: {filter.preference}</span>
+                          <strong>{filter.applied ? "Applied" : "Ignored"}</strong>
+                          <small>{filter.beforeCount} → {filter.afterCount} tiles</small>
+                        </li>
+                      ))}
+                    </ol>
+                    <div className="target-card-selection-result">
+                      <strong>
+                        Selected: {selectedTile ? selectTileName(selectedTile) : diagnostic.selectedTileId}
+                      </strong>
+                      <span>{diagnostic.selectedHexIds.join(", ")}</span>
+                      {diagnostic.plannedStrain !== undefined && diagnostic.plannedStrain > 0 && (
+                        <span>Receives {diagnostic.plannedStrain} Strain</span>
+                      )}
+                      <small>
+                        Started with {diagnostic.originalEligibleCount} eligible tile{diagnostic.originalEligibleCount === 1 ? "" : "s"}. {diagnostic.directionRequired
+                          ? `Direction was required and left ${diagnostic.directionCandidateCount}.`
+                          : "Direction was not required."}
+                        {diagnostic.coordinateFallbackUsed ? " Map-coordinate fallback resolved the exact tie." : ""}
+                        {diagnostic.printedFallbackUsed ? " The effect’s printed fallback supplied this eligible pool." : ""}
+                      </small>
+                      {diagnostic.supportedWillPrevent && (
+                        <small className="target-card-prevention">Supported will prevent 1 Strain after selection.</small>
+                      )}
+                      {diagnostic.goldenGardenWillPrevent && (
+                        <small className="target-card-prevention">The Golden Garden will prevent 1 Strain after selection.</small>
+                      )}
+                      {diagnostic.alternatePrimaryWouldComplete && (
+                        <small className="target-card-warning">Another primary could have completed every linked target; the card-selected primary is retained.</small>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="muted">No eligible Strain target was available, so no Target Card was drawn.</p>
+          )}
+
+          <details className="target-card-rules">
+            <summary>How automatic targeting works</summary>
+            <p>{targetCardRulesText}</p>
+          </details>
+        </section>
+      )}
 
       {canCancelWithWarden && onCancelWithWarden && (
         <button

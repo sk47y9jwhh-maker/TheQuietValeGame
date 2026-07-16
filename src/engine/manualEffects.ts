@@ -21,9 +21,15 @@ import {
 import {
   applyStrainToState,
   getStrainPlacementCapacity,
+  getStrainPreventionPreview,
   removeStrainFromTile
 } from "./strainRules";
 import { recalculatePassiveSupported } from "./supportRules";
+import {
+  comparePlacedTilesByMapCoordinate,
+  drawAndSelectTarget,
+  updateTargetCardDiagnostic
+} from "./targetCards";
 import type {
   AlternativeEffectDefinition,
   EffectRule,
@@ -39,6 +45,7 @@ import type {
   PendingEffectState,
   PlacedTile,
   ResourceType,
+  TargetCardSelectionDiagnostic,
   Terrain,
   TileCategory
 } from "./types";
@@ -179,7 +186,7 @@ export function queuePendingEffect(
   state: GameState,
   effect: Omit<PendingEffectState, "id">
 ): GameState {
-  return {
+  return preparePendingEffectQueueHead({
     ...state,
     pendingEffects: [
       ...state.pendingEffects,
@@ -189,14 +196,14 @@ export function queuePendingEffect(
         id: `effect_${state.pendingEffects.length + state.log.length + 1}_${Date.now()}`
       }
     ]
-  };
+  });
 }
 
 export function queuePendingEffectFirst(
   state: GameState,
   effect: Omit<PendingEffectState, "id">
 ): GameState {
-  return {
+  return preparePendingEffectQueueHead({
     ...state,
     pendingEffects: [
       {
@@ -206,7 +213,7 @@ export function queuePendingEffectFirst(
       },
       ...state.pendingEffects
     ]
-  };
+  });
 }
 
 const overstrainSpreadRuleId = systemEffectRuleId("overstrain-spread");
@@ -215,6 +222,61 @@ function queueOverstrainSpreadEffects(
   state: GameState,
   sourceTileIds: string[]
 ): GameState {
+  if (state.targetCards?.enabled) {
+    const sourceTiles = sourceTileIds
+      .map((sourceTileId) =>
+        state.map.placedTiles.find((tile) => tile.instanceId === sourceTileId)
+      )
+      .filter((tile): tile is PlacedTile => Boolean(tile))
+      .sort(comparePlacedTilesByMapCoordinate);
+    const spreadEffects: PendingEffectState[] = [];
+
+    for (const sourceTile of sourceTiles) {
+      if (
+        sourceTile.strain < 3 ||
+        getValidEffectStrainTargets(
+          state,
+          overstrainSpreadRuleId,
+          sourceTile
+        ).length === 0
+      ) {
+        continue;
+      }
+      const sourceName = getPlacedTileName(sourceTile);
+      spreadEffects.push({
+        id: `effect_${state.pendingEffects.length + state.log.length + spreadEffects.length + 1}_${Date.now()}`,
+        sourceType: "tile",
+        ruleId: overstrainSpreadRuleId,
+        sourceId: sourceTile.instanceId,
+        sourceName,
+        title: `Overstrain chain: ${sourceName}`,
+        effectText:
+          "This tile just became Overstrained. After the triggering effect finishes, it spreads 1 Strain to one adjacent placed tile with fewer than 3 Strain.",
+        detailText:
+          "The Target Deck chooses the adjacent tile. If it becomes Overstrained, it joins the end of this chain.",
+        resolutionLogMessage: `${sourceName} spread 1 Strain after becoming Overstrained.`,
+        requiresManualChoice: false,
+        confirmLabel: "Spread Strain"
+      });
+    }
+
+    if (spreadEffects.length === 0) return state;
+    const firstNonSpreadIndex = state.pendingEffects.findIndex(
+      (effect) => effect.ruleId !== overstrainSpreadRuleId
+    );
+    const insertionIndex = firstNonSpreadIndex < 0
+      ? state.pendingEffects.length
+      : firstNonSpreadIndex;
+    return preparePendingEffectQueueHead({
+      ...state,
+      pendingEffects: [
+        ...state.pendingEffects.slice(0, insertionIndex),
+        ...spreadEffects,
+        ...state.pendingEffects.slice(insertionIndex)
+      ]
+    });
+  }
+
   let nextState = state;
 
   for (const sourceTileId of [...sourceTileIds].reverse()) {
@@ -916,7 +978,8 @@ export function isAlternativeEffectAdjustmentValid(
   state: GameState,
   ruleId: string | undefined,
   adjustment: EffectAdjustment,
-  sourceTile?: PlacedTile
+  sourceTile?: PlacedTile,
+  requiredStrainTotalOverride?: number
 ): boolean {
   const rule = getAlternativeEffectRule(state, ruleId, sourceTile);
   if (!rule) return true;
@@ -943,7 +1006,9 @@ export function isAlternativeEffectAdjustmentValid(
     const paymentBranch =
       totalSpent === rule.resourceStep && totalStrain === 0;
     const strainBranch =
-      totalSpent === 0 && totalStrain === rule.requiredStrainTotal;
+      totalSpent === 0 && totalStrain === (
+        requiredStrainTotalOverride ?? rule.requiredStrainTotal
+      );
     return totalTimersRemoved === 0 && (paymentBranch || strainBranch);
   }
   if (rule.kind === "most_stocked_loss_then_strain") {
@@ -962,12 +1027,15 @@ export function isAlternativeEffectAdjustmentValid(
         ? expectedLoss === 0
         : expectedLoss < rule.resourceStep;
     return totalTimersRemoved === 0 && lossIsValid &&
-      totalStrain === (strainRequired ? rule.requiredStrainTotal : 0);
+      totalStrain === (strainRequired
+        ? requiredStrainTotalOverride ?? rule.requiredStrainTotal
+        : 0);
   }
   const paymentBranch = totalSpent === rule.resourceStep && totalStrain === 0 &&
     rule.resources.filter((resource) => resourceSpend(adjustment, resource) > 0).length === 1;
   const strainBranchAvailable = rule.resources.some((resource) => state.warehouse[resource] < rule.resourceStep);
-  const strainBranch = totalSpent === 0 && strainBranchAvailable && totalStrain === rule.requiredStrainTotal;
+  const strainBranch = totalSpent === 0 && strainBranchAvailable &&
+    totalStrain === (requiredStrainTotalOverride ?? rule.requiredStrainTotal);
   return paymentBranch || strainBranch;
 }
 
@@ -1137,6 +1205,603 @@ function getPendingEffectSourceTile(
     : undefined;
 }
 
+function targetCardAlternativeCanPlaceStrain(
+  state: GameState,
+  alternative: AlternativeEffectRule | null
+): boolean {
+  if (!alternative) return true;
+  if (alternative.kind === "pay_or_strain" || alternative.kind === "pay_total_or_strain") {
+    return alternative.requiredChoices > 0;
+  }
+  if (alternative.kind === "warehouse_loss_or_strain") {
+    return alternative.resources.some(
+      (resource) => state.warehouse[resource] < alternative.resourceStep
+    );
+  }
+  if (alternative.kind === "most_stocked_loss_then_strain") {
+    const stocked = Math.max(
+      ...alternative.resources.map((resource) => state.warehouse[resource])
+    );
+    return alternative.strainWhen === "noneLost"
+      ? stocked === 0
+      : stocked < alternative.resourceStep;
+  }
+  return false;
+}
+
+function targetCardDesiredStrain(
+  strainRule: NonNullable<TileAdjustmentRule["strain"]>,
+  alternative: AlternativeEffectRule | null,
+  printedAlternative: AlternativeEffectDefinition | undefined
+): { total: number; targets: number } {
+  if (alternative?.kind === "pay_or_strain") {
+    return {
+      total: alternative.requiredChoices * alternative.strainPerChoice,
+      targets: alternative.requiredChoices
+    };
+  }
+  if (
+    alternative?.kind === "warehouse_loss_or_strain" ||
+    alternative?.kind === "pay_total_or_strain" ||
+    alternative?.kind === "most_stocked_loss_then_strain"
+  ) {
+    const printedTotal = printedAlternative?.kind === alternative.kind
+      ? printedAlternative.requiredStrainTotal
+      : alternative.requiredStrainTotal;
+    return {
+      total: printedTotal,
+      targets: Math.min(
+        strainRule.maxTargets,
+        printedTotal
+      )
+    };
+  }
+  return {
+    total: strainRule.maxTotal,
+    targets: Math.min(strainRule.maxTargets, strainRule.maxTotal)
+  };
+}
+
+function targetCardEffectStillNeedsPlayerChoice(rule: EffectRule): boolean {
+  return Boolean(
+    rule.alternative ||
+    rule.timer ||
+    rule.resourceGainChoice ||
+    rule.exchangeLimit !== undefined ||
+    rule.resolveBurden ||
+    rule.tileAdjustment?.support
+  );
+}
+
+interface PlannedTargetCardSelection {
+  tile: PlacedTile;
+  diagnostic: TargetCardSelectionDiagnostic;
+}
+
+function planDirectTargetCardStrain(
+  state: GameState,
+  pendingEffect: PendingEffectState,
+  sourceTile: PlacedTile | undefined,
+  rule: EffectRule,
+  printedFallbackUsed: boolean
+): {
+  state: GameState;
+  adjustment: EffectAdjustment;
+  diagnostics: TargetCardSelectionDiagnostic[];
+  targetTileIds: string[];
+  plannedStrainByTileId: Record<string, number>;
+} {
+  const strainRule = getTileAdjustmentRule(
+    state,
+    pendingEffect.ruleId,
+    sourceTile
+  ).strain;
+  const candidates = getValidEffectStrainTargets(
+    state,
+    pendingEffect.ruleId,
+    sourceTile
+  );
+  const alternative = getAlternativeEffectRule(
+    state,
+    pendingEffect.ruleId,
+    sourceTile
+  );
+  if (
+    !strainRule ||
+    strainRule.direction !== "place" ||
+    candidates.length === 0 ||
+    !targetCardAlternativeCanPlaceStrain(state, alternative)
+  ) {
+    return {
+      state,
+      adjustment: {},
+      diagnostics: [],
+      targetTileIds: [],
+      plannedStrainByTileId: {}
+    };
+  }
+
+  const desired = targetCardDesiredStrain(
+    strainRule,
+    alternative,
+    rule.alternative
+  );
+  const desiredTargetCount = Math.min(
+    desired.targets,
+    strainRule.maxTargets,
+    candidates.length
+  );
+  let planningState = state;
+  let remainingCandidates = [...candidates];
+  const selections: PlannedTargetCardSelection[] = [];
+
+  const drawFrom = (pool: PlacedTile[]): boolean => {
+    if (pool.length === 0 || selections.length >= desiredTargetCount) return false;
+    const selected = drawAndSelectTarget(planningState, pool, {
+      effectId: pendingEffect.id,
+      sourceId: pendingEffect.sourceId,
+      role: "target",
+      printedFallbackUsed
+    });
+    if (!selected) return false;
+    planningState = selected.state;
+    selections.push({ tile: selected.tile, diagnostic: selected.diagnostic });
+    remainingCandidates = remainingCandidates.filter(
+      (candidate) => candidate.instanceId !== selected.tile.instanceId
+    );
+    return true;
+  };
+
+  if (strainRule.linkedStewardTargets) {
+    const stewardIds = new Set(
+      getStewardOccupiedTileTargets(state).map((tile) => tile.instanceId)
+    );
+    const maxStewardTargets = Math.min(
+      strainRule.maxStewardOccupiedTargets ?? strainRule.maxTargets,
+      desiredTargetCount
+    );
+    while (
+      selections.length < maxStewardTargets &&
+      drawFrom(
+        remainingCandidates.filter((tile) => stewardIds.has(tile.instanceId))
+      )
+    ) {
+      // Draw one card for each distinct Steward-occupied target.
+    }
+
+    const selectedStewardTiles = selections
+      .map((selection) => selection.tile)
+      .filter((tile) => stewardIds.has(tile.instanceId));
+    const maxOtherTargets = Math.min(
+      strainRule.maxOtherTargets ?? strainRule.maxTargets,
+      desiredTargetCount - selections.length
+    );
+    let selectedOtherTargets = 0;
+    while (selectedOtherTargets < maxOtherTargets) {
+      const linkedPool = remainingCandidates.filter(
+        (tile) =>
+          !stewardIds.has(tile.instanceId) &&
+          selectedStewardTiles.some((stewardTile) =>
+            arePlacedTilesAdjacent(tile, stewardTile)
+          )
+      );
+      if (!drawFrom(linkedPool)) break;
+      selectedOtherTargets += 1;
+    }
+  } else {
+    const selectedCategoryCounts = new Map<TileCategory, number>();
+    const categoryLimits = strainRule.categoryLimits ?? {};
+    for (const [category, limits] of Object.entries(categoryLimits) as Array<
+      [TileCategory, { min?: number; max: number }]
+    >) {
+      const required = Math.min(
+        limits.min ?? 0,
+        remainingCandidates.filter(
+          (tile) => getPlacedTileCategory(tile) === category
+        ).length,
+        desiredTargetCount - selections.length
+      );
+      for (let count = 0; count < required; count += 1) {
+        if (!drawFrom(
+          remainingCandidates.filter(
+            (tile) => getPlacedTileCategory(tile) === category
+          )
+        )) break;
+        selectedCategoryCounts.set(
+          category,
+          (selectedCategoryCounts.get(category) ?? 0) + 1
+        );
+      }
+    }
+
+    while (selections.length < desiredTargetCount) {
+      const pool = remainingCandidates.filter((tile) => {
+        const category = getPlacedTileCategory(tile);
+        const limits = strainRule.categoryLimits?.[category];
+        return !limits || (selectedCategoryCounts.get(category) ?? 0) < limits.max;
+      });
+      const beforeCount = selections.length;
+      if (!drawFrom(pool)) break;
+      const selectedCategory = getPlacedTileCategory(
+        selections[selections.length - 1].tile
+      );
+      selectedCategoryCounts.set(
+        selectedCategory,
+        (selectedCategoryCounts.get(selectedCategory) ?? 0) + 1
+      );
+      if (selections.length === beforeCount) break;
+    }
+  }
+
+  const plannedStrainByTileId: Record<string, number> = {};
+  const diagnostics: TargetCardSelectionDiagnostic[] = [];
+  let remainingTotal = desired.total;
+  for (let index = 0; index < selections.length; index += 1) {
+    const selection = selections[index];
+    const remainingSlots = selections.length - index - 1;
+    const amount = Math.max(
+      0,
+      Math.min(
+        strainRule.maxPerTile,
+        remainingTotal - remainingSlots
+      )
+    );
+    if (amount <= 0) continue;
+    remainingTotal -= amount;
+    plannedStrainByTileId[selection.tile.instanceId] = amount;
+    const diagnostic = { ...selection.diagnostic, plannedStrain: amount };
+    diagnostics.push(diagnostic);
+    planningState = updateTargetCardDiagnostic(
+      planningState,
+      diagnostic.id,
+      { plannedStrain: amount }
+    );
+  }
+
+  return {
+    state: planningState,
+    adjustment: { tileStrainDeltas: plannedStrainByTileId },
+    diagnostics,
+    targetTileIds: diagnostics.map((diagnostic) => diagnostic.selectedTileId),
+    plannedStrainByTileId
+  };
+}
+
+function planCascadeTargetCards(
+  state: GameState,
+  pendingEffect: PendingEffectState,
+  sourceTile: PlacedTile | undefined,
+  cascade: StrainCascadeRule,
+  printedFallbackUsed: boolean
+): {
+  state: GameState;
+  adjustment: EffectAdjustment;
+  diagnostics: TargetCardSelectionDiagnostic[];
+  targetTileIds: string[];
+  plannedStrainByTileId: Record<string, number>;
+} {
+  const anchors = getStrainCascadeAnchorTargets(
+    state,
+    pendingEffect.ruleId,
+    sourceTile
+  );
+  const primary = drawAndSelectTarget(state, anchors, {
+    effectId: pendingEffect.id,
+    sourceId: pendingEffect.sourceId,
+    role: "primary",
+    printedFallbackUsed
+  });
+  if (!primary) {
+    return {
+      state,
+      adjustment: {},
+      diagnostics: [],
+      targetTileIds: [],
+      plannedStrainByTileId: {}
+    };
+  }
+
+  let planningState = primary.state;
+  const allPrimaryCompletionCounts = anchors.map((anchor) => ({
+    anchor,
+    count: getStrainCascadeSpreadTargets(
+      state,
+      pendingEffect.ruleId,
+      anchor.instanceId,
+      sourceTile
+    ).length
+  }));
+  let remainingSpreadTargets = getStrainCascadeSpreadTargets(
+    state,
+    pendingEffect.ruleId,
+    primary.tile.instanceId,
+    sourceTile
+  );
+  const spreadSelections: PlannedTargetCardSelection[] = [];
+  while (
+    spreadSelections.length < cascade.maxSpreadTargets &&
+    remainingSpreadTargets.length > 0
+  ) {
+    const selected = drawAndSelectTarget(planningState, remainingSpreadTargets, {
+      effectId: pendingEffect.id,
+      sourceId: pendingEffect.sourceId,
+      role: "spread",
+      printedFallbackUsed
+    });
+    if (!selected) break;
+    planningState = selected.state;
+    spreadSelections.push({ tile: selected.tile, diagnostic: selected.diagnostic });
+    remainingSpreadTargets = remainingSpreadTargets.filter(
+      (tile) => tile.instanceId !== selected.tile.instanceId
+    );
+  }
+
+  const selectedPrimaryCompletionCount = allPrimaryCompletionCounts.find(
+    (entry) => entry.anchor.instanceId === primary.tile.instanceId
+  )?.count ?? 0;
+  const primaryPatch: Partial<TargetCardSelectionDiagnostic> = {
+    plannedStrain: cascade.anchorStrain,
+    linkedSecondaryAvailable: selectedPrimaryCompletionCount > 0,
+    linkedSecondaryCompleted:
+      selectedPrimaryCompletionCount >= cascade.maxSpreadTargets,
+    alternatePrimaryWouldComplete:
+      selectedPrimaryCompletionCount < cascade.maxSpreadTargets &&
+      allPrimaryCompletionCounts.some(
+        (entry) => entry.count >= cascade.maxSpreadTargets
+      )
+  };
+  const primaryDiagnostic = { ...primary.diagnostic, ...primaryPatch };
+  planningState = updateTargetCardDiagnostic(
+    planningState,
+    primaryDiagnostic.id,
+    primaryPatch
+  );
+
+  const spreadDiagnostics = spreadSelections.map((selection) => ({
+    ...selection.diagnostic,
+    plannedStrain: cascade.spreadStrain
+  }));
+  for (const diagnostic of spreadDiagnostics) {
+    planningState = updateTargetCardDiagnostic(
+      planningState,
+      diagnostic.id,
+      { plannedStrain: cascade.spreadStrain }
+    );
+  }
+  const plannedStrainByTileId = {
+    ...(cascade.anchorStrain > 0
+      ? { [primary.tile.instanceId]: cascade.anchorStrain }
+      : {}),
+    ...Object.fromEntries(
+      spreadSelections.map((selection) => [
+        selection.tile.instanceId,
+        cascade.spreadStrain
+      ])
+    )
+  };
+
+  return {
+    state: planningState,
+    adjustment: {
+      strainCascadeAnchorTileId: primary.tile.instanceId,
+      tileStrainDeltas: Object.fromEntries(
+        spreadSelections.map((selection) => [
+          selection.tile.instanceId,
+          cascade.spreadStrain
+        ])
+      )
+    },
+    diagnostics: [primaryDiagnostic, ...spreadDiagnostics],
+    targetTileIds: [
+      primary.tile.instanceId,
+      ...spreadSelections.map((selection) => selection.tile.instanceId)
+    ],
+    plannedStrainByTileId
+  };
+}
+
+/**
+ * Consumes Target Cards only for the effect currently being shown. Effects
+ * waiting behind it are prepared later, after earlier state changes settle.
+ */
+export function preparePendingEffectQueueHead(state: GameState): GameState {
+  const pendingEffect = state.pendingEffects[0];
+  if (
+    !state.targetCards?.enabled ||
+    !pendingEffect ||
+    pendingEffect.targetCardPrepared
+  ) return state;
+
+  const sourceTile = getPendingEffectSourceTile(state, pendingEffect);
+  const rule = activeRule(state, pendingEffect.ruleId, sourceTile);
+  const cascade = getStrainCascadeRule(state, pendingEffect.ruleId, sourceTile);
+  const strainRule = getTileAdjustmentRule(
+    state,
+    pendingEffect.ruleId,
+    sourceTile
+  ).strain;
+  const sourceCard = pendingEffect.sourceId
+    ? encounterById[pendingEffect.sourceId]
+    : undefined;
+  const isOptionalPlayerBenefit = sourceCard?.type === "boon" || rule.optional;
+  if (
+    isOptionalPlayerBenefit ||
+    (!cascade && (!strainRule || strainRule.direction !== "place"))
+  ) return state;
+
+  const printedFallbackUsed = rule.id !== getEffectRule(pendingEffect.ruleId).id;
+  const plan = cascade
+    ? planCascadeTargetCards(
+        state,
+        pendingEffect,
+        sourceTile,
+        cascade,
+        printedFallbackUsed
+      )
+    : planDirectTargetCardStrain(
+        state,
+        pendingEffect,
+        sourceTile,
+        rule,
+        printedFallbackUsed
+      );
+  const generatedSuggestion = suggestEffectAdjustment(
+    state,
+    pendingEffect.ruleId,
+    sourceTile
+  ).adjustment;
+  const baseSuggestion = pendingEffect.suggestedAdjustment ?? generatedSuggestion;
+  const suggestedAdjustment = mergeEffectAdjustment(
+    baseSuggestion,
+    plan.adjustment
+  );
+  const preparedEffect: PendingEffectState = {
+    ...pendingEffect,
+    targetCardPrepared: true,
+    targetCardTargetTileIds: plan.targetTileIds,
+    targetCardPlannedStrainByTileId: plan.plannedStrainByTileId,
+    targetCardDiagnostics: plan.diagnostics,
+    suggestedAdjustment: hasEffectAdjustment(suggestedAdjustment)
+      ? suggestedAdjustment
+      : undefined,
+    requiresManualChoice: !targetCardEffectStillNeedsPlayerChoice(rule)
+      ? false
+      : pendingEffect.requiresManualChoice
+  };
+
+  const coordinateFallbacks = plan.diagnostics.filter(
+    (diagnostic) => diagnostic.coordinateFallbackUsed
+  );
+  const preparedPlanState = coordinateFallbacks.length > 0
+    ? {
+        ...plan.state,
+        log: [
+          ...coordinateFallbacks.map((diagnostic, index) => ({
+            id: `log_${plan.state.log.length + index + 1}_${Date.now()}`,
+            round: plan.state.round,
+            message: `Target Card ${diagnostic.cardId} used map-coordinate fallback after its ${diagnostic.direction} arrow remained tied.`
+          })),
+          ...plan.state.log
+        ].slice(0, 80)
+      }
+    : plan.state;
+
+  return {
+    ...preparedPlanState,
+    pendingEffects: [
+      preparedEffect,
+      ...preparedPlanState.pendingEffects.slice(1)
+    ]
+  };
+}
+
+function isTargetCardTileAdjustmentValid(
+  state: GameState,
+  pendingEffect: PendingEffectState,
+  adjustment: EffectAdjustment,
+  sourceTile?: PlacedTile
+): boolean | null {
+  if (!pendingEffect.targetCardPrepared) return null;
+  const planned = pendingEffect.targetCardPlannedStrainByTileId ?? {};
+  const targetIds = new Set(pendingEffect.targetCardTargetTileIds ?? []);
+  if (targetIds.size === 0) return null;
+  const entries = Object.entries(adjustment.tileStrainDeltas ?? {}).filter(
+    ([, delta]) => delta !== 0
+  );
+  if (
+    entries.some(
+      ([tileId, delta]) =>
+        !targetIds.has(tileId) ||
+        delta < 0 ||
+        delta > (planned[tileId] ?? 0)
+    ) ||
+    Boolean(adjustment.supportTileIds?.length)
+  ) return false;
+
+  const cascade = getStrainCascadeRule(
+    state,
+    pendingEffect.ruleId,
+    sourceTile
+  );
+  if (cascade) {
+    const expectedAnchor =
+      pendingEffect.suggestedAdjustment?.strainCascadeAnchorTileId;
+    if (adjustment.strainCascadeAnchorTileId !== expectedAnchor) return false;
+    const expectedSpread = pendingEffect.suggestedAdjustment?.tileStrainDeltas ?? {};
+    const actualSpread = adjustment.tileStrainDeltas ?? {};
+    return Object.entries(expectedSpread).every(
+      ([tileId, delta]) => actualSpread[tileId] === delta
+    ) && entries.length === Object.values(expectedSpread).filter(
+      (delta) => delta !== 0
+    ).length;
+  }
+  if (adjustment.strainCascadeAnchorTileId) return false;
+
+  const alternative = getAlternativeEffectRule(
+    state,
+    pendingEffect.ruleId,
+    sourceTile
+  );
+  if (alternative) {
+    return entries.every(
+      ([tileId, delta]) => delta === planned[tileId]
+    );
+  }
+
+  const plannedEntries = Object.entries(planned).filter(([, delta]) => delta > 0);
+  return entries.length === plannedEntries.length && plannedEntries.every(
+    ([tileId, delta]) => adjustment.tileStrainDeltas?.[tileId] === delta
+  );
+}
+
+function finalizeTargetCardDiagnostics(
+  previous: GameState,
+  next: GameState,
+  pendingEffect: PendingEffectState,
+  adjustment: EffectAdjustment,
+  cascade: StrainCascadeRule | null,
+  outcomes: Map<
+    string,
+    {
+      actualStrainPlaced: number;
+      supportedPrevented: boolean;
+      goldenGardenPrevented: boolean;
+    }
+  >
+): GameState {
+  if (!pendingEffect.targetCardDiagnostics?.length) return next;
+  let finalized = next;
+
+  for (const diagnostic of pendingEffect.targetCardDiagnostics) {
+    const beforeTile = previous.map.placedTiles.find(
+      (tile) => tile.instanceId === diagnostic.selectedTileId
+    );
+    const afterTile = next.map.placedTiles.find(
+      (tile) => tile.instanceId === diagnostic.selectedTileId
+    );
+    if (!beforeTile || !afterTile) continue;
+    const isCascadeAnchor =
+      adjustment.strainCascadeAnchorTileId === diagnostic.selectedTileId;
+    const attemptedAmount = isCascadeAnchor
+      ? cascade?.anchorStrain ?? 0
+      : Math.max(
+          0,
+          adjustment.tileStrainDeltas?.[diagnostic.selectedTileId] ?? 0
+        );
+    const outcome = outcomes.get(diagnostic.selectedTileId);
+    finalized = updateTargetCardDiagnostic(finalized, diagnostic.id, {
+      strainApplied: attemptedAmount > 0,
+      actualStrainPlaced:
+        outcome?.actualStrainPlaced ??
+        Math.max(0, afterTile.strain - beforeTile.strain),
+      supportedPrevented: outcome?.supportedPrevented ?? false,
+      goldenGardenPrevented: outcome?.goldenGardenPrevented ?? false
+    });
+  }
+
+  return finalized;
+}
+
 /**
  * Checks the structured parts of a pending-effect adjustment against the
  * current state. This deliberately does not enforce the UI's "make a choice"
@@ -1176,6 +1841,17 @@ export function isPendingEffectAdjustmentValid(
     !isWardenReliefAdjustmentValid(state, adjustment)
   ) return false;
   if (pendingEffect.allowWardenRelief) return true;
+  const targetCardTileValidity = isTargetCardTileAdjustmentValid(
+    state,
+    pendingEffect,
+    adjustment,
+    sourceTile
+  );
+  const targetCardPlannedStrainTotal = targetCardTileValidity === null
+    ? undefined
+    : Object.values(
+        pendingEffect.targetCardPlannedStrainByTileId ?? {}
+      ).reduce((total, amount) => total + Math.max(0, amount), 0);
   return isFixedResourceAdjustmentValid(
     state,
     pendingEffect.ruleId,
@@ -1185,18 +1861,19 @@ export function isPendingEffectAdjustmentValid(
     state,
     pendingEffect.ruleId,
     adjustment,
-    sourceTile
+    sourceTile,
+    targetCardPlannedStrainTotal
   ) && isResourceGainChoiceAdjustmentValid(
     state,
     pendingEffect.ruleId,
     adjustment,
     sourceTile
-  ) && isTileAdjustmentValid(
-    state,
-    pendingEffect.ruleId,
-    adjustment,
-    sourceTile
-  );
+  ) && (targetCardTileValidity ?? isTileAdjustmentValid(
+      state,
+      pendingEffect.ruleId,
+      adjustment,
+      sourceTile
+    ));
 }
 
 export function canResolvePendingEffectWithoutAdjustment(
@@ -1276,13 +1953,17 @@ export function refreshPendingEffectForCurrentState(
 }
 
 function refreshPendingEffectQueueHead(state: GameState): GameState {
-  const pendingEffect = state.pendingEffects[0];
-  if (!pendingEffect) return state;
-  const refreshed = refreshPendingEffectForCurrentState(state, pendingEffect);
-  if (refreshed === pendingEffect) return state;
+  const preparedState = preparePendingEffectQueueHead(state);
+  const pendingEffect = preparedState.pendingEffects[0];
+  if (!pendingEffect) return preparedState;
+  const refreshed = refreshPendingEffectForCurrentState(
+    preparedState,
+    pendingEffect
+  );
+  if (refreshed === pendingEffect) return preparedState;
   return {
-    ...state,
-    pendingEffects: [refreshed, ...state.pendingEffects.slice(1)]
+    ...preparedState,
+    pendingEffects: [refreshed, ...preparedState.pendingEffects.slice(1)]
   };
 }
 
@@ -1320,16 +2001,29 @@ export function resolvePendingEffect(
   state: GameState,
   adjustment: EffectAdjustment = {}
 ): GameState {
+  const preparedState = preparePendingEffectQueueHead(state);
+  if (preparedState !== state) {
+    return resolvePendingEffect(preparedState, adjustment);
+  }
   const [queuedPendingEffect, ...remainingEffects] = state.pendingEffects;
   if (!queuedPendingEffect) return state;
   const pendingEffect = refreshPendingEffectForCurrentState(
     state,
     queuedPendingEffect
   );
-  const effectiveAdjustment = mergeEffectAdjustment(
+  let effectiveAdjustment = mergeEffectAdjustment(
     pendingEffect.suggestedAdjustment,
     adjustment
   );
+  if (
+    pendingEffect.targetCardPrepared &&
+    adjustment.tileStrainDeltas !== undefined
+  ) {
+    effectiveAdjustment = {
+      ...effectiveAdjustment,
+      tileStrainDeltas: { ...adjustment.tileStrainDeltas }
+    };
+  }
   if (
     pendingEffect.requiresManualChoice &&
     !hasEffectAdjustment(effectiveAdjustment) &&
@@ -1363,14 +2057,46 @@ export function resolvePendingEffect(
   };
   const newlyOverstrainedTileIds: string[] = [];
   const recordedOverstrainTileIds = new Set<string>();
+  const targetCardStrainOutcomes = new Map<
+    string,
+    {
+      actualStrainPlaced: number;
+      supportedPrevented: boolean;
+      goldenGardenPrevented: boolean;
+    }
+  >();
   const applyStrainAndRecordOverstrain = (tileId: string, amount: number) => {
-    const strainBefore = nextState.map.placedTiles.find(
+    const tileBefore = nextState.map.placedTiles.find(
       (tile) => tile.instanceId === tileId
-    )?.strain;
+    );
+    const strainBefore = tileBefore?.strain;
+    const prevention = tileBefore
+      ? getStrainPreventionPreview(nextState, tileBefore)
+      : undefined;
+    const goldenGardenRoundBefore = prevention?.goldenGardenTileId
+      ? nextState.tileActivationRecords[prevention.goldenGardenTileId]?.round
+      : undefined;
     nextState = applyStrainToState(nextState, tileId, amount);
-    const strainAfter = nextState.map.placedTiles.find(
+    const tileAfter = nextState.map.placedTiles.find(
       (tile) => tile.instanceId === tileId
-    )?.strain;
+    );
+    const strainAfter = tileAfter?.strain;
+    if (tileBefore && tileAfter) {
+      targetCardStrainOutcomes.set(tileId, {
+        actualStrainPlaced: Math.max(0, tileAfter.strain - tileBefore.strain),
+        supportedPrevented: Boolean(
+          prevention?.supported &&
+          !tileBefore.support.preventedThisRound &&
+          tileAfter.support.preventedThisRound
+        ),
+        goldenGardenPrevented: Boolean(
+          prevention?.goldenGardenTileId &&
+          goldenGardenRoundBefore !== nextState.round &&
+          nextState.tileActivationRecords[prevention.goldenGardenTileId]?.round ===
+            nextState.round
+        )
+      });
+    }
     if (
       strainBefore !== undefined &&
       strainAfter !== undefined &&
@@ -1462,6 +2188,15 @@ export function resolvePendingEffect(
     };
     nextState = recalculatePassiveSupported(nextState);
   }
+
+  nextState = finalizeTargetCardDiagnostics(
+    state,
+    nextState,
+    pendingEffect,
+    effectiveAdjustment,
+    strainCascade,
+    targetCardStrainOutcomes
+  );
 
   if (effectiveAdjustment.stewardHexUpdates) {
     nextState = {

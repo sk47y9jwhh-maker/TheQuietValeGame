@@ -4,6 +4,7 @@ import { stewards } from "../data/stewards";
 import { coreTiles, specialTiles } from "../data/tiles";
 import { getSeasonForRound } from "./season";
 import { createLedgerRunState } from "./ledger";
+import { createTargetCardDeckState } from "./targetCards";
 import type {
   GameState,
   PlayerCount,
@@ -28,6 +29,7 @@ interface EncounterSetupOptions {
 interface NewGameOptions extends EncounterSetupOptions {
   declaredVowId?: string;
   selectedGoldenTileId?: string;
+  experimentalTargetCards?: boolean;
 }
 
 export function getStartingWarehouseAmount(playerCount: PlayerCount): number {
@@ -229,6 +231,10 @@ export function createNewGame(
     pendingEffects: [],
     pendingDeckReorder: null,
     pendingCostChoice: null,
+    targetCards: createTargetCardDeckState(
+      options.experimentalTargetCards === true,
+      `${options.encounterSeed?.trim() || "QV-TARGET-CARDS"}:${playerCount}:targets`
+    ),
     ledgerRun: createLedgerRunState(startingWarehouse, options.declaredVowId, playerCount),
     log: [
       {
