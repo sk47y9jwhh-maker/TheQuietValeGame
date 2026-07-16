@@ -27,6 +27,7 @@ interface SetupPanelProps {
   declaredVowId?: string;
   selectedGoldenTileId?: string;
   selectedGoldenBoonId?: string;
+  experimentalTargetCards?: boolean;
   completedLedgerCount?: number;
   availableVows?: LedgerEntry[];
   availableGoldenTiles?: GoldenTileData[];
@@ -36,6 +37,7 @@ interface SetupPanelProps {
   onDeclaredVowChange?: (entryId: string) => void;
   onGoldenTileChange?: (tileId: string) => void;
   onGoldenBoonChange?: (boonId: string) => void;
+  onExperimentalTargetCardsChange?: (enabled: boolean) => void;
   onStart: () => void;
 }
 
@@ -50,6 +52,7 @@ export function SetupPanel({
   declaredVowId = "",
   selectedGoldenTileId = "",
   selectedGoldenBoonId = "",
+  experimentalTargetCards = false,
   completedLedgerCount = 0,
   availableVows = [],
   availableGoldenTiles = [],
@@ -59,6 +62,7 @@ export function SetupPanel({
   onDeclaredVowChange = () => {},
   onGoldenTileChange = () => {},
   onGoldenBoonChange = () => {},
+  onExperimentalTargetCardsChange = () => {},
   onStart
 }: SetupPanelProps) {
   const selectedStewards = stewardIds
@@ -260,6 +264,24 @@ export function SetupPanel({
               </label>
             </div>
           </details>
+
+          <label className="setup-experiment-toggle">
+            <input
+              checked={experimentalTargetCards}
+              onChange={(event) =>
+                onExperimentalTargetCardsChange(event.target.checked)
+              }
+              type="checkbox"
+            />
+            <span>
+              <strong>Automatic Target Cards</strong>
+              <small>
+                Experimental · removes player choice from harmful Strain
+                targets and shows every preference used. Payment choices stay
+                with the players.
+              </small>
+            </span>
+          </label>
 
           <button className="primary-action" onClick={onStart} type="button">
             Start Season I

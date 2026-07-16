@@ -1,9 +1,13 @@
 import { resources } from "../data/resources";
 import { coreTiles } from "../data/tiles";
 import type { GamePhase, GameState, PlayerCount, Season } from "../engine/types";
+import {
+  createTargetCardDeckState,
+  normalizeTargetCardDeckState
+} from "../engine/targetCards";
 import { readStoredJson, removeStoredItems, writeStoredJson } from "./browserStorage";
 
-const saveVersion = 3;
+const saveVersion = 4;
 const gameSaveKey = "quietVale.activeGame.v1";
 const setupSaveKey = "quietVale.setup.v1";
 const resourceTileIds = new Set(
@@ -19,6 +23,7 @@ export interface SavedSetup {
   declaredVowId?: string;
   selectedGoldenTileId?: string;
   selectedGoldenBoonId?: string;
+  experimentalTargetCards?: boolean;
 }
 
 export interface SavedGame extends SavedSetup {
@@ -95,14 +100,15 @@ function isSavedGameStateShape(value: unknown): value is GameState {
 function isSavedSetup(value: unknown): value is SavedSetup {
   if (!isRecord(value)) return false;
   return (
-    (value.version === 1 || value.version === 2 || value.version === saveVersion) &&
+    (value.version === 1 || value.version === 2 || value.version === 3 || value.version === saveVersion) &&
     isPlayerCount(value.playerCount) &&
     Array.isArray(value.stewardIds) &&
     value.stewardIds.every((id) => typeof id === "string") &&
     typeof value.encounterSeed === "string" &&
     (value.declaredVowId === undefined || typeof value.declaredVowId === "string") &&
     (value.selectedGoldenTileId === undefined || typeof value.selectedGoldenTileId === "string") &&
-    (value.selectedGoldenBoonId === undefined || typeof value.selectedGoldenBoonId === "string")
+    (value.selectedGoldenBoonId === undefined || typeof value.selectedGoldenBoonId === "string") &&
+    (value.experimentalTargetCards === undefined || typeof value.experimentalTargetCards === "boolean")
   );
 }
 
@@ -113,7 +119,13 @@ function isSavedGame(value: unknown): value is SavedGame {
 
 export function readSavedSetup(): SavedSetup | null {
   const saved = readStoredJson(setupSaveKey);
-  return isSavedSetup(saved) ? { ...saved, version: saveVersion } : null;
+  return isSavedSetup(saved)
+    ? {
+        ...saved,
+        version: saveVersion,
+        experimentalTargetCards: saved.experimentalTargetCards ?? false
+      }
+    : null;
 }
 
 export function readSavedGame(): SavedGame | null {
@@ -133,6 +145,8 @@ export function readSavedGame(): SavedGame | null {
   return {
     ...saved,
     version: saveVersion,
+    experimentalTargetCards:
+      saved.experimentalTargetCards ?? saved.state.targetCards?.enabled ?? false,
     state: {
       ...saved.state,
       tileSupply,
@@ -153,7 +167,13 @@ export function readSavedGame(): SavedGame | null {
         selectedGoldenBoonId:
           saved.state.encounters.selectedGoldenBoonId ?? saved.selectedGoldenBoonId,
         goldenEnabled: saved.state.encounters.goldenEnabled ?? false
-      }
+      },
+      targetCards: saved.state.targetCards
+        ? normalizeTargetCardDeckState(
+            saved.state.targetCards,
+            `${saved.encounterSeed}:targets`
+          )
+        : createTargetCardDeckState(false, `${saved.encounterSeed}:targets`)
     }
   };
 }

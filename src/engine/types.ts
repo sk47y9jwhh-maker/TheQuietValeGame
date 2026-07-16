@@ -284,6 +284,67 @@ export interface EffectControlHints {
   tileChoice: boolean;
 }
 
+export type TargetCardTileClass = "core" | "specialOrGolden";
+export type TargetCardSidePreference = "basic" | "upgraded" | "either";
+export type TargetCardAdjacencyPreference = "threePlus" | "zeroToTwo";
+export type TargetCardStrainPreference = "strained" | "unstrained";
+export type TargetCardDirection = "NE" | "E" | "SE" | "SW" | "W" | "NW";
+export type TargetCardFilterName = "class" | "side" | "adjacency" | "strain";
+
+export interface TargetCardDefinition {
+  id: number;
+  tileClass: TargetCardTileClass;
+  side: TargetCardSidePreference;
+  adjacency: TargetCardAdjacencyPreference;
+  strain: TargetCardStrainPreference;
+  direction: TargetCardDirection;
+}
+
+export interface TargetCardFilterDiagnostic {
+  filter: TargetCardFilterName;
+  preference: string;
+  applied: boolean;
+  beforeCount: number;
+  afterCount: number;
+}
+
+export interface TargetCardSelectionDiagnostic {
+  id: string;
+  effectId: string;
+  sourceId?: string;
+  role: "primary" | "target" | "spread";
+  cardId: number;
+  originalEligibleCount: number;
+  filters: TargetCardFilterDiagnostic[];
+  direction: TargetCardDirection;
+  directionRequired: boolean;
+  directionCandidateCount: number;
+  coordinateFallbackUsed: boolean;
+  selectedTileId: string;
+  selectedHexIds: string[];
+  plannedStrain?: number;
+  supportedWillPrevent: boolean;
+  goldenGardenWillPrevent: boolean;
+  strainApplied?: boolean;
+  actualStrainPlaced?: number;
+  supportedPrevented?: boolean;
+  goldenGardenPrevented?: boolean;
+  printedFallbackUsed?: boolean;
+  linkedSecondaryAvailable?: boolean;
+  linkedSecondaryCompleted?: boolean;
+  alternatePrimaryWouldComplete?: boolean;
+}
+
+export interface TargetCardDeckState {
+  enabled: boolean;
+  seed: string;
+  drawPile: number[];
+  discardPile: number[];
+  drawCount: number;
+  reshuffleCount: number;
+  history: TargetCardSelectionDiagnostic[];
+}
+
 export interface PendingEffectState {
   id: string;
   ruleId: string;
@@ -308,6 +369,12 @@ export interface PendingEffectState {
   allowWardenRelief?: boolean;
   resourceExchangeLimit?: number;
   resourceExchangeOptional?: boolean;
+  /** Set once the opt-in Target Card system has considered this effect. */
+  targetCardPrepared?: boolean;
+  /** The only tiles the automatic draw selected for positive Strain. */
+  targetCardTargetTileIds?: string[];
+  targetCardPlannedStrainByTileId?: Record<string, number>;
+  targetCardDiagnostics?: TargetCardSelectionDiagnostic[];
 }
 
 export interface PendingDeckReorderState {
@@ -490,6 +557,8 @@ export interface GameState {
   pendingEffects: PendingEffectState[];
   pendingDeckReorder: PendingDeckReorderState | null;
   pendingCostChoice: PendingCostChoiceState | null;
+  /** Optional for backwards-compatible saves; new games always initialise it. */
+  targetCards?: TargetCardDeckState;
   ledgerRun?: LedgerRunState;
   log: LogEntry[];
 }

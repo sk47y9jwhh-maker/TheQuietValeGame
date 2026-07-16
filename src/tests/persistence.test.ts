@@ -74,10 +74,56 @@ describe("browser persistence", () => {
 
     const restored = readSavedGame();
 
-    expect(restored?.version).toBe(3);
+    expect(restored?.version).toBe(4);
     expect(
       resourceTileIds.map((tileId) => restored?.state.tileSupply.core[tileId])
     ).toEqual([3, 3, 3, 3, 3]);
+  });
+
+  it("migrates legacy saves with Target Cards safely disabled", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    delete state.targetCards;
+
+    window.localStorage.setItem(
+      "quietVale.activeGame.v1",
+      JSON.stringify({
+        version: 3,
+        savedAt: new Date().toISOString(),
+        playerCount: 1,
+        stewardIds: ["vanguard"],
+        encounterSeed: "QV-LEGACY-TARGETS",
+        state
+      })
+    );
+
+    const restored = readSavedGame();
+    expect(restored?.experimentalTargetCards).toBe(false);
+    expect(restored?.state.targetCards?.enabled).toBe(false);
+    expect(restored?.state.targetCards?.drawPile).toHaveLength(12);
+  });
+
+  it("persists an enabled Target Deck and its deterministic draw state", () => {
+    const state = createNewGame(1, ["vanguard"], {
+      encounterSeed: "QV-SAVED-TARGETS",
+      experimentalTargetCards: true
+    });
+    state.targetCards!.drawCount = 2;
+    state.targetCards!.discardPile = state.targetCards!.drawPile.slice(0, 2);
+    state.targetCards!.drawPile = state.targetCards!.drawPile.slice(2);
+
+    writeSavedGame({
+      playerCount: 1,
+      stewardIds: ["vanguard"],
+      encounterSeed: "QV-SAVED-TARGETS",
+      experimentalTargetCards: true,
+      state
+    });
+
+    const restored = readSavedGame();
+    expect(restored?.experimentalTargetCards).toBe(true);
+    expect(restored?.state.targetCards?.enabled).toBe(true);
+    expect(restored?.state.targetCards?.drawCount).toBe(2);
+    expect(restored?.state.targetCards?.drawPile).toEqual(state.targetCards!.drawPile);
   });
 
   it("ignores a corrupt active game save instead of restoring a broken state", () => {

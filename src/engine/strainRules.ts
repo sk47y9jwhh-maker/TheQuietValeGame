@@ -61,24 +61,37 @@ function getAvailableGoldenGarden(
   );
 }
 
+export function getStrainPreventionPreview(
+  state: GameState,
+  target: PlacedTile,
+  preventionRound = state.round
+): { supported: boolean; goldenGardenTileId?: string } {
+  const goldenGarden = getAvailableGoldenGarden(
+    state,
+    target,
+    preventionRound
+  );
+  return {
+    supported:
+      (target.support.passive || target.support.singleUse) &&
+      !target.support.preventedThisRound,
+    goldenGardenTileId: goldenGarden?.instanceId
+  };
+}
+
 export function getStrainPlacementCapacity(
   state: GameState,
   target: PlacedTile,
   maxAmount = Number.MAX_SAFE_INTEGER,
   preventionRound = state.round
 ): number {
-  const supportedPrevention =
-    (target.support.passive || target.support.singleUse) &&
-    !target.support.preventedThisRound
-      ? 1
-      : 0;
-  const gardenPrevention = getAvailableGoldenGarden(
+  const prevention = getStrainPreventionPreview(
     state,
     target,
     preventionRound
-  )
-    ? 1
-    : 0;
+  );
+  const supportedPrevention = prevention.supported ? 1 : 0;
+  const gardenPrevention = prevention.goldenGardenTileId ? 1 : 0;
   return Math.min(
     maxAmount,
     Math.max(0, 3 - target.strain) + supportedPrevention + gardenPrevention

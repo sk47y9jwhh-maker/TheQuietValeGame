@@ -176,6 +176,37 @@ input {
   line-height: 1.35;
 }
 
+.setup-experiment-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px;
+  border: 1px solid rgba(75, 102, 107, 0.3);
+  border-radius: 8px;
+  background: rgba(75, 102, 107, 0.08);
+  cursor: pointer;
+}
+
+.setup-experiment-toggle input {
+  width: 18px;
+  min-height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--qv-muted-green-dark);
+}
+
+.setup-experiment-toggle span {
+  display: grid;
+  gap: 3px;
+}
+
+.setup-experiment-toggle small {
+  color: rgba(38, 34, 27, 0.67);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
 .golden-setup-summary {
   border-color: rgba(168, 137, 63, 0.45);
   background: rgba(168, 137, 63, 0.1);
@@ -1226,6 +1257,141 @@ button:disabled {
 
 .effect-copy span {
   color: rgba(38, 34, 27, 0.72);
+}
+
+.target-card-resolution {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(75, 102, 107, 0.34);
+  border-left: 4px solid var(--qv-river-blue);
+  border-radius: 8px;
+  background: rgba(75, 102, 107, 0.08);
+}
+
+.target-card-resolution-heading,
+.target-card-diagnostic-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.target-card-resolution-heading h3,
+.target-card-resolution-heading p {
+  margin: 0;
+}
+
+.target-card-resolution-heading > span {
+  color: var(--qv-river-blue);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.target-card-diagnostic-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 8px;
+}
+
+.target-card-diagnostic {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(38, 34, 27, 0.16);
+  border-radius: 8px;
+  background: rgba(240, 234, 216, 0.78);
+}
+
+.target-card-arrow {
+  min-width: 48px;
+  color: var(--qv-river-blue);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.target-card-preferences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.target-card-preferences span {
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: rgba(75, 102, 107, 0.1);
+  color: var(--qv-ink);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.target-card-filter-results {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.target-card-filter-results li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 8px;
+  padding: 5px 6px;
+  border-radius: 5px;
+  background: rgba(38, 34, 27, 0.05);
+  font-size: 10px;
+}
+
+.target-card-filter-results li strong {
+  color: var(--qv-muted-green-dark);
+}
+
+.target-card-filter-results li.ignored strong {
+  color: var(--qv-danger-rust);
+}
+
+.target-card-filter-results li small {
+  grid-column: 1 / -1;
+  color: rgba(38, 34, 27, 0.62);
+}
+
+.target-card-selection-result {
+  display: grid;
+  gap: 3px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(38, 34, 27, 0.14);
+}
+
+.target-card-selection-result > span,
+.target-card-selection-result > small {
+  color: rgba(38, 34, 27, 0.68);
+  line-height: 1.35;
+}
+
+.target-card-selection-result .target-card-prevention {
+  color: var(--qv-muted-green-dark);
+  font-weight: 700;
+}
+
+.target-card-selection-result .target-card-warning {
+  color: var(--qv-danger-rust);
+  font-weight: 700;
+}
+
+.target-card-rules summary {
+  color: var(--qv-river-blue);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.target-card-rules p {
+  margin: 7px 0 0;
+  color: rgba(38, 34, 27, 0.7);
+  font-size: 10.5px;
+  line-height: 1.45;
 }
 
 .season-effects {
