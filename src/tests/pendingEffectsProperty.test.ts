@@ -555,7 +555,7 @@ describe("pending-effect resolution properties", () => {
     expect(failures).toEqual([]);
   });
 
-  it("keeps every structured effect resolvable with Target Cards enabled", () => {
+  it("keeps every structured effect resolvable with standard Target Cards", () => {
     const failures: string[] = [];
     const variants: ScenarioVariant[] = [
       "boundary-empty",
@@ -568,7 +568,6 @@ describe("pending-effect resolution properties", () => {
         const state = scenario(ruleId, variant);
         if (!state) continue;
         state.targetCards = createTargetCardDeckState(
-          true,
           `property:${ruleId}:${variant}`
         );
         const prepared = preparePendingEffectQueueHead(state);

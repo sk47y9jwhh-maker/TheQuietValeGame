@@ -118,7 +118,6 @@ function makeBoard(effectIndex: number): GameState {
 
 const baseState = createNewGame(4, ["vanguard", "warden", "knight", "quartermaster"]);
 let deck: TargetCardDeckState = createTargetCardDeckState(
-  true,
   "QV-TARGET-CARD-SIMULATION-DECK"
 );
 

@@ -95,6 +95,7 @@ import type {
   EffectAdjustment,
   GameState,
   HexDirection,
+  PendingEffectState,
   PlacedTile,
   PlayerCount,
   ResourceType,
@@ -282,6 +283,28 @@ function buildExactAlternativeStrainAdjustment(
   return remaining === 0 ? { tileStrainDeltas } : undefined;
 }
 
+function targetCardPlannedStrainAdjustment(
+  pending: PendingEffectState,
+): EffectAdjustment | undefined {
+  if (!pending.targetCardPrepared) return undefined;
+  const tileStrainDeltas = Object.fromEntries(
+    Object.entries(pending.targetCardPlannedStrainByTileId ?? {})
+      .filter(([, amount]) => amount > 0),
+  );
+  return Object.keys(tileStrainDeltas).length > 0
+    ? { tileStrainDeltas }
+    : undefined;
+}
+
+function clearTargetCardStrainForPayment(
+  pending: PendingEffectState,
+  adjustment: EffectAdjustment,
+): EffectAdjustment {
+  return pending.targetCardPrepared
+    ? { ...adjustment, tileStrainDeltas: {} }
+    : adjustment;
+}
+
 function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): EffectAdjustment {
   const queuedPending = state.pendingEffects[0];
   if (!queuedPending) return {};
@@ -352,15 +375,27 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
   if (
     pending.suggestedAdjustment &&
     hasEffectAdjustment(pending.suggestedAdjustment) &&
-    isTileAdjustmentValid(state, pending.ruleId, pending.suggestedAdjustment, sourceTile) &&
+    (
+      pending.targetCardPrepared ||
+      isTileAdjustmentValid(
+        state,
+        pending.ruleId,
+        pending.suggestedAdjustment,
+        sourceTile
+      )
+    ) &&
     !pending.requiresManualChoice
   ) return {};
   if (alternativeRule?.kind === "pay_or_strain") {
     const resource = alternativeRule.resources[0];
     const totalCost = alternativeRule.resourceStep * alternativeRule.requiredChoices;
     if (state.warehouse[resource] >= totalCost) {
-      return { resourceDeltas: { [resource]: -totalCost } };
+      return clearTargetCardStrainForPayment(pending, {
+        resourceDeltas: { [resource]: -totalCost },
+      });
     }
+    const targetCardStrain = targetCardPlannedStrainAdjustment(pending);
+    if (targetCardStrain) return targetCardStrain;
   }
   if (alternativeRule?.kind === "pay_or_timer") {
     const resource = alternativeRule.resources[0];
@@ -390,15 +425,16 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
         resourceDeltas: { [payable]: -alternativeRule.resourceStep },
       };
       if (isAlternativeEffectAdjustmentValid(state, pending.ruleId, payment, sourceTile)) {
-        return payment;
+        return clearTargetCardStrainForPayment(pending, payment);
       }
     }
-    const strainAdjustment = buildExactAlternativeStrainAdjustment(
-      state,
-      pending.ruleId,
-      sourceTile,
-      alternativeRule.requiredStrainTotal,
-    );
+    const strainAdjustment = targetCardPlannedStrainAdjustment(pending) ??
+      buildExactAlternativeStrainAdjustment(
+        state,
+        pending.ruleId,
+        sourceTile,
+        alternativeRule.requiredStrainTotal,
+      );
     if (
       strainAdjustment &&
       isAlternativeEffectAdjustmentValid(
@@ -421,7 +457,8 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
       ? expectedLoss === 0
       : expectedLoss < alternativeRule.resourceStep;
     const strainAdjustment = strainRequired
-      ? buildExactAlternativeStrainAdjustment(
+      ? targetCardPlannedStrainAdjustment(pending) ??
+        buildExactAlternativeStrainAdjustment(
           state,
           pending.ruleId,
           sourceTile,
@@ -436,7 +473,9 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
           : undefined,
       };
       if (isAlternativeEffectAdjustmentValid(state, pending.ruleId, adjustment, sourceTile)) {
-        return adjustment;
+        return strainRequired
+          ? adjustment
+          : clearTargetCardStrainForPayment(pending, adjustment);
       }
     }
     return {};
@@ -448,19 +487,20 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
     if (payable) {
       const payment = { resourceDeltas: { [payable]: -alternativeRule.resourceStep } };
       if (isAlternativeEffectAdjustmentValid(state, pending.ruleId, payment, sourceTile)) {
-        return payment;
+        return clearTargetCardStrainForPayment(pending, payment);
       }
     }
     const strainBranchAvailable = alternativeRule.resources.some(
       (resource) => state.warehouse[resource] < alternativeRule.resourceStep,
     );
     if (strainBranchAvailable && alternativeRule.requiredStrainTotal > 0) {
-      const strainAdjustment = buildExactAlternativeStrainAdjustment(
-        state,
-        pending.ruleId,
-        sourceTile,
-        alternativeRule.requiredStrainTotal,
-      );
+      const strainAdjustment = targetCardPlannedStrainAdjustment(pending) ??
+        buildExactAlternativeStrainAdjustment(
+          state,
+          pending.ruleId,
+          sourceTile,
+          alternativeRule.requiredStrainTotal,
+        );
       if (
         strainAdjustment &&
         isAlternativeEffectAdjustmentValid(

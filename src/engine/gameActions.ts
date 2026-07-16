@@ -2625,7 +2625,7 @@ export function resolveEndRound(state: GameState): GameState {
     nextState = log(
       nextState,
       hasValidTarget
-        ? `Arrival expired unresolved: ${card?.name ?? expiredArrival.cardId}. Choose a tile to receive 1 Strain.`
+        ? `Arrival expired unresolved: ${card?.name ?? expiredArrival.cardId}. The Target Deck selects a tile to receive 1 Strain.`
         : `Arrival expired unresolved: ${card?.name ?? expiredArrival.cardId}. No valid Strain target was available.`
     );
     nextState = queuePendingEffect(nextState, {
@@ -2637,7 +2637,7 @@ export function resolveEndRound(state: GameState): GameState {
       effectText:
         "This Arrival expired unresolved. Place 1 Strain on a placed tile with fewer than 3 Strain.",
       detailText: card && card.type === "arrival" ? `Requirement: ${card.requirementText}` : undefined,
-      requiresManualChoice: hasValidTarget
+      requiresManualChoice: false
     });
   }
 

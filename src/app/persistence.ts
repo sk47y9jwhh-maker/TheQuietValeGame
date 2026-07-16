@@ -23,7 +23,6 @@ export interface SavedSetup {
   declaredVowId?: string;
   selectedGoldenTileId?: string;
   selectedGoldenBoonId?: string;
-  experimentalTargetCards?: boolean;
 }
 
 export interface SavedGame extends SavedSetup {
@@ -107,8 +106,7 @@ function isSavedSetup(value: unknown): value is SavedSetup {
     typeof value.encounterSeed === "string" &&
     (value.declaredVowId === undefined || typeof value.declaredVowId === "string") &&
     (value.selectedGoldenTileId === undefined || typeof value.selectedGoldenTileId === "string") &&
-    (value.selectedGoldenBoonId === undefined || typeof value.selectedGoldenBoonId === "string") &&
-    (value.experimentalTargetCards === undefined || typeof value.experimentalTargetCards === "boolean")
+    (value.selectedGoldenBoonId === undefined || typeof value.selectedGoldenBoonId === "string")
   );
 }
 
@@ -122,8 +120,7 @@ export function readSavedSetup(): SavedSetup | null {
   return isSavedSetup(saved)
     ? {
         ...saved,
-        version: saveVersion,
-        experimentalTargetCards: saved.experimentalTargetCards ?? false
+        version: saveVersion
       }
     : null;
 }
@@ -145,8 +142,6 @@ export function readSavedGame(): SavedGame | null {
   return {
     ...saved,
     version: saveVersion,
-    experimentalTargetCards:
-      saved.experimentalTargetCards ?? saved.state.targetCards?.enabled ?? false,
     state: {
       ...saved.state,
       tileSupply,
@@ -173,7 +168,7 @@ export function readSavedGame(): SavedGame | null {
             saved.state.targetCards,
             `${saved.encounterSeed}:targets`
           )
-        : createTargetCardDeckState(false, `${saved.encounterSeed}:targets`)
+        : createTargetCardDeckState(`${saved.encounterSeed}:targets`)
     }
   };
 }

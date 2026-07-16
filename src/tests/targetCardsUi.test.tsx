@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../app/App";
 import { EffectPrompt } from "../components/effects/EffectPrompt";
@@ -33,28 +33,22 @@ describe("Target Card UI", () => {
     window.localStorage.clear();
   });
 
-  it("offers a clearly experimental setup toggle that is off by default", () => {
+  it("uses Target Cards as the standard without a setup control", () => {
     render(<App />);
-    const toggle = screen.getByRole("checkbox", {
-      name: /automatic target cards/i
-    });
 
-    expect(toggle).not.toBeChecked();
-    fireEvent.click(toggle);
-    expect(toggle).toBeChecked();
     expect(
-      screen.getByText(/return every drawn card to the bottom/i)
-    ).toBeInTheDocument();
+      screen.queryByRole("checkbox", { name: /automatic target cards/i })
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /start season i/i })).toBeEnabled();
   });
 
   it("shows the card, every filter result, final target, and prevention timing", () => {
     const state = createNewGame(1, ["vanguard"], {
-      encounterSeed: "QV-TARGET-UI",
-      experimentalTargetCards: true
+      encounterSeed: "QV-TARGET-UI"
     });
     state.map.placedTiles = [tile("other", "A1"), tile("protected", "C1", true)];
     state.targetCards = {
-      ...createTargetCardDeckState(true, "QV-TARGET-UI"),
+      ...createTargetCardDeckState("QV-TARGET-UI"),
       drawPile: [3, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     };
     state.pendingEffects = [{

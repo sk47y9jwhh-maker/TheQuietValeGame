@@ -45,15 +45,14 @@ function placed(
   };
 }
 
-function experimentalState(tiles: PlacedTile[], cardOrder?: number[]): GameState {
+function targetCardState(tiles: PlacedTile[], cardOrder?: number[]): GameState {
   const state = createNewGame(1, ["vanguard"], {
-    encounterSeed: "TARGET-CARD-TEST",
-    experimentalTargetCards: true
+    encounterSeed: "TARGET-CARD-TEST"
   });
   state.map.placedTiles = tiles;
   if (cardOrder) {
     state.targetCards = {
-      ...createTargetCardDeckState(true, "TARGET-CARD-TEST"),
+      ...createTargetCardDeckState("TARGET-CARD-TEST"),
       drawPile: [
         ...cardOrder,
         ...targetCards
@@ -84,7 +83,7 @@ function pendingBurden(
   return preparePendingEffectQueueHead(state);
 }
 
-describe("experimental Target Cards", () => {
+describe("Target Cards", () => {
   it("contains the locked 24-card opposite-arrow distribution", () => {
     expect(targetCards).toEqual([
       { id: 1, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "strained", direction: "NE" },
@@ -150,7 +149,7 @@ describe("experimental Target Cards", () => {
   });
 
   it("returns every draw to the bottom without reshuffling", () => {
-    let deck = createTargetCardDeckState(true, "CONTINUOUS-DECK");
+    let deck = createTargetCardDeckState("CONTINUOUS-DECK");
     const startingOrder = [...deck.drawPile];
     const firstCycle: number[] = [];
     for (let index = 0; index < 24; index += 1) {
@@ -169,7 +168,8 @@ describe("experimental Target Cards", () => {
 
   it("migrates the old draw and discard piles into one 24-card queue", () => {
     const legacy = {
-      ...createTargetCardDeckState(true, "LEGACY-DECK"),
+      ...createTargetCardDeckState("LEGACY-DECK"),
+      enabled: false,
       drawPile: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       discardPile: [1, 2],
       drawCount: 2,
@@ -182,6 +182,7 @@ describe("experimental Target Cards", () => {
       13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24
     ]);
     expect(migrated).not.toHaveProperty("discardPile");
+    expect(migrated).not.toHaveProperty("enabled");
     expect(migrated.drawCount).toBe(2);
     expect(migrated).not.toHaveProperty("reshuffleCount");
   });
@@ -196,7 +197,7 @@ describe("experimental Target Cards", () => {
         strain: 1
       })
     ];
-    const state = experimentalState(tiles);
+    const state = targetCardState(tiles);
     const selected = selectTargetWithCard(state, tiles, targetCardById[1], {
       effectId: "sequential"
     });
@@ -218,7 +219,7 @@ describe("experimental Target Cards", () => {
     const centre = placed("centre", "c15_path", ["G1", "G2"]);
     const neighbor = placed("neighbor", "c05_cabin", ["H1", "H2"]);
     const other = placed("other", "c13_workshops", "F2");
-    const state = experimentalState([centre, neighbor, other]);
+    const state = targetCardState([centre, neighbor, other]);
 
     expect(countAdjacentPlacedTiles(state, centre)).toBe(2);
   });
@@ -231,7 +232,7 @@ describe("experimental Target Cards", () => {
       tileClass: "core"
     };
     const extentSelection = selectTargetWithCard(
-      experimentalState([eastFootprint, westFootprint]),
+      targetCardState([eastFootprint, westFootprint]),
       [eastFootprint, westFootprint],
       eastCard,
       { effectId: "extent" }
@@ -242,7 +243,7 @@ describe("experimental Target Cards", () => {
     const upper = placed("upper", "c15_path", "A1");
     const lower = placed("lower", "c05_cabin", "A2");
     const tied = selectTargetWithCard(
-      experimentalState([upper, lower]),
+      targetCardState([upper, lower]),
       [upper, lower],
       targetCardById[4],
       { effectId: "fallback" }
@@ -256,7 +257,7 @@ describe("experimental Target Cards", () => {
     const north = placed("north", "c15_path", "C1");
     const eastButLower = placed("east_lower", "c05_cabin", "E3");
     const selected = selectTargetWithCard(
-      experimentalState([north, eastButLower]),
+      targetCardState([north, eastButLower]),
       [north, eastButLower],
       targetCardById[1],
       { effectId: "diagonal_projection" }
@@ -272,7 +273,7 @@ describe("experimental Target Cards", () => {
       supported: true
     });
     const selected = selectTargetWithCard(
-      experimentalState([west, eastSupported]),
+      targetCardState([west, eastSupported]),
       [west, eastSupported],
       targetCardById[3],
       { effectId: "supported" }
@@ -284,12 +285,12 @@ describe("experimental Target Cards", () => {
   it("draws once for multiple Strain on one tile and resolves cleanly at the cap", () => {
     const lumber = placed("lumber", "c01_lumber_yard", "G1", { strain: 2 });
     const prepared = pendingBurden(
-      experimentalState([lumber], [1]),
+      targetCardState([lumber], [1]),
       "burden_forest_s_grudge",
       2
     );
 
-    expect(prepared.targetCards?.drawCount).toBe(1);
+    expect(prepared.targetCards.drawCount).toBe(1);
     expect(prepared.pendingEffects[0].suggestedAdjustment?.tileStrainDeltas).toEqual({
       lumber: 2
     });
@@ -298,7 +299,7 @@ describe("experimental Target Cards", () => {
     const resolved = resolvePendingEffect(prepared);
     expect(resolved.map.placedTiles[0].strain).toBe(3);
     expect(resolved.pendingEffects).toHaveLength(0);
-    expect(resolved.targetCards?.history[0]).toMatchObject({
+    expect(resolved.targetCards.history[0]).toMatchObject({
       plannedStrain: 2,
       actualStrainPlaced: 1,
       strainApplied: true
@@ -308,7 +309,7 @@ describe("experimental Target Cards", () => {
   it("replaces a generic Strain suggestion with the card-selected target", () => {
     const west = placed("west", "c15_path", "A1");
     const east = placed("east", "c05_cabin", "C1");
-    const state = experimentalState([west, east], [3]);
+    const state = targetCardState([west, east], [3]);
     state.pendingEffects = [{
       id: "replace_generic_target",
       ruleId: systemEffectRuleId("arrival-expired"),
@@ -337,7 +338,7 @@ describe("experimental Target Cards", () => {
       placed("wellbeing2", "c11_washhouse", "G1")
     ];
     const prepared = pendingBurden(
-      experimentalState(tiles, [1, 2]),
+      targetCardState(tiles, [1, 2]),
       "burden_the_long_cough",
       2
     );
@@ -346,7 +347,7 @@ describe("experimental Target Cards", () => {
     );
     const selected = tiles.filter((tile) => selectedIds.includes(tile.instanceId));
 
-    expect(prepared.targetCards?.drawCount).toBe(2);
+    expect(prepared.targetCards.drawCount).toBe(2);
     expect(selected.filter((tile) => tile.tileId === "c09_tavern")).toHaveLength(1);
     expect(selected.filter((tile) => tile.tileId === "c11_washhouse")).toHaveLength(1);
     expect(resolvePendingEffect(prepared).pendingEffects).toHaveLength(0);
@@ -358,7 +359,7 @@ describe("experimental Target Cards", () => {
       placed("social2", "c09_tavern", "C1")
     ];
     const prepared = pendingBurden(
-      experimentalState(tiles, [1, 2]),
+      targetCardState(tiles, [1, 2]),
       "burden_empty_shelves",
       2
     );
@@ -372,7 +373,7 @@ describe("experimental Target Cards", () => {
     expect(paid.pendingEffects).toHaveLength(0);
     expect(paid.warehouse.goods).toBe(prepared.warehouse.goods - 2);
     expect(paid.map.placedTiles.every((tile) => tile.strain === 0)).toBe(true);
-    expect(paid.targetCards?.history.every((entry) => entry.strainApplied === false)).toBe(true);
+    expect(paid.targetCards.history.every((entry) => entry.strainApplied === false)).toBe(true);
   });
 
   it("attempts the full printed Strain alternative before applying the cap", () => {
@@ -380,7 +381,7 @@ describe("experimental Target Cards", () => {
       placed("resource1", "c01_lumber_yard", "A1", { strain: 2 }),
       placed("resource2", "c04_farmstead", "C1", { strain: 2 })
     ];
-    const state = experimentalState(resourcesAtCap, [1, 2]);
+    const state = targetCardState(resourcesAtCap, [1, 2]);
     for (const resource of Object.keys(state.warehouse) as Array<keyof typeof state.warehouse>) {
       state.warehouse[resource] = 0;
     }
@@ -397,7 +398,7 @@ describe("experimental Target Cards", () => {
     const resolved = resolvePendingEffect(prepared);
     expect(resolved.pendingEffects).toHaveLength(0);
     expect(resolved.map.placedTiles.map((tile) => tile.strain)).toEqual([3, 3]);
-    expect(resolved.targetCards?.history.map((entry) => entry.actualStrainPlaced)).toEqual([
+    expect(resolved.targetCards.history.map((entry) => entry.actualStrainPlaced)).toEqual([
       1,
       1
     ]);
@@ -408,14 +409,14 @@ describe("experimental Target Cards", () => {
     const goodAnchor = placed("good", "c01_lumber_yard", "G1");
     const neighbor = placed("neighbor", "c15_path", "H1");
     const prepared = pendingBurden(
-      experimentalState([badAnchor, goodAnchor, neighbor], [4, 1]),
+      targetCardState([badAnchor, goodAnchor, neighbor], [4, 1]),
       "burden_forest_s_grudge",
       3
     );
     const primary = prepared.pendingEffects[0].targetCardDiagnostics?.[0];
 
     expect(prepared.pendingEffects[0].suggestedAdjustment?.strainCascadeAnchorTileId).toBe("bad");
-    expect(prepared.targetCards?.drawCount).toBe(1);
+    expect(prepared.targetCards.drawCount).toBe(1);
     expect(primary).toMatchObject({
       selectedTileId: "bad",
       linkedSecondaryAvailable: false,
@@ -428,12 +429,12 @@ describe("experimental Target Cards", () => {
   it("determines printed fallback eligibility before drawing", () => {
     const crafting = placed("crafting", "c13_workshops", "G1");
     const prepared = pendingBurden(
-      experimentalState([crafting], [1]),
+      targetCardState([crafting], [1]),
       "burden_smoke_over_hearths",
       3
     );
 
-    expect(prepared.targetCards?.drawCount).toBe(1);
+    expect(prepared.targetCards.drawCount).toBe(1);
     expect(prepared.pendingEffects[0].targetCardDiagnostics?.[0]).toMatchObject({
       selectedTileId: "crafting",
       printedFallbackUsed: true
@@ -445,7 +446,7 @@ describe("experimental Target Cards", () => {
       supported: true
     });
     const other = placed("other", "c05_cabin", "A1");
-    const state = experimentalState([protectedTile, other], [3]);
+    const state = targetCardState([protectedTile, other], [3]);
     state.pendingEffects = [{
       id: "arrival_expired",
       ruleId: systemEffectRuleId("arrival-expired"),
@@ -461,7 +462,7 @@ describe("experimental Target Cards", () => {
     const resolved = resolvePendingEffect(prepared);
     expect(resolved.map.placedTiles.find((tile) => tile.instanceId === "protected")?.strain).toBe(0);
     expect(resolved.map.placedTiles.find((tile) => tile.instanceId === "other")?.strain).toBe(0);
-    expect(resolved.targetCards?.history[0]).toMatchObject({
+    expect(resolved.targetCards.history[0]).toMatchObject({
       supportedPrevented: true,
       actualStrainPlaced: 0
     });
@@ -476,7 +477,7 @@ describe("experimental Target Cards", () => {
       "D1",
       { kind: "special", side: "special" }
     );
-    const state = experimentalState([other, selectedTile, garden], [3]);
+    const state = targetCardState([other, selectedTile, garden], [3]);
     state.pendingEffects = [{
       id: "garden_prevention",
       ruleId: systemEffectRuleId("arrival-expired"),
@@ -499,14 +500,14 @@ describe("experimental Target Cards", () => {
     expect(resolved.map.placedTiles.find((tile) => tile.instanceId === "selected")?.strain).toBe(0);
     expect(resolved.map.placedTiles.find((tile) => tile.instanceId === "other")?.strain).toBe(0);
     expect(resolved.tileActivationRecords.garden?.round).toBe(resolved.round);
-    expect(resolved.targetCards?.history[0]).toMatchObject({
+    expect(resolved.targetCards.history[0]).toMatchObject({
       goldenGardenPrevented: true,
       actualStrainPlaced: 0
     });
   });
 
   it("draws no card and acknowledges cleanly when no eligible target exists", () => {
-    const state = experimentalState([], [1]);
+    const state = targetCardState([], [1]);
     state.pendingEffects = [{
       id: "no_target",
       ruleId: systemEffectRuleId("arrival-expired"),
@@ -518,7 +519,7 @@ describe("experimental Target Cards", () => {
     }];
 
     const prepared = preparePendingEffectQueueHead(state);
-    expect(prepared.targetCards?.drawCount).toBe(0);
+    expect(prepared.targetCards.drawCount).toBe(0);
     expect(prepared.pendingEffects[0]).toMatchObject({
       targetCardPrepared: true,
       targetCardDiagnostics: [],
@@ -533,7 +534,7 @@ describe("experimental Target Cards", () => {
     const wellbeing = placed("wellbeing", "c11_washhouse", "I1", { strain: 2 });
     const wellbeingNeighbor = placed("wellbeing_neighbor", "c15_path", "H1");
     const prepared = pendingBurden(
-      experimentalState(
+      targetCardState(
         [wellbeing, wellbeingNeighbor, social, socialNeighbor],
         [1, 2, 3, 4]
       ),
@@ -559,7 +560,7 @@ describe("experimental Target Cards", () => {
     const tail = placed("tail", "c15_path", "G1");
     const middle = placed("middle", "c15_path", "H1", { strain: 2 });
     const source = placed("source", "c15_path", "I1", { strain: 2 });
-    const state = experimentalState([tail, middle, source], [3, 3, 3]);
+    const state = targetCardState([tail, middle, source], [3, 3, 3]);
     state.pendingEffects = [{
       id: "chain_start",
       ruleId: systemEffectRuleId("arrival-expired"),
@@ -583,19 +584,18 @@ describe("experimental Target Cards", () => {
 
     expect(finished.pendingEffects).toHaveLength(0);
     expect(finished.map.placedTiles.map((tile) => tile.strain)).toEqual([1, 3, 3]);
-    expect(finished.targetCards?.drawCount).toBe(3);
+    expect(finished.targetCards.drawCount).toBe(3);
   });
 
-  it("leaves production behavior untouched when the experiment is disabled", () => {
-    const state = createNewGame(1, ["vanguard"], {
-      experimentalTargetCards: false
-    });
+  it("ignores the retired disabled flag in legacy deck state", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    (state.targetCards as typeof state.targetCards & { enabled: boolean }).enabled = false;
     state.map.placedTiles = [
       placed("left", "c15_path", "A1"),
       placed("right", "c05_cabin", "C1")
     ];
     state.pendingEffects = [{
-      id: "disabled",
+      id: "legacy_disabled",
       ruleId: systemEffectRuleId("arrival-expired"),
       sourceType: "system",
       sourceName: "Expired Arrival",
@@ -604,9 +604,9 @@ describe("experimental Target Cards", () => {
       requiresManualChoice: true
     }];
 
-    const unchanged = preparePendingEffectQueueHead(state);
-    expect(unchanged).toBe(state);
-    expect(unchanged.pendingEffects[0].targetCardPrepared).toBeUndefined();
-    expect(unchanged.targetCards?.drawCount).toBe(0);
+    const prepared = preparePendingEffectQueueHead(state);
+    expect(prepared.pendingEffects[0].targetCardPrepared).toBe(true);
+    expect(prepared.targetCards.drawCount).toBe(1);
+    expect(prepared.targetCards).not.toHaveProperty("enabled");
   });
 });
