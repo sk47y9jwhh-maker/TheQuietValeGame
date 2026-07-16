@@ -58,6 +58,24 @@ describe("app smoke flow", () => {
     expect(saved.encounterSeed).toMatch(/^QV-[A-Z0-9]+$/);
   });
 
+  it("shows how locked Ledger Vows become available", () => {
+    render(<App />);
+
+    expect(
+      screen.getByText(
+        "No Vows unlocked yet · first Vow unlocks at 25 completed entries · 0/50 entries complete"
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: "No Roads Raised — unlocks at 25 entries" })
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("option", {
+        name: "The Small Storehouse — unlocks at 34 entries · 3–4 players only"
+      })
+    ).toBeDisabled();
+  });
+
   it("declares one available Ledger Vow before setup", () => {
     const campaign = createEmptyLedgerCampaign();
     for (let index = 1; index <= 40; index += 1) {
