@@ -339,9 +339,7 @@ export interface TargetCardDeckState {
   enabled: boolean;
   seed: string;
   drawPile: number[];
-  discardPile: number[];
   drawCount: number;
-  reshuffleCount: number;
   history: TargetCardSelectionDiagnostic[];
 }
 

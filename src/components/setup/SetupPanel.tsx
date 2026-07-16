@@ -276,9 +276,9 @@ export function SetupPanel({
             <span>
               <strong>Automatic Target Cards</strong>
               <small>
-                Experimental · removes player choice from harmful Strain
-                targets and shows every preference used. Payment choices stay
-                with the players.
+                Experimental · shuffle the 24-card preference deck once,
+                then return every drawn card to the bottom. Payment choices
+                stay with the players.
               </small>
             </span>
           </label>

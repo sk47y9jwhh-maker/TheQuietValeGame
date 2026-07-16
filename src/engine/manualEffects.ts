@@ -1651,8 +1651,19 @@ export function preparePendingEffectQueueHead(state: GameState): GameState {
     sourceTile
   ).adjustment;
   const baseSuggestion = pendingEffect.suggestedAdjustment ?? generatedSuggestion;
+  const baseWithoutSuggestedStrain = baseSuggestion
+    ? {
+        ...baseSuggestion,
+        strainCascadeAnchorTileId: undefined,
+        tileStrainDeltas: Object.fromEntries(
+          Object.entries(baseSuggestion.tileStrainDeltas ?? {}).filter(
+            ([, delta]) => delta < 0
+          )
+        )
+      }
+    : undefined;
   const suggestedAdjustment = mergeEffectAdjustment(
-    baseSuggestion,
+    baseWithoutSuggestedStrain,
     plan.adjustment
   );
   const preparedEffect: PendingEffectState = {
