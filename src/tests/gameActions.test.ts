@@ -2285,7 +2285,7 @@ describe("game actions", () => {
     expect(resolved.map.placedTiles[1].strain).toBe(0);
   });
 
-  it("expired Arrivals prompt for a Strain target", () => {
+  it("expired Arrivals use the Target Deck for their Strain target", () => {
     const state = createNewGame(1, ["vanguard"]);
     const placed = resolvePendingEffect(
       placeTile({ ...state, phase: "turns" as const }, "player_1", "c01_lumber_yard", "G1")
@@ -2304,10 +2304,12 @@ describe("game actions", () => {
     expect(next.encounters.activeArrivals).toHaveLength(0);
     expect(next.encounters.discardPile).toContain("arrival_the_quiet_quest");
     expect(next.map.placedTiles[0].strain).toBe(0);
-    expect(next.pendingEffects[0].requiresManualChoice).toBe(true);
-    const resolved = resolvePendingEffect(next, {
-      tileStrainDeltas: { [next.map.placedTiles[0].instanceId]: 1 }
+    expect(next.pendingEffects[0]).toMatchObject({
+      requiresManualChoice: false,
+      targetCardPrepared: true,
+      targetCardTargetTileIds: [next.map.placedTiles[0].instanceId]
     });
+    const resolved = resolvePendingEffect(next);
 
     expect(resolved.map.placedTiles[0].strain).toBe(1);
   });

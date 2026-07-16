@@ -105,7 +105,8 @@ describe("bottom drawer", () => {
     expect(screen.getByText("Placement, reach, and movement")).toBeInTheDocument();
     expect(screen.getByText("Boons, Arrivals, and Burdens")).toBeInTheDocument();
     expect(screen.getByText(/each tile that became Overstrained spreads 1 Strain/)).toBeInTheDocument();
-    expect(screen.getByText(/If the target also becomes Overstrained, it spreads next/)).toBeInTheDocument();
+    expect(screen.getByText(/the Target Deck chooses among them/)).toBeInTheDocument();
+    expect(screen.getByText(/Shuffle the 24-card Target Deck once during setup/)).toBeInTheDocument();
     expect(screen.queryByText(/After rounds 4 and 8/)).not.toBeInTheDocument();
     expect(screen.getByText("Final scoring")).toBeInTheDocument();
     expect(

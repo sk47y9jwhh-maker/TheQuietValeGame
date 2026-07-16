@@ -885,7 +885,7 @@ export function EffectPrompt({
         {effect.detailText && <span>{effect.detailText}</span>}
       </div>
 
-      {state.targetCards?.enabled && effect.targetCardPrepared && (
+      {effect.targetCardPrepared && (
         <section className="target-card-resolution" aria-label="Automatic Target Card resolution">
           <div className="target-card-resolution-heading">
             <div>

@@ -122,12 +122,6 @@ export function App() {
   const [selectedGoldenBoonId, setSelectedGoldenBoonId] = useState(
     initialSavedGame?.selectedGoldenBoonId ?? initialSavedSetup?.selectedGoldenBoonId ?? ""
   );
-  const [experimentalTargetCards, setExperimentalTargetCards] = useState(
-    initialSavedGame?.experimentalTargetCards ??
-      initialSavedGame?.state.targetCards?.enabled ??
-      initialSavedSetup?.experimentalTargetCards ??
-      false
-  );
   const [ledgerCampaign, setLedgerCampaign] = useState(readLedgerCampaign);
   const [state, setState] = useState<GameState | null>(initialSavedGame?.state ?? null);
   const [undoStack, setUndoStack] = useState<GameState[]>([]);
@@ -215,7 +209,6 @@ export function App() {
         declaredVowId: state.ledgerRun?.declaredVowId,
         selectedGoldenTileId: state.goldenSetup.selectedTileId,
         selectedGoldenBoonId: state.goldenSetup.selectedBoonId,
-        experimentalTargetCards: state.targetCards?.enabled ?? false,
         state
       });
       return;
@@ -227,11 +220,10 @@ export function App() {
       encounterSeed,
       declaredVowId: declaredVowId || undefined,
       selectedGoldenTileId: selectedGoldenTileId || undefined,
-      selectedGoldenBoonId: selectedGoldenBoonId || undefined,
-      experimentalTargetCards
+      selectedGoldenBoonId: selectedGoldenBoonId || undefined
     });
     clearSavedGame();
-  }, [declaredVowId, encounterSeed, experimentalTargetCards, normalizedStewards, playerCount, selectedGoldenBoonId, selectedGoldenTileId, state]);
+  }, [declaredVowId, encounterSeed, normalizedStewards, playerCount, selectedGoldenBoonId, selectedGoldenTileId, state]);
 
   const pushUndoSnapshot = useCallback((previousState: GameState) => {
     setUndoStack((current) => {
@@ -278,7 +270,7 @@ export function App() {
 
   useEffect(() => {
     if (
-      !state?.targetCards?.enabled ||
+      !state ||
       !state.pendingEffects[0] ||
       state.pendingEffects[0].targetCardPrepared
     ) return;
@@ -286,7 +278,7 @@ export function App() {
       (current) => preparePendingEffectQueueHead(current),
       { undoable: false }
     );
-  }, [commitGameState, state?.pendingEffects, state?.targetCards?.enabled]);
+  }, [commitGameState, state?.pendingEffects]);
 
   const resetInteractionForState = useCallback((nextState: GameState) => {
     setSelectedHexIds([]);
@@ -378,7 +370,6 @@ export function App() {
     setDeclaredVowId("");
     setSelectedGoldenTileId("");
     setSelectedGoldenBoonId("");
-    setExperimentalTargetCards(false);
     setSelectedHexIds([]);
     setSelectedTileId(coreTiles[0].id);
     setPlacementOrientation(3);
@@ -532,7 +523,6 @@ export function App() {
         declaredVowId={declaredVowId}
         selectedGoldenTileId={selectedGoldenTileId}
         selectedGoldenBoonId={selectedGoldenBoonId}
-        experimentalTargetCards={experimentalTargetCards}
         completedLedgerCount={ledgerSetupOptions.completedCount}
         availableVows={ledgerSetupOptions.availableVows}
         availableGoldenTiles={ledgerSetupOptions.availableGoldenTiles}
@@ -542,7 +532,6 @@ export function App() {
         onDeclaredVowChange={setDeclaredVowId}
         onGoldenTileChange={setSelectedGoldenTileId}
         onGoldenBoonChange={setSelectedGoldenBoonId}
-        onExperimentalTargetCardsChange={setExperimentalTargetCards}
         onStart={() => {
           const randomizedSeed = createSetupSeed();
           setEncounterSeed(randomizedSeed);
@@ -558,8 +547,7 @@ export function App() {
               encounterSeed: randomizedSeed,
               declaredVowId: declaredVowId || undefined,
               selectedGoldenTileId: selectedGoldenTileId || undefined,
-              selectedGoldenBoonId: selectedGoldenBoonId || undefined,
-              experimentalTargetCards
+              selectedGoldenBoonId: selectedGoldenBoonId || undefined
             })
           );
         }}

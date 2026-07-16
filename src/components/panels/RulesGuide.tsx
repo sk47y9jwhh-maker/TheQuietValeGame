@@ -93,8 +93,11 @@ const rules: RuleReferenceCard[] = [
       "An Overstrained tile cannot activate or upgrade. It also breaks reach and scores no Population, Renown, or passive bonuses.",
       "When a tile has Supported, it prevents the next 1 Strain placed on it that round.",
       "One-use Supported disappears after it blocks Strain. Printed or passive Supported can protect the tile again in a later round.",
-      "After an effect ends, each tile that became Overstrained spreads 1 Strain to one adjacent placed tile with fewer than 3 Strain, if possible.",
-      "The players choose each target. If the target also becomes Overstrained, it spreads next. Continue until no new tile becomes Overstrained."
+      "When an effect places Strain, its text determines the eligible tiles and the Target Deck chooses among them.",
+      "Draw one Target Card for each different target. Apply its class, side, adjacency, and current-Strain preferences in order whenever at least one candidate matches, then use its arrow to break a remaining tie.",
+      "Shuffle the 24-card Target Deck once during setup. Return each resolved card face down to the bottom; do not discard or reshuffle during play.",
+      "Resolve Supported and other prevention after the target is chosen. Prevented Strain is not redirected.",
+      "After an effect ends, each tile that became Overstrained spreads 1 Strain to an adjacent eligible tile selected by the Target Deck. Continue until no new tile becomes Overstrained."
     ],
     note:
       "Example: tile A reaches 3 Strain and spreads to tile B. If B reaches 3, B also spreads. A can spread again only after dropping below 3 and later returning to 3."

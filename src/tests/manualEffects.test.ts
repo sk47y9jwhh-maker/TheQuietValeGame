@@ -772,6 +772,11 @@ describe("structured effect rules", () => {
       placed("right", "c15_path", "I1")
     ]);
     const ruleId = cardEffectRuleId("burden_forest_s_grudge", 3);
+    state.targetCards.drawPile = [
+      2,
+      1,
+      ...state.targetCards.drawPile.filter((cardId) => cardId !== 2 && cardId !== 1)
+    ];
     state.pendingEffects = [{
       id: "effect_two_overstrain_triggers",
       ruleId,
@@ -781,10 +786,7 @@ describe("structured effect rules", () => {
       effectText: "Display text only"
     }];
 
-    const resolved = resolvePendingEffect(state, {
-      strainCascadeAnchorTileId: "anchor",
-      tileStrainDeltas: { adjacent: 1 }
-    });
+    const resolved = resolvePendingEffect(state);
 
     expect(resolved.map.placedTiles.map((tile) => tile.strain)).toEqual([0, 3, 3, 0]);
     expect(resolved.pendingEffects.map((effect) => effect.sourceId)).toEqual([
@@ -793,17 +795,26 @@ describe("structured effect rules", () => {
     ]);
     expect(resolved.pendingEffects[0]).toMatchObject({
       ruleId: systemEffectRuleId("overstrain-spread"),
-      requiresManualChoice: true,
+      requiresManualChoice: false,
+      targetCardPrepared: true,
       confirmLabel: "Spread Strain"
     });
   });
 
-  it("chains a player-chosen spread whenever the target becomes Overstrained", () => {
+  it("chains Target Deck spreads whenever the selected tile becomes Overstrained", () => {
     const state = stateWith([
       placed("source", "c15_path", "G1", 2),
       placed("middle", "c05_cabin", "H1", 2),
       placed("tail", "c13_workshops", "I1")
     ]);
+    state.targetCards.drawPile = [
+      9,
+      1,
+      2,
+      ...state.targetCards.drawPile.filter(
+        (cardId) => cardId !== 9 && cardId !== 1 && cardId !== 2
+      )
+    ];
     state.pendingEffects = [{
       id: "effect_start_chain",
       ruleId: systemEffectRuleId("arrival-expired"),
@@ -814,29 +825,18 @@ describe("structured effect rules", () => {
       requiresManualChoice: true
     }];
 
-    const triggered = resolvePendingEffect(state, {
-      tileStrainDeltas: { source: 1 }
-    });
+    const triggered = resolvePendingEffect(state);
     expect(triggered.map.placedTiles.map((tile) => tile.strain)).toEqual([3, 2, 0]);
     expect(triggered.pendingEffects[0].sourceId).toBe("source");
 
-    const rejectedRemoteTarget = resolvePendingEffect(triggered, {
-      tileStrainDeltas: { tail: 1 }
-    });
-    expect(rejectedRemoteTarget).toBe(triggered);
-
-    const chained = resolvePendingEffect(triggered, {
-      tileStrainDeltas: { middle: 1 }
-    });
+    const chained = resolvePendingEffect(triggered);
     expect(chained.map.placedTiles.map((tile) => tile.strain)).toEqual([3, 3, 0]);
     expect(chained.pendingEffects[0]).toMatchObject({
       ruleId: systemEffectRuleId("overstrain-spread"),
       sourceId: "middle"
     });
 
-    const finished = resolvePendingEffect(chained, {
-      tileStrainDeltas: { tail: 1 }
-    });
+    const finished = resolvePendingEffect(chained);
     expect(finished.map.placedTiles.map((tile) => tile.strain)).toEqual([3, 3, 1]);
     expect(finished.pendingEffects).toHaveLength(0);
   });

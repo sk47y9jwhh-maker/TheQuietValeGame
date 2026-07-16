@@ -176,37 +176,6 @@ input {
   line-height: 1.35;
 }
 
-.setup-experiment-toggle {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 10px;
-  align-items: start;
-  padding: 10px;
-  border: 1px solid rgba(75, 102, 107, 0.3);
-  border-radius: 8px;
-  background: rgba(75, 102, 107, 0.08);
-  cursor: pointer;
-}
-
-.setup-experiment-toggle input {
-  width: 18px;
-  min-height: 18px;
-  margin: 2px 0 0;
-  accent-color: var(--qv-muted-green-dark);
-}
-
-.setup-experiment-toggle span {
-  display: grid;
-  gap: 3px;
-}
-
-.setup-experiment-toggle small {
-  color: rgba(38, 34, 27, 0.67);
-  font-size: 10.5px;
-  font-weight: 500;
-  line-height: 1.35;
-}
-
 .golden-setup-summary {
   border-color: rgba(168, 137, 63, 0.45);
   background: rgba(168, 137, 63, 0.1);

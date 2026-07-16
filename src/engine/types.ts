@@ -336,7 +336,6 @@ export interface TargetCardSelectionDiagnostic {
 }
 
 export interface TargetCardDeckState {
-  enabled: boolean;
   seed: string;
   drawPile: number[];
   drawCount: number;
@@ -555,8 +554,7 @@ export interface GameState {
   pendingEffects: PendingEffectState[];
   pendingDeckReorder: PendingDeckReorderState | null;
   pendingCostChoice: PendingCostChoiceState | null;
-  /** Optional for backwards-compatible saves; new games always initialise it. */
-  targetCards?: TargetCardDeckState;
+  targetCards: TargetCardDeckState;
   ledgerRun?: LedgerRunState;
   log: LogEntry[];
 }

@@ -29,7 +29,6 @@ interface EncounterSetupOptions {
 interface NewGameOptions extends EncounterSetupOptions {
   declaredVowId?: string;
   selectedGoldenTileId?: string;
-  experimentalTargetCards?: boolean;
 }
 
 export function getStartingWarehouseAmount(playerCount: PlayerCount): number {
@@ -232,7 +231,6 @@ export function createNewGame(
     pendingDeckReorder: null,
     pendingCostChoice: null,
     targetCards: createTargetCardDeckState(
-      options.experimentalTargetCards === true,
       `${options.encounterSeed?.trim() || "QV-TARGET-CARDS"}:${playerCount}:targets`
     ),
     ledgerRun: createLedgerRunState(startingWarehouse, options.declaredVowId, playerCount),

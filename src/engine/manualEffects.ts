@@ -222,72 +222,19 @@ function queueOverstrainSpreadEffects(
   state: GameState,
   sourceTileIds: string[]
 ): GameState {
-  if (state.targetCards?.enabled) {
-    const sourceTiles = sourceTileIds
-      .map((sourceTileId) =>
-        state.map.placedTiles.find((tile) => tile.instanceId === sourceTileId)
-      )
-      .filter((tile): tile is PlacedTile => Boolean(tile))
-      .sort(comparePlacedTilesByMapCoordinate);
-    const spreadEffects: PendingEffectState[] = [];
+  const sourceTiles = sourceTileIds
+    .map((sourceTileId) =>
+      state.map.placedTiles.find((tile) => tile.instanceId === sourceTileId)
+    )
+    .filter((tile): tile is PlacedTile => Boolean(tile))
+    .sort(comparePlacedTilesByMapCoordinate);
+  const spreadEffects: PendingEffectState[] = [];
 
-    for (const sourceTile of sourceTiles) {
-      if (
-        sourceTile.strain < 3 ||
-        getValidEffectStrainTargets(
-          state,
-          overstrainSpreadRuleId,
-          sourceTile
-        ).length === 0
-      ) {
-        continue;
-      }
-      const sourceName = getPlacedTileName(sourceTile);
-      spreadEffects.push({
-        id: `effect_${state.pendingEffects.length + state.log.length + spreadEffects.length + 1}_${Date.now()}`,
-        sourceType: "tile",
-        ruleId: overstrainSpreadRuleId,
-        sourceId: sourceTile.instanceId,
-        sourceName,
-        title: `Overstrain chain: ${sourceName}`,
-        effectText:
-          "This tile just became Overstrained. After the triggering effect finishes, it spreads 1 Strain to one adjacent placed tile with fewer than 3 Strain.",
-        detailText:
-          "The Target Deck chooses the adjacent tile. If it becomes Overstrained, it joins the end of this chain.",
-        resolutionLogMessage: `${sourceName} spread 1 Strain after becoming Overstrained.`,
-        requiresManualChoice: false,
-        confirmLabel: "Spread Strain"
-      });
-    }
-
-    if (spreadEffects.length === 0) return state;
-    const firstNonSpreadIndex = state.pendingEffects.findIndex(
-      (effect) => effect.ruleId !== overstrainSpreadRuleId
-    );
-    const insertionIndex = firstNonSpreadIndex < 0
-      ? state.pendingEffects.length
-      : firstNonSpreadIndex;
-    return preparePendingEffectQueueHead({
-      ...state,
-      pendingEffects: [
-        ...state.pendingEffects.slice(0, insertionIndex),
-        ...spreadEffects,
-        ...state.pendingEffects.slice(insertionIndex)
-      ]
-    });
-  }
-
-  let nextState = state;
-
-  for (const sourceTileId of [...sourceTileIds].reverse()) {
-    const sourceTile = nextState.map.placedTiles.find(
-      (tile) => tile.instanceId === sourceTileId
-    );
+  for (const sourceTile of sourceTiles) {
     if (
-      !sourceTile ||
       sourceTile.strain < 3 ||
       getValidEffectStrainTargets(
-        nextState,
+        state,
         overstrainSpreadRuleId,
         sourceTile
       ).length === 0
@@ -296,7 +243,8 @@ function queueOverstrainSpreadEffects(
     }
 
     const sourceName = getPlacedTileName(sourceTile);
-    nextState = queuePendingEffectFirst(nextState, {
+    spreadEffects.push({
+      id: `effect_${state.pendingEffects.length + state.log.length + spreadEffects.length + 1}_${Date.now()}`,
       sourceType: "tile",
       ruleId: overstrainSpreadRuleId,
       sourceId: sourceTile.instanceId,
@@ -305,14 +253,28 @@ function queueOverstrainSpreadEffects(
       effectText:
         "This tile just became Overstrained. After the triggering effect finishes, it spreads 1 Strain to one adjacent placed tile with fewer than 3 Strain.",
       detailText:
-        "Choose the adjacent tile. If it becomes Overstrained, it will spread next.",
+        "The Target Deck chooses the adjacent tile. If it becomes Overstrained, it joins the end of this chain.",
       resolutionLogMessage: `${sourceName} spread 1 Strain after becoming Overstrained.`,
-      requiresManualChoice: true,
+      requiresManualChoice: false,
       confirmLabel: "Spread Strain"
     });
   }
 
-  return nextState;
+  if (spreadEffects.length === 0) return state;
+  const firstNonSpreadIndex = state.pendingEffects.findIndex(
+    (effect) => effect.ruleId !== overstrainSpreadRuleId
+  );
+  const insertionIndex = firstNonSpreadIndex < 0
+    ? state.pendingEffects.length
+    : firstNonSpreadIndex;
+  return preparePendingEffectQueueHead({
+    ...state,
+    pendingEffects: [
+      ...state.pendingEffects.slice(0, insertionIndex),
+      ...spreadEffects,
+      ...state.pendingEffects.slice(insertionIndex)
+    ]
+  });
 }
 
 function discardBlockedOverstrainSpreadEffects(state: GameState): GameState {
@@ -1262,7 +1224,7 @@ function targetCardDesiredStrain(
   };
 }
 
-function targetCardEffectStillNeedsPlayerChoice(rule: EffectRule): boolean {
+function targetCardEffectStillNeedsPlayerDecision(rule: EffectRule): boolean {
   return Boolean(
     rule.alternative ||
     rule.timer ||
@@ -1607,7 +1569,6 @@ function planCascadeTargetCards(
 export function preparePendingEffectQueueHead(state: GameState): GameState {
   const pendingEffect = state.pendingEffects[0];
   if (
-    !state.targetCards?.enabled ||
     !pendingEffect ||
     pendingEffect.targetCardPrepared
   ) return state;
@@ -1675,7 +1636,7 @@ export function preparePendingEffectQueueHead(state: GameState): GameState {
     suggestedAdjustment: hasEffectAdjustment(suggestedAdjustment)
       ? suggestedAdjustment
       : undefined,
-    requiresManualChoice: !targetCardEffectStillNeedsPlayerChoice(rule)
+    requiresManualChoice: !targetCardEffectStillNeedsPlayerDecision(rule)
       ? false
       : pendingEffect.requiresManualChoice
   };

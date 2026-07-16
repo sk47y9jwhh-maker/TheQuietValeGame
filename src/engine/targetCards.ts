@@ -18,7 +18,6 @@ const mapCellOrder = new Map(mapCells.map((cell, index) => [cell.id, index]));
 
 type LegacyTargetCardDeckState = TargetCardDeckState & {
   discardPile?: number[];
-  reshuffleCount?: number;
 };
 
 function createSeededRandom(seed: string): () => number {
@@ -47,12 +46,10 @@ function shuffleWithSeed<T>(items: T[], seed: string): T[] {
 }
 
 export function createTargetCardDeckState(
-  enabled: boolean,
   seed: string
 ): TargetCardDeckState {
   const normalizedSeed = seed.trim() || "QV-TARGET-CARDS";
   return {
-    enabled,
     seed: normalizedSeed,
     drawPile: shuffleWithSeed(
       targetCards.map((card) => card.id),
@@ -67,7 +64,7 @@ export function normalizeTargetCardDeckState(
   state: LegacyTargetCardDeckState | undefined,
   fallbackSeed = "QV-TARGET-CARDS"
 ): TargetCardDeckState {
-  if (!state) return createTargetCardDeckState(false, fallbackSeed);
+  if (!state) return createTargetCardDeckState(fallbackSeed);
   const validIds = new Set(targetCards.map((card) => card.id));
   const representedIds = new Set<number>();
   const drawPile = [
@@ -82,7 +79,6 @@ export function normalizeTargetCardDeckState(
     .map((card) => card.id)
     .filter((id) => !representedIds.has(id));
   return {
-    enabled: state.enabled === true,
     seed: state.seed?.trim() || fallbackSeed,
     drawPile: [...drawPile, ...missingIds],
     drawCount: Number.isFinite(state.drawCount) ? state.drawCount : 0,
@@ -99,7 +95,7 @@ export function drawTargetCard(
   const [cardId, ...remainingCards] = normalized.drawPile;
   const card = cardId === undefined ? undefined : targetCardById[cardId];
   if (!card) {
-    return drawTargetCard(createTargetCardDeckState(deckState.enabled, deckState.seed));
+    return drawTargetCard(createTargetCardDeckState(deckState.seed));
   }
 
   return {
@@ -311,7 +307,7 @@ export function drawAndSelectTarget(
   diagnostic: TargetCardSelectionDiagnostic;
 } | null {
   const deck = normalizeTargetCardDeckState(state.targetCards);
-  if (!deck.enabled || candidates.length === 0) return null;
+  if (candidates.length === 0) return null;
   const drawn = drawTargetCard(deck);
   const diagnosticId = `${context.effectId}:draw:${drawn.deckState.drawCount}`;
   const selected = selectTargetWithCard(state, candidates, drawn.card, {
@@ -339,7 +335,6 @@ export function updateTargetCardDiagnostic(
   diagnosticId: string,
   patch: Partial<TargetCardSelectionDiagnostic>
 ): GameState {
-  if (!state.targetCards) return state;
   return {
     ...state,
     targetCards: {

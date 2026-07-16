@@ -81,9 +81,9 @@ describe("browser persistence", () => {
     ).toEqual([3, 3, 3, 3, 3]);
   });
 
-  it("migrates legacy saves with Target Cards safely disabled", () => {
+  it("adds the standard Target Deck when restoring a legacy save", () => {
     const state = createNewGame(1, ["vanguard"]);
-    delete state.targetCards;
+    delete (state as Partial<typeof state>).targetCards;
 
     window.localStorage.setItem(
       "quietVale.activeGame.v1",
@@ -98,17 +98,15 @@ describe("browser persistence", () => {
     );
 
     const restored = readSavedGame();
-    expect(restored?.experimentalTargetCards).toBe(false);
-    expect(restored?.state.targetCards?.enabled).toBe(false);
-    expect(restored?.state.targetCards?.drawPile).toHaveLength(24);
+    expect(restored?.state.targetCards.drawPile).toHaveLength(24);
+    expect(restored?.state.targetCards).not.toHaveProperty("enabled");
   });
 
-  it("persists an enabled Target Deck and its deterministic draw state", () => {
+  it("persists the standard Target Deck and its deterministic draw state", () => {
     const state = createNewGame(1, ["vanguard"], {
-      encounterSeed: "QV-SAVED-TARGETS",
-      experimentalTargetCards: true
+      encounterSeed: "QV-SAVED-TARGETS"
     });
-    const first = drawTargetCard(state.targetCards!);
+    const first = drawTargetCard(state.targetCards);
     const second = drawTargetCard(first.deckState);
     state.targetCards = second.deckState;
 
@@ -116,15 +114,13 @@ describe("browser persistence", () => {
       playerCount: 1,
       stewardIds: ["vanguard"],
       encounterSeed: "QV-SAVED-TARGETS",
-      experimentalTargetCards: true,
       state
     });
 
     const restored = readSavedGame();
-    expect(restored?.experimentalTargetCards).toBe(true);
-    expect(restored?.state.targetCards?.enabled).toBe(true);
-    expect(restored?.state.targetCards?.drawCount).toBe(2);
-    expect(restored?.state.targetCards?.drawPile).toEqual(state.targetCards!.drawPile);
+    expect(restored?.state.targetCards.drawCount).toBe(2);
+    expect(restored?.state.targetCards.drawPile).toEqual(state.targetCards.drawPile);
+    expect(restored?.state.targetCards).not.toHaveProperty("enabled");
   });
 
   it("ignores a corrupt active game save instead of restoring a broken state", () => {

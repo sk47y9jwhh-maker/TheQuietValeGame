@@ -4,7 +4,7 @@ import type {
 } from "../engine/types";
 
 /**
- * The experimental physical deck. Cards 13–24 repeat the preference profiles
+ * The physical deck. Cards 13–24 repeat the preference profiles
  * of cards 1–12 with the opposite arrow. Keep this list explicit: its paired
  * preferences and arrows are part of the balance, not generated data.
  */
