@@ -161,14 +161,15 @@ export function App() {
     const isMilestoneUnlocked = (index: number) =>
       completedCount >= ledgerMilestones[index].threshold ||
       (ledgerCampaign.grandfatheredGoldenMilestoneCount ?? 0) > index;
+    const vowEntries = ledgerEntries.filter((entry) => entry.declaredVow);
+    const isVowUnlocked = (entry: (typeof vowEntries)[number]) =>
+      completedCount >= entry.unlockAt &&
+      isVowAvailableForPlayerCount(entry.id, playerCount);
 
     return {
       completedCount,
-      availableVows: ledgerEntries.filter(
-        (entry) => entry.declaredVow &&
-          completedCount >= entry.unlockAt &&
-          isVowAvailableForPlayerCount(entry.id, playerCount)
-      ),
+      availableVows: vowEntries.filter(isVowUnlocked),
+      lockedVows: vowEntries.filter((entry) => !isVowUnlocked(entry)),
       availableGoldenTiles: goldenTiles.filter((_tile, index) =>
         isMilestoneUnlocked(index)
       ),
@@ -525,6 +526,7 @@ export function App() {
         selectedGoldenBoonId={selectedGoldenBoonId}
         completedLedgerCount={ledgerSetupOptions.completedCount}
         availableVows={ledgerSetupOptions.availableVows}
+        lockedVows={ledgerSetupOptions.lockedVows}
         availableGoldenTiles={ledgerSetupOptions.availableGoldenTiles}
         availableGoldenBoons={ledgerSetupOptions.availableGoldenBoons}
         onPlayerCountChange={handlePlayerCountChange}

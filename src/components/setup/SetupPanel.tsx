@@ -10,7 +10,10 @@ import { getStartingWarehouseAmount } from "../../engine/setup";
 import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { stewardById, stewards } from "../../data/stewards";
 import { terrainLabels } from "../../data/map";
-import type { LedgerEntry } from "../../data/ledger";
+import {
+  isVowAvailableForPlayerCount,
+  type LedgerEntry
+} from "../../data/ledger";
 import type {
   GoldenBoonData,
   GoldenTileData,
@@ -29,6 +32,7 @@ interface SetupPanelProps {
   selectedGoldenBoonId?: string;
   completedLedgerCount?: number;
   availableVows?: LedgerEntry[];
+  lockedVows?: LedgerEntry[];
   availableGoldenTiles?: GoldenTileData[];
   availableGoldenBoons?: GoldenBoonData[];
   onPlayerCountChange: (playerCount: PlayerCount) => void;
@@ -52,6 +56,7 @@ export function SetupPanel({
   selectedGoldenBoonId = "",
   completedLedgerCount = 0,
   availableVows = [],
+  lockedVows = [],
   availableGoldenTiles = [],
   availableGoldenBoons = [],
   onPlayerCountChange,
@@ -68,6 +73,13 @@ export function SetupPanel({
   const startingResources = getStartingWarehouseAmount(playerCount);
   const playerLabel = `${playerCount} Player${playerCount === 1 ? "" : "s"}`;
   const declaredVow = availableVows.find((entry) => entry.id === declaredVowId);
+  const nextVowUnlockAt = lockedVows
+    .filter((entry) => isVowAvailableForPlayerCount(entry.id, playerCount))
+    .reduce<number | undefined>(
+      (nextUnlock, entry) =>
+        nextUnlock === undefined ? entry.unlockAt : Math.min(nextUnlock, entry.unlockAt),
+      undefined
+    );
   const selectedGoldenTile = availableGoldenTiles.find(
     (tile) => tile.id === selectedGoldenTileId
   );
@@ -193,11 +205,27 @@ export function SetupPanel({
                   {entry.name}
                 </option>
               ))}
+              {lockedVows.map((entry) => {
+                const restrictions = [];
+                if (completedLedgerCount < entry.unlockAt) {
+                  restrictions.push(`unlocks at ${entry.unlockAt} entries`);
+                }
+                if (!isVowAvailableForPlayerCount(entry.id, playerCount)) {
+                  restrictions.push("3–4 players only");
+                }
+                return (
+                  <option disabled key={entry.id} value={entry.id}>
+                    {entry.name} — {restrictions.join(" · ")}
+                  </option>
+                );
+              })}
             </select>
             <small>
               {declaredVow
                 ? declaredVow.requirement
-                : `Optional · one Vow per game · ${completedLedgerCount}/50 entries complete`}
+                : availableVows.length === 0 && nextVowUnlockAt !== undefined
+                  ? `No Vows unlocked yet · first Vow unlocks at ${nextVowUnlockAt} completed entries · ${completedLedgerCount}/50 entries complete`
+                  : `Optional · one Vow per game · ${completedLedgerCount}/50 entries complete`}
             </small>
             {vowCompatibilityWarning && (
               <small className="setup-vow-warning" role="status">
