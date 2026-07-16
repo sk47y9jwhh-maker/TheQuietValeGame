@@ -30,7 +30,7 @@
 
 .segmented {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 20px;
 }
@@ -78,6 +78,8 @@
 }
 
 .setup-control-panel select {
+  width: 100%;
+  min-width: 0;
   min-height: 38px;
 }
 
@@ -563,6 +565,10 @@ button:disabled {
   grid-template-columns: minmax(250px, 300px) minmax(0, 1fr) minmax(280px, 330px);
 }
 
+.setup-command-table {
+  grid-template-columns: minmax(300px, 320px) minmax(0, 1fr) minmax(280px, 330px);
+}
+
 .setup-control-panel,
 .setup-flow-panel,
 .seeding-control-panel {
@@ -571,8 +577,21 @@ button:disabled {
 }
 
 .setup-control-panel {
+  min-width: 0;
   gap: 7px;
   padding: 11px;
+}
+
+.setup-control-panel > *,
+.setup-golden-fields > *,
+.setup-golden-fields label > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.setup-control-panel .segmented button {
+  min-width: 0;
+  padding-inline: 6px;
 }
 
 .setup-control-panel > .primary-action {
@@ -4562,6 +4581,10 @@ button.effect-row {
   .setup-top-bar .warehouse-strip {
     grid-column: 1 / -1;
   }
+
+  .setup-command-table {
+    grid-template-columns: minmax(280px, 300px) minmax(0, 1fr) minmax(280px, 300px);
+  }
 }
 
 @media (max-width: 1023px) {
@@ -5435,6 +5458,7 @@ input,
 .setup-golden-fields > p {
   margin: 0;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .setup-golden-fields label {
@@ -5446,6 +5470,7 @@ input,
 
 .setup-golden-fields label small {
   grid-column: 1 / -1;
+  overflow-wrap: anywhere;
 }
 
 .mini-card,
