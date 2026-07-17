@@ -1,4 +1,4 @@
-name: ChatGPT live UI screenshot capture
+name: ChatGPT rulebook example capture
 
 on:
   push:
@@ -34,14 +34,32 @@ jobs:
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Capture the deployed prototype
-        run: node tools/chatgpt-capture-live-ui.mjs
+      - name: Generate rulebook demonstration states
+        run: npx vite-node tools/chatgpt-rulebook-states.ts
+
+      - name: Build prototype
+        run: npm run build
+
+      - name: Start local prototype
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/qv-preview.log 2>&1 &
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/qv-preview.log
+          exit 1
+
+      - name: Capture bridge and strain examples
+        run: node tools/chatgpt-capture-rulebook-examples.mjs
 
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: quiet-vale-live-ui-screenshots
+          name: quiet-vale-rulebook-examples
           path: docs-live-screenshots
           if-no-files-found: error
           retention-days: 3
