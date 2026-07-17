@@ -1,0 +1,44 @@
+name: ChatGPT live UI screenshot capture
+
+on:
+  push:
+    branches:
+      - chatgpt/live-screenshot-capture
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Install Playwright for capture
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Capture the deployed prototype
+        run: node tools/chatgpt-capture-live-ui.mjs
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quiet-vale-live-ui-screenshots
+          path: docs-live-screenshots
+          if-no-files-found: error
+          retention-days: 3
