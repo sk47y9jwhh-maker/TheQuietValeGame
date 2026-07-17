@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - chatgpt/live-screenshot-capture
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
