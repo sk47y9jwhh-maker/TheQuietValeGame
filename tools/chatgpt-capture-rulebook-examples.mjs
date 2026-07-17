@@ -37,10 +37,8 @@ try {
   {
     const { context, page } = await loadSavedExample(browser, "bridge-state.json");
     await screenshotLocator(page, ".map-artwork-frame", "27-bridge-placed-map.png");
-    await page.getByRole("button", { name: "Inspect Stone Bridge" }).click();
-    await page.waitForTimeout(300);
     await page.screenshot({
-      path: path.join(outputDir, "28-bridge-inspector-full.png"),
+      path: path.join(outputDir, "28-bridge-state-full.png"),
       fullPage: true
     });
     await context.close();
@@ -49,10 +47,8 @@ try {
   {
     const { context, page } = await loadSavedExample(browser, "strain-state.json");
     await screenshotLocator(page, ".map-artwork-frame", "29-strain-markers-map.png");
-    await page.getByRole("button", { name: "Inspect Cabin" }).click();
-    await page.waitForTimeout(300);
     await page.screenshot({
-      path: path.join(outputDir, "30-overstrained-inspector-full.png"),
+      path: path.join(outputDir, "30-overstrained-state-full.png"),
       fullPage: true
     });
     await context.close();
