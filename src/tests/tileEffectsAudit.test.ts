@@ -6,6 +6,8 @@ import {
 } from "../engine/gameActions";
 import { getPassiveCostOptions } from "../engine/passiveCosts";
 import { resolvePendingEffect } from "../engine/manualEffects";
+import { getHexNeighbors } from "../engine/hex";
+import { applyStrainToState } from "../engine/strainRules";
 import { calculateFinalScore } from "../engine/scoring";
 import { createNewGame } from "../engine/setup";
 import type {
@@ -131,6 +133,44 @@ describe("complete tile effect audit", () => {
   );
 
   it.each([
+    ["c09_tavern", "basic", 1],
+    ["c09_tavern", "upgraded", 1],
+    ["c10_eatery", "basic", 1],
+    ["c10_eatery", "upgraded", 1],
+    ["c11_washhouse", "basic", 1],
+    ["c11_washhouse", "upgraded", 1],
+    ["c12_apothecary", "basic", 1],
+    ["c12_apothecary", "upgraded", 2],
+    ["c21_the_vaults", "basic", 1],
+    ["c21_the_vaults", "upgraded", 2]
+  ] as const)(
+    "%s %s opens a choice and removes Strain from the selected tile",
+    (tileId, side, removed) => {
+      const [firstHex, secondHex] = getHexNeighbors("G2");
+      const state = readyState([
+        placed("source", tileId, "G2", side),
+        placed("first", "c15_path", firstHex, "basic", 2),
+        placed("second", "c15_path", secondHex, "basic", 2)
+      ]);
+
+      const prompted = activateTile(state, "player_1", "source");
+      expect(prompted.pendingEffects[0]).toMatchObject({
+        requiresManualChoice: true
+      });
+
+      const resolved = resolvePendingEffect(prompted, {
+        tileStrainDeltas: { first: -removed }
+      });
+      expect(resolved.pendingEffects).toHaveLength(0);
+      expect(resolved.map.placedTiles.map((tile) => tile.strain)).toEqual([
+        0,
+        2 - removed,
+        2
+      ]);
+    }
+  );
+
+  it.each([
     ["basic", 1],
     ["upgraded", 2]
   ] as const)("Inn %s adds its Arrival timer automatically", (side, added) => {
@@ -167,6 +207,37 @@ describe("complete tile effect audit", () => {
 
       expect(next.map.placedTiles[1].support.singleUse).toBe(true);
       expect(next.pendingEffects).toHaveLength(0);
+    }
+  );
+
+  it.each(supportEffectTileIds)(
+    "%s opens a choice and protects only the selected eligible tiles",
+    (tileId) => {
+      const [firstHex, secondHex] = getHexNeighbors("G2");
+      const state = readyState([
+        placed("source", tileId, "G2", "special"),
+        placed("first", "c05_cabin", firstHex),
+        placed("second", "c15_path", secondHex)
+      ]);
+
+      const prompted = activateTile(state, "player_1", "source");
+      expect(prompted.pendingEffects[0]).toMatchObject({
+        requiresManualChoice: true
+      });
+
+      const resolved = resolvePendingEffect(prompted, {
+        supportTileIds: ["second"]
+      });
+      expect(resolved.pendingEffects).toHaveLength(0);
+      expect(resolved.map.placedTiles[1].support.singleUse).toBe(false);
+      expect(resolved.map.placedTiles[2].support.singleUse).toBe(true);
+
+      const protectedState = applyStrainToState(resolved, "second", 1);
+      expect(protectedState.map.placedTiles[2].strain).toBe(0);
+      expect(protectedState.map.placedTiles[2].support).toMatchObject({
+        singleUse: false,
+        preventedThisRound: true
+      });
     }
   );
 

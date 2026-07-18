@@ -46,6 +46,7 @@ import type {
   TileCategory,
   TilePlacementRequirement
 } from "./types";
+import type { EffectRule } from "./effectRuleTypes";
 
 const tileCategories: TileCategory[] = [
   "resource",
@@ -466,6 +467,22 @@ function validateStructuredRules(issues: string[]): void {
   }
   requireRule(systemEffectRuleId("acknowledge"), "System acknowledgement");
   requireRule(systemEffectRuleId("arrival-expired"), "Expired Arrival");
+
+  const validatePlayerDirectedTileChoice = (rule: EffectRule): void => {
+    const hasPlayerDirectedTileAdjustment = Boolean(
+      rule.tileAdjustment?.strain?.direction === "remove" ||
+        rule.tileAdjustment?.support
+    );
+    if (hasPlayerDirectedTileAdjustment && !rule.manualChoice) {
+      issues.push(
+        `Structured rule ${rule.id} must allow a manual choice for ambiguous Strain relief or Supported targets.`
+      );
+    }
+    if (rule.fallback) validatePlayerDirectedTileChoice(rule.fallback.rule);
+  };
+  for (const rule of Object.values(effectRulesById)) {
+    validatePlayerDirectedTileChoice(rule);
+  }
 }
 
 function validateStewards(issues: string[]): void {

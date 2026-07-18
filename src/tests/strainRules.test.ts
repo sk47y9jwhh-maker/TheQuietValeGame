@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { applyStrainToTile, removeStrainFromTile } from "../engine/strainRules";
+import {
+  applyStrainToTile,
+  refreshPassiveSupported,
+  removeStrainFromTile
+} from "../engine/strainRules";
 import type { PlacedTile } from "../engine/types";
 
 const baseTile: PlacedTile = {
@@ -33,10 +37,33 @@ describe("strain, Supported, and Overstrained", () => {
     expect(next.support.preventedThisRound).toBe(true);
   });
 
+  it("lets passive Supported prevent Strain once again after each round refresh", () => {
+    const supported = {
+      ...baseTile,
+      support: { passive: true, singleUse: false, preventedThisRound: false }
+    };
+
+    const first = applyStrainToTile(supported, 1);
+    expect(first.strain).toBe(0);
+    expect(first.support).toEqual({
+      passive: true,
+      singleUse: false,
+      preventedThisRound: true
+    });
+
+    const second = applyStrainToTile(first, 1);
+    expect(second.strain).toBe(1);
+
+    const nextRound = refreshPassiveSupported(second);
+    const third = applyStrainToTile(nextRound, 1);
+    expect(third.strain).toBe(1);
+    expect(third.support.passive).toBe(true);
+    expect(third.support.preventedThisRound).toBe(true);
+  });
+
   it("recovers from Overstrained when Strain drops below 3", () => {
     const recovered = removeStrainFromTile({ ...baseTile, strain: 3 }, 1);
 
     expect(recovered.strain).toBe(2);
   });
 });
-

@@ -97,7 +97,7 @@ seasonal("boon_from_the_brink", [
     tileAdjustment: strain("remove", 2, 2, 1),
     fallback: {
       when: "noTileTarget",
-      rule: { id: "boon_from_the_brink:s1:fallback", target: { strain: "positive" }, tileAdjustment: strain("remove", 1, 1, 1) }
+      rule: { id: "boon_from_the_brink:s1:fallback", target: { strain: "positive" }, tileAdjustment: strain("remove", 1, 1, 1), manualChoice: true }
     },
     manualChoice: true
   },
@@ -106,7 +106,7 @@ seasonal("boon_from_the_brink", [
     tileAdjustment: strain("remove", 2, 2, 1),
     fallback: {
       when: "noTileTarget",
-      rule: { id: "boon_from_the_brink:s2:fallback", target: { strain: "positive" }, tileAdjustment: strain("remove", 2, 1, 2) }
+      rule: { id: "boon_from_the_brink:s2:fallback", target: { strain: "positive" }, tileAdjustment: strain("remove", 2, 1, 2), manualChoice: true }
     },
     manualChoice: true
   },
@@ -115,7 +115,7 @@ seasonal("boon_from_the_brink", [
     tileAdjustment: strain("remove", 4, 2, 2),
     fallback: {
       when: "noTileTarget",
-      rule: { id: "boon_from_the_brink:s3:fallback", target: { strain: "positive" }, tileAdjustment: strain("remove", 3, 1, 3) }
+      rule: { id: "boon_from_the_brink:s3:fallback", target: { strain: "positive" }, tileAdjustment: strain("remove", 3, 1, 3), manualChoice: true }
     },
     manualChoice: true
   }
@@ -134,7 +134,7 @@ seasonal("boon_the_apprentice_steward", [
 seasonal("boon_shelter_holds", [1, 2, 3].map((maxTargets) => ({
   target: { strain: "positive", supported: true },
   tileAdjustment: strain("remove", maxTargets, 1, maxTargets),
-  manualChoice: maxTargets > 1,
+  manualChoice: true,
   noEffectWhenNoTarget: true
 })));
 seasonal("boon_a_welcome_well_met", [1, 2, 3].map((amount) => ({
@@ -820,12 +820,12 @@ for (const tileId of productionTileIds) {
 add({ id: tileEffectRuleId("c08_inn", "basic"), timer: { direction: "add", limit: 1 } });
 add({ id: tileEffectRuleId("c08_inn", "upgraded"), timer: { direction: "add", limit: 2 } });
 for (const tileId of ["c09_tavern", "c10_eatery", "c11_washhouse"]) {
-  add({ id: tileEffectRuleId(tileId, "basic"), target: { adjacentToSource: true, excludeSource: true, strain: "positive" }, tileAdjustment: strain("remove", 1, 1, 1) });
+  add({ id: tileEffectRuleId(tileId, "basic"), target: { adjacentToSource: true, excludeSource: true, strain: "positive" }, tileAdjustment: strain("remove", 1, 1, 1), manualChoice: true });
   add({ id: tileEffectRuleId(tileId, "upgraded"), target: { adjacentToSource: true, excludeSource: true, strain: "positive" }, tileAdjustment: strain("remove", 2, 1, 2), manualChoice: true });
 }
 for (const tileId of ["c12_apothecary", "c21_the_vaults"]) {
-  add({ id: tileEffectRuleId(tileId, "basic"), target: { adjacentToSource: true, excludeSource: true, strain: "positive" }, tileAdjustment: strain("remove", 1, 1, 1) });
-  add({ id: tileEffectRuleId(tileId, "upgraded"), target: { adjacentToSource: true, excludeSource: true, strain: "positive" }, tileAdjustment: strain("remove", 2, 2, 1) });
+  add({ id: tileEffectRuleId(tileId, "basic"), target: { adjacentToSource: true, excludeSource: true, strain: "positive" }, tileAdjustment: strain("remove", 1, 1, 1), manualChoice: true });
+  add({ id: tileEffectRuleId(tileId, "upgraded"), target: { adjacentToSource: true, excludeSource: true, strain: "positive" }, tileAdjustment: strain("remove", 2, 2, 1), manualChoice: true });
 }
 
 const adjacentSupportSpecials = ["special_alms_house", "special_atelier_workshop", "special_house_of_learning", "special_the_iron_roots_respite", "special_the_lorekeepers_respite", "special_the_reavers_respite", "special_the_root_weavers_respite", "special_the_tamers_respite", "special_theater"];
@@ -834,7 +834,7 @@ for (const tileId of ["special_adventurers_guild", "special_reliquary"]) add({ i
 add({ id: tileEffectRuleId("special_alchemist_s_workshop", "special"), exchangeLimit: 5, exchangeOptional: true, exchangeGoodsMode: true, manualChoice: true });
 add({ id: tileEffectRuleId("special_hearth_garden", "special"), target: { categories: ["housing", "social", "wellbeing"], strain: "positive" }, tileAdjustment: strain("remove", 2, 2, 2), manualChoice: true, optional: true });
 add({ id: tileEffectRuleId("special_the_waystation", "special"), deckReorder: { count: 3 } });
-add({ id: tileEffectRuleId("special_the_resting_hall", "special"), target: { strain: "positive" }, tileAdjustment: strain("remove", 1, 1, 1) });
+add({ id: tileEffectRuleId("special_the_resting_hall", "special"), target: { strain: "positive" }, tileAdjustment: strain("remove", 1, 1, 1), manualChoice: true });
 
 add({ id: stewardEffectRuleId("ranger"), manualChoice: true });
 add({ id: stewardEffectRuleId("quartermaster"), timer: { direction: "add", limit: 1 }, exchangeLimit: 5, exchangeOptional: true, manualChoice: true });

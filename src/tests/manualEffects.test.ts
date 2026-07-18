@@ -24,10 +24,12 @@ import {
   refreshPendingEffectForCurrentState,
   isTileAdjustmentValid,
   isTimerAdjustmentValid,
+  queueRestingHallBurdenPassive,
   resolvePendingEffect,
   skipPendingEffect,
   suggestEffectAdjustment
 } from "../engine/manualEffects";
+import { getHexNeighbors } from "../engine/hex";
 import { createNewGame } from "../engine/setup";
 import type { GameState, PlacedTile, Season } from "../engine/types";
 
@@ -743,6 +745,82 @@ describe("structured effect rules", () => {
       adjustment: { tileStrainDeltas: { path: -1 } },
       requiresManualChoice: false
     });
+  });
+
+  it("requires a player choice for ambiguous Apothecary targets", () => {
+    const source = placed("apothecary", "c12_apothecary", "G2");
+    const [firstHex, secondHex] = getHexNeighbors("G2");
+    const state = stateWith([
+      source,
+      placed("first", "c15_path", firstHex, 1),
+      placed("second", "c15_path", secondHex, 2)
+    ]);
+
+    expect(
+      suggestEffectAdjustment(
+        state,
+        tileEffectRuleId("c12_apothecary", "basic"),
+        source
+      )
+    ).toEqual({ adjustment: undefined, requiresManualChoice: true });
+  });
+
+  it("requires a player choice for Shelter Holds I with multiple targets", () => {
+    const first = placed("first", "c15_path", "G1", 1);
+    const second = placed("second", "c15_path", "J1", 1);
+    first.support.singleUse = true;
+    second.support.singleUse = true;
+    const state = stateWith([first, second]);
+
+    expect(
+      suggestEffectAdjustment(
+        state,
+        cardEffectRuleId("boon_shelter_holds", 1)
+      )
+    ).toEqual({ adjustment: undefined, requiresManualChoice: true });
+  });
+
+  it("requires a player choice for From the Brink's positive-Strain fallback", () => {
+    const state = stateWith([
+      placed("first", "c15_path", "G1", 1),
+      placed("second", "c15_path", "J1", 2)
+    ]);
+
+    expect(
+      suggestEffectAdjustment(
+        state,
+        cardEffectRuleId("boon_from_the_brink", 1)
+      )
+    ).toEqual({ adjustment: undefined, requiresManualChoice: true });
+  });
+
+  it("queues a target choice when The Resting Hall can heal multiple tiles", () => {
+    const hall = placed(
+      "hall",
+      "special_the_resting_hall",
+      "G1",
+      0,
+      "special"
+    );
+    const state = stateWith([
+      hall,
+      placed("first", "c15_path", "H1", 1),
+      placed("second", "c05_cabin", "J1", 2)
+    ]);
+
+    const queued = queueRestingHallBurdenPassive(state);
+
+    expect(queued.pendingEffects[0]).toMatchObject({
+      ruleId: tileEffectRuleId("special_the_resting_hall", "special"),
+      requiresManualChoice: true
+    });
+    expect(queued.pendingEffects[0].suggestedAdjustment).toBeUndefined();
+
+    const resolved = resolvePendingEffect(queued, {
+      tileStrainDeltas: { second: -1 }
+    });
+    expect(resolved.pendingEffects).toHaveLength(0);
+    expect(resolved.map.placedTiles.map((tile) => tile.strain)).toEqual([0, 1, 1]);
   });
 
   it("automatically supports a sole adjacent target", () => {

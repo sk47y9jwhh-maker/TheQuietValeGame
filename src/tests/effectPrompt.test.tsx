@@ -10,6 +10,7 @@ import {
 } from "../data/effectRules";
 import { createNewGame } from "../engine/setup";
 import { getHexNeighbors } from "../engine/hex";
+import { activateTile } from "../engine/gameActions";
 import type { PendingEffectState, PlacedTile } from "../engine/types";
 
 const coreTile = (
@@ -28,6 +29,40 @@ const coreTile = (
 });
 
 describe("effect prompt controls", () => {
+  it("shows tile selectors when an activated Apothecary has multiple targets", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const [firstHex, secondHex] = getHexNeighbors("G2");
+    state.phase = "turns";
+    state.players[0].hasPlacedFirstTile = true;
+    state.players[0].stewardHexId = "G2";
+    state.map.placedTiles = [
+      coreTile("c12_apothecary", "apothecary", "G2"),
+      coreTile("c15_path", "first", firstHex, 1),
+      coreTile("c15_path", "second", secondHex, 2)
+    ];
+
+    const prompted = activateTile(state, "player_1", "apothecary");
+    const effect = prompted.pendingEffects[0];
+    expect(effect?.requiresManualChoice).toBe(true);
+
+    render(
+      <EffectPrompt
+        state={prompted}
+        effect={effect}
+        onApply={() => {}}
+      />
+    );
+
+    expect(screen.getByText("Tiles")).toBeInTheDocument();
+    const selectors = screen.getAllByRole("button", {
+      name: "Decrease Strain adjustment for Path"
+    });
+    expect(selectors).toHaveLength(2);
+    fireEvent.click(selectors[1]);
+    expect(screen.getByText(/Remove up to 1 Strain: 1 selected/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /apply effect/i })).toBeEnabled();
+  });
+
   it("keeps Help Stands disabled until every earned resource is selected", () => {
     const state = createNewGame(2, ["vanguard", "warden"]);
     state.season = 2;
