@@ -1146,7 +1146,16 @@ export function suggestEffectAdjustment(
     cascade &&
       (cascadeAnchors.length > 1 || cascadeSpreadTargets > cascade.maxSpreadTargets)
   );
-  const requiresManualChoice = Boolean(rule.manualChoice && (
+  // Strain removal and Supported are player-directed benefits. If their target
+  // is ambiguous, an omitted manualChoice flag must not turn the effect into an
+  // empty acknowledgement with no tile controls.
+  const hasPlayerDirectedTileAdjustment = Boolean(
+    rule.tileAdjustment?.strain?.direction === "remove" ||
+      rule.tileAdjustment?.support
+  );
+  const requiresManualChoice = Boolean((
+    rule.manualChoice || hasPlayerDirectedTileAdjustment
+  ) && (
     rule.exchangeLimit !== undefined || rule.resourceGainChoice || rule.alternative ||
     strainTargets > 1 || supportTargets > 1 || cascadeNeedsChoice ||
     (rule.timer && timerTargets > 1) ||
