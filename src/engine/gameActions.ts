@@ -82,7 +82,6 @@ import type {
   ResourceCost,
   ResourceType,
   Terrain,
-  TileCategory,
   TilePlacementDraft,
   ValidationResult
 } from "./types";
@@ -327,13 +326,6 @@ export function getLinkedProductionTileIds(
 ): string[] {
   if (hasUsedLinkedProductionThisRound(state, placedTileId)) return [];
   return getAdjacentLinkedProductionTileIds(state, placedTileId);
-}
-
-export function getLinkedProductionTileId(
-  state: GameState,
-  placedTileId: string
-): string | undefined {
-  return getLinkedProductionTileIds(state, placedTileId)[0];
 }
 
 function isAdjacentToUpgradedCore(tile: PlacedTile, tiles: PlacedTile[]): boolean {

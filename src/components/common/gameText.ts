@@ -1,5 +1,4 @@
 import { resourceLabels, resources } from "../../data/resources";
-import { coreTileById, specialTileById } from "../../data/tiles";
 import { burdenResolutionResourceOptions } from "../../data/contentRules";
 import type { EncounterData, ResourceCost, Season, TileCategory } from "../../engine/types";
 
@@ -13,15 +12,6 @@ export function formatCost(cost: ResourceCost): string {
 
 export function formatCategory(category: TileCategory): string {
   return category.charAt(0).toUpperCase() + category.slice(1);
-}
-
-export function getTileRuleText(tileId: string, side: "basic" | "upgraded" | "special"): string {
-  const coreTile = coreTileById[tileId];
-  if (coreTile) {
-    return side === "upgraded" ? coreTile.upgraded.effectText : coreTile.basic.effectText;
-  }
-
-  return specialTileById[tileId]?.effectText ?? "";
 }
 
 export function getEncounterTypeLabel(card: EncounterData | undefined): string {

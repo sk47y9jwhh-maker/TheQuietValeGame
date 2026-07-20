@@ -266,7 +266,3 @@ export function consumeBoonModifiers(
     })
   };
 }
-
-export function getEmptyBoonPreview(): BoonActionPreview {
-  return { cost: emptyCost(), actionCost: 1, appliedModifierIds: [] };
-}

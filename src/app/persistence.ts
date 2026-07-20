@@ -1,4 +1,5 @@
-import { resources } from "../data/resources";
+import { resources, warehouseCap } from "../data/resources";
+import { stewardById } from "../data/stewards";
 import { coreTiles } from "../data/tiles";
 import type { GamePhase, GameState, PlayerCount, Season } from "../engine/types";
 import {
@@ -53,46 +54,176 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-function isWarehouseShape(value: unknown): boolean {
+function isNonNegativeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function isNonNegativeIntegerRecord(value: unknown): value is Record<string, number> {
+  return isRecord(value) && Object.values(value).every(isNonNegativeInteger);
+}
+
+function isWarehouseShape(value: unknown): value is GameState["warehouse"] {
   return (
     isRecord(value) &&
-    resources.every((resource) => typeof value[resource] === "number")
+    resources.every(
+      (resource) =>
+        isNonNegativeInteger(value[resource]) && value[resource] <= warehouseCap
+    )
   );
+}
+
+function isPlayerShape(value: unknown): value is GameState["players"][number] {
+  if (!isRecord(value)) return false;
+  const stewardPowerUsesBySeason = value.stewardPowerUsesBySeason;
+  if (!isRecord(stewardPowerUsesBySeason)) return false;
+  return (
+    typeof value.id === "string" &&
+    typeof value.name === "string" &&
+    typeof value.stewardId === "string" &&
+    Boolean(stewardById[value.stewardId]) &&
+    typeof value.stewardHexId === "string" &&
+    typeof value.hasPlacedFirstTile === "boolean" &&
+    [1, 2, 3].every((season) =>
+      isNonNegativeInteger(stewardPowerUsesBySeason[season])
+    ) &&
+    (value.temporaryReachHexId === undefined ||
+      typeof value.temporaryReachHexId === "string")
+  );
+}
+
+function isPlacedTileShape(value: unknown): value is GameState["map"]["placedTiles"][number] {
+  if (!isRecord(value) || !isRecord(value.support)) return false;
+  return (
+    typeof value.instanceId === "string" &&
+    typeof value.tileId === "string" &&
+    (value.kind === "core" || value.kind === "special") &&
+    (value.side === "basic" || value.side === "upgraded" || value.side === "special") &&
+    isStringArray(value.hexIds) &&
+    value.hexIds.length > 0 &&
+    isNonNegativeInteger(value.strain) &&
+    value.strain <= 3 &&
+    typeof value.support.passive === "boolean" &&
+    typeof value.support.singleUse === "boolean" &&
+    typeof value.support.preventedThisRound === "boolean"
+  );
+}
+
+function isHandsByPlayerShape(value: unknown): value is Record<string, string[]> {
+  return isRecord(value) && Object.values(value).every(isStringArray);
+}
+
+function isActiveArrivalShape(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    typeof value.cardId === "string" &&
+    isNonNegativeInteger(value.timerTokens)
+  );
+}
+
+function isActiveBoonShape(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    typeof value.cardId === "string" &&
+    isNonNegativeInteger(value.remainingUses) &&
+    (value.lastUsedRound === undefined || isNonNegativeInteger(value.lastUsedRound)) &&
+    (value.expiresAfterRound === undefined || isNonNegativeInteger(value.expiresAfterRound))
+  );
+}
+
+function isCompletedArrivalShape(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    typeof value.cardId === "string" &&
+    isStringArray(value.specialTileIds)
+  );
+}
+
+function isBoonModifierShape(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.sourceCardId === "string" &&
+    typeof value.name === "string" &&
+    typeof value.effectText === "string" &&
+    isStringArray(value.actions) &&
+    isNonNegativeInteger(value.remainingUses)
+  );
+}
+
+function isLogEntryShape(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    isNonNegativeInteger(value.round) &&
+    typeof value.message === "string"
+  );
+}
+
+function isOptionalRecord(value: unknown): boolean {
+  return value === undefined || value === null || isRecord(value);
 }
 
 function isSavedGameStateShape(value: unknown): value is GameState {
   if (!isRecord(value)) return false;
 
+  const players = value.players;
   const map = value.map;
   const tileSupply = value.tileSupply;
   const encounters = value.encounters;
 
   return (
     isPlayerCount(value.playerCount) &&
-    Array.isArray(value.players) &&
+    Array.isArray(players) &&
+    players.length === value.playerCount &&
+    players.every(isPlayerShape) &&
+    new Set(players.map((player) => player.id)).size === players.length &&
     typeof value.currentPlayerId === "string" &&
+    players.some((player) => player.id === value.currentPlayerId) &&
     isSeason(value.season) &&
-    typeof value.round === "number" &&
+    isNonNegativeInteger(value.round) &&
+    value.round >= 1 &&
+    value.round <= 12 &&
     isGamePhase(value.phase) &&
-    typeof value.actionsRemaining === "number" &&
-    Array.isArray(value.playersActedThisRound) &&
-    Array.isArray(value.seasonSeededPlayerIds) &&
+    isNonNegativeInteger(value.actionsRemaining) &&
+    isStringArray(value.playersActedThisRound) &&
+    isStringArray(value.seasonSeededPlayerIds) &&
     isWarehouseShape(value.warehouse) &&
     isRecord(map) &&
     Array.isArray(map.placedTiles) &&
+    map.placedTiles.every(isPlacedTileShape) &&
     isRecord(tileSupply) &&
-    isRecord(tileSupply.core) &&
-    isRecord(tileSupply.special) &&
+    isNonNegativeIntegerRecord(tileSupply.core) &&
+    isNonNegativeIntegerRecord(tileSupply.special) &&
     isRecord(encounters) &&
-    isRecord(encounters.handsByPlayerId) &&
-    Array.isArray(encounters.deck) &&
-    Array.isArray(encounters.discardPile) &&
+    isHandsByPlayerShape(encounters.handsByPlayerId) &&
+    isStringArray(encounters.deck) &&
+    isStringArray(encounters.discardPile) &&
     Array.isArray(encounters.activeArrivals) &&
-    Array.isArray(encounters.activeBurdens) &&
+    encounters.activeArrivals.every(isActiveArrivalShape) &&
+    isStringArray(encounters.activeBurdens) &&
     Array.isArray(encounters.faceUpBoons) &&
+    encounters.faceUpBoons.every(isActiveBoonShape) &&
     Array.isArray(encounters.completedArrivals) &&
+    encounters.completedArrivals.every(isCompletedArrivalShape) &&
+    (encounters.reserveBoonIds === undefined || isStringArray(encounters.reserveBoonIds)) &&
+    (encounters.reserveArrivalIds === undefined || isStringArray(encounters.reserveArrivalIds)) &&
+    Array.isArray(value.boonModifiers) &&
+    value.boonModifiers.every(isBoonModifierShape) &&
+    isStringArray(value.ignoredBurdenIdsThisRound) &&
+    (value.tileActivationRecords === undefined || isRecord(value.tileActivationRecords)) &&
     Array.isArray(value.pendingEffects) &&
-    Array.isArray(value.log)
+    value.pendingEffects.every(isRecord) &&
+    isOptionalRecord(value.pendingDeckReorder) &&
+    isOptionalRecord(value.pendingCostChoice) &&
+    isOptionalRecord(value.pendingGoldenEffect) &&
+    (value.bonusTurnsPending === undefined || typeof value.bonusTurnsPending === "boolean") &&
+    (value.bonusTurnsActive === undefined || typeof value.bonusTurnsActive === "boolean") &&
+    Array.isArray(value.log) &&
+    value.log.every(isLogEntryShape)
   );
 }
 
@@ -100,9 +231,12 @@ function isSavedSetup(value: unknown): value is SavedSetup {
   if (!isRecord(value)) return false;
   return (
     (value.version === 1 || value.version === 2 || value.version === 3 || value.version === saveVersion) &&
+    typeof value.savedAt === "string" &&
     isPlayerCount(value.playerCount) &&
-    Array.isArray(value.stewardIds) &&
-    value.stewardIds.every((id) => typeof id === "string") &&
+    isStringArray(value.stewardIds) &&
+    value.stewardIds.length === value.playerCount &&
+    new Set(value.stewardIds).size === value.stewardIds.length &&
+    value.stewardIds.every((id) => Boolean(stewardById[id])) &&
     typeof value.encounterSeed === "string" &&
     (value.declaredVowId === undefined || typeof value.declaredVowId === "string") &&
     (value.selectedGoldenTileId === undefined || typeof value.selectedGoldenTileId === "string") &&
@@ -112,7 +246,13 @@ function isSavedSetup(value: unknown): value is SavedSetup {
 
 function isSavedGame(value: unknown): value is SavedGame {
   if (!isRecord(value) || !isSavedSetup(value)) return false;
-  return isSavedGameStateShape(value.state);
+  if (!isSavedGameStateShape(value.state)) return false;
+  return (
+    value.state.playerCount === value.playerCount &&
+    value.state.players.every(
+      (player, index) => player.stewardId === value.stewardIds[index]
+    )
+  );
 }
 
 export function readSavedSetup(): SavedSetup | null {

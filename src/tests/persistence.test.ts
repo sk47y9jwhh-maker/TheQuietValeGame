@@ -3,9 +3,17 @@ import {
   createEmptyLedgerCampaign,
   readLedgerCampaign
 } from "../app/ledgerPersistence";
-import { readSavedGame, writeSavedGame } from "../app/persistence";
+import { readSavedGame, readSavedSetup, writeSavedGame } from "../app/persistence";
 import { createNewGame } from "../engine/setup";
 import { drawTargetCard } from "../engine/targetCards";
+
+const resourceTileIds = [
+  "c01_lumber_yard",
+  "c02_mine_tunnel",
+  "c03_gathering_outpost",
+  "c04_farmstead",
+  "c20_dig_site"
+];
 
 describe("browser persistence", () => {
   beforeEach(() => {
@@ -48,15 +56,52 @@ describe("browser persistence", () => {
     expect(readSavedGame()?.state.tileActivationRecords).toEqual({});
   });
 
+  it("keeps the earliest supported save format migratable", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    for (const tileId of resourceTileIds) state.tileSupply.core[tileId] = 2;
+
+    const legacyState = {
+      ...state,
+      encounters: { ...state.encounters }
+    } as Omit<Partial<typeof state>, "encounters"> & {
+      encounters: Partial<(typeof state)["encounters"]>;
+    };
+    delete legacyState.goldenSetup;
+    delete legacyState.pendingGoldenEffect;
+    delete legacyState.bonusTurnsPending;
+    delete legacyState.bonusTurnsActive;
+    delete legacyState.targetCards;
+    delete legacyState.encounters.reserveBoonIds;
+    delete legacyState.encounters.reserveArrivalIds;
+    delete legacyState.encounters.selectedGoldenBoonId;
+
+    window.localStorage.setItem(
+      "quietVale.activeGame.v1",
+      JSON.stringify({
+        version: 1,
+        savedAt: new Date().toISOString(),
+        playerCount: 1,
+        stewardIds: ["vanguard"],
+        encounterSeed: "QV-V1-COMPATIBILITY",
+        state: legacyState
+      })
+    );
+
+    const restored = readSavedGame();
+    expect(restored?.version).toBe(4);
+    expect(restored?.state.goldenSetup).toEqual({
+      tilePlaced: false,
+      tileSkipped: false
+    });
+    expect(restored?.state.pendingGoldenEffect).toBeNull();
+    expect(restored?.state.targetCards.drawPile).toHaveLength(24);
+    expect(
+      resourceTileIds.map((tileId) => restored?.state.tileSupply.core[tileId])
+    ).toEqual([3, 3, 3, 3, 3]);
+  });
+
   it("adds the third Resource Tile copy when restoring an older active game", () => {
     const state = createNewGame(1, ["vanguard"]);
-    const resourceTileIds = [
-      "c01_lumber_yard",
-      "c02_mine_tunnel",
-      "c03_gathering_outpost",
-      "c04_farmstead",
-      "c20_dig_site"
-    ];
     for (const tileId of resourceTileIds) {
       state.tileSupply.core[tileId] = 2;
     }
@@ -137,6 +182,43 @@ describe("browser persistence", () => {
     );
 
     expect(readSavedGame()).toBeNull();
+  });
+
+  it("rejects malformed nested save values before they reach the rules engine", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.tileSupply.core.c01_lumber_yard = "2" as unknown as number;
+
+    window.localStorage.setItem(
+      "quietVale.activeGame.v1",
+      JSON.stringify({
+        version: 4,
+        savedAt: new Date().toISOString(),
+        playerCount: 1,
+        stewardIds: ["vanguard"],
+        encounterSeed: "QV-BAD-NESTED-VALUE",
+        state
+      })
+    );
+
+    expect(readSavedGame()).toBeNull();
+  });
+
+  it("rejects setup saves with unknown or duplicate Stewards", () => {
+    const setup = {
+      version: 4,
+      savedAt: new Date().toISOString(),
+      playerCount: 2,
+      stewardIds: ["vanguard", "vanguard"],
+      encounterSeed: "QV-BAD-SETUP"
+    };
+    window.localStorage.setItem("quietVale.setup.v1", JSON.stringify(setup));
+    expect(readSavedSetup()).toBeNull();
+
+    window.localStorage.setItem(
+      "quietVale.setup.v1",
+      JSON.stringify({ ...setup, stewardIds: ["vanguard", "unknown-steward"] })
+    );
+    expect(readSavedSetup()).toBeNull();
   });
 
   it("falls back to an empty Ledger campaign when the saved campaign shape is invalid", () => {

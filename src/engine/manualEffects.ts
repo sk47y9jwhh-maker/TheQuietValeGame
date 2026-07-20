@@ -9,7 +9,7 @@ import {
   systemEffectRuleId,
   tileEffectRuleId
 } from "../data/effectRules";
-import { coreTileById, specialTileById } from "../data/tiles";
+import { specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
 import { describeEffectControls } from "./effectControls";
 import {

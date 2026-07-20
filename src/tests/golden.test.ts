@@ -22,7 +22,7 @@ import { calculateFinalScore } from "../engine/scoring";
 import { createNewGame } from "../engine/setup";
 import { applyStrainToState } from "../engine/strainRules";
 import { recalculatePassiveSupported } from "../engine/supportRules";
-import type { GameState, PlacedTile } from "../engine/types";
+import type { PlacedTile } from "../engine/types";
 
 function placed(
   instanceId: string,

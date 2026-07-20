@@ -775,11 +775,6 @@ export function App() {
   }
 
   const currentPlayer = selectCurrentPlayer(state);
-  const placementDraft: TilePlacementDraft = {
-    anchorHexId: selectedHexIds[0],
-    orientation: placementOrientation,
-    secondaryHexIds: selectedHexIds.slice(1)
-  };
   const contextTile = mapContextMenu
     ? getPlacedTileAtHex(state, mapContextMenu.hexId)
     : undefined;

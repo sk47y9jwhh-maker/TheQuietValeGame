@@ -1,4 +1,4 @@
-import { resources, warehouseCap } from "../data/resources";
+import { resources } from "../data/resources";
 import type { ResourceCost, WarehouseState } from "./types";
 
 export function canAfford(warehouse: WarehouseState, cost: ResourceCost): boolean {
@@ -27,15 +27,3 @@ export function spendResources(
   }
   return next;
 }
-
-export function gainResources(
-  warehouse: WarehouseState,
-  gain: ResourceCost
-): WarehouseState {
-  const next = { ...warehouse };
-  for (const resource of resources) {
-    next[resource] = Math.min(warehouseCap, next[resource] + gain[resource]);
-  }
-  return next;
-}
-

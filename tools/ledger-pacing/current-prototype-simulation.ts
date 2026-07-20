@@ -38,7 +38,6 @@ import { getHexNeighbors } from "../../src/engine/hex";
 import {
   getEffectSupportTargets,
   getAlternativeEffectRule,
-  getEffectTileTargets,
   getResourceGainChoiceRule,
   getStrainCascadeAnchorTargets,
   getStrainCascadeRule,
@@ -1332,7 +1331,6 @@ function findPlacement(
   const player = state.players.find((candidate) => candidate.id === playerId);
   if (!player) return null;
   const categoryWeights = targetCategoryWeights(targets);
-  const scoreFocused = isScoreFocusedTarget(targets);
   if (plan) {
     for (const category of Object.keys(categoryWeights) as TileCategory[]) {
       categoryWeights[category] = (categoryWeights[category] ?? 0) * 0.35;
@@ -3559,7 +3557,19 @@ export function simulateCurrentGame(input: any): any {
   }
   const stats = createStats(state);
   const humanPlanning = emptyHumanPlanningContext();
-  for (const player of state.players) state = commitStewardPlacement(state, state.currentPlayerId, state.players.find((candidate) => candidate.id === state.currentPlayerId)!.stewardHexId);
+  for (let index = 0; index < state.players.length; index += 1) {
+    const currentPlayer = state.players.find(
+      (candidate) => candidate.id === state.currentPlayerId
+    );
+    if (!currentPlayer) {
+      throw new Error(`No current player found during setup: ${state.currentPlayerId}`);
+    }
+    state = commitStewardPlacement(
+      state,
+      state.currentPlayerId,
+      currentPlayer.stewardHexId
+    );
+  }
   if (state.phase === "goldenSetup") {
     const goldenHex = chooseGoldenSetupHex(state);
     if (goldenHex) state = placeGoldenTileForSetup(state, goldenHex);
@@ -3683,7 +3693,6 @@ export function simulateCurrentGame(input: any): any {
   }
   stats.seasonSnapshots.end_season_3 = { active_burdens: state.encounters.activeBurdens.length, overstrained_tiles: state.map.placedTiles.filter((tile) => tile.strain >= 3).length };
   const placedTravel = state.map.placedTiles.filter((tile) => tileCategory(tile) === "travel").length;
-  const placedFarmsteads = state.map.placedTiles.filter((tile) => tile.tileId === "c04_farmstead").length;
   const upgradedCore = state.map.placedTiles.filter(
     (tile) => tile.kind === "core" && tile.side === "upgraded",
   ).length;

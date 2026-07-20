@@ -109,10 +109,6 @@ export interface TilePlacementDraft {
   secondaryHexIds?: string[];
 }
 
-export interface TilePlacementSelection extends TilePlacementDraft {
-  anchorHexId: string;
-}
-
 export interface StewardData {
   id: string;
   name: string;

@@ -14,12 +14,6 @@ export function isOverstrained(tile: Pick<PlacedTile, "strain">): boolean {
   return tile.strain >= 3;
 }
 
-export function tileConnectsAcrossWater(tile: PlacedTile): boolean {
-  if (tile.kind !== "core") return false;
-  const data = coreTileById[tile.tileId];
-  return data?.basic.name === "Bridge" || data?.upgraded.name === "Stone Bridge";
-}
-
 function isBridge(tile: PlacedTile): boolean {
   if (tile.kind !== "core") return false;
   const data = coreTileById[tile.tileId];

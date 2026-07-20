@@ -1,6 +1,6 @@
 import { effectRulesById, getEffectRule } from "../data/effectRules";
 import type { EffectRule, TileTargetRule } from "./effectRuleTypes";
-import type { BoonModifierAction, ResourceType, TileCategory } from "./types";
+import type { BoonModifierAction, TileCategory } from "./types";
 
 export type EffectSemanticTag =
   | "support"
@@ -100,15 +100,4 @@ export function getEffectSemanticTags(ruleOrId: EffectRule | string | undefined)
     if (effectRuleTargetsCategory(rule, category)) tags.add(tag);
   }
   return [...tags];
-}
-
-export function effectRuleHasResourceLoss(
-  ruleOrId: EffectRule | string | undefined,
-  resource?: ResourceType
-): boolean {
-  return effectRuleMatches(ruleOrId, (rule) => {
-    if (resource && (rule.fixedResources?.[resource] ?? 0) < 0) return true;
-    if (!resource && Object.values(rule.fixedResources ?? {}).some((amount) => (amount ?? 0) < 0)) return true;
-    return Boolean(rule.alternative && (!resource || rule.alternative.resources.includes(resource)));
-  });
 }
