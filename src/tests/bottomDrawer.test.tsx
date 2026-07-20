@@ -102,17 +102,31 @@ describe("bottom drawer", () => {
 
     fireEvent.click(screen.getByRole("tab", { name: "Full rules" }));
 
+    expect(
+      screen.getByRole("navigation", { name: "Full rules contents" })
+    ).toBeInTheDocument();
+    expect(container.querySelectorAll(".rules-chapter-button")).toHaveLength(12);
+    expect(screen.getByRole("heading", { name: "The aim of the game" })).toBeInTheDocument();
     expect(screen.getByText("Placement, reach, and movement")).toBeInTheDocument();
     expect(screen.getByText("Boons, Arrivals, and Burdens")).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "6. Strain, Overstrained, and Supported" })
+    );
     expect(screen.getByText(/each tile that became Overstrained spreads 1 Strain/)).toBeInTheDocument();
     expect(screen.getByText(/the Target Deck chooses among them/)).toBeInTheDocument();
     expect(screen.getByText(/Shuffle the 24-card Target Deck once during setup/)).toBeInTheDocument();
     expect(screen.queryByText(/After rounds 4 and 8/)).not.toBeInTheDocument();
-    expect(screen.getByText("Final scoring")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "3. Season setup and round flow" }));
+    expect(screen.getByText(/each Housing cluster gains 1 single-use Supported/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "12. Final scoring" }));
+    expect(screen.getByRole("heading", { name: "Final scoring" })).toBeInTheDocument();
     expect(
       screen.getByText("Lose 5 Renown for each failed Arrival, each active Burden, and every Strain token on the map.")
     ).toBeInTheDocument();
     expect(screen.getByText("Achievements, Vows, and unlocks")).toBeInTheDocument();
-    expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(12);
+    expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(1);
   });
 });

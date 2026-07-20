@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type RulesView = "howTo" | "gameRules";
 
@@ -181,16 +181,40 @@ const rules: RuleReferenceCard[] = [
 
 export function RulesGuide({ gameStatus }: RulesGuideProps) {
   const [rulesView, setRulesView] = useState<RulesView>("howTo");
+  const [activeRuleIndex, setActiveRuleIndex] = useState(0);
+  const ruleChapterRef = useRef<HTMLElement>(null);
+  const ruleChapterButtonRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const activeRule = rules[activeRuleIndex];
+
+  useEffect(() => {
+    if (rulesView === "gameRules" && ruleChapterRef.current) {
+      ruleChapterRef.current.scrollTop = 0;
+      ruleChapterButtonRefs.current[activeRuleIndex]?.scrollIntoView?.({
+        block: "nearest",
+        inline: "nearest"
+      });
+    }
+  }, [activeRuleIndex, rulesView]);
 
   return (
-    <div className="rules-guide">
+    <div className={`rules-guide ${rulesView === "gameRules" ? "rules-guide-full" : ""}`}>
       <section
         className="rules-quick-start"
         aria-label={gameStatus ? "Current game and quick start" : "Game overview"}
       >
         <div>
-          <p className="eyebrow">{gameStatus ? "Playtester Guide" : "Learn to Play"}</p>
-          <strong>Build together. Share resources. Keep Strain under control.</strong>
+          <p className="eyebrow">
+            {rulesView === "gameRules"
+              ? "Rules Reference"
+              : gameStatus
+                ? "Playtester Guide"
+                : "Learn to Play"}
+          </p>
+          <strong>
+            {rulesView === "gameRules"
+              ? "Choose a chapter, then read one clear rule section at a time."
+              : "Build together. Share resources. Keep Strain under control."}
+          </strong>
         </div>
         <div
           className="rules-status-row"
@@ -359,23 +383,101 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
       {rulesView === "gameRules" && (
         <div
           aria-labelledby="rules-game-rules-tab"
-          className="rules-grid"
+          className="rules-book-layout"
           id="rules-game-rules-panel"
           role="tabpanel"
         >
-          {rules.map((rule) => (
-            <article className="mini-card rule-reference-card" key={rule.title}>
-              <span className="rule-category">{rule.category}</span>
-              <strong>{rule.title}</strong>
-              {rule.summary && <p className="rule-summary">{rule.summary}</p>}
+          <nav className="rules-contents" aria-label="Full rules contents">
+            <div className="rules-contents-heading">
+              <div>
+                <p className="eyebrow">Contents</p>
+                <strong>Rulebook chapters</strong>
+              </div>
+              <span>{rules.length}</span>
+            </div>
+            <div className="rules-contents-list">
+              {rules.map((rule, index) => (
+                <button
+                  aria-controls="active-rule-chapter"
+                  aria-current={activeRuleIndex === index ? "page" : undefined}
+                  aria-label={`${index + 1}. ${rule.title}`}
+                  className={`rules-chapter-button ${activeRuleIndex === index ? "selected" : ""}`}
+                  key={rule.title}
+                  onClick={() => setActiveRuleIndex(index)}
+                  ref={(node) => {
+                    ruleChapterButtonRefs.current[index] = node;
+                  }}
+                  type="button"
+                >
+                  <span className="rules-chapter-number">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="rules-chapter-label">
+                    <small>{rule.category}</small>
+                    <strong>{rule.title}</strong>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </nav>
+
+          <section className="rules-chapter-detail" aria-label="Selected rule chapter">
+            <article
+              className="rule-reference-card rule-chapter-card"
+              id="active-rule-chapter"
+              ref={ruleChapterRef}
+              tabIndex={0}
+            >
+              <header className="rule-chapter-header">
+                <div className="rule-chapter-meta">
+                  <span>
+                    Chapter {String(activeRuleIndex + 1).padStart(2, "0")} / {rules.length}
+                  </span>
+                  <span className="rule-category">{activeRule.category}</span>
+                </div>
+                <h3>{activeRule.title}</h3>
+                {activeRule.summary && <p className="rule-summary">{activeRule.summary}</p>}
+              </header>
               <ul>
-                {rule.bullets.map((bullet) => (
+                {activeRule.bullets.map((bullet) => (
                   <li key={bullet}>{bullet}</li>
                 ))}
               </ul>
-              {rule.note && <small className="rule-note">{rule.note}</small>}
+              {activeRule.note && <aside className="rule-note">{activeRule.note}</aside>}
             </article>
-          ))}
+
+            <div className="rules-chapter-pager" aria-label="Rule chapter navigation">
+              <button
+                aria-label={
+                  activeRuleIndex > 0
+                    ? `Previous rule: ${rules[activeRuleIndex - 1].title}`
+                    : "Previous rule"
+                }
+                disabled={activeRuleIndex === 0}
+                onClick={() => setActiveRuleIndex((current) => current - 1)}
+                type="button"
+              >
+                <span aria-hidden="true">←</span>
+                Previous
+              </button>
+              <span>
+                {activeRuleIndex + 1} of {rules.length}
+              </span>
+              <button
+                aria-label={
+                  activeRuleIndex < rules.length - 1
+                    ? `Next rule: ${rules[activeRuleIndex + 1].title}`
+                    : "Next rule"
+                }
+                disabled={activeRuleIndex === rules.length - 1}
+                onClick={() => setActiveRuleIndex((current) => current + 1)}
+                type="button"
+              >
+                Next
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </section>
         </div>
       )}
     </div>

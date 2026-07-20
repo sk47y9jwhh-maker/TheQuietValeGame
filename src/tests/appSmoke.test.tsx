@@ -33,7 +33,10 @@ describe("app smoke flow", () => {
 
     fireEvent.click(screen.getByRole("tab", { name: "Full rules" }));
 
-    expect(screen.getByText("The aim of the game")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "The aim of the game" })).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: "2. Choose Stewards and place starts" })
+    );
     expect(screen.getByText(/Start with 15 of each resource for 1 player/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Close rules drawer" }));
