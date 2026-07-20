@@ -4,6 +4,7 @@ import { stewardById } from "../data/stewards";
 import { coreTileById, specialTileById } from "../data/tiles";
 import {
   getEffectRule,
+  neighbourlySupportEffectRuleId,
   stewardEffectRuleId,
   systemEffectRuleId,
   tileEffectRuleId
@@ -55,7 +56,10 @@ import {
 import { getSeasonForRound, isSeasonStartRound, revealCountForPlayers } from "./season";
 import { isTileReachable } from "./reachability";
 import { refreshPassiveSupported } from "./strainRules";
-import { recalculatePassiveSupported } from "./supportRules";
+import {
+  getNeighbourlySupportAwardCount,
+  recalculatePassiveSupported
+} from "./supportRules";
 import { queueGoldenBoonResolution } from "./golden";
 import {
   applyCostChoice,
@@ -1015,6 +1019,26 @@ function queueSeasonStartBurdenEffects(state: GameState): GameState {
     );
   }
   return nextState;
+}
+
+function queueNeighbourlySupport(
+  state: GameState,
+  completedSeason: 1 | 2
+): GameState {
+  if (getNeighbourlySupportAwardCount(state) === 0) return state;
+
+  return queuePendingEffect(state, {
+    sourceType: "system",
+    ruleId: neighbourlySupportEffectRuleId,
+    sourceName: "Neighbourly Support",
+    title: `End of Season ${completedSeason}: Neighbourly Support`,
+    effectText:
+      "Each Housing cluster gains 1 single-use Supported for every 3 non-Overstrained Housing Tiles in that cluster.",
+    detailText:
+      "Place each Supported on a different non-Overstrained Housing Tile in its cluster. Overstrained Tiles do not connect or increase a cluster. Multiple instances of Supported do not stack.",
+    requiresManualChoice: true,
+    confirmLabel: "Place Supported"
+  });
 }
 
 export function revealEncounters(state: GameState): GameState {
@@ -2648,6 +2672,13 @@ export function resolveEndRound(state: GameState): GameState {
     }
   };
   nextState = recalculatePassiveSupported(nextState);
+
+  if (state.round === 4 || state.round === 8) {
+    nextState = queueNeighbourlySupport(
+      nextState,
+      state.round === 4 ? 1 : 2
+    );
+  }
 
   if (shouldSeed && nextState.encounters.activeBurdens.length > 0) {
     nextState = queueSeasonStartBurdenEffects(nextState);

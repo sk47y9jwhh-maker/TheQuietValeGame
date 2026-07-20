@@ -54,7 +54,9 @@ const rules: RuleReferenceCard[] = [
       "Each player then chooses three cards from their hidden hand: one for the top, one for the middle, and one for the bottom of the deck.",
       "At the start of each round, reveal 1 standard Encounter per player and resolve every reveal prompt in order.",
       "Starting with Player 1, each player takes one turn with up to 4 actions. A player may end their turn early.",
-      "After all turns, remove 1 timer from every active Arrival, resolve any Arrival that expires, and advance the round."
+      "After all turns, remove 1 timer from every active Arrival, resolve any Arrival that expires, and advance the round.",
+      "At the end of Seasons I and II, each Housing cluster gains 1 single-use Supported for every 3 non-Overstrained Housing Tiles in that cluster. Place each Supported on a different eligible Tile.",
+      "Ignore Overstrained Housing when determining clusters and cluster size. Resolve Neighbourly Support before active Burdens reapply for the new Season."
     ]
   },
   {

@@ -5,6 +5,7 @@ import {
   cardEffectRuleId,
   getActiveEffectRule,
   getEffectRule,
+  neighbourlySupportEffectRuleId,
   systemEffectRuleId,
   tileEffectRuleId
 } from "../data/effectRules";
@@ -24,7 +25,12 @@ import {
   getStrainPreventionPreview,
   removeStrainFromTile
 } from "./strainRules";
-import { recalculatePassiveSupported } from "./supportRules";
+import {
+  getNeighbourlySupportEligibleTiles,
+  getNeighbourlySupportRequiredSelectionCount,
+  isNeighbourlySupportSelectionValid,
+  recalculatePassiveSupported
+} from "./supportRules";
 import {
   comparePlacedTilesByMapCoordinate,
   drawAndSelectTarget,
@@ -544,6 +550,10 @@ export function getEffectSupportTargets(
   ruleId: string | undefined,
   sourceTile?: PlacedTile
 ): PlacedTile[] {
+  if (ruleId === neighbourlySupportEffectRuleId) {
+    return getNeighbourlySupportEligibleTiles(state);
+  }
+
   const rule = activeRule(state, ruleId, sourceTile);
   if (!isEffectRuleAvailable(state, rule)) return [];
   let targets: PlacedTile[];
@@ -567,6 +577,16 @@ export function getTileAdjustmentRule(
   ruleId: string | undefined,
   sourceTile?: PlacedTile
 ): TileAdjustmentRule {
+  if (ruleId === neighbourlySupportEffectRuleId) {
+    const requiredTargets = getNeighbourlySupportRequiredSelectionCount(state);
+    return {
+      support: {
+        maxTargets: requiredTargets,
+        requiredTargets
+      }
+    };
+  }
+
   return activeRule(state, ruleId, sourceTile).tileAdjustment ?? {};
 }
 
@@ -593,6 +613,17 @@ export function isTileAdjustmentValid(
   const cascade = getStrainCascadeRule(state, ruleId, sourceTile);
   const strainEntries = Object.entries(adjustment.tileStrainDeltas ?? {}).filter(([, delta]) => delta !== 0);
   const supportIds = [...new Set(adjustment.supportTileIds ?? [])];
+
+  if (ruleId === neighbourlySupportEffectRuleId) {
+    return (
+      !adjustment.strainCascadeAnchorTileId &&
+      strainEntries.length === 0 &&
+      isNeighbourlySupportSelectionValid(
+        state,
+        adjustment.supportTileIds ?? []
+      )
+    );
+  }
 
   if (cascade) {
     const anchorTileId = adjustment.strainCascadeAnchorTileId;
@@ -748,10 +779,18 @@ export function isTileAdjustmentValid(
       }
     }
   }
-  if (supportIds.length > 0) {
-    if (!rule.support || supportIds.length > rule.support.maxTargets) return false;
+  if (rule.support) {
+    if (supportIds.length > rule.support.maxTargets) return false;
     const legalIds = new Set(getEffectSupportTargets(state, ruleId, sourceTile).map((tile) => tile.instanceId));
     if (supportIds.some((tileId) => !legalIds.has(tileId))) return false;
+    const requiredTargets = Math.min(
+      rule.support.requiredTargets ?? 0,
+      rule.support.maxTargets,
+      legalIds.size
+    );
+    if (supportIds.length < requiredTargets) return false;
+  } else if (supportIds.length > 0) {
+    return false;
   }
   if (rule.supportCoversStrainTargets) {
     const supportedIds = new Set(supportIds);
@@ -2246,7 +2285,13 @@ export function resolvePendingEffect(
       {
         id: `log_${nextState.log.length + 1}_${Date.now()}`,
         round: nextState.round,
-        message: pendingEffect.resolutionLogMessage ?? `Applied effect: ${pendingEffect.title}.`
+        message:
+          pendingEffect.resolutionLogMessage ??
+          (pendingEffect.ruleId === neighbourlySupportEffectRuleId
+            ? `Neighbourly Support placed ${new Set(
+                effectiveAdjustment.supportTileIds ?? []
+              ).size} single-use Supported.`
+            : `Applied effect: ${pendingEffect.title}.`)
       },
       ...nextState.log
     ].slice(0, 80)
