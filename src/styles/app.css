@@ -441,7 +441,7 @@ button:disabled {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 2px 6px;
   align-content: center;
-  padding: 4px 7px 6px;
+  padding: 4px 7px;
   overflow: hidden;
   white-space: nowrap;
 }
@@ -5330,7 +5330,7 @@ input,
 }
 
 .resource-fill {
-  height: 3px;
+  height: 5px;
   background: rgba(38, 34, 27, 0.12);
 }
 
