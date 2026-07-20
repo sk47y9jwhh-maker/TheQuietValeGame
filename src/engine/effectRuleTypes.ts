@@ -49,7 +49,11 @@ export interface TileAdjustmentRule {
       requiredOtherTargetsIfAvailable?: number;
     };
   };
-  support?: { maxTargets: number };
+  support?: {
+    maxTargets: number;
+    /** Require this many different Supported targets when enough are legal. */
+    requiredTargets?: number;
+  };
   supportCoversStrainTargets?: boolean;
 }
 

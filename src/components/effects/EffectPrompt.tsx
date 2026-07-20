@@ -9,7 +9,10 @@ import {
   X
 } from "lucide-react";
 import { encounterById } from "../../data/encounters";
-import { getEffectRule } from "../../data/effectRules";
+import {
+  getEffectRule,
+  neighbourlySupportEffectRuleId
+} from "../../data/effectRules";
 import { resourceLabels, resources } from "../../data/resources";
 import {
   describeTargetCard,
@@ -45,6 +48,7 @@ import {
 } from "../../engine/manualEffects";
 import { describeEffectControls } from "../../engine/effectControls";
 import { getStrainPlacementCapacity } from "../../engine/strainRules";
+import { getNeighbourlySupportClusters } from "../../engine/supportRules";
 import { mapCells, terrainLabels } from "../../data/map";
 import { selectEncounterName, selectTileName } from "../../engine/selectors";
 import type {
@@ -297,6 +301,29 @@ export function EffectPrompt({
   const tileAdjustmentRule = useMemo(
     () => getTileAdjustmentRule(state, effect.ruleId, sourceTile),
     [effect.ruleId, sourceTile, state]
+  );
+  const isNeighbourlySupport = effect.ruleId === neighbourlySupportEffectRuleId;
+  const neighbourlySupportClusters = useMemo(
+    () => (isNeighbourlySupport ? getNeighbourlySupportClusters(state) : []),
+    [isNeighbourlySupport, state]
+  );
+  const neighbourlyClusterByTileId = useMemo(
+    () =>
+      new Map(
+        neighbourlySupportClusters.flatMap((cluster, index) =>
+          cluster.eligibleTileIds.map(
+            (tileId) =>
+              [
+                tileId,
+                {
+                  number: index + 1,
+                  required: cluster.requiredSelectionCount
+                }
+              ] as const
+          )
+        )
+      ),
+    [neighbourlySupportClusters]
   );
   const canAdjustTileStrain = Boolean(tileAdjustmentRule.strain);
   const canToggleTileSupport = Boolean(tileAdjustmentRule.support);
@@ -1199,7 +1226,13 @@ export function EffectPrompt({
                 strainSelectionLabel}
               {tileAdjustmentRule.strain && tileAdjustmentRule.support && " | "}
               {tileAdjustmentRule.support &&
-                `Supported up to ${tileAdjustmentRule.support.maxTargets} tiles: ${supportTileIds.length} selected`}
+                (tileAdjustmentRule.support.requiredTargets !== undefined
+                  ? `Supported on exactly ${tileAdjustmentRule.support.requiredTargets} ${
+                      tileAdjustmentRule.support.requiredTargets === 1
+                        ? "tile"
+                        : "tiles"
+                    }: ${supportTileIds.length} selected`
+                  : `Supported up to ${tileAdjustmentRule.support.maxTargets} tiles: ${supportTileIds.length} selected`)}
             </span>
           </div>
           <div className="effect-list tile-effect-list">
@@ -1209,6 +1242,12 @@ export function EffectPrompt({
                   {selectTileName(tile)} {tile.hexIds.join(", ")} | Strain {tile.strain}
                   {(tile.support.passive || tile.support.singleUse) && (
                     <small>Already Supported</small>
+                  )}
+                  {neighbourlyClusterByTileId.has(tile.instanceId) && (
+                    <small>
+                      Housing cluster {neighbourlyClusterByTileId.get(tile.instanceId)?.number}:
+                      choose {neighbourlyClusterByTileId.get(tile.instanceId)?.required}
+                    </small>
                   )}
                 </span>
                 <div className="stepper">
@@ -1388,8 +1427,17 @@ export function EffectPrompt({
         </section>
       )}
 
-      {effect.requiresManualChoice && !hasChanges && !wardenReliefHasNoTarget && (
+      {effect.requiresManualChoice &&
+        !hasChanges &&
+        !wardenReliefHasNoTarget &&
+        !isNeighbourlySupport && (
         <p className="failure-note">A choice is required before this effect can resolve.</p>
+      )}
+      {isNeighbourlySupport && tileAdjustmentInvalid && (
+        <p className="failure-note">
+          Choose the required number of different Housing Tiles in every labelled
+          cluster. Already Supported and Overstrained Tiles cannot receive a token.
+        </p>
       )}
       {burdenResolveInvalid && (
         <p className="failure-note">Choose one active Burden to resolve.</p>

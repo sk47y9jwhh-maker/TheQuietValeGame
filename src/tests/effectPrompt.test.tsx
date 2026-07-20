@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { EffectPrompt } from "../components/effects/EffectPrompt";
 import {
   cardEffectRuleId,
+  neighbourlySupportEffectRuleId,
   stewardEffectRuleId,
   systemEffectRuleId,
   tileEffectRuleId
@@ -748,6 +749,45 @@ describe("effect prompt controls", () => {
     const thirdSupportButton = supportButtons.at(2);
     expect(thirdSupportButton).toBeDefined();
     expect(thirdSupportButton!).toBeDisabled();
+  });
+
+  it("requires the exact Neighbourly Support quota for each Housing cluster", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = ["G1", "H1", "I1"].map((hexId, index) =>
+      coreTile("c05_cabin", `housing_${index + 1}`, hexId)
+    );
+    const effect: PendingEffectState = {
+      id: "effect_neighbourly_support",
+      sourceType: "system",
+      ruleId: neighbourlySupportEffectRuleId,
+      sourceName: "Neighbourly Support",
+      title: "End of Season 1: Neighbourly Support",
+      effectText:
+        "Each Housing cluster gains 1 single-use Supported for every 3 non-Overstrained Housing Tiles in that cluster.",
+      requiresManualChoice: true,
+      confirmLabel: "Place Supported"
+    };
+
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+
+    expect(
+      screen.getByText(/Supported on exactly 1 tile: 0 selected/i)
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/Housing cluster 1: choose 1/i)).toHaveLength(3);
+    expect(
+      screen.getByRole("button", { name: /^place supported$/i })
+    ).toBeDisabled();
+
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /place supported on cabin/i })[1]
+    );
+
+    expect(
+      screen.getByText(/Supported on exactly 1 tile: 1 selected/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /^place supported$/i })
+    ).toBeEnabled();
   });
 
   it("shows the continue action before long choice controls", () => {

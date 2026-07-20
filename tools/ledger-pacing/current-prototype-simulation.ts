@@ -54,7 +54,12 @@ import {
   resolvePendingEffect,
   skipPendingEffect,
 } from "../../src/engine/manualEffects";
-import { cardEffectRuleId, getEffectRule, tileEffectRuleId } from "../../src/data/effectRules";
+import {
+  cardEffectRuleId,
+  getEffectRule,
+  neighbourlySupportEffectRuleId,
+  tileEffectRuleId
+} from "../../src/data/effectRules";
 import {
   effectRuleTargetsCategory,
   effectRuleUsesAction,
@@ -80,6 +85,7 @@ import { arePlacedTilesAdjacent } from "../../src/engine/placedTiles";
 import { selectReachablePlacedTileIds } from "../../src/engine/reachability";
 import { calculateFinalScore } from "../../src/engine/scoring";
 import { createNewGame } from "../../src/engine/setup";
+import { getNeighbourlySupportClusters } from "../../src/engine/supportRules";
 import {
   buildCardIntent,
   buildHumanSeasonPlan,
@@ -754,15 +760,28 @@ function customPendingAdjustment(state: GameState, plan?: HumanSeasonPlan): Effe
 
   if (pendingRule.tileAdjustment?.support) {
     const stewardAnchors = new Set(state.players.map((player) => player.stewardHexId));
+    const supportValue = (tile: PlacedTile) =>
+      (tile.hexIds.some((hexId) => stewardAnchors.has(hexId)) ? 100 : 0) +
+      tile.strain * 30 +
+      (tileCategory(tile) === "housing" ? 20 : 0) +
+      (tile.side === "upgraded" ? 10 : 0);
+    if (pending.ruleId === neighbourlySupportEffectRuleId) {
+      const tilesById = new Map(
+        state.map.placedTiles.map((tile) => [tile.instanceId, tile])
+      );
+      return {
+        supportTileIds: getNeighbourlySupportClusters(state).flatMap((cluster) =>
+          cluster.eligibleTileIds
+            .map((tileId) => tilesById.get(tileId))
+            .filter((tile): tile is PlacedTile => Boolean(tile))
+            .sort((a, b) => supportValue(b) - supportValue(a))
+            .slice(0, cluster.requiredSelectionCount)
+            .map((tile) => tile.instanceId)
+        )
+      };
+    }
     const target = getEffectSupportTargets(state, pending.ruleId, sourceTile)
-      .sort((a, b) => {
-        const value = (tile: PlacedTile) =>
-          (tile.hexIds.some((hexId) => stewardAnchors.has(hexId)) ? 100 : 0) +
-          tile.strain * 30 +
-          (tileCategory(tile) === "housing" ? 20 : 0) +
-          (tile.side === "upgraded" ? 10 : 0);
-        return value(b) - value(a);
-      })[0];
+      .sort((a, b) => supportValue(b) - supportValue(a))[0];
     if (target) return { supportTileIds: [target.instanceId] };
   }
 

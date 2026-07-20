@@ -22,8 +22,21 @@ import {
   useStewardPower
 } from "../engine/gameActions";
 import { resolvePendingEffect } from "../engine/manualEffects";
+import { neighbourlySupportEffectRuleId } from "../data/effectRules";
 import { createNewGame } from "../engine/setup";
-import type { GameState, ResourceType } from "../engine/types";
+import type { GameState, PlacedTile, ResourceType } from "../engine/types";
+
+function placedHousing(instanceId: string, hexId: string, strain = 0): PlacedTile {
+  return {
+    instanceId,
+    tileId: "c05_cabin",
+    kind: "core",
+    side: "basic",
+    hexIds: [hexId],
+    strain,
+    support: { passive: false, singleUse: false, preventedThisRound: false }
+  };
+}
 
 function confirmRequiredDiscounts(
   state: GameState,
@@ -2429,4 +2442,117 @@ describe("game actions", () => {
       tile_lumber: 2
     });
   });
+
+  it.each([
+    [4, 1],
+    [8, 2]
+  ] as const)(
+    "requires Neighbourly Support placement when Season %i ends",
+    (round, season) => {
+      const state = createNewGame(1, ["vanguard"]);
+      state.phase = "endRound";
+      state.round = round;
+      state.season = season;
+      state.map.placedTiles = ["G1", "H1", "I1"].map((hexId, index) =>
+        placedHousing(`housing_${index + 1}`, hexId)
+      );
+
+      const prompted = resolveEndRound(state);
+
+      expect(prompted.pendingEffects[0]).toMatchObject({
+        ruleId: neighbourlySupportEffectRuleId,
+        title: `End of Season ${season}: Neighbourly Support`,
+        requiresManualChoice: true
+      });
+      expect(
+        resolvePendingEffect(prompted, { supportTileIds: [] })
+      ).toBe(prompted);
+
+      const resolved = resolvePendingEffect(prompted, {
+        supportTileIds: ["housing_2"]
+      });
+
+      expect(resolved.map.placedTiles[1].support.singleUse).toBe(true);
+      expect(resolved.pendingEffects).toHaveLength(0);
+      expect(resolved.log[0].message).toBe(
+        "Neighbourly Support placed 1 single-use Supported."
+      );
+    }
+  );
+
+  it("queues Neighbourly Support after Arrival expiry and before new-Season Burdens", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.phase = "endRound";
+    state.round = 4;
+    state.season = 1;
+    state.map.placedTiles = ["G1", "H1", "I1"].map((hexId, index) =>
+      placedHousing(`housing_${index + 1}`, hexId)
+    );
+    state.encounters.activeArrivals = [
+      { cardId: "arrival_the_quiet_quest", timerTokens: 1 }
+    ];
+    state.encounters.activeBurdens = ["burden_forest_s_grudge"];
+
+    const next = resolveEndRound(state);
+
+    expect(next.pendingEffects.map((effect) => effect.ruleId)).toEqual([
+      "system:arrival-expired",
+      neighbourlySupportEffectRuleId,
+      "burden_forest_s_grudge:s2"
+    ]);
+  });
+
+  it("enforces each Housing cluster's separate Neighbourly Support quota", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.phase = "endRound";
+    state.round = 4;
+    state.season = 1;
+    state.map.placedTiles = [
+      ...["G1", "H1", "I1"].map((hexId, index) =>
+        placedHousing(`small_${index + 1}`, hexId)
+      ),
+      ...["G7", "F6", "F7", "G6", "G8", "H6"].map((hexId, index) =>
+        placedHousing(`large_${index + 1}`, hexId)
+      )
+    ];
+
+    const prompted = resolveEndRound(state);
+    const invalid = resolvePendingEffect(prompted, {
+      supportTileIds: ["large_1", "large_2", "large_3"]
+    });
+    expect(invalid).toBe(prompted);
+
+    const resolved = resolvePendingEffect(prompted, {
+      supportTileIds: ["small_1", "large_1", "large_2"]
+    });
+    expect(
+      resolved.map.placedTiles
+        .filter((tile) => tile.support.singleUse)
+        .map((tile) => tile.instanceId)
+    ).toEqual(["small_1", "large_1", "large_2"]);
+  });
+
+  it.each([
+    [3, 1],
+    [12, 3]
+  ] as const)(
+    "does not trigger Neighbourly Support after round %i",
+    (round, season) => {
+      const state = createNewGame(1, ["vanguard"]);
+      state.phase = "endRound";
+      state.round = round;
+      state.season = season;
+      state.map.placedTiles = ["G1", "H1", "I1"].map((hexId, index) =>
+        placedHousing(`housing_${index + 1}`, hexId)
+      );
+
+      const next = resolveEndRound(state);
+
+      expect(
+        next.pendingEffects.some(
+          (effect) => effect.ruleId === neighbourlySupportEffectRuleId
+        )
+      ).toBe(false);
+    }
+  );
 });

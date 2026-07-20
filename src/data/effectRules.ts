@@ -14,6 +14,9 @@ export const cardEffectRuleId = (cardId: string, season: Season) => `${cardId}:s
 export const tileEffectRuleId = (tileId: string, side: string) => `${tileId}:${side}`;
 export const stewardEffectRuleId = (stewardId: string) => `steward:${stewardId}`;
 export const systemEffectRuleId = (name: string) => `system:${name}`;
+export const neighbourlySupportEffectRuleId = systemEffectRuleId(
+  "neighbourly-support"
+);
 
 function add(rule: EffectRule): EffectRule {
   rules[rule.id] = rule;
@@ -843,6 +846,14 @@ for (const stewardId of ["vanguard", "knight", "sentinel"]) add({ id: stewardEff
 
 add({ id: systemEffectRuleId("acknowledge") });
 add({ id: systemEffectRuleId("arrival-expired"), target: { strain: "below3" }, tileAdjustment: strain("place", 1, 1, 1), manualChoice: true });
+add({
+  id: neighbourlySupportEffectRuleId,
+  target: { categories: ["housing"], strain: "below3" },
+  supportTarget: { categories: ["housing"], strain: "below3" },
+  tileAdjustment: support(99),
+  manualChoice: true,
+  noEffectWhenNoTarget: true
+});
 add({
   id: systemEffectRuleId("overstrain-spread"),
   target: { adjacentToSource: true, excludeSource: true, strain: "below3" },
