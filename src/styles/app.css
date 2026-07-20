@@ -265,11 +265,11 @@ button:disabled {
   min-height: 74px;
   display: grid;
   grid-template-columns:
-    minmax(204px, 240px)
-    minmax(126px, 140px)
-    minmax(170px, 200px)
-    minmax(430px, 1fr)
-    minmax(168px, 178px);
+    minmax(192px, 228px)
+    minmax(122px, 134px)
+    minmax(166px, 188px)
+    minmax(458px, 1fr)
+    minmax(164px, 168px);
   align-items: center;
   gap: 9px;
   padding: 9px 16px 11px;
