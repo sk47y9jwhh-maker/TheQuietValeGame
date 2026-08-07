@@ -149,9 +149,9 @@ export const boons: BoonData[] = [
     type: "boon",
     name: "The Wonderful Find",
     effects: season(
-      "Gain 1 Metal or 1 Goods. If there is a placed Dig Site / Excavation Site, one such tile gains Supported.",
-      "Gain 1 Metal and 1 Goods. Then remove 1 Strain from 1 Dig Site / Excavation Site or 1 tile adjacent to Ruins terrain.",
-      "Gain 2 Metal and 2 Goods. Then remove 1 Strain from each of up to 2 Dig Site / Excavation Site tiles and/or tiles adjacent to Ruins terrain."
+      "Gain 1 Metal or 1 Goods. If there is a placed Salvage Camp / Reclamation Works, one such tile gains Supported.",
+      "Gain 1 Metal and 1 Goods. Then remove 1 Strain from 1 Salvage Camp / Reclamation Works or 1 tile adjacent to Ruins terrain.",
+      "Gain 2 Metal and 2 Goods. Then remove 1 Strain from each of up to 2 Salvage Camp / Reclamation Works tiles and/or tiles adjacent to Ruins terrain."
     ),
     lifecycle: "Resolve, then discard."
   },
@@ -596,9 +596,9 @@ export const burdens: BurdenData[] = [
     type: "burden",
     name: "Rot in the Vault",
     effects: season(
-      "Choose 1 Dig Site / Excavation Site with fewer than 3 Strain and place 1 Strain on it.",
-      "Choose 1 Dig Site / Excavation Site with fewer than 3 Strain and place 2 Strain on it.",
-      "Choose 1 Dig Site / Excavation Site with fewer than 3 Strain and place 2 Strain on it. Then choose 1 adjacent placed tile with fewer than 3 Strain and place 1 Strain on it."
+      "Choose 1 Salvage Camp / Reclamation Works with fewer than 3 Strain and place 1 Strain on it.",
+      "Choose 1 Salvage Camp / Reclamation Works with fewer than 3 Strain and place 2 Strain on it.",
+      "Choose 1 Salvage Camp / Reclamation Works with fewer than 3 Strain and place 2 Strain on it. Then choose 1 adjacent placed tile with fewer than 3 Strain and place 1 Strain on it."
     ),
     resolutionText: "Spend 1 Action and pay 2/4/6 Herbs by Season. Then discard."
   },

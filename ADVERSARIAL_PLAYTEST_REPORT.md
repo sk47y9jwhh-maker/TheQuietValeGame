@@ -205,7 +205,7 @@ Final phase: `gameEnd`
 | Final Warehouse | 48 |
 | Strain / active Burdens / failed Arrivals | 1 / 0 / 0 |
 
-The engine used three copies each of Mine Tunnel, Gathering Outpost, Dig Site, Lumber Yard, and Farmstead, almost all upgraded. The most-used individual producer was activated 29 times. No single Golden reward was needed; the build was already online from the core economy.
+The engine used three copies each of Mine Tunnel, Gathering Outpost, Salvage Camp, Lumber Yard, and Farmstead, almost all upgraded. The most-used individual producer was activated 29 times. No single Golden reward was needed; the build was already online from the core economy.
 
 This matters because it rules out the comforting explanation that 364 was a one-off Golden-card spike. It was a reproducible core-system interaction.
 
@@ -216,7 +216,7 @@ This matters because it rules out the comforting explanation that 364 was a one-
 Confidence: **Exact + repeated**<br>
 Health assessment: **Dominant and grind-prone**
 
-The four main Resource lineages and Dig Sites cost zero to place and zero to upgrade. Their upgraded faces produce five resources. Linked Production activates every immediately adjacent non-Overstrained producer from the same stack at no additional action.
+The four main Resource lineages and Salvage Camps cost zero to place and zero to upgrade. Their upgraded faces produce five resources. Linked Production activates every immediately adjacent non-Overstrained producer from the same stack at no additional action.
 
 An exact legal cluster of three upgraded Lumber Yards produced:
 
