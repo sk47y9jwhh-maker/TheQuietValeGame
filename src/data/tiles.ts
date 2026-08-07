@@ -505,7 +505,7 @@ export const coreTiles: CoreTileData[] = [
     size: 1,
     placement: { terrain: ["ruins"], text: "Place on Ruins." },
     basic: {
-      name: "Dig Site",
+      name: "Salvage Camp",
       cost: cost({}),
       effectText: withLinkedProduction("Activate: Gain 2 Metal."),
       effectType: "production",
@@ -514,7 +514,7 @@ export const coreTiles: CoreTileData[] = [
       renown: 0
     },
     upgraded: {
-      name: "Excavation Site",
+      name: "Reclamation Works",
       cost: cost({}),
       effectText: withLinkedProduction("Activate: Gain 3 Metal and 2 Goods."),
       effectType: "production",
@@ -541,7 +541,7 @@ export const coreTiles: CoreTileData[] = [
       renown: 5
     },
     upgraded: {
-      name: "Archaeologists' Archives",
+      name: "The Restored Vaults",
       cost: cost({ wood: 5, stone: 5, herbs: 5 }),
       effectText: "Activate: Remove up to 2 Strain from 1 adjacent tile.",
       effectType: "activated",
@@ -712,10 +712,10 @@ export const specialTiles: SpecialTileData[] = [
     unlockSource: "Before the Last Age",
     placement: {
       adjacentToTileIds: ["c20_dig_site"],
-      text: "Place adjacent to a Dig Site / Excavation Site."
+      text: "Place adjacent to a Salvage Camp / Reclamation Works."
     },
     effectText:
-      "Passive: Once per round, when an adjacent Dig Site / Excavation Site is activated for Production, gain 2 additional resources of types that tile can produce.",
+      "Passive: Once per round, when an adjacent Salvage Camp / Reclamation Works is activated for Production, gain 2 additional resources of types that tile can produce.",
     population: 0,
     renown: 5
   },
@@ -815,7 +815,7 @@ export const specialTiles: SpecialTileData[] = [
     unlockSource: "Dark Decay to Light",
     placement: {
       adjacentToTileIds: ["c20_dig_site"],
-      text: "Place adjacent to a Dig Site / Excavation Site."
+      text: "Place adjacent to a Salvage Camp / Reclamation Works."
     },
     effectText:
       "When placed or activated: Choose up to two adjacent tiles. They gain Supported.",

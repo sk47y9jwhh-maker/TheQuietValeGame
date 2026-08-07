@@ -134,7 +134,7 @@ describe("effect prompt controls", () => {
   });
 
 
-  it("allows Wonderful Find's resource choice when no Dig Site is placed", () => {
+  it("allows Wonderful Find's resource choice when no Salvage Camp is placed", () => {
     const state = createNewGame(1, ["vanguard"]);
     const effect: PendingEffectState = {
       id: "effect_wonderful_find",
@@ -144,7 +144,7 @@ describe("effect prompt controls", () => {
       sourceName: "The Wonderful Find",
       title: "Revealed The Wonderful Find",
       effectText:
-        "Gain 1 Metal or 1 Goods. If there is a placed Dig Site / Excavation Site, one such tile gains Supported.",
+        "Gain 1 Metal or 1 Goods. If there is a placed Salvage Camp / Reclamation Works, one such tile gains Supported.",
       requiresManualChoice: true
     };
 

@@ -51,7 +51,7 @@ describe("setup and round authority", () => {
     expect(state.targetCards).not.toHaveProperty("enabled");
   });
 
-  it("includes three Dig Sites so all Ruins producers can be linked", () => {
+  it("includes three Salvage Camps so all Ruins producers can be linked", () => {
     const state = createNewGame(1, ["vanguard"]);
 
     expect(state.tileSupply.core.c20_dig_site).toBe(3);
