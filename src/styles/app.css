@@ -150,19 +150,24 @@
   left: 11.6%;
   width: 76.8%;
   height: 12.3%;
-  font-size: 3.15cqw;
+  font-size: 3.8cqw;
   font-style: italic;
-  line-height: 1.2;
-  text-wrap: pretty;
+  line-height: 1.23;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  letter-spacing: 0;
+  word-spacing: 0;
+  text-wrap: balance;
 }
 
 .physical-card-flavor.copy-medium {
-  font-size: 2.9cqw;
+  font-size: 3.5cqw;
+  line-height: 1.2;
 }
 
 .physical-card-flavor.copy-dense {
-  font-size: 2.65cqw;
-  line-height: 1.16;
+  font-size: 3.2cqw;
+  line-height: 1.18;
 }
 
 .physical-card-arrival .physical-card-flavor,
