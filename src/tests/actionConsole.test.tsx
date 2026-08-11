@@ -404,7 +404,7 @@ describe("action console", () => {
     expect(arrivalButton).toHaveTextContent("Requirement: Pay 4 Wood and 4 Metal.");
     expect(arrivalButton).toHaveTextContent("missing 4 wood");
     expect(burdenButton).toBeDisabled();
-    expect(burdenButton).toHaveTextContent("Spend 1 Action and pay 2 Goods");
+    expect(burdenButton).toHaveTextContent("Spend 1 Action, pay 2 Goods, discard.");
     expect(burdenButton).toHaveTextContent("missing 2 goods");
   });
 

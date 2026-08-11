@@ -15,7 +15,7 @@ describe("seeding panel", () => {
 
     const cardTitle = screen
       .getAllByText(encounterById[targetCardId].name)
-      .find((element) => element.tagName === "STRONG");
+      .find((element) => element.classList.contains("physical-card-title"));
     expect(cardTitle).toBeTruthy();
 
     fireEvent.contextMenu(cardTitle as HTMLElement);

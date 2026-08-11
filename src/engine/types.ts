@@ -166,6 +166,7 @@ export interface BoonData {
   flavorText?: string;
   effects: SeasonEffectText;
   lifecycle: string;
+  lifecycles?: SeasonEffectText;
 }
 
 export interface BurdenData {
@@ -175,6 +176,7 @@ export interface BurdenData {
   flavorText?: string;
   effects: SeasonEffectText;
   resolutionText?: string;
+  resolutions?: SeasonEffectText;
   manageable?: boolean;
 }
 
@@ -184,6 +186,7 @@ export interface ArrivalData {
   name: string;
   flavorText?: string;
   requirementText: string;
+  rewardText?: string;
   rewardSpecialTileIds: string[];
 }
 

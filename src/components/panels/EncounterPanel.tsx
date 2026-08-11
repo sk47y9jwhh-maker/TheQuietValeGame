@@ -1,19 +1,14 @@
 import { encounterById } from "../../data/encounters";
 import { useState } from "react";
 import { specialTileById } from "../../data/tiles";
-import {
-  formatCategory,
-  getBurdenResolutionCurrentText,
-} from "../common/gameText";
-import { EncounterSeasonEffects } from "../common/EncounterSeasonEffects";
-import { getCurrentSeasonCardEffectText } from "../../engine/manualEffects";
+import { formatCategory } from "../common/gameText";
+import { EncounterCard } from "../common/EncounterCard";
 import {
   canCompleteArrival,
   canResolveBurden,
   getUsableFaceUpBoonIds
 } from "../../engine/gameActions";
 import type {
-  EncounterData,
   GameState
 } from "../../engine/types";
 
@@ -22,50 +17,6 @@ interface EncounterPanelProps {
   onUseFaceUpBoon: (boonCardId: string) => void;
   onCompleteArrival?: (arrivalCardId: string) => void;
   onResolveBurden?: (burdenCardId: string) => void;
-}
-
-function getEncounterDetail(
-  state: GameState,
-  cardId: string
-): { card?: EncounterData; effectText: string; flavorText?: string; footer?: string } {
-  const card = encounterById[cardId];
-  if (!card) return { effectText: cardId };
-
-  if (card.type === "arrival") {
-    return {
-      card,
-      effectText: card.requirementText,
-      flavorText: card.flavorText,
-      footer: `Unlocks ${card.rewardSpecialTileIds
-        .map((tileId) => specialTileById[tileId]?.name ?? tileId)
-        .join(", ")}`
-    };
-  }
-
-  if (card.type === "burden") {
-    return {
-      card,
-      effectText: getCurrentSeasonCardEffectText(state, cardId),
-      flavorText: card.flavorText,
-      footer: card.resolutionText
-    };
-  }
-
-  if (card.type === "boon") {
-    return {
-      card,
-      effectText: getCurrentSeasonCardEffectText(state, cardId),
-      flavorText: card.flavorText,
-      footer: card.lifecycle
-    };
-  }
-
-  return {
-    card,
-    effectText: card.effectText,
-    flavorText: card.flavorText,
-    footer: card.lifecycle
-  };
 }
 
 function formatInteractBlockers(reasons: string[]): string {
@@ -105,39 +56,29 @@ export function EncounterPanel({
         ) : (
           state.encounters.faceUpBoons.map((boon) => {
             const card = encounterById[boon.cardId];
-            const detail = getEncounterDetail(state, boon.cardId);
+            if (!card) return null;
 
             return (
-              <article
+              <EncounterCard
+                card={card}
+                controls={(
+                  <button
+                    disabled={!usableBoonIds.has(boon.cardId)}
+                    aria-label={`Interact with ${card.name}`}
+                    onClick={() => onUseFaceUpBoon(boon.cardId)}
+                    type="button"
+                  >
+                    {card.type === "goldenBoon" ? "Prepare Path" : "Interact"}
+                  </button>
+                )}
+                currentSeason={state.season}
                 key={boon.cardId}
-                className={`encounter-row encounter-full-card boon-row card-row card-${card?.type ?? "boon"}`}
-              >
-                <div className="encounter-card-heading">
-                  <span>{card?.name ?? boon.cardId}</span>
-                  <div className="encounter-card-actions">
-                    <strong>
-                      {card?.type === "goldenBoon"
-                        ? boon.lastUsedRound === state.round
-                          ? "Used this round"
-                          : "Once per round"
-                        : `${boon.remainingUses} use${boon.remainingUses === 1 ? "" : "s"}`}
-                    </strong>
-                    <button
-                      disabled={!usableBoonIds.has(boon.cardId)}
-                      aria-label={`Interact with ${card?.name ?? boon.cardId}`}
-                      onClick={() => onUseFaceUpBoon(boon.cardId)}
-                      type="button"
-                    >
-                      {card?.type === "goldenBoon" ? "Prepare Path" : "Interact"}
-                    </button>
-                  </div>
-                </div>
-                {detail.flavorText && <em>{detail.flavorText}</em>}
-                <EncounterSeasonEffects
-                  card={card}
-                  currentSeason={state.season}
-                />
-              </article>
+                status={card.type === "goldenBoon"
+                  ? boon.lastUsedRound === state.round
+                    ? "Used this round"
+                    : "Once per round"
+                  : `${boon.remainingUses} use${boon.remainingUses === 1 ? "" : "s"}`}
+              />
             );
           })
         )}
@@ -169,49 +110,47 @@ export function EncounterPanel({
           <p className="muted">No active Arrivals.</p>
         ) : (
           state.encounters.activeArrivals.map((arrival) => {
-            const detail = getEncounterDetail(state, arrival.cardId);
             const card = encounterById[arrival.cardId];
+            if (!card || card.type !== "arrival") return null;
             const validation = canCompleteArrival(state, arrival.cardId);
-            const rewardTiles =
-              card?.type === "arrival" ? getSpecialTileList(card.rewardSpecialTileIds) : [];
+            const rewardTiles = getSpecialTileList(card.rewardSpecialTileIds);
 
             return (
-              <article
+              <EncounterCard
+                card={card}
+                controls={(
+                  <button
+                    disabled={!validation.ok || !onCompleteArrival}
+                    aria-label={`Interact with ${card.name}`}
+                    onClick={() => onCompleteArrival?.(arrival.cardId)}
+                    type="button"
+                  >
+                    Interact
+                  </button>
+                )}
+                currentSeason={state.season}
                 key={arrival.cardId}
-                className="encounter-row encounter-full-card card-row card-arrival"
-              >
-                <div className="encounter-card-heading">
-                  <span>{card?.name ?? arrival.cardId}</span>
-                  <div className="encounter-card-actions encounter-inline-actions">
-                    <strong>{arrival.timerTokens} timers</strong>
-                    <button
-                      disabled={!validation.ok || !onCompleteArrival}
-                      aria-label={`Interact with ${card?.name ?? arrival.cardId}`}
-                      onClick={() => onCompleteArrival?.(arrival.cardId)}
-                      type="button"
-                    >
-                      Interact
-                    </button>
-                  </div>
-                </div>
-                {detail.flavorText && <em>{detail.flavorText}</em>}
-                <small>{detail.effectText}</small>
-                {rewardTiles.length > 0 && (
-                  <div className="unlock-preview-list" aria-label="Unlock rewards">
-                    {rewardTiles.map((tile) => (
-                      <span className="unlock-preview-chip" key={tile.id}>
-                        <strong>{tile.name}</strong>
-                        <small>{formatCategory(tile.category)} Special</small>
-                      </span>
-                    ))}
-                  </div>
+                status={`${arrival.timerTokens} timers`}
+                supplementary={(
+                  <>
+                    {rewardTiles.length > 0 && (
+                      <div className="unlock-preview-list" aria-label="Unlock rewards">
+                        {rewardTiles.map((tile) => (
+                          <span className="unlock-preview-chip" key={tile.id}>
+                            <strong>{tile.name}</strong>
+                            <small>{formatCategory(tile.category)} Special</small>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {!validation.ok && (
+                      <small className="missing-cost encounter-action-note">
+                        {formatInteractBlockers(validation.reasons)}
+                      </small>
+                    )}
+                  </>
                 )}
-                {!validation.ok && (
-                  <small className="missing-cost encounter-action-note">
-                    {formatInteractBlockers(validation.reasons)}
-                  </small>
-                )}
-              </article>
+              />
             );
           })
         )}
@@ -224,44 +163,33 @@ export function EncounterPanel({
         ) : (
           state.encounters.activeBurdens.map((cardId) => {
             const card = encounterById[cardId];
-            const detail = getEncounterDetail(state, cardId);
+            if (!card || card.type !== "burden") return null;
             const validation = canResolveBurden(state, cardId);
 
             return (
-              <article
+              <EncounterCard
+                card={card}
+                controls={(
+                  <button
+                    disabled={!validation.ok || !onResolveBurden}
+                    aria-label={`Interact with ${card.name}`}
+                    onClick={() => onResolveBurden?.(cardId)}
+                    type="button"
+                  >
+                    Interact
+                  </button>
+                )}
+                currentSeason={state.season}
                 key={cardId}
-                className="encounter-row encounter-full-card burden-card card-row card-burden"
-              >
-                <div className="encounter-card-heading">
-                  <span>{card?.name ?? cardId}</span>
-                  <div className="encounter-card-actions encounter-inline-actions">
-                    <strong>
-                      {state.ignoredBurdenIdsThisRound.includes(cardId)
-                        ? "Ignored"
-                        : "Active"}
-                    </strong>
-                    <button
-                      disabled={!validation.ok || !onResolveBurden}
-                      aria-label={`Interact with ${card?.name ?? cardId}`}
-                      onClick={() => onResolveBurden?.(cardId)}
-                      type="button"
-                    >
-                      Interact
-                    </button>
-                  </div>
-                </div>
-                {detail.flavorText && <em>{detail.flavorText}</em>}
-                <small>
-                  {getBurdenResolutionCurrentText(card, state.season) ??
-                    "Resolution cost unavailable."}
-                </small>
-                <EncounterSeasonEffects card={card} currentSeason={state.season} />
-                {!validation.ok && (
+                status={state.ignoredBurdenIdsThisRound.includes(cardId)
+                  ? "Ignored"
+                  : "Active"}
+                supplementary={!validation.ok ? (
                   <small className="missing-cost encounter-action-note">
                     {formatInteractBlockers(validation.reasons)}
                   </small>
-                )}
-              </article>
+                ) : undefined}
+              />
             );
           })
         )}
@@ -282,30 +210,28 @@ export function EncounterPanel({
           ) : (
             state.encounters.completedArrivals.map((arrival) => {
               const rewardTiles = getSpecialTileList(arrival.specialTileIds);
+              const card = encounterById[arrival.cardId];
+              if (!card || card.type !== "arrival") return null;
               return (
-                <article
+                <EncounterCard
+                  card={card}
+                  currentSeason={state.season}
                   key={arrival.cardId}
-                  className="encounter-row encounter-full-card card-row card-arrival completed-arrival-card"
-                >
-                  <div className="encounter-card-heading">
-                    <span>{encounterById[arrival.cardId]?.name ?? arrival.cardId}</span>
-                    <strong>
-                      {arrival.specialTileIds.length} tile
-                      {arrival.specialTileIds.length === 1 ? "" : "s"} unlocked
-                    </strong>
-                  </div>
-                  {getEncounterDetail(state, arrival.cardId).flavorText && (
-                    <em>{getEncounterDetail(state, arrival.cardId).flavorText}</em>
+                  size="compact"
+                  status={`${arrival.specialTileIds.length} tile${
+                    arrival.specialTileIds.length === 1 ? "" : "s"
+                  } unlocked`}
+                  supplementary={(
+                    <div className="unlock-preview-list prominent" aria-label="Unlocked special tiles">
+                      {rewardTiles.map((tile) => (
+                        <span className="unlock-preview-chip" key={tile.id}>
+                          <strong>{tile.name}</strong>
+                          <small>{formatCategory(tile.category)} Special Tile</small>
+                        </span>
+                      ))}
+                    </div>
                   )}
-                  <div className="unlock-preview-list prominent" aria-label="Unlocked special tiles">
-                    {rewardTiles.map((tile) => (
-                      <span className="unlock-preview-chip" key={tile.id}>
-                        <strong>{tile.name}</strong>
-                        <small>{formatCategory(tile.category)} Special Tile</small>
-                      </span>
-                    ))}
-                  </div>
-                </article>
+                />
               );
             })
           )}

@@ -81,6 +81,7 @@ import type {
   PlayerState,
   ResourceCost,
   ResourceType,
+  Season,
   Terrain,
   TilePlacementDraft,
   ValidationResult
@@ -192,6 +193,13 @@ function recordSelectedCostOptions(
 
 function getBoonUsesForSeason(state: GameState, cardId: string): number {
   return getEffectRule(getCurrentSeasonCardEffectRuleId(state, cardId)).modifier?.uses ?? 1;
+}
+
+function hasTravelTileInSupply(state: GameState): boolean {
+  return Object.entries(state.tileSupply.core).some(
+    ([tileId, remaining]) =>
+      remaining > 0 && coreTileById[tileId]?.category === "travel"
+  );
 }
 
 function queueBoonEffectPrompt(state: GameState, boon: ActiveBoon): GameState {
@@ -886,14 +894,19 @@ export function commitSeasonSeeding(
   return nextState;
 }
 
-function getEncounterEffectDetail(card: NonNullable<(typeof encounterById)[string]>): string | undefined {
+function getEncounterEffectDetail(
+  card: NonNullable<(typeof encounterById)[string]>,
+  season: Season
+): string | undefined {
   if (card.type === "arrival") {
     return `Reward: ${card.rewardSpecialTileIds
       .map((specialTileId) => specialTileById[specialTileId]?.name ?? specialTileId)
       .join(", ")}`;
   }
   if (card.type === "burden") return undefined;
-  if (card.type === "boon") return card.lifecycle;
+  if (card.type === "boon") {
+    return card.lifecycles?.[`season${season}` as keyof typeof card.lifecycles] ?? card.lifecycle;
+  }
   return undefined;
 }
 
@@ -922,7 +935,7 @@ function queueEncounterCardEffectPrompt(
       detailText: [
         options.detailPrefix,
         `Requirement: ${card.requirementText}`,
-        getEncounterEffectDetail(card)
+        getEncounterEffectDetail(card, state.season)
       ]
         .filter(Boolean)
         .join(" "),
@@ -955,7 +968,7 @@ function queueEncounterCardEffectPrompt(
     );
   }
 
-  const detailText = getEncounterEffectDetail(card);
+  const detailText = getEncounterEffectDetail(card, state.season);
   const noValidTarget = effectHasNoValidChoiceTargets(state, ruleId);
   const noEffectContext = options.noEffectContext ?? "this reveal";
   const acknowledgeOnlyBoon =
@@ -1765,7 +1778,7 @@ export function getUsableFaceUpBoonIds(state: GameState): string[] {
       if (boon.cardId !== "golden_boon_the_golden_vial") return true;
       return (
         boon.lastUsedRound !== state.round &&
-        (state.tileSupply.core.c15_path ?? 0) > 0 &&
+        hasTravelTileInSupply(state) &&
         !state.boonModifiers.some(
           (modifier) => modifier.sourceCardId === boon.cardId
         )
@@ -2145,7 +2158,7 @@ export function useFaceUpBoon(state: GameState, boonCardId: string): GameState {
     if (
       card.id !== "golden_boon_the_golden_vial" ||
       activeBoon.lastUsedRound === state.round ||
-      (state.tileSupply.core.c15_path ?? 0) <= 0
+      !hasTravelTileInSupply(state)
     ) {
       return state;
     }
@@ -2158,7 +2171,7 @@ export function useFaceUpBoon(state: GameState, boonCardId: string): GameState {
       actions: ["place"],
       remainingUses: 1,
       zeroAction: true,
-      allowedTileIds: ["c15_path"],
+      allowedCategories: ["travel"],
       coreOnly: true
     };
     return log(
@@ -2172,7 +2185,7 @@ export function useFaceUpBoon(state: GameState, boonCardId: string): GameState {
           )
         }
       },
-      "The Golden Vial prepared one Path placement for 0 Actions this round."
+      "The Golden Vial prepared one Travel Tile placement for 0 Actions this round."
     );
   }
 

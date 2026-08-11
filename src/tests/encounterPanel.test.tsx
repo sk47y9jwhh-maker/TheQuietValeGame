@@ -56,7 +56,7 @@ describe("encounter panel", () => {
 
     renderEncounterPanel(state, { onResolveBurden });
 
-    expect(screen.getAllByText(/Spend 1 Action and pay 2 Goods/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Spend 1 Action, pay 2 Goods, discard/).length).toBeGreaterThan(0);
     fireEvent.click(
       screen.getByRole("button", { name: "Interact with Smoke over Hearths" })
     );

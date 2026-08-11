@@ -29,8 +29,8 @@ import { evaluateStewardObjectives } from "../../engine/scoring";
 import { evaluateLedgerEntries, getLedgerRun } from "../../engine/ledger";
 import { selectCurrentPlayer } from "../../engine/selectors";
 import type { GameState } from "../../engine/types";
-import { EncounterSeasonEffects } from "../common/EncounterSeasonEffects";
-import { formatCategory, formatCost, getEncounterTypeLabel } from "../common/gameText";
+import { EncounterCard } from "../common/EncounterCard";
+import { formatCategory, formatCost } from "../common/gameText";
 import { RulesGuide } from "./RulesGuide";
 
 type DrawerSection = "tiles" | "hand" | "specials" | "ledger" | "rules";
@@ -215,16 +215,12 @@ export function BottomDrawer({
                 const card = encounterById[cardId];
                 if (!card) return null;
                 return (
-                  <article className={`mini-card card-${card.type}`} key={cardId}>
-                    <div className="mini-card-heading">
-                      <strong>{card.name}</strong>
-                      <span className={`encounter-type-banner compact card-${card.type}`}>
-                        {getEncounterTypeLabel(card)}
-                      </span>
-                    </div>
-                    {card.flavorText && <p>{card.flavorText}</p>}
-                    <EncounterSeasonEffects card={card} currentSeason={state.season} />
-                  </article>
+                  <EncounterCard
+                    card={card}
+                    currentSeason={state.season}
+                    key={cardId}
+                    size="compact"
+                  />
                 );
               })}
             </div>

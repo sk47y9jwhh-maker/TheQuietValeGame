@@ -4,6 +4,12 @@ import type {
   BurdenData,
   GoldenBoonData
 } from "../engine/types";
+import {
+  canonicalArrivalText,
+  canonicalBoonText,
+  canonicalBurdenText,
+  canonicalGoldenBoonText
+} from "./encounterText.generated";
 
 const season = (season1: string, season2: string, season3: string) => ({
   season1,
@@ -1020,6 +1026,44 @@ const encounterFlavorById: Record<string, string> = {
 
 for (const card of [...boons, ...burdens, ...arrivals, ...goldenBoons]) {
   card.flavorText = encounterFlavorById[card.id];
+}
+
+for (const card of boons) {
+  const text = canonicalBoonText[card.id];
+  if (!text) continue;
+  card.name = text.name;
+  card.flavorText = text.flavorText;
+  card.effects = text.effects;
+  card.lifecycle = text.lifecycles.season1;
+  card.lifecycles = text.lifecycles;
+}
+
+for (const card of burdens) {
+  const text = canonicalBurdenText[card.id];
+  if (!text) continue;
+  card.name = text.name;
+  card.flavorText = text.flavorText;
+  card.effects = text.effects;
+  card.resolutionText = text.resolutions.season1;
+  card.resolutions = text.resolutions;
+}
+
+for (const card of arrivals) {
+  const text = canonicalArrivalText[card.id];
+  if (!text) continue;
+  card.name = text.name;
+  card.flavorText = text.flavorText;
+  card.requirementText = text.requirementText;
+  card.rewardText = text.rewardText;
+}
+
+for (const card of goldenBoons) {
+  const text = canonicalGoldenBoonText[card.id];
+  if (!text) continue;
+  card.name = text.name;
+  card.flavorText = text.flavorText;
+  card.effectText = text.effectText;
+  card.lifecycle = text.lifecycle;
 }
 
 export const encounterById = Object.fromEntries(

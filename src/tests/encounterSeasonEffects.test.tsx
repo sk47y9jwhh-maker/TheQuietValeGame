@@ -18,7 +18,7 @@ describe("encounter season effects", () => {
     expect(screen.getByText("Season III")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Add up to 3 timer tokens among active Arrivals, to a maximum of 3 on each."
+        "Add up to 3 timers among active Arrivals (max 3 each)."
       )
     ).toBeInTheDocument();
   });
@@ -35,7 +35,7 @@ describe("encounter season effects", () => {
     expect(screen.getByText("Pay 4 Goods and 2 Herbs.")).toBeInTheDocument();
   });
 
-  it("shows Burden resolution costs alongside season effects", () => {
+  it("shows each Burden resolution alongside its season effect", () => {
     render(
       <EncounterSeasonEffects
         card={encounterById.burden_smoke_over_hearths}
@@ -43,13 +43,8 @@ describe("encounter season effects", () => {
       />
     );
 
-    expect(screen.getByText("Current Cost")).toBeInTheDocument();
-    expect(
-      screen.getByText("Spend 1 Action and pay 4 Goods. Then discard.")
-    ).toBeInTheDocument();
-    expect(screen.getByText("To Resolve")).toBeInTheDocument();
-    expect(
-      screen.getByText("Spend 1 Action and pay 2/4/6 Goods by Season. Then discard.")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Spend 1 Action, pay 2 Goods, discard.")).toBeInTheDocument();
+    expect(screen.getByText("Spend 1 Action, pay 4 Goods, discard.")).toBeInTheDocument();
+    expect(screen.getByText("Spend 1 Action, pay 6 Goods, discard.")).toBeInTheDocument();
   });
 });

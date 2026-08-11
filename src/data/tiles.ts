@@ -927,7 +927,7 @@ export const goldenTiles: GoldenTileData[] = [
     linkedGoldenBoonId: "golden_boon_the_golden_bell",
     placement: {
       terrain: ["grasslands", "woodland", "mountains", "heaths", "arable", "ruins"],
-      text: "Place on any non-River hex."
+      text: "Place on any empty non-River hex."
     },
     effectText:
       "Once per round, the first tile placed adjacent to this tile costs 1 fewer resource.",
@@ -994,7 +994,7 @@ export const goldenTiles: GoldenTileData[] = [
     linkedGoldenBoonId: "golden_boon_the_golden_eyed_traveler",
     placement: {
       terrain: ["mountains", "heaths", "woodland", "arable", "ruins"],
-      text: "Place on Mountains, Heaths, Woodland, Arable Land, or Ruins."
+      text: "Place on Mountains, Heaths, Woodland, Arable Land, or Ruins. Not Grasslands or River/Water."
     },
     effectText:
       "Once per round, the first tile placed on non-Grasslands terrain costs 1 fewer resource.",

@@ -57,7 +57,7 @@ describe("Golden Legacy interface", () => {
     state.pendingGoldenEffect = {
       kind: "bell",
       cardId: goldenBoons[0].id,
-      arrivalCardIds: state.encounters.reserveArrivalIds.slice(0, 3)
+      arrivalCardIds: state.encounters.reserveArrivalIds.slice(0, 1)
     };
     const { rerender } = render(
       <GoldenEffectPanel
@@ -68,7 +68,7 @@ describe("Golden Legacy interface", () => {
       />
     );
 
-    fireEvent.click(screen.getAllByRole("button", { name: "Complete this Arrival" })[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Place this Arrival" }));
     expect(onResolveBell).toHaveBeenCalledOnce();
 
     const signetState = {

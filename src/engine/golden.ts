@@ -1,6 +1,6 @@
 import { encounterById } from "../data/encounters";
 import { mapById, mapCells } from "../data/map";
-import { goldenTileById, specialTileById } from "../data/tiles";
+import { goldenTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
 import {
   getTileData,
@@ -121,13 +121,17 @@ export function skipGoldenTileForSetup(state: GameState): GameState {
 
 export function queueGoldenBoonResolution(state: GameState, cardId: string): GameState {
   if (cardId === "golden_boon_the_golden_bell") {
-    const arrivalCardIds = state.encounters.reserveArrivalIds.slice(0, 3);
-    if (arrivalCardIds.length === 0) {
+    const chosenArrivalCardIds = state.encounters.reserveArrivalIds.slice(0, 3);
+    if (chosenArrivalCardIds.length === 0) {
       return appendLog(state, "The Golden Bell found no unused Arrival Cards.");
     }
     return {
       ...state,
-      pendingGoldenEffect: { kind: "bell", cardId, arrivalCardIds }
+      pendingGoldenEffect: {
+        kind: "bell",
+        cardId,
+        arrivalCardIds: [chosenArrivalCardIds[0]]
+      }
     };
   }
   if (cardId === "golden_boon_the_golden_scroll") {
@@ -163,63 +167,65 @@ export function resolveGoldenBell(state: GameState, arrivalCardId: string): Game
     return state;
   }
 
-  const nextSpecialSupply = { ...state.tileSupply.special };
-  for (const tileId of card.rewardSpecialTileIds) {
-    nextSpecialSupply[tileId] = (nextSpecialSupply[tileId] ?? 0) + 1;
-  }
   const nextState: GameState = {
     ...state,
     pendingGoldenEffect: null,
-    tileSupply: { ...state.tileSupply, special: nextSpecialSupply },
     encounters: {
       ...state.encounters,
       reserveArrivalIds: state.encounters.reserveArrivalIds.filter(
         (cardId) => cardId !== arrivalCardId
       ),
-      completedArrivals: [
-        ...state.encounters.completedArrivals,
-        { cardId: arrivalCardId, specialTileIds: card.rewardSpecialTileIds }
+      activeArrivals: [
+        ...state.encounters.activeArrivals,
+        { cardId: arrivalCardId, timerTokens: 3 }
       ]
     }
   };
-  const names = card.rewardSpecialTileIds.map(
-    (tileId) => specialTileById[tileId]?.name ?? tileId
-  );
   return appendLog(
     nextState,
-    `The Golden Bell completed ${card.name} for free and unlocked ${names.join(", ")}.`
+    `The Golden Bell revealed ${card.name} as an active Arrival with 3 timer tokens.`
   );
 }
 
 export function resolveGoldenScroll(
   state: GameState,
-  returnedCardByPlayerId: Record<string, string | undefined>
+  returnedCardIdsByPlayerId: Record<string, string[] | undefined>
 ): GameState {
   if (state.pendingGoldenEffect?.kind !== "scroll") return state;
 
-  const reserve = [...state.encounters.reserveBoonIds];
+  const validReturnsByPlayerId: Record<string, string[]> = {};
   const returnedBoons: string[] = [];
   const returnedArrivals: string[] = [];
+
+  for (const player of state.players) {
+    const hand = state.encounters.handsByPlayerId[player.id] ?? [];
+    const validReturns = [...new Set(returnedCardIdsByPlayerId[player.id] ?? [])]
+      .filter((cardId) => {
+        const returnedCard = encounterById[cardId];
+        return hand.includes(cardId) && returnedCard?.type !== "goldenBoon";
+      });
+    validReturnsByPlayerId[player.id] = validReturns;
+    for (const cardId of validReturns) {
+      const returnedCard = encounterById[cardId];
+      if (returnedCard?.type === "boon") returnedBoons.push(cardId);
+      if (returnedCard?.type === "arrival") returnedArrivals.push(cardId);
+    }
+  }
+
+  const reserve = [...state.encounters.reserveBoonIds, ...returnedBoons];
   const handsByPlayerId = { ...state.encounters.handsByPlayerId };
   const exchanges: string[] = [];
 
   for (const player of state.players) {
-    const returnedCardId = returnedCardByPlayerId[player.id];
-    if (!returnedCardId || reserve.length === 0) continue;
+    const returnedCardIds = validReturnsByPlayerId[player.id] ?? [];
+    if (returnedCardIds.length === 0) continue;
     const hand = handsByPlayerId[player.id] ?? [];
-    const returnedCard = encounterById[returnedCardId];
-    if (!hand.includes(returnedCardId) || !returnedCard || returnedCard.type === "goldenBoon") {
-      continue;
-    }
-    const replacementId = reserve.shift();
-    if (!replacementId) continue;
+    const replacements = reserve.splice(0, returnedCardIds.length);
     handsByPlayerId[player.id] = [
-      ...hand.filter((cardId) => cardId !== returnedCardId),
-      replacementId
+      ...hand.filter((cardId) => !returnedCardIds.includes(cardId)),
+      ...replacements
     ];
-    if (returnedCard.type === "boon") returnedBoons.push(returnedCardId);
-    if (returnedCard.type === "arrival") returnedArrivals.push(returnedCardId);
-    exchanges.push(player.name);
+    exchanges.push(`${player.name} (${returnedCardIds.length} returned, ${replacements.length} drawn)`);
   }
 
   return appendLog(
@@ -229,12 +235,12 @@ export function resolveGoldenScroll(
       encounters: {
         ...state.encounters,
         handsByPlayerId,
-        reserveBoonIds: [...reserve, ...returnedBoons],
+        reserveBoonIds: reserve,
         reserveArrivalIds: [...state.encounters.reserveArrivalIds, ...returnedArrivals]
       }
     },
     exchanges.length
-      ? `The Golden Scroll exchanged one hidden Encounter Card for a standard Boon for ${exchanges.join(", ")}.`
+      ? `The Golden Scroll exchanged hidden Encounter Cards for standard Boons: ${exchanges.join(", ")}.`
       : "No player used The Golden Scroll."
   );
 }

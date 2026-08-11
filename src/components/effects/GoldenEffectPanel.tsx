@@ -9,11 +9,12 @@ import {
 import { getTileFootprintKind, getTileFootprintSize } from "../../engine/placementRules";
 import { selectTileName } from "../../engine/selectors";
 import type { GameState, HexDirection, TilePlacementDraft } from "../../engine/types";
+import { EncounterCard } from "../common/EncounterCard";
 
 interface GoldenEffectPanelProps {
   state: GameState;
   onResolveBell: (arrivalCardId: string) => void;
-  onResolveScroll: (returnedCardByPlayerId: Record<string, string | undefined>) => void;
+  onResolveScroll: (returnedCardIdsByPlayerId: Record<string, string[] | undefined>) => void;
   onResolveSignet: (placements: GoldenSignetPlacement[]) => void;
 }
 
@@ -24,7 +25,7 @@ export function GoldenEffectPanel({
   onResolveSignet
 }: GoldenEffectPanelProps) {
   const pending = state.pendingGoldenEffect;
-  const [scrollChoices, setScrollChoices] = useState<Record<string, string>>({});
+  const [scrollChoices, setScrollChoices] = useState<Record<string, string[]>>({});
   const [selectedTileIds, setSelectedTileIds] = useState<string[]>([]);
   const [draftByTileId, setDraftByTileId] = useState<Record<string, TilePlacementDraft>>({});
 
@@ -40,6 +41,18 @@ export function GoldenEffectPanel({
     [signetPlacements, state]
   );
 
+  function toggleScrollChoice(playerId: string, cardId: string) {
+    setScrollChoices((current) => {
+      const selected = current[playerId] ?? [];
+      return {
+        ...current,
+        [playerId]: selected.includes(cardId)
+          ? selected.filter((candidate) => candidate !== cardId)
+          : [...selected, cardId]
+      };
+    });
+  }
+
   if (!pending) return null;
   const card = encounterById[pending.cardId];
 
@@ -50,19 +63,25 @@ export function GoldenEffectPanel({
           <Crown size={24} />
           <div><p className="eyebrow">Golden Boon</p><h2>{card?.name}</h2></div>
         </header>
-        <p>{card?.type === "goldenBoon" ? card.effectText : ""}</p>
+        {card?.type === "goldenBoon" && (
+          <EncounterCard card={card} currentSeason={state.season} size="mini" />
+        )}
         <div className="golden-choice-grid">
           {pending.arrivalCardIds.map((arrivalCardId) => {
             const arrival = encounterById[arrivalCardId];
+            if (!arrival || arrival.type !== "arrival") return null;
             return (
-              <article key={arrivalCardId}>
-                <span>Arrival</span>
-                <strong>{arrival?.name}</strong>
-                <p>{arrival?.type === "arrival" ? arrival.requirementText : ""}</p>
-                <button onClick={() => onResolveBell(arrivalCardId)} type="button">
-                  Complete this Arrival
-                </button>
-              </article>
+              <EncounterCard
+                card={arrival}
+                controls={(
+                  <button onClick={() => onResolveBell(arrivalCardId)} type="button">
+                    Place this Arrival
+                  </button>
+                )}
+                currentSeason={state.season}
+                key={arrivalCardId}
+                size="compact"
+              />
             );
           })}
         </div>
@@ -77,26 +96,45 @@ export function GoldenEffectPanel({
           <ScrollText size={24} />
           <div><p className="eyebrow">Golden Boon</p><h2>{card?.name}</h2></div>
         </header>
-        <p>{card?.type === "goldenBoon" ? card.effectText : ""}</p>
+        {card?.type === "goldenBoon" && (
+          <EncounterCard card={card} currentSeason={state.season} size="mini" />
+        )}
         <div className="golden-scroll-choices">
-          {state.players.map((player) => (
-            <label key={player.id}>
-              {player.name}
-              <select
-                aria-label={`${player.name} Golden Scroll exchange`}
-                value={scrollChoices[player.id] ?? ""}
-                onChange={(event) => setScrollChoices((current) => ({
-                  ...current,
-                  [player.id]: event.target.value
-                }))}
-              >
-                <option value="">Keep current hand</option>
-                {(state.encounters.handsByPlayerId[player.id] ?? []).map((cardId) => (
-                  <option key={cardId} value={cardId}>{encounterById[cardId]?.name ?? cardId}</option>
-                ))}
-              </select>
-            </label>
-          ))}
+          {state.players.map((player) => {
+            const hand = (state.encounters.handsByPlayerId[player.id] ?? [])
+              .map((cardId) => encounterById[cardId])
+              .filter((handCard) => handCard && handCard.type !== "goldenBoon");
+
+            return (
+              <section className="golden-scroll-player" key={player.id}>
+                <div className="golden-scroll-player-heading">
+                  <strong>{player.name}</strong>
+                  <span>{scrollChoices[player.id]?.length ?? 0} selected</span>
+                </div>
+                <div className="golden-scroll-card-grid">
+                  {hand.map((handCard) => handCard && (
+                    <EncounterCard
+                      card={handCard}
+                      controls={(
+                        <label className="golden-scroll-card-choice">
+                          <input
+                            checked={(scrollChoices[player.id] ?? []).includes(handCard.id)}
+                            onChange={() => toggleScrollChoice(player.id, handCard.id)}
+                            type="checkbox"
+                          />
+                          Discard and redraw
+                        </label>
+                      )}
+                      currentSeason={state.season}
+                      key={handCard.id}
+                      size="mini"
+                    />
+                  ))}
+                  {hand.length === 0 && <p className="muted">No standard cards in hand.</p>}
+                </div>
+              </section>
+            );
+          })}
         </div>
         <button
           className="primary-action"
@@ -115,7 +153,9 @@ export function GoldenEffectPanel({
         <Move size={24} />
         <div><p className="eyebrow">Golden Boon</p><h2>{card?.name}</h2></div>
       </header>
-      <p>{card?.type === "goldenBoon" ? card.effectText : ""}</p>
+      {card?.type === "goldenBoon" && (
+        <EncounterCard card={card} currentSeason={state.season} size="mini" />
+      )}
       <div className="golden-signet-layout">
         <section>
           <strong>1. Choose up to five tiles</strong>

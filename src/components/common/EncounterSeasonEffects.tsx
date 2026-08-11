@@ -1,7 +1,7 @@
 import type { EncounterData, Season } from "../../engine/types";
 import {
+  getBoonLifecycleText,
   getBurdenResolutionCurrentText,
-  getBurdenResolutionFullText
 } from "./gameText";
 
 interface EncounterSeasonEffectsProps {
@@ -27,34 +27,28 @@ export function EncounterSeasonEffects({
       { season: 2, text: card.effects.season2 },
       { season: 3, text: card.effects.season3 }
     ];
-    const burdenCurrentResolution = getBurdenResolutionCurrentText(card, currentSeason);
-    const burdenFullResolution = getBurdenResolutionFullText(card);
-
     return (
       <div className="season-effects" aria-label="Season effects">
-        {seasonEffects.map(({ season, text }) => (
-          <div
-            className={`season-effect-row ${
-              currentSeason === season ? "current" : ""
-            }`}
-            key={season}
-          >
-            <strong>{seasonLabels[season]}</strong>
-            <span>{text}</span>
-          </div>
-        ))}
-        {burdenCurrentResolution && (
-          <div className="season-effect-row current resolution-cost-row">
-            <strong>Current Cost</strong>
-            <span>{burdenCurrentResolution}</span>
-          </div>
-        )}
-        {burdenFullResolution && (
-          <div className="season-effect-row resolution-cost-row">
-            <strong>To Resolve</strong>
-            <span>{burdenFullResolution}</span>
-          </div>
-        )}
+        {seasonEffects.map(({ season, text }) => {
+          const lifecycle = card.type === "boon"
+            ? getBoonLifecycleText(card, season)
+            : getBurdenResolutionCurrentText(card, season);
+
+          return (
+            <div
+              className={`season-effect-row ${
+                currentSeason === season ? "current" : ""
+              }`}
+              key={season}
+            >
+              <strong>{seasonLabels[season]}</strong>
+              <span>
+                {text}
+                {lifecycle && <small>{lifecycle}</small>}
+              </span>
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -64,7 +58,10 @@ export function EncounterSeasonEffects({
       <div className="season-effects" aria-label="Arrival requirement">
         <div className="season-effect-row current">
           <strong>Requirement</strong>
-          <span>{card.requirementText}</span>
+          <span>
+            {card.requirementText}
+            {card.rewardText && <small>{card.rewardText}</small>}
+          </span>
         </div>
       </div>
     );

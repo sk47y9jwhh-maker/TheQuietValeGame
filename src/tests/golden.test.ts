@@ -94,10 +94,13 @@ describe("Golden Legacy", () => {
     const arrivalId = revealed.pendingGoldenEffect?.kind === "bell"
       ? revealed.pendingGoldenEffect.arrivalCardIds[0]
       : "";
-    const completed = resolveGoldenBell(revealed, arrivalId);
-    expect(completed.pendingGoldenEffect).toBeNull();
-    expect(completed.encounters.completedArrivals.some((arrival) => arrival.cardId === arrivalId)).toBe(true);
-    expect(completed.log[0].message).toMatch(/The Golden Bell completed/);
+    const activated = resolveGoldenBell(revealed, arrivalId);
+    expect(activated.pendingGoldenEffect).toBeNull();
+    expect(activated.encounters.activeArrivals).toContainEqual({
+      cardId: arrivalId,
+      timerTokens: 3
+    });
+    expect(activated.log[0].message).toMatch(/The Golden Bell revealed/);
   });
 
   it("lets each player optionally exchange a hidden card through The Golden Scroll", () => {
@@ -109,7 +112,7 @@ describe("Golden Legacy", () => {
       cardId: "golden_boon_the_golden_scroll"
     };
 
-    const next = resolveGoldenScroll(state, { player_1: returnedCardId });
+    const next = resolveGoldenScroll(state, { player_1: [returnedCardId] });
     expect(next.encounters.handsByPlayerId.player_1).toContain(replacementId);
     expect(next.encounters.handsByPlayerId.player_1).not.toContain(returnedCardId);
     expect(next.pendingGoldenEffect).toBeNull();
@@ -137,7 +140,7 @@ describe("Golden Legacy", () => {
     expect(roundEnd.bonusTurnsActive).toBe(false);
   });
 
-  it("prepares exactly one zero-action Path placement per round with The Golden Vial", () => {
+  it("prepares exactly one zero-action Travel placement per round with The Golden Vial", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.phase = "turns";
     state.encounters.faceUpBoons = [{
@@ -146,11 +149,17 @@ describe("Golden Legacy", () => {
     }];
 
     const prepared = useFaceUpBoon(state, "golden_boon_the_golden_vial");
-    const placedPath = placeTile(prepared, "player_1", "c15_path", state.players[0].stewardHexId);
-    expect(placedPath.actionsRemaining).toBe(4);
-    expect(placedPath.boonModifiers).toHaveLength(0);
+    expect(prepared.boonModifiers[0].allowedCategories).toEqual(["travel"]);
+    const placedTravel = placeTile(
+      prepared,
+      "player_1",
+      "c15_path",
+      state.players[0].stewardHexId
+    );
+    expect(placedTravel.actionsRemaining).toBe(4);
+    expect(placedTravel.boonModifiers).toHaveLength(0);
     expect(
-      placedPath.encounters.faceUpBoons[0].lastUsedRound
+      placedTravel.encounters.faceUpBoons[0].lastUsedRound
     ).toBe(state.round);
   });
 

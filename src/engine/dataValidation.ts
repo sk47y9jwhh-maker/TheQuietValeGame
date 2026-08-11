@@ -261,14 +261,29 @@ function validateEncounters(issues: string[]): void {
     if (card.type === "boon" || card.type === "burden") {
       validateEncounterSeasonText(label, card, issues);
     }
-    if (card.type === "boon" && !card.lifecycle.trim()) {
-      issues.push(`${label} has blank lifecycle text.`);
+    if (card.type === "boon") {
+      if (!card.lifecycle.trim()) issues.push(`${label} has blank lifecycle text.`);
+      if (card.lifecycles) {
+        for (const season of ["season1", "season2", "season3"] as const) {
+          if (!card.lifecycles[season].trim()) {
+            issues.push(`${label} has blank ${season} lifecycle text.`);
+          }
+        }
+      }
     }
-    if (card.type === "burden" && !card.resolutionText?.trim()) {
-      issues.push(`${label} has blank resolution text.`);
+    if (card.type === "burden") {
+      if (!card.resolutionText?.trim()) issues.push(`${label} has blank resolution text.`);
+      if (card.resolutions) {
+        for (const season of ["season1", "season2", "season3"] as const) {
+          if (!card.resolutions[season].trim()) {
+            issues.push(`${label} has blank ${season} resolution text.`);
+          }
+        }
+      }
     }
     if (card.type === "arrival") {
       if (!card.requirementText.trim()) issues.push(`${label} has blank requirement text.`);
+      if (!card.rewardText?.trim()) issues.push(`${label} has blank reward text.`);
       if (card.rewardSpecialTileIds.length === 0) issues.push(`${label} has no Special Tile reward.`);
       for (const tileId of card.rewardSpecialTileIds) {
         if (!standardSpecialTileIds.has(tileId)) {

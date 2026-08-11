@@ -47,6 +47,385 @@
   color: inherit;
 }
 
+/* Artist-supplied Encounter Card templates. Text remains live HTML over clean
+   artwork extracted from the locked PSD masters. */
+.encounter-card-shell {
+  width: min(100%, 390px);
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  justify-self: center;
+  margin-inline: auto;
+}
+
+.encounter-card-compact {
+  width: min(100%, 330px);
+}
+
+.encounter-card-mini {
+  width: min(100%, 240px);
+}
+
+.physical-encounter-card {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 3 / 5;
+  container-type: inline-size;
+  overflow: hidden;
+  color: #171914;
+  font-family: Georgia, "Times New Roman", serif;
+  text-rendering: optimizeLegibility;
+  filter: drop-shadow(0 5px 7px rgba(20, 19, 15, 0.28));
+}
+
+.physical-card-artwork {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.physical-encounter-card p,
+.physical-encounter-card h3 {
+  margin: 0;
+}
+
+.physical-card-type,
+.physical-card-title,
+.physical-card-flavor,
+.physical-card-section-label,
+.physical-card-arrival-requirement,
+.physical-card-arrival-reward,
+.physical-card-golden-effect,
+.physical-card-golden-lifecycle {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+.physical-card-type {
+  top: 21.35%;
+  left: 20%;
+  width: 60%;
+  height: 2.85%;
+  font-size: 3cqw;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.physical-card-title {
+  top: 25.55%;
+  left: 15%;
+  width: 70%;
+  height: 7.2%;
+  font-size: 4.65cqw;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 0.96;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.physical-card-title.copy-medium {
+  font-size: 4.15cqw;
+}
+
+.physical-card-title.copy-dense {
+  font-size: 3.65cqw;
+  line-height: 1;
+}
+
+.physical-card-flavor {
+  top: 34.4%;
+  left: 11.6%;
+  width: 76.8%;
+  height: 12.3%;
+  font-size: 2.35cqw;
+  font-style: italic;
+  line-height: 1.2;
+  text-wrap: pretty;
+}
+
+.physical-card-flavor.copy-medium {
+  font-size: 2.18cqw;
+}
+
+.physical-card-flavor.copy-dense {
+  font-size: 2.02cqw;
+  line-height: 1.16;
+}
+
+.physical-card-arrival .physical-card-flavor,
+.physical-card-goldenBoon .physical-card-flavor {
+  height: 17.05%;
+}
+
+.physical-card-seasons {
+  position: absolute;
+  top: 48.2%;
+  left: 11.15%;
+  width: 76.9%;
+  height: 44.45%;
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
+.physical-card-season {
+  position: relative;
+  min-width: 0;
+}
+
+.physical-card-season-number,
+.physical-card-effect,
+.physical-card-lifecycle {
+  position: absolute;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.physical-card-season-number {
+  top: 0;
+  left: 0;
+  width: 17.5%;
+  height: 92%;
+  justify-content: center;
+  font-size: 9.2cqw;
+  font-weight: 700;
+  line-height: 0.85;
+  text-transform: uppercase;
+}
+
+.physical-card-season.current .physical-card-season-number {
+  color: #365745;
+  text-shadow: 0 0 0.4cqw rgba(255, 255, 244, 0.72);
+}
+
+.physical-card-effect,
+.physical-card-lifecycle {
+  left: 21.6%;
+  width: 75.4%;
+  justify-content: flex-start;
+  text-align: left;
+  text-wrap: pretty;
+}
+
+.physical-card-effect {
+  top: 0;
+  height: 49%;
+  font-size: 2.22cqw;
+  line-height: 1.16;
+}
+
+.physical-card-effect.copy-medium {
+  font-size: 2.04cqw;
+  line-height: 1.14;
+}
+
+.physical-card-effect.copy-dense {
+  font-size: 1.88cqw;
+  line-height: 1.12;
+}
+
+.physical-card-lifecycle {
+  top: 53.2%;
+  height: 38.5%;
+  font-size: 1.9cqw;
+  font-style: italic;
+  line-height: 1.17;
+}
+
+.physical-card-lifecycle.copy-medium {
+  font-size: 1.78cqw;
+}
+
+.physical-card-lifecycle.copy-dense {
+  font-size: 1.66cqw;
+  line-height: 1.12;
+}
+
+.physical-card-season.current .physical-card-effect,
+.physical-card-season.current .physical-card-lifecycle {
+  color: #101713;
+  font-weight: 600;
+}
+
+.physical-card-section-label {
+  left: 25%;
+  width: 50%;
+  height: 2.9%;
+  font-size: 2.8cqw;
+  line-height: 1;
+}
+
+.physical-card-requirement-label {
+  top: 53.35%;
+}
+
+.physical-card-arrival-requirement {
+  top: 58.2%;
+  left: 14.5%;
+  width: 71%;
+  height: 8.8%;
+  font-size: 2.75cqw;
+  line-height: 1.18;
+  text-wrap: balance;
+}
+
+.physical-card-arrival-requirement.copy-medium {
+  font-size: 2.52cqw;
+}
+
+.physical-card-arrival-requirement.copy-dense {
+  font-size: 2.3cqw;
+}
+
+.physical-card-reward-label {
+  top: 69.55%;
+}
+
+.physical-card-arrival-reward {
+  top: 74.05%;
+  left: 17%;
+  width: 66%;
+  height: 4.2%;
+  font-size: 2.45cqw;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.physical-card-arrival-reward.copy-medium {
+  font-size: 2.27cqw;
+}
+
+.physical-card-arrival-reward.copy-dense {
+  font-size: 2.1cqw;
+}
+
+.physical-card-golden-effect-label {
+  top: 53.35%;
+}
+
+.physical-card-golden-effect {
+  top: 58%;
+  left: 12.7%;
+  width: 74.6%;
+  height: 30.25%;
+  font-size: 2.2cqw;
+  line-height: 1.22;
+  text-wrap: pretty;
+}
+
+.physical-card-golden-effect.copy-medium {
+  font-size: 2.02cqw;
+}
+
+.physical-card-golden-effect.copy-dense {
+  font-size: 1.83cqw;
+  line-height: 1.18;
+}
+
+.physical-card-golden-lifecycle {
+  top: 89.75%;
+  left: 17%;
+  width: 66%;
+  height: 3.15%;
+  font-size: 1.88cqw;
+  font-style: italic;
+  line-height: 1.1;
+}
+
+.encounter-card-runtime {
+  display: grid;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid rgba(111, 93, 46, 0.28);
+  border-radius: 8px;
+  background: rgba(240, 234, 216, 0.92);
+  box-shadow: 0 4px 10px rgba(38, 34, 27, 0.12);
+}
+
+.encounter-card-runtime-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+  gap: 8px;
+  align-items: center;
+}
+
+.encounter-card-status,
+.encounter-card-controls {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.encounter-card-status {
+  color: var(--qv-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.encounter-card-controls {
+  justify-content: flex-end;
+}
+
+.encounter-card-controls button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid rgba(38, 34, 27, 0.18);
+  border-radius: 8px;
+  background: var(--qv-muted-green);
+  color: var(--qv-cream-text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.encounter-card-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.encounter-card-supplementary {
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+}
+
+@media (max-width: 767px) {
+  .encounter-card-shell,
+  .encounter-card-compact {
+    width: min(92vw, 390px);
+  }
+
+  .encounter-card-mini {
+    width: min(76vw, 290px);
+  }
+
+  .encounter-card-runtime-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .encounter-card-controls {
+    justify-content: stretch;
+  }
+
+  .encounter-card-controls button {
+    flex: 1 1 92px;
+  }
+}
+
 .segmented button.selected,
 .action-grid button.selected,
 .primary-action {
@@ -1190,6 +1569,29 @@ button:disabled {
   gap: 14px;
 }
 
+.effect-prompt-card-source {
+  align-content: start;
+}
+
+.pending-encounter-card {
+  margin-bottom: 2px;
+}
+
+.pending-encounter-card .encounter-card-status {
+  align-items: start;
+  display: grid;
+  gap: 3px;
+}
+
+.pending-effect-summary {
+  display: grid;
+  gap: 6px;
+}
+
+.pending-effect-summary span {
+  color: rgba(38, 34, 27, 0.72);
+}
+
 .effect-heading {
   display: grid;
   gap: 6px;
@@ -1908,11 +2310,11 @@ button.effect-row {
 
 .golden-choice-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
   gap: 9px;
 }
 
-.golden-choice-grid article,
+.golden-choice-grid > article:not(.encounter-card-shell),
 .golden-signet-layout > section,
 .golden-signet-placement-list article {
   display: grid;
@@ -1943,6 +2345,46 @@ button.effect-row {
   gap: 4px;
   font-size: 10px;
   font-weight: 700;
+}
+
+.golden-scroll-player {
+  display: grid;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid rgba(168, 137, 63, 0.28);
+  border-radius: 8px;
+  background: rgba(240, 234, 216, 0.56);
+}
+
+.golden-scroll-player-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.golden-scroll-player-heading span {
+  color: var(--qv-brass-dark);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.golden-scroll-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+
+.golden-scroll-choices .golden-scroll-card-choice {
+  display: flex;
+  grid-template-columns: none;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.golden-scroll-card-choice input {
+  min-height: 0;
 }
 
 .golden-signet-layout {
@@ -4477,6 +4919,15 @@ button.effect-row {
   box-shadow: inset 0 0 0 2px rgba(78, 103, 72, 0.12);
 }
 
+.encounter-card-shell.seeded-top .encounter-card-runtime,
+.encounter-card-shell.seeded-middle .encounter-card-runtime,
+.encounter-card-shell.seeded-bottom .encounter-card-runtime {
+  border-color: rgba(78, 103, 72, 0.52);
+  box-shadow:
+    inset 0 0 0 2px rgba(78, 103, 72, 0.1),
+    0 4px 10px rgba(38, 34, 27, 0.12);
+}
+
 .hand-card span {
   color: var(--qv-muted-green-dark);
   font-size: 12px;
@@ -4941,6 +5392,15 @@ button.effect-row {
   }
 
   .seeding-card-board .hand-card {
+    flex: 0 0 min(84vw, 390px);
+    width: min(84vw, 390px);
+    max-width: min(84vw, 390px);
+    min-width: 0;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+
+  .seeding-card-board .encounter-card-shell {
     flex: 0 0 min(84vw, 390px);
     width: min(84vw, 390px);
     max-width: min(84vw, 390px);

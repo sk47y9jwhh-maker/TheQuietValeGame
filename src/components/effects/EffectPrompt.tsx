@@ -20,10 +20,8 @@ import {
   targetCardFilterLabels,
   targetCardRulesText
 } from "../../data/targetCards";
-import {
-  getBurdenResolutionCurrentText,
-  getEncounterTypeLabel
-} from "../common/gameText";
+import { getBurdenResolutionCurrentText } from "../common/gameText";
+import { EncounterCard } from "../common/EncounterCard";
 import {
   getEffectSupportTargets,
   getAlternativeEffectRule,
@@ -211,8 +209,6 @@ export function EffectPrompt({
     effect.sourceType === "card" && effect.sourceId
       ? encounterById[effect.sourceId]
       : undefined;
-  const sourceCardToneClass = sourceCard ? `card-${sourceCard.type}` : "";
-  const flavorText = sourceCard?.flavorText;
   const sourceTile =
     effect.sourceType === "tile" && effect.sourceId
       ? state.map.placedTiles.find((tile) => tile.instanceId === effect.sourceId)
@@ -894,23 +890,40 @@ export function EffectPrompt({
   }
 
   return (
-    <section className={`effect-prompt ${sourceCardToneClass}`}>
-      <div className="effect-heading">
-        {sourceCard && (
-          <span className={`encounter-type-banner ${sourceCardToneClass}`}>
-            {getEncounterTypeLabel(sourceCard)}
-          </span>
-        )}
-        <p className="eyebrow">Pending Effect</p>
-        <h2>{effect.title}</h2>
-        <p className="muted">{effect.sourceName}</p>
-      </div>
+    <section className={`effect-prompt ${sourceCard ? "effect-prompt-card-source" : ""}`}>
+      {sourceCard ? (
+        <EncounterCard
+          card={sourceCard}
+          className="pending-encounter-card"
+          currentSeason={state.season}
+          size="compact"
+          status={
+            <>
+              <span className="eyebrow">Pending Effect</span>
+              <strong>{effect.title}</strong>
+            </>
+          }
+          supplementary={
+            <div className="pending-effect-summary">
+              <strong>{effect.effectText}</strong>
+              {effect.detailText && <span>{effect.detailText}</span>}
+            </div>
+          }
+        />
+      ) : (
+        <>
+          <div className="effect-heading">
+            <p className="eyebrow">Pending Effect</p>
+            <h2>{effect.title}</h2>
+            <p className="muted">{effect.sourceName}</p>
+          </div>
 
-      <div className="effect-copy">
-        {flavorText && <em>{flavorText}</em>}
-        <strong>{effect.effectText}</strong>
-        {effect.detailText && <span>{effect.detailText}</span>}
-      </div>
+          <div className="effect-copy">
+            <strong>{effect.effectText}</strong>
+            {effect.detailText && <span>{effect.detailText}</span>}
+          </div>
+        </>
+      )}
 
       {effect.targetCardPrepared && (
         <section className="target-card-resolution" aria-label="Automatic Target Card resolution">

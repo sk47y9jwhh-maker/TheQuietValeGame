@@ -957,7 +957,7 @@ describe("game actions", () => {
 
     const next = revealEncounters(ready);
 
-    expect(next.pendingDeckReorder?.effectText).toContain("top 4 cards");
+    expect(next.pendingDeckReorder?.effectText).toContain("top 4 Encounter Cards");
     expect(next.pendingDeckReorder?.cardIds).toEqual([
       "arrival_the_quiet_quest",
       "burden_smoke_over_hearths",
@@ -1041,7 +1041,7 @@ describe("game actions", () => {
       requiresManualChoice: false,
       confirmLabel: "Acknowledge"
     });
-    expect(revealed.pendingEffects[0].effectText).toMatch(/there are none, no effect/i);
+    expect(revealed.pendingEffects[0].effectText).toMatch(/if none, no effect/i);
     expect(revealed.pendingEffects[0].suggestedAdjustment).toBeUndefined();
 
     const acknowledged = resolvePendingEffect(revealed);
@@ -2436,7 +2436,7 @@ describe("game actions", () => {
 
     expect(next.season).toBe(2);
     expect(next.phase).toBe("seeding");
-    expect(next.pendingEffects[0].title).toBe("Season 2 Burden: Forest's Grudge");
+    expect(next.pendingEffects[0].title).toBe("Season 2 Burden: Forest’s Grudge");
     expect(next.pendingEffects[0].sourceId).toBe("burden_forest_s_grudge");
     expect(next.pendingEffects[0].suggestedAdjustment?.tileStrainDeltas).toEqual({
       tile_lumber: 2

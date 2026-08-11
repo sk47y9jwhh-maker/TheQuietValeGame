@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, ScrollText } from "lucide-react";
 import { encounterById } from "../../data/encounters";
 import { stewardById } from "../../data/stewards";
-import { EncounterSeasonEffects } from "../common/EncounterSeasonEffects";
-import { getEncounterTypeLabel } from "../common/gameText";
+import { EncounterCard } from "../common/EncounterCard";
 import { selectCurrentPlayer } from "../../engine/selectors";
 import { validateSeedingSelection } from "../../engine/gameActions";
 import type { GameState } from "../../engine/types";
@@ -150,14 +149,42 @@ export function SeedingPanel({ state, onConfirm }: SeedingPanelProps) {
         <div className="hand-grid">
           {hand.map((cardId) => {
             const card = encounterById[cardId];
+            if (!card) return null;
             const assignedSlot = getAssignedSlot(cardId);
             return (
-              <article
-                className={[
-                  "hand-card",
-                  card ? `card-${card.type}` : "",
-                  assignedSlot ? `seeded-${assignedSlot}` : ""
-                ].join(" ")}
+              <EncounterCard
+                card={card}
+                className={assignedSlot ? `seeded-${assignedSlot}` : ""}
+                controls={(
+                  <div
+                    className="seed-card-actions"
+                    role="group"
+                    aria-label={`Seed ${card.name}`}
+                  >
+                    <button
+                      className={assignedSlot === "top" ? "selected" : ""}
+                      onClick={() => assignSeedSlot("top", cardId)}
+                      type="button"
+                    >
+                      Top
+                    </button>
+                    <button
+                      className={assignedSlot === "middle" ? "selected" : ""}
+                      onClick={() => assignSeedSlot("middle", cardId)}
+                      type="button"
+                    >
+                      Middle
+                    </button>
+                    <button
+                      className={assignedSlot === "bottom" ? "selected" : ""}
+                      onClick={() => assignSeedSlot("bottom", cardId)}
+                      type="button"
+                    >
+                      Bottom
+                    </button>
+                  </div>
+                )}
+                currentSeason={state.season}
                 key={cardId}
                 onContextMenu={(event) => {
                   event.preventDefault();
@@ -167,45 +194,11 @@ export function SeedingPanel({ state, onConfirm }: SeedingPanelProps) {
                     y: event.clientY
                   });
                 }}
+                status={assignedSlot ? (
+                  <span className="slot-chip">Seeded {assignedSlot}</span>
+                ) : undefined}
                 title="Right-click to seed this card."
-              >
-                <span className={`encounter-type-banner compact ${card ? `card-${card.type}` : ""}`}>
-                  {getEncounterTypeLabel(card)}
-                </span>
-                <strong>{card?.name ?? cardId}</strong>
-                {assignedSlot && (
-                  <small className="slot-chip">Seeded {assignedSlot}</small>
-                )}
-                {card?.flavorText && <em>{card.flavorText}</em>}
-                <EncounterSeasonEffects card={card} currentSeason={state.season} />
-                <div
-                  className="seed-card-actions"
-                  role="group"
-                  aria-label={`Seed ${card?.name ?? cardId}`}
-                >
-                  <button
-                    className={assignedSlot === "top" ? "selected" : ""}
-                    onClick={() => assignSeedSlot("top", cardId)}
-                    type="button"
-                  >
-                    Top
-                  </button>
-                  <button
-                    className={assignedSlot === "middle" ? "selected" : ""}
-                    onClick={() => assignSeedSlot("middle", cardId)}
-                    type="button"
-                  >
-                    Middle
-                  </button>
-                  <button
-                    className={assignedSlot === "bottom" ? "selected" : ""}
-                    onClick={() => assignSeedSlot("bottom", cardId)}
-                    type="button"
-                  >
-                    Bottom
-                  </button>
-                </div>
-              </article>
+              />
             );
           })}
         </div>

@@ -876,7 +876,12 @@ function drainPending(initial: GameState, stats: BotStats, plan?: HumanSeasonPla
     }
     if (state.pendingGoldenEffect?.kind === "scroll") {
       const returned = Object.fromEntries(
-        state.players.map((player) => [player.id, state.encounters.handsByPlayerId[player.id]?.find((cardId) => encounterById[cardId]?.type === "burden")]),
+        state.players.map((player) => {
+          const cardId = state.encounters.handsByPlayerId[player.id]?.find(
+            (candidate) => encounterById[candidate]?.type === "burden"
+          );
+          return [player.id, cardId ? [cardId] : undefined];
+        }),
       );
       state = resolveGoldenScroll(state, returned);
       continue;

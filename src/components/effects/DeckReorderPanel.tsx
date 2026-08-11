@@ -1,8 +1,7 @@
 import { ArrowDown, ArrowUp, Check, RotateCcw, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { encounterById } from "../../data/encounters";
-import { EncounterSeasonEffects } from "../common/EncounterSeasonEffects";
-import { getEncounterTypeLabel } from "../common/gameText";
+import { EncounterCard } from "../common/EncounterCard";
 import type {
   PendingDeckReorderState,
   Season
@@ -62,51 +61,49 @@ export function DeckReorderPanel({
       <div className="deck-order-list">
         {orderedCardIds.map((cardId, index) => {
           const card = encounterById[cardId];
-          const cardToneClass = card ? `card-${card.type}` : "";
+          if (!card) return null;
           return (
-            <article key={cardId} className={`deck-order-card ${cardToneClass}`}>
-              <div>
-                <div className="deck-order-meta">
-                  <span className={`encounter-type-banner compact ${cardToneClass}`}>
-                    {getEncounterTypeLabel(card)}
-                  </span>
-                  <span className="position-chip">Position {index + 1}</span>
-                </div>
-                <strong>{card?.name ?? cardId}</strong>
-                {card?.flavorText && <em>{card.flavorText}</em>}
-                <EncounterSeasonEffects card={card} currentSeason={season} />
-              </div>
-              <div className="deck-order-controls">
-                {pending.mode === "moveOneToBottom" ? (
-                  <button
-                    aria-label={`Move ${card?.name ?? cardId} to the bottom of the Encounter Deck`}
-                    disabled={bottomCardId === cardId}
-                    onClick={() => moveCardToBottom(index)}
-                    type="button"
-                  >
-                    <ArrowDown size={16} />
-                    Deck bottom
-                  </button>
-                ) : (
-                  <>
+            <EncounterCard
+              card={card}
+              controls={(
+                <div className="deck-order-controls">
+                  {pending.mode === "moveOneToBottom" ? (
                     <button
-                      disabled={index === 0}
-                      onClick={() => moveCard(index, -1)}
-                      type="button"
-                    >
-                      <ArrowUp size={16} />
-                    </button>
-                    <button
-                      disabled={index === orderedCardIds.length - 1}
-                      onClick={() => moveCard(index, 1)}
+                      aria-label={`Move ${card.name} to the bottom of the Encounter Deck`}
+                      disabled={bottomCardId === cardId}
+                      onClick={() => moveCardToBottom(index)}
                       type="button"
                     >
                       <ArrowDown size={16} />
+                      Deck bottom
                     </button>
-                  </>
-                )}
-              </div>
-            </article>
+                  ) : (
+                    <>
+                      <button
+                        aria-label={`Move ${card.name} up`}
+                        disabled={index === 0}
+                        onClick={() => moveCard(index, -1)}
+                        type="button"
+                      >
+                        <ArrowUp size={16} />
+                      </button>
+                      <button
+                        aria-label={`Move ${card.name} down`}
+                        disabled={index === orderedCardIds.length - 1}
+                        onClick={() => moveCard(index, 1)}
+                        type="button"
+                      >
+                        <ArrowDown size={16} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+              currentSeason={season}
+              key={cardId}
+              size="compact"
+              status={<span className="position-chip">Position {index + 1}</span>}
+            />
           );
         })}
       </div>
