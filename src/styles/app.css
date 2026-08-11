@@ -260,6 +260,13 @@
   font-weight: 600;
 }
 
+.physical-card-burden .physical-card-season.current .physical-card-season-number,
+.physical-card-burden .physical-card-season.current .physical-card-effect,
+.physical-card-burden .physical-card-season.current .physical-card-lifecycle {
+  color: #20211f;
+  text-shadow: 0 0 0.4cqw rgba(255, 255, 255, 0.72);
+}
+
 .physical-card-section-label {
   left: 25%;
   width: 50%;
