@@ -996,7 +996,7 @@ export function EffectPrompt({
                         <small className="target-card-prevention">The Golden Garden will prevent 1 Strain after selection.</small>
                       )}
                       {diagnostic.alternatePrimaryWouldComplete && (
-                        <small className="target-card-warning">Another primary could have completed every linked target; the card-selected primary is retained.</small>
+                        <small className="target-card-warning">Another primary could have completed every linked target. The card-selected primary is retained.</small>
                       )}
                     </div>
                   </article>
@@ -1191,7 +1191,7 @@ export function EffectPrompt({
                     <small>
                       {strainCascadeRule.anchorStrain > 0
                         ? `Receives ${strainCascadeRule.anchorStrain} Strain before the cascade`
-                        : "Overstrained anchor; receives no additional Strain"}
+                        : "Overstrained anchor. Receives no additional Strain"}
                     </small>
                   </span>
                   <MapPin size={16} />

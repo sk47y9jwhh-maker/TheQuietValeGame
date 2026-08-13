@@ -40,7 +40,7 @@ export const targetCardById = Object.fromEntries(
 ) as Record<number, TargetCardDefinition>;
 
 export const targetCardRulesText =
-  "Target Cards: Shuffle the 24-card deck once during setup. Start with the tiles eligible under the effect causing the Strain. Draw the top card and read it from top to bottom. Apply each preference if at least one currently considered tile matches it; otherwise ignore that preference. Use the arrow to resolve any remaining tie. After resolving the target, return the card face down to the bottom of the deck. Resolve Supported and other prevention normally. Prevented Strain is not redirected.";
+  "Target Cards: Shuffle the 24-card deck once during setup. Start with the tiles eligible under the effect causing the Strain. Draw the top card and read it from top to bottom. Apply each preference if at least one currently considered tile matches it. Otherwise ignore that preference. Use the arrow to resolve any remaining tie. After resolving the target, return the card face down to the bottom of the deck. Resolve Supported and other prevention normally. Prevented Strain is not redirected.";
 
 export const targetCardFilterLabels: Record<TargetCardFilterName, string> = {
   class: "Class",

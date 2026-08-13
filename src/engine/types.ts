@@ -227,7 +227,8 @@ export type BoonModifierAction =
   | "burden"
   | "activate"
   | "production"
-  | "passive";
+  | "passive"
+  | "overstrain";
 
 export interface ActiveBoonModifier {
   id: string;
@@ -248,12 +249,16 @@ export interface ActiveBoonModifier {
   requiresAdjacentCategories?: TileCategory[];
   coreOnly?: boolean;
   expiresAfterRound?: number;
+  immediateResources?: Partial<Record<ResourceType, number>>;
   productionGain?: {
     fixed?: Partial<Record<ResourceType, number>>;
     choice?: { resources: ResourceType[]; amount: number };
   };
   followUpRuleId?: string;
   refreshPassiveUse?: boolean;
+  preventsOverstrainSpread?: boolean;
+  productionLoss?: number;
+  extraCost?: number;
   supportActionTile?: boolean;
   postActionRuleId?: string;
   postActionRequiresAdjacentCategories?: TileCategory[];
@@ -403,7 +408,7 @@ export interface PassiveCostOption {
   sourceKind?: "tile" | "boon";
   sourceName: string;
   effectText: string;
-  kind: "discount" | "zero" | "market" | "substitute";
+  kind: "discount" | "surcharge" | "zero" | "market" | "substitute";
   cadence: "round" | "season";
   amount?: number;
   marketRate?: 1 | 2;
@@ -417,6 +422,7 @@ export interface CostChoiceSelection {
   selectedOptionIds: string[];
   marketResourceByOptionId?: Record<string, ResourceType>;
   discountResourceByOptionId?: Record<string, ResourceType>;
+  surchargeResourceByOptionId?: Record<string, ResourceType>;
 }
 
 export interface PendingCostChoiceState {

@@ -75,7 +75,10 @@ export const burdenResolutionResources: Record<string, ResourceType> = {
   burden_stores_run_thin: "goods",
   burden_the_burden_of_command: "goods",
   burden_the_rot_within_the_vault: "herbs",
-  burden_too_many_houses_too_little_homes: "goods"
+  burden_too_many_houses_too_little_homes: "goods",
+  burden_river_breaks_its_banks: "wood",
+  burden_the_road_takes_its_share: "goods",
+  burden_plans_left_waiting: "food"
 };
 
 export const burdenResolutionResourceOptions: Record<string, ResourceType[]> = {
@@ -128,7 +131,10 @@ export const persistentBoonIds = new Set([
   "boon_old_foundations_still_remain",
   "boon_one_thousand_swings_of_the_pickaxe_opens_up_a_new_path",
   "boon_the_ancient_ways_gradually_reemerge",
-  "boon_the_rains_that_we_sheltered_from_now_yield_the_bounty_of_nature"
+  "boon_the_rains_that_we_sheltered_from_now_yield_the_bounty_of_nature",
+  "boon_change_of_watch",
+  "boon_the_break_holds",
+  "boon_answers_made_ready"
 ]);
 
 export interface SpecialTileBehavior {

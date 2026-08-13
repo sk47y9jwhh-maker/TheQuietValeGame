@@ -63,7 +63,7 @@ const rules: RuleReferenceCard[] = [
     category: "Your turn",
     title: "Actions and free interactions",
     bullets: [
-      "Place — Spend 1 action to place an available tile legally. Pay the shown cost for a Core Tile; unlocked Special Tiles cost no resources to place.",
+      "Place — Spend 1 action to place an available tile legally. Pay the shown cost for a Core Tile. Unlocked Special Tiles cost no resources to place.",
       "Upgrade — Spend 1 action and pay the upgraded cost of a reachable basic Core Tile.",
       "Activate — Spend 1 action to use an eligible, reachable tile’s production or activated effect.",
       "Interact — Spend 1 action and pay the shown cost to complete an Arrival or resolve a Burden.",
@@ -97,7 +97,7 @@ const rules: RuleReferenceCard[] = [
       "One-use Supported disappears after it blocks Strain. Printed or passive Supported can protect the tile again in a later round.",
       "When an effect places Strain, its text determines the eligible tiles and the Target Deck chooses among them.",
       "Draw one Target Card for each different target. Apply its class, side, adjacency, and current-Strain preferences in order whenever at least one candidate matches, then use its arrow to break a remaining tie.",
-      "Shuffle the 24-card Target Deck once during setup. Return each resolved card face down to the bottom; do not discard or reshuffle during play.",
+      "Shuffle the 24-card Target Deck once during setup. Return each resolved card face down to the bottom. Do not discard or reshuffle during play.",
       "Resolve Supported and other prevention after the target is chosen. Prevented Strain is not redirected.",
       "After an effect ends, each tile that became Overstrained spreads 1 Strain to an adjacent eligible tile selected by the Target Deck. Continue until no new tile becomes Overstrained."
     ],
@@ -108,7 +108,7 @@ const rules: RuleReferenceCard[] = [
     category: "Encounters",
     title: "Boons, Arrivals, and Burdens",
     bullets: [
-      "Boons help the settlement. Some resolve at once; others stay face-up and show their remaining uses on the Stewards Board.",
+      "Boons help the settlement. Some resolve at once. Others stay face-up and show their remaining uses on the Stewards Board.",
       "A Carts Before Sunrise passive refresh applies to at most one chosen eligible Crafting or Merchant passive. If you decline every refreshed passive, the prepared Carts use remains available.",
       "An Arrival enters with 3 timers. Spend 1 action and pay its requirement to complete it and unlock the named Special Tile.",
       "At the end of each round, every active Arrival loses 1 timer.",
@@ -371,7 +371,7 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
             <strong>Using the app:</strong>
             <span>
               Resolve any open prompt before continuing. Disabled choices explain what is missing.
-              Street and Track need a starting hex and direction; Stables need two legal hexes. On
+              Street and Track need a starting hex and direction. Stables need two legal hexes. On
               desktop, right-click a hex for quick actions. On touch screens, press and hold a hex or
               use the action buttons. During play, progress saves automatically in this browser and
               the top-right buttons undo or redo recent steps.

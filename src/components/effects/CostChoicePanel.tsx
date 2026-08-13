@@ -53,6 +53,11 @@ export function CostChoicePanel({
       .filter((option) => option.kind === "discount" && option.resourceChoices?.length)
       .map((option) => [option.id, option.resourceChoices?.[0] ?? "wood"])
   ) as Record<string, ResourceType>;
+  const defaultSurchargeChoices = Object.fromEntries(
+    pending.options
+      .filter((option) => option.kind === "surcharge" && option.resourceChoices?.length)
+      .map((option) => [option.id, option.resourceChoices?.[0] ?? "wood"])
+  ) as Record<string, ResourceType>;
   const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>(
     pending.options.filter((option) => option.required).map((option) => option.id)
   );
@@ -60,6 +65,8 @@ export function CostChoicePanel({
     useState<Record<string, ResourceType>>(defaultMarketChoices);
   const [discountResourceByOptionId, setDiscountResourceByOptionId] =
     useState<Record<string, ResourceType>>(defaultDiscountChoices);
+  const [surchargeResourceByOptionId, setSurchargeResourceByOptionId] =
+    useState<Record<string, ResourceType>>(defaultSurchargeChoices);
 
   useEffect(() => {
     setSelectedOptionIds(
@@ -67,15 +74,24 @@ export function CostChoicePanel({
     );
     setMarketResourceByOptionId(defaultMarketChoices);
     setDiscountResourceByOptionId(defaultDiscountChoices);
+    setSurchargeResourceByOptionId(defaultSurchargeChoices);
   }, [pending.id]);
 
   const selection = useMemo(
     () => ({
       selectedOptionIds,
       marketResourceByOptionId,
-      discountResourceByOptionId
+      discountResourceByOptionId,
+      ...(Object.keys(surchargeResourceByOptionId).length > 0
+        ? { surchargeResourceByOptionId }
+        : {})
     }),
-    [discountResourceByOptionId, marketResourceByOptionId, selectedOptionIds]
+    [
+      discountResourceByOptionId,
+      marketResourceByOptionId,
+      selectedOptionIds,
+      surchargeResourceByOptionId
+    ]
   );
   const adjustedCost = applyCostChoice(
     state,
@@ -209,6 +225,28 @@ export function CostChoicePanel({
                     </select>
                   </label>
                 )}
+              {option.kind === "surcharge" &&
+                option.resourceChoices?.length &&
+                selected && (
+                  <label>
+                    Additional resource
+                    <select
+                      value={surchargeResourceByOptionId[option.id]}
+                      onChange={(event) =>
+                        setSurchargeResourceByOptionId((current) => ({
+                          ...current,
+                          [option.id]: event.target.value as ResourceType
+                        }))
+                      }
+                    >
+                      {(option.resourceChoices ?? []).map((resource) => (
+                        <option key={resource} value={resource}>
+                          {resourceLabels[resource]}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
               {option.kind === "market" && (
                 <label className="market-exchange-control">
                   <span>Exchange 1 Goods for</span>
@@ -288,6 +326,7 @@ function CostLine({ label, cost }: { label: string; cost: ResourceCost }) {
 
 function getOptionLabel(option: PendingCostChoiceState["options"][number]): string {
   if (option.kind === "zero") return "0 resources";
+  if (option.kind === "surcharge") return `+${option.amount ?? 0} resource`;
   if (option.kind === "substitute") {
     const from = option.substituteFrom
       ? resourceLabels[option.substituteFrom]

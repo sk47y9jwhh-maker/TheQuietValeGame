@@ -87,7 +87,7 @@ describe("locked encounter-card template fit", () => {
   });
 
   it("keeps every canonical Boon field within its calibrated PSD limit", () => {
-    expect(boons).toHaveLength(27);
+    expect(boons).toHaveLength(30);
 
     for (const card of boons) {
       expectWithinLimit(card.id, "name", card.name, 24);
@@ -107,7 +107,7 @@ describe("locked encounter-card template fit", () => {
   });
 
   it("keeps every canonical Burden field within its calibrated PSD limit", () => {
-    expect(burdens).toHaveLength(27);
+    expect(burdens).toHaveLength(30);
 
     for (const card of burdens) {
       expectWithinLimit(card.id, "name", card.name, 24);
@@ -146,5 +146,48 @@ describe("locked encounter-card template fit", () => {
       expectWithinLimit(card.id, "effect", card.effectText, 430);
       expectWithinLimit(card.id, "lifecycle", card.lifecycle, 50);
     }
+  });
+
+  it("uses no semicolons in encounter-card product text", () => {
+    const printableText = [
+      ...boons.flatMap((card) => [
+        card.name,
+        card.flavorText,
+        ...Object.values(card.effects),
+        ...Object.values(
+          card.lifecycles ?? {
+            season1: card.lifecycle,
+            season2: card.lifecycle,
+            season3: card.lifecycle
+          }
+        )
+      ]),
+      ...burdens.flatMap((card) => [
+        card.name,
+        card.flavorText,
+        ...Object.values(card.effects),
+        ...Object.values(
+          card.resolutions ?? {
+            season1: card.resolutionText ?? "",
+            season2: card.resolutionText ?? "",
+            season3: card.resolutionText ?? ""
+          }
+        )
+      ]),
+      ...arrivals.flatMap((card) => [
+        card.name,
+        card.flavorText,
+        card.requirementText,
+        card.rewardText
+      ]),
+      ...goldenBoons.flatMap((card) => [
+        card.name,
+        card.flavorText,
+        card.effectText,
+        card.lifecycle
+      ])
+    ];
+
+    expect(printableText.filter((text) => text.includes(";"))).toEqual([]);
   });
 });

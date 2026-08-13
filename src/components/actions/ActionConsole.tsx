@@ -625,7 +625,7 @@ export function ActionConsole({
           <p className="muted">
             Passive effects—including Shrines and cost reductions—trigger automatically
             when their condition is met. The first linked Resource activation each round
-            produces from the whole adjacent group; later activations produce only from
+            produces from the whole adjacent group. Later activations produce only from
             the chosen tile.
           </p>
           {activatableIds.length === 0 ? (
@@ -655,7 +655,7 @@ export function ActionConsole({
                       </span>
                     )}
                     {linkedProductionDiminished && (
-                      <span>Linked group already produced this round; chosen tile only</span>
+                      <span>Linked group already produced this round. Chosen tile only</span>
                     )}
                   </button>
                 );

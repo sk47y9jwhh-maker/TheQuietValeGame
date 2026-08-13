@@ -41,7 +41,6 @@ import {
   createBoonModifierFromCard,
   getBoonActionPreview,
   getBoonCostOptions,
-  getBoonModifiedCost,
   getMatchingBoonModifiers
 } from "./boonModifiers";
 import { canAfford, spendResources } from "./resources";
@@ -86,6 +85,11 @@ import type {
   TilePlacementDraft,
   ValidationResult
 } from "./types";
+
+const temporaryBurdenModifierIds = new Set([
+  "burden_the_road_takes_its_share",
+  "burden_plans_left_waiting"
+]);
 
 function log(state: GameState, message: string): GameState {
   return {
@@ -195,6 +199,52 @@ function getBoonUsesForSeason(state: GameState, cardId: string): number {
   return getEffectRule(getCurrentSeasonCardEffectRuleId(state, cardId)).modifier?.uses ?? 1;
 }
 
+function createEncounterModifierFromCard(
+  state: GameState,
+  cardId: string
+): ActiveBoonModifier | null {
+  const card = encounterById[cardId];
+  const rule = getEffectRule(getCurrentSeasonCardEffectRuleId(state, cardId));
+  if (!card || !rule.modifier) return null;
+  if (card.type === "boon") return createBoonModifierFromCard(state, cardId);
+  if (card.type !== "burden" || !temporaryBurdenModifierIds.has(cardId)) {
+    return null;
+  }
+
+  const modifier = rule.modifier;
+  return {
+    id: `modifier_${state.boonModifiers.length + state.log.length + 1}_${Date.now()}`,
+    sourceCardId: cardId,
+    name: card.name,
+    effectText: getCurrentSeasonCardEffectText(state, cardId),
+    actions: modifier.actions,
+    remainingUses:
+      modifier.duration === "round" ? Number.MAX_SAFE_INTEGER : modifier.uses,
+    expiresAfterRound:
+      modifier.duration === "round" ? state.round : undefined,
+    productionLoss: modifier.productionLoss,
+    extraCost: modifier.extraCost
+  };
+}
+
+function prepareTemporaryEncounterModifier(
+  state: GameState,
+  cardId: string
+): GameState {
+  if (!temporaryBurdenModifierIds.has(cardId)) return state;
+  const modifier = createEncounterModifierFromCard(state, cardId);
+  if (!modifier) return state;
+  return {
+    ...state,
+    boonModifiers: [
+      ...state.boonModifiers.filter(
+        (candidate) => candidate.sourceCardId !== cardId
+      ),
+      modifier
+    ]
+  };
+}
+
 function hasTravelTileInSupply(state: GameState): boolean {
   return Object.entries(state.tileSupply.core).some(
     ([tileId, remaining]) =>
@@ -246,6 +296,9 @@ function queueBoonEffectPrompt(state: GameState, boon: ActiveBoon): GameState {
       .join(" "),
     suggestedAdjustment: suggestion.adjustment,
     requiresManualChoice: noValidTarget ? false : suggestion.requiresManualChoice,
+    allowStewardMovementPlayerId: rule.stewardMove
+      ? state.currentPlayerId
+      : undefined,
     canSkip: true,
     skipLabel: "Skip Boon",
     confirmLabel: noValidTarget ? "Acknowledge" : undefined
@@ -543,6 +596,29 @@ function applyPreparedProductionBoonEffects(
   const consumedModifierIds: string[] = [];
 
   for (const modifier of modifiers) {
+    if ((modifier.productionLoss ?? 0) > 0) {
+      const loss = modifier.productionLoss ?? 0;
+      const produced = getTileProduction(activatedTile) ?? emptyCost();
+      const resourceDeltas: Partial<Record<ResourceType, number>> = {};
+      let remaining = loss;
+      for (const resource of resources) {
+        if (remaining <= 0) break;
+        const removable = Math.min(
+          remaining,
+          produced[resource],
+          nextState.warehouse[resource]
+        );
+        if (removable <= 0) continue;
+        resourceDeltas[resource] = -removable;
+        remaining -= removable;
+      }
+      nextState = applyResourceGain(
+        nextState,
+        resourceDeltas,
+        `${modifier.name} reduced ${getPlacedTileName(activatedTile)} Production by ${loss} resources.`
+      );
+    }
+
     if (modifier.productionGain?.fixed) {
       const gainText = resources
         .filter((resource) => (modifier.productionGain?.fixed?.[resource] ?? 0) > 0)
@@ -1013,6 +1089,7 @@ function queueSeasonStartBurdenEffects(state: GameState): GameState {
   for (const burdenCardId of state.encounters.activeBurdens) {
     const card = encounterById[burdenCardId];
     if (!card || card.type !== "burden") continue;
+    nextState = prepareTemporaryEncounterModifier(nextState, burdenCardId);
     nextState = queueEncounterCardEffectPrompt(
       nextState,
       burdenCardId,
@@ -1115,6 +1192,10 @@ export function revealEncounters(state: GameState): GameState {
       discardPile
     }
   };
+
+  for (const cardId of revealed) {
+    nextState = prepareTemporaryEncounterModifier(nextState, cardId);
+  }
 
   for (const message of messages) {
     nextState = log(nextState, message);
@@ -1344,7 +1425,7 @@ export function placeTile(
     ...state,
     pendingCostChoice: null,
     actionsRemaining: state.actionsRemaining - actionPreview.actionCost,
-    warehouse: coreData ? spendResources(state.warehouse, finalCost) : state.warehouse,
+    warehouse: spendResources(state.warehouse, finalCost),
     map: { placedTiles: [...state.map.placedTiles, ...placedTiles] },
     tileSupply: {
       ...state.tileSupply,
@@ -1714,16 +1795,16 @@ export function canCompleteArrival(
   if (!card || card.type !== "arrival") {
     reasons.push("Cannot complete Arrival: this card is not an Arrival.");
   }
-  if (state.actionsRemaining <= 0) {
-    reasons.push("Cannot complete Arrival: no actions remaining.");
-  }
-
   if (!card || card.type !== "arrival") return { ok: reasons.length === 0, reasons };
 
-  const cost = getBoonModifiedCost(state, {
+  const actionPreview = getBoonActionPreview(state, {
     action: "arrival",
     baseCost: arrivalRequirementRules[card.id].cost
   });
+  if (state.actionsRemaining < actionPreview.actionCost) {
+    reasons.push("Cannot complete Arrival: no actions remaining.");
+  }
+  const cost = actionPreview.cost;
   const options = getPassiveCostOptions(state, {
     action: "arrival",
     playerId: state.currentPlayerId,
@@ -1933,6 +2014,9 @@ export function cancelPendingBurdenWithWarden(state: GameState): GameState {
   const nextState: GameState = {
     ...state,
     pendingEffects: remainingEffects,
+    boonModifiers: state.boonModifiers.filter(
+      (modifier) => modifier.sourceCardId !== pendingEffect.sourceId
+    ),
     players: state.players.map((player) =>
       player.id === warden.id
         ? {
@@ -2217,6 +2301,15 @@ export function useFaceUpBoon(state: GameState, boonCardId: string): GameState {
       ...nextState,
       boonModifiers: [...nextState.boonModifiers, modifier]
     };
+    const isFirstUse =
+      activeBoon.remainingUses === getBoonUsesForSeason(state, boonCardId);
+    if (modifier.immediateResources && isFirstUse) {
+      nextState = applyResourceGain(
+        nextState,
+        modifier.immediateResources,
+        `${card.name} added its immediate resources.`
+      );
+    }
   }
 
   nextState = log(
@@ -2237,7 +2330,7 @@ export function completeArrival(
 ): GameState {
   if (hasNonCostPendingEffects(state)) return state;
   if (state.pendingCostChoice && !costSelection) return state;
-  if (state.phase !== "turns" || state.actionsRemaining <= 0) return state;
+  if (state.phase !== "turns") return state;
 
   const card = encounterById[arrivalCardId];
   if (!card || card.type !== "arrival") return state;
@@ -2263,6 +2356,7 @@ export function completeArrival(
     baseCost
   } as const;
   const actionPreview = getBoonActionPreview(state, boonTarget);
+  if (state.actionsRemaining < actionPreview.actionCost) return state;
   const boonCostOptions = getBoonCostOptions(state, boonTarget);
   const passiveCostOptions = getPassiveCostOptions(state, {
     action: "arrival",
@@ -2280,7 +2374,7 @@ export function completeArrival(
         cardId: arrivalCardId
       },
       baseCost,
-      actionCost: 1,
+      actionCost: actionPreview.actionCost,
       boonModifierIds: actionPreview.appliedModifierIds,
       options: paymentOptions
     });
@@ -2306,7 +2400,7 @@ export function completeArrival(
   let nextState: GameState = {
     ...state,
     pendingCostChoice: null,
-    actionsRemaining: state.actionsRemaining - 1,
+    actionsRemaining: state.actionsRemaining - actionPreview.actionCost,
     warehouse: spendResources(state.warehouse, finalCost),
     tileSupply: {
       ...state.tileSupply,
@@ -2363,9 +2457,6 @@ export function canResolveBurden(
   if (!card || card.type !== "burden") {
     reasons.push("Cannot resolve Burden: this card is not a Burden.");
   }
-  if (state.actionsRemaining <= 0) {
-    reasons.push("Cannot resolve Burden: no actions remaining.");
-  }
   if (!card || card.type !== "burden") return { ok: reasons.length === 0, reasons };
 
   const baseCost = getBurdenResolutionCost(card.id, state.season);
@@ -2373,10 +2464,14 @@ export function canResolveBurden(
     reasons.push("Cannot resolve Burden: this Burden has no current resolution line.");
     return { ok: false, reasons };
   }
-  const cost = getBoonModifiedCost(state, {
+  const actionPreview = getBoonActionPreview(state, {
     action: "burden",
     baseCost
   });
+  if (state.actionsRemaining < actionPreview.actionCost) {
+    reasons.push("Cannot resolve Burden: no actions remaining.");
+  }
+  const cost = actionPreview.cost;
   const options = getPassiveCostOptions(state, {
     action: "burden",
     playerId: state.currentPlayerId,
@@ -2416,7 +2511,7 @@ export function resolveBurden(
 
   const card = encounterById[burdenCardId];
   if (!card || card.type !== "burden") return state;
-  if (state.phase !== "turns" || state.actionsRemaining <= 0) return state;
+  if (state.phase !== "turns") return state;
   if (!state.encounters.activeBurdens.includes(burdenCardId)) return state;
 
   const baseCost = getBurdenResolutionCost(card.id, state.season);
@@ -2426,6 +2521,7 @@ export function resolveBurden(
     baseCost
   } as const;
   const actionPreview = getBoonActionPreview(state, boonTarget);
+  if (state.actionsRemaining < actionPreview.actionCost) return state;
   const boonCostOptions = getBoonCostOptions(state, boonTarget);
   const passiveCostOptions = getPassiveCostOptions(state, {
     action: "burden",
@@ -2447,7 +2543,7 @@ export function resolveBurden(
         cardId: burdenCardId
       },
       baseCost,
-      actionCost: 1,
+      actionCost: actionPreview.actionCost,
       boonModifierIds: actionPreview.appliedModifierIds,
       options: paymentOptions
     });
@@ -2464,7 +2560,7 @@ export function resolveBurden(
   let nextState: GameState = {
     ...state,
     pendingCostChoice: null,
-    actionsRemaining: state.actionsRemaining - 1,
+    actionsRemaining: state.actionsRemaining - actionPreview.actionCost,
     warehouse: spendResources(state.warehouse, finalCost),
     encounters: {
       ...state.encounters,

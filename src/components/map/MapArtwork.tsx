@@ -13,7 +13,7 @@ export function MapArtworkCredit() {
 
   return (
     <p className="map-artwork-credit">
-      Map artwork by Giovanni Spadaro &amp; Daniele Nicotra
+      Map artwork by Giovanni Spadaro and Daniele Nicotra
       <span aria-hidden="true"> · </span>
       Map image and site © 2026{" "}
       <a href="mailto:Robert@thequietvalegame.com">
