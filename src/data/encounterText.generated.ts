@@ -36,8 +36,8 @@ export const canonicalBoonText: Record<string, CanonicalBoonText> = {
     "flavorText": "Lanterns were hung along roads and crossings fighting back the dark. Fewer feet slipped, fewer travellers lost heart, and confidence grew in the night.",
     "effects": {
       "season1": "You may pay 2 Metal to remove 1 Strain from any Tile.",
-      "season2": "You may pay 4 Metal to remove up to 2 Strain from 1 Travel/Housing Tile; it gains Supported.",
-      "season3": "You may pay 6 Metal to remove up to 3 Strain from up to 2 Travel/Housing Tiles; each gains Supported."
+      "season2": "You may pay 4 Metal to remove up to 2 Strain from 1 Travel/Housing Tile. It gains Supported.",
+      "season3": "You may pay 6 Metal to remove up to 3 Strain from up to 2 Travel/Housing Tiles. Each gains Supported."
     },
     "lifecycles": {
       "season1": "Resolve, then discard.",
@@ -78,8 +78,8 @@ export const canonicalBoonText: Record<string, CanonicalBoonText> = {
     "flavorText": "Under the fallen vaults waited watermarked pages, star charts, and delicate tools. Though damp had touched them, their knowledge endured to guide our harvests and craft.",
     "effects": {
       "season1": "Gain 1 Metal or 1 Goods. If a Salvage Tile is placed, one gains Supported.",
-      "season2": "Gain 1 Metal and 1 Goods; then −1 Strain from a Salvage Tile or a Tile adjacent to Ruins.",
-      "season3": "Gain 2 Metal and 2 Goods; then −1 Strain from each of up to 2 Salvage or Ruins-adjacent Tiles."
+      "season2": "Gain 1 Metal and 1 Goods. Then −1 Strain from a Salvage Tile or a Tile adjacent to Ruins.",
+      "season3": "Gain 2 Metal and 2 Goods. Then −1 Strain from each of up to 2 Salvage or Ruins-adjacent Tiles."
     },
     "lifecycles": {
       "season1": "Resolve, then discard.",
@@ -89,7 +89,7 @@ export const canonicalBoonText: Record<string, CanonicalBoonText> = {
   },
   "boon_bounty_of_the_first_harvest": {
     "name": "First Harvest Bounty",
-    "flavorText": "At dawn the first harvest seemed modest. By midday it exceeded all counts; by evening, bread and broth scented the streets. Shared baskets made the Vale feel like home.",
+    "flavorText": "At dawn the first harvest seemed modest. By midday it exceeded all counts. By evening, bread and broth scented the streets. Shared baskets made the Vale feel like home.",
     "effects": {
       "season1": "Next Farm Production: +1 Food.",
       "season2": "Next 2 Farm Productions: +1 Food and +1 Goods each.",
@@ -119,9 +119,9 @@ export const canonicalBoonText: Record<string, CanonicalBoonText> = {
     "name": "Clear Nights and Plans",
     "flavorText": "Under a clear night sky, lamps burned late above maps and ledgers. Knotted choices loosened into plans, and by dawn the settlement was ready to move.",
     "effects": {
-      "season1": "Look at the top 2 Encounter Cards; return them in any order.",
-      "season2": "Look at the top 3 Encounter Cards; return them in any order.",
-      "season3": "Look at the top 4 Encounter Cards; return them in any order. You may move 1 to the top."
+      "season1": "Look at the top 2 Encounter Cards. Return them in any order.",
+      "season2": "Look at the top 3 Encounter Cards. Return them in any order.",
+      "season3": "Look at the top 4 Encounter Cards. Return them in any order. You may move 1 to the top."
     },
     "lifecycles": {
       "season1": "Resolve, then discard.",
@@ -161,9 +161,9 @@ export const canonicalBoonText: Record<string, CanonicalBoonText> = {
     "name": "Hearths Soften Feuds",
     "flavorText": "Shared meals and mended fences softened quarrels no order could settle. Trust returned by degrees, carried between neighbours in bowls of stew and quiet apologies.",
     "effects": {
-      "season1": "Choose 1 Housing Tile: it gains Supported; if in a Housing cluster, −1 Strain from it.",
-      "season2": "Choose up to 2 Housing Tiles: each gains Supported; if in a Housing cluster, −1 Strain from that Tile.",
-      "season3": "Choose a Housing cluster: up to 3 Tiles gain Supported; remove up to 2 Strain among them."
+      "season1": "Choose 1 Housing Tile: it gains Supported. If in a Housing cluster, −1 Strain from it.",
+      "season2": "Choose up to 2 Housing Tiles: each gains Supported. If in a Housing cluster, −1 Strain from that Tile.",
+      "season3": "Choose a Housing cluster: up to 3 Tiles gain Supported. Remove up to 2 Strain among them."
     },
     "lifecycles": {
       "season1": "Resolve, then discard.",
@@ -358,8 +358,8 @@ export const canonicalBoonText: Record<string, CanonicalBoonText> = {
     "flavorText": "What the settlement could spare was divided into modest parcels and sent where need was greatest. Our stores diminished, yet the kindness they carried multiplied across the Vale.",
     "effects": {
       "season1": "Choose 3+ connected, non-Overstrained Tiles: −1 Strain from one. If none, gain 2 Food or Goods.",
-      "season2": "4+ connected, non-Overstrained Tiles: remove up to 2 Strain among them; if none, gain 3 Food/Goods.",
-      "season3": "5+ connected, non-Overstrained Tiles: remove up to 3 Strain among them; if none, gain 5 Food/Goods."
+      "season2": "4+ connected, non-Overstrained Tiles: remove up to 2 Strain among them. If none, gain 3 Food/Goods.",
+      "season3": "5+ connected, non-Overstrained Tiles: remove up to 3 Strain among them. If none, gain 5 Food/Goods."
     },
     "lifecycles": {
       "season1": "Resolve, then discard.",
@@ -372,8 +372,8 @@ export const canonicalBoonText: Record<string, CanonicalBoonText> = {
     "flavorText": "The Vale fell quiet beneath a clear night sky. We followed the stars across our maps until uncertain routes became plans and guesses gave way to purpose.",
     "effects": {
       "season1": "Look at the top 5 Encounter Cards. Keep their order, but you may move 1 to the bottom.",
-      "season2": "Look at the top 5 Encounter Cards; return them in any order.",
-      "season3": "Look through the remaining Encounter Deck; return it in any order."
+      "season2": "Look at the top 5 Encounter Cards. Return them in any order.",
+      "season3": "Look through the remaining Encounter Deck. Return it in any order."
     },
     "lifecycles": {
       "season1": "Resolve, then discard.",
@@ -399,14 +399,56 @@ export const canonicalBoonText: Record<string, CanonicalBoonText> = {
     "name": "Help Stands",
     "flavorText": "They stayed when others might have moved on. Broken beams were lifted, tools gathered, and frightened faces steadied. By evening, trouble had begun to resemble recovery.",
     "effects": {
-      "season1": "Each Steward-occupied Tile: −1 Strain; if it had none, gain 1 resource (max 2 total).",
-      "season2": "Each Steward-occupied Tile: −1 Strain; if it had none, gain 2 resources (max 4 total).",
-      "season3": "Each Steward-occupied Tile: −1 Strain; if it had none, gain 3 resources (max 6 total)."
+      "season1": "Each Steward-occupied Tile: −1 Strain. If it had none, gain 1 resource (max 2 total).",
+      "season2": "Each Steward-occupied Tile: −1 Strain. If it had none, gain 2 resources (max 4 total).",
+      "season3": "Each Steward-occupied Tile: −1 Strain. If it had none, gain 3 resources (max 6 total)."
     },
     "lifecycles": {
       "season1": "Resolve, then discard.",
       "season2": "Resolve, then discard.",
       "season3": "Resolve, then discard."
+    }
+  },
+  "boon_change_of_watch": {
+    "name": "Change of Watch",
+    "flavorText": "At dusk, one watch ended and another began. Notes, keys and a lantern changed hands. Around the new watch, the Vale quietened into the deep sleep that restores weary minds.",
+    "effects": {
+      "season1": "Move your Steward to another non-Overstrained Tile. It gains Supported.",
+      "season2": "Move your Steward to another non-Overstrained Tile. It gains Supported. Remove 1 Strain from it.",
+      "season3": "Move your Steward to another Tile. Remove up to 2 Strain from it. It gains Supported."
+    },
+    "lifecycles": {
+      "season1": "Keep until used or Season end.",
+      "season2": "Keep until used or Season end.",
+      "season3": "Keep until used or Season end."
+    }
+  },
+  "boon_the_break_holds": {
+    "name": "The Break Holds",
+    "flavorText": "Before the dry winds came, neighbours cleared broad breaks between woodland and roofs. The felled timber was stacked for use. When fire came, it found open ground and went no farther.",
+    "effects": {
+      "season1": "Gain 3 Wood. Next Tile that becomes Overstrained does not spread Strain.",
+      "season2": "Gain 2 Wood. Next 2 Tiles that become Overstrained do not spread Strain.",
+      "season3": "Gain 1 Wood. Tiles that become Overstrained this round do not spread Strain."
+    },
+    "lifecycles": {
+      "season1": "Keep until used or Season end.",
+      "season2": "Keep until 2 uses or Season end.",
+      "season3": "Keep until round end, then discard."
+    }
+  },
+  "boon_answers_made_ready": {
+    "name": "Answers Made Ready",
+    "flavorText": "Before any request was spoken, neighbours laid out tools, blankets, ledgers and meals. When need reached the door, the Vale already had an answer waiting.",
+    "effects": {
+      "season1": "Next Arrival completion or Burden resolution costs 0 Actions.",
+      "season2": "Next 2 Arrival completions and/or Burden resolutions cost 0 Actions each.",
+      "season3": "Next 2 Arrival completions and/or Burden resolutions cost 0 Actions and 2 fewer resources each."
+    },
+    "lifecycles": {
+      "season1": "Keep until used or Season end.",
+      "season2": "Keep until 2 uses or Season end.",
+      "season3": "Keep until 2 uses or Season end."
     }
   }
 };
@@ -473,8 +515,8 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
     "flavorText": "These warm halls were built for music and shared meals. Now bowls are half-filled, ale watered, and singers leave early. Fellowship falters when shelves cannot support generosity.",
     "effects": {
       "season1": "Choose 1 Social Tile: pay 1 Goods or +1 Strain.",
-      "season2": "Choose 2 Social Tiles; each: pay 1 Goods or +1 Strain.",
-      "season3": "Choose 3 Social Tiles; each: pay 1 Goods or +1 Strain. If none, choose 1 Housing Tile: +1 Strain."
+      "season2": "Choose 2 Social Tiles. Each: pay 1 Goods or +1 Strain.",
+      "season3": "Choose 3 Social Tiles. Each: pay 1 Goods or +1 Strain. If none, choose 1 Housing Tile: +1 Strain."
     },
     "resolutions": {
       "season1": "Spend 1 Action, pay 2 Goods, discard.",
@@ -571,8 +613,8 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
     "flavorText": "Word travels faster than preparation. The settlement’s welcome is now spoken of beyond the hills, but open doors require more than roofs and food. Every promise made must still be carried.",
     "effects": {
       "season1": "Choose 1 active Arrival, if any: pay 1 Goods or remove 1 timer. If none, no effect.",
-      "season2": "Choose up to 2 active Arrivals; each: pay 1 Goods or remove 1 timer. If none, no effect.",
-      "season3": "Up to 3 active Arrivals; each: pay 1 Goods or remove 1 timer. If none, 2 Tiles: +1 Strain each."
+      "season2": "Choose up to 2 active Arrivals. Each: pay 1 Goods or remove 1 timer. If none, no effect.",
+      "season3": "Up to 3 active Arrivals. Each: pay 1 Goods or remove 1 timer. If none, 2 Tiles: +1 Strain each."
     },
     "resolutions": {
       "season1": "Spend 1 Action, pay 2 Goods, discard.",
@@ -654,9 +696,9 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
     "name": "Stores Run Thin",
     "flavorText": "The shelves are full in one corner and bare in another, which may be worse than general scarcity. People see waste beside want, and frustration grows in the space between them.",
     "effects": {
-      "season1": "Choose a most-stocked resource; lose 2. If none is lost, choose 1 Tile: +1 Strain.",
-      "season2": "Choose a most-stocked resource; lose 4. If fewer than 4 are lost, choose 2 Tiles: +1 Strain each.",
-      "season3": "Choose a most-stocked resource; lose 6. If fewer than 6 are lost, choose 2 Tiles: +2 Strain each."
+      "season1": "Choose a most-stocked resource. Lose 2. If none is lost, choose 1 Tile: +1 Strain.",
+      "season2": "Choose a most-stocked resource. Lose 4. If fewer than 4 are lost, choose 2 Tiles: +1 Strain each.",
+      "season3": "Choose a most-stocked resource. Lose 6. If fewer than 6 are lost, choose 2 Tiles: +2 Strain each."
     },
     "resolutions": {
       "season1": "Spend 1 Action, pay 2 Goods, discard.",
@@ -698,7 +740,7 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
     "effects": {
       "season1": "Choose 1 Tile with 1–2 Strain: +1 Strain.",
       "season2": "Choose 1 Tile with 1–2 Strain: +1 Strain. Then 1 adjacent Tile with 0 Strain: +1 Strain.",
-      "season3": "Choose 1 Overstrained Tile; 2 adjacent Tiles with 0 Strain: +1 Strain each. If none, use Season II."
+      "season3": "Choose 1 Overstrained Tile. 2 adjacent Tiles with 0 Strain: +1 Strain each. If none, use Season II."
     },
     "resolutions": {
       "season1": "Spend 1 Action, pay 2 Goods, discard.",
@@ -708,7 +750,7 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
   },
   "burden_the_rot_within_the_vault": {
     "name": "Rot in the Vault",
-    "flavorText": "The vault opened cleanly, but damp had worked there for centuries. Pages clung together like old wounds, and ink bled where hope had been stored. Care may save some of it; haste will ruin the rest.",
+    "flavorText": "The vault opened cleanly, but damp had worked there for centuries. Pages clung together like old wounds, and ink bled where hope had been stored. Care may save some of it. Haste will ruin the rest.",
     "effects": {
       "season1": "Choose 1 Salvage Tile: +1 Strain.",
       "season2": "Choose 1 Salvage Tile: +2 Strain.",
@@ -724,9 +766,9 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
     "name": "Storehouses Disagree",
     "flavorText": "Ledgers that once seemed clear no longer agree. Barrels are marked twice, crates move without notation, and every keeper swears their count is true. Numbers can quarrel like neighbours.",
     "effects": {
-      "season1": "Choose Wood, Stone or Food. If 2+ stored, lose 2; otherwise, 1 Resource Tile: +1 Strain.",
-      "season2": "Choose a non-Goods resource. If 3+ stored, lose 3; otherwise, 1 Resource Tile: +2 Strain.",
-      "season3": "Choose a non-Goods resource. If 5+ stored, lose 5; otherwise, 2 Resource Tiles: +2 Strain each."
+      "season1": "Choose Wood, Stone or Food. If 2+ stored, lose 2. Otherwise, 1 Resource Tile: +1 Strain.",
+      "season2": "Choose a non-Goods resource. If 3+ stored, lose 3. Otherwise, 1 Resource Tile: +2 Strain.",
+      "season3": "Choose a non-Goods resource. If 5+ stored, lose 5. Otherwise, 2 Resource Tiles: +2 Strain each."
     },
     "resolutions": {
       "season1": "Spend 1 Action, pay 2 Goods, discard.",
@@ -739,8 +781,8 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
     "flavorText": "Kind words fade when action can no longer follow. Provisions are scarce, and hands now pause at once-welcoming doors. Shame gathers on both sides of the threshold.",
     "effects": {
       "season1": "Choose 1 active Arrival, if any: pay 1 Herbs or remove 1 timer. If none, no effect.",
-      "season2": "Choose up to 2 active Arrivals; each: pay 1 Herbs or remove 1 timer. If none, no effect.",
-      "season3": "Up to 3 active Arrivals; each: pay 1 Herbs or remove 1 timer. If none, 2 Tiles: +1 Strain each."
+      "season2": "Choose up to 2 active Arrivals. Each: pay 1 Herbs or remove 1 timer. If none, no effect.",
+      "season3": "Up to 3 active Arrivals. Each: pay 1 Herbs or remove 1 timer. If none, 2 Tiles: +1 Strain each."
     },
     "resolutions": {
       "season1": "Spend 1 Action, pay 2 Herbs, discard.",
@@ -753,8 +795,8 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
     "flavorText": "New houses rise quickly, but walls alone are not enough. I counted roofs fit for shelter, yet too few warm meals, blankets, and outstretched hands to make those roofs feel like home.",
     "effects": {
       "season1": "Choose 1 Housing Tile: pay 1 Food or 1 Goods, or +1 Strain.",
-      "season2": "Choose 2 Housing Tiles; each: pay 1 Food or 1 Goods, or +1 Strain.",
-      "season3": "Choose 3 Housing Tiles; each: pay 1 Food or 1 Goods, or +1 Strain."
+      "season2": "Choose 2 Housing Tiles. Each: pay 1 Food or 1 Goods, or +1 Strain.",
+      "season3": "Choose 3 Housing Tiles. Each: pay 1 Food or 1 Goods, or +1 Strain."
     },
     "resolutions": {
       "season1": "Spend 1 Action, pay 2 Food/Goods, discard.",
@@ -789,13 +831,55 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
       "season2": "Spend 1 Action, pay 4 Metal, discard.",
       "season3": "Spend 1 Action, pay 6 Metal, discard."
     }
+  },
+  "burden_river_breaks_its_banks": {
+    "name": "River Breaks Its Banks",
+    "flavorText": "Rain swelled the river through the night. By dawn, ropes had snapped, cellars filled, and tree roots lay exposed where the bank had collapsed into the current.",
+    "effects": {
+      "season1": "Choose 1 Tile beside Water/River: +1 Strain. If none, lose 1 Wood.",
+      "season2": "Choose 2 Tiles beside Water/River: +1 Strain each. If none, lose 2 Wood.",
+      "season3": "Choose 3 Tiles beside Water/River: +1 Strain each. If none, lose 3 Wood."
+    },
+    "resolutions": {
+      "season1": "Spend 1 Action, pay 2 Wood, discard.",
+      "season2": "Spend 1 Action, pay 4 Wood, discard.",
+      "season3": "Spend 1 Action, pay 6 Wood, discard."
+    }
+  },
+  "burden_the_road_takes_its_share": {
+    "name": "The Road Takes Its Share",
+    "flavorText": "Sacks split, barrels leaked, and poorly fastened loads worked loose. By dusk, every cart returned lighter, though the labour had taken just as long.",
+    "effects": {
+      "season1": "Next Resource Tile Production this round: −2 resources.",
+      "season2": "Next 2 Resource Tile Productions this round: −2 resources each.",
+      "season3": "Each Resource Tile Production this round: −2 resources."
+    },
+    "resolutions": {
+      "season1": "Spend 1 Action, pay 2 Goods, discard.",
+      "season2": "Spend 1 Action, pay 4 Goods, discard.",
+      "season3": "Spend 1 Action, pay 6 Goods, discard."
+    }
+  },
+  "burden_plans_left_waiting": {
+    "name": "Plans Left Waiting",
+    "flavorText": "Every beam called for yet another brace, every footing needed another cart of stone. Dusk came as the work was finally finished, draining stores and resolve alike.",
+    "effects": {
+      "season1": "Next Tile placed/upgraded this round costs 2 more resources.",
+      "season2": "Next 2 Tiles placed/upgraded this round cost 2 more resources each.",
+      "season3": "Each Tile placed/upgraded this round costs 2 more resources."
+    },
+    "resolutions": {
+      "season1": "Spend 1 Action, pay 2 Food, discard.",
+      "season2": "Spend 1 Action, pay 4 Food, discard.",
+      "season3": "Spend 1 Action, pay 6 Food, discard."
+    }
   }
 };
 
 export const canonicalArrivalText: Record<string, CanonicalArrivalText> = {
   "arrival_acorns_and_oak_trees": {
     "name": "Acorns & Oak Trees",
-    "flavorText": "The smallest hands brought acorns; the oldest brought names of groves burned before those children were born. I wrote them together in the ledger. Renewal begins when memory is entrusted to those who will outlive us.",
+    "flavorText": "The smallest hands brought acorns. The oldest brought names of groves burned before those children were born. I wrote them together in the ledger. Renewal begins when memory is entrusted to those who will outlive us.",
     "requirementText": "Pay 2 Herbs, 2 Stone, and 2 Goods.",
     "rewardText": "Unlock Shrine of Renewal."
   },
@@ -813,7 +897,7 @@ export const canonicalArrivalText: Record<string, CanonicalArrivalText> = {
   },
   "arrival_from_blade_swingers_to_herb_stringers": {
     "name": "Blade to Herb",
-    "flavorText": "They asked for herb beds, drying racks, clean water, and clear instruction. Whether preparing tinctures or trimming roots, their discipline was unmistakable. Peace had not softened their hands; it had given them gentler work.",
+    "flavorText": "They asked for herb beds, drying racks, clean water, and clear instruction. Whether preparing tinctures or trimming roots, their discipline was unmistakable. Peace had not softened their hands. It had given them gentler work.",
     "requirementText": "Pay 2 Wood, 2 Metal, and 2 Food.",
     "rewardText": "Unlock The Root Weavers Respite."
   },
@@ -910,7 +994,7 @@ export const canonicalArrivalText: Record<string, CanonicalArrivalText> = {
   "arrival_the_burden_bearers": {
     "name": "Burden-Bearers",
     "flavorText": "The burden-bearers of the last years asked for a space where grief and exhaustion could be set down. I recorded the request exactly. Even the naming of it seemed to steady the room.",
-    "requirementText": "Have a Housing Tile; pay 2 Herbs, 2 Stone and 2 Metal.",
+    "requirementText": "Have a Housing Tile. Pay 2 Herbs, 2 Stone and 2 Metal.",
     "rewardText": "Unlock The Resting Hall."
   },
   "arrival_the_dryads": {
@@ -921,7 +1005,7 @@ export const canonicalArrivalText: Record<string, CanonicalArrivalText> = {
   },
   "arrival_the_hearthbound_circle": {
     "name": "Hearthbound Circle",
-    "flavorText": "They arrived carrying seeds, recipes, and iron cooking pots blackened by years of use. They promised no miracles, only that hardship need not be faced alone. Community makes strong roots; strong roots make resilience.",
+    "flavorText": "They arrived carrying seeds, recipes, and iron cooking pots blackened by years of use. They promised no miracles, only that hardship need not be faced alone. Community makes strong roots. Strong roots make resilience.",
     "requirementText": "Pay 4 Herbs and 4 Food.",
     "rewardText": "Unlock Hearth Garden."
   },
@@ -939,7 +1023,7 @@ export const canonicalArrivalText: Record<string, CanonicalArrivalText> = {
   },
   "arrival_what_came_before_the_last_age": {
     "name": "Before the Last Age",
-    "flavorText": "Beneath the broken stones, the old world still sleeps. Its intricate tools remember hands that once cultivated knowledge with great care. Not all that came before us was lost; some of it was waiting to be found.",
+    "flavorText": "Beneath the broken stones, the old world still sleeps. Its intricate tools remember hands that once cultivated knowledge with great care. Not all that came before us was lost. Some of it was waiting to be found.",
     "requirementText": "Pay 2 Stone, 2 Metal, and 2 Goods.",
     "rewardText": "Unlock Shrine of Ancestors."
   }
@@ -949,7 +1033,7 @@ export const canonicalGoldenBoonText: Record<string, CanonicalGoldenBoonText> = 
   "golden_boon_the_golden_bell": {
     "name": "The Golden Bell",
     "flavorText": "We found the bell beneath root and rubble, warm beneath the hand despite its long burial. When it rang across the Vale, even abandoned roads seemed to listen. Days later, strangers arrived by ways we thought forgotten.",
-    "effectText": "When revealed, choose 3 unused Arrival Cards from the box. Shuffle and reveal 1; place it on the Stewards Board as an active Arrival with 3 timer tokens. Return the other 2 to the box.",
+    "effectText": "When revealed, choose 3 unused Arrival Cards from the box. Shuffle and reveal 1. Place it on the Stewards Board as an active Arrival with 3 timer tokens. Return the other 2 to the box.",
     "lifecycle": "Resolve, then discard."
   },
   "golden_boon_the_golden_scroll": {

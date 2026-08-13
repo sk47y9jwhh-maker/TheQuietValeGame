@@ -130,11 +130,15 @@ export interface ModifierRule {
   coreOnly?: boolean;
   uses: number;
   duration?: "once" | "round";
+  immediateResources?: Partial<Record<ResourceType, number>>;
   productionGain?: {
     fixed?: Partial<Record<ResourceType, number>>;
     choice?: { resources: ResourceType[]; amount: number };
   };
   refreshPassiveUse?: boolean;
+  preventsOverstrainSpread?: boolean;
+  productionLoss?: number;
+  extraCost?: number;
   supportActionTile?: boolean;
   postActionRuleId?: string;
   postActionRequiresAdjacentCategories?: TileCategory[];
@@ -156,6 +160,11 @@ export interface EffectRule {
   exchangeOptional?: boolean;
   exchangeGoodsMode?: boolean;
   resolveBurden?: { maxTargets: number };
+  stewardMove?: {
+    allowOverstrainedDestination?: boolean;
+    supportDestination?: boolean;
+    strainRelief?: number;
+  };
   deckReorder?: {
     count: number | "all";
     mode?: "reorder" | "moveOneToBottom";

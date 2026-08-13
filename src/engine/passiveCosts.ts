@@ -299,7 +299,9 @@ export function applyCostChoice(
 ): ResourceCost {
   let next = { ...baseCost };
 
-  for (const option of getEffectiveSelectedOptions(options, selection)) {
+  const selectedOptions = getEffectiveSelectedOptions(options, selection);
+  for (const option of selectedOptions) {
+    if (option.kind === "surcharge") continue;
 
     if (option.kind === "zero") {
       next = emptyCost();
@@ -334,6 +336,17 @@ export function applyCostChoice(
         ...next,
         [from]: next[from] - 1,
         [to]: next[to] + 1
+      };
+    }
+  }
+
+  for (const option of selectedOptions) {
+    if (option.kind !== "surcharge") continue;
+    const selectedResource = selection.surchargeResourceByOptionId?.[option.id];
+    if (selectedResource && option.resourceChoices?.includes(selectedResource)) {
+      next = {
+        ...next,
+        [selectedResource]: next[selectedResource] + (option.amount ?? 0)
       };
     }
   }
@@ -400,6 +413,21 @@ export function findAffordableCostSelection(
       return null;
     }
 
+    if (option.kind === "surcharge" && option.resourceChoices?.length) {
+      for (const resource of option.resourceChoices) {
+        const found = search(index + 1, {
+          ...selection,
+          selectedOptionIds,
+          surchargeResourceByOptionId: {
+            ...selection.surchargeResourceByOptionId,
+            [option.id]: resource
+          }
+        });
+        if (found) return found;
+      }
+      return null;
+    }
+
     return search(index + 1, { ...selection, selectedOptionIds });
   };
 
@@ -436,6 +464,12 @@ export function validateCostChoiceSelection(
 
     if (option.kind === "discount" && option.resourceChoices?.length) {
       const resource = selection.discountResourceByOptionId?.[option.id];
+      if (!resource || !option.resourceChoices.includes(resource)) return false;
+    }
+
+
+    if (option.kind === "surcharge" && option.resourceChoices?.length) {
+      const resource = selection.surchargeResourceByOptionId?.[option.id];
       if (!resource || !option.resourceChoices.includes(resource)) return false;
     }
   }

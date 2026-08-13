@@ -235,12 +235,13 @@ function queueOverstrainSpreadEffects(
     .filter((tile): tile is PlacedTile => Boolean(tile))
     .sort(comparePlacedTilesByMapCoordinate);
   const spreadEffects: PendingEffectState[] = [];
+  let nextState = state;
 
   for (const sourceTile of sourceTiles) {
     if (
       sourceTile.strain < 3 ||
       getValidEffectStrainTargets(
-        state,
+        nextState,
         overstrainSpreadRuleId,
         sourceTile
       ).length === 0
@@ -248,9 +249,36 @@ function queueOverstrainSpreadEffects(
       continue;
     }
 
+    const protection = nextState.boonModifiers.find(
+      (modifier) =>
+        modifier.preventsOverstrainSpread &&
+        modifier.actions.includes("overstrain")
+    );
+    if (protection) {
+      nextState = {
+        ...nextState,
+        boonModifiers: nextState.boonModifiers.flatMap((modifier) => {
+          if (modifier.id !== protection.id || modifier.expiresAfterRound !== undefined) {
+            return [modifier];
+          }
+          const remainingUses = modifier.remainingUses - 1;
+          return remainingUses > 0 ? [{ ...modifier, remainingUses }] : [];
+        }),
+        log: [
+          {
+            id: `log_${nextState.log.length + 1}_${Date.now()}`,
+            round: nextState.round,
+            message: `The Break Holds prevented ${getPlacedTileName(sourceTile)} from spreading Strain.`
+          },
+          ...nextState.log
+        ].slice(0, 80)
+      };
+      continue;
+    }
+
     const sourceName = getPlacedTileName(sourceTile);
     spreadEffects.push({
-      id: `effect_${state.pendingEffects.length + state.log.length + spreadEffects.length + 1}_${Date.now()}`,
+      id: `effect_${nextState.pendingEffects.length + nextState.log.length + spreadEffects.length + 1}_${Date.now()}`,
       sourceType: "tile",
       ruleId: overstrainSpreadRuleId,
       sourceId: sourceTile.instanceId,
@@ -266,19 +294,19 @@ function queueOverstrainSpreadEffects(
     });
   }
 
-  if (spreadEffects.length === 0) return state;
-  const firstNonSpreadIndex = state.pendingEffects.findIndex(
+  if (spreadEffects.length === 0) return nextState;
+  const firstNonSpreadIndex = nextState.pendingEffects.findIndex(
     (effect) => effect.ruleId !== overstrainSpreadRuleId
   );
   const insertionIndex = firstNonSpreadIndex < 0
-    ? state.pendingEffects.length
+    ? nextState.pendingEffects.length
     : firstNonSpreadIndex;
   return preparePendingEffectQueueHead({
-    ...state,
+    ...nextState,
     pendingEffects: [
-      ...state.pendingEffects.slice(0, insertionIndex),
+      ...nextState.pendingEffects.slice(0, insertionIndex),
       ...spreadEffects,
-      ...state.pendingEffects.slice(insertionIndex)
+      ...nextState.pendingEffects.slice(insertionIndex)
     ]
   });
 }
@@ -487,7 +515,11 @@ function activeRule(
   const rule = getEffectRule(ruleId);
   const primaryTarget = rule.strainCascade?.anchorTarget ?? rule.target;
   const hasTileTargets = !primaryTarget || targetsForDefinition(state, primaryTarget, sourceTile).length > 0;
-  return getActiveEffectRule(rule, hasTileTargets, state.encounters.activeArrivals.length > 0);
+  return getActiveEffectRule(
+    rule,
+    hasTileTargets,
+    state.encounters.activeArrivals.length > 0
+  );
 }
 
 export function getEffectTileTargets(
@@ -568,6 +600,31 @@ export function getEffectSupportTargets(
     targets = targetsForDefinition(state, rule.supportTarget ?? rule.target, sourceTile);
   }
   return targets.filter((tile) => !tile.support.passive && !tile.support.singleUse);
+}
+
+export function getStewardMoveTargets(
+  state: GameState,
+  ruleId: string | undefined,
+  playerId: string
+): PlacedTile[] {
+  const rule = activeRule(state, ruleId);
+  if (!rule.stewardMove) return [];
+  const player = state.players.find((candidate) => candidate.id === playerId);
+  if (!player) return [];
+  const currentTile = state.map.placedTiles.find((tile) =>
+    tile.hexIds.includes(player.stewardHexId)
+  );
+  const otherStewardHexIds = new Set(
+    state.players
+      .filter((candidate) => candidate.id !== playerId)
+      .map((candidate) => candidate.stewardHexId)
+  );
+  return state.map.placedTiles.filter(
+    (tile) =>
+      (rule.stewardMove?.allowOverstrainedDestination || tile.strain < 3) &&
+      tile.instanceId !== currentTile?.instanceId &&
+      !tile.hexIds.some((hexId) => otherStewardHexIds.has(hexId))
+  );
 }
 
 export type { TileAdjustmentRule, TimerAdjustmentRule } from "./effectRuleTypes";
@@ -1080,6 +1137,12 @@ export function effectHasNoValidChoiceTargets(
   const resourceGain = getResourceGainChoiceRule(state, ruleId, sourceTile);
   if (resourceGain && resourceGain.amount > 0 && !resourceGain.alternativeToStrainRemoval) return false;
   if (rule.resolveBurden && state.encounters.activeBurdens.length === 0) return true;
+  if (
+    rule.stewardMove &&
+    !state.players.some(
+      (player) => getStewardMoveTargets(state, ruleId, player.id).length > 0
+    )
+  ) return true;
   if (rule.strainCascade &&
       getStrainCascadeAnchorTargets(state, ruleId, sourceTile).length === 0 &&
       !rule.fixedResources && !rule.resourceGainChoice) return true;
@@ -1279,6 +1342,7 @@ function targetCardEffectStillNeedsPlayerDecision(rule: EffectRule): boolean {
     rule.resourceGainChoice ||
     rule.exchangeLimit !== undefined ||
     rule.resolveBurden ||
+    rule.stewardMove ||
     rule.tileAdjustment?.support
   );
 }
@@ -1822,6 +1886,30 @@ function finalizeTargetCardDiagnostics(
   return finalized;
 }
 
+function isStewardMoveAdjustmentValid(
+  state: GameState,
+  pendingEffect: PendingEffectState,
+  adjustment: EffectAdjustment
+): boolean {
+  const updates = Object.entries(adjustment.stewardHexUpdates ?? {}).filter(
+    ([, hexId]) => Boolean(hexId)
+  );
+  const rule = activeRule(
+    state,
+    pendingEffect.ruleId,
+    getPendingEffectSourceTile(state, pendingEffect)
+  );
+  if (!rule.stewardMove) return updates.length === 0;
+  const playerId = pendingEffect.allowStewardMovementPlayerId;
+  if (!playerId || updates.length !== 1 || updates[0][0] !== playerId) {
+    return false;
+  }
+  const destinationHexId = updates[0][1];
+  return getStewardMoveTargets(state, pendingEffect.ruleId, playerId).some(
+    (tile) => tile.hexIds.includes(destinationHexId)
+  );
+}
+
 /**
  * Checks the structured parts of a pending-effect adjustment against the
  * current state. This deliberately does not enforce the UI's "make a choice"
@@ -1838,6 +1926,9 @@ export function isPendingEffectAdjustmentValid(
     canResolvePendingEffectWithoutAdjustment(state, pendingEffect)
   ) return true;
   const sourceTile = getPendingEffectSourceTile(state, pendingEffect);
+  if (
+    !isStewardMoveAdjustmentValid(state, pendingEffect, adjustment)
+  ) return false;
   if (
     !isTimerAdjustmentValid(
       state,
@@ -2060,6 +2151,7 @@ export function resolvePendingEffect(
     pendingEffect.ruleId,
     sourceTile
   );
+  const activeEffectRule = activeRule(state, pendingEffect.ruleId, sourceTile);
 
   let nextState: GameState = {
     ...state,
@@ -2227,6 +2319,48 @@ export function resolvePendingEffect(
           effectiveAdjustment.stewardHexUpdates?.[player.id] ?? player.stewardHexId
       }))
     };
+
+    if (activeEffectRule.stewardMove) {
+      const [playerId, destinationHexId] = Object.entries(
+        effectiveAdjustment.stewardHexUpdates
+      )[0] ?? [];
+      const destinationTile = destinationHexId
+        ? nextState.map.placedTiles.find((tile) =>
+            tile.hexIds.includes(destinationHexId)
+          )
+        : undefined;
+      if (playerId && destinationTile) {
+        nextState = {
+          ...nextState,
+          map: {
+            placedTiles: nextState.map.placedTiles.map((tile) => {
+              if (tile.instanceId !== destinationTile.instanceId) return tile;
+              const relieved = activeEffectRule.stewardMove?.strainRelief
+                ? removeStrainFromTile(
+                    tile,
+                    activeEffectRule.stewardMove.strainRelief
+                  )
+                : tile;
+              if (!activeEffectRule.stewardMove?.supportDestination) {
+                return relieved;
+              }
+              return {
+                ...relieved,
+                support: {
+                  ...relieved.support,
+                  singleUse:
+                    relieved.support.passive || relieved.support.singleUse
+                      ? relieved.support.singleUse
+                      : true,
+                  preventedThisRound: relieved.support.preventedThisRound
+                }
+              };
+            })
+          }
+        };
+        nextState = recalculatePassiveSupported(nextState);
+      }
+    }
   }
 
   if (effectiveAdjustment.temporaryReachHexUpdates) {

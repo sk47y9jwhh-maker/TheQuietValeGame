@@ -130,7 +130,7 @@ describe("action console", () => {
     renderActionConsole({ state, actionMode: "activate" });
 
     expect(
-      screen.getAllByText("Linked group already produced this round; chosen tile only")
+      screen.getAllByText("Linked group already produced this round. Chosen tile only")
     ).toHaveLength(2);
     expect(screen.queryByText(/Also activates/)).not.toBeInTheDocument();
   });

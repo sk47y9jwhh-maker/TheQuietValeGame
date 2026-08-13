@@ -99,8 +99,8 @@ function stateWith(tiles: PlacedTile[] = []): GameState {
 
 describe("formerly physical-only Encounter Cards", () => {
   it("registers all 22 cards and every seasonal effect rule", () => {
-    expect(boons).toHaveLength(27);
-    expect(burdens).toHaveLength(27);
+    expect(boons).toHaveLength(30);
+    expect(burdens).toHaveLength(30);
 
     for (const cardId of [...physicalBoonIds, ...physicalBurdenIds]) {
       const card = [...boons, ...burdens].find((candidate) => candidate.id === cardId);

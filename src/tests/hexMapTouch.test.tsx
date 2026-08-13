@@ -54,7 +54,7 @@ describe("hex map touch controls", () => {
     );
 
     const credit = screen.getByText(
-      /Map artwork by Giovanni Spadaro & Daniele Nicotra/
+      /Map artwork by Giovanni Spadaro and Daniele Nicotra/
     );
     expect(credit).toHaveTextContent(
       "Map image and site © 2026 Robert@thequietvalegame.com"

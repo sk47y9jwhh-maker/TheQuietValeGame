@@ -160,4 +160,68 @@ describe("cost choice panel", () => {
       discountResourceByOptionId: {}
     });
   });
+
+  it("selects the two required additional resources for a Burden surcharge", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.warehouse = { ...state.warehouse, wood: 2 };
+    const options: PendingCostChoiceState["options"] = [1, 2].map((index) => ({
+      id: `burden:plans:${index}`,
+      sourceTileId: "plans",
+      sourceKind: "boon" as const,
+      sourceName: `Plans Left Waiting (${index}/2)`,
+      effectText: "This placement costs 2 more resources.",
+      kind: "surcharge" as const,
+      cadence: "round" as const,
+      amount: 1,
+      resourceChoices: ["wood", "stone"] as const,
+      required: true
+    }));
+    const pending: PendingCostChoiceState = {
+      id: "cost_plans",
+      title: "Place Lumber Yard",
+      action: {
+        type: "place",
+        playerId: state.currentPlayerId,
+        tileId: "c01_lumber_yard",
+        placementDraft: { anchorHexId: "G1" }
+      },
+      baseCost: {
+        wood: 0,
+        stone: 0,
+        metal: 0,
+        food: 0,
+        herbs: 0,
+        goods: 0
+      },
+      actionCost: 1,
+      boonModifierIds: ["plans"],
+      options
+    };
+    const onConfirm = vi.fn();
+
+    render(
+      <CostChoicePanel
+        state={state}
+        pending={pending}
+        onConfirm={onConfirm}
+        onCancel={() => {}}
+      />
+    );
+
+    expect(screen.getAllByLabelText("Additional resource")).toHaveLength(2);
+    expect(screen.getByText("Adjusted Cost").closest(".cost-line"))
+      .toHaveTextContent("2 Wood");
+
+    fireEvent.click(screen.getByRole("button", { name: "Confirm Payment" }));
+
+    expect(onConfirm).toHaveBeenCalledWith({
+      selectedOptionIds: ["burden:plans:1", "burden:plans:2"],
+      marketResourceByOptionId: {},
+      discountResourceByOptionId: {},
+      surchargeResourceByOptionId: {
+        "burden:plans:1": "wood",
+        "burden:plans:2": "wood"
+      }
+    });
+  });
 });

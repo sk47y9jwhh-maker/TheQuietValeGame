@@ -481,6 +481,57 @@ seasonal("boon_what_is_written_in_the_stars_can_finally_be_heeded", [
   { deckReorder: { count: "all" }, optional: true }
 ]);
 
+seasonal("boon_change_of_watch", [
+  { stewardMove: { supportDestination: true }, manualChoice: true },
+  {
+    stewardMove: { supportDestination: true, strainRelief: 1 },
+    manualChoice: true
+  },
+  {
+    stewardMove: {
+      allowOverstrainedDestination: true,
+      supportDestination: true,
+      strainRelief: 2
+    },
+    manualChoice: true
+  }
+]);
+
+seasonal("boon_the_break_holds", [1, 2, 3].map((season) => ({
+  modifier: {
+    actions: ["overstrain"],
+    uses: season === 2 ? 2 : 1,
+    duration: season === 3 ? "round" : undefined,
+    immediateResources: { wood: 4 - season },
+    preventsOverstrainSpread: true
+  }
+})));
+
+seasonal("boon_answers_made_ready", [
+  {
+    modifier: {
+      actions: ["arrival", "burden"],
+      zeroAction: true,
+      uses: 1
+    }
+  },
+  {
+    modifier: {
+      actions: ["arrival", "burden"],
+      zeroAction: true,
+      uses: 2
+    }
+  },
+  {
+    modifier: {
+      actions: ["arrival", "burden"],
+      amount: 2,
+      zeroAction: true,
+      uses: 2
+    }
+  }
+]);
+
 const burden = (id: string, definitions: Array<Omit<EffectRule, "id">>) => seasonal(id, definitions.map((definition) => ({ manualChoice: true, ...definition })));
 const placed = (categories?: TileTargetRule["categories"], extra: TileTargetRule = {}): TileTargetRule => ({ categories, strain: "below3", ...extra });
 
@@ -810,6 +861,58 @@ burden("burden_too_many_houses_too_little_homes", [1, 2, 3].map((count) => ({
     strainPerChoice: 1
   }
 })));
+
+burden("burden_river_breaks_its_banks", [1, 2, 3].map((count) => ({
+  target: placed(undefined, { adjacentToTerrain: ["water"] }),
+  tileAdjustment: requiredStrain("place", count, 1, count),
+  fallback: {
+    when: "noTileTarget",
+    rule: {
+      id: `burden_river_breaks_its_banks:s${count}:fallback`,
+      fixedResources: { wood: -count }
+    }
+  }
+})));
+
+burden("burden_the_road_takes_its_share", [
+  {
+    modifier: { actions: ["production"], uses: 1, productionLoss: 2 },
+    manualChoice: false
+  },
+  {
+    modifier: { actions: ["production"], uses: 2, productionLoss: 2 },
+    manualChoice: false
+  },
+  {
+    modifier: {
+      actions: ["production"],
+      uses: 1,
+      duration: "round",
+      productionLoss: 2
+    },
+    manualChoice: false
+  }
+]);
+
+burden("burden_plans_left_waiting", [
+  {
+    modifier: { actions: ["place", "upgrade"], uses: 1, extraCost: 2 },
+    manualChoice: false
+  },
+  {
+    modifier: { actions: ["place", "upgrade"], uses: 2, extraCost: 2 },
+    manualChoice: false
+  },
+  {
+    modifier: {
+      actions: ["place", "upgrade"],
+      uses: 1,
+      duration: "round",
+      extraCost: 2
+    },
+    manualChoice: false
+  }
+]);
 
 for (const [id, resource] of Object.entries(burdenResolutionResources)) {
   add({ id: `${id}:resolution`, fixedResources: { [resource]: -2 } });

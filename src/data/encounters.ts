@@ -215,7 +215,7 @@ export const boons: BoonData[] = [
       "For each Farmstead / Artisan Farm Production this round, gain +2 Food or Goods."
     ),
     lifecycle:
-      "Keep face-up until its listed uses are spent; Season III lasts through the current round. Otherwise discard at Season end."
+      "Keep face-up until its listed uses are spent. Season III lasts through the current round. Otherwise discard at Season end."
   },
   {
     id: "boon_carts_before_sunrise",
@@ -271,7 +271,7 @@ export const boons: BoonData[] = [
       "For each Mine Tunnel / Mine Shaft Production this round, gain +2 Stone or Metal."
     ),
     lifecycle:
-      "Keep face-up until its listed uses are spent; Season III lasts through the current round. Otherwise discard at Season end."
+      "Keep face-up until its listed uses are spent. Season III lasts through the current round. Otherwise discard at Season end."
   },
   {
     id: "boon_the_ancient_ways_gradually_reemerge",
@@ -283,7 +283,7 @@ export const boons: BoonData[] = [
       "For each Lumber Yard / Sustainable Lumber Yard Production this round, gain +2 Wood or Food."
     ),
     lifecycle:
-      "Keep face-up until its listed uses are spent; Season III lasts through the current round. Otherwise discard at Season end."
+      "Keep face-up until its listed uses are spent. Season III lasts through the current round. Otherwise discard at Season end."
   },
   {
     id: "boon_the_rains_that_we_sheltered_from_now_yield_the_bounty_of_nature",
@@ -295,7 +295,7 @@ export const boons: BoonData[] = [
       "For each Gathering Outpost / Gathering Lodge Production this round, gain +2 Herbs or Food."
     ),
     lifecycle:
-      "Keep face-up until its listed uses are spent; Season III lasts through the current round. Otherwise discard at Season end."
+      "Keep face-up until its listed uses are spent. Season III lasts through the current round. Otherwise discard at Season end."
   },
   {
     id: "boon_the_scent_of_herb_and_tonic",
@@ -318,6 +318,39 @@ export const boons: BoonData[] = [
       "Look at the remaining Encounter Deck. Return the cards in any order."
     ),
     lifecycle: "Resolve, then discard."
+  },
+  {
+    id: "boon_change_of_watch",
+    type: "boon",
+    name: "Change of Watch",
+    effects: season(
+      "Move your Steward to another non-Overstrained Tile. It gains Supported.",
+      "Move your Steward to another non-Overstrained Tile. It gains Supported. Remove 1 Strain from it.",
+      "Move your Steward to another Tile. Remove up to 2 Strain from it. It gains Supported."
+    ),
+    lifecycle: "Keep until used or Season end."
+  },
+  {
+    id: "boon_the_break_holds",
+    type: "boon",
+    name: "The Break Holds",
+    effects: season(
+      "Gain 3 Wood. Next Tile that becomes Overstrained does not spread Strain.",
+      "Gain 2 Wood. Next 2 Tiles that become Overstrained do not spread Strain.",
+      "Gain 1 Wood. Tiles that become Overstrained this round do not spread Strain."
+    ),
+    lifecycle: "Keep until used or Season end."
+  },
+  {
+    id: "boon_answers_made_ready",
+    type: "boon",
+    name: "Answers Made Ready",
+    effects: season(
+      "Next Arrival completion or Burden resolution costs 0 Actions.",
+      "Next 2 Arrival completions and/or Burden resolutions cost 0 Actions each.",
+      "Next 2 Arrival completions and/or Burden resolutions cost 0 Actions and 2 fewer resources each."
+    ),
+    lifecycle: "Keep until used or Season end."
   }
 ];
 
@@ -619,6 +652,39 @@ export const burdens: BurdenData[] = [
     ),
     resolutionText:
       "Spend 1 Action and pay 2/4/6 Food and/or Goods by Season. Then discard."
+  },
+  {
+    id: "burden_river_breaks_its_banks",
+    type: "burden",
+    name: "River Breaks Its Banks",
+    effects: season(
+      "Choose 1 Tile beside Water/River: +1 Strain. If none, lose 1 Wood.",
+      "Choose 2 Tiles beside Water/River: +1 Strain each. If none, lose 2 Wood.",
+      "Choose 3 Tiles beside Water/River: +1 Strain each. If none, lose 3 Wood."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Wood by Season. Then discard."
+  },
+  {
+    id: "burden_the_road_takes_its_share",
+    type: "burden",
+    name: "The Road Takes Its Share",
+    effects: season(
+      "Next Resource Tile Production this round: −2 resources.",
+      "Next 2 Resource Tile Productions this round: −2 resources each.",
+      "Each Resource Tile Production this round: −2 resources."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+  },
+  {
+    id: "burden_plans_left_waiting",
+    type: "burden",
+    name: "Plans Left Waiting",
+    effects: season(
+      "Next Tile placed/upgraded this round costs 2 more resources.",
+      "Next 2 Tiles placed/upgraded this round cost 2 more resources each.",
+      "Each Tile placed/upgraded this round costs 2 more resources."
+    ),
+    resolutionText: "Spend 1 Action and pay 2/4/6 Food by Season. Then discard."
   }
 ];
 
@@ -827,7 +893,7 @@ export const goldenBoons: GoldenBoonData[] = [
     name: "The Golden Vial",
     enabledInOnlinePrototype: true,
     unlockAt: 18,
-    lifecycle: "Keep face-up for the rest of the game; reveal a replacement Encounter Card.",
+    lifecycle: "Keep face-up for the rest of the game. Reveal a replacement Encounter Card.",
     effectText:
       "When revealed, keep this card face-up near the Stewards Board. For the rest of the game, once per round, the group may place 1 Path Tile without spending an Action. Pay its cost and follow normal placement rules. If no Path Tiles remain, this effect cannot be used."
   },
@@ -873,7 +939,7 @@ const encounterFlavorById: Record<string, string> = {
   boon_the_apprentice_steward:
     "The apprentice asked more questions than I had answers for. Three ledgers, two errands, and a day of close observation later, their sharp eyes had found gaps I had missed. Eager hands can widen the settlement's reach without fanfare.",
   boon_shelter_holds:
-    "After the storm, I inspected the shelters and found the old repairs still holding. Beams strained but did not fail; walls shuddered but stayed true. Care given early had kept fear from becoming loss.",
+    "After the storm, I inspected the shelters and found the old repairs still holding. Beams strained but did not fail. Walls shuddered but stayed true. Care given early had kept fear from becoming loss.",
   boon_a_welcome_well_met:
     "Doors opened, and the arrivals answered with care of their own. A phrase repeated at the threshold, a gesture offered without demand, a cup placed before a question: these became customs before anyone named them.",
   boon_where_help_stands:
@@ -881,7 +947,7 @@ const encounterFlavorById: Record<string, string> = {
   boon_a_wonderful_find:
     "Beneath the fallen vaults we uncovered leather-bound pages, star charts, and intricate tools. Damp had marked them, but not claimed them. What endured there now guides harvest and craft, a quiet proof that patience can preserve more than stone.",
   boon_festival_of_trade:
-    "Lanterns lined the road while goods changed hands under careful eyes. There was laughter, but not carelessness; bargaining, but not greed. Small wonders passed from stall to stall, and by dusk the market felt like a promise the settlement could keep.",
+    "Lanterns lined the road while goods changed hands under careful eyes. There was laughter, but not carelessness. Bargaining, but not greed. Small wonders passed from stall to stall, and by dusk the market felt like a promise the settlement could keep.",
   boon_hearths_soften_feuds:
     "Fewer quarrels reached the board this week. Shared meals, mended fences, and small courtesies did more than any order could have done. Trust returned by degrees, carried in bowls of stew and quiet apologies.",
   boon_the_settlement_of_plenty:
@@ -959,17 +1025,17 @@ const encounterFlavorById: Record<string, string> = {
   burden_the_burden_of_command:
     "Those who guide the settlement carry its weight first, and not always well. Three decisions signed before breakfast had disappointed two households by noon. By nightfall, all of them still felt necessary.",
   burden_the_rot_within_the_vault:
-    "The vault opened cleanly, but damp had worked there for centuries. Pages clung together like old wounds, and ink bled where hope had been stored. Care may save some of it; haste will ruin the rest.",
+    "The vault opened cleanly, but damp had worked there for centuries. Pages clung together like old wounds, and ink bled where hope had been stored. Care may save some of it. Haste will ruin the rest.",
   burden_too_many_houses_too_little_homes:
     "New houses rise quickly, but walls alone are not enough. I counted roofs fit for shelter, yet too few warm meals, blankets, and outstretched hands to make those roofs feel like home.",
   arrival_acorns_and_oak_trees:
-    "The smallest hands brought acorns; the oldest brought names of groves burned before those children were born. I wrote them together in the ledger. Renewal begins when memory is entrusted to those who will outlive us.",
+    "The smallest hands brought acorns. The oldest brought names of groves burned before those children were born. I wrote them together in the ledger. Renewal begins when memory is entrusted to those who will outlive us.",
   arrival_blessed_harvest:
     "The caretakers buried offerings beneath the first seeds and left a share of every harvest for wandering spirits and hungry birds. Whether by blessing, patience, or simply better care, their fields rarely failed.",
   arrival_from_battle_to_cattle:
     "The beast-handler had once kept war mounts and worse. Now his evenings are spent tending lame oxen and brushing ageing draft horses. As I recorded the need for more feed, pasture, and fences, I felt the Vale changing for the better.",
   arrival_from_blade_swingers_to_herb_stringers:
-    "They asked for herb beds, drying racks, clean water, and clear instruction. Whether preparing tinctures or trimming roots, their discipline was unmistakable. Peace had not softened their hands; it had given them gentler work.",
+    "They asked for herb beds, drying racks, clean water, and clear instruction. Whether preparing tinctures or trimming roots, their discipline was unmistakable. Peace had not softened their hands. It had given them gentler work.",
   arrival_from_dark_decay_to_light_display:
     "The lorekeepers carried rescued pages in oilcloth, each bundle treated like a patient not yet safe. They asked for shelves, glass lamps, and dryness above all. Their urgency proved well founded.",
   arrival_from_plunderer_to_lumber:
@@ -1005,13 +1071,13 @@ const encounterFlavorById: Record<string, string> = {
   arrival_the_dryads:
     "They came with seeds wrapped in green thread and bark carvings reminiscent of relics. Their soft words seemed to sink into roots older than any kingdom. Where they walked, the wildlands grew calmer.",
   arrival_the_hearthbound_circle:
-    "They arrived carrying seeds, recipes, and iron cooking pots blackened by years of use. They promised no miracles, only that hardship need not be faced alone. Community makes strong roots; strong roots make resilience.",
+    "They arrived carrying seeds, recipes, and iron cooking pots blackened by years of use. They promised no miracles, only that hardship need not be faced alone. Community makes strong roots. Strong roots make resilience.",
   arrival_the_quiet_quest:
     "The adventurers were nothing like tavern stories. Their armour was mismatched, functional, and often repaired. Their first question was which roads ended in unanswered questions. I recorded them as a small company of useful trouble.",
   arrival_the_transmutation_traveler:
-    "A broad workbench arrived first, crowded with glass vessels that bubbled softly through the night. Their owner promised no miracles, only changes carefully persuaded from stubborn things. I recorded the work with caution; the impossible had become merely expensive.",
+    "A broad workbench arrived first, crowded with glass vessels that bubbled softly through the night. Their owner promised no miracles, only changes carefully persuaded from stubborn things. I recorded the work with caution. The impossible had become merely expensive.",
   arrival_what_came_before_the_last_age:
-    "Beneath the broken stones, the old world still sleeps. Its intricate tools remember hands that once cultivated knowledge with great care. Not all that came before us was lost; some of it was waiting to be found.",
+    "Beneath the broken stones, the old world still sleeps. Its intricate tools remember hands that once cultivated knowledge with great care. Not all that came before us was lost. Some of it was waiting to be found.",
   golden_boon_the_golden_bell:
     "We found the bell beneath root and rubble, warm beneath the hand despite its long burial. When it rang across the Vale, even abandoned roads seemed to listen. Days later, strangers arrived by ways we thought forgotten.",
   golden_boon_the_golden_scroll:

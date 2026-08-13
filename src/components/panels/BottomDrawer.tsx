@@ -482,7 +482,7 @@ export function BottomDrawer({
                     <div>
                       <p className="eyebrow">Golden Milestones</p>
                       <strong>{completedLedgerCount} completed entries</strong>
-                      <span>Each named entry counts once; additional player-count boxes are prestige records.</span>
+                      <span>Each named entry counts once. Additional player-count boxes are prestige records.</span>
                     </div>
                     <Trophy size={30} />
                   </section>

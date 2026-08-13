@@ -66,11 +66,15 @@ export function createBoonModifierFromCard(
     coreOnly: modifier.coreOnly,
     expiresAfterRound:
       modifier.duration === "round" ? state.round : undefined,
+    immediateResources: modifier.immediateResources,
     productionGain: modifier.productionGain,
     followUpRuleId: modifier.productionGain?.choice
       ? `${getCurrentSeasonCardEffectRuleId(state, cardId)}:production`
       : undefined,
     refreshPassiveUse: modifier.refreshPassiveUse,
+    preventsOverstrainSpread: modifier.preventsOverstrainSpread,
+    productionLoss: modifier.productionLoss,
+    extraCost: modifier.extraCost,
     supportActionTile: modifier.supportActionTile,
     postActionRuleId: modifier.postActionRuleId,
     postActionRequiresAdjacentCategories:
@@ -142,6 +146,40 @@ function selectCostModifierIds(
   return selected;
 }
 
+function getMatchingExtraCostModifiers(
+  state: GameState,
+  modifiers: ActiveBoonModifier[],
+  target: BoonModifierTarget
+): ActiveBoonModifier[] {
+  return modifiers.filter(
+    (modifier) =>
+      matchesModifier(state, modifier, target) &&
+      (modifier.extraCost ?? 0) > 0
+  );
+}
+
+function applyFlexibleCostIncrease(
+  cost: ResourceCost,
+  warehouse: GameState["warehouse"],
+  amount: number
+): ResourceCost {
+  const next = { ...cost };
+  let remaining = amount;
+  const byAvailableSurplus = [...resources].sort(
+    (a, b) =>
+      warehouse[b] - next[b] - (warehouse[a] - next[a])
+  );
+  for (const resource of byAvailableSurplus) {
+    if (remaining <= 0) break;
+    const affordable = Math.max(0, warehouse[resource] - next[resource]);
+    const increase = Math.min(affordable, remaining);
+    next[resource] += increase;
+    remaining -= increase;
+  }
+  if (remaining > 0) next[byAvailableSurplus[0]] += remaining;
+  return next;
+}
+
 export function getBoonActionPreview(
   state: GameState,
   target: BoonModifierTarget
@@ -149,6 +187,11 @@ export function getBoonActionPreview(
   const matchingModifiers = state.boonModifiers.filter((modifier) =>
     matchesModifier(state, modifier, target)
   );
+  const extraCostModifiers = getMatchingExtraCostModifiers(
+    state,
+    matchingModifiers,
+    target
+  ).slice(0, 1);
   const costModifierIds = selectCostModifierIds(state, matchingModifiers, target);
   const zeroActionModifier = matchingModifiers.find((modifier) => modifier.zeroAction);
   const zeroResourceModifier = matchingModifiers.find(
@@ -157,11 +200,18 @@ export function getBoonActionPreview(
   const totalReduction = matchingModifiers
     .filter((modifier) => costModifierIds.includes(modifier.id))
     .reduce((total, modifier) => total + (modifier.amount ?? 0), 0);
-  const cost = zeroResourceModifier
+  const discountedCost = zeroResourceModifier
     ? emptyCost()
     : totalReduction > 0
       ? applyFlexibleCostReduction(target.baseCost, state.warehouse, totalReduction)
       : target.baseCost;
+  const extraCost = extraCostModifiers.reduce(
+    (total, modifier) => total + (modifier.extraCost ?? 0),
+    0
+  );
+  const cost = extraCost > 0
+    ? applyFlexibleCostIncrease(discountedCost, state.warehouse, extraCost)
+    : discountedCost;
 
   const effectOnlyModifierIds = matchingModifiers
     .filter(
@@ -178,6 +228,7 @@ export function getBoonActionPreview(
       ...costModifierIds,
       ...(zeroActionModifier ? [zeroActionModifier.id] : []),
       ...(zeroResourceModifier ? [zeroResourceModifier.id] : []),
+      ...extraCostModifiers.map((modifier) => modifier.id),
       ...effectOnlyModifierIds
     ].filter((id, index, ids) => ids.indexOf(id) === index)
   };
@@ -238,7 +289,31 @@ export function getBoonCostOptions(
       required: true
     }));
 
-  return [...reductionOptions, ...zeroOptions];
+  const surchargeOptions: PassiveCostOption[] = getMatchingExtraCostModifiers(
+    state,
+    matchingModifiers,
+    target
+  )
+    .slice(0, 1)
+    .flatMap((modifier) =>
+      Array.from({ length: modifier.extraCost ?? 0 }, (_, index) => ({
+        id: `burden:${modifier.id}:${index + 1}`,
+        sourceTileId: modifier.id,
+        sourceKind: "boon" as const,
+        sourceName:
+          (modifier.extraCost ?? 0) > 1
+            ? `${modifier.name} (${index + 1}/${modifier.extraCost})`
+            : modifier.name,
+        effectText: modifier.effectText,
+        kind: "surcharge" as const,
+        cadence: "round" as const,
+        amount: 1,
+        resourceChoices: [...resources],
+        required: true
+      }))
+    );
+
+  return [...reductionOptions, ...zeroOptions, ...surchargeOptions];
 }
 
 export function getMatchingBoonModifiers(
