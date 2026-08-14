@@ -11,8 +11,6 @@ import {
   endCurrentTurn,
   getActivatableTileIds,
   getLinkedProductionTileIds,
-  getStableMoveDestinationTileIds,
-  moveStewardViaStables,
   placeTile,
   revealEncounters,
   resolveEndRound,
@@ -22,6 +20,7 @@ import {
   useStewardPower
 } from "../engine/gameActions";
 import { resolvePendingEffect } from "../engine/manualEffects";
+import { selectReachablePlacedTileIds } from "../engine/reachability";
 import { neighbourlySupportEffectRuleId } from "../data/effectRules";
 import { createNewGame } from "../engine/setup";
 import type { GameState, PlacedTile, ResourceType } from "../engine/types";
@@ -1117,8 +1116,8 @@ describe("game actions", () => {
       phase: "turns" as const,
       warehouse: {
         ...state.warehouse,
-        wood: 0,
-        food: 0
+        wood: 2,
+        food: 3
       },
       players: [{ ...state.players[0], hasPlacedFirstTile: true }],
       map: {
@@ -1143,7 +1142,8 @@ describe("game actions", () => {
     expect(placed.map.placedTiles).toHaveLength(2);
     expect(placed.warehouse.wood).toBe(0);
     expect(placed.warehouse.food).toBe(0);
-    expect(placed.tileActivationRecords.tile_brewery.season).toBe(1);
+    expect(placed.map.placedTiles[1].support.singleUse).toBe(true);
+    expect(placed.tileActivationRecords.tile_brewery.round).toBe(1);
   });
 
   it("does not advertise a placement when an available discount is still insufficient", () => {
@@ -1885,14 +1885,17 @@ describe("game actions", () => {
 
     const next = placeTile(ready, "player_1", "special_stables", {
       anchorHexId: "H1",
-      secondaryHexIds: ["G2"]
+      secondaryHexIds: ["N7"]
     });
 
     expect(next.map.placedTiles).toHaveLength(3);
     expect(next.map.placedTiles.slice(1).map((tile) => tile.hexIds)).toEqual([
       ["H1"],
-      ["G2"]
+      ["N7"]
     ]);
+    expect(selectReachablePlacedTileIds(next, "player_1")).toEqual(
+      new Set(next.map.placedTiles.map((tile) => tile.instanceId))
+    );
     expect(next.tileSupply.special.special_stables).toBe(0);
     expect(next.actionsRemaining).toBe(3);
     expect(next.pendingEffects).toHaveLength(0);
@@ -1952,7 +1955,7 @@ describe("game actions", () => {
     ]);
   });
 
-  it("moves a Steward through Stables without spending an action", () => {
+  it("joins the networks connected to both Stables without moving the Steward", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
@@ -2007,19 +2010,17 @@ describe("game actions", () => {
       }
     };
 
-    expect(getStableMoveDestinationTileIds(ready, "player_1")).toEqual([
+    expect([...selectReachablePlacedTileIds(ready, "player_1")]).toEqual([
+      "tile_source",
       "stable_one",
       "stable_two",
       "tile_destination"
     ]);
-
-    const next = moveStewardViaStables(ready, "player_1", "tile_destination");
-
-    expect(next.players[0].stewardHexId).toBe("K2");
-    expect(next.actionsRemaining).toBe(2);
+    expect(ready.players[0].stewardHexId).toBe("G1");
+    expect(ready.actionsRemaining).toBe(2);
   });
 
-  it("excludes Overstrained Stables movement destinations", () => {
+  it("breaks the Stables network link while either Stables tile is Overstrained", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
@@ -2073,60 +2074,10 @@ describe("game actions", () => {
       }
     };
 
-    expect(getStableMoveDestinationTileIds(ready, "player_1")).toEqual([
+    expect([...selectReachablePlacedTileIds(ready, "player_1")]).toEqual([
+      "tile_source",
       "stable_one"
     ]);
-  });
-
-  it("requires the Steward to start on or adjacent to a Stables network tile", () => {
-    const state = createNewGame(1, ["vanguard"]);
-    const ready = {
-      ...state,
-      phase: "turns" as const,
-      players: [
-        {
-          ...state.players[0],
-          hasPlacedFirstTile: true,
-          stewardHexId: "G1"
-        }
-      ],
-      map: {
-        placedTiles: [
-          {
-            instanceId: "tile_source",
-            tileId: "c15_path",
-            kind: "core" as const,
-            side: "basic" as const,
-            hexIds: ["G1"],
-            strain: 0,
-            support: { passive: false, singleUse: false, preventedThisRound: false }
-          },
-          {
-            instanceId: "stable_one",
-            tileId: "special_stables",
-            kind: "special" as const,
-            side: "special" as const,
-            hexIds: ["K1"],
-            strain: 0,
-            support: { passive: false, singleUse: false, preventedThisRound: false }
-          },
-          {
-            instanceId: "tile_destination",
-            tileId: "c15_path",
-            kind: "core" as const,
-            side: "basic" as const,
-            hexIds: ["K2"],
-            strain: 0,
-            support: { passive: false, singleUse: false, preventedThisRound: false }
-          }
-        ]
-      }
-    };
-
-    const next = moveStewardViaStables(ready, "player_1", "tile_destination");
-
-    expect(getStableMoveDestinationTileIds(ready, "player_1")).toEqual([]);
-    expect(next.players[0].stewardHexId).toBe("G1");
   });
 
   it("resolves an active Burden with the current Season cost", () => {

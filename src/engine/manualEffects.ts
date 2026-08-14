@@ -89,6 +89,7 @@ export function isWardenReliefAdjustmentValid(
     hasStringRecordChanges(adjustment.stewardHexUpdates) ||
     hasStringRecordChanges(adjustment.temporaryReachHexUpdates) ||
     Boolean(adjustment.strainCascadeAnchorTileId) ||
+    Boolean(adjustment.rootWeaversPreventionTargetTileId) ||
     Boolean(adjustment.ignoredBurdenIds?.length) ||
     Boolean(adjustment.resolvedBurdenIds?.length)
   ) {
@@ -180,12 +181,45 @@ export function hasEffectAdjustment(adjustment: EffectAdjustment): boolean {
     hasRecordChanges(adjustment.arrivalTimerDeltas) ||
     hasRecordChanges(adjustment.tileStrainDeltas) ||
     Boolean(adjustment.strainCascadeAnchorTileId) ||
+    Boolean(adjustment.rootWeaversPreventionTargetTileId) ||
     Boolean(adjustment.supportTileIds?.length) ||
     hasStringRecordChanges(adjustment.stewardHexUpdates) ||
     hasStringRecordChanges(adjustment.temporaryReachHexUpdates) ||
     Boolean(adjustment.ignoredBurdenIds?.length) ||
     Boolean(adjustment.resolvedBurdenIds?.length)
   );
+}
+
+function getAvailableRootWeavers(state: GameState): PlacedTile | undefined {
+  if (state.warehouse.herbs < 2) return undefined;
+  return state.map.placedTiles.find(
+    (tile) =>
+      tile.tileId === "special_the_root_weavers_respite" &&
+      tile.strain < 3 &&
+      state.tileActivationRecords[tile.instanceId]?.round !== state.round
+  );
+}
+
+function isRootWeaversPreventionAdjustmentValid(
+  state: GameState,
+  pendingEffect: PendingEffectState,
+  adjustment: EffectAdjustment
+): boolean {
+  const targetTileId = adjustment.rootWeaversPreventionTargetTileId;
+  if (!targetTileId) return true;
+  const rootWeavers = getAvailableRootWeavers(state);
+  if (
+    !rootWeavers ||
+    pendingEffect.allowRootWeaversPreventionTileId !== rootWeavers.instanceId
+  ) {
+    return false;
+  }
+
+  const plannedStrain = pendingEffect.targetCardPlannedStrainByTileId?.[targetTileId] ?? 0;
+  const selectedStrain = adjustment.tileStrainDeltas?.[targetTileId] ?? 0;
+  const selectedCascadeAnchor =
+    adjustment.strainCascadeAnchorTileId === targetTileId && plannedStrain > 0;
+  return selectedStrain > 0 || selectedCascadeAnchor;
 }
 
 export function queuePendingEffect(
@@ -730,6 +764,7 @@ export function isTileAdjustmentValid(
       const tile = state.map.placedTiles.find((candidate) => candidate.instanceId === tileId);
       if (!tile) return false;
       if (strainRule.direction === "remove" && Math.abs(delta) > tile.strain) return false;
+      if (strainRule.removeAllFromTargets && Math.abs(delta) !== tile.strain) return false;
       if (
         strainRule.direction === "place" &&
         delta > getStrainPlacementCapacity(state, tile, strainRule.maxPerTile)
@@ -1739,12 +1774,18 @@ export function preparePendingEffectQueueHead(state: GameState): GameState {
     baseWithoutSuggestedStrain,
     plan.adjustment
   );
+  const rootWeavers = Object.values(plan.plannedStrainByTileId).some(
+    (amount) => amount > 0
+  )
+    ? getAvailableRootWeavers(state)
+    : undefined;
   const preparedEffect: PendingEffectState = {
     ...pendingEffect,
     targetCardPrepared: true,
     targetCardTargetTileIds: plan.targetTileIds,
     targetCardPlannedStrainByTileId: plan.plannedStrainByTileId,
     targetCardDiagnostics: plan.diagnostics,
+    allowRootWeaversPreventionTileId: rootWeavers?.instanceId,
     suggestedAdjustment: hasEffectAdjustment(suggestedAdjustment)
       ? suggestedAdjustment
       : undefined,
@@ -1927,6 +1968,9 @@ export function isPendingEffectAdjustmentValid(
   ) return true;
   const sourceTile = getPendingEffectSourceTile(state, pendingEffect);
   if (
+    !isRootWeaversPreventionAdjustmentValid(state, pendingEffect, adjustment)
+  ) return false;
+  if (
     !isStewardMoveAdjustmentValid(state, pendingEffect, adjustment)
   ) return false;
   if (
@@ -2081,18 +2125,32 @@ function refreshPendingEffectQueueHead(state: GameState): GameState {
 
 export function queueRestingHallBurdenPassive(state: GameState): GameState {
   const restingHall = state.map.placedTiles.find(
-    (tile) => tile.tileId === "special_the_resting_hall" && tile.strain < 3
+    (tile) =>
+      tile.tileId === "special_the_resting_hall" &&
+      tile.strain < 3 &&
+      state.tileActivationRecords[tile.instanceId]?.round !== state.round
   );
   if (!restingHall) return state;
   if (!state.map.placedTiles.some((tile) => tile.strain > 0)) return state;
 
+  const recordedState: GameState = {
+    ...state,
+    tileActivationRecords: {
+      ...state.tileActivationRecords,
+      [restingHall.instanceId]: {
+        ...state.tileActivationRecords[restingHall.instanceId],
+        round: state.round
+      }
+    }
+  };
+
   const effectText =
     specialTileById.special_the_resting_hall?.effectText ??
-    "Passive: When players resolve an active Burden, remove 1 Strain from 1 placed tile.";
+    "Passive: Once per round, after a Burden is resolved, remove 1 Strain from 1 placed tile.";
   const ruleId = tileEffectRuleId(restingHall.tileId, restingHall.side);
-  const suggestion = suggestEffectAdjustment(state, ruleId, restingHall);
+  const suggestion = suggestEffectAdjustment(recordedState, ruleId, restingHall);
 
-  const queued = queuePendingEffect(state, {
+  const queued = queuePendingEffect(recordedState, {
     sourceType: "tile",
     ruleId,
     sourceId: restingHall.instanceId,
@@ -2127,8 +2185,15 @@ export function resolvePendingEffect(
     adjustment
   );
   if (
-    pendingEffect.targetCardPrepared &&
-    adjustment.tileStrainDeltas !== undefined
+    adjustment.tileStrainDeltas !== undefined &&
+    (
+      pendingEffect.targetCardPrepared ||
+      getResourceGainChoiceRule(
+        state,
+        pendingEffect.ruleId,
+        getPendingEffectSourceTile(state, pendingEffect)
+      )?.alternativeToStrainRemoval
+    )
   ) {
     effectiveAdjustment = {
       ...effectiveAdjustment,
@@ -2167,7 +2232,35 @@ export function resolvePendingEffect(
       placedTiles: state.map.placedTiles.map((tile) => ({ ...tile }))
     }
   };
+  const rootWeavers = pendingEffect.allowRootWeaversPreventionTileId
+    ? state.map.placedTiles.find(
+        (tile) =>
+          tile.instanceId === pendingEffect.allowRootWeaversPreventionTileId &&
+          tile.strain < 3
+      )
+    : undefined;
+  let rootWeaversPreventionRemaining =
+    rootWeavers && effectiveAdjustment.rootWeaversPreventionTargetTileId ? 1 : 0;
+  if (rootWeaversPreventionRemaining > 0 && rootWeavers) {
+    nextState.warehouse.herbs -= 2;
+    nextState.tileActivationRecords = {
+      ...nextState.tileActivationRecords,
+      [rootWeavers.instanceId]: {
+        ...nextState.tileActivationRecords[rootWeavers.instanceId],
+        round: nextState.round
+      }
+    };
+    nextState.log = [
+      {
+        id: `log_${nextState.log.length + 1}_${Date.now()}`,
+        round: nextState.round,
+        message: `${getPlacedTileName(rootWeavers)} spent 2 herbs to prevent 1 Strain.`
+      },
+      ...nextState.log
+    ].slice(0, 80);
+  }
   const newlyOverstrainedTileIds: string[] = [];
+  const removedStrainTargetIds: string[] = [];
   const recordedOverstrainTileIds = new Set<string>();
   const targetCardStrainOutcomes = new Map<
     string,
@@ -2188,7 +2281,17 @@ export function resolvePendingEffect(
     const goldenGardenRoundBefore = prevention?.goldenGardenTileId
       ? nextState.tileActivationRecords[prevention.goldenGardenTileId]?.round
       : undefined;
-    nextState = applyStrainToState(nextState, tileId, amount);
+    const rootWeaversPrevention =
+      rootWeaversPreventionRemaining > 0 &&
+      effectiveAdjustment.rootWeaversPreventionTargetTileId === tileId
+        ? 1
+        : 0;
+    rootWeaversPreventionRemaining -= rootWeaversPrevention;
+    nextState = applyStrainToState(
+      nextState,
+      tileId,
+      Math.max(0, amount - rootWeaversPrevention)
+    );
     const tileAfter = nextState.map.placedTiles.find(
       (tile) => tile.instanceId === tileId
     );
@@ -2270,6 +2373,9 @@ export function resolvePendingEffect(
       if (strainDelta > 0) {
         applyStrainAndRecordOverstrain(tileId, strainDelta);
       } else if (strainDelta < 0) {
+        const strainBefore = nextState.map.placedTiles.find(
+          (tile) => tile.instanceId === tileId
+        )?.strain ?? 0;
         nextState = {
           ...nextState,
           map: {
@@ -2280,6 +2386,10 @@ export function resolvePendingEffect(
             )
           }
         };
+        const strainAfter = nextState.map.placedTiles.find(
+          (tile) => tile.instanceId === tileId
+        )?.strain ?? strainBefore;
+        if (strainAfter < strainBefore) removedStrainTargetIds.push(tileId);
       }
     }
     nextState = {
@@ -2297,6 +2407,52 @@ export function resolvePendingEffect(
           };
         })
       }
+    };
+    nextState = recalculatePassiveSupported(nextState);
+  }
+
+  const theatre =
+    sourceTile && getPlacedTileCategory(sourceTile) === "social"
+      ? state.map.placedTiles.find(
+          (tile) =>
+            tile.tileId === "special_theater" &&
+            tile.strain < 3 &&
+            state.tileActivationRecords[tile.instanceId]?.round !== state.round
+        )
+      : undefined;
+  const theatreTargetId = removedStrainTargetIds[0];
+  if (theatre && theatreTargetId) {
+    nextState = {
+      ...nextState,
+      map: {
+        placedTiles: nextState.map.placedTiles.map((tile) =>
+          tile.instanceId === theatreTargetId
+            ? {
+                ...removeStrainFromTile(tile, 1),
+                support: {
+                  ...tile.support,
+                  singleUse: true,
+                  preventedThisRound: false
+                }
+              }
+            : tile
+        )
+      },
+      tileActivationRecords: {
+        ...nextState.tileActivationRecords,
+        [theatre.instanceId]: {
+          ...nextState.tileActivationRecords[theatre.instanceId],
+          round: nextState.round
+        }
+      },
+      log: [
+        {
+          id: `log_${nextState.log.length + 1}_${Date.now()}`,
+          round: nextState.round,
+          message: `${getPlacedTileName(theatre)} removed 1 additional Strain and granted Supported.`
+        },
+        ...nextState.log
+      ].slice(0, 80)
     };
     nextState = recalculatePassiveSupported(nextState);
   }
@@ -2467,6 +2623,9 @@ export function mergeEffectAdjustment(
     tileStrainDeltas: { ...base.tileStrainDeltas, ...next.tileStrainDeltas },
     strainCascadeAnchorTileId:
       next.strainCascadeAnchorTileId ?? base.strainCascadeAnchorTileId,
+    rootWeaversPreventionTargetTileId:
+      next.rootWeaversPreventionTargetTileId ??
+      base.rootWeaversPreventionTargetTileId,
     supportTileIds: next.supportTileIds ?? base.supportTileIds,
     stewardHexUpdates: { ...base.stewardHexUpdates, ...next.stewardHexUpdates },
     temporaryReachHexUpdates: {

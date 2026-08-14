@@ -815,12 +815,14 @@ describe("structured effect rules", () => {
       requiresManualChoice: true
     });
     expect(queued.pendingEffects[0].suggestedAdjustment).toBeUndefined();
+    expect(queued.tileActivationRecords.hall.round).toBe(1);
 
     const resolved = resolvePendingEffect(queued, {
       tileStrainDeltas: { second: -1 }
     });
     expect(resolved.pendingEffects).toHaveLength(0);
     expect(resolved.map.placedTiles.map((tile) => tile.strain)).toEqual([0, 1, 1]);
+    expect(queueRestingHallBurdenPassive(resolved)).toBe(resolved);
   });
 
   it("automatically supports a sole adjacent target", () => {

@@ -330,7 +330,23 @@ function getPlacementFailuresInternal(
   const isFirstPlacement =
     !player.hasPlacedFirstTile && selectedHexIds.includes(player.stewardHexId);
 
-  if (footprintKind === "detached") {
+  if (footprintKind === "detached" && tileId === "special_stables") {
+    const anchorConnects =
+      (isFirstPlacement && draft.anchorHexId === player.stewardHexId) ||
+      connectsToReachablePlacementNetwork(
+        state,
+        [draft.anchorHexId],
+        placementNetwork.reachableTileIds,
+        placementNetwork.hasReachableDocks,
+        placementNetwork.temporaryReachHexId
+      );
+
+    if (!anchorConnects) {
+      reasons.push(
+        "Cannot place here: the first Stables tile must connect to the acting Steward's reachable settlement network."
+      );
+    }
+  } else if (footprintKind === "detached") {
     const disconnectedHexIds = selectedHexIds.filter((hexId) => {
       if (isFirstPlacement && hexId === player.stewardHexId) return false;
       return !connectsToReachablePlacementNetwork(

@@ -48,6 +48,8 @@ export interface TileAdjustmentRule {
     linkedStewardTargets?: {
       requiredOtherTargetsIfAvailable?: number;
     };
+    /** Remove every Strain token from each selected target. */
+    removeAllFromTargets?: boolean;
   };
   support?: {
     maxTargets: number;

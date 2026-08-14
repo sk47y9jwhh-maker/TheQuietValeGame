@@ -277,6 +277,7 @@ export interface EffectAdjustment {
   temporaryReachHexUpdates?: Record<string, string>;
   ignoredBurdenIds?: string[];
   resolvedBurdenIds?: string[];
+  rootWeaversPreventionTargetTileId?: string;
 }
 
 export interface EffectControlHints {
@@ -370,6 +371,7 @@ export interface PendingEffectState {
   allowWardenRelief?: boolean;
   resourceExchangeLimit?: number;
   resourceExchangeOptional?: boolean;
+  allowRootWeaversPreventionTileId?: string;
   /** Set once the opt-in Target Card system has considered this effect. */
   targetCardPrepared?: boolean;
   /** The only tiles the automatic draw selected for positive Strain. */
@@ -416,6 +418,8 @@ export interface PassiveCostOption {
   boonModifierId?: string;
   resourceChoices?: ResourceType[];
   required?: boolean;
+  waivesAction?: boolean;
+  supportsPlacedTile?: boolean;
 }
 
 export interface CostChoiceSelection {

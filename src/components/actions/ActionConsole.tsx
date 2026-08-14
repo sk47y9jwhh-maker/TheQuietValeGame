@@ -23,7 +23,6 @@ import {
   canResolveBurden,
   getLinkedProductionTileIds,
   hasUsedLinkedProductionThisRound,
-  getStableMoveDestinationTileIds,
   getUsableFaceUpBoonIds,
   getUpgradeableTileIds
 } from "../../engine/gameActions";
@@ -64,7 +63,6 @@ interface ActionConsoleProps {
   onCompleteArrival: (arrivalCardId: string) => void;
   onResolveBurden: (burdenCardId: string) => void;
   onUseFaceUpBoon: (boonCardId: string) => void;
-  onStableMove: (destinationTileId: string) => void;
   onUseStewardPower: () => void;
   onCancelPendingBurdenWithWarden: () => void;
   onResolvePendingEffect: (adjustment: EffectAdjustment) => void;
@@ -126,7 +124,6 @@ export function ActionConsole({
   onCompleteArrival,
   onResolveBurden,
   onUseFaceUpBoon,
-  onStableMove,
   onUseStewardPower,
   onCancelPendingBurdenWithWarden,
   onResolvePendingEffect,
@@ -217,10 +214,6 @@ export function ActionConsole({
     validation: canResolveBurden(state, burdenCardId)
   }));
   const usableBoonIds = getUsableFaceUpBoonIds(state);
-  const stableMoveDestinationIds = getStableMoveDestinationTileIds(
-    state,
-    currentPlayer.id
-  );
   const finalScore = calculateFinalScore(state);
   const pendingEffect = state.pendingEffects[0];
   const steward = stewardById[currentPlayer.stewardId];
@@ -673,27 +666,12 @@ export function ActionConsole({
           </div>
           {arrivalInteractions.length === 0 &&
           burdenInteractions.length === 0 &&
-          usableBoonIds.length === 0 &&
-          stableMoveDestinationIds.length === 0 ? (
+          usableBoonIds.length === 0 ? (
             <p className="muted">
               No active Boon, Arrival, or Burden is currently interactable.
             </p>
           ) : (
             <div className="flow-list">
-              {stableMoveDestinationIds.map((placedTileId) => {
-                const tile = state.map.placedTiles.find(
-                  (candidate) => candidate.instanceId === placedTileId
-                );
-                return (
-                  <button
-                    key={placedTileId}
-                    onClick={() => onStableMove(placedTileId)}
-                    type="button"
-                  >
-                    Move to {tile ? selectTileName(tile) : placedTileId} via Stables
-                  </button>
-                );
-              })}
               {usableBoonIds.map((boonCardId) => (
                 <button
                   key={boonCardId}

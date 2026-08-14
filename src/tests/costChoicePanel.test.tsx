@@ -224,4 +224,63 @@ describe("cost choice panel", () => {
       }
     });
   });
+
+  it("shows Waystation changing an Arrival from 1 Action to 0 Actions", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.actionsRemaining = 0;
+    const pending: PendingCostChoiceState = {
+      id: "cost_waystation",
+      title: "Complete Arrival",
+      action: {
+        type: "arrival",
+        playerId: state.currentPlayerId,
+        cardId: "arrival_the_quiet_quest"
+      },
+      baseCost: {
+        wood: 0,
+        stone: 0,
+        metal: 0,
+        food: 0,
+        herbs: 0,
+        goods: 0
+      },
+      actionCost: 1,
+      boonModifierIds: [],
+      options: [
+        {
+          id: "waystation:discount",
+          sourceTileId: "waystation",
+          sourceName: "The Waystation",
+          effectText:
+            "Passive: Once per round, complete 1 Arrival for 0 Actions. Pay its cost and follow normal rules.",
+          kind: "discount",
+          cadence: "round",
+          amount: 0,
+          waivesAction: true
+        }
+      ]
+    };
+
+    render(
+      <CostChoicePanel
+        state={state}
+        pending={pending}
+        onConfirm={() => {}}
+        onCancel={() => {}}
+      />
+    );
+
+    expect(screen.getByText("Action Cost").closest(".cost-line")).toHaveTextContent(
+      "1 Action"
+    );
+    const confirm = screen.getByRole("button", { name: "Confirm Payment" });
+    expect(confirm).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: /The Waystation/ }));
+
+    expect(screen.getByText("Action Cost").closest(".cost-line")).toHaveTextContent(
+      "0 Actions"
+    );
+    expect(confirm).toBeEnabled();
+  });
 });

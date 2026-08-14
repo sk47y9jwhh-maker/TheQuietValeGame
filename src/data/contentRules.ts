@@ -142,29 +142,28 @@ export interface SpecialTileBehavior {
   cadence?: "round" | "season";
 }
 
-const placedOrActivated = [
-  "special_alms_house",
+const placedOrActivated = ["special_alms_house"];
+const seasonActivated = ["special_adventurers_guild"];
+const roundActivated = [
   "special_atelier_workshop",
-  "special_house_of_learning",
-  "special_the_iron_roots_respite",
-  "special_the_lorekeepers_respite",
-  "special_the_reavers_respite",
-  "special_the_root_weavers_respite",
-  "special_the_tamers_respite",
-  "special_theater"
-];
-const seasonActivated = [
-  "special_adventurers_guild",
   "special_hearth_garden",
   "special_reliquary"
 ];
 const passiveSpecials = [
   "special_brewery_of_legends",
-  "special_labourers_yard",
   "special_docks",
+  "special_house_of_learning",
+  "special_labourers_yard",
   "special_lantern_roadhouse",
   "special_stables",
+  "special_the_iron_roots_respite",
+  "special_the_lorekeepers_respite",
+  "special_the_reavers_respite",
   "special_the_resting_hall",
+  "special_the_root_weavers_respite",
+  "special_the_tamers_respite",
+  "special_the_waystation",
+  "special_theater",
   "special_shrine_of_ancestors",
   "special_shrine_of_ancients",
   "special_shrine_of_bounty",
@@ -175,22 +174,32 @@ const passiveSpecials = [
 export const specialTileBehaviors: Record<string, SpecialTileBehavior> = Object.fromEntries([
   ...placedOrActivated.map((id) => [id, { trigger: "placedOrActivated" as const }]),
   ...seasonActivated.map((id) => [id, { trigger: "activated" as const, cadence: "season" as const }]),
+  ...roundActivated.map((id) => [id, { trigger: "activated" as const, cadence: "round" as const }]),
   ...passiveSpecials.map((id) => [id, { trigger: "passive" as const }]),
-  ["special_alchemist_s_workshop", { trigger: "activated" as const }],
-  ["special_the_waystation", { trigger: "activated" as const }]
+  ["special_alchemist_s_workshop", { trigger: "activated" as const }]
 ]);
 
 export interface ProductionPassiveRule {
   sourceTileId: string;
   gain: { kind: "fixed"; resources: Partial<ResourceCost> } | { kind: "producedTypes"; amount: number };
+  removeStrainFromProducer?: number;
 }
 
 export const productionPassiveRules: Record<string, ProductionPassiveRule> = {
-  special_shrine_of_ancestors: { sourceTileId: "c20_dig_site", gain: { kind: "producedTypes", amount: 2 } },
+  special_shrine_of_ancestors: { sourceTileId: "c20_dig_site", gain: { kind: "fixed", resources: { metal: 2 } } },
   special_shrine_of_ancients: { sourceTileId: "c03_gathering_outpost", gain: { kind: "fixed", resources: { herbs: 2 } } },
   special_shrine_of_bounty: { sourceTileId: "c04_farmstead", gain: { kind: "fixed", resources: { food: 2 } } },
-  special_shrine_of_depths: { sourceTileId: "c02_mine_tunnel", gain: { kind: "producedTypes", amount: 2 } },
-  special_shrine_of_renewal: { sourceTileId: "c01_lumber_yard", gain: { kind: "producedTypes", amount: 2 } }
+  special_shrine_of_depths: { sourceTileId: "c02_mine_tunnel", gain: { kind: "fixed", resources: { stone: 2 } } },
+  special_shrine_of_renewal: { sourceTileId: "c01_lumber_yard", gain: { kind: "fixed", resources: { wood: 2 } } },
+  special_the_iron_roots_respite: {
+    sourceTileId: "c02_mine_tunnel",
+    gain: { kind: "fixed", resources: { metal: 1 } },
+    removeStrainFromProducer: 1
+  },
+  special_the_lorekeepers_respite: {
+    sourceTileId: "c20_dig_site",
+    gain: { kind: "fixed", resources: { goods: 1 } }
+  }
 };
 
 export interface TileScoringRule {

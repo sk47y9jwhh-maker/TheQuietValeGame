@@ -194,13 +194,19 @@ describe("placement validation", () => {
     expect(
       canPlaceTile(state, "player_1", "special_stables", {
         anchorHexId: "H1",
-        secondaryHexIds: ["G2"]
+        secondaryHexIds: ["N7"]
       }).ok
     ).toBe(true);
     expect(
       canPlaceTile(state, "player_1", "special_stables", {
+        anchorHexId: "N7",
+        secondaryHexIds: ["H1"]
+      }).ok
+    ).toBe(false);
+    expect(
+      canPlaceTile(state, "player_1", "special_stables", {
         anchorHexId: "H1",
-        secondaryHexIds: ["K9"]
+        secondaryHexIds: ["Z99"]
       }).ok
     ).toBe(false);
   });

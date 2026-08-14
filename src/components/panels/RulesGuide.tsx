@@ -68,7 +68,7 @@ const rules: RuleReferenceCard[] = [
       "Activate — Spend 1 action to use an eligible, reachable tile’s production or activated effect.",
       "Interact — Spend 1 action and pay the shown cost to complete an Arrival or resolve a Burden.",
       "Linked Production — The first time a linked Resource group is activated each round, the chosen tile and every immediately adjacent, non-Overstrained copy from the same tile stack produce for no extra action. Later activations in that group produce only from the chosen tile.",
-      "Face-up Boons, movement through Stables, and Steward Powers cost no actions unless their text says otherwise."
+      "Face-up Boons and Steward Powers cost no actions unless their text says otherwise."
     ],
     note:
       "A 0-action benefit saves the action only. Pay the normal resource cost unless the effect also changes it. Cancelling a payment spends nothing."
@@ -81,11 +81,12 @@ const rules: RuleReferenceCard[] = [
       "After that, each new tile must sit next to your Steward’s reachable settlement network.",
       "Reach starts at the non-Overstrained tile beneath your Steward and continues through adjacent, non-Overstrained tiles.",
       "Placing, upgrading, or activating a tile moves your Steward to that tile.",
-      "Street and Track occupy a straight line of hexes. Stables use two separate legal hexes in one placement.",
+      "Street and Track occupy a straight line of hexes. When placing Stables, connect the first Stables tile to the acting Steward’s settlement network and place the second on any valid hex.",
+      "Treat the two non-Overstrained Stables tiles as adjacent when determining settlement networks. Tiles connected to either Stables join the same network. Stables do not move a Steward Token by themselves.",
       "The map highlights legal choices. A disabled choice explains what is missing."
     ],
     note:
-      "Docks can extend reach to placed tiles beside Water. The Ranger Power gives one temporary point of reach for the current turn."
+      "From Docks, every non-Water hex beside Water/River terrain is reachable. Non-Overstrained tiles on those shoreline hexes join the Docks settlement network, including across Water/River terrain. The Ranger Power gives one temporary point of reach for the current turn."
   },
   {
     category: "Settlement",
@@ -99,6 +100,7 @@ const rules: RuleReferenceCard[] = [
       "Draw one Target Card for each different target. Apply its class, side, adjacency, and current-Strain preferences in order whenever at least one candidate matches, then use its arrow to break a remaining tie.",
       "Shuffle the 24-card Target Deck once during setup. Return each resolved card face down to the bottom. Do not discard or reshuffle during play.",
       "Resolve Supported and other prevention after the target is chosen. Prevented Strain is not redirected.",
+      "Once per round, Lantern Roadhouse prevents 1 Strain on a Travel Tile in its connected settlement network. Root Weavers may spend 2 Herbs to prevent 1 Strain on a chosen target.",
       "After an effect ends, each tile that became Overstrained spreads 1 Strain to an adjacent eligible tile selected by the Target Deck. Continue until no new tile becomes Overstrained."
     ],
     note:
@@ -371,7 +373,8 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
             <strong>Using the app:</strong>
             <span>
               Resolve any open prompt before continuing. Disabled choices explain what is missing.
-              Street and Track need a starting hex and direction. Stables need two legal hexes. On
+              Street and Track need a starting hex and direction. For Stables, select the connected
+              Stables hex first and the remote valid hex second. On
               desktop, right-click a hex for quick actions. On touch screens, press and hold a hex or
               use the action buttons. During play, progress saves automatically in this browser and
               the top-right buttons undo or redo recent steps.

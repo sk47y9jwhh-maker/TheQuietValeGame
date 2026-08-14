@@ -15,7 +15,7 @@ Implemented playable loop:
 - Face-up Boons with visible remaining-use tracking and Use buttons.
 - Prepared Boon effects for reduced costs and 0 Action placement/upgrade benefits.
 - Carts Before Sunrise refreshes at most one chosen used Crafting/Merchant passive per prepared modifier; declining every eligible passive preserves that modifier.
-- Automatic mandatory cost passives for Brewery of Legends, Labourers' Yard, and Workshops/Makers Conclave, with an optional payment choice for Market Stalls/The Seldes.
+- Cost-choice support for Brewery of Legends, House of Learning, Labourers' Yard, the Tamers' Respite, the Waystation, Workshops/Makers Conclave, and Market Stalls/The Seldes.
 - Deck-peek effects with a seeding-style reorder panel and arrow movement controls.
 - Steward Power flow with seasonal use tracking, shared effect prompts, prepared placement/upgrade benefits, Ranger movement, Warden Burden reveal cancellation/round-ignore markers, and Quartermaster resource exchange.
 - Guided tile placement with legal hex highlighting and failure reasons.
@@ -23,20 +23,21 @@ Implemented playable loop:
 - Inspector and reference panels that show tile costs, placement rules, stats, effects, card effects, requirements, rewards, and resolution text.
 - Responsive stacked play layout that keeps the map, controls, and inspector available on narrow screens.
 - Straight multi-hex Street/Track footprints with six orientations.
-- Stables placement as two separate single-hex Special Tiles selected together.
-- Free Stables movement between placed Stables and adjacent non-Overstrained destinations.
+- Stables placement as two separate single-hex Special Tiles selected together, with the first connected to the acting Steward's settlement network and the second on any valid hex.
+- A persistent Stables network link that joins the non-Overstrained tiles connected to either Stables without moving a Steward Token.
 - Core and unlocked Special Tile placement.
 - Upgrade and Activate flows for reachable eligible tiles.
 - Three-copy supply for every Core Resource Tile, with the first Linked Production in each adjacent group each round activating all non-Overstrained matching producers; repeats produce only from the chosen tile.
 - Activated Special Tile effects that resolve an active Burden with a player choice prompt.
-- Docks passive reachability connecting active settlement networks to water-adjacent tiles.
+- Docks reach that joins every non-Water shoreline hex and its non-Overstrained tiles to the Docks settlement network, including across Water/River terrain.
 - Once-per-season/round activation limits for tile effects that declare them.
 - Arrival completion that unlocks named Special Tiles.
 - Burden resolution with season-scaled resource costs.
-- The Resting Hall passive trigger after Burden resolution.
-- Automatic Shrine production passives after adjacent matching Resource Tile activation, with once-per-round tracking and no separate Shrine activation.
+- The Resting Hall passive trigger once per round after Burden resolution.
+- Automatic fixed-resource Shrine and Respite production passives after adjacent matching Resource Tile activation, with once-per-round tracking and no separate passive-tile activation.
 - Common Land/The Pleasance automatically maintains Supported on eligible adjacent Housing Tiles.
-- Lantern Roadhouse passive Supported recalculation for connected Travel networks.
+- Lantern Roadhouse prevention of 1 Strain on a connected Travel Tile once per round.
+- Once-per-round triggered passives for Reavers, Root Weavers, Tamers, Theatre, and the Waystation.
 - Arrival expiry Strain consequence and player-chosen chain reactions whenever a tile becomes Overstrained.
 - Pending effect prompts for revealed cards, placed/upgraded/activated tiles, Arrival rewards, Burden resolution, and expired Arrivals.
 - Full-stage pending effect prompts so card, tile, and Steward choices remain visible across screen sizes.
@@ -53,8 +54,8 @@ Implemented playable loop:
 Current source priority:
 
 1. Structured repository data in this repository; this is the current online prototype authority.
-2. `The_Quiet_Vale_Production_Component_Lists_v3_6-2.xlsx`.
-3. Production Rulebook v3.1 and Player Rulebook v3.1, used as older supporting references.
+2. `design/component-list/The_Quiet_Vale_Master_Component_List.xlsx`, the physical component and production-text authority.
+3. The current v6.4 Rulebook output, used for full-game reference and physical handoff.
 4. Greenfield handoff and supplemental authority pack.
 5. Old prototype behavior only as a last resort.
 

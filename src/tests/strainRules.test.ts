@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyStrainToState,
   applyStrainToTile,
   refreshPassiveSupported,
   removeStrainFromTile
 } from "../engine/strainRules";
+import { createNewGame } from "../engine/setup";
 import type { PlacedTile } from "../engine/types";
 
 const baseTile: PlacedTile = {
@@ -65,5 +67,27 @@ describe("strain, Supported, and Overstrained", () => {
     const recovered = removeStrainFromTile({ ...baseTile, strain: 3 }, 1);
 
     expect(recovered.strain).toBe(2);
+  });
+
+  it("lets Lantern Roadhouse prevent 1 Strain on a connected Travel Tile once per round", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [
+      { ...baseTile, instanceId: "path", hexIds: ["G1"] },
+      {
+        ...baseTile,
+        instanceId: "lantern",
+        tileId: "special_lantern_roadhouse",
+        kind: "special",
+        side: "special",
+        hexIds: ["H1"]
+      }
+    ];
+
+    const first = applyStrainToState(state, "path", 1);
+    expect(first.map.placedTiles[0].strain).toBe(0);
+    expect(first.tileActivationRecords.lantern.round).toBe(1);
+
+    const second = applyStrainToState(first, "path", 1);
+    expect(second.map.placedTiles[0].strain).toBe(1);
   });
 });

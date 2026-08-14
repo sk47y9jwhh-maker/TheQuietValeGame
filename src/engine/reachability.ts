@@ -58,6 +58,10 @@ function isActiveDocks(tile: PlacedTile): boolean {
   return tile.kind === "special" && tile.tileId === "special_docks" && !isOverstrained(tile);
 }
 
+function isActiveStables(tile: PlacedTile): boolean {
+  return tile.kind === "special" && tile.tileId === "special_stables" && !isOverstrained(tile);
+}
+
 function isTileAdjacentToWater(tile: PlacedTile): boolean {
   return tile.hexIds.some((hexId) =>
     getHexNeighbors(hexId).some((neighborId) => mapById[neighborId]?.terrain === "water")
@@ -71,13 +75,17 @@ function areTilesConnectedByDocks(a: PlacedTile, b: PlacedTile): boolean {
   );
 }
 
+function areTilesConnectedByStables(a: PlacedTile, b: PlacedTile): boolean {
+  return isActiveStables(a) && isActiveStables(b);
+}
+
 export function areTilesNetworkAdjacent(a: PlacedTile, b: PlacedTile): boolean {
   if (isOverstrained(a) || isOverstrained(b)) return false;
 
   return (
     a.hexIds.some((aHex) =>
       b.hexIds.some((bHex) => getHexNeighbors(aHex).includes(bHex))
-    ) || areTilesConnectedByDocks(a, b)
+    ) || areTilesConnectedByDocks(a, b) || areTilesConnectedByStables(a, b)
   );
 }
 

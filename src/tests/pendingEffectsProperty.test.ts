@@ -366,7 +366,22 @@ function resolutionCandidates(state: GameState): EffectAdjustment[] {
           selected,
           total
         );
-        if (candidate) candidates.push(candidate);
+        if (candidate) {
+          candidates.push(candidate);
+          const tileRule = getTileAdjustmentRule(
+            state,
+            pending.ruleId,
+            sourceTile
+          );
+          if (tileRule.supportCoversStrainTargets && tileRule.support) {
+            candidates.push({
+              ...candidate,
+              supportTileIds: selected
+                .slice(0, tileRule.support.maxTargets)
+                .map((tile) => tile.instanceId)
+            });
+          }
+        }
       }
     }
   }

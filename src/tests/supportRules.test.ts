@@ -25,7 +25,7 @@ function housingTile(
 }
 
 describe("passive Supported rules", () => {
-  it("supports Travel tiles in Lantern Roadhouse's connected network", () => {
+  it("does not turn Lantern Roadhouse protection into global Supported", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
@@ -65,8 +65,8 @@ describe("passive Supported rules", () => {
 
     const next = recalculatePassiveSupported(ready);
 
-    expect(next.map.placedTiles[0].support.passive).toBe(true);
-    expect(next.map.placedTiles[1].support.passive).toBe(true);
+    expect(next.map.placedTiles[0].support.passive).toBe(false);
+    expect(next.map.placedTiles[1].support.passive).toBe(false);
     expect(next.map.placedTiles[2].support.passive).toBe(false);
   });
 
