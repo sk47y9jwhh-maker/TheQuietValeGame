@@ -7,7 +7,6 @@ import {
 import { getPassiveCostOptions } from "../engine/passiveCosts";
 import { resolvePendingEffect } from "../engine/manualEffects";
 import { getHexNeighbors } from "../engine/hex";
-import { applyStrainToState } from "../engine/strainRules";
 import { calculateFinalScore } from "../engine/scoring";
 import { createNewGame } from "../engine/setup";
 import type {
@@ -184,62 +183,41 @@ describe("complete tile effect audit", () => {
     expect(next.pendingEffects).toHaveLength(0);
   });
 
-  const supportEffectTileIds = [
-    "special_alms_house",
-    "special_atelier_workshop",
-    "special_house_of_learning",
-    "special_the_iron_roots_respite",
-    "special_the_lorekeepers_respite",
-    "special_the_reavers_respite",
-    "special_the_root_weavers_respite",
-    "special_the_tamers_respite",
-    "special_theater"
-  ];
+  it("Alms House supports up to two adjacent tiles chosen by the players", () => {
+    const [firstHex, secondHex] = getHexNeighbors("G2");
+    const state = readyState([
+      placed("source", "special_alms_house", "G2", "special"),
+      placed("first", "c05_cabin", firstHex),
+      placed("second", "c15_path", secondHex)
+    ]);
 
-  it.each(supportEffectTileIds)(
-    "%s automatically supports its sole eligible target",
-    (tileId) => {
-      const state = readyState([
-        placed("source", tileId, "G1", "special"),
-        placed("target", "c05_cabin", "H1")
-      ]);
-      const next = activateTile(state, "player_1", "source");
+    const prompted = activateTile(state, "player_1", "source");
+    expect(prompted.pendingEffects[0]).toMatchObject({ requiresManualChoice: true });
 
-      expect(next.map.placedTiles[1].support.singleUse).toBe(true);
-      expect(next.pendingEffects).toHaveLength(0);
-    }
-  );
+    const resolved = resolvePendingEffect(prompted, {
+      supportTileIds: ["first", "second"]
+    });
+    expect(resolved.pendingEffects).toHaveLength(0);
+    expect(resolved.map.placedTiles[1].support.singleUse).toBe(true);
+    expect(resolved.map.placedTiles[2].support.singleUse).toBe(true);
+  });
 
-  it.each(supportEffectTileIds)(
-    "%s opens a choice and protects only the selected eligible tiles",
-    (tileId) => {
-      const [firstHex, secondHex] = getHexNeighbors("G2");
-      const state = readyState([
-        placed("source", tileId, "G2", "special"),
-        placed("first", "c05_cabin", firstHex),
-        placed("second", "c15_path", secondHex)
-      ]);
+  it("Atelier Workshop removes all Strain from one tile and grants Supported", () => {
+    const state = readyState([
+      placed("atelier", "special_atelier_workshop", "G1", "special"),
+      placed("target", "c05_cabin", "H1", "basic", 3)
+    ]);
+    state.warehouse.wood = 1;
+    state.warehouse.metal = 1;
 
-      const prompted = activateTile(state, "player_1", "source");
-      expect(prompted.pendingEffects[0]).toMatchObject({
-        requiresManualChoice: true
-      });
+    const next = activateTile(state, "player_1", "atelier");
 
-      const resolved = resolvePendingEffect(prompted, {
-        supportTileIds: ["second"]
-      });
-      expect(resolved.pendingEffects).toHaveLength(0);
-      expect(resolved.map.placedTiles[1].support.singleUse).toBe(false);
-      expect(resolved.map.placedTiles[2].support.singleUse).toBe(true);
-
-      const protectedState = applyStrainToState(resolved, "second", 1);
-      expect(protectedState.map.placedTiles[2].strain).toBe(0);
-      expect(protectedState.map.placedTiles[2].support).toMatchObject({
-        singleUse: false,
-        preventedThisRound: true
-      });
-    }
-  );
+    expect(next.pendingEffects).toHaveLength(0);
+    expect(next.map.placedTiles[1].strain).toBe(0);
+    expect(next.map.placedTiles[1].support.singleUse).toBe(true);
+    expect(next.warehouse.wood).toBe(0);
+    expect(next.warehouse.metal).toBe(0);
+  });
 
   it("Hearth Garden automatically removes Strain from its sole eligible target", () => {
     const state = readyState([
@@ -352,13 +330,14 @@ describe("complete tile effect audit", () => {
   it("accounts for every Special Tile in a tested effect family", () => {
     const costPassives = [
       "special_brewery_of_legends",
-      "special_labourers_yard"
+      "special_house_of_learning",
+      "special_labourers_yard",
+      "special_the_tamers_respite",
+      "special_the_waystation"
     ];
     const networkPassives = [
       "special_docks",
-      "special_lantern_roadhouse",
-      "special_stables",
-      "special_the_resting_hall"
+      "special_stables"
     ];
     const shrinePassives = [
       "special_shrine_of_ancestors",
@@ -367,19 +346,32 @@ describe("complete tile effect audit", () => {
       "special_shrine_of_depths",
       "special_shrine_of_renewal"
     ];
+    const productionPassives = [
+      "special_the_iron_roots_respite",
+      "special_the_lorekeepers_respite"
+    ];
+    const triggeredPassives = [
+      "special_lantern_roadhouse",
+      "special_the_reavers_respite",
+      "special_the_resting_hall",
+      "special_the_root_weavers_respite",
+      "special_theater"
+    ];
     const activated = [
+      "special_alms_house",
       "special_adventurers_guild",
       "special_alchemist_s_workshop",
+      "special_atelier_workshop",
       "special_hearth_garden",
-      "special_reliquary",
-      "special_the_waystation"
+      "special_reliquary"
     ];
     const audited = new Set([
       ...costPassives,
       ...networkPassives,
       ...shrinePassives,
-      ...activated,
-      ...supportEffectTileIds
+      ...productionPassives,
+      ...triggeredPassives,
+      ...activated
     ]);
 
     expect([...audited].sort()).toEqual(specialTiles.map((tile) => tile.id).sort());

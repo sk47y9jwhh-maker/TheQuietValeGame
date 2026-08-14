@@ -934,12 +934,41 @@ for (const tileId of ["c12_apothecary", "c21_the_vaults"]) {
   add({ id: tileEffectRuleId(tileId, "upgraded"), target: { adjacentToSource: true, excludeSource: true, strain: "positive" }, tileAdjustment: strain("remove", 2, 2, 1), manualChoice: true });
 }
 
-const adjacentSupportSpecials = ["special_alms_house", "special_atelier_workshop", "special_house_of_learning", "special_the_iron_roots_respite", "special_the_lorekeepers_respite", "special_the_reavers_respite", "special_the_root_weavers_respite", "special_the_tamers_respite", "special_theater"];
-for (const tileId of adjacentSupportSpecials) add({ id: tileEffectRuleId(tileId, "special"), target: { adjacentToSource: true, excludeSource: true }, supportTarget: { adjacentToSource: true, excludeSource: true }, tileAdjustment: support(2), manualChoice: true, optional: true });
-for (const tileId of ["special_adventurers_guild", "special_reliquary"]) add({ id: tileEffectRuleId(tileId, "special"), resolveBurden: { maxTargets: 1 }, manualChoice: true, optional: true });
+add({ id: tileEffectRuleId("special_alms_house", "special"), target: { adjacentToSource: true, excludeSource: true }, supportTarget: { adjacentToSource: true, excludeSource: true }, tileAdjustment: support(2), manualChoice: true, optional: true });
+add({
+  id: tileEffectRuleId("special_atelier_workshop", "special"),
+  target: { strain: "positive" },
+  supportTarget: { strain: "positive" },
+  tileAdjustment: {
+    strain: {
+      direction: "remove",
+      maxTotal: 3,
+      maxPerTile: 3,
+      maxTargets: 1,
+      requiredTargets: 1,
+      removeAllFromTargets: true
+    },
+    support: { maxTargets: 1, requiredTargets: 1 },
+    supportCoversStrainTargets: true
+  },
+  fixedResources: { wood: -1, metal: -1 },
+  mustAffordFixedCosts: true,
+  manualChoice: true
+});
+add({ id: tileEffectRuleId("special_adventurers_guild", "special"), resolveBurden: { maxTargets: 1 }, manualChoice: true, optional: true });
 add({ id: tileEffectRuleId("special_alchemist_s_workshop", "special"), exchangeLimit: 5, exchangeOptional: true, exchangeGoodsMode: true, manualChoice: true });
 add({ id: tileEffectRuleId("special_hearth_garden", "special"), target: { categories: ["housing", "social", "wellbeing"], strain: "positive" }, tileAdjustment: strain("remove", 2, 2, 2), manualChoice: true, optional: true });
-add({ id: tileEffectRuleId("special_the_waystation", "special"), deckReorder: { count: 3 } });
+add({
+  id: tileEffectRuleId("special_reliquary", "special"),
+  target: { categories: ["crafting", "merchant"], strain: "positive" },
+  tileAdjustment: strain("remove", 2, 2, 1),
+  resourceGainChoice: {
+    resources: ["metal"],
+    amount: 2,
+    alternativeToStrainRemoval: true
+  },
+  manualChoice: true
+});
 add({ id: tileEffectRuleId("special_the_resting_hall", "special"), target: { strain: "positive" }, tileAdjustment: strain("remove", 1, 1, 1), manualChoice: true });
 
 add({ id: stewardEffectRuleId("ranger"), manualChoice: true });

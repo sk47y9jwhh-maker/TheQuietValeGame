@@ -2,6 +2,7 @@ import { Check, X } from "lucide-react";
 import { resourceLabels, resources } from "../../data/resources";
 import {
   applyCostChoice,
+  getSelectedActionCost,
   validateCostChoiceSelection
 } from "../../engine/passiveCosts";
 import { canAfford } from "../../engine/resources";
@@ -99,9 +100,15 @@ export function CostChoicePanel({
     pending.options,
     selection
   );
+  const adjustedActionCost = getSelectedActionCost(
+    pending.actionCost,
+    pending.options,
+    selection
+  );
   const canConfirm =
     validateCostChoiceSelection(pending.options, selection) &&
-    canAfford(state.warehouse, adjustedCost);
+    canAfford(state.warehouse, adjustedCost) &&
+    state.actionsRemaining >= adjustedActionCost;
 
   function selectExclusiveRefresh(
     current: string[],
@@ -162,6 +169,10 @@ export function CostChoicePanel({
       <div className="cost-summary">
         <CostLine label="Base Cost" cost={pending.baseCost} />
         <CostLine label="Adjusted Cost" cost={adjustedCost} />
+        <div className="cost-line">
+          <strong>Action Cost</strong>
+          <span>{adjustedActionCost === 1 ? "1 Action" : `${adjustedActionCost} Actions`}</span>
+        </div>
       </div>
 
       <div className="cost-option-list">
@@ -199,7 +210,7 @@ export function CostChoicePanel({
                 </button>
               )}
               <p>{option.effectText}</p>
-              {option.required && <small>Required prepared effect.</small>}
+              {option.required && <small>Applies automatically.</small>}
               {option.boonModifierId && (
                 <small>Carts refresh — choose at most one eligible passive.</small>
               )}
@@ -325,6 +336,7 @@ function CostLine({ label, cost }: { label: string; cost: ResourceCost }) {
 }
 
 function getOptionLabel(option: PendingCostChoiceState["options"][number]): string {
+  if (option.waivesAction) return "0 Actions";
   if (option.kind === "zero") return "0 resources";
   if (option.kind === "surcharge") return `+${option.amount ?? 0} resource`;
   if (option.kind === "substitute") {

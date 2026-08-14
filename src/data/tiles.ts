@@ -577,7 +577,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to Ruins terrain."
     },
     effectText:
-      "Activated Effect: Exchange up to 5 total Warehouse resources for the same number of non-Goods resources, or exchange 5 total resources for 3 Goods.",
+      "Activated Effect: Exchange up to 5 resources for the same number of non-Goods resources, or exchange 5 resources for 3 Goods.",
     population: 5,
     renown: 5
   },
@@ -587,8 +587,7 @@ export const specialTiles: SpecialTileData[] = [
     category: "wellbeing",
     count: 1,
     unlockSource: "No Soul Goes Unserved",
-    effectText:
-      "When placed or activated: Choose up to two adjacent tiles. They gain Supported.",
+    effectText: "When placed or activated: Up to 2 adjacent tiles gain Supported.",
     population: 5,
     renown: 5
   },
@@ -603,7 +602,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Wellbeing Tile."
     },
     effectText:
-      "When placed or activated: Choose up to two adjacent tiles. They gain Supported.",
+      "Activated Effect, once per round: Pay 1 Wood and 1 Metal. Remove all Strain from 1 placed tile. It gains Supported.",
     population: 5,
     renown: 5
   },
@@ -618,7 +617,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Social Tile."
     },
     effectText:
-      "Once per Season, when any player places a Housing tile adjacent to this tile, that tile costs 0 resources.",
+      "Passive: Once per round, the first Housing tile placed adjacent to this tile costs 2 fewer Food and gains Supported.",
     population: 5,
     renown: 5
   },
@@ -630,7 +629,7 @@ export const specialTiles: SpecialTileData[] = [
     unlockSource: "Remnants of the Fleet",
     placement: { terrain: ["water"], text: "Place on Water/River terrain." },
     effectText:
-      "Passive: Connects its settlement network to every non-Overstrained tile adjacent to Water/River terrain.",
+      "Passive: Every non-Water hex adjacent to Water/River terrain is reachable from this tile. Non-Overstrained tiles on those hexes join this tile’s settlement network.",
     population: 5,
     renown: 5
   },
@@ -645,7 +644,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Housing Tile."
     },
     effectText:
-      "Activated Effect, once per Season: Remove up to 2 Strain from Housing, Social, and/or Wellbeing Tiles.",
+      "Activated Effect, once per round: Remove up to 2 Strain from Housing, Social or Wellbeing Tiles.",
     population: 5,
     renown: 5
   },
@@ -656,7 +655,7 @@ export const specialTiles: SpecialTileData[] = [
     count: 1,
     unlockSource: "Strong Foundations",
     effectText:
-      "When placed or activated: Choose up to two adjacent tiles. They gain Supported.",
+      "Passive: Once per round, reduce the resource cost of completing 1 Arrival or resolving 1 Burden by 2.",
     population: 5,
     renown: 5
   },
@@ -671,7 +670,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Travel Tile."
     },
     effectText:
-      "Once per round, when any player places a tile adjacent to this tile, reduce that tile's cost by 2 resources.",
+      "Passive: Once per round, reduce the resource cost of placing 1 adjacent tile by 2.",
     population: 5,
     renown: 5
   },
@@ -686,7 +685,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Travel Tile."
     },
     effectText:
-      "When placed or activated: Travel Tiles in this tile's connected settlement network gain Supported while this tile is not Overstrained.",
+      "Passive: Once per round, prevent 1 Strain that would be placed on a Travel Tile in this tile’s connected settlement network.",
     population: 5,
     renown: 5
   },
@@ -700,7 +699,8 @@ export const specialTiles: SpecialTileData[] = [
       adjacentToCategory: ["merchant"],
       text: "Place adjacent to a Merchant Tile."
     },
-    effectText: "Activated Effect, once per Season: Resolve 1 active Burden.",
+    effectText:
+      "Activated Effect, once per round: Gain 2 Metal or remove up to 2 Strain from 1 Crafting or Merchant Tile.",
     population: 5,
     renown: 5
   },
@@ -715,7 +715,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Salvage Camp / Reclamation Works."
     },
     effectText:
-      "Passive: Once per round, when an adjacent Salvage Camp / Reclamation Works is activated for Production, gain 2 additional resources of types that tile can produce.",
+      "Passive: Once per round, after an adjacent Salvage Camp or Reclamation Works produces, gain 2 Metal.",
     population: 0,
     renown: 5
   },
@@ -730,7 +730,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Gathering Outpost / Gathering Lodge."
     },
     effectText:
-      "Passive: Once per round, when an adjacent Gathering Outpost / Gathering Lodge is activated for Production, gain +2 Herbs.",
+      "Passive: Once per round, after an adjacent Gathering Outpost or Gathering Lodge produces, gain 2 Herbs.",
     population: 0,
     renown: 5
   },
@@ -745,7 +745,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Farmstead / Artisan Farm."
     },
     effectText:
-      "Passive: Once per round, when an adjacent Farmstead / Artisan Farm is activated for Production, gain +2 Food.",
+      "Passive: Once per round, after an adjacent Farmstead or Artisan Farm produces, gain 2 Food.",
     population: 0,
     renown: 5
   },
@@ -760,7 +760,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Mine Tunnel / Mine Shaft tile."
     },
     effectText:
-      "Passive: Once per round, when an adjacent Mine Tunnel / Mine Shaft is activated for Production, gain +2 resources of types that tile can produce.",
+      "Passive: Once per round, after an adjacent Mine Tunnel or Mine Shaft produces, gain 2 Stone.",
     population: 0,
     renown: 5
   },
@@ -775,7 +775,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Lumber Yard / Sustainable Lumber Yard."
     },
     effectText:
-      "Passive: Once per round, when an adjacent Lumber Yard / Sustainable Lumber Yard is activated for Production, gain +2 resources of types that tile can produce.",
+      "Passive: Once per round, after an adjacent Lumber Yard or Sustainable Lumber Yard produces, gain 2 Wood.",
     population: 0,
     renown: 5
   },
@@ -787,8 +787,11 @@ export const specialTiles: SpecialTileData[] = [
     size: 2,
     footprint: "detached",
     unlockSource: "Remnants of the Cavalry",
+    placement: {
+      text: "Place one Stables tile connected to the acting Steward’s settlement network. Place the other on any valid hex."
+    },
     effectText:
-      "Passive: Move a Steward Token between placed Stables or adjacent tiles. The destination tile must not be Overstrained.",
+      "Passive: Treat the two Stables tiles as adjacent when determining settlement networks. Tiles connected to either Stables are part of the same settlement network.",
     population: 0,
     renown: 5
   },
@@ -803,7 +806,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Mine Tunnel / Mine Shaft tile."
     },
     effectText:
-      "When placed or activated: Choose up to two adjacent tiles. They gain Supported.",
+      "Passive: Once per round, after an adjacent Mine Tunnel or Mine Shaft produces, gain 1 Metal and remove 1 Strain from that tile.",
     population: 5,
     renown: 5
   },
@@ -818,7 +821,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Salvage Camp / Reclamation Works."
     },
     effectText:
-      "When placed or activated: Choose up to two adjacent tiles. They gain Supported.",
+      "Passive: Once per round, after an adjacent Salvage Camp or Reclamation Works produces, gain 1 Goods.",
     population: 5,
     renown: 5
   },
@@ -833,7 +836,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Lumber Yard / Sustainable Lumber Yard."
     },
     effectText:
-      "When placed or activated: Choose up to two adjacent tiles. They gain Supported.",
+      "Passive: Once per round, after a tile is placed, gain 2 Wood.",
     population: 5,
     renown: 5
   },
@@ -848,7 +851,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Housing Tile or Wellbeing Tile."
     },
     effectText:
-      "Passive: When players resolve an active Burden, remove 1 Strain from 1 placed tile.",
+      "Passive: Once per round, after a Burden is resolved, remove 1 Strain from 1 placed tile.",
     population: 5,
     renown: 5
   },
@@ -863,7 +866,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Gathering Outpost / Gathering Lodge."
     },
     effectText:
-      "When placed or activated: Choose up to two adjacent tiles. They gain Supported.",
+      "Passive: Once per round, when Strain would be placed on a tile, you may pay 2 Herbs to prevent 1 Strain.",
     population: 5,
     renown: 5
   },
@@ -878,7 +881,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Farmstead / Artisan Farm."
     },
     effectText:
-      "When placed or activated: Choose up to two adjacent tiles. They gain Supported.",
+      "Passive: Once per round, when paying a cost, pay up to 2 fewer Food.",
     population: 5,
     renown: 5
   },
@@ -893,7 +896,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Travel Tile."
     },
     effectText:
-      "Activated Effect: Look at the top 3 cards of the Encounter Deck, then return them in any order.",
+      "Passive: Once per round, complete 1 Arrival for 0 Actions. Pay its cost and follow normal rules.",
     population: 5,
     renown: 5
   },
@@ -908,7 +911,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place adjacent to a Social Tile."
     },
     effectText:
-      "When placed or activated: Choose up to two adjacent tiles. They gain Supported.",
+      "Passive: Once per round, after a Social Tile removes Strain from a tile, remove 1 additional Strain from that tile. It gains Supported.",
     population: 5,
     renown: 5
   }

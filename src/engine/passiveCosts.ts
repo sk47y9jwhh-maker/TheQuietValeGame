@@ -143,7 +143,6 @@ export function getPassiveCostOptions(
   state: GameState,
   context: PassiveCostContext
 ): PassiveCostOption[] {
-  if (costTotal(context.cost) <= 0) return [];
   const options: PassiveCostOption[] = [];
 
   for (const tile of state.map.placedTiles) {
@@ -152,6 +151,7 @@ export function getPassiveCostOptions(
     if (
       context.action === "place" &&
       context.placementHexIds?.length &&
+      costTotal(context.cost) > 0 &&
       !isPassiveUsed(state, tile, "round")
     ) {
       const isCharter =
@@ -184,13 +184,16 @@ export function getPassiveCostOptions(
       context.category === "housing" &&
       context.placementHexIds?.length &&
       tile.tileId === "special_brewery_of_legends" &&
-      !isPassiveUsed(state, tile, "season") &&
+      !isPassiveUsed(state, tile, "round") &&
       areHexSetsAdjacent(tile.hexIds, context.placementHexIds)
     ) {
       options.push(
         makeOption(tile, {
-          kind: "zero",
-          cadence: "season",
+          kind: "discount",
+          cadence: "round",
+          amount: 2,
+          resourceChoices: ["food"],
+          supportsPlacedTile: true,
           required: true
         })
       );
@@ -199,6 +202,7 @@ export function getPassiveCostOptions(
     if (
       context.action === "place" &&
       context.placementHexIds?.length &&
+      costTotal(context.cost) > 0 &&
       tile.tileId === "special_labourers_yard" &&
       !isPassiveUsed(state, tile, "round") &&
       areHexSetsAdjacent(tile.hexIds, context.placementHexIds)
@@ -209,6 +213,51 @@ export function getPassiveCostOptions(
           cadence: "round",
           amount: 2,
           required: true
+        })
+      );
+    }
+
+    if (
+      (context.action === "arrival" || context.action === "burden") &&
+      costTotal(context.cost) > 0 &&
+      tile.tileId === "special_house_of_learning" &&
+      !isPassiveUsed(state, tile, "round")
+    ) {
+      options.push(
+        makeOption(tile, {
+          kind: "discount",
+          cadence: "round",
+          amount: 2
+        })
+      );
+    }
+
+    if (
+      context.cost.food > 0 &&
+      tile.tileId === "special_the_tamers_respite" &&
+      !isPassiveUsed(state, tile, "round")
+    ) {
+      options.push(
+        makeOption(tile, {
+          kind: "discount",
+          cadence: "round",
+          amount: 2,
+          resourceChoices: ["food"]
+        })
+      );
+    }
+
+    if (
+      context.action === "arrival" &&
+      tile.tileId === "special_the_waystation" &&
+      !isPassiveUsed(state, tile, "round")
+    ) {
+      options.push(
+        makeOption(tile, {
+          kind: "discount",
+          cadence: "round",
+          amount: 0,
+          waivesAction: true
         })
       );
     }
@@ -354,12 +403,29 @@ export function applyCostChoice(
   return next;
 }
 
+export function getSelectedActionCost(
+  baseActionCost: number,
+  options: PassiveCostOption[],
+  selection: CostChoiceSelection = { selectedOptionIds: [] }
+): number {
+  return getEffectiveSelectedOptions(options, selection).some(
+    (option) => option.waivesAction
+  )
+    ? 0
+    : baseActionCost;
+}
+
 export function findAffordableCostSelection(
   state: GameState,
   baseCost: ResourceCost,
-  options: PassiveCostOption[]
+  options: PassiveCostOption[],
+  baseActionCost = 0
 ): CostChoiceSelection | null {
-  if (canAfford(state.warehouse, baseCost) && !options.some((option) => option.required)) {
+  if (
+    canAfford(state.warehouse, baseCost) &&
+    state.actionsRemaining >= baseActionCost &&
+    !options.some((option) => option.required)
+  ) {
     return { selectedOptionIds: [] };
   }
 
@@ -373,7 +439,10 @@ export function findAffordableCostSelection(
     if (index >= options.length) {
       if (!validateCostChoiceSelection(options, selection)) return null;
       const cost = applyCostChoice(state, baseCost, options, selection);
-      return canAfford(state.warehouse, cost) ? selection : null;
+      const actionCost = getSelectedActionCost(baseActionCost, options, selection);
+      return canAfford(state.warehouse, cost) && state.actionsRemaining >= actionCost
+        ? selection
+        : null;
     }
 
     const option = options[index];

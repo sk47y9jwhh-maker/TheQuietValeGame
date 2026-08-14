@@ -42,7 +42,6 @@ import {
   commitSeasonSeeding,
   endCurrentTurn,
   getActivatableTileIds,
-  moveStewardViaStables,
   placeTile,
   resolveEndRound,
   revealEncounters,
@@ -904,11 +903,6 @@ export function App() {
           }
           onUseFaceUpBoon={(boonCardId) =>
             commitGameState((current) => useFaceUpBoon(current, boonCardId))
-          }
-          onStableMove={(destinationTileId) =>
-            commitGameState((current) =>
-              moveStewardViaStables(current, currentPlayer.id, destinationTileId)
-            )
           }
           onUseStewardPower={() =>
             commitGameState((current) => useStewardPower(current, currentPlayer.id))

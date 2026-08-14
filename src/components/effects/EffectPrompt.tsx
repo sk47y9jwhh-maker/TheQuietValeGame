@@ -134,6 +134,10 @@ export function EffectPrompt({
   const [resolvedBurdenIds, setResolvedBurdenIds] = useState<string[]>(
     effect.suggestedAdjustment?.resolvedBurdenIds ?? []
   );
+  const [rootWeaversPreventionTargetTileId, setRootWeaversPreventionTargetTileId] =
+    useState<string | undefined>(
+      effect.suggestedAdjustment?.rootWeaversPreventionTargetTileId
+    );
 
   useEffect(() => {
     setResourceDeltas(normalizeResourceDeltas(effect.suggestedAdjustment));
@@ -153,6 +157,9 @@ export function EffectPrompt({
     );
     setIgnoredBurdenIds(effect.suggestedAdjustment?.ignoredBurdenIds ?? []);
     setResolvedBurdenIds(effect.suggestedAdjustment?.resolvedBurdenIds ?? []);
+    setRootWeaversPreventionTargetTileId(
+      effect.suggestedAdjustment?.rootWeaversPreventionTargetTileId
+    );
   }, [effect.id, effect.suggestedAdjustment]);
 
   const adjustment = useMemo(
@@ -165,7 +172,8 @@ export function EffectPrompt({
         stewardHexUpdates,
         temporaryReachHexUpdates,
         ignoredBurdenIds,
-        resolvedBurdenIds
+        resolvedBurdenIds,
+        rootWeaversPreventionTargetTileId
       }),
     [
       arrivalTimerDeltas,
@@ -173,6 +181,7 @@ export function EffectPrompt({
       ignoredBurdenIds,
       resolvedBurdenIds,
       resourceDeltas,
+      rootWeaversPreventionTargetTileId,
       strainCascadeAnchorTileId,
       stewardHexUpdates,
       temporaryReachHexUpdates,
@@ -213,6 +222,14 @@ export function EffectPrompt({
     effect.sourceType === "tile" && effect.sourceId
       ? state.map.placedTiles.find((tile) => tile.instanceId === effect.sourceId)
       : undefined;
+  const rootWeaversTargets = Object.entries(
+    effect.targetCardPlannedStrainByTileId ?? {}
+  )
+    .filter(([, amount]) => amount > 0)
+    .map(([tileId]) =>
+      state.map.placedTiles.find((tile) => tile.instanceId === tileId)
+    )
+    .filter((tile): tile is NonNullable<typeof tile> => Boolean(tile));
   const controlHints = effect.controlHints ?? describeEffectControls(effect.ruleId);
   const alternativeEffectRule = getAlternativeEffectRule(
     state,
@@ -509,6 +526,18 @@ export function EffectPrompt({
       );
       items.push(
         `${tile ? `${selectTileName(tile)} (${tile.hexIds.join(", ")})` : tileId}: gains Supported`
+      );
+    }
+
+    if (adjustment.rootWeaversPreventionTargetTileId) {
+      const tile = state.map.placedTiles.find(
+        (candidate) =>
+          candidate.instanceId === adjustment.rootWeaversPreventionTargetTileId
+      );
+      items.push(
+        `Pay 2 Herbs to prevent 1 Strain on ${
+          tile ? `${selectTileName(tile)} (${tile.hexIds.join(", ")})` : adjustment.rootWeaversPreventionTargetTileId
+        }`
       );
     }
 
@@ -1011,6 +1040,39 @@ export function EffectPrompt({
             <summary>How automatic targeting works</summary>
             <p>{targetCardRulesText}</p>
           </details>
+        </section>
+      )}
+
+      {effect.allowRootWeaversPreventionTileId && rootWeaversTargets.length > 0 && (
+        <section className="effect-control-group">
+          <div className="effect-control-heading">
+            <h3>Root Weavers Respite</h3>
+            <span>Optional once per round</span>
+          </div>
+          <p>Pay 2 Herbs to prevent 1 Strain that would be placed on one target.</p>
+          <div className="effect-list tile-effect-list">
+            {rootWeaversTargets.map((tile) => {
+              const selected = rootWeaversPreventionTargetTileId === tile.instanceId;
+              return (
+                <button
+                  aria-pressed={selected}
+                  className={`effect-row tile-effect-row ${selected ? "selected" : ""}`}
+                  key={tile.instanceId}
+                  onClick={() =>
+                    setRootWeaversPreventionTargetTileId(
+                      selected ? undefined : tile.instanceId
+                    )
+                  }
+                  type="button"
+                >
+                  <span>
+                    {selectTileName(tile)} {tile.hexIds.join(", ")}
+                  </span>
+                  {selected ? <Check size={16} /> : <ShieldCheck size={16} />}
+                </button>
+              );
+            })}
+          </div>
         </section>
       )}
 

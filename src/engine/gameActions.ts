@@ -64,6 +64,7 @@ import {
   applyCostChoice,
   getPassiveCostOptions,
   findAffordableCostSelection,
+  getSelectedActionCost,
   recordPassiveCostChoices,
   validateCostChoiceSelection
 } from "./passiveCosts";
@@ -140,9 +141,10 @@ function hasNonCostPendingEffects(state: GameState): boolean {
 function canPayNowOrWithPassiveOptions(
   state: GameState,
   cost: ResourceCost,
-  options: PassiveCostOption[]
+  options: PassiveCostOption[],
+  actionCost = 0
 ): boolean {
-  return Boolean(findAffordableCostSelection(state, cost, options));
+  return Boolean(findAffordableCostSelection(state, cost, options, actionCost));
 }
 
 function queueCostChoice(
@@ -178,13 +180,29 @@ function getAutomaticCostSelection(
       (option) =>
         !option.required ||
         option.kind === "market" ||
-        Boolean(option.resourceChoices?.length)
+        (option.resourceChoices?.length ?? 0) > 1
     )
   ) {
     return undefined;
   }
 
-  return { selectedOptionIds: options.map((option) => option.id) };
+  return {
+    selectedOptionIds: options.map((option) => option.id),
+    discountResourceByOptionId: Object.fromEntries(
+      options
+        .filter(
+          (option) => option.kind === "discount" && option.resourceChoices?.length === 1
+        )
+        .map((option) => [option.id, option.resourceChoices![0]])
+    ),
+    surchargeResourceByOptionId: Object.fromEntries(
+      options
+        .filter(
+          (option) => option.kind === "surcharge" && option.resourceChoices?.length === 1
+        )
+        .map((option) => [option.id, option.resourceChoices![0]])
+    )
+  };
 }
 
 function recordSelectedCostOptions(
@@ -574,7 +592,49 @@ function applyAdjacentProductionPassiveEffects(
       resourceDeltas,
       `${getPlacedTileName(passiveTile)} passively added ${gainText} after ${getPlacedTileName(activatedTile)} produced.`
     );
+    const strainRemoval = productionPassiveRules[passiveTile.tileId]?.removeStrainFromProducer ?? 0;
+    const currentProducer = nextState.map.placedTiles.find(
+      (tile) => tile.instanceId === activatedTile.instanceId
+    );
+    const removedStrain = Math.min(currentProducer?.strain ?? 0, strainRemoval);
+    if (removedStrain > 0) {
+      nextState = {
+        ...nextState,
+        map: {
+          placedTiles: nextState.map.placedTiles.map((tile) =>
+            tile.instanceId === activatedTile.instanceId
+              ? { ...tile, strain: tile.strain - removedStrain }
+              : tile
+          )
+        }
+      };
+      nextState = log(
+        nextState,
+        `${getPlacedTileName(passiveTile)} removed ${removedStrain} Strain from ${getPlacedTileName(activatedTile)}.`
+      );
+    }
     nextState = recordRoundPassiveUse(nextState, passiveTile);
+  }
+
+  return nextState;
+}
+
+function applyReaversPlacementPassive(state: GameState): GameState {
+  let nextState = state;
+  const availableReavers = state.map.placedTiles.filter(
+    (tile) =>
+      tile.tileId === "special_the_reavers_respite" &&
+      tile.strain < 3 &&
+      state.tileActivationRecords[tile.instanceId]?.round !== state.round
+  );
+
+  for (const reavers of availableReavers) {
+    nextState = applyResourceGain(
+      nextState,
+      { wood: 2 },
+      `${getPlacedTileName(reavers)} added 2 wood after a tile was placed.`
+    );
+    nextState = recordRoundPassiveUse(nextState, reavers);
   }
 
   return nextState;
@@ -1361,6 +1421,11 @@ export function placeTile(
     resolvedCostSelection
   );
   if (!finalCost || !canAfford(state.warehouse, finalCost)) return state;
+  const brewerySupportSelected = paymentOptions.some(
+    (option) =>
+      option.supportsPlacedTile &&
+      Boolean(resolvedCostSelection?.selectedOptionIds.includes(option.id))
+  );
 
   const player = state.players.find((candidate) => candidate.id === playerId);
   if (!player) return state;
@@ -1416,7 +1481,7 @@ export function placeTile(
       category === "housing" &&
       isAdjacentToCategory(placedTile, placementContextTiles, "housing");
 
-    return vanguardSupports || knightSupports
+    return vanguardSupports || knightSupports || brewerySupportSelected
       ? withSingleUseSupport(placedTile)
       : placedTile;
   });
@@ -1473,6 +1538,7 @@ export function placeTile(
     paymentOptions,
     resolvedCostSelection
   );
+  nextState = applyReaversPlacementPassive(nextState);
   return tileEffectTriggersOnPlacement(placedTiles[0])
     ? queueTileEffectPrompt(nextState, placedTiles[0], "Placed effect")
     : nextState;
@@ -1797,20 +1863,31 @@ export function canCompleteArrival(
   }
   if (!card || card.type !== "arrival") return { ok: reasons.length === 0, reasons };
 
-  const actionPreview = getBoonActionPreview(state, {
+  const boonTarget = {
     action: "arrival",
     baseCost: arrivalRequirementRules[card.id].cost
-  });
-  if (state.actionsRemaining < actionPreview.actionCost) {
-    reasons.push("Cannot complete Arrival: no actions remaining.");
-  }
-  const cost = actionPreview.cost;
-  const options = getPassiveCostOptions(state, {
+  } as const;
+  const actionPreview = getBoonActionPreview(state, boonTarget);
+  const cost = boonTarget.baseCost;
+  const options = [
+    ...getBoonCostOptions(state, boonTarget),
+    ...getPassiveCostOptions(state, {
     action: "arrival",
     playerId: state.currentPlayerId,
     cost
-  });
-  const missingResources = canPayNowOrWithPassiveOptions(state, cost, options)
+    })
+  ];
+  const resourceSelection = findAffordableCostSelection(state, cost, options, 0);
+  const affordableSelection = findAffordableCostSelection(
+    state,
+    cost,
+    options,
+    actionPreview.actionCost
+  );
+  if (resourceSelection && !affordableSelection) {
+    reasons.push("Cannot complete Arrival: no actions remaining.");
+  }
+  const missingResources = resourceSelection
     ? {}
     : getResourceShortfalls(state.warehouse, cost);
   for (const [resource, amount] of Object.entries(missingResources)) {
@@ -1866,100 +1943,6 @@ export function getUsableFaceUpBoonIds(state: GameState): string[] {
       );
     })
     .map((boon) => boon.cardId);
-}
-
-function getActiveStableTiles(state: GameState): PlacedTile[] {
-  return state.map.placedTiles.filter(
-    (tile) => tile.tileId === "special_stables" && tile.strain < 3
-  );
-}
-
-function isStableNetworkTile(tile: PlacedTile, stableTiles: PlacedTile[]): boolean {
-  return (
-    stableTiles.some((stable) => stable.instanceId === tile.instanceId) ||
-    stableTiles.some((stable) => arePlacedTilesAdjacent(stable, tile))
-  );
-}
-
-export function getStableMoveDestinationTileIds(
-  state: GameState,
-  playerId: string
-): string[] {
-  if (state.phase !== "turns" || hasPendingEffects(state)) return [];
-  if (state.currentPlayerId !== playerId) return [];
-
-  const player = state.players.find((candidate) => candidate.id === playerId);
-  if (!player) return [];
-
-  const stableTiles = getActiveStableTiles(state);
-  if (stableTiles.length === 0) return [];
-
-  const sourceTile = state.map.placedTiles.find((tile) =>
-    tile.hexIds.includes(player.stewardHexId)
-  );
-  if (!sourceTile || !isStableNetworkTile(sourceTile, stableTiles)) return [];
-
-  return state.map.placedTiles
-    .filter(
-      (tile) =>
-        tile.instanceId !== sourceTile.instanceId &&
-        tile.strain < 3 &&
-        isStableNetworkTile(tile, stableTiles)
-    )
-    .map((tile) => tile.instanceId);
-}
-
-export function canMoveStewardViaStables(
-  state: GameState,
-  playerId: string,
-  destinationTileId: string
-): ValidationResult {
-  const reasons: string[] = [];
-
-  if (state.phase !== "turns") {
-    reasons.push("Cannot move via Stables: it is not the Player Turns phase.");
-  }
-  if (hasPendingEffects(state)) {
-    reasons.push("Resolve the pending choice before moving via Stables.");
-  }
-  if (state.currentPlayerId !== playerId) {
-    reasons.push("Cannot move via Stables: it is not this Steward's turn.");
-  }
-  if (!state.players.some((player) => player.id === playerId)) {
-    reasons.push("Cannot move via Stables: no acting Steward was found.");
-  }
-
-  if (!getStableMoveDestinationTileIds(state, playerId).includes(destinationTileId)) {
-    reasons.push("Cannot move via Stables: choose a valid Stables destination.");
-  }
-
-  return { ok: reasons.length === 0, reasons };
-}
-
-export function moveStewardViaStables(
-  state: GameState,
-  playerId: string,
-  destinationTileId: string
-): GameState {
-  if (!canMoveStewardViaStables(state, playerId, destinationTileId).ok) return state;
-
-  const destinationTile = getPlacedTile(state, destinationTileId);
-  const player = state.players.find((candidate) => candidate.id === playerId);
-  if (!destinationTile || !player) return state;
-
-  const nextState: GameState = {
-    ...state,
-    players: state.players.map((candidate) =>
-      candidate.id === playerId
-        ? { ...candidate, stewardHexId: destinationTile.hexIds[0] }
-        : candidate
-    )
-  };
-
-  return log(
-    nextState,
-    `${player.name} moved via Stables to ${getPlacedTileName(destinationTile)}.`
-  );
 }
 
 export function getStewardPowerUseLimit(
@@ -2356,7 +2339,6 @@ export function completeArrival(
     baseCost
   } as const;
   const actionPreview = getBoonActionPreview(state, boonTarget);
-  if (state.actionsRemaining < actionPreview.actionCost) return state;
   const boonCostOptions = getBoonCostOptions(state, boonTarget);
   const passiveCostOptions = getPassiveCostOptions(state, {
     action: "arrival",
@@ -2387,6 +2369,12 @@ export function completeArrival(
     costSelection
   );
   if (!finalCost || !canAfford(state.warehouse, finalCost)) return state;
+  const finalActionCost = getSelectedActionCost(
+    actionPreview.actionCost,
+    paymentOptions,
+    costSelection
+  );
+  if (state.actionsRemaining < finalActionCost) return state;
 
   const specialTileIds = card.rewardSpecialTileIds;
   const specialTileNames = specialTileIds.map(
@@ -2400,7 +2388,7 @@ export function completeArrival(
   let nextState: GameState = {
     ...state,
     pendingCostChoice: null,
-    actionsRemaining: state.actionsRemaining - actionPreview.actionCost,
+    actionsRemaining: state.actionsRemaining - finalActionCost,
     warehouse: spendResources(state.warehouse, finalCost),
     tileSupply: {
       ...state.tileSupply,

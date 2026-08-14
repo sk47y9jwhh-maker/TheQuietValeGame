@@ -335,6 +335,8 @@ Practical current-rules tactic: in the final rounds, use an Inn, Quartermaster, 
 
 ### 6. Knight + Brewery of Legends: a zero/zero Housing spike
 
+> **Current-design note — 14 August 2026:** This finding is superseded. Brewery of Legends now makes the first adjacent Housing tile each round cost 2 fewer Food and gain Supported. It no longer reduces that tile’s full resource cost to zero.
+
 Confidence: **Exact + association**<br>
 Health assessment: **Rare but very efficient legal stack**
 
@@ -624,6 +626,8 @@ For Steward objectives and Golden goals, either:
 - preserve different difficulty tiers and pay 5/10/15 or similar rewards.
 
 For Special Tiles, review utility plus printed score together. The Resting Hall, Brewery, Reliquary, Adventurers' Guild, and House of Learning all provide their own 10 printed points and can also erase substantial action/penalty costs. A small placement cost, lower printed score, or more limited cadence may be appropriate for the strongest rewards.
+
+> **Current-design note — 14 August 2026:** All 25 Special Tile effects have since received a parity and duplication pass. These historical comparisons should be rerun against the revised effects before making further balance changes.
 
 ## New mechanics and content ideas suggested by the audit
 

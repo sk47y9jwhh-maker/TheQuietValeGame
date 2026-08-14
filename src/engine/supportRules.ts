@@ -1,7 +1,6 @@
 import { getHexNeighbors } from "./hex";
 import { intrinsicallySupportedTileSides } from "../data/contentRules";
 import { arePlacedTilesAdjacent, getPlacedTileCategory } from "./placedTiles";
-import { selectConnectedPlacedTileIds } from "./reachability";
 import type { GameState, PlacedTile } from "./types";
 
 export interface NeighbourlySupportCluster {
@@ -114,25 +113,6 @@ function hasPrintedPassiveSupport(tile: PlacedTile): boolean {
   return intrinsicallySupportedTileSides.has(`${tile.tileId}:${tile.side}`);
 }
 
-function getLanternRoadhouseSupportedTileIds(state: GameState): Set<string> {
-  const supportedIds = new Set<string>();
-
-  const lanterns = state.map.placedTiles.filter(
-    (tile) => tile.tileId === "special_lantern_roadhouse" && tile.strain < 3
-  );
-
-  for (const lantern of lanterns) {
-    const connectedIds = selectConnectedPlacedTileIds(state.map.placedTiles, [lantern]);
-    for (const tile of state.map.placedTiles) {
-      if (!connectedIds.has(tile.instanceId)) continue;
-      if (tile.strain >= 3 || getPlacedTileCategory(tile) !== "travel") continue;
-      supportedIds.add(tile.instanceId);
-    }
-  }
-
-  return supportedIds;
-}
-
 function getGoldenHearthSupportedTileIds(state: GameState): Set<string> {
   const supportedIds = new Set<string>();
   const hearths = state.map.placedTiles.filter(
@@ -195,7 +175,6 @@ function getCommonLandSupportedTileIds(
 }
 
 export function recalculatePassiveSupported(state: GameState): GameState {
-  const lanternSupportedIds = getLanternRoadhouseSupportedTileIds(state);
   const goldenHearthSupportedIds = getGoldenHearthSupportedTileIds(state);
   const intrinsicSupportedIds = new Set(
     state.map.placedTiles
@@ -204,7 +183,6 @@ export function recalculatePassiveSupported(state: GameState): GameState {
   );
   const alreadySupportedIds = new Set([
     ...intrinsicSupportedIds,
-    ...lanternSupportedIds,
     ...goldenHearthSupportedIds
   ]);
   const commonLandSupportedIds = getCommonLandSupportedTileIds(
@@ -216,7 +194,6 @@ export function recalculatePassiveSupported(state: GameState): GameState {
   const placedTiles = state.map.placedTiles.map((tile) => {
     const passive =
       intrinsicSupportedIds.has(tile.instanceId) ||
-      lanternSupportedIds.has(tile.instanceId) ||
       goldenHearthSupportedIds.has(tile.instanceId) ||
       commonLandSupportedIds.has(tile.instanceId);
     if (tile.support.passive === passive) return tile;

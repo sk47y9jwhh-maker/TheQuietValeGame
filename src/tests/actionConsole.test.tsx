@@ -30,7 +30,6 @@ function actionConsoleElement(
       onSelectedTileChange={() => {}}
       onTileInspect={() => {}}
       onSkipPendingEffect={() => {}}
-      onStableMove={() => {}}
       onUpgrade={() => {}}
       onUseFaceUpBoon={() => {}}
       onUseStewardPower={() => {}}
