@@ -41,12 +41,12 @@ function dealtCardIds(
 }
 
 describe("setup and round authority", () => {
-  it("creates the standard 24-card Target Deck for every game", () => {
+  it("creates the standard 30-card Target Deck for every game", () => {
     const state = createNewGame(1, ["vanguard"], {
       encounterSeed: "QV-TARGET-DECK"
     });
 
-    expect(state.targetCards.drawPile).toHaveLength(24);
+    expect(state.targetCards.drawPile).toHaveLength(30);
     expect(state.targetCards.drawCount).toBe(0);
     expect(state.targetCards).not.toHaveProperty("enabled");
   });

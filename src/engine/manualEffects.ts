@@ -33,7 +33,7 @@ import {
 } from "./supportRules";
 import {
   comparePlacedTilesByMapCoordinate,
-  drawAndSelectTarget,
+  drawTargetCardForPlanning,
   updateTargetCardDiagnostic
 } from "./targetCards";
 import type {
@@ -1399,6 +1399,7 @@ function planDirectTargetCardStrain(
   diagnostics: TargetCardSelectionDiagnostic[];
   targetTileIds: string[];
   plannedStrainByTileId: Record<string, number>;
+  targetCardManualChoice?: boolean;
 } {
   const strainRule = getTileAdjustmentRule(
     state,
@@ -1426,7 +1427,8 @@ function planDirectTargetCardStrain(
       adjustment: {},
       diagnostics: [],
       targetTileIds: [],
-      plannedStrainByTileId: {}
+      plannedStrainByTileId: {},
+      targetCardManualChoice: false
     };
   }
 
@@ -1443,10 +1445,16 @@ function planDirectTargetCardStrain(
   let planningState = state;
   let remainingCandidates = [...candidates];
   const selections: PlannedTargetCardSelection[] = [];
+  let manualTargetCandidateIds: string[] | undefined;
+  let manualDiagnostic: TargetCardSelectionDiagnostic | undefined;
 
   const drawFrom = (pool: PlacedTile[]): boolean => {
-    if (pool.length === 0 || selections.length >= desiredTargetCount) return false;
-    const selected = drawAndSelectTarget(planningState, pool, {
+    if (
+      pool.length === 0 ||
+      selections.length >= desiredTargetCount ||
+      manualTargetCandidateIds
+    ) return false;
+    const selected = drawTargetCardForPlanning(planningState, pool, {
       effectId: pendingEffect.id,
       sourceId: pendingEffect.sourceId,
       role: "target",
@@ -1454,6 +1462,11 @@ function planDirectTargetCardStrain(
     });
     if (!selected) return false;
     planningState = selected.state;
+    if (selected.kind === "manual") {
+      manualTargetCandidateIds = pool.map((tile) => tile.instanceId);
+      manualDiagnostic = selected.diagnostic;
+      return false;
+    }
     selections.push({ tile: selected.tile, diagnostic: selected.diagnostic });
     remainingCandidates = remainingCandidates.filter(
       (candidate) => candidate.instanceId !== selected.tile.instanceId
@@ -1566,13 +1579,18 @@ function planDirectTargetCardStrain(
       { plannedStrain: amount }
     );
   }
+  if (manualDiagnostic) diagnostics.push(manualDiagnostic);
 
   return {
     state: planningState,
     adjustment: { tileStrainDeltas: plannedStrainByTileId },
     diagnostics,
-    targetTileIds: diagnostics.map((diagnostic) => diagnostic.selectedTileId),
-    plannedStrainByTileId
+    targetTileIds: [
+      ...diagnostics.map((diagnostic) => diagnostic.selectedTileId).filter(Boolean),
+      ...(manualTargetCandidateIds ?? [])
+    ].filter((tileId, index, ids) => ids.indexOf(tileId) === index),
+    plannedStrainByTileId,
+    targetCardManualChoice: Boolean(manualTargetCandidateIds)
   };
 }
 
@@ -1588,27 +1606,40 @@ function planCascadeTargetCards(
   diagnostics: TargetCardSelectionDiagnostic[];
   targetTileIds: string[];
   plannedStrainByTileId: Record<string, number>;
+  targetCardManualChoice?: boolean;
 } {
   const anchors = getStrainCascadeAnchorTargets(
     state,
     pendingEffect.ruleId,
     sourceTile
   );
-  const primary = drawAndSelectTarget(state, anchors, {
+  const primaryResult = drawTargetCardForPlanning(state, anchors, {
     effectId: pendingEffect.id,
     sourceId: pendingEffect.sourceId,
     role: "primary",
     printedFallbackUsed
   });
-  if (!primary) {
+  if (!primaryResult) {
     return {
       state,
       adjustment: {},
       diagnostics: [],
       targetTileIds: [],
-      plannedStrainByTileId: {}
+      plannedStrainByTileId: {},
+      targetCardManualChoice: false
     };
   }
+  if (primaryResult.kind === "manual") {
+    return {
+      state: primaryResult.state,
+      adjustment: {},
+      diagnostics: [primaryResult.diagnostic],
+      targetTileIds: anchors.map((tile) => tile.instanceId),
+      plannedStrainByTileId: {},
+      targetCardManualChoice: true
+    };
+  }
+  const primary = primaryResult;
 
   let planningState = primary.state;
   const allPrimaryCompletionCounts = anchors.map((anchor) => ({
@@ -1627,11 +1658,14 @@ function planCascadeTargetCards(
     sourceTile
   );
   const spreadSelections: PlannedTargetCardSelection[] = [];
+  let manualTargetCandidateIds: string[] | undefined;
+  let manualDiagnostic: TargetCardSelectionDiagnostic | undefined;
   while (
     spreadSelections.length < cascade.maxSpreadTargets &&
-    remainingSpreadTargets.length > 0
+    remainingSpreadTargets.length > 0 &&
+    !manualTargetCandidateIds
   ) {
-    const selected = drawAndSelectTarget(planningState, remainingSpreadTargets, {
+    const selected = drawTargetCardForPlanning(planningState, remainingSpreadTargets, {
       effectId: pendingEffect.id,
       sourceId: pendingEffect.sourceId,
       role: "spread",
@@ -1639,6 +1673,13 @@ function planCascadeTargetCards(
     });
     if (!selected) break;
     planningState = selected.state;
+    if (selected.kind === "manual") {
+      manualTargetCandidateIds = remainingSpreadTargets.map(
+        (tile) => tile.instanceId
+      );
+      manualDiagnostic = selected.diagnostic;
+      break;
+    }
     spreadSelections.push({ tile: selected.tile, diagnostic: selected.diagnostic });
     remainingSpreadTargets = remainingSpreadTargets.filter(
       (tile) => tile.instanceId !== selected.tile.instanceId
@@ -1677,6 +1718,12 @@ function planCascadeTargetCards(
       { plannedStrain: cascade.spreadStrain }
     );
   }
+  if (manualDiagnostic) {
+    spreadDiagnostics.push({
+      ...manualDiagnostic,
+      plannedStrain: cascade.spreadStrain
+    });
+  }
   const plannedStrainByTileId = {
     ...(cascade.anchorStrain > 0
       ? { [primary.tile.instanceId]: cascade.anchorStrain }
@@ -1703,9 +1750,11 @@ function planCascadeTargetCards(
     diagnostics: [primaryDiagnostic, ...spreadDiagnostics],
     targetTileIds: [
       primary.tile.instanceId,
-      ...spreadSelections.map((selection) => selection.tile.instanceId)
-    ],
-    plannedStrainByTileId
+      ...spreadSelections.map((selection) => selection.tile.instanceId),
+      ...(manualTargetCandidateIds ?? [])
+    ].filter((tileId, index, ids) => ids.indexOf(tileId) === index),
+    plannedStrainByTileId,
+    targetCardManualChoice: Boolean(manualTargetCandidateIds)
   };
 }
 
@@ -1785,13 +1834,15 @@ export function preparePendingEffectQueueHead(state: GameState): GameState {
     targetCardTargetTileIds: plan.targetTileIds,
     targetCardPlannedStrainByTileId: plan.plannedStrainByTileId,
     targetCardDiagnostics: plan.diagnostics,
+    targetCardManualChoice: plan.targetCardManualChoice,
     allowRootWeaversPreventionTileId: rootWeavers?.instanceId,
     suggestedAdjustment: hasEffectAdjustment(suggestedAdjustment)
       ? suggestedAdjustment
       : undefined,
-    requiresManualChoice: !targetCardEffectStillNeedsPlayerDecision(rule)
-      ? false
-      : pendingEffect.requiresManualChoice
+    requiresManualChoice: plan.targetCardManualChoice ||
+      (targetCardEffectStillNeedsPlayerDecision(rule)
+        ? Boolean(pendingEffect.requiresManualChoice)
+        : false)
   };
 
   const coordinateFallbacks = plan.diagnostics.filter(
@@ -1804,7 +1855,7 @@ export function preparePendingEffectQueueHead(state: GameState): GameState {
           ...coordinateFallbacks.map((diagnostic, index) => ({
             id: `log_${plan.state.log.length + index + 1}_${Date.now()}`,
             round: plan.state.round,
-            message: `Target Card ${diagnostic.cardId} used map-coordinate fallback after its ${diagnostic.direction} arrow remained tied.`
+            message: `Target Card ${diagnostic.cardId} used map-coordinate fallback after its ${diagnostic.direction} tie direction remained tied.`
           })),
           ...plan.state.log
         ].slice(0, 80)
@@ -1827,6 +1878,14 @@ function isTargetCardTileAdjustmentValid(
   sourceTile?: PlacedTile
 ): boolean | null {
   if (!pendingEffect.targetCardPrepared) return null;
+  if (pendingEffect.targetCardManualChoice) {
+    return isTileAdjustmentValid(
+      state,
+      pendingEffect.ruleId,
+      adjustment,
+      sourceTile
+    );
+  }
   const planned = pendingEffect.targetCardPlannedStrainByTileId ?? {};
   const targetIds = new Set(pendingEffect.targetCardTargetTileIds ?? []);
   if (targetIds.size === 0) return null;
@@ -2002,7 +2061,8 @@ export function isPendingEffectAdjustmentValid(
     adjustment,
     sourceTile
   );
-  const targetCardPlannedStrainTotal = targetCardTileValidity === null
+  const targetCardPlannedStrainTotal = targetCardTileValidity === null ||
+    pendingEffect.targetCardManualChoice
     ? undefined
     : Object.values(
         pendingEffect.targetCardPlannedStrainByTileId ?? {}

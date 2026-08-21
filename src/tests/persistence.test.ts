@@ -94,7 +94,7 @@ describe("browser persistence", () => {
       tileSkipped: false
     });
     expect(restored?.state.pendingGoldenEffect).toBeNull();
-    expect(restored?.state.targetCards.drawPile).toHaveLength(24);
+    expect(restored?.state.targetCards.drawPile).toHaveLength(30);
     expect(
       resourceTileIds.map((tileId) => restored?.state.tileSupply.core[tileId])
     ).toEqual([3, 3, 3, 3, 3]);
@@ -143,7 +143,7 @@ describe("browser persistence", () => {
     );
 
     const restored = readSavedGame();
-    expect(restored?.state.targetCards.drawPile).toHaveLength(24);
+    expect(restored?.state.targetCards.drawPile).toHaveLength(30);
     expect(restored?.state.targetCards).not.toHaveProperty("enabled");
   });
 

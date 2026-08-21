@@ -97,8 +97,8 @@ const rules: RuleReferenceCard[] = [
       "When a tile has Supported, it prevents the next 1 Strain placed on it that round.",
       "One-use Supported disappears after it blocks Strain. Printed or passive Supported can protect the tile again in a later round.",
       "When an effect places Strain, its text determines the eligible tiles and the Target Deck chooses among them.",
-      "Draw one Target Card for each different target. Apply its class, side, adjacency, and current-Strain preferences in order whenever at least one candidate matches, then use its arrow to break a remaining tie.",
-      "Shuffle the 24-card Target Deck once during setup. Return each resolved card face down to the bottom. Do not discard or reshuffle during play.",
+      "Draw one Target Card for each different target. Apply its class, side, adjacency, and current-Strain preferences in order whenever at least one candidate matches, then use its six-hex tie direction to break a remaining tie.",
+      "Shuffle the 30-card Target Deck once during setup. Cards 25–30 are Open: choose any target still eligible under the triggering effect. Return each resolved card face down to the bottom. Do not discard or reshuffle during play.",
       "Resolve Supported and other prevention after the target is chosen. Prevented Strain is not redirected.",
       "Once per round, Lantern Roadhouse prevents 1 Strain on a Travel Tile in its connected settlement network. Root Weavers may spend 2 Herbs to prevent 1 Strain on a chosen target.",
       "After an effect ends, each tile that became Overstrained spreads 1 Strain to an adjacent eligible tile selected by the Target Deck. Continue until no new tile becomes Overstrained."

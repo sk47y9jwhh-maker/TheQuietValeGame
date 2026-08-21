@@ -289,10 +289,10 @@ export interface EffectControlHints {
   tileChoice: boolean;
 }
 
-export type TargetCardTileClass = "core" | "specialOrGolden";
-export type TargetCardSidePreference = "basic" | "upgraded" | "either";
-export type TargetCardAdjacencyPreference = "threePlus" | "zeroToTwo";
-export type TargetCardStrainPreference = "strained" | "unstrained";
+export type TargetCardTileClass = "core" | "specialOrGolden" | "any";
+export type TargetCardSidePreference = "basic" | "upgraded" | "either" | "any";
+export type TargetCardAdjacencyPreference = "threePlus" | "zeroToTwo" | "any";
+export type TargetCardStrainPreference = "strained" | "unstrained" | "any";
 export type TargetCardDirection = "NE" | "E" | "SE" | "SW" | "W" | "NW";
 export type TargetCardFilterName = "class" | "side" | "adjacency" | "strain";
 
@@ -302,7 +302,7 @@ export interface TargetCardDefinition {
   side: TargetCardSidePreference;
   adjacency: TargetCardAdjacencyPreference;
   strain: TargetCardStrainPreference;
-  direction: TargetCardDirection;
+  direction?: TargetCardDirection;
 }
 
 export interface TargetCardFilterDiagnostic {
@@ -321,7 +321,7 @@ export interface TargetCardSelectionDiagnostic {
   cardId: number;
   originalEligibleCount: number;
   filters: TargetCardFilterDiagnostic[];
-  direction: TargetCardDirection;
+  direction?: TargetCardDirection;
   directionRequired: boolean;
   directionCandidateCount: number;
   coordinateFallbackUsed: boolean;
@@ -338,6 +338,7 @@ export interface TargetCardSelectionDiagnostic {
   linkedSecondaryAvailable?: boolean;
   linkedSecondaryCompleted?: boolean;
   alternatePrimaryWouldComplete?: boolean;
+  manualChoice?: boolean;
 }
 
 export interface TargetCardDeckState {
@@ -374,10 +375,12 @@ export interface PendingEffectState {
   allowRootWeaversPreventionTileId?: string;
   /** Set once the opt-in Target Card system has considered this effect. */
   targetCardPrepared?: boolean;
-  /** The only tiles the automatic draw selected for positive Strain. */
+  /** The automatic draw-selected tiles, plus the eligible pool for an Open card. */
   targetCardTargetTileIds?: string[];
   targetCardPlannedStrainByTileId?: Record<string, number>;
   targetCardDiagnostics?: TargetCardSelectionDiagnostic[];
+  /** Set when an Open card leaves the remaining target choice to the players. */
+  targetCardManualChoice?: boolean;
 }
 
 export interface PendingDeckReorderState {

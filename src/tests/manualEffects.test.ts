@@ -928,6 +928,10 @@ describe("structured effect rules", () => {
       protectedSource,
       placed("target", "c05_cabin", "H1", 2)
     ]);
+    stoppedAtSource.targetCards.drawPile = [
+      25,
+      ...stoppedAtSource.targetCards.drawPile.filter((cardId) => cardId !== 25)
+    ];
     stoppedAtSource.pendingEffects = [{
       id: "effect_supported_source",
       ruleId: systemEffectRuleId("arrival-expired"),
@@ -950,6 +954,10 @@ describe("structured effect rules", () => {
       placed("source", "c15_path", "G1", 2),
       protectedTarget
     ]);
+    stoppedDuringSpread.targetCards.drawPile = [
+      25,
+      ...stoppedDuringSpread.targetCards.drawPile.filter((cardId) => cardId !== 25)
+    ];
     stoppedDuringSpread.pendingEffects = [{
       id: "effect_supported_target",
       ruleId: systemEffectRuleId("arrival-expired"),

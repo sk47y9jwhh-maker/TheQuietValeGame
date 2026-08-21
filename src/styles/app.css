@@ -1663,16 +1663,17 @@ button:disabled {
 
 .target-card-resolution {
   display: grid;
-  gap: 10px;
-  padding: 12px;
-  border: 1px solid rgba(75, 102, 107, 0.34);
-  border-left: 4px solid var(--qv-river-blue);
-  border-radius: 8px;
-  background: rgba(75, 102, 107, 0.08);
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid rgba(47, 72, 86, 0.38);
+  border-left: 4px solid #97446a;
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 84% 12%, rgba(151, 68, 106, 0.13), transparent 36%),
+    linear-gradient(145deg, rgba(47, 72, 86, 0.12), rgba(246, 235, 241, 0.34));
 }
 
-.target-card-resolution-heading,
-.target-card-diagnostic-heading {
+.target-card-resolution-heading {
   display: flex;
   justify-content: space-between;
   gap: 10px;
@@ -1685,46 +1686,48 @@ button:disabled {
 }
 
 .target-card-resolution-heading > span {
-  color: var(--qv-river-blue);
+  color: #7d3b5a;
   font-size: 11px;
   font-weight: 700;
 }
 
 .target-card-diagnostic-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 8px;
+  gap: 14px;
 }
 
 .target-card-diagnostic {
   display: grid;
-  gap: 8px;
-  padding: 10px;
-  border: 1px solid rgba(38, 34, 27, 0.16);
-  border-radius: 8px;
-  background: rgba(240, 234, 216, 0.78);
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  padding: 14px;
+  border: 1px solid rgba(25, 43, 54, 0.2);
+  border-radius: 10px;
+  background: rgba(246, 241, 232, 0.82);
+  box-shadow: 0 7px 20px rgba(25, 43, 54, 0.1);
 }
 
-.target-card-arrow {
-  min-width: 48px;
-  color: var(--qv-river-blue);
-  font-size: 15px;
-  font-weight: 700;
-  text-align: right;
+.target-card-runtime {
+  display: grid;
+  gap: 9px;
+  align-self: stretch;
+  min-width: 0;
+  padding: 4px 2px;
 }
 
-.target-card-preferences {
+.target-card-diagnostic-heading {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(25, 43, 54, 0.16);
 }
 
-.target-card-preferences span {
-  padding: 3px 6px;
-  border-radius: 999px;
-  background: rgba(75, 102, 107, 0.1);
-  color: var(--qv-ink);
-  font-size: 10px;
+.target-card-diagnostic-heading span {
+  color: #97446a;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -1740,9 +1743,9 @@ button:disabled {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 2px 8px;
-  padding: 5px 6px;
-  border-radius: 5px;
-  background: rgba(38, 34, 27, 0.05);
+  padding: 6px 7px;
+  border-radius: 6px;
+  background: rgba(47, 72, 86, 0.07);
   font-size: 10px;
 }
 
@@ -1752,6 +1755,10 @@ button:disabled {
 
 .target-card-filter-results li.ignored strong {
   color: var(--qv-danger-rust);
+}
+
+.target-card-filter-results li.neutral strong {
+  color: #7d3b5a;
 }
 
 .target-card-filter-results li small {
@@ -1783,7 +1790,7 @@ button:disabled {
 }
 
 .target-card-rules summary {
-  color: var(--qv-river-blue);
+  color: #7d3b5a;
   cursor: pointer;
   font-size: 11px;
   font-weight: 700;
@@ -1794,6 +1801,243 @@ button:disabled {
   color: rgba(38, 34, 27, 0.7);
   font-size: 10.5px;
   line-height: 1.45;
+}
+
+/* Locked poker-size Target Card front. The static artwork is exported from
+   the same artist layers as the Encounter cards; all game copy stays live. */
+.physical-target-card {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 300px);
+  aspect-ratio: 63 / 88;
+  container-type: inline-size;
+  overflow: hidden;
+  justify-self: center;
+  color: #192b36;
+  font-family: var(--font-body);
+  text-align: center;
+  text-rendering: optimizeLegibility;
+  filter: drop-shadow(0 6px 8px rgba(21, 37, 47, 0.28));
+}
+
+.physical-target-card-artwork {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.physical-target-card p,
+.physical-target-card h3,
+.physical-target-card strong,
+.physical-target-card small {
+  margin: 0;
+}
+
+.physical-target-card-type,
+.physical-target-card-title,
+.physical-target-card-preferences,
+.physical-target-card-outcome {
+  position: absolute;
+  left: 12%;
+  width: 76%;
+}
+
+.physical-target-card-type {
+  top: 21.15%;
+  display: flex;
+  height: 3.2%;
+  align-items: center;
+  justify-content: center;
+  font-size: 4cqw;
+  letter-spacing: 0.25em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.physical-target-card-title {
+  top: 25.1%;
+  display: flex;
+  height: 5.2%;
+  align-items: center;
+  justify-content: center;
+  font-size: 7.4cqw;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.physical-target-card-preferences {
+  top: 31.7%;
+  height: 46.3%;
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+}
+
+.physical-target-card-preference {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25cqw;
+}
+
+.physical-target-card-label {
+  color: rgba(47, 72, 86, 0.9);
+  font-size: 3.55cqw;
+  letter-spacing: 0.19em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.physical-target-card-value {
+  max-width: 100%;
+  font-size: 6.15cqw;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.physical-target-card-qualifier {
+  color: #97446a;
+  font-size: 3.15cqw;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.physical-target-card-outcome {
+  top: 80.1%;
+  height: 13.3%;
+}
+
+.physical-target-card-direction {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 1.6cqw;
+  align-items: center;
+}
+
+.physical-target-card-direction-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5cqw;
+}
+
+.physical-target-card-direction-row > strong {
+  min-width: 13cqw;
+  color: #97446a;
+  font-size: 11cqw;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.physical-target-card-direction-ring {
+  position: relative;
+  width: 21cqw;
+  height: 17.7cqw;
+  flex: 0 0 auto;
+}
+
+.physical-target-card-direction-hex {
+  position: absolute;
+  width: 6.8cqw;
+  height: 5.9cqw;
+  background: rgba(47, 72, 86, 0.9);
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+}
+
+.physical-target-card-direction-hex::after {
+  position: absolute;
+  inset: 0.55cqw;
+  background: rgba(224, 231, 235, 0.96);
+  clip-path: inherit;
+  content: "";
+}
+
+.physical-target-card-direction-hex.selected::after {
+  background: #97446a;
+}
+
+.physical-target-card-direction-hex.direction-ne {
+  top: 0;
+  left: 7.1cqw;
+}
+
+.physical-target-card-direction-hex.direction-e {
+  top: 2.95cqw;
+  left: 13cqw;
+}
+
+.physical-target-card-direction-hex.direction-se {
+  top: 8.85cqw;
+  left: 13cqw;
+}
+
+.physical-target-card-direction-hex.direction-sw {
+  top: 11.8cqw;
+  left: 7.1cqw;
+}
+
+.physical-target-card-direction-hex.direction-w {
+  top: 8.85cqw;
+  left: 1.2cqw;
+}
+
+.physical-target-card-direction-hex.direction-nw {
+  top: 2.95cqw;
+  left: 1.2cqw;
+}
+
+.physical-target-card-open-outcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.6cqw;
+}
+
+.physical-target-card-open-label {
+  color: #97446a;
+  font-size: 4.1cqw;
+  letter-spacing: 0.2em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.physical-target-card-open-outcome > strong {
+  font-size: 5.3cqw;
+  font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.physical-target-card-open-outcome > small {
+  color: rgba(47, 72, 86, 0.9);
+  font-size: 2.75cqw;
+  font-style: italic;
+  line-height: 1.15;
+}
+
+@media (max-width: 720px) {
+  .target-card-diagnostic {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .physical-target-card {
+    width: min(100%, 320px);
+  }
 }
 
 .season-effects {
