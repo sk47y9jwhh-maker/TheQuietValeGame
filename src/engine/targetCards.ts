@@ -1,5 +1,9 @@
 import { mapById, mapCells, mapColumns, mapLayout } from "../data/map";
-import { targetCardById, targetCards } from "../data/targetCards";
+import {
+  isOpenTargetCard,
+  targetCardById,
+  targetCards
+} from "../data/targetCards";
 import { arePlacedTilesAdjacent } from "./placedTiles";
 import { getStrainPreventionPreview } from "./strainRules";
 import type {
@@ -133,19 +137,33 @@ function preferenceLabel(
   card: TargetCardDefinition
 ): string {
   if (filter === "class") {
-    return card.tileClass === "core" ? "Core" : "Special / Golden";
+    return card.tileClass === "any"
+      ? "Any"
+      : card.tileClass === "core"
+        ? "Core"
+        : "Special / Golden";
   }
   if (filter === "side") {
-    return card.side === "either"
-      ? "Either"
-      : card.side === "basic"
-        ? "Basic"
-        : "Upgraded";
+    return card.side === "any"
+      ? "Any"
+      : card.side === "either"
+        ? "Either"
+        : card.side === "basic"
+          ? "Basic"
+          : "Upgraded";
   }
   if (filter === "adjacency") {
-    return card.adjacency === "threePlus" ? "3+" : "0–2";
+    return card.adjacency === "any"
+      ? "Any"
+      : card.adjacency === "threePlus"
+        ? "3+"
+        : "0–2";
   }
-  return card.strain === "strained" ? "Already Strained" : "Unstrained";
+  return card.strain === "any"
+    ? "Any"
+    : card.strain === "strained"
+      ? "Already Strained"
+      : "Unstrained";
 }
 
 function matchesPreference(
@@ -155,18 +173,20 @@ function matchesPreference(
   card: TargetCardDefinition
 ): boolean {
   if (filter === "class") {
-    return card.tileClass === "core"
+    return card.tileClass === "any" || (card.tileClass === "core"
       ? tile.kind === "core"
-      : tile.kind === "special";
+      : tile.kind === "special");
   }
   if (filter === "side") {
-    return card.side === "either" || tile.side === card.side;
+    return card.side === "any" || card.side === "either" || tile.side === card.side;
   }
   if (filter === "adjacency") {
     const count = countAdjacentPlacedTiles(state, tile);
-    return card.adjacency === "threePlus" ? count >= 3 : count <= 2;
+    return card.adjacency === "any" ||
+      (card.adjacency === "threePlus" ? count >= 3 : count <= 2);
   }
-  return card.strain === "strained" ? tile.strain > 0 : tile.strain === 0;
+  return card.strain === "any" ||
+    (card.strain === "strained" ? tile.strain > 0 : tile.strain === 0);
 }
 
 function hexCentre(hexId: string): { x: number; y: number } {
@@ -250,7 +270,12 @@ export function selectTargetWithCard(
     const matches = considered.filter((tile) =>
       matchesPreference(state, tile, filter, card)
     );
-    const applied = matches.length > 0;
+    const isAnyPreference =
+      (filter === "class" && card.tileClass === "any") ||
+      (filter === "side" && card.side === "any") ||
+      (filter === "adjacency" && card.adjacency === "any") ||
+      (filter === "strain" && card.strain === "any");
+    const applied = matches.length > 0 && !isAnyPreference;
     if (applied) considered = matches;
     filters.push({
       filter,
@@ -261,16 +286,21 @@ export function selectTargetWithCard(
     });
   }
 
-  const extents = considered.map((tile) => ({
-    tile,
-    extent: directionExtent(tile, card.direction)
-  }));
-  const directionRequired = considered.length > 1;
-  const furthestExtent = Math.max(...extents.map((entry) => entry.extent));
-  const directionCandidates = extents
-    .filter((entry) => Math.abs(entry.extent - furthestExtent) < 0.000001)
-    .map((entry) => entry.tile)
-    .sort(comparePlacedTilesByMapCoordinate);
+  const openCard = isOpenTargetCard(card);
+  const directionRequired = !openCard && considered.length > 1;
+  const directionCandidates = openCard
+    ? [...considered].sort(comparePlacedTilesByMapCoordinate)
+    : (() => {
+        const extents = considered.map((tile) => ({
+          tile,
+          extent: directionExtent(tile, card.direction as TargetCardDirection)
+        }));
+        const furthestExtent = Math.max(...extents.map((entry) => entry.extent));
+        return extents
+          .filter((entry) => Math.abs(entry.extent - furthestExtent) < 0.000001)
+          .map((entry) => entry.tile)
+          .sort(comparePlacedTilesByMapCoordinate);
+      })();
   const tile = directionCandidates[0];
   const prevention = getStrainPreventionPreview(state, tile);
 
@@ -294,6 +324,95 @@ export function selectTargetWithCard(
       goldenGardenWillPrevent: Boolean(prevention.goldenGardenTileId),
       printedFallbackUsed: context.printedFallbackUsed
     }
+  };
+}
+
+export type TargetCardPlanningResult =
+  | {
+      kind: "selected";
+      state: GameState;
+      tile: PlacedTile;
+      diagnostic: TargetCardSelectionDiagnostic;
+    }
+  | {
+      kind: "manual";
+      state: GameState;
+      card: TargetCardDefinition;
+      candidates: PlacedTile[];
+      diagnostic: TargetCardSelectionDiagnostic;
+    };
+
+/**
+ * Draws a card for effect planning. Structured cards resolve immediately;
+ * Open cards consume their draw but preserve the trigger-defined pool for a
+ * player choice in the pending-effect UI.
+ */
+export function drawTargetCardForPlanning(
+  state: GameState,
+  candidates: PlacedTile[],
+  context: TargetSelectionContext
+): TargetCardPlanningResult | null {
+  if (candidates.length === 0) return null;
+  const drawn = drawTargetCard(state.targetCards);
+  if (isOpenTargetCard(drawn.card)) {
+    const diagnosticId = `${context.effectId}:draw:${drawn.deckState.drawCount}`;
+    const diagnostic: TargetCardSelectionDiagnostic = {
+      id: context.diagnosticId ?? diagnosticId,
+      effectId: context.effectId,
+      sourceId: context.sourceId,
+      role: context.role ?? "target",
+      cardId: drawn.card.id,
+      originalEligibleCount: candidates.length,
+      filters: (["class", "side", "adjacency", "strain"] as const).map((filter) => ({
+        filter,
+        preference: "Any",
+        applied: false,
+        beforeCount: candidates.length,
+        afterCount: candidates.length
+      })),
+      directionRequired: false,
+      directionCandidateCount: candidates.length,
+      coordinateFallbackUsed: false,
+      selectedTileId: "",
+      selectedHexIds: [],
+      supportedWillPrevent: false,
+      goldenGardenWillPrevent: false,
+      printedFallbackUsed: context.printedFallbackUsed,
+      manualChoice: true
+    };
+    const history = [...drawn.deckState.history, diagnostic].slice(-historyLimit);
+    return {
+      kind: "manual",
+      state: {
+        ...state,
+        targetCards: {
+          ...drawn.deckState,
+          history
+        }
+      },
+      card: drawn.card,
+      candidates: distinctCandidates(candidates),
+      diagnostic
+    };
+  }
+
+  const selected = selectTargetWithCard(state, candidates, drawn.card, {
+    ...context,
+    diagnosticId: `${context.effectId}:draw:${drawn.deckState.drawCount}`
+  });
+  if (!selected) return null;
+  const history = [...drawn.deckState.history, selected.diagnostic].slice(-historyLimit);
+  return {
+    kind: "selected",
+    state: {
+      ...state,
+      targetCards: {
+        ...drawn.deckState,
+        history
+      }
+    },
+    tile: selected.tile,
+    diagnostic: selected.diagnostic
   };
 }
 

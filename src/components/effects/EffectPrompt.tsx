@@ -15,13 +15,13 @@ import {
 } from "../../data/effectRules";
 import { resourceLabels, resources } from "../../data/resources";
 import {
-  describeTargetCard,
   targetCardById,
   targetCardFilterLabels,
   targetCardRulesText
 } from "../../data/targetCards";
 import { getBurdenResolutionCurrentText } from "../common/gameText";
 import { EncounterCard } from "../common/EncounterCard";
+import { TargetCard } from "../common/TargetCard";
 import {
   getEffectSupportTargets,
   getAlternativeEffectRule,
@@ -86,15 +86,6 @@ function normalizeResourceDeltas(
   }
   return next;
 }
-
-const targetDirectionArrows = {
-  NE: "↗",
-  E: "→",
-  SE: "↘",
-  SW: "↙",
-  W: "←",
-  NW: "↖"
-} as const;
 
 export function EffectPrompt({
   state,
@@ -761,7 +752,11 @@ export function EffectPrompt({
     const targetCardMaximum = effect.targetCardPrepared
       ? effect.targetCardPlannedStrainByTileId?.[tileId]
       : undefined;
-    if (effect.targetCardPrepared && targetCardMaximum === undefined) {
+    if (
+      effect.targetCardPrepared &&
+      !effect.targetCardManualChoice &&
+      targetCardMaximum === undefined
+    ) {
       return currentDelta;
     }
     if (requestedDelta > 0 && alternativeEffectRule) {
@@ -955,10 +950,12 @@ export function EffectPrompt({
       )}
 
       {effect.targetCardPrepared && (
-        <section className="target-card-resolution" aria-label="Automatic Target Card resolution">
+        <section className="target-card-resolution" aria-label="Target Card resolution">
           <div className="target-card-resolution-heading">
             <div>
-              <p className="eyebrow">Automatic targeting</p>
+              <p className="eyebrow">
+                {effect.targetCardManualChoice ? "Player targeting" : "Automatic targeting"}
+              </p>
               <h3>Target Card result</h3>
             </div>
             <span>{effect.targetCardDiagnostics?.length ?? 0} card{effect.targetCardDiagnostics?.length === 1 ? "" : "s"} drawn</span>
@@ -968,65 +965,77 @@ export function EffectPrompt({
             <div className="target-card-diagnostic-list">
               {effect.targetCardDiagnostics.map((diagnostic, index) => {
                 const card = targetCardById[diagnostic.cardId];
-                const description = card ? describeTargetCard(card) : null;
                 const selectedTile = state.map.placedTiles.find(
                   (tile) => tile.instanceId === diagnostic.selectedTileId
                 );
                 return (
                   <article className="target-card-diagnostic" key={diagnostic.id}>
-                    <div className="target-card-diagnostic-heading">
-                      <strong>
-                        Card {diagnostic.cardId} · {diagnostic.role === "primary"
-                          ? "Primary"
-                          : diagnostic.role === "spread"
-                            ? "Linked target"
-                            : `Target ${index + 1}`}
-                      </strong>
-                      <span className="target-card-arrow" aria-label={`${diagnostic.direction} arrow`}>
-                        {targetDirectionArrows[diagnostic.direction]} {diagnostic.direction}
-                      </span>
-                    </div>
-                    {description && (
-                      <div className="target-card-preferences" aria-label="Card preferences">
-                        <span>{description.tileClass}</span>
-                        <span>{description.side}</span>
-                        <span>{description.adjacency}</span>
-                        <span>{description.strain}</span>
+                    {card && <TargetCard card={card} />}
+                    <div className="target-card-runtime">
+                      <div className="target-card-diagnostic-heading">
+                        <strong>
+                          {diagnostic.role === "primary"
+                            ? "Primary target"
+                            : diagnostic.role === "spread"
+                              ? "Linked target"
+                              : `Target ${index + 1}`}
+                        </strong>
+                        <span>
+                          {diagnostic.manualChoice
+                            ? "Open target"
+                            : diagnostic.direction
+                              ? `${diagnostic.direction} tie direction`
+                              : `Card ${diagnostic.cardId}`}
+                        </span>
                       </div>
-                    )}
-                    <ol className="target-card-filter-results">
-                      {diagnostic.filters.map((filter) => (
-                        <li className={filter.applied ? "applied" : "ignored"} key={filter.filter}>
-                          <span>{targetCardFilterLabels[filter.filter]}: {filter.preference}</span>
-                          <strong>{filter.applied ? "Applied" : "Ignored"}</strong>
-                          <small>{filter.beforeCount} → {filter.afterCount} tiles</small>
-                        </li>
-                      ))}
-                    </ol>
-                    <div className="target-card-selection-result">
-                      <strong>
-                        Selected: {selectedTile ? selectTileName(selectedTile) : diagnostic.selectedTileId}
-                      </strong>
-                      <span>{diagnostic.selectedHexIds.join(", ")}</span>
-                      {diagnostic.plannedStrain !== undefined && diagnostic.plannedStrain > 0 && (
-                        <span>Receives {diagnostic.plannedStrain} Strain</span>
-                      )}
-                      <small>
-                        Started with {diagnostic.originalEligibleCount} eligible tile{diagnostic.originalEligibleCount === 1 ? "" : "s"}. {diagnostic.directionRequired
-                          ? `Direction was required and left ${diagnostic.directionCandidateCount}.`
-                          : "Direction was not required."}
-                        {diagnostic.coordinateFallbackUsed ? " Map-coordinate fallback resolved the exact tie." : ""}
-                        {diagnostic.printedFallbackUsed ? " The effect’s printed fallback supplied this eligible pool." : ""}
-                      </small>
-                      {diagnostic.supportedWillPrevent && (
-                        <small className="target-card-prevention">Supported will prevent 1 Strain after selection.</small>
-                      )}
-                      {diagnostic.goldenGardenWillPrevent && (
-                        <small className="target-card-prevention">The Golden Garden will prevent 1 Strain after selection.</small>
-                      )}
-                      {diagnostic.alternatePrimaryWouldComplete && (
-                        <small className="target-card-warning">Another primary could have completed every linked target. The card-selected primary is retained.</small>
-                      )}
+                      <ol className="target-card-filter-results">
+                        {diagnostic.filters.map((filter) => {
+                          const anyPreference = filter.preference === "Any";
+                          return (
+                            <li
+                              className={anyPreference ? "neutral" : filter.applied ? "applied" : "ignored"}
+                              key={filter.filter}
+                            >
+                              <span>{targetCardFilterLabels[filter.filter]}: {filter.preference}</span>
+                              <strong>{anyPreference ? "Any" : filter.applied ? "Applied" : "Ignored"}</strong>
+                              <small>{filter.beforeCount} → {filter.afterCount} tiles</small>
+                            </li>
+                          );
+                        })}
+                      </ol>
+                      <div className="target-card-selection-result">
+                        {diagnostic.manualChoice ? (
+                          <strong>Choose any eligible tile from the triggering effect’s current pool.</strong>
+                        ) : (
+                          <>
+                            <strong>
+                              Selected: {selectedTile ? selectTileName(selectedTile) : diagnostic.selectedTileId}
+                            </strong>
+                            <span>{diagnostic.selectedHexIds.join(", ")}</span>
+                          </>
+                        )}
+                        {diagnostic.plannedStrain !== undefined && diagnostic.plannedStrain > 0 && (
+                          <span>Receives {diagnostic.plannedStrain} Strain</span>
+                        )}
+                        <small>
+                          Started with {diagnostic.originalEligibleCount} eligible tile{diagnostic.originalEligibleCount === 1 ? "" : "s"}. {diagnostic.directionRequired
+                            ? `The tie direction was required and left ${diagnostic.directionCandidateCount}.`
+                            : diagnostic.manualChoice
+                              ? "The card does not narrow or widen that eligible pool."
+                              : "The tie direction was not required."}
+                          {diagnostic.coordinateFallbackUsed ? " Map-coordinate fallback resolved the exact tie." : ""}
+                          {diagnostic.printedFallbackUsed ? " The effect’s printed fallback supplied this eligible pool." : ""}
+                        </small>
+                        {diagnostic.supportedWillPrevent && (
+                          <small className="target-card-prevention">Supported will prevent 1 Strain after selection.</small>
+                        )}
+                        {diagnostic.goldenGardenWillPrevent && (
+                          <small className="target-card-prevention">The Golden Garden will prevent 1 Strain after selection.</small>
+                        )}
+                        {diagnostic.alternatePrimaryWouldComplete && (
+                          <small className="target-card-warning">Another primary could have completed every linked target. The card-selected primary is retained.</small>
+                        )}
+                      </div>
                     </div>
                   </article>
                 );
@@ -1037,7 +1046,7 @@ export function EffectPrompt({
           )}
 
           <details className="target-card-rules">
-            <summary>How automatic targeting works</summary>
+            <summary>How Target Cards work</summary>
             <p>{targetCardRulesText}</p>
           </details>
         </section>

@@ -1,8 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../app/App";
+import { TargetCard } from "../components/common/TargetCard";
 import { EffectPrompt } from "../components/effects/EffectPrompt";
 import { systemEffectRuleId } from "../data/effectRules";
+import { targetCardById } from "../data/targetCards";
 import { preparePendingEffectQueueHead } from "../engine/manualEffects";
 import { createNewGame } from "../engine/setup";
 import { createTargetCardDeckState } from "../engine/targetCards";
@@ -42,6 +44,25 @@ describe("Target Card UI", () => {
     expect(screen.getByRole("button", { name: /start season i/i })).toBeEnabled();
   });
 
+  it("renders the locked card face with four qualifiers and the six-hex direction ring", () => {
+    const { container } = render(<TargetCard card={targetCardById[5]} />);
+
+    expect(screen.getByRole("heading", { name: /card 05/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/unless specified/i)).toHaveLength(4);
+    expect(screen.getByText("SE")).toBeInTheDocument();
+    expect(container.querySelectorAll(".physical-target-card-direction-hex")).toHaveLength(6);
+    expect(container.querySelector(".direction-se.selected")).toBeInTheDocument();
+  });
+
+  it("renders Open cards without a tie-direction ring", () => {
+    const { container } = render(<TargetCard card={targetCardById[25]} />);
+
+    expect(screen.getByRole("heading", { name: /card 25/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/^any$/i)).toHaveLength(4);
+    expect(screen.getByText(/choose any eligible tile/i)).toBeInTheDocument();
+    expect(container.querySelector(".physical-target-card-direction-ring")).not.toBeInTheDocument();
+  });
+
   it("shows the card, every filter result, final target, and prevention timing", () => {
     const state = createNewGame(1, ["vanguard"], {
       encounterSeed: "QV-TARGET-UI"
@@ -70,8 +91,10 @@ describe("Target Card UI", () => {
       />
     );
 
-    expect(screen.getByRole("region", { name: /automatic target card resolution/i })).toBeInTheDocument();
-    expect(screen.getByText(/card 3 · target 1/i)).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: /target card resolution/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /card 03/i })).toBeInTheDocument();
+    expect(screen.getByText(/target 1/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/unless specified/i)).toHaveLength(4);
     expect(screen.getByText(/selected: path/i)).toBeInTheDocument();
     expect(screen.getByText(/supported will prevent 1 strain after selection/i)).toBeInTheDocument();
     expect(screen.getAllByText(/applied|ignored/i)).toHaveLength(4);

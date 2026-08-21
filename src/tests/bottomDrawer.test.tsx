@@ -115,7 +115,7 @@ describe("bottom drawer", () => {
     );
     expect(screen.getByText(/each tile that became Overstrained spreads 1 Strain/)).toBeInTheDocument();
     expect(screen.getByText(/the Target Deck chooses among them/)).toBeInTheDocument();
-    expect(screen.getByText(/Shuffle the 24-card Target Deck once during setup/)).toBeInTheDocument();
+    expect(screen.getByText(/Shuffle the 30-card Target Deck once during setup/)).toBeInTheDocument();
     expect(screen.queryByText(/After rounds 4 and 8/)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "3. Season setup and round flow" }));
