@@ -86,8 +86,8 @@ export function describeTargetCard(card: TargetCardDefinition): {
     adjacency: card.adjacency === "any"
       ? "Any"
       : card.adjacency === "threePlus"
-        ? "3+ neighbours"
-        : "0–2 neighbours",
+        ? "3+ Neighbours"
+        : "0–2 Neighbours",
     strain: card.strain === "any"
       ? "Any"
       : card.strain === "strained"
