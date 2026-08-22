@@ -48,10 +48,17 @@ describe("Target Card UI", () => {
     const { container } = render(<TargetCard card={targetCardById[5]} />);
 
     expect(screen.getByRole("heading", { name: /card 05/i })).toBeInTheDocument();
+    expect(screen.getByText("3+ Neighbours")).toBeInTheDocument();
     expect(screen.getAllByText(/unless specified/i)).toHaveLength(4);
     expect(screen.getByText("SE")).toBeInTheDocument();
     expect(container.querySelectorAll(".physical-target-card-direction-hex")).toHaveLength(6);
     expect(container.querySelector(".direction-se.selected")).toBeInTheDocument();
+  });
+
+  it("capitalises Neighbours in the zero-to-two adjacency answer", () => {
+    render(<TargetCard card={targetCardById[11]} />);
+
+    expect(screen.getByText("0–2 Neighbours")).toBeInTheDocument();
   });
 
   it("renders Open cards without a tie-direction ring", () => {
