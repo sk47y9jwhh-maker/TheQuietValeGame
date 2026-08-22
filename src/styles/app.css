@@ -1903,7 +1903,6 @@ button:disabled {
   font-weight: 500;
   letter-spacing: 0.015em;
   line-height: 1;
-  text-transform: uppercase;
   text-wrap: balance;
 }
 
@@ -1935,6 +1934,7 @@ button:disabled {
   align-items: center;
   justify-content: center;
   gap: 4cqw;
+  transform: translateY(-1.75cqw);
 }
 
 .physical-target-card-direction-row > strong {
@@ -1948,8 +1948,9 @@ button:disabled {
 .physical-target-card-direction-ring {
   position: relative;
   width: 17cqw;
-  height: 14.3cqw;
+  height: 14.6cqw;
   flex: 0 0 auto;
+  overflow: visible;
 }
 
 .physical-target-card-direction-hex {
