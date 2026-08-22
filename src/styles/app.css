@@ -1922,9 +1922,11 @@ button:disabled {
 }
 
 .physical-target-card-direction {
+  top: 78.4%;
+  height: 15.4%;
   display: grid;
   grid-template-rows: auto 1fr;
-  gap: 1.6cqw;
+  gap: 0.5cqw;
   align-items: center;
 }
 
@@ -1932,7 +1934,7 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5cqw;
+  gap: 4cqw;
 }
 
 .physical-target-card-direction-row > strong {
@@ -1945,22 +1947,22 @@ button:disabled {
 
 .physical-target-card-direction-ring {
   position: relative;
-  width: 21cqw;
-  height: 17.7cqw;
+  width: 17cqw;
+  height: 14.3cqw;
   flex: 0 0 auto;
 }
 
 .physical-target-card-direction-hex {
   position: absolute;
-  width: 6.8cqw;
-  height: 5.9cqw;
+  width: 5.5cqw;
+  height: 4.8cqw;
   background: rgba(47, 72, 86, 0.9);
   clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
 }
 
 .physical-target-card-direction-hex::after {
   position: absolute;
-  inset: 0.55cqw;
+  inset: 0.45cqw;
   background: rgba(224, 231, 235, 0.96);
   clip-path: inherit;
   content: "";
@@ -1972,32 +1974,32 @@ button:disabled {
 
 .physical-target-card-direction-hex.direction-ne {
   top: 0;
-  left: 7.1cqw;
+  left: 5.75cqw;
 }
 
 .physical-target-card-direction-hex.direction-e {
-  top: 2.95cqw;
-  left: 13cqw;
+  top: 2.4cqw;
+  left: 10.55cqw;
 }
 
 .physical-target-card-direction-hex.direction-se {
-  top: 8.85cqw;
-  left: 13cqw;
+  top: 7.2cqw;
+  left: 10.55cqw;
 }
 
 .physical-target-card-direction-hex.direction-sw {
-  top: 11.8cqw;
-  left: 7.1cqw;
+  top: 9.6cqw;
+  left: 5.75cqw;
 }
 
 .physical-target-card-direction-hex.direction-w {
-  top: 8.85cqw;
-  left: 1.2cqw;
+  top: 7.2cqw;
+  left: 0.95cqw;
 }
 
 .physical-target-card-direction-hex.direction-nw {
-  top: 2.95cqw;
-  left: 1.2cqw;
+  top: 2.4cqw;
+  left: 0.95cqw;
 }
 
 .physical-target-card-open-outcome {
