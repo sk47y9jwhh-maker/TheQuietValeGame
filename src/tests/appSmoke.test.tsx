@@ -28,7 +28,7 @@ describe("app smoke flow", () => {
     expect(screen.getByRole("heading", { name: "Rules" })).toBeInTheDocument();
     expect(screen.getByText("Learn to Play")).toBeInTheDocument();
     expect(screen.getByText("1–5 players")).toBeInTheDocument();
-    expect(screen.getByText("Set up together")).toBeInTheDocument();
+    expect(screen.getByText("Set up once")).toBeInTheDocument();
     expect(screen.getByText("Example first turn")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: "Full rules" }));

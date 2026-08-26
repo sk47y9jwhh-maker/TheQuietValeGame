@@ -92,11 +92,11 @@ describe("bottom drawer", () => {
       "aria-selected",
       "true"
     );
-    expect(screen.getByText("The whole game at a glance")).toBeInTheDocument();
-    expect(screen.getByText("Spend up to 4 actions")).toBeInTheDocument();
+    expect(screen.getByText("The shape of the game")).toBeInTheDocument();
+    expect(screen.getByText("Choose order and take turns")).toBeInTheDocument();
+    expect(screen.getByText(/In Seasons II and III, unresolved Burdens first reapply/)).toBeInTheDocument();
+    expect(screen.queryByText("Season start: Burdens, then seed")).not.toBeInTheDocument();
     expect(screen.getByText("Example first turn")).toBeInTheDocument();
-    expect(screen.getByText(/Street and Track need a starting hex and direction/)).toBeInTheDocument();
-    expect(screen.getByText(/progress saves automatically in this browser/)).toBeInTheDocument();
     expect(container.querySelectorAll(".how-to-card")).toHaveLength(6);
     expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(0);
 

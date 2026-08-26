@@ -545,15 +545,14 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
         >
           <section className="how-to-flow" aria-labelledby="first-game-flow-title">
             <div>
-              <p className="eyebrow">The whole game at a glance</p>
-              <strong id="first-game-flow-title">Play 12 rounds across three Seasons</strong>
+              <p className="eyebrow">The shape of the game</p>
+              <strong id="first-game-flow-title">Set up once, then play three four-round Seasons</strong>
             </div>
             <ol>
-              <li>Season start: Burdens, then seed</li>
-              <li>Reveal and resolve Encounters</li>
-              <li>Choose player order</li>
-              <li>Take 4-action turns</li>
-              <li>Arrival upkeep and cleanup</li>
+              <li>Set up the shared Vale</li>
+              <li>Begin a Season</li>
+              <li>Play four rounds</li>
+              <li>Score after round 12</li>
             </ol>
           </section>
 
@@ -561,11 +560,11 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
             <article className="mini-card how-to-card">
               <span className="how-to-step-number">1</span>
               <div>
-                <strong>Set up together</strong>
+                <strong>Set up once</strong>
                 <p>
-                  Choose a different Steward for each player. At five players, choose any five of the
-                  six. Start with 15 / 10 / 5 / 0 / 0 of each resource at 1–5 players, then place each
-                  Token on its allowed terrain.
+                  Choose unique Stewards, prepare the standard Encounter pool, and place each Token
+                  on its allowed terrain. Fill the Warehouse with 15 / 10 / 5 / 0 / 0 of each
+                  resource for 1–5 players.
                 </p>
               </div>
             </article>
@@ -573,11 +572,11 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
             <article className="mini-card how-to-card">
               <span className="how-to-step-number">2</span>
               <div>
-                <strong>Seed, then reveal</strong>
+                <strong>Begin a Season</strong>
                 <p>
-                  Before rounds 1, 5, and 9, each player seeds one card at the top, middle, and bottom
-                  of the deck. Reveal one standard Encounter per player and finish every mandatory
-                  prompt before choosing turn order.
+                  Before rounds 1, 5, and 9, begin a Season. In Seasons II and III, unresolved
+                  Burdens first reapply using their new Season row. Then each player seeds 3 hidden
+                  cards: one on top, one in the middle, and one on the bottom.
                 </p>
               </div>
             </article>
@@ -585,12 +584,10 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
             <article className="mini-card how-to-card">
               <span className="how-to-step-number">3</span>
               <div>
-                <strong>Spend up to 4 actions</strong>
+                <strong>Start each round</strong>
                 <p>
-                  The group chooses player order each round. On your turn, Place, Upgrade, Activate,
-                  or Interact. Choose an action, follow the
-                  highlighted legal choices, check the cost, and confirm. Steward Powers and some
-                  effects cost no actions.
+                  Reveal standard Encounters until the number revealed equals the player count.
+                  Finish every required revealed effect and choice before selecting player order.
                 </p>
               </div>
             </article>
@@ -598,11 +595,10 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
             <article className="mini-card how-to-card">
               <span className="how-to-step-number">4</span>
               <div>
-                <strong>Follow your Steward</strong>
+                <strong>Choose order and take turns</strong>
                 <p>
-                  After the first tile, place new tiles next to that Steward’s reachable network.
-                  Placing, upgrading, or activating moves the Steward to the chosen tile and changes
-                  where they can reach next.
+                  Choose player order anew each round. In that order, every player takes one turn of
+                  up to 4 Actions: Place, Upgrade, Activate, or Interact.
                 </p>
               </div>
             </article>
@@ -610,10 +606,10 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
             <article className="mini-card how-to-card">
               <span className="how-to-step-number">5</span>
               <div>
-                <strong>Manage Encounters and Strain</strong>
+                <strong>End the round</strong>
                 <p>
-                  Use Boons, complete timed Arrivals, and resolve active Burdens. Keep each tile below
-                  3 Strain: an Overstrained tile stops working and scoring, and can break your reach.
+                  After all turns, remove 1 timer from each active Arrival and resolve expiries.
+                  Discard ended effects, refresh round-based effects, and advance the Round marker.
                 </p>
               </div>
             </article>
@@ -621,11 +617,11 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
             <article className="mini-card how-to-card">
               <span className="how-to-step-number">6</span>
               <div>
-                <strong>Score after round 12</strong>
+                <strong>Continue—or score</strong>
                 <p>
-                  Add Population and Renown, including Steward objective and Golden Tile bonuses.
-                  Active Burdens, failed Arrivals, Unfulfilled Promises, and every Strain token each
-                  cost 5 Renown.
+                  After rounds 4 and 8, begin the next Season. After round 12, total Population and
+                  Renown, then lose 5 Renown for each active Burden, failed Arrival, Unfulfilled
+                  Promise, and Strain token.
                 </p>
               </div>
             </article>
@@ -644,17 +640,6 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
             </ol>
           </section>
 
-          <aside className="how-to-help-note">
-            <strong>Using the app:</strong>
-            <span>
-              Resolve any open prompt before continuing. Disabled choices explain what is missing.
-              Street and Track need a starting hex and direction. For Stables, select the connected
-              Stables hex first and the remote valid hex second. On
-              desktop, right-click a hex for quick actions. On touch screens, press and hold a hex or
-              use the action buttons. During play, progress saves automatically in this browser and
-              the top-right buttons undo or redo recent steps.
-            </span>
-          </aside>
         </div>
       )}
 

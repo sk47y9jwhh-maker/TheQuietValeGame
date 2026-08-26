@@ -3888,7 +3888,7 @@ button.effect-row {
 
 .how-to-guide {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .how-to-flow {
@@ -3896,7 +3896,7 @@ button.effect-row {
   grid-template-columns: minmax(190px, 0.8fr) minmax(0, 2fr);
   gap: 14px;
   align-items: center;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border: 1px solid rgba(168, 137, 63, 0.34);
   border-left: 5px solid var(--qv-brass);
   border-radius: 8px;
@@ -3912,7 +3912,7 @@ button.effect-row {
 
 .how-to-flow ol {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
   margin: 0;
   padding: 0;
@@ -3994,29 +3994,12 @@ button.effect-row {
   font-weight: 700;
 }
 
-.how-to-help-note {
-  display: flex;
-  gap: 6px;
-  align-items: baseline;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: rgba(75, 102, 107, 0.12);
-  color: rgba(38, 34, 27, 0.76);
-  font-size: 11px;
-  line-height: 1.35;
-}
-
-.how-to-help-note strong {
-  flex: 0 0 auto;
-  color: var(--qv-ink);
-}
-
 .first-turn-example {
   display: grid;
   grid-template-columns: minmax(190px, 0.8fr) minmax(0, 2fr);
   gap: 14px;
   align-items: start;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border: 1px solid rgba(75, 102, 107, 0.3);
   border-left: 5px solid var(--qv-river-blue);
   border-radius: 8px;
@@ -6180,10 +6163,6 @@ button.effect-row {
 
   .how-to-flow ol {
     grid-template-columns: 1fr;
-  }
-
-  .how-to-help-note {
-    display: grid;
   }
 
   .rules-status-row {
