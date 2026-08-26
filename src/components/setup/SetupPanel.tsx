@@ -14,10 +14,11 @@ import {
   isVowAvailableForPlayerCount,
   type LedgerEntry
 } from "../../data/ledger";
-import type {
-  GoldenBoonData,
-  GoldenTileData,
-  PlayerCount
+import {
+  supportedPlayerCounts,
+  type GoldenBoonData,
+  type GoldenTileData,
+  type PlayerCount
 } from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
 import { RulesGuide } from "../panels/RulesGuide";
@@ -155,7 +156,7 @@ export function SetupPanel({
           </div>
 
           <div className="segmented" aria-label="Player count">
-            {([1, 2, 3, 4] as PlayerCount[]).map((count) => (
+            {supportedPlayerCounts.map((count) => (
               <button
                 key={count}
                 className={count === playerCount ? "selected" : ""}
@@ -211,7 +212,7 @@ export function SetupPanel({
                   restrictions.push(`unlocks at ${entry.unlockAt} entries`);
                 }
                 if (!isVowAvailableForPlayerCount(entry.id, playerCount)) {
-                  restrictions.push("3–4 players only");
+                  restrictions.push("3–5 players only");
                 }
                 return (
                   <option disabled key={entry.id} value={entry.id}>

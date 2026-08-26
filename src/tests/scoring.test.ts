@@ -106,11 +106,14 @@ describe("final scoring", () => {
     expect(score.printedRenown).toBe(0);
   });
 
-  it("scores the Warden objective when there are no active Burdens", () => {
+  it("scores the Warden objective with fewer active Burdens than players", () => {
     const state = createNewGame(2, ["warden", "vanguard"]);
-    state.encounters.activeBurdens = [];
+    state.encounters.activeBurdens = ["burden_one"];
 
     expect(calculateFinalScore(state).stewardObjectiveRenown).toBe(15);
+
+    state.encounters.activeBurdens = ["burden_one", "burden_two"];
+    expect(calculateFinalScore(state).stewardObjectiveRenown).toBe(0);
   });
 
   it("scores the Quartermaster objective from Warehouse spread", () => {

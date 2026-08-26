@@ -27,17 +27,17 @@ describe("app smoke flow", () => {
     expect(rulesButton).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByRole("heading", { name: "Rules" })).toBeInTheDocument();
     expect(screen.getByText("Learn to Play")).toBeInTheDocument();
-    expect(screen.getByText("1–4 players")).toBeInTheDocument();
+    expect(screen.getByText("1–5 players")).toBeInTheDocument();
     expect(screen.getByText("Set up together")).toBeInTheDocument();
     expect(screen.getByText("Example first turn")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: "Full rules" }));
 
-    expect(screen.getByRole("heading", { name: "The aim of the game" })).toBeInTheDocument();
-    fireEvent.click(
-      screen.getByRole("button", { name: "2. Choose Stewards and place starts" })
-    );
-    expect(screen.getByText(/Start with 15 of each resource for 1 player/)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Components" })).toBeInTheDocument();
+    expect(screen.getByText("Main Rulebook v6.5 · choose one of 18 chapters.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "2. Setup" }));
+    expect(screen.getByText(/Start with 15 \/ 10 \/ 5 \/ 0 \/ 0/)).toBeInTheDocument();
+    expect(screen.getByText(/At five players, select 20 cards of each standard type/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Close rules drawer" }));
 
@@ -74,9 +74,19 @@ describe("app smoke flow", () => {
     ).toBeDisabled();
     expect(
       screen.getByRole("option", {
-        name: "The Small Storehouse — unlocks at 34 entries · 3–4 players only"
+        name: "The Small Storehouse — unlocks at 34 entries · 3–5 players only"
       })
     ).toBeDisabled();
+  });
+
+  it("configures a five-player game with five unique Stewards", () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "5P" }));
+
+    expect(screen.getAllByText("5 Players").length).toBeGreaterThan(0);
+    expect(screen.getByLabelText("Player 5")).toHaveValue("warden");
+    expect(screen.getByText("0 of each resource")).toBeInTheDocument();
   });
 
   it("declares one available Ledger Vow before setup", () => {

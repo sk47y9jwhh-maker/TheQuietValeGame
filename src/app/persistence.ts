@@ -1,7 +1,13 @@
 import { resources, warehouseCap } from "../data/resources";
 import { stewardById } from "../data/stewards";
 import { coreTiles } from "../data/tiles";
-import type { GamePhase, GameState, PlayerCount, Season } from "../engine/types";
+import {
+  supportedPlayerCounts,
+  type GamePhase,
+  type GameState,
+  type PlayerCount,
+  type Season
+} from "../engine/types";
 import {
   createTargetCardDeckState,
   normalizeTargetCardDeckState
@@ -31,7 +37,7 @@ export interface SavedGame extends SavedSetup {
 }
 
 function isPlayerCount(value: unknown): value is PlayerCount {
-  return value === 1 || value === 2 || value === 3 || value === 4;
+  return supportedPlayerCounts.includes(value as PlayerCount);
 }
 
 function isSeason(value: unknown): value is Season {

@@ -4,9 +4,13 @@ type RulesView = "howTo" | "gameRules";
 
 interface RuleReferenceCard {
   category: string;
+  page: string;
   title: string;
-  summary?: string;
-  bullets: string[];
+  summary: string;
+  sections: Array<{
+    title: string;
+    bullets: string[];
+  }>;
   note?: string;
 }
 
@@ -22,162 +26,429 @@ interface RulesGuideProps {
 
 const rules: RuleReferenceCard[] = [
   {
-    category: "Overview",
-    title: "The aim of the game",
-    summary:
-      "Build one settlement together and finish with the highest shared score you can.",
-    bullets: [
-      "All players use the same map, the same Warehouse, and one final score.",
-      "Play 12 rounds: Season I is rounds 1–4, Season II is 5–8, and Season III is 9–12.",
-      "When an Encounter shows different effects or costs by Season, use the line for the current Season.",
-      "After round 12 ends, add Population and Renown, then apply bonuses and penalties."
+    category: "Prepare",
+    page: "4",
+    title: "Components",
+    summary: "One shared map, one Warehouse, and everything needed to build and test the Vale together.",
+    sections: [
+      {
+        title: "Core game",
+        bullets: [
+          "1 flat-top hex Game Map and 1 Stewards Board with the shared Warehouse and round tracker.",
+          "63 double-sided Core Tiles across 21 Tile types, plus 26 Special Tile pieces across 25 designs.",
+          "90 Encounter Cards: 30 Boons, 30 Burdens, 25 Arrivals, and 5 Golden Boons.",
+          "30 Target Cards, shuffled once during setup, select Tiles for incoming Strain.",
+          "6 Steward Aids with 6 matching Steward Tokens, and 1 Steward’s Ledger for campaign records."
+        ]
+      },
+      {
+        title: "Shared supplies",
+        bullets: [
+          "90 resources: 15 each of Wood, Stone, Metal, Food, Herbs, and Goods.",
+          "30 black markers and 30 bronze markers. Strain is black. Supported and the Round marker are bronze. Arrival timers may use either colour.",
+          "5 Golden Tiles remain out of play until unlocked through the Steward’s Ledger."
+        ]
+      }
+    ],
+    note: "Before your first game, leave every Golden Tile and Golden Boon in the box."
+  },
+  {
+    category: "Prepare",
+    page: "4–5",
+    title: "Setup",
+    summary: "Prepare the shared area, choose unique Stewards, build the Encounter pool, and place starting Tokens.",
+    sections: [
+      {
+        title: "Shared area and Stewards",
+        bullets: [
+          "Lay out the Game Map, Stewards Board, Warehouse, Core Tile supply basic-side up, Special Tiles, and tokens. Put the Round marker on 1.",
+          "Shuffle all 30 Target Cards face down. Do not create a discard pile and do not reshuffle during play.",
+          "Each player chooses a different Steward. At five players, choose any five of the six Stewards. The unchosen Steward is not used.",
+          "Start with 15 / 10 / 5 / 0 / 0 of every resource at 1 / 2 / 3 / 4 / 5 players. The normal Warehouse maximum is 15 of each."
+        ]
+      },
+      {
+        title: "Encounter material",
+        bullets: [
+          "For each player, select 4 Boons, 4 Burdens, and 4 Arrivals. Shuffle them into one 12-card-per-player standard pool.",
+          "Deal 9 hidden cards to each player. The remaining 3 selected standard cards per player form the starting Encounter Deck.",
+          "At five players, select 20 cards of each standard type, deal 45 cards, and begin with a 15-card Encounter Deck.",
+          "Return every unselected standard Encounter to the box as the reserve. Players may not inspect it unless an effect says so."
+        ]
+      },
+      {
+        title: "Starting positions",
+        bullets: [
+          "Place each Steward Token on an empty hex matching its Starting Terrain. Two Tokens cannot share a hex.",
+          "On each Steward’s first turn, their first Action must place any legal Tile over their own starting hex."
+        ]
+      }
+    ],
+    note: "Hidden hands may discuss strategy, timing, and broad intent, but may not name cards or quote exact unrevealed effects. Open hands are an optional teaching aid."
+  },
+  {
+    category: "Flow",
+    page: "6–7",
+    title: "Seasons and Encounter seeding",
+    summary: "The game has three four-round Seasons: Foundations, Growth, and Maturity.",
+    sections: [
+      {
+        title: "Seed before rounds 1, 5, and 9",
+        bullets: [
+          "Each player secretly chooses 3 cards from their hand.",
+          "Seed one on top of the Encounter Deck, insert one into the middle without counting, and seed one on the bottom.",
+          "Once seeded, nobody may count, inspect, reorder, or reveal cards in the deck unless an effect permits it.",
+          "At the start of Seasons II and III, unresolved Burdens reapply with the new Season row before players seed."
+        ]
+      }
+    ],
+    note: "Seeding controls timing, not certainty: a Boon may help now, while delaying an Arrival can make the final Season more crowded."
+  },
+  {
+    category: "Flow",
+    page: "7–8",
+    title: "Round sequence",
+    summary: "Reveal Encounters, choose player order, take one turn each, then complete upkeep.",
+    sections: [
+      {
+        title: "Every round",
+        bullets: [
+          "Reveal until the number of standard Encounters revealed equals the player count. Resolve every mandatory reveal effect before turns begin.",
+          "The group chooses player order. Every player takes exactly one turn with up to 4 Actions and may end their turn early.",
+          "After all turns, remove 1 timer from every active Arrival and resolve each expiry.",
+          "Discard effects whose duration ends, refresh round-based effects, and advance the Round marker."
+        ]
+      }
+    ],
+    note: "Finish every pending mandatory choice, payment, placement, Strain application, or chain before moving to the next timing step."
+  },
+  {
+    category: "Actions",
+    page: "8–10",
+    title: "Your turn and four Actions",
+    summary: "Spend up to 4 Actions to Place, Upgrade, Activate, or Interact. Repeat any Action while it remains legal.",
+    sections: [
+      {
+        title: "The four Actions",
+        bullets: [
+          "Place: spend 1 Action, choose an available Tile and legal reachable empty hex, check requirements, pay its cost, then resolve placement effects.",
+          "Upgrade: spend 1 Action, pay the upgraded cost, and flip a reachable non-Overstrained basic Core Tile in place.",
+          "Activate: spend 1 Action and any printed cost to use a reachable non-Overstrained Tile’s Activated Effect, including Production.",
+          "Interact: spend 1 Action to complete an active Arrival or perform an active Burden’s current-Season resolution. Interact does not move the Steward."
+        ]
+      },
+      {
+        title: "Movement and free effects",
+        bullets: [
+          "After the first placement, Place, Upgrade, and Activate move the acting Steward Token onto the chosen Tile.",
+          "Face-up Boons, passive Tile effects, and Steward Powers cost no Actions unless their text says otherwise.",
+          "A 0-Action benefit waives only the Action. Pay normal resource costs unless the effect also changes them."
+        ]
+      }
+    ],
+    note: "Unused Actions are lost when the turn ends. Cancelling before confirmation spends no Action and no resources."
+  },
+  {
+    category: "Actions",
+    page: "10–11",
+    title: "Production and the Warehouse",
+    summary: "All players gain and spend the same six resources, each normally capped at 15.",
+    sections: [
+      {
+        title: "Linked Production",
+        bullets: [
+          "The first eligible activation in an immediately adjacent group from the same Resource Tile stack makes the chosen Tile and every adjacent non-Overstrained copy produce for one Action.",
+          "Linked Production does not continue outward through a chain. Mark every producer as having participated this round.",
+          "A later activation involving any Tile that already participated produces only from the chosen Tile. A disconnected matching group may still use its own Linked Production."
+        ]
+      },
+      {
+        title: "Payment helpers",
+        bullets: [
+          "Workshops reduces one adjacent Core upgrade by 1 resource once per round. The Makers Conclave reduces one reachable Core upgrade by up to 2.",
+          "Market Stalls may spend 1 Goods as 1 resource of another type once per round. The Seldes may treat it as up to 2 of one type. A printed Goods requirement is never replaced."
+        ]
+      }
     ]
   },
   {
-    category: "Getting started",
-    title: "Choose Stewards and place starts",
-    bullets: [
-      "Choose a different Steward for each player. Each Steward has a Power and an objective worth +15 Renown.",
-      "Start with 15 of each resource for 1 player, 10 for 2 players, 5 for 3 players, or 0 for 4 players.",
-      "Place each Steward Token on a terrain type listed on that Steward’s card. Two Stewards cannot share a hex.",
-      "Each Steward’s first tile must cover their own starting hex."
-    ],
-    note:
-      "Ledger Vows and unlocked Golden options are optional. If any effect takes an action forbidden by your declared Vow, the Vow is broken."
-  },
-  {
-    category: "Round structure",
-    title: "Season setup and round flow",
-    bullets: [
-      "A new Season begins before rounds 1, 5, and 9.",
-      "At a Season start, resolve every active Burden’s Season effect before seeding cards.",
-      "Each player then chooses three cards from their hidden hand: one for the top, one for the middle, and one for the bottom of the deck.",
-      "At the start of each round, reveal 1 standard Encounter per player and resolve every reveal prompt in order.",
-      "Starting with Player 1, each player takes one turn with up to 4 actions. A player may end their turn early.",
-      "After all turns, remove 1 timer from every active Arrival, resolve any Arrival that expires, and advance the round.",
-      "At the end of Seasons I and II, each Housing cluster gains 1 single-use Supported for every 3 non-Overstrained Housing Tiles in that cluster. Place each Supported on a different eligible Tile.",
-      "Ignore Overstrained Housing when determining clusters and cluster size. Resolve Neighbourly Support before active Burdens reapply for the new Season."
-    ]
-  },
-  {
-    category: "Your turn",
-    title: "Actions and free interactions",
-    bullets: [
-      "Place — Spend 1 action to place an available tile legally. Pay the shown cost for a Core Tile. Unlocked Special Tiles cost no resources to place.",
-      "Upgrade — Spend 1 action and pay the upgraded cost of a reachable basic Core Tile.",
-      "Activate — Spend 1 action to use an eligible, reachable tile’s production or activated effect.",
-      "Interact — Spend 1 action and pay the shown cost to complete an Arrival or resolve a Burden.",
-      "Linked Production — The first time a linked Resource group is activated each round, the chosen tile and every immediately adjacent, non-Overstrained copy from the same tile stack produce for no extra action. Later activations in that group produce only from the chosen tile.",
-      "Face-up Boons and Steward Powers cost no actions unless their text says otherwise."
-    ],
-    note:
-      "A 0-action benefit saves the action only. Pay the normal resource cost unless the effect also changes it. Cancelling a payment spends nothing."
-  },
-  {
     category: "Settlement",
-    title: "Placement, reach, and movement",
-    bullets: [
-      "Your first tile must cover your Steward’s starting hex.",
-      "After that, each new tile must sit next to your Steward’s reachable settlement network.",
-      "Reach starts at the non-Overstrained tile beneath your Steward and continues through adjacent, non-Overstrained tiles.",
-      "Placing, upgrading, or activating a tile moves your Steward to that tile.",
-      "Street and Track occupy a straight line of hexes. When placing Stables, connect the first Stables tile to the acting Steward’s settlement network and place the second on any valid hex.",
-      "Treat the two non-Overstrained Stables tiles as adjacent when determining settlement networks. Tiles connected to either Stables join the same network. Stables do not move a Steward Token by themselves.",
-      "The map highlights legal choices. A disabled choice explains what is missing."
+    page: "12–13",
+    title: "Building the settlement",
+    summary: "Placement, adjacency, and reachability are separate checks. Rivers interrupt normal connection.",
+    sections: [
+      {
+        title: "Terrain and placement",
+        bullets: [
+          "Every placement checks availability, an empty reachable hex, terrain, adjacency, the printed placement rule, and cost.",
+          "Any Land means an empty non-Water/River hex unless the Tile says otherwise. Only a specific rule permits placement on Water/River.",
+          "When a Tile’s entire footprint lies on Ruins, ignore all Stone in its placement or upgrade cost. Otherwise pay the full cost.",
+          "Street and Track occupy a straight line. For Stables, place the connected half first and the second half on any valid remote hex."
+        ]
+      },
+      {
+        title: "Connection and reach",
+        bullets: [
+          "Adjacent means sharing a hex side. All side-adjacent non-Overstrained Tiles form the connected settlement network.",
+          "All Stewards may use the shared network. Reach starts from the acting Steward Token and follows non-Overstrained connection.",
+          "Rivers block normal connection between banks. A Bridge or another specific rule is required to cross."
+        ]
+      }
     ],
-    note:
-      "From Docks, every non-Water hex beside Water/River terrain is reachable. Non-Overstrained tiles on those shoreline hexes join the Docks settlement network, including across Water/River terrain. The Ranger Power gives one temporary point of reach for the current turn."
-  },
-  {
-    category: "Settlement",
-    title: "Strain, Overstrained, and Supported",
-    bullets: [
-      "A tile can hold up to 3 Strain. A tile with 3 Strain is Overstrained.",
-      "An Overstrained tile cannot activate or upgrade. It also breaks reach and scores no Population, Renown, or passive bonuses.",
-      "When a tile has Supported, it prevents the next 1 Strain placed on it that round.",
-      "One-use Supported disappears after it blocks Strain. Printed or passive Supported can protect the tile again in a later round.",
-      "When an effect places Strain, its text determines the eligible tiles and the Target Deck chooses among them.",
-      "Draw one Target Card for each different target. Apply its class, side, adjacency, and current-Strain preferences in order whenever at least one candidate matches, then use its six-hex tie direction to break a remaining tie.",
-      "Shuffle the 30-card Target Deck once during setup. Cards 25–30 are Open: choose any target still eligible under the triggering effect. Return each resolved card face down to the bottom. Do not discard or reshuffle during play.",
-      "Resolve Supported and other prevention after the target is chosen. Prevented Strain is not redirected.",
-      "Once per round, Lantern Roadhouse prevents 1 Strain on a Travel Tile in its connected settlement network. Root Weavers may spend 2 Herbs to prevent 1 Strain on a chosen target.",
-      "After an effect ends, each tile that became Overstrained spreads 1 Strain to an adjacent eligible tile selected by the Target Deck. Continue until no new tile becomes Overstrained."
-    ],
-    note:
-      "Example: tile A reaches 3 Strain and spreads to tile B. If B reaches 3, B also spreads. A can spread again only after dropping below 3 and later returning to 3."
+    note: "The app highlights legal choices and explains disabled ones. Docks and the Ranger Power add the special reach described on those components."
   },
   {
     category: "Encounters",
-    title: "Boons, Arrivals, and Burdens",
-    bullets: [
-      "Boons help the settlement. Some resolve at once. Others stay face-up and show their remaining uses on the Stewards Board.",
-      "A Carts Before Sunrise passive refresh applies to at most one chosen eligible Crafting or Merchant passive. If you decline every refreshed passive, the prepared Carts use remains available.",
-      "An Arrival enters with 3 timers. Spend 1 action and pay its requirement to complete it and unlock the named Special Tile.",
-      "At the end of each round, every active Arrival loses 1 timer.",
-      "An Arrival that reaches 0 is discarded, places 1 Strain on an eligible tile, and counts as failed.",
-      "An Arrival with at least 1 timer left when the game ends is an Unfulfilled Promise: lose 5 Renown, but place no Strain for it.",
-      "A Burden applies its reveal effect, stays active, and applies its Season effect again at the start of each later Season.",
-      "Spend 1 action and pay the current Season’s cost to resolve and discard an active Burden."
-    ]
-  },
-  {
-    category: "Stewards",
-    title: "Powers and objectives",
-    bullets: [
-      "A Steward Power normally costs no action and can be used once per Season.",
-      "Vanguard, Knight, and Sentinel prepare a benefit for the next matching placement or upgrade. Use the Power before starting that action.",
-      "Ranger gives temporary reach for the current turn. Quartermaster exchanges shared resources and can help an Arrival.",
-      "Warden is offered when a Burden is revealed. Stopping the reveal effect does not remove the Burden.",
-      "Each completed Steward objective adds +15 Renown at the end of the game."
-    ]
-  },
-  {
-    category: "Payments",
-    title: "The shared Warehouse",
-    bullets: [
-      "All players gain and spend the same six shared resources.",
-      "Each resource has a maximum of 15. Any gain above 15 is lost.",
-      "If a Boon or tile can change a payment, choose those options before confirming.",
-      "Prepared Effects on the Stewards Board show discounts, 0-action benefits, and remaining uses.",
-      "Cancelling a payment spends no resources and no actions."
-    ]
-  },
-  {
-    category: "Golden Legacy",
-    title: "Golden Tiles and Boons",
-    bullets: [
-      "Ledger milestones unlock Golden Tiles and Golden Boons for later games.",
-      "During setup, you may choose one unlocked Golden Tile, one unlocked Golden Boon, both, or neither.",
-      "Place the Golden Tile after placing Steward Tokens. This costs no action, but you must follow its placement rule.",
-      "The Golden Boon is shuffled into the Encounter Deck and is never dealt to a player’s hand.",
-      "When a Golden Boon is drawn, it does not count as the round’s standard Encounter, so another standard Encounter is also revealed.",
-      "A placed Golden Tile adds +5 Renown if you meet its scoring condition."
-    ]
-  },
-  {
-    category: "Steward’s Ledger",
-    title: "Achievements, Vows, and unlocks",
-    bullets: [
-      "Ledger Entries are achievements saved between games. They are awarded when you record a completed game.",
-      "Each named entry advances Golden unlocks only once.",
-      "Entries marked by player count also track separate 1P–4P prestige ticks. Extra ticks do not advance Golden milestones.",
-      "A locked entry cannot be earned until you complete the number of named entries shown on it.",
-      "Declare a Vow before setup. You may attempt only one Vow per game.",
-      "Golden Tiles and Golden Boons unlock after 5, 12, 18, 25, and 32 named entries."
+    page: "14–16",
+    title: "Encounter cards",
+    summary: "Read every Encounter from top to bottom and use the row matching the current Season.",
+    sections: [
+      {
+        title: "Boons and Burdens",
+        bullets: [
+          "Boons resolve immediately unless their italic instruction keeps them face up for a duration or number of uses.",
+          "A kept Boon costs no Action to use unless it says otherwise. Only one Boon may modify a single Action unless a rule permits more.",
+          "A Burden applies its current-Season reveal effect, stays active, and reapplies with the new row at the start of Seasons II and III.",
+          "Resolve an active Burden with an Interact Action and its current-Season resolution, or with an effect that explicitly resolves it. Existing Strain remains."
+        ]
+      },
+      {
+        title: "Arrivals and Golden Boons",
+        bullets: [
+          "An Arrival enters with 3 timers. Spend 1 Interact Action and meet its Requirements to unlock the named Special Tile for later 0-resource placement.",
+          "At round end, remove 1 timer from every active Arrival. At 0 it fails, is discarded, records one failure, and places 1 Strain through the Target Deck when possible.",
+          "An Arrival still active after Round 12 is an Unfulfilled Promise: lose 5 Renown, but do not expire it or place Strain.",
+          "Golden Boons resolve free, never enter player hands or seeding, and do not count toward the standard reveal total."
+        ]
+      }
     ],
-    note: "Open Ledger → Chronicles to read every requirement and see live progress."
+    note: "Specific card text overrides a general rule only for the situation it names. Flavour text is narrative. Italic timing and duration lines are rules text."
+  },
+  {
+    category: "Strain",
+    page: "16–17",
+    title: "Strain and Supported",
+    summary: "Tiles function at 1 or 2 Strain. At 3 they become Overstrained and stop helping the settlement.",
+    sections: [
+      {
+        title: "Strain",
+        bullets: [
+          "A Tile can hold at most 3 Strain. If a Tile already at 3 is targeted, add nothing.",
+          "If the full amount or number of legal targets is unavailable, place as much Strain as possible on as many eligible Tiles as possible.",
+          "The triggering effect defines the eligible pool. The Target Deck selects only within that pool."
+        ]
+      },
+      {
+        title: "Supported and Overstrained",
+        bullets: [
+          "Supported prevents 1 Strain before checking for Overstrain. Passive and single-use Supported do not stack.",
+          "Passive Supported refreshes each round while its condition remains true. Single-use Supported is spent when it prevents Strain.",
+          "At 3 Strain, a Tile cannot activate, upgrade, provide passive effects, connect the network, score, or satisfy positive requirements.",
+          "As soon as a Tile falls below 3 Strain it works normally again. Prevented Strain is not redirected."
+        ]
+      }
+    ]
+  },
+  {
+    category: "Strain",
+    page: "17–18",
+    title: "Overstrain chains",
+    summary: "A newly Overstrained Tile spreads after the full effect that caused it has finished.",
+    sections: [
+      {
+        title: "Resolve a chain",
+        bullets: [
+          "Finish the original effect, including every printed Strain placement and Strain Cascade.",
+          "Identify every Tile that crossed from fewer than 3 Strain to 3. If several did, the players choose their spread order.",
+          "For each spread, draw a fresh Target Card and apply it only to eligible adjacent placed Tiles below 3 Strain.",
+          "Apply 1 Strain, resolve Supported and prevention, and add any newly Overstrained target to the chain.",
+          "Continue until no new spread remains."
+        ]
+      }
+    ],
+    note: "A Tile already at 3 does not spread again merely because another effect targets it. It can spread again only after dropping below 3 and later returning to 3."
+  },
+  {
+    category: "Strain",
+    page: "18–19",
+    title: "The Target Deck",
+    summary: "Target Cards make impartial choices inside the eligible pool created by the Strain effect.",
+    sections: [
+      {
+        title: "Resolve one Target Card",
+        bullets: [
+          "Start with only the Tiles made eligible by the effect, including any printed fallback. Draw one card for each different target.",
+          "Read preferences in order: Tile Class, Tile Side, Adjacency, then Current Strain.",
+          "At each preference, keep the matches if at least one current candidate matches. Otherwise ignore that preference. Never restore a removed Tile.",
+          "Any neither narrows nor widens the pool. An Open card lets the players choose any remaining candidate.",
+          "If several remain on a structured card, use its arrow, then fixed map-coordinate order only for an exact directional tie.",
+          "Return the card face down to the deck bottom, then resolve Supported and prevention."
+        ]
+      }
+    ],
+    note: "Shuffle the 30-card Target Deck once during setup. Do not discard or reshuffle cards during play."
+  },
+  {
+    category: "Roles",
+    page: "19–20",
+    title: "Stewards",
+    summary: "Every Steward has Starting Terrain, a once-per-Season Power, and an Objective worth +15 Renown.",
+    sections: [
+      {
+        title: "The six Stewards",
+        bullets: [
+          "Vanguard places Travel for 0 Actions. Knight places Housing for 0 Actions. Sentinel upgrades a Core Tile for 0 Actions. Normal costs still apply.",
+          "Ranger treats one legal empty hex or non-Overstrained Tile as reachable until turn end.",
+          "Warden may prevent one revealed Burden effect. The Burden remains active, then Warden removes 1 Strain or grants Supported.",
+          "Quartermaster exchanges up to 5 shared resources and may add 1 timer to an Arrival below 3.",
+          "Powers cost no Action and refresh at each Season start. Follow each Steward Aid’s exact timing and placement text.",
+          "Only non-Overstrained Tiles count toward positive Objectives unless a rule says otherwise. Warden succeeds with fewer active Burdens than the player count."
+        ]
+      }
+    ]
+  },
+  {
+    category: "Season end",
+    page: "20–21",
+    title: "End of a Season",
+    summary: "After Rounds 4 and 8, finish upkeep and complete the six-step Season transition in order.",
+    sections: [
+      {
+        title: "Neighbourly Support",
+        bullets: [
+          "Each Housing cluster gains 1 single-use Supported for every 3 non-Overstrained Housing Tiles in that cluster.",
+          "Place each Supported on a different non-Overstrained Housing Tile in that cluster. Ignore Overstrained Tiles when finding clusters and size."
+        ]
+      },
+      {
+        title: "Transition order",
+        bullets: [
+          "1. Finish every Arrival expiry.",
+          "2. Discard unused face-up Boons whose duration ends with the Season.",
+          "3. Resolve Neighbourly Support.",
+          "4. Reapply every unresolved Burden using the new Season row.",
+          "5. Refresh every Steward Power.",
+          "6. Seed Encounters for the next Season."
+        ]
+      }
+    ],
+    note: "There is no automatic Season-end Strain spread. Overstrain chains resolve immediately after the effect that created them."
   },
   {
     category: "End game",
+    page: "21",
     title: "Final scoring",
-    bullets: [
-      "Add Population and Renown from every tile that is not Overstrained, including any passive bonuses.",
-      "Add +15 Renown for each Steward objective achieved.",
-      "Add +5 Renown for each placed Golden Tile whose condition is achieved.",
-      "Lose 5 Renown for each failed Arrival, each active Burden, and every Strain token on the map.",
-      "Your final score is Population plus Renown after all bonuses and penalties."
+    summary: "After Round 12 and all pending effects, calculate one shared score. There is no pass/fail threshold or individual winner.",
+    sections: [
+      {
+        title: "Score in order",
+        bullets: [
+          "Add Population and Renown from eligible non-Overstrained Tiles and passive effects.",
+          "Add +15 Renown for each chosen Steward Objective met.",
+          "Add +5 Renown for each placed Golden Tile whose scoring condition is met.",
+          "Subtract 5 for each active Burden, each Arrival that failed during play, and each active incomplete Arrival left as an Unfulfilled Promise.",
+          "Subtract 5 for every Strain token on the map.",
+          "Final score = Population + positive Renown − all penalties."
+        ]
+      }
     ],
-    note: "The End screen shows the full calculation before you record the game."
+    note: "Record the shared final score and every newly completed Entry in the Steward’s Ledger. Unplaced Special Tiles do not score."
+  },
+  {
+    category: "Campaign",
+    page: "22",
+    title: "Steward’s Ledger",
+    summary: "The Ledger records achievements, scores, prestige marks, Vows, and Golden milestones across many games.",
+    sections: [
+      {
+        title: "Recording a group",
+        bullets: [
+          "Choose a group name and unused Roman numeral I–VI. Use that numeral for every Entry mark and the matching Game Record.",
+          "After final scoring, mark NAMED for each newly completed Entry and record the score and new Entries on the group’s Game Record.",
+          "Each NAMED mark counts once toward Golden milestones. Separate 1P–5P prestige marks are records only and do not advance milestones.",
+          "An AFTER gate is met only if the group begins the game with the shown number of Named Entries."
+        ]
+      },
+      {
+        title: "Vows and milestones",
+        bullets: [
+          "Declare a Vow before setup and attempt no more than one Vow per game.",
+          "Golden milestones are reached at 5, 12, 18, 25, and 32 Named Entries. Each unlocks one Golden Tile and one Golden Boon permanently."
+        ]
+      }
+    ],
+    note: "Open Ledger → Chronicles in the prototype to read every Entry requirement and see live progress."
+  },
+  {
+    category: "Campaign",
+    page: "22–23",
+    title: "Golden content",
+    summary: "Golden content is optional advanced material unlocked through the Ledger and is not recommended for a first game.",
+    sections: [
+      {
+        title: "Golden setup",
+        bullets: [
+          "After standard hands are dealt, choose up to 1 unlocked Golden Tile and up to 1 unlocked Golden Boon.",
+          "Place the Golden Tile on an eligible empty hex for 0 Actions and 0 resources, following its printed requirement.",
+          "Shuffle the Golden Boon into the Encounter Deck. It never enters a hand or player seeding.",
+          "When revealed, resolve the Golden Boon for free and continue revealing because it does not count toward the standard total.",
+          "Every Golden Tile has a conditional +5 Renown scoring hook."
+        ]
+      }
+    ]
+  },
+  {
+    category: "Teaching",
+    page: "23",
+    title: "Teaching the first game",
+    summary: "Teach the shared goal and one complete round first. Introduce rare interactions only when the table needs them.",
+    sections: [
+      {
+        title: "Teach in layers",
+        bullets: [
+          "Orient: show the shared score, Warehouse, and four Actions.",
+          "Choose Stewards: identify each Token, Starting Terrain, Power, and Objective.",
+          "Seed: each player chooses one hidden card for the top, middle, and bottom.",
+          "Reveal: show the required standard Encounters and finish every mandatory effect.",
+          "Order and play: the group chooses order. Each player takes one turn with up to 4 Actions.",
+          "Upkeep: resolve Arrival timers and failures, clean up, refresh, and advance the Round marker."
+        ]
+      }
+    ],
+    note: "Leave Golden content in the box. Teach Target Card filters and Overstrain chains only when Strain first makes them relevant."
+  },
+  {
+    category: "Reference",
+    page: "23–26",
+    title: "Quick reference",
+    summary: "The essential round, Action, Strain, Season, and scoring sequences in one place.",
+    sections: [
+      {
+        title: "Round and Actions",
+        bullets: [
+          "Round: reveal and resolve Encounters → choose player order → each player takes one turn → Arrival upkeep and cleanup.",
+          "Actions: Place a legal Tile, Upgrade a basic Core Tile, Activate an Activated Effect, or Interact with an Arrival or Burden.",
+          "Steward movement: Place, Upgrade, and Activate move the Token. Interact does not."
+        ]
+      },
+      {
+        title: "Strain and Season transition",
+        bullets: [
+          "Strain: build eligible pool → draw Target Card → resolve Supported and prevention → check for Overstrain → resolve the chain after the original effect.",
+          "After Rounds 4 and 8: Arrival expiry → expiring Boons → Neighbourly Support → Burdens → Steward Powers → seed.",
+          "Arrival timers start at 3 and cannot exceed 3. Remove 1 from every active Arrival at round end."
+        ]
+      },
+      {
+        title: "Limits and penalties",
+        bullets: [
+          "Warehouse maximum: 15 of each resource. Starting amounts: 15 / 10 / 5 / 0 / 0 for 1–5 players.",
+          "Unlocked Special Tiles use a normal Place Action, follow their placement rule, and cost 0 resources.",
+          "Each active Burden, failed Arrival, Unfulfilled Promise, and Strain token costs 5 Renown."
+        ]
+      }
+    ],
+    note: "When a specific card or Tile conflicts with a general rule, its text overrides only the situation it names."
   }
 ];
 
@@ -214,8 +485,8 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
           </p>
           <strong>
             {rulesView === "gameRules"
-              ? "Choose a chapter, then read one clear rule section at a time."
-              : "Build together. Share resources. Keep Strain under control."}
+              ? "Main Rulebook v6.5 · choose one of 18 chapters."
+              : "Build one shared settlement across three Seasons."}
           </strong>
         </div>
         <div
@@ -227,11 +498,13 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
               <span>Season {gameStatus.season}</span>
               <span>Round {gameStatus.round}/12</span>
               <span>{gameStatus.actionsRemaining} actions left</span>
+              <span>Rules v6.5</span>
             </>
           ) : (
             <>
-              <span>1–4 players</span>
+              <span>1–5 players</span>
               <span>Cooperative</span>
+              <span>45–150 minutes</span>
               <span>12 rounds</span>
             </>
           )}
@@ -277,10 +550,10 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
             </div>
             <ol>
               <li>Season start: Burdens, then seed</li>
-              <li>Reveal Encounters</li>
-              <li>Resolve prompts</li>
+              <li>Reveal and resolve Encounters</li>
+              <li>Choose player order</li>
               <li>Take 4-action turns</li>
-              <li>Tick Arrival timers</li>
+              <li>Arrival upkeep and cleanup</li>
             </ol>
           </section>
 
@@ -290,9 +563,9 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
               <div>
                 <strong>Set up together</strong>
                 <p>
-                  Choose a different Steward for each player and place their Tokens on allowed terrain.
-                  Everyone uses the same map and Warehouse. Each Steward’s first tile must cover their
-                  own starting hex.
+                  Choose a different Steward for each player. At five players, choose any five of the
+                  six. Start with 15 / 10 / 5 / 0 / 0 of each resource at 1–5 players, then place each
+                  Token on its allowed terrain.
                 </p>
               </div>
             </article>
@@ -303,8 +576,8 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
                 <strong>Seed, then reveal</strong>
                 <p>
                   Before rounds 1, 5, and 9, each player seeds one card at the top, middle, and bottom
-                  of the deck. Every round reveals one standard Encounter per player. Resolve all
-                  prompts before turns begin.
+                  of the deck. Reveal one standard Encounter per player and finish every mandatory
+                  prompt before choosing turn order.
                 </p>
               </div>
             </article>
@@ -314,7 +587,8 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
               <div>
                 <strong>Spend up to 4 actions</strong>
                 <p>
-                  On your turn, Place, Upgrade, Activate, or Interact. Choose an action, follow the
+                  The group chooses player order each round. On your turn, Place, Upgrade, Activate,
+                  or Interact. Choose an action, follow the
                   highlighted legal choices, check the cost, and confirm. Steward Powers and some
                   effects cost no actions.
                 </p>
@@ -350,7 +624,8 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
                 <strong>Score after round 12</strong>
                 <p>
                   Add Population and Renown, including Steward objective and Golden Tile bonuses.
-                  Failed Arrivals, Unfulfilled Promises, active Burdens, and every Strain token reduce the shared score.
+                  Active Burdens, failed Arrivals, Unfulfilled Promises, and every Strain token each
+                  cost 5 Renown.
                 </p>
               </div>
             </article>
@@ -437,15 +712,25 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
                     Chapter {String(activeRuleIndex + 1).padStart(2, "0")} / {rules.length}
                   </span>
                   <span className="rule-category">{activeRule.category}</span>
+                  <span className="rule-page">
+                    Rulebook {activeRule.page.includes("–") ? "pp." : "p."} {activeRule.page}
+                  </span>
                 </div>
                 <h3>{activeRule.title}</h3>
-                {activeRule.summary && <p className="rule-summary">{activeRule.summary}</p>}
+                <p className="rule-summary">{activeRule.summary}</p>
               </header>
-              <ul>
-                {activeRule.bullets.map((bullet) => (
-                  <li key={bullet}>{bullet}</li>
+              <div className="rule-sections">
+                {activeRule.sections.map((section) => (
+                  <section className="rule-section" key={section.title}>
+                    <h4>{section.title}</h4>
+                    <ul>
+                      {section.bullets.map((bullet) => (
+                        <li key={bullet}>{bullet}</li>
+                      ))}
+                    </ul>
+                  </section>
                 ))}
-              </ul>
+              </div>
               {activeRule.note && <aside className="rule-note">{activeRule.note}</aside>}
             </article>
 

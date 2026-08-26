@@ -1,6 +1,6 @@
 # The Quiet Vale: Seasons of Settlement
 
-Fresh responsive web prototype for **The Quiet Vale**, a cooperative tile-laying settlement game for 1-4 players.
+Fresh responsive web prototype for **The Quiet Vale**, a cooperative tile-laying settlement game for 1-5 players.
 
 ## Current Status
 
@@ -8,7 +8,7 @@ This repository is a greenfield rebuild. The current implementation establishes 
 
 Implemented playable loop:
 
-- 1-4 player setup with unique Stewards.
+- 1-5 player setup with unique Stewards.
 - Automatic fresh Encounter shuffle whenever a new game starts.
 - Hidden-hand seasonal seeding with Top, Middle, and Bottom slots.
 - Encounter reveal into active Arrivals, active Burdens, face-up Boons, and discard.
@@ -55,7 +55,7 @@ Current source priority:
 
 1. Structured repository data in this repository; this is the current online prototype authority.
 2. `design/component-list/The_Quiet_Vale_Master_Component_List.xlsx`, the physical component and production-text authority.
-3. The current v6.4 Rulebook output, used for full-game reference and physical handoff.
+3. The current v6.5 Rulebook output, used for full-game reference and physical handoff.
 4. Greenfield handoff and supplemental authority pack.
 5. Old prototype behavior only as a last resort.
 

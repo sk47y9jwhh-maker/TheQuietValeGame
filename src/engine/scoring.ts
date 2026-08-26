@@ -235,10 +235,12 @@ export function evaluateStewardObjectives(state: GameState): StewardObjectivePro
         : "Build on non-Grasslands, non-River terrain.";
     } else if (player.stewardId === "warden") {
       const activeBurdens = state.encounters.activeBurdens.length;
-      met = activeBurdens === 0;
-      current = met ? 1 : 0;
-      progressLabel = met ? "No active Burdens" : `${activeBurdens} active Burden${activeBurdens === 1 ? "" : "s"}`;
-      detail = met ? "The settlement is currently clear." : "Resolve every active Burden before final scoring.";
+      const playerCount = state.players.length;
+      current = activeBurdens;
+      target = Math.max(0, playerCount - 1);
+      met = activeBurdens < playerCount;
+      progressLabel = `${activeBurdens} active Burden${activeBurdens === 1 ? "" : "s"}; need fewer than ${playerCount}`;
+      detail = "Compare the active Burden count with the player count at final scoring.";
     } else if (player.stewardId === "quartermaster") {
       current = Object.values(state.warehouse).filter((amount) => amount >= 5).length;
       target = 3;

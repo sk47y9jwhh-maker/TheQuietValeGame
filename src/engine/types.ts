@@ -1,4 +1,5 @@
-export type PlayerCount = 1 | 2 | 3 | 4;
+export const supportedPlayerCounts = [1, 2, 3, 4, 5] as const;
+export type PlayerCount = (typeof supportedPlayerCounts)[number];
 export type Season = 1 | 2 | 3;
 export type GamePhase =
   | "setup"

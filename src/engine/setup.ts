@@ -18,7 +18,8 @@ const startingWarehouseByPlayerCount: Record<PlayerCount, number> = {
   1: 15,
   2: 10,
   3: 5,
-  4: 0
+  4: 0,
+  5: 0
 };
 
 interface EncounterSetupOptions {

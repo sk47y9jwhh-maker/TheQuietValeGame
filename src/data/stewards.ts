@@ -48,7 +48,7 @@ export const stewards: StewardData[] = [
     powerText:
       "Once per Season, when a Burden is revealed, you may prevent that Burden's revealed effect from triggering. The Burden still becomes active. Then either remove 1 Strain from any tile or place Supported on one tile.",
     objectiveText:
-      "At final scoring, gain +15 Renown if there are no active Burdens.",
+      "At final scoring, gain +15 Renown if there are fewer active Burdens than the player count.",
     objectiveRenown: 15
   },
   {

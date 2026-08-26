@@ -42,13 +42,13 @@ describe("Steward's Ledger", () => {
       5, 12, 18, 25, 32
     ]);
     expect(ledgerEntries.find((entry) => entry.id === "LE-001")?.thresholdsByPlayerCount).toEqual({
-      1: 140, 2: 200, 3: 280, 4: 320
+      1: 140, 2: 200, 3: 280, 4: 320, 5: 380
     });
     expect(ledgerEntries.find((entry) => entry.id === "LE-041")?.thresholdsByPlayerCount).toEqual({
-      1: 90, 2: 130, 3: 190, 4: 240
+      1: 90, 2: 130, 3: 190, 4: 240, 5: 290
     });
     expect(ledgerEntries.find((entry) => entry.id === "LE-042")?.thresholdsByPlayerCount).toEqual({
-      1: 110, 2: 85, 3: 75, 4: 40
+      1: 110, 2: 85, 3: 75, 4: 40, 5: 30
     });
   });
 

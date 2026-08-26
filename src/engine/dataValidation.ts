@@ -46,6 +46,7 @@ import type {
   TileCategory,
   TilePlacementRequirement
 } from "./types";
+import { supportedPlayerCounts } from "./types";
 import type { EffectRule } from "./effectRuleTypes";
 
 const tileCategories: TileCategory[] = [
@@ -336,8 +337,13 @@ function validateLedger(issues: string[]): void {
       issues.push(`${label} references unknown Steward: ${entry.requiredSteward}.`);
     }
     if (entry.thresholdsByPlayerCount) {
+      for (const playerCount of supportedPlayerCounts) {
+        if (!Object.hasOwn(entry.thresholdsByPlayerCount, String(playerCount))) {
+          issues.push(`${label} is missing its ${playerCount}p threshold.`);
+        }
+      }
       for (const [playerCount, threshold] of Object.entries(entry.thresholdsByPlayerCount)) {
-        if (!["1", "2", "3", "4"].includes(playerCount)) {
+        if (!supportedPlayerCounts.map(String).includes(playerCount)) {
           issues.push(`${label} has unknown player-count threshold key: ${playerCount}.`);
         }
         validateNonNegativeInteger(`${label} ${playerCount}p threshold`, threshold, issues);

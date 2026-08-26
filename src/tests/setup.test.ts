@@ -11,7 +11,10 @@ import {
   validateStewardPlacement
 } from "../engine/gameActions";
 import { getSeasonForRound, revealCountForPlayers } from "../engine/season";
-import type { EncounterData, PlayerCount } from "../engine/types";
+import {
+  supportedPlayerCounts,
+  type EncounterData
+} from "../engine/types";
 
 function countEncounterTypes(cardIds: string[]): Record<EncounterData["type"], number> {
   const counts: Record<EncounterData["type"], number> = {
@@ -51,10 +54,10 @@ describe("setup and round authority", () => {
     expect(state.targetCards).not.toHaveProperty("enabled");
   });
 
-  it("includes three Salvage Camps so all Ruins producers can be linked", () => {
+  it("includes four Salvage Camps", () => {
     const state = createNewGame(1, ["vanguard"]);
 
-    expect(state.tileSupply.core.c20_dig_site).toBe(3);
+    expect(state.tileSupply.core.c20_dig_site).toBe(4);
   });
 
   it("calculates seasons from rounds", () => {
@@ -71,14 +74,16 @@ describe("setup and round authority", () => {
     expect(getStartingWarehouseAmount(2)).toBe(10);
     expect(getStartingWarehouseAmount(3)).toBe(5);
     expect(getStartingWarehouseAmount(4)).toBe(0);
+    expect(getStartingWarehouseAmount(5)).toBe(0);
   });
 
   it("reveals standard Encounter Cards equal to player count", () => {
     expect(revealCountForPlayers(1)).toBe(1);
     expect(revealCountForPlayers(4)).toBe(4);
+    expect(revealCountForPlayers(5)).toBe(5);
   });
 
-  it.each([1, 2, 3, 4] as PlayerCount[])(
+  it.each(supportedPlayerCounts)(
     "builds a balanced 4/4/4 standard Encounter pool for %s player(s)",
     (playerCount) => {
       const pool = buildEncounterPool(playerCount, `QV-AUTHORITY-${playerCount}`);
@@ -93,7 +98,7 @@ describe("setup and round authority", () => {
     }
   );
 
-  it.each([1, 2, 3, 4] as PlayerCount[])(
+  it.each(supportedPlayerCounts)(
     "deals every selected standard Encounter Card for %s player(s)",
     (playerCount) => {
       const playerIds = Array.from(
@@ -133,6 +138,20 @@ describe("setup and round authority", () => {
         unused: []
       }).some((cardId) => encounterById[cardId]?.type === "goldenBoon")
     ).toBe(false);
+  });
+
+  it("creates a complete five-player game with distinct Steward seats", () => {
+    const stewardIds = ["vanguard", "knight", "sentinel", "ranger", "warden"];
+    const state = createNewGame(5, stewardIds, { encounterSeed: "QV-FIVE-PLAYER" });
+
+    expect(state.playerCount).toBe(5);
+    expect(state.players).toHaveLength(5);
+    expect(new Set(state.players.map((player) => player.stewardId)).size).toBe(5);
+    expect(new Set(state.players.map((player) => player.stewardHexId)).size).toBe(5);
+    expect(Object.values(state.encounters.handsByPlayerId)).toHaveLength(5);
+    expect(Object.values(state.encounters.handsByPlayerId).every((hand) => hand.length === 9)).toBe(true);
+    expect(state.encounters.deck).toHaveLength(15);
+    expect(Object.values(state.warehouse).every((amount) => amount === 0)).toBe(true);
   });
 
   it("builds repeatable shuffled Encounter pools from a setup seed", () => {

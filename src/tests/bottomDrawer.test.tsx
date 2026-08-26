@@ -105,28 +105,28 @@ describe("bottom drawer", () => {
     expect(
       screen.getByRole("navigation", { name: "Full rules contents" })
     ).toBeInTheDocument();
-    expect(container.querySelectorAll(".rules-chapter-button")).toHaveLength(12);
-    expect(screen.getByRole("heading", { name: "The aim of the game" })).toBeInTheDocument();
-    expect(screen.getByText("Placement, reach, and movement")).toBeInTheDocument();
-    expect(screen.getByText("Boons, Arrivals, and Burdens")).toBeInTheDocument();
+    expect(container.querySelectorAll(".rules-chapter-button")).toHaveLength(18);
+    expect(screen.getByRole("heading", { name: "Components" })).toBeInTheDocument();
+    expect(screen.getByText("Building the settlement")).toBeInTheDocument();
+    expect(screen.getByText("Encounter cards")).toBeInTheDocument();
 
     fireEvent.click(
-      screen.getByRole("button", { name: "6. Strain, Overstrained, and Supported" })
+      screen.getByRole("button", { name: "9. Strain and Supported" })
     );
-    expect(screen.getByText(/each tile that became Overstrained spreads 1 Strain/)).toBeInTheDocument();
-    expect(screen.getByText(/the Target Deck chooses among them/)).toBeInTheDocument();
+    expect(screen.getByText(/Supported prevents 1 Strain before checking for Overstrain/)).toBeInTheDocument();
+    expect(screen.getByText(/At 3 Strain, a Tile cannot activate/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "11. The Target Deck" }));
+    expect(screen.getByText(/Read preferences in order: Tile Class, Tile Side/)).toBeInTheDocument();
     expect(screen.getByText(/Shuffle the 30-card Target Deck once during setup/)).toBeInTheDocument();
-    expect(screen.queryByText(/After rounds 4 and 8/)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "3. Season setup and round flow" }));
-    expect(screen.getByText(/each Housing cluster gains 1 single-use Supported/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "13. End of a Season" }));
+    expect(screen.getByText(/Each Housing cluster gains 1 single-use Supported/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "12. Final scoring" }));
+    fireEvent.click(screen.getByRole("button", { name: "14. Final scoring" }));
     expect(screen.getByRole("heading", { name: "Final scoring" })).toBeInTheDocument();
-    expect(
-      screen.getByText("Lose 5 Renown for each failed Arrival, each active Burden, and every Strain token on the map.")
-    ).toBeInTheDocument();
-    expect(screen.getByText("Achievements, Vows, and unlocks")).toBeInTheDocument();
+    expect(screen.getByText(/each active incomplete Arrival left as an Unfulfilled Promise/)).toBeInTheDocument();
+    expect(screen.getByText("Steward’s Ledger")).toBeInTheDocument();
     expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(1);
   });
 });

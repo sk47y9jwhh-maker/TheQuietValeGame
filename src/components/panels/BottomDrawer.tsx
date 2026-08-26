@@ -28,7 +28,7 @@ import {
 import { evaluateStewardObjectives } from "../../engine/scoring";
 import { evaluateLedgerEntries, getLedgerRun } from "../../engine/ledger";
 import { selectCurrentPlayer } from "../../engine/selectors";
-import type { GameState } from "../../engine/types";
+import { supportedPlayerCounts, type GameState } from "../../engine/types";
 import { EncounterCard } from "../common/EncounterCard";
 import { formatCategory, formatCost } from "../common/gameText";
 import { RulesGuide } from "./RulesGuide";
@@ -459,7 +459,7 @@ export function BottomDrawer({
                           </footer>
                           {entry.playerCountPrestige && (
                             <div className="ledger-prestige-row" aria-label="Player count records">
-                              {[1, 2, 3, 4].map((count) => (
+                              {supportedPlayerCounts.map((count) => (
                                 <span
                                   className={completion?.completedPlayerCounts?.includes(count) ? "complete" : ""}
                                   key={count}

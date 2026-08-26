@@ -46,8 +46,8 @@ describe("v4.6 Ledger game tracking", () => {
     expect(state.ledgerRun?.violatedVowReasons).toEqual([]);
   });
 
-  it.each([3, 4] as const)("allows the Small Storehouse Vow at %ip", (playerCount) => {
-    const stewardIds = ["vanguard", "knight", "sentinel", "ranger"].slice(0, playerCount);
+  it.each([3, 4, 5] as const)("allows the Small Storehouse Vow at %ip", (playerCount) => {
+    const stewardIds = ["vanguard", "knight", "sentinel", "ranger", "warden"].slice(0, playerCount);
     const state = createNewGame(playerCount, stewardIds, { declaredVowId: "LE-043" });
     expect(state.ledgerRun?.declaredVowId).toBe("LE-043");
     expect(state.ledgerRun?.violatedVowReasons).toEqual([]);

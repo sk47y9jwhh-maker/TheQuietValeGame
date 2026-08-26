@@ -22,7 +22,7 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c01_lumber_yard",
     category: "resource",
-    count: 3,
+    count: 4,
     size: 1,
     placement: { terrain: ["woodland"], text: "Place on Woodland." },
     basic: {
@@ -47,7 +47,7 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c02_mine_tunnel",
     category: "resource",
-    count: 3,
+    count: 4,
     size: 1,
     placement: { terrain: ["mountains"], text: "Place on Mountains." },
     basic: {
@@ -72,7 +72,7 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c03_gathering_outpost",
     category: "resource",
-    count: 3,
+    count: 4,
     size: 1,
     placement: { terrain: ["heaths"], text: "Place on Heaths." },
     basic: {
@@ -97,7 +97,7 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c04_farmstead",
     category: "resource",
-    count: 3,
+    count: 4,
     size: 1,
     placement: { terrain: ["arable"], text: "Place on Arable Land." },
     basic: {
@@ -145,7 +145,7 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c06_cottage",
     category: "housing",
-    count: 3,
+    count: 4,
     size: 1,
     placement: {
       adjacentToCategory: ["housing"],
@@ -477,7 +477,7 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c19_bridge",
     category: "travel",
-    count: 3,
+    count: 4,
     size: 1,
     placement: { terrain: ["water"], text: "Place on Water/River terrain." },
     basic: {
@@ -501,7 +501,7 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c20_dig_site",
     category: "resource",
-    count: 3,
+    count: 4,
     size: 1,
     placement: { terrain: ["ruins"], text: "Place on Ruins." },
     basic: {
@@ -526,7 +526,7 @@ export const coreTiles: CoreTileData[] = [
   {
     id: "c21_the_vaults",
     category: "wellbeing",
-    count: 1,
+    count: 2,
     size: 1,
     placement: {
       adjacentToTerrain: ["ruins"],

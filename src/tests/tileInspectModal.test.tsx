@@ -17,7 +17,7 @@ describe("tile inspector", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Lumber Yard" })).toBeInTheDocument();
-    expect(screen.getByText("Supply 3/3")).toBeInTheDocument();
+    expect(screen.getByText("Supply 4/4")).toBeInTheDocument();
     const effectTexts = screen.getAllByText(/Passive: Linked Production/);
     expect(effectTexts).toHaveLength(2);
     expect(effectTexts[0]).toHaveTextContent(

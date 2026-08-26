@@ -1,4 +1,4 @@
-import type { Season } from "./types";
+import { supportedPlayerCounts, type Season } from "./types";
 
 export function getSeasonForRound(round: number): Season {
   if (round < 1 || round > 12) {
@@ -15,10 +15,9 @@ export function isSeasonStartRound(round: number): boolean {
 }
 
 export function revealCountForPlayers(playerCount: number): number {
-  if (![1, 2, 3, 4].includes(playerCount)) {
-    throw new Error("Standard online prototype supports 1-4 players.");
+  if (!supportedPlayerCounts.includes(playerCount as (typeof supportedPlayerCounts)[number])) {
+    throw new Error("Standard online prototype supports 1-5 players.");
   }
 
   return playerCount;
 }
-

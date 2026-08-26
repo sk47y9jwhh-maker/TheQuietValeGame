@@ -12,11 +12,11 @@ describe("component data integrity", () => {
     expect(specialTiles).toHaveLength(25);
   });
 
-  it("provides three copies of every Resource Tile", () => {
+  it("provides four copies of every Resource Tile", () => {
     const resourceTiles = coreTiles.filter((tile) => tile.category === "resource");
 
     expect(resourceTiles).toHaveLength(5);
-    expect(resourceTiles.every((tile) => tile.count === 3)).toBe(true);
+    expect(resourceTiles.every((tile) => tile.count === 4)).toBe(true);
     expect(
       resourceTiles.every((tile) =>
         [tile.basic, tile.upgraded].every((side) =>
@@ -24,6 +24,14 @@ describe("component data integrity", () => {
         )
       )
     ).toBe(true);
+  });
+
+  it("uses the locked stock for Cottage, Bridge and The Vaults", () => {
+    const stockById = Object.fromEntries(coreTiles.map((tile) => [tile.id, tile.count]));
+
+    expect(stockById.c06_cottage).toBe(4);
+    expect(stockById.c19_bridge).toBe(4);
+    expect(stockById.c21_the_vaults).toBe(2);
   });
 
   it("maps every Arrival reward to a known Special Tile", () => {

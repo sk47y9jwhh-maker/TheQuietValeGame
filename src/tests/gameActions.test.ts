@@ -63,7 +63,7 @@ describe("game actions", () => {
 
     expect(next.map.placedTiles).toHaveLength(1);
     expect(next.actionsRemaining).toBe(3);
-    expect(next.tileSupply.core.c01_lumber_yard).toBe(2);
+    expect(next.tileSupply.core.c01_lumber_yard).toBe(3);
     expect(next.pendingEffects).toHaveLength(0);
   });
 

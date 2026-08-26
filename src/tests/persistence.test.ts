@@ -36,6 +36,22 @@ describe("browser persistence", () => {
     ).toBe(4);
   });
 
+  it("restores a five-player game with five unique Stewards", () => {
+    const stewardIds = ["vanguard", "knight", "sentinel", "ranger", "warden"];
+    const state = createNewGame(5, stewardIds, { encounterSeed: "QV-FIVE-PLAYER-SAVE" });
+    writeSavedGame({
+      playerCount: 5,
+      stewardIds,
+      encounterSeed: "QV-FIVE-PLAYER-SAVE",
+      state
+    });
+
+    const restored = readSavedGame();
+    expect(restored?.playerCount).toBe(5);
+    expect(restored?.state.players).toHaveLength(5);
+    expect(restored?.state.encounters.deck).toHaveLength(15);
+  });
+
   it("defaults missing activation records when restoring a legacy save", () => {
     const state = createNewGame(1, ["vanguard"]);
     const legacyState = { ...state } as Partial<typeof state>;

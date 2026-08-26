@@ -30,7 +30,7 @@
 
 .segmented {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 20px;
 }
@@ -4189,11 +4189,29 @@ button.effect-row {
 }
 
 .rules-chapter-detail {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   background:
     linear-gradient(100deg, rgba(168, 137, 63, 0.08), transparent 44%),
     rgba(240, 234, 216, 0.66);
+}
+
+.rules-chapter-detail::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -2%;
+  background: url("../assets/quiet_vale_map_v02.webp") center 52% / auto 108% no-repeat;
+  filter: sepia(0.22) saturate(0.72);
+  opacity: 0.055;
+  pointer-events: none;
+}
+
+.rules-chapter-detail > * {
+  position: relative;
+  z-index: 1;
 }
 
 .rule-chapter-card {
@@ -4257,12 +4275,45 @@ button.effect-row {
   text-transform: uppercase;
 }
 
+.rule-page {
+  color: rgba(38, 34, 27, 0.56);
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+}
+
 .rule-summary {
   margin: 0;
   color: rgba(38, 34, 27, 0.78);
   font-size: 13px;
   font-weight: 700;
   line-height: 1.4;
+}
+
+.rule-sections {
+  display: grid;
+  gap: 14px;
+}
+
+.rule-section {
+  display: grid;
+  gap: 8px;
+}
+
+.rule-section + .rule-section {
+  padding-top: 13px;
+  border-top: 1px solid rgba(111, 93, 46, 0.18);
+}
+
+.rule-section h4 {
+  margin: 0;
+  color: var(--qv-muted-green-dark);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .rule-chapter-card ul {
