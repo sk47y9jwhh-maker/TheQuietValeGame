@@ -10,6 +10,11 @@ playwright-report
 test-results
 .codex-work
 .pnpm-store
+__pycache__/
+*.py[cod]
 outputs
+output
 analysis
+tmp
+working
 .codex-live-release

@@ -729,6 +729,12 @@ The key health target should be: **top scores can remain exciting, but the top d
 
 ## Reproduction artifacts
 
+> Historical note (27 August 2026): the automated playtest bot and its
+> full-engine simulation tooling have been retired. This report is retained as
+> a record of the completed audit; the local output files below may still be
+> available, but their generating programs are no longer maintained in this
+> repository.
+
 Human-readable summaries:
 
 - `outputs/adversarial-audit/analysis.md`
@@ -748,14 +754,6 @@ Machine-readable evidence:
 - `outputs/adversarial-audit/replays/top1-baseline.json`
 - `outputs/adversarial-audit/replays/top1-wide.json`
 - `outputs/adversarial-audit/replays/top4-narrow.json`
-
-Audit programs:
-
-- `tools/playtest-bot/adversarial-audit.ts`
-- `tools/playtest-bot/analyse-adversarial-audit.ts`
-- `tools/playtest-bot/seeding-timing-audit.ts`
-- `tools/playtest-bot/analyse-seeding-timing.ts`
-- `tools/playtest-bot/focused-rules-probes.ts`
 
 ## Final prioritised recommendation
 
