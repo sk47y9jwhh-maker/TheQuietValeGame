@@ -31,6 +31,22 @@ function emptyCost(): ResourceCost {
   return { wood: 0, stone: 0, metal: 0, food: 0, herbs: 0, goods: 0 };
 }
 
+export const shelterInTheRuinsName = "Shelter in the Ruins";
+
+export function applyShelterInTheRuins(
+  cost: ResourceCost,
+  hexIds: string[]
+): ResourceCost {
+  if (
+    hexIds.length === 0 ||
+    !hexIds.every((hexId) => mapById[hexId]?.terrain === "ruins")
+  ) {
+    return cost;
+  }
+
+  return { ...cost, stone: 0 };
+}
+
 export function getTileData(
   tileId: string
 ): CoreTileData | SpecialTileData | undefined {
@@ -44,17 +60,24 @@ function getPlacement(tileId: string): TilePlacementRequirement | undefined {
   return data?.placement;
 }
 
-function getPlacementCost(state: GameState, tileId: string): ResourceCost {
+function getPlacementCost(
+  state: GameState,
+  tileId: string,
+  hexIds: string[]
+): ResourceCost {
   const data = getTileData(tileId);
   if (!data) return emptyCost();
   const baseCost = "basic" in data ? data.basic.cost : emptyCost();
-  return getBoonModifiedCost(state, {
-    action: "place",
-    tileId,
-    category: data.category,
-    kind: "basic" in data ? "core" : "special",
-    baseCost
-  });
+  return applyShelterInTheRuins(
+    getBoonModifiedCost(state, {
+      action: "place",
+      tileId,
+      category: data.category,
+      kind: "basic" in data ? "core" : "special",
+      baseCost
+    }),
+    hexIds
+  );
 }
 
 function availableCopies(state: GameState, tileId: string): number {
@@ -381,7 +404,7 @@ function getPlacementFailuresInternal(
     );
   }
 
-  const cost = getPlacementCost(state, tileId);
+  const cost = getPlacementCost(state, tileId, selectedHexIds);
   if (!options.ignoreCost && !canAfford(state.warehouse, cost)) {
     for (const missing of getMissingResources(state.warehouse, cost)) {
       reasons.push(`Cannot place here: insufficient ${missing}.`);

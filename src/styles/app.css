@@ -7030,3 +7030,186 @@ input,
     min-width: 72px;
   }
 }
+
+/* The artist map is mounted like a field board: blackened leather over slate,
+   with restrained aged-brass fittings rather than a decorative picture frame. */
+.map-mount {
+  --map-mount-inset: clamp(10px, 1.35vw, 18px);
+  --map-mount-brass: #a8893f;
+  --map-mount-brass-dark: #6f5d2e;
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  padding: var(--map-mount-inset);
+  overflow: hidden;
+  border: 1px solid rgba(168, 137, 63, 0.52);
+  border-radius: 6px;
+  background:
+    radial-gradient(circle at 15% 24%, rgba(240, 234, 216, 0.055) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 74% 68%, rgba(240, 234, 216, 0.04) 0 1px, transparent 1.5px),
+    repeating-linear-gradient(
+      112deg,
+      rgba(240, 234, 216, 0.018) 0 1px,
+      transparent 1px 5px
+    ),
+    linear-gradient(145deg, #37372f 0%, #24231e 42%, #171713 100%);
+  background-size: 31px 29px, 37px 41px, auto, auto;
+  box-shadow:
+    inset 0 0 0 2px rgba(18, 17, 14, 0.88),
+    inset 0 0 0 5px rgba(168, 137, 63, 0.12),
+    inset 0 12px 24px rgba(240, 234, 216, 0.035),
+    inset 0 -14px 28px rgba(0, 0, 0, 0.38),
+    0 7px 16px rgba(38, 34, 27, 0.23);
+}
+
+.map-mount::before,
+.map-mount::after,
+.map-mount-keyline,
+.map-mount-corner,
+.map-mount-studs {
+  position: absolute;
+  pointer-events: none;
+}
+
+.map-mount::before {
+  content: "";
+  z-index: 3;
+  inset: 5px;
+  border: 1px solid rgba(23, 21, 17, 0.92);
+  border-radius: 3px;
+  box-shadow:
+    inset 0 0 0 1px rgba(168, 137, 63, 0.3),
+    0 0 0 1px rgba(240, 234, 216, 0.035);
+}
+
+.map-mount::after {
+  content: "";
+  z-index: 1;
+  inset: calc(var(--map-mount-inset) - 3px);
+  border: 1px solid rgba(168, 137, 63, 0.58);
+  border-radius: 2px;
+  box-shadow:
+    0 0 0 2px rgba(13, 13, 11, 0.62),
+    0 2px 6px rgba(0, 0, 0, 0.42);
+}
+
+.map-mount-keyline {
+  z-index: 4;
+  inset: 8px;
+  border: 1px solid rgba(168, 137, 63, 0.58);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(111, 93, 46, 0.18);
+}
+
+.map-mount > .map-canvas {
+  position: relative;
+  z-index: 2;
+  border: 0;
+  border-radius: 1px;
+  background: var(--qv-parchment-deep);
+  box-shadow:
+    inset 0 0 0 1px rgba(38, 34, 27, 0.26),
+    0 1px 4px rgba(0, 0, 0, 0.42);
+}
+
+.map-mount-corner {
+  z-index: 5;
+  top: 5px;
+  left: 5px;
+  width: clamp(31px, 4.2vw, 48px);
+  aspect-ratio: 1;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 34%,
+    47% 34%,
+    34% 47%,
+    34% 100%,
+    0 100%
+  );
+  background:
+    linear-gradient(135deg, rgba(255, 244, 190, 0.28), transparent 30%),
+    linear-gradient(145deg, #b39750 0%, #8b7138 48%, #5f4d28 100%);
+  filter: drop-shadow(1px 2px 1px rgba(0, 0, 0, 0.52));
+  box-shadow: inset 0 0 0 1px rgba(46, 37, 20, 0.65);
+}
+
+.map-mount-corner-north-east {
+  right: 5px;
+  left: auto;
+  transform: rotate(90deg);
+}
+
+.map-mount-corner-south-east {
+  right: 5px;
+  bottom: 5px;
+  top: auto;
+  left: auto;
+  transform: rotate(180deg);
+}
+
+.map-mount-corner-south-west {
+  bottom: 5px;
+  top: auto;
+  transform: rotate(270deg);
+}
+
+.map-mount-rivet {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  width: clamp(7px, 0.78vw, 10px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(55, 42, 20, 0.72);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 30%, #e3c77a 0 12%, #a8893f 36%, #675228 78%);
+  box-shadow:
+    inset -1px -1px 2px rgba(39, 30, 16, 0.62),
+    0 1px 2px rgba(0, 0, 0, 0.58);
+}
+
+.map-mount-studs {
+  z-index: 5;
+  top: 4px;
+  left: 50%;
+  width: clamp(8px, 0.85vw, 11px);
+  aspect-ratio: 1;
+  transform: translateX(-13px);
+  border: 1px solid rgba(55, 42, 20, 0.72);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 30%, #e3c77a 0 12%, #a8893f 36%, #675228 78%);
+  box-shadow:
+    18px 0 0 -1px #8f7438,
+    18px 0 0 0 rgba(55, 42, 20, 0.72),
+    0 1px 2px rgba(0, 0, 0, 0.58);
+}
+
+.map-mount-studs-south {
+  top: auto;
+  bottom: 4px;
+}
+
+@media (max-width: 767px) {
+  .map-mount {
+    --map-mount-inset: 10px;
+    overflow: hidden;
+  }
+
+  .map-mount > .map-canvas {
+    overflow: auto;
+  }
+
+  .map-mount-corner {
+    width: 32px;
+  }
+
+  .map-mount-studs {
+    display: none;
+  }
+}

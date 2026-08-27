@@ -12,10 +12,9 @@ import {
 import { hasConnectedBridgeCrossing } from "./reachability";
 import type { GameState, PlacedTile } from "./types";
 
-const activeBurdenPenalty = 5;
-const strainPenalty = 5;
-const failedArrivalPenalty = 5;
-const unfulfilledPromisePenalty = 5;
+const activeBurdenPenalty = 10;
+const strainPenalty = 10;
+const failedArrivalPenalty = 10;
 
 function countFailedArrivals(state: GameState): number {
   return state.encounters.discardPile.filter(
@@ -295,9 +294,6 @@ export function calculateFinalScore(state: GameState) {
   const burdenPenalty = state.encounters.activeBurdens.length * activeBurdenPenalty;
   const failedArrivals = countFailedArrivals(state);
   const failedArrivalPenaltyTotal = failedArrivals * failedArrivalPenalty;
-  const unfulfilledPromises = state.encounters.activeArrivals.length;
-  const unfulfilledPromisePenaltyTotal =
-    unfulfilledPromises * unfulfilledPromisePenalty;
   const strainTokens = state.map.placedTiles.reduce((total, tile) => total + tile.strain, 0);
   const strainPenaltyTotal = strainTokens * strainPenalty;
   const renown =
@@ -307,7 +303,6 @@ export function calculateFinalScore(state: GameState) {
     goldenRenown -
     burdenPenalty -
     failedArrivalPenaltyTotal -
-    unfulfilledPromisePenaltyTotal -
     strainPenaltyTotal;
 
   return {
@@ -321,8 +316,6 @@ export function calculateFinalScore(state: GameState) {
     burdenPenalty,
     failedArrivals,
     failedArrivalPenalty: failedArrivalPenaltyTotal,
-    unfulfilledPromises,
-    unfulfilledPromisePenalty: unfulfilledPromisePenaltyTotal,
     strainPenalty: strainPenaltyTotal,
     finalScore: population + renown
   };

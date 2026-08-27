@@ -23,7 +23,7 @@ function placedTile(
 }
 
 describe("final scoring", () => {
-  it("applies -5 Renown per Strain token", () => {
+  it("applies -10 Renown per Strain token", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.map.placedTiles.push({
       instanceId: "tile_1",
@@ -35,10 +35,10 @@ describe("final scoring", () => {
       support: { passive: false, singleUse: false, preventedThisRound: false }
     });
 
-    expect(calculateFinalScore(state).strainPenalty).toBe(10);
+    expect(calculateFinalScore(state).strainPenalty).toBe(20);
   });
 
-  it("applies -5 Renown per failed Arrival and active Burden", () => {
+  it("applies -10 Renown per failed Arrival and active Burden", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.phase = "gameEnd";
     state.encounters.discardPile.push("arrival_acorns_and_oak_trees");
@@ -47,12 +47,12 @@ describe("final scoring", () => {
     const score = calculateFinalScore(state);
 
     expect(score.failedArrivals).toBe(1);
-    expect(score.failedArrivalPenalty).toBe(5);
-    expect(score.burdenPenalty).toBe(5);
-    expect(score.finalScore).toBe(-10);
+    expect(score.failedArrivalPenalty).toBe(10);
+    expect(score.burdenPenalty).toBe(10);
+    expect(score.finalScore).toBe(-20);
   });
 
-  it("applies a separate -5 Unfulfilled Promise penalty per active Arrival without Strain", () => {
+  it("does not penalise an Arrival that remains active at game end", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.phase = "gameEnd";
     state.encounters.activeArrivals.push({
@@ -64,14 +64,12 @@ describe("final scoring", () => {
 
     expect(score.failedArrivals).toBe(0);
     expect(score.failedArrivalPenalty).toBe(0);
-    expect(score.unfulfilledPromises).toBe(1);
-    expect(score.unfulfilledPromisePenalty).toBe(5);
     expect(score.strainPenalty).toBe(0);
-    expect(score.finalScore).toBe(-5);
+    expect(score.finalScore).toBe(0);
     expect(state.map.placedTiles).toHaveLength(0);
   });
 
-  it("stacks failed and unfulfilled Arrival penalties without conflating them", () => {
+  it("penalises failed Arrivals without penalising active Arrivals", () => {
     const state = createNewGame(1, ["vanguard"]);
     state.phase = "gameEnd";
     state.encounters.discardPile.push("arrival_acorns_and_oak_trees");
@@ -83,10 +81,8 @@ describe("final scoring", () => {
     const score = calculateFinalScore(state);
 
     expect(score.failedArrivals).toBe(1);
-    expect(score.failedArrivalPenalty).toBe(5);
-    expect(score.unfulfilledPromises).toBe(2);
-    expect(score.unfulfilledPromisePenalty).toBe(10);
-    expect(score.finalScore).toBe(-15);
+    expect(score.failedArrivalPenalty).toBe(10);
+    expect(score.finalScore).toBe(-10);
   });
 
   it("does not count Overstrained tile population or renown", () => {

@@ -331,12 +331,6 @@ export function ActionConsole({
               ? ` (${finalScore.failedArrivals} failed)`
               : ""}
           </span>
-          <span>
-            Unfulfilled Promise Penalty -{finalScore.unfulfilledPromisePenalty}
-            {finalScore.unfulfilledPromises > 0
-              ? ` (${finalScore.unfulfilledPromises} active Arrival${finalScore.unfulfilledPromises === 1 ? "" : "s"})`
-              : ""}
-          </span>
           <span>Strain Penalty -{finalScore.strainPenalty}</span>
           <strong>Final Score {finalScore.finalScore}</strong>
         </div>

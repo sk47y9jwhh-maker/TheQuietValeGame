@@ -19,6 +19,7 @@ import {
 } from "../data/contentRules";
 import { resources, warehouseCap } from "../data/resources";
 import {
+  applyShelterInTheRuins,
   getPlacementFailures,
   getTileFootprintKind,
   getTilePlacementHexIds,
@@ -1302,7 +1303,11 @@ export function canStartPlaceTile(
     return { ok: false, reasons };
   }
 
-  const baseCost = coreData ? coreData.basic.cost : emptyCost();
+  const placementHexIds = getTilePlacementHexIds(tileId, placementInput);
+  const baseCost = applyShelterInTheRuins(
+    coreData ? coreData.basic.cost : emptyCost(),
+    placementHexIds
+  );
   const actionPreview = getBoonActionPreview(state, {
     action: "place",
     tileId,
@@ -1320,18 +1325,19 @@ export function canStartPlaceTile(
     })
   );
 
+  const payableCost = applyShelterInTheRuins(actionPreview.cost, placementHexIds);
   const options = getPassiveCostOptions(state, {
     action: "place",
     playerId,
     category: data.category,
     kind: coreData ? "core" : "special",
-    placementHexIds: getTilePlacementHexIds(tileId, placementInput),
-    cost: actionPreview.cost
+    placementHexIds,
+    cost: payableCost
   });
 
-  const missingResources = canPayNowOrWithPassiveOptions(state, actionPreview.cost, options)
+  const missingResources = canPayNowOrWithPassiveOptions(state, payableCost, options)
     ? {}
-    : getResourceShortfalls(state.warehouse, actionPreview.cost);
+    : getResourceShortfalls(state.warehouse, payableCost);
   for (const [resource, amount] of Object.entries(missingResources)) {
     if (amount) {
       reasons.push(`Cannot place here: insufficient ${amount} ${resource}.`);
@@ -1361,7 +1367,11 @@ export function placeTile(
   const data = coreData ?? specialData;
   if (!data) return state;
 
-  const baseCost = coreData ? coreData.basic.cost : emptyCost();
+  const placementHexIds = getTilePlacementHexIds(tileId, placementInput);
+  const baseCost = applyShelterInTheRuins(
+    coreData ? coreData.basic.cost : emptyCost(),
+    placementHexIds
+  );
   const boonTarget = {
     action: "place",
     tileId,
@@ -1381,7 +1391,6 @@ export function placeTile(
   );
   if (placementFailures.length > 0) return state;
 
-  const placementHexIds = getTilePlacementHexIds(tileId, placementInput);
   const boonCostOptions = getBoonCostOptions(state, boonTarget);
   const passiveCostOptions = getPassiveCostOptions(state, {
     action: "place",
@@ -1414,12 +1423,15 @@ export function placeTile(
     });
   }
 
-  const finalCost = getSelectedCost(
+  const selectedCost = getSelectedCost(
     state,
     baseCost,
     paymentOptions,
     resolvedCostSelection
   );
+  const finalCost = selectedCost
+    ? applyShelterInTheRuins(selectedCost, placementHexIds)
+    : null;
   if (!finalCost || !canAfford(state.warehouse, finalCost)) return state;
   const brewerySupportSelected = paymentOptions.some(
     (option) =>
@@ -1572,11 +1584,12 @@ export function canStartUpgradeTile(
   }
 
   const data = coreTileById[tile.tileId];
+  const baseCost = applyShelterInTheRuins(data.upgraded.cost, tile.hexIds);
   const actionPreview = getBoonActionPreview(state, {
     action: "upgrade",
     category: data.category,
     kind: "core",
-    baseCost: data.upgraded.cost
+    baseCost
   });
   if (state.actionsRemaining < actionPreview.actionCost) {
     reasons.push("Cannot upgrade: no actions remaining.");
@@ -1588,11 +1601,12 @@ export function canStartUpgradeTile(
     category: data.category,
     kind: "core",
     targetTile: tile,
-    cost: actionPreview.cost
+    cost: applyShelterInTheRuins(actionPreview.cost, tile.hexIds)
   });
-  const missingResources = canPayNowOrWithPassiveOptions(state, actionPreview.cost, options)
+  const payableCost = applyShelterInTheRuins(actionPreview.cost, tile.hexIds);
+  const missingResources = canPayNowOrWithPassiveOptions(state, payableCost, options)
     ? {}
-    : getResourceShortfalls(state.warehouse, actionPreview.cost);
+    : getResourceShortfalls(state.warehouse, payableCost);
   for (const [resource, amount] of Object.entries(missingResources)) {
     if (amount) {
       reasons.push(`Cannot upgrade: missing ${amount} ${resource}.`);
@@ -1620,11 +1634,12 @@ export function upgradeTile(
   if (!tile || tile.kind !== "core") return state;
 
   const data = coreTileById[tile.tileId];
+  const baseCost = applyShelterInTheRuins(data.upgraded.cost, tile.hexIds);
   const boonTarget = {
     action: "upgrade",
     category: data.category,
     kind: "core",
-    baseCost: data.upgraded.cost
+    baseCost
   } as const;
   const actionPreview = getBoonActionPreview(state, boonTarget);
   if (state.actionsRemaining < actionPreview.actionCost) return state;
@@ -1636,7 +1651,7 @@ export function upgradeTile(
     category: data.category,
     kind: "core",
     targetTile: tile,
-    cost: data.upgraded.cost
+    cost: baseCost
   });
   const paymentOptions = [...boonCostOptions, ...passiveCostOptions];
   const resolvedCostSelection =
@@ -1650,19 +1665,22 @@ export function upgradeTile(
         playerId,
         placedTileId
       },
-      baseCost: data.upgraded.cost,
+      baseCost,
       actionCost: actionPreview.actionCost,
       boonModifierIds: actionPreview.appliedModifierIds,
       options: paymentOptions
     });
   }
 
-  const finalCost = getSelectedCost(
+  const selectedCost = getSelectedCost(
     state,
-    data.upgraded.cost,
+    baseCost,
     paymentOptions,
     resolvedCostSelection
   );
+  const finalCost = selectedCost
+    ? applyShelterInTheRuins(selectedCost, tile.hexIds)
+    : null;
   if (!finalCost || !canAfford(state.warehouse, finalCost)) return state;
   if (
     tile.side !== "basic" ||

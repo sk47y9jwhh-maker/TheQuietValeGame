@@ -217,7 +217,7 @@ const rules: RuleReferenceCard[] = [
         bullets: [
           "An Arrival enters with 3 timers. Spend 1 Interact Action and meet its Requirements to unlock the named Special Tile for later 0-resource placement.",
           "At round end, remove 1 timer from every active Arrival. At 0 it fails, is discarded, records one failure, and places 1 Strain through the Target Deck when possible.",
-          "An Arrival still active after Round 12 is an Unfulfilled Promise: lose 5 Renown, but do not expire it or place Strain.",
+          "An Arrival still active after Round 12 remains active. It does not fail, place Strain, or reduce the final score.",
           "Golden Boons resolve free, never enter player hands or seeding, and do not count toward the standard reveal total."
         ]
       }
@@ -346,8 +346,8 @@ const rules: RuleReferenceCard[] = [
           "Add Population and Renown from eligible non-Overstrained Tiles and passive effects.",
           "Add +15 Renown for each chosen Steward Objective met.",
           "Add +5 Renown for each placed Golden Tile whose scoring condition is met.",
-          "Subtract 5 for each active Burden, each Arrival that failed during play, and each active incomplete Arrival left as an Unfulfilled Promise.",
-          "Subtract 5 for every Strain token on the map.",
+          "Subtract 10 for each active Burden and each Arrival that failed during play.",
+          "Subtract 10 for every Strain token on the map. Active Arrivals do not reduce the final score.",
           "Final score = Population + positive Renown − all penalties."
         ]
       }
@@ -444,7 +444,7 @@ const rules: RuleReferenceCard[] = [
         bullets: [
           "Warehouse maximum: 15 of each resource. Starting amounts: 15 / 10 / 5 / 0 / 0 for 1–5 players.",
           "Unlocked Special Tiles use a normal Place Action, follow their placement rule, and cost 0 resources.",
-          "Each active Burden, failed Arrival, Unfulfilled Promise, and Strain token costs 5 Renown."
+          "Each active Burden, failed Arrival, and Strain token costs 10 Renown. Active Arrivals do not reduce the final score."
         ]
       }
     ],
@@ -620,8 +620,8 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
                 <strong>Continue—or score</strong>
                 <p>
                   After rounds 4 and 8, begin the next Season. After round 12, total Population and
-                  Renown, then lose 5 Renown for each active Burden, failed Arrival, Unfulfilled
-                  Promise, and Strain token.
+                  Renown, then lose 10 Renown for each active Burden, failed Arrival, and Strain
+                  token. Active Arrivals do not reduce the final score.
                 </p>
               </div>
             </article>

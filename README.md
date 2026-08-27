@@ -55,7 +55,7 @@ Current source priority:
 
 1. Structured repository data in this repository; this is the current online prototype authority.
 2. `design/component-list/The_Quiet_Vale_Master_Component_List.xlsx`, the physical component and production-text authority.
-3. The current v6.5 Rulebook output, used for full-game reference and physical handoff.
+3. The current v6.6 Rulebook output, used for full-game reference and physical handoff.
 4. Greenfield handoff and supplemental authority pack.
 5. Old prototype behavior only as a last resort.
 
@@ -65,7 +65,7 @@ Locked decisions for this build:
 - All selected standard Encounter Cards are used: `9` hidden cards per player plus `3` standard Encounter Deck cards per player. Hands are intentionally not required to be `3/3/3` by type.
 - Steward objectives are worth `+15 Renown`.
 - Warden scores if active Burdens are fewer than player count.
-- Final penalties are `-5 Renown` per failed Arrival, Unfulfilled Promise (an Arrival still active at game end), active Burden, and Strain token. Unfulfilled Promises do not add Strain.
+- Final penalties are `-10 Renown` per failed Arrival, active Burden, and Strain token. Arrivals still active at game end do not add Strain or reduce the final score.
 - Final scoring shows raw final score only, with no success bands/ratings for now.
 - Steward’s Ledger milestones unlock five Golden Tiles and five Golden Boons for optional online setup.
 - Council Variant is not supported in the online prototype.

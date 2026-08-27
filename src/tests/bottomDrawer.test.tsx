@@ -125,7 +125,8 @@ describe("bottom drawer", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "14. Final scoring" }));
     expect(screen.getByRole("heading", { name: "Final scoring" })).toBeInTheDocument();
-    expect(screen.getByText(/each active incomplete Arrival left as an Unfulfilled Promise/)).toBeInTheDocument();
+    expect(screen.getByText(/Subtract 10 for each active Burden/)).toBeInTheDocument();
+    expect(screen.getByText(/Active Arrivals do not reduce the final score/)).toBeInTheDocument();
     expect(screen.getByText("Steward’s Ledger")).toBeInTheDocument();
     expect(container.querySelectorAll(".rule-reference-card")).toHaveLength(1);
   });

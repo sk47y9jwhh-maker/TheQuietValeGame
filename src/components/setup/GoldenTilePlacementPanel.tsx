@@ -10,7 +10,8 @@ import type { GameState } from "../../engine/types";
 import {
   hasMapArtwork,
   MapArtworkCredit,
-  MapArtworkImage
+  MapArtworkImage,
+  MapMount
 } from "../map/MapArtwork";
 
 const radius = 17;
@@ -123,7 +124,7 @@ export function GoldenTilePlacementPanel({
 
       <section className="map-panel setup-map-panel" aria-label="Golden Tile setup map">
         <div className="map-artwork-frame">
-          <div className="steward-placement-board map-canvas">
+          <MapMount canvasClassName="steward-placement-board">
             <svg
             className={`steward-start-map golden-setup-map ${hasMapArtwork ? "has-map-artwork" : ""}`}
             role="img"
@@ -179,7 +180,7 @@ export function GoldenTilePlacementPanel({
               originY={17}
             />
             </svg>
-          </div>
+          </MapMount>
           <MapArtworkCredit />
         </div>
       </section>

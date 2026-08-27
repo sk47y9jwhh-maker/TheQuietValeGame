@@ -22,6 +22,7 @@ import {
 import { resolvePendingEffect } from "../engine/manualEffects";
 import { selectReachablePlacedTileIds } from "../engine/reachability";
 import { neighbourlySupportEffectRuleId } from "../data/effectRules";
+import { ruinsHexIds } from "../data/map";
 import { createNewGame } from "../engine/setup";
 import type { GameState, PlacedTile, ResourceType } from "../engine/types";
 
@@ -65,6 +66,75 @@ describe("game actions", () => {
     expect(next.actionsRemaining).toBe(3);
     expect(next.tileSupply.core.c01_lumber_yard).toBe(3);
     expect(next.pendingEffects).toHaveLength(0);
+  });
+
+  it("uses Shelter in the Ruins when placing and upgrading", () => {
+    const ruinsHexId = ruinsHexIds[0];
+    const placementState = createNewGame(1, ["warden"]);
+    const readyToPlace = {
+      ...placementState,
+      phase: "turns" as const,
+      warehouse: {
+        wood: 2,
+        stone: 0,
+        metal: 0,
+        food: 0,
+        herbs: 5,
+        goods: 0
+      },
+      players: [
+        {
+          ...placementState.players[0],
+          stewardHexId: ruinsHexId
+        }
+      ]
+    };
+
+    const placed = placeTile(
+      readyToPlace,
+      "player_1",
+      "c12_apothecary",
+      ruinsHexId
+    );
+
+    expect(placed.map.placedTiles[0]?.tileId).toBe("c12_apothecary");
+    expect(placed.warehouse).toMatchObject({ wood: 0, stone: 0, herbs: 0 });
+
+    const upgradeState = createNewGame(1, ["warden"]);
+    const readyToUpgrade = {
+      ...upgradeState,
+      phase: "turns" as const,
+      warehouse: { ...upgradeState.warehouse, stone: 0 },
+      players: [
+        {
+          ...upgradeState.players[0],
+          hasPlacedFirstTile: true,
+          stewardHexId: ruinsHexId
+        }
+      ],
+      map: {
+        placedTiles: [
+          {
+            instanceId: "ruins_path",
+            tileId: "c15_path",
+            kind: "core" as const,
+            side: "basic" as const,
+            hexIds: [ruinsHexId],
+            strain: 0,
+            support: {
+              passive: false,
+              singleUse: false,
+              preventedThisRound: false
+            }
+          }
+        ]
+      }
+    };
+
+    const upgraded = upgradeTile(readyToUpgrade, "player_1", "ruins_path");
+
+    expect(upgraded.map.placedTiles[0].side).toBe("upgraded");
+    expect(upgraded.warehouse.stone).toBe(0);
   });
 
   it("moves the acting Steward to a newly placed tile", () => {
@@ -2278,7 +2348,7 @@ describe("game actions", () => {
     expect(resolved.map.placedTiles[0].strain).toBe(1);
   });
 
-  it("keeps a Round 12 Arrival as an Unfulfilled Promise without adding Strain", () => {
+  it("keeps a Round 12 Arrival active without adding Strain", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,

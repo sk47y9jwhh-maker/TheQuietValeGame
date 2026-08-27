@@ -154,12 +154,10 @@ describe("action console", () => {
 
     renderActionConsole({ state });
 
-    expect(screen.getByText("Failed Arrival Penalty -5 (1 failed)")).toBeInTheDocument();
-    expect(
-      screen.getByText("Unfulfilled Promise Penalty -5 (1 active Arrival)")
-    ).toBeInTheDocument();
-    expect(screen.getByText("Burden Penalty -5")).toBeInTheDocument();
-    expect(screen.getByText("Strain Penalty -5")).toBeInTheDocument();
+    expect(screen.getByText("Failed Arrival Penalty -10 (1 failed)")).toBeInTheDocument();
+    expect(screen.queryByText(/Unfulfilled Promise Penalty/)).not.toBeInTheDocument();
+    expect(screen.getByText("Burden Penalty -10")).toBeInTheDocument();
+    expect(screen.getByText("Strain Penalty -10")).toBeInTheDocument();
   });
 
   it("reviews and records eligible Ledger entries at game end", () => {
