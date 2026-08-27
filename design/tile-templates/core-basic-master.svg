@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="60mm" height="51.9615mm" viewBox="0 0 1000 866.0254" role="img" aria-labelledby="title desc">
+  <title id="title">The Quiet Vale core basic tile master</title>
+  <desc id="desc">Dimension-locked flat-top hex template with a fitted tile-name artwork placeholder, Place and Upgrade rows, and a lower effect field.</desc>
+  <defs>
+    <clipPath id="trim-clip"><path d="M250 0H750L1000 433.0127 750 866.0254H250L0 433.0127Z"/></clipPath>
+    <clipPath id="artwork-clip"><path d="M163 150H837L998.261 430H1.739Z"/></clipPath>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbf6e9"/><stop offset="0.55" stop-color="#f4ead6"/><stop offset="1" stop-color="#ede0c8"/>
+    </linearGradient>
+    <linearGradient id="header" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#314230"/><stop offset="0.55" stop-color="#2f342e"/><stop offset="1" stop-color="#394340"/>
+    </linearGradient>
+    <linearGradient id="effect" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#314230"/><stop offset="1" stop-color="#26221b"/>
+    </linearGradient>
+    <pattern id="paper-fibres" width="62" height="30" patternUnits="userSpaceOnUse">
+      <path d="M2 8c14-5 25 4 39-1 8-3 14-1 19 1M8 22c10-3 22 2 35-1 6-2 12-1 17 1" fill="none" stroke="#d8caaa" stroke-width="1.2" opacity=".34"/>
+    </pattern>
+    <filter id="soft-shadow" x="-12%" y="-12%" width="124%" height="128%">
+      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#151711" flood-opacity=".24"/>
+    </filter>
+    <symbol id="icon-category-placeholder" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="20" fill="none"/><path d="M50 10v19M50 71v19M10 50h19M71 50h19M22 22l14 14M64 64l14 14M78 22 64 36M36 64 22 78"/>
+    </symbol>
+    <symbol id="icon-placement-any-land" viewBox="0 0 100 100">
+      <path d="M50 10 84 30v40L50 90 16 70V30Z"/>
+      <path d="M24 68c10-16 20-20 30-11 8 7 16 6 24-6M31 72V58M24 65l7-7 7 7"/>
+    </symbol>
+    <symbol id="icon-resource-wood" viewBox="0 0 64 64">
+      <path d="M10 20h35M10 44h35M10 20v24"/>
+      <ellipse cx="45" cy="32" rx="14" ry="12"/><ellipse cx="45" cy="32" rx="5.5" ry="5"/>
+    </symbol>
+    <symbol id="icon-resource-stone" viewBox="0 0 64 64">
+      <path d="M10 39 15 23 29 12h21l7 19-12 21H20Z"/>
+      <path d="m15 23 18 9 17-20"/>
+    </symbol>
+    <symbol id="icon-resource-metal" viewBox="0 0 64 64">
+      <path d="M10 48 18 18h28l8 30Z"/>
+    </symbol>
+    <symbol id="icon-resource-food" viewBox="0 0 64 64">
+      <path d="M32 57V8M32 21C21 21 15 16 14 8c10-1 17 4 18 13ZM32 32c11 0 17-5 18-13-10-1-17 4-18 13ZM32 43c-11 0-17-5-18-13c10-1 17 4 18 13ZM32 54c11 0 17-5 18-13c-10-1-17 4-18 13Z"/>
+    </symbol>
+    <symbol id="icon-resource-herbs" viewBox="0 0 64 64">
+      <path d="M32 54V18M32 28C18 26 12 15 12 15c14-4 22 2 20 13ZM32 39c14-2 20-14 20-14c-14-3-22 4-20 14Z"/>
+    </symbol>
+    <symbol id="icon-resource-goods" viewBox="0 0 64 64">
+      <rect x="10" y="12" width="44" height="40" rx="2"/>
+      <path d="m17 19 30 26M47 19 17 45"/>
+    </symbol>
+    <style>
+      @font-face{font-family:Almendra;src:url('../../src/assets/fonts/almendra-latin-regular.woff2') format('woff2');font-weight:400}
+      @font-face{font-family:Alegreya;src:url('../../src/assets/fonts/alegreya-latin-variable.woff2') format('woff2');font-weight:400 500}
+      @font-face{font-family:'Alegreya Sans';src:url('../../src/assets/fonts/alegreya-sans-latin-medium.woff2') format('woff2');font-weight:500}
+      text{font-family:Alegreya,Georgia,serif;fill:#26221b}
+      .title{font-family:Almendra,Georgia,serif;font-size:66px;fill:#fbf6e9}
+      .side,.corner,.row-label,.kicker,.assembly-note{font-family:'Alegreya Sans',Arial,sans-serif;font-weight:500;letter-spacing:4px}
+      .side{font-size:24px;fill:#d8caaa}.corner{font-size:20px;fill:#d8caaa}.row-label{font-size:27px;fill:#50665c}
+      .cost,.resource-quantity,.resource-name{font-family:'Alegreya Sans',Arial,sans-serif;font-size:29px;font-weight:500}.kicker{font-size:24px;fill:#d8caaa}
+      .effect-copy{font-size:40px;fill:#fbf6e9}
+      .assembly-note{font-size:22px;fill:#d8caaa;letter-spacing:2.4px}
+      .artwork-placeholder{font-family:Almendra,Georgia,serif;fill:#50665c;opacity:.72}
+      .icon-dark{fill:none;stroke:#314230;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+      .resource-icon{fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+      .resource-icon-wood{stroke:#5b7c4c}.resource-icon-food{stroke:#978d34}.resource-icon-stone{stroke:#7e878e}
+      .resource-icon-herbs{stroke:#7b5b89}.resource-icon-metal{stroke:#658597}.resource-icon-goods{stroke:#95563e}
+      .resource-quantity{font-variant-numeric:lining-nums tabular-nums;font-feature-settings:'lnum' 1,'tnum' 1}.resource-name{letter-spacing:.5px}
+      .resource-or{font-family:'Alegreya Sans',Arial,sans-serif;font-weight:500;letter-spacing:2.4px;fill:#6d8378}
+    </style>
+  </defs>
+
+  <g id="background" inkscape:groupmode="layer" inkscape:label="Background" filter="url(#soft-shadow)" clip-path="url(#trim-clip)">
+    <rect width="1000" height="866.0254" fill="url(#paper)"/>
+    <rect width="1000" height="866.0254" fill="url(#paper-fibres)"/>
+    <path d="M250 0H750L837 150H163Z" fill="url(#header)"/>
+    <path d="M1.739 430H998.261L909.363 590H90.637Z" fill="#f4ead6"/>
+    <path d="M90.637 590H909.363L750 866.0254H250Z" fill="url(#effect)"/>
+  </g>
+
+  <g id="artwork" inkscape:groupmode="layer" inkscape:label="ARTWORK — INSERT HERE" clip-path="url(#artwork-clip)">
+    <text class="artwork-placeholder" data-field="artwork-image-1" x="500" y="300" text-anchor="middle" style="font-size:72px">Tile Name Image</text>
+  </g>
+
+  <g id="structure" inkscape:groupmode="layer" inkscape:label="Locked structure">
+    <path d="M1.739 430H998.261M90.637 590H909.363" fill="none" stroke="#50665c" stroke-width="5"/>
+    <path d="M44.449 510H955.551M250 438V582" fill="none" stroke="#6d8378" stroke-width="2.5"/>
+  </g>
+
+  <g id="content" inkscape:groupmode="layer" inkscape:label="Editable content">
+    <circle cx="273" cy="67" r="34" fill="#f4ead6" stroke="#50665c" stroke-width="2.4"/>
+    <g class="icon-dark" transform="translate(243 37) scale(.6)"><use href="#icon-category-placeholder" width="100" height="100"/></g>
+    <text class="corner" data-field="category-label" x="273" y="125" text-anchor="middle">CATEGORY</text>
+    <text class="title" data-field="tile-name" x="500" y="74" text-anchor="middle">Tile Name</text>
+    <text class="side" x="500" y="113" text-anchor="middle">CORE • BASIC</text>
+
+    <text class="row-label" x="105" y="481">PLACE</text>
+    <g class="resource-token" data-field="place-cost-wood" data-cost-row="place" data-resource="wood" data-resource-icon="log" data-resource-colour="#5b7c4c" data-row-centre="600" data-slot-centre="415.00" data-token-width="149.92" transform="translate(340.04 445)"><g class="resource-icon resource-icon-wood" transform="translate(0 3) scale(.5)"><use href="#icon-resource-wood" width="64" height="64"/></g><text class="resource-quantity" x="52" y="31" text-anchor="middle" style="font-size:29px">2</text><text class="resource-name" x="70" y="31" style="font-size:29px">WOOD</text></g>
+    <g class="resource-token" data-field="place-cost-stone" data-cost-row="place" data-resource="stone" data-resource-icon="faceted-stone" data-resource-colour="#7e878e" data-row-centre="600" data-slot-centre="600.00" data-token-width="161.99" transform="translate(519.01 445)"><g class="resource-icon resource-icon-stone" transform="translate(0 3) scale(.5)"><use href="#icon-resource-stone" width="64" height="64"/></g><text class="resource-quantity" x="52" y="31" text-anchor="middle" style="font-size:29px">2</text><text class="resource-name" x="70" y="31" style="font-size:29px">STONE</text></g>
+    <g class="resource-token" data-field="place-cost-metal" data-cost-row="place" data-resource="metal" data-resource-icon="ingot" data-resource-colour="#658597" data-row-centre="600" data-slot-centre="785.00" data-token-width="168.32" transform="translate(700.84 445)"><g class="resource-icon resource-icon-metal" transform="translate(0 3) scale(.5)"><use href="#icon-resource-metal" width="64" height="64"/></g><text class="resource-quantity" x="52" y="31" text-anchor="middle" style="font-size:29px">1</text><text class="resource-name" x="70" y="31" style="font-size:29px">METAL</text></g>
+
+    <text class="row-label" x="89" y="561">UPGRADE</text>
+    <g class="resource-token" data-field="upgrade-cost-food" data-cost-row="upgrade" data-resource="food" data-resource-icon="wheat" data-resource-colour="#978d34" data-row-centre="600" data-slot-centre="415.00" data-token-width="143.59" transform="translate(343.20 525)"><g class="resource-icon resource-icon-food" transform="translate(0 3) scale(.5)"><use href="#icon-resource-food" width="64" height="64"/></g><text class="resource-quantity" x="52" y="31" text-anchor="middle" style="font-size:29px">3</text><text class="resource-name" x="70" y="31" style="font-size:29px">FOOD</text></g>
+    <g class="resource-token" data-field="upgrade-cost-herbs" data-cost-row="upgrade" data-resource="herbs" data-resource-icon="leaf-sprig" data-resource-colour="#7b5b89" data-row-centre="600" data-slot-centre="600.00" data-token-width="161.99" transform="translate(519.01 525)"><g class="resource-icon resource-icon-herbs" transform="translate(0 3) scale(.5)"><use href="#icon-resource-herbs" width="64" height="64"/></g><text class="resource-quantity" x="52" y="31" text-anchor="middle" style="font-size:29px">2</text><text class="resource-name" x="70" y="31" style="font-size:29px">HERBS</text></g>
+    <g class="resource-token" data-field="upgrade-cost-goods" data-cost-row="upgrade" data-resource="goods" data-resource-icon="crate" data-resource-colour="#95563e" data-row-centre="600" data-slot-centre="785.00" data-token-width="161.99" transform="translate(704.01 525)"><g class="resource-icon resource-icon-goods" transform="translate(0 3) scale(.5)"><use href="#icon-resource-goods" width="64" height="64"/></g><text class="resource-quantity" x="52" y="31" text-anchor="middle" style="font-size:29px">1</text><text class="resource-name" x="70" y="31" style="font-size:29px">GOODS</text></g>
+
+    <text class="kicker" data-field="effect-type" x="500" y="647" text-anchor="middle">EFFECT TYPE</text>
+    <text class="effect-copy" data-field="effect-line-1" x="500" y="724" text-anchor="middle">Effect line one</text>
+    <text class="effect-copy" data-field="effect-line-2" x="500" y="768" text-anchor="middle">Effect line two</text>
+  </g>
+
+  <g id="trim" inkscape:groupmode="layer" inkscape:label="Trim geometry — not printer bleed">
+    <path d="M250 0H750L1000 433.0127 750 866.0254H250L0 433.0127Z" fill="none" stroke="#6d8378" stroke-width="18" stroke-linejoin="round"/>
+    <path d="M250 0H750L1000 433.0127 750 866.0254H250L0 433.0127Z" fill="none" stroke="#26221b" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+</svg>

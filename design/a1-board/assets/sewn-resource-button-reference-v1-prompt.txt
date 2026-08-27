@@ -1,0 +1,32 @@
+Use case: precise-object-edit
+Asset type: top-down A1 neoprene board print reference
+Input image: the current full-resolution board preview is the edit target.
+
+Primary request:
+Replace only the six small coloured circular warehouse markers beside WOOD,
+STONE, METAL, FOOD, HERBS, and GOODS with realistic sewn-on coloured buttons.
+Keep each button at the same centre point and approximately the same diameter,
+at most 10 percent larger.
+
+Materials and textures:
+Each marker must read as a real, slightly raised, aged dyed leather or
+cloth-covered button sewn onto the black leather panel. Give it a gently
+rounded rim, subtle uneven wear, four clearly punched stitch holes, and warm
+cream linen thread crossing through the holes in a slightly irregular
+hand-sewn X pattern. Include tiny thread shadows and a restrained contact
+shadow beneath the button suitable for a top-down print illusion.
+
+Colours:
+Preserve the existing resource colour of each marker: muted olive for WOOD,
+slate blue-grey for STONE, blue-grey for METAL, mustard gold for FOOD, muted
+violet for HERBS, and warm rust brown for GOODS.
+
+Constraints:
+Change only those six coloured markers. Preserve the exact A1 board layout,
+all text and spelling, map artwork, brass hardware, black leather, stitching,
+warehouse interiors, round tracker, dimensions, lighting, and every other
+design feature unchanged. Add no labels, symbols, numbers, decorations, or
+watermark.
+
+Generation mode:
+OpenAI built-in image editing workflow, precise-object-edit.

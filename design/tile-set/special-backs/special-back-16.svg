@@ -1,0 +1,31 @@
+<svg data-template-version="1.13" data-source-id="special_back_16" data-kind="special-back" data-face="back" data-footprint="single" data-size-hexes="1" xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="60mm" height="51.9615mm" viewBox="0 0 1000 866.0254" role="img" aria-labelledby="title desc">
+  <title id="title">Special tile back 16 &#x2014; Shrine of Renewal</title>
+  <desc id="desc">Dimension-locked dark numbered back 16 for physical copy 1 of Shrine of Renewal.</desc>
+  <defs>
+    <clipPath id="trim-clip"><path d="M250 0H750L1000 433.0127 750 866.0254H250L0 433.0127Z"/></clipPath>
+    <linearGradient id="back" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34454b"/><stop offset=".55" stop-color="#2f342e"/><stop offset="1" stop-color="#26221b"/></linearGradient>
+    <pattern id="back-fibres" width="62" height="30" patternUnits="userSpaceOnUse"><path d="M2 8c14-5 25 4 39-1 8-3 14-1 19 1M8 22c10-3 22 2 35-1 6-2 12-1 17 1" fill="none" stroke="#d8caaa" stroke-width="1.2" opacity=".12"/></pattern>
+    <filter id="soft-shadow" x="-12%" y="-12%" width="124%" height="128%"><feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#151711" flood-opacity=".24"/></filter>
+    <style>
+      @font-face{font-family:Alegreya;src:url('../../../src/assets/fonts/alegreya-latin-variable.woff2') format('woff2');font-weight:400}
+      .back-number{font-family:Alegreya,Georgia,serif;font-size:320px;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:'lnum' 1,'tnum' 1;fill:#d8caaa}
+    </style>
+  </defs>
+
+  <g id="background" inkscape:groupmode="layer" inkscape:label="Background" filter="url(#soft-shadow)" clip-path="url(#trim-clip)">
+    <rect width="1000" height="866.0254" fill="url(#back)"/>
+    <rect width="1000" height="866.0254" fill="url(#back-fibres)"/>
+  </g>
+
+  <g id="content" inkscape:groupmode="layer" inkscape:label="Editable content">
+    <metadata>
+      <special-back tile-number="16" paired-tile-id="special_shrine_of_renewal" paired-tile-name="Shrine of Renewal" source-copy="1" size-hexes="1" footprint="single"/>
+    </metadata>
+    <text class="back-number" data-field="special-tile-number" x="496.5" y="419.525" text-anchor="middle" dominant-baseline="central" style="font-size:320px" data-optical-center="500 433.0127" data-optical-visible-height="194">16</text>
+  </g>
+
+  <g id="trim" inkscape:groupmode="layer" inkscape:label="Trim geometry — not printer bleed">
+    <path d="M250 0H750L1000 433.0127 750 866.0254H250L0 433.0127Z" fill="none" stroke="#4d6470" stroke-width="18" stroke-linejoin="round"/>
+    <path d="M250 0H750L1000 433.0127 750 866.0254H250L0 433.0127Z" fill="none" stroke="#26221b" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+</svg>

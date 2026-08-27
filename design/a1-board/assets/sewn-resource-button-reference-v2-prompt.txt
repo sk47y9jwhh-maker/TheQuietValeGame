@@ -1,0 +1,34 @@
+Use case: precise-object-edit
+Asset type: top-down A1 neoprene board print material reference
+Input image: sewn-resource-button-reference-v1.png is the edit target.
+
+Primary request:
+Refine only the six sewn resource buttons beside WOOD, STONE, METAL, FOOD,
+HERBS, and GOODS. Make them look like genuine antique dyed mother-of-pearl
+shell buttons sewn onto the leather, not plastic, enamel, wax, icons, or
+computer graphics.
+
+Materials and textures:
+Each button is slightly domed natural nacre with restrained pearlescent depth,
+uneven translucent colour, subtle warm and cool iridescence that changes
+gently across the face, faint growth striations, tiny scratches, softly worn
+edges, four real punched holes, and fine cream linen thread passing naturally
+through the holes. Keep the hand-sewn crossing slightly irregular and partly
+recessed into the holes. Add a soft contact shadow consistent with the
+existing top-down lighting. The pearlescence must be understated and aged,
+never glossy, toy-like, or neon.
+
+Colours:
+Retain muted resource colours: olive green WOOD, slate grey STONE, cool
+blue-grey METAL, ochre-gold FOOD, dusty violet HERBS, and warm rust-brown
+GOODS.
+
+Constraints:
+Change only those six buttons. Keep their existing centres and approximately
+their current size. Preserve the exact board layout, all text and spelling,
+map artwork, brass, leather, stitching, warehouse panels, tracker, colours,
+dimensions, and every other feature unchanged. Add no symbols, labels,
+decoration, or watermark.
+
+Generation mode:
+OpenAI built-in image editing workflow, precise-object-edit.

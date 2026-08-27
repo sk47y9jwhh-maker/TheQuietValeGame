@@ -1,0 +1,27 @@
+special_tile_number,back_id,paired_tile_id,paired_tile_name,source_copy,size_hexes,footprint,print_units_per_copy,printed_hexes_at_stock_quantity,svg_path
+1,special_back_01,special_adventurers_guild,Adventurers' Guild,1,1,single,1,1,special-backs/special-back-01.svg
+2,special_back_02,special_alchemist_s_workshop,Alchemist's Workshop,1,1,single,1,1,special-backs/special-back-02.svg
+3,special_back_03,special_alms_house,Alms House,1,1,single,1,1,special-backs/special-back-03.svg
+4,special_back_04,special_atelier_workshop,Atelier Workshop,1,1,single,1,1,special-backs/special-back-04.svg
+5,special_back_05,special_brewery_of_legends,Brewery of Legends,1,1,single,1,1,special-backs/special-back-05.svg
+6,special_back_06,special_docks,Docks,1,1,single,1,1,special-backs/special-back-06.svg
+7,special_back_07,special_hearth_garden,Hearth Garden,1,1,single,1,1,special-backs/special-back-07.svg
+8,special_back_08,special_house_of_learning,House of Learning,1,1,single,1,1,special-backs/special-back-08.svg
+9,special_back_09,special_labourers_yard,Labourers' Yard,1,1,single,1,1,special-backs/special-back-09.svg
+10,special_back_10,special_lantern_roadhouse,Lantern Roadhouse,1,1,single,1,1,special-backs/special-back-10.svg
+11,special_back_11,special_reliquary,Reliquary,1,1,single,1,1,special-backs/special-back-11.svg
+12,special_back_12,special_shrine_of_ancestors,Shrine of Ancestors,1,1,single,1,1,special-backs/special-back-12.svg
+13,special_back_13,special_shrine_of_ancients,Shrine of Ancients,1,1,single,1,1,special-backs/special-back-13.svg
+14,special_back_14,special_shrine_of_bounty,Shrine of Bounty,1,1,single,1,1,special-backs/special-back-14.svg
+15,special_back_15,special_shrine_of_depths,Shrine of Depths,1,1,single,1,1,special-backs/special-back-15.svg
+16,special_back_16,special_shrine_of_renewal,Shrine of Renewal,1,1,single,1,1,special-backs/special-back-16.svg
+17,special_back_17,special_stables,Stables,1,2,detached,2,2,special-backs/special-back-17.svg
+18,special_back_18,special_stables,Stables,2,2,detached,2,2,special-backs/special-back-18.svg
+19,special_back_19,special_the_iron_roots_respite,The Iron Roots Respite,1,1,single,1,1,special-backs/special-back-19.svg
+20,special_back_20,special_the_lorekeepers_respite,The Lorekeepers' Respite,1,1,single,1,1,special-backs/special-back-20.svg
+21,special_back_21,special_the_reavers_respite,The Reavers' Respite,1,1,single,1,1,special-backs/special-back-21.svg
+22,special_back_22,special_the_resting_hall,The Resting Hall,1,1,single,1,1,special-backs/special-back-22.svg
+23,special_back_23,special_the_root_weavers_respite,The Root Weavers Respite,1,1,single,1,1,special-backs/special-back-23.svg
+24,special_back_24,special_the_tamers_respite,The Tamers' Respite,1,1,single,1,1,special-backs/special-back-24.svg
+25,special_back_25,special_the_waystation,The Waystation,1,1,single,1,1,special-backs/special-back-25.svg
+26,special_back_26,special_theater,Theatre,1,1,single,1,1,special-backs/special-back-26.svg

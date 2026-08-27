@@ -1,0 +1,163 @@
+<svg data-template-version="1.13" data-source-id="golden_tile_the_golden_charter" data-kind="golden" data-face="one-sided" data-footprint="single" data-size-hexes="1" xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="60mm" height="51.9615mm" viewBox="0 0 1000 866.0254" role="img" aria-labelledby="title desc">
+  <title id="title">The Golden Charter &#x2014; Golden tile</title>
+  <desc id="desc">Dimension-locked 60 millimetre Golden face for The Golden Charter, with a fitted artwork placeholder.</desc>
+  <defs>
+    <clipPath id="trim-clip"><path d="M250 0H750L1000 433.0127 750 866.0254H250L0 433.0127Z"/></clipPath>
+    <clipPath id="artwork-clip"><path d="M163 150H837L998.261 430H1.739Z"/></clipPath>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf6e9"/><stop offset=".55" stop-color="#f4ead6"/><stop offset="1" stop-color="#ede0c8"/></linearGradient>
+    <linearGradient id="gold-header" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b39a60"/><stop offset=".52" stop-color="#9b8048"/><stop offset="1" stop-color="#7f6a3d"/></linearGradient>
+    <linearGradient id="ledger" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#dfd2ad"/><stop offset=".5" stop-color="#f4ead6"/><stop offset="1" stop-color="#dfd2ad"/></linearGradient>
+    <linearGradient id="rules" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#314230"/><stop offset="1" stop-color="#26221b"/></linearGradient>
+    <linearGradient id="scoring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dbc89a"/><stop offset="1" stop-color="#bba46a"/></linearGradient>
+    <pattern id="paper-fibres" width="62" height="30" patternUnits="userSpaceOnUse"><path d="M2 8c14-5 25 4 39-1 8-3 14-1 19 1M8 22c10-3 22 2 35-1 6-2 12-1 17 1" fill="none" stroke="#d8caaa" stroke-width="1.2" opacity=".34"/></pattern>
+    <filter id="soft-shadow" x="-12%" y="-12%" width="124%" height="128%"><feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#151711" flood-opacity=".24"/></filter>
+    <symbol id="icon-crown" viewBox="0 0 100 100"><path d="M18 72 12 30l24 20 14-31 14 31 24-20-6 42Z"/><path d="M20 72h60v12H20Z"/></symbol>
+    <symbol id="icon-renown" viewBox="0 0 100 100"><path d="M43 83C24 68 23 40 36 18M57 83c19-15 20-43 7-65"/><path d="M36 64C27 64 22 60 20 53c9 0 14 4 16 11ZM33 46C25 45 21 40 21 33c8 1 12 6 12 13ZM64 64c9 0 14-4 16-11-9 0-14 4-16 11ZM67 46c8-1 12-6 12-13-8 1-12 6-12 13Z"/></symbol>
+    <style>
+      @font-face{font-family:Almendra;src:url('../../../src/assets/fonts/almendra-latin-regular.woff2') format('woff2');font-weight:400}
+      @font-face{font-family:Alegreya;src:url('../../../src/assets/fonts/alegreya-latin-variable.woff2') format('woff2');font-weight:400 500}
+      @font-face{font-family:'Alegreya Sans';src:url('../../../src/assets/fonts/alegreya-sans-latin-medium.woff2') format('woff2');font-weight:500}
+      text{font-family:Alegreya,Georgia,serif;fill:#26221b}.title{font-family:Almendra,Georgia,serif;font-size:46px;fill:#26221b}.title.second{font-size:43px}
+      .side,.corner,.ledger-label,.kicker,.score-kicker{font-family:'Alegreya Sans',Arial,sans-serif;font-weight:500;letter-spacing:4px}
+      .side{font-size:18px;fill:#26221b;letter-spacing:3px}.corner{font-size:16px;fill:#26221b;letter-spacing:2.5px}.ledger-label{font-size:20px;fill:#50665c}.ledger-value{font-family:Almendra,Georgia,serif;font-size:34px;fill:#7f6a3d}
+      .kicker{font-size:22px;fill:#d8caaa}.rules-copy{font-size:31px;fill:#fbf6e9}.score-kicker{font-size:23px;fill:#314230}.score-copy{font-size:30px}
+      .artwork-placeholder{font-family:Almendra,Georgia,serif;fill:#7f6a3d;opacity:.78}.icon-dark{fill:none;stroke:#314230;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}.score-icon{fill:none;stroke:#314230;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+    </style>
+
+    <symbol id="icon-placement-any-land" viewBox="0 0 100 100">
+      <path d="M50 10 84 30v40L50 90 16 70V30Z"/>
+    </symbol>
+    <symbol id="icon-placement-terrain-grasslands" viewBox="0 0 100 100">
+      <path d="M14 80h72M34 76c0-21-5-35-14-45M50 76V19M66 76c0-18 6-32 17-43"/>
+    </symbol>
+    <symbol id="icon-placement-terrain-water" viewBox="0 0 100 100">
+      <path d="M12 32c12-12 24-12 36 0s24 12 40 0M12 52c12-12 24-12 36 0s24 12 40 0M12 72c12-12 24-12 36 0s24 12 40 0"/>
+    </symbol>
+    <symbol id="icon-placement-terrain-woodland" viewBox="0 0 100 100">
+      <path d="m50 12-24 34h14L22 69h20v18h16V69h20L60 46h14Z"/>
+    </symbol>
+    <symbol id="icon-placement-terrain-mountains" viewBox="0 0 100 100">
+      <path d="m11 80 30-58 16 31 10-19 22 46Z"/>
+    </symbol>
+    <symbol id="icon-placement-terrain-heaths" viewBox="0 0 100 100">
+      <path d="M14 80h72M30 76V38M50 76V26M70 76V45"/>
+      <circle cx="30" cy="32" r="5"/><circle cx="50" cy="20" r="5"/><circle cx="70" cy="39" r="5"/>
+    </symbol>
+    <symbol id="icon-placement-terrain-arable" viewBox="0 0 100 100">
+      <path d="M50 86V14M50 32c-13 0-21-6-23-17 13-1 21 5 23 17ZM50 47c13 0 21-6 23-17-13-1-21 5-23 17ZM50 61c-13 0-21-6-23-17 13-1 21 5 23 17ZM50 76c13 0 21-6 23-17-13-1-21 5-23 17Z"/>
+    </symbol>
+    <symbol id="icon-placement-terrain-ruins" viewBox="0 0 100 100">
+      <path d="M14 82h72M26 76V32h18v44M58 76V44h18v32M22 32h26M54 44h26"/>
+    </symbol>
+    <symbol id="icon-placement-standard-land" viewBox="0 0 100 100"></symbol>
+    <symbol id="icon-placement-adjacent-water" viewBox="0 0 100 100">
+      <path d="M18 17h24l12 21h24l12 21-12 21H54L42 59H18L6 38ZM54 38 42 59"/>
+      <path d="M51 54c5-5 10-5 15 0s10 5 16 0M51 65c5-5 10-5 15 0s10 5 16 0"/>
+    </symbol>
+    <symbol id="icon-placement-adjacent-ruins" viewBox="0 0 100 100">
+      <path d="M18 17h24l12 21h24l12 21-12 21H54L42 59H18L6 38ZM54 38 42 59"/>
+      <path d="M53 70h27M58 67V52h7v15M70 67V57h7v10"/>
+    </symbol>
+    <symbol id="icon-placement-category-resource" viewBox="-64 -64 128 128">
+      <path d="M-40-22h80l-9 38h-62Z"/>
+      <circle cx="-22" cy="34" r="8"/><circle cx="22" cy="34" r="8"/>
+    </symbol>
+    <symbol id="icon-placement-category-housing" viewBox="-64 -64 128 128">
+      <path d="M-46-6 0-44 46-6M-34-15V40H34V-15"/>
+    </symbol>
+    <symbol id="icon-placement-category-crafting" viewBox="-64 -64 128 128">
+      <g transform="rotate(-38)"><rect x="-38" y="-34" width="76" height="28" rx="5"/><path d="M0-6V48"/></g>
+    </symbol>
+    <symbol id="icon-placement-category-merchant" viewBox="-64 -64 128 128">
+      <path d="M0-44V42M-38-27H38M-20 44H20"/>
+      <path d="M-30-27-44 8M-30-27-16 8M30-27 16 8M30-27 44 8"/>
+      <path d="M-48 8h36l-5 10h-26ZM12 8h36l-5 10H17Z"/>
+    </symbol>
+    <symbol id="icon-placement-category-social" viewBox="-64 -64 128 128">
+      <path d="M0 28C-23 14-18-7-4-38c3 18 14 19 18 2 19 22 18 48-14 64Z"/>
+      <path d="M-34 43 30 25M30 43-34 25"/>
+    </symbol>
+    <symbol id="icon-placement-category-wellbeing" viewBox="-64 -64 128 128">
+      <circle cx="0" cy="0" r="27"/>
+      <path d="M38 0h16M26.87 26.87l11.31 11.31M0 38v16M-26.87 26.87l-11.31 11.31M-38 0h-16M-26.87-26.87l-11.31-11.31M0-38v-16M26.87-26.87l11.31-11.31"/>
+    </symbol>
+    <symbol id="icon-placement-category-travel" viewBox="-64 -64 128 128">
+      <circle cx="0" cy="0" r="45"/><circle cx="0" cy="0" r="8"/>
+      <path d="M0 0h37M0 0l26.16 26.16M0 0v37M0 0l-26.16 26.16M0 0h-37M0 0l-26.16-26.16M0 0v-37M0 0l26.16-26.16"/>
+    </symbol>
+    <symbol id="icon-placement-category-housing-wellbeing" viewBox="0 0 100 100">
+      <path d="m8 58 24-20 24 20M14 53v29h36V53"/>
+      <circle cx="75" cy="30" r="11"/>
+      <path d="M75 12v6M75 42v6M57 30h6M87 30h6"/>
+    </symbol>
+    <symbol id="icon-placement-named-lumber" viewBox="0 0 100 100">
+      <circle cx="50" cy="51" r="31"/><circle cx="50" cy="51" r="18"/><path d="m50 33-7 9 8 8-6 10 7 9-2 13"/>
+    </symbol>
+    <symbol id="icon-placement-named-mine" viewBox="0 0 100 100">
+      <path d="m12 82 38-64 38 64Z"/>
+      <path d="M34 82V59Q50 43 66 59V82"/>
+    </symbol>
+    <symbol id="icon-placement-named-gathering" viewBox="-64 -64 128 128">
+      <path d="M-40-22h80l-9 38h-62Z"/>
+      <circle cx="-22" cy="34" r="8"/><circle cx="22" cy="34" r="8"/>
+    </symbol>
+    <symbol id="icon-placement-named-farm" viewBox="0 0 100 100">
+      <path d="M50 87V14M50 34c-14 0-22-7-24-18 14-1 22 5 24 18ZM50 50c14 0 22-7 24-18-14-1-22 5-24 18ZM50 65c-14 0-22-7-24-18 14-1 22 5 24 18ZM50 80c14 0 22-7 24-18-14-1-22 5-24 18Z"/>
+    </symbol>
+    <symbol id="icon-placement-named-dig-site" viewBox="0 0 100 100">
+      <path d="M40 17h20M50 17v43"/>
+      <path d="M36 60h28L58 84H42Z"/>
+    </symbol>
+    <symbol id="icon-placement-rule" viewBox="0 0 100 100">
+      <path d="M50 89S20 62 20 39a30 30 0 0 1 60 0c0 23-30 50-30 50Z"/><circle cx="50" cy="39" r="10"/>
+    </symbol>
+  </defs>
+
+  <g id="background" inkscape:groupmode="layer" inkscape:label="Background" filter="url(#soft-shadow)" clip-path="url(#trim-clip)">
+    <rect width="1000" height="866.0254" fill="url(#paper)"/><rect width="1000" height="866.0254" fill="url(#paper-fibres)"/>
+    <path d="M250 0H750L837 150H163Z" fill="url(#gold-header)"/>
+    <path d="M1.739 430H998.261L961.325 500H38.675Z" fill="url(#ledger)"/>
+    <path d="M38.675 500H961.325L857.402 680H142.598Z" fill="url(#rules)"/>
+    <path d="M142.598 680H857.402L750 866.0254H250Z" fill="url(#scoring)"/>
+  </g>
+
+  <g id="artwork" inkscape:groupmode="layer" inkscape:label="ARTWORK — INSERT HERE" clip-path="url(#artwork-clip)">
+    <text class="artwork-placeholder" data-field="artwork-image-1" x="500" y="245.82" text-anchor="middle" style="font-size:78px" data-safe-width="640.37">The Golden</text>
+    <text class="artwork-placeholder" data-field="artwork-image-2" x="500" y="339.42" text-anchor="middle" style="font-size:78px" data-safe-width="748.19">Charter Image</text>
+  </g>
+
+  <g id="structure" inkscape:groupmode="layer" inkscape:label="Locked structure"><path d="M1.739 430H998.261M38.675 500H961.325M142.598 680H857.402" fill="none" stroke="#50665c" stroke-width="5"/></g>
+
+  <g id="content" inkscape:groupmode="layer" inkscape:label="Editable content">
+    <metadata>
+      <tile-source id="golden_tile_the_golden_charter" face="one-sided" category="special" tile-type="golden" tile-type-icon="golden" tile-type-glyph="crown" copies="1" size-hexes="1" print-units-per-copy="1" printed-hexes="1" footprint="single" placement-icon="standard-land">
+        <placement>Place on any empty non-River hex.</placement>
+        <effect>Once per round, the first tile placed adjacent to this tile costs 1 fewer resource.</effect>
+      </tile-source>
+    </metadata>
+    <circle cx="273" cy="67" r="34" fill="#f4ead6" stroke="#50665c" stroke-width="2.4"/>
+    <g class="icon-dark" data-tile-type-icon="golden" data-tile-type="golden" data-tile-type-glyph="crown" transform="translate(243 37) scale(.6)"><use href="#icon-crown" width="100" height="100"/></g>
+    <text class="corner" data-field="category-label-1" x="273" y="125" text-anchor="middle" style="font-size:16px" data-safe-x1="177" data-safe-x2="369">GOLDEN</text>
+
+    <text class="title" data-field="tile-name-line-1" x="500" y="55" text-anchor="middle" style="font-size:48px" data-safe-x1="320" data-safe-x2="680">The Golden</text>
+    <text class="title" data-field="tile-name-line-2" x="500" y="98" text-anchor="middle" style="font-size:48px" data-safe-x1="320" data-safe-x2="680">Charter</text>
+    <text class="side" x="500" y="132" text-anchor="middle">GOLDEN LEGACY</text>
+
+    <text class="ledger-label" x="175" y="473">LEDGER UNLOCK</text>
+    <text class="ledger-value" data-field="ledger-threshold" x="825" y="475" text-anchor="end">5 ENTRIES</text>
+
+    <text class="kicker" data-field="effect-type" x="500" y="548" text-anchor="middle">PERSISTENT EFFECT</text>
+    <text class="rules-copy" data-field="effect-line-1" x="500" y="608.20" text-anchor="middle" style="font-size:30px" data-safe-width="693.71">The first tile placed adjacent to this tile costs 1</text>
+    <text class="rules-copy" data-field="effect-line-2" x="500" y="644.20" text-anchor="middle" style="font-size:30px" data-safe-width="652.14">fewer resource.</text>
+
+    <g class="score-icon" transform="translate(386 694) scale(.36)"><use href="#icon-renown" width="100" height="100"/></g>
+    <text class="score-kicker" x="445" y="727">+5 RENOWN</text>
+    <text class="score-copy" data-field="scoring-line-1" x="500" y="777.70" text-anchor="middle" style="font-size:30px" data-safe-width="493.99">Adjacent to four different tile</text>
+    <text class="score-copy" data-field="scoring-line-2" x="500" y="813.70" text-anchor="middle" style="font-size:30px" data-safe-width="452.42">categories.</text>
+  </g>
+
+  <g id="trim" inkscape:groupmode="layer" inkscape:label="Trim geometry — not printer bleed">
+    <path d="M250 0H750L1000 433.0127 750 866.0254H250L0 433.0127Z" fill="none" stroke="#50665c" stroke-width="18" stroke-linejoin="round"/>
+    <path d="M250 0H750L1000 433.0127 750 866.0254H250L0 433.0127Z" fill="none" stroke="#26221b" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+</svg>

@@ -1,0 +1,12 @@
+Use case: precise-object-edit
+Asset type: refined handmade A1 neoprene board border skin
+Input image: Image 1 is the edit target and composition reference.
+Primary request: Keep the convincing real-material, hand-built construction, but make the entire surround substantially less rustic and less battered. It should look like a treasured tabletop board commissioned from a skilled leatherworker and metalworker, well maintained after years of careful use.
+Material refinement: replace the extreme cracked and distressed leather with smoother dark charcoal-black full-grain leather, subtle pores, gentle creases, lightly rubbed edges and a few restrained age marks. Keep real hand-cut and hand-burnished edges, but make them neat. Use orderly saddle stitching with tiny natural variations rather than rough or repaired stitching. Make the brass satin-finished, hand-hammered and softly aged, with fine scratches and slight dark patina, but almost no green corrosion, major dents, crust, or damage.
+Tracker: preserve the handmade stitched leather strip and exactly twelve blank circular marker cups in three groups of exactly four. Make it elegant and artisan-crafted, with gently imperfect hand-punched cups and subtle hand-scratched season separators; do not turn it back into a geometric computer UI.
+Warehouses and frame: apply the same refined handmade finish to all six open warehouse wells, map brackets, title plate and outer border. Keep slight individual variation, but make the set coordinated and professionally crafted.
+Composition and camera: preserve the exact orthographic top-down A1 landscape composition and all existing object positions and counts.
+Critical invariants: keep the central artist map unchanged in scale, position and content; exactly three open warehouse wells on each side; exactly twelve tracker cups grouped 4-4-4; open black counter areas remain unobstructed.
+Text treatment: keep every border plaque, label area and tracker cup blank with no words, letters or numerals.
+Neoprene output: matte, lifted blacks, broad realistic material detail suitable for dye-sublimation.
+Avoid: heavy cracking, torn leather, crude repairs, extreme grime, fantasy tavern prop, archaeological relic, strong verdigris, glossy CGI, plastic, modern UI, machine-perfect geometry, typography, numbers, logos, watermarks, extra compartments or holes.

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "templateFamily": "The Quiet Vale Encounter Cards",
+  "version": "1.0",
+  "status": "approved-and-locked",
+  "lockedOn": "2026-08-11",
+  "source": "Artist-supplied PSD templates delivered on 2026-08-10",
+  "canvas": {
+    "pixelWidth": 1800,
+    "pixelHeight": 3000,
+    "dpi": 600,
+    "physicalWidthInches": 3,
+    "physicalHeightInches": 5,
+    "colourMode": "CMYK",
+    "bitDepth": 8,
+    "channels": 4
+  },
+  "manufacturing": {
+    "printerSelection": "pending",
+    "printerSpecificBleedAndCutSpecification": "not locked",
+    "instruction": "Do not crop, resize, impose, or overwrite these masters. Create vendor-specific derivatives later."
+  },
+  "masters": [
+    {
+      "encounterType": "arrival",
+      "path": "master-templates/arrival-master.psd",
+      "sourceFilename": "Quiet Valley Card_Front Arrival.psd",
+      "byteSize": 52304274,
+      "sha256": "7bf19c758f30a7b34835fbe7515be29b10bc2ec942e3a537dc4a49e812c7d4ca"
+    },
+    {
+      "encounterType": "boon",
+      "path": "master-templates/boon-master.psd",
+      "sourceFilename": "Quiet Valley Card_Front Boon.psd",
+      "byteSize": 47352860,
+      "sha256": "a752f424fe60a28718262c3bd8338de70efbc5d4ccd7d7c4aa455334db12ea5c"
+    },
+    {
+      "encounterType": "burden",
+      "path": "master-templates/burden-master.psd",
+      "sourceFilename": "Quiet Valley Card_Front Burden.psd",
+      "byteSize": 46832058,
+      "sha256": "5302c2772a19964f61f4867ea0c31ba425657522d70afb5abfaf7e77534181fb"
+    },
+    {
+      "encounterType": "goldenBoon",
+      "path": "master-templates/golden-boon-master.psd",
+      "sourceFilename": "Quiet Valley Card_Front Golden Boon.psd",
+      "byteSize": 85504849,
+      "sha256": "aadb39dd38f22b0acd8cc379273000f3df0568cec29951d7dd08f429a9cf2727"
+    }
+  ]
+}

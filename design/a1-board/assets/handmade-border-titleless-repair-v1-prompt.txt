@@ -1,0 +1,25 @@
+Use case: precise-object-edit
+Asset type: A1 neoprene board material source
+Input image: handmade-border-source-v2.png is the edit target.
+
+Primary request:
+Remove only the large rectangular brass-and-leather title plaque at the top
+centre, including its four rivets and cast shadow. Reconstruct that entire
+former plaque footprint as natural aged black leather that continues the
+surrounding top border seamlessly.
+
+Materials and textures:
+Match the existing dense black leather exactly: subtle diagonal grain,
+restrained worn variation, soft real-world scuffs, and the same lighting and
+colour. The repair must have no rectangular patch, mirrored grain, radial
+pattern, blur, or visible edge.
+
+Constraints:
+Change only the top-centre plaque and its shadow. Keep the exact canvas,
+framing, map, six side wells, round tracker, brass map-corner fittings, all
+stitching, proportions, colours, and every other design feature unchanged.
+Leave no title plate, text, symbol, rivet, or new object in the repaired area.
+No watermark.
+
+Generation mode:
+OpenAI built-in image editing workflow, precise-object-edit.

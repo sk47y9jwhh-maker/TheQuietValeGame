@@ -1,0 +1,10 @@
+Use case: product-mockup
+Asset type: isolated photographic thread source for an exact-scale A1 neoprene board renderer
+Primary request: create one highly realistic macro photograph of a single straight length of hand-twisted, three-ply waxed linen saddle-stitching cord, laid perfectly horizontal from left to right.
+Scene/backdrop: perfectly flat, solid #ff00ff chroma-key background for local removal; one uniform magenta color with no texture, gradient, horizon, reflection, floor plane, or lighting variation.
+Subject: one uninterrupted warm natural-linen cord, centred vertically, spanning almost the full image width, with generous empty magenta space above and below; constant physical thickness; no knot, loop, needle, stitch holes, or leather.
+Style/medium: true studio macro photography, not illustration, not CGI, not vector art.
+Lighting/mood: soft diffuse overhead illumination contained on the cord itself; no cast shadow, contact shadow, halo, or reflection on the background. The board renderer will add contact shadows and puncture holes.
+Materials/textures: clearly visible twisted plies, wax sheen broken by natural matte fibres, tiny restrained fuzz and irregular hand-made fibre detail; crisp enough for individual 4 mm stitch segments at 200 PPI.
+Constraints: crisp isolated edges; cord remains fully separated from the border; do not use magenta anywhere in the cord.
+Avoid: multiple cords, braid wider than three plies, stitching pattern, dashed line, rope coil, frayed ends, tassels, text, watermark, shadow, artificial plastic sheen.

@@ -1,0 +1,9 @@
+Use case: product-mockup
+Asset type: isolated material component for an A1 historical board-game neoprene print
+Primary request: Create one realistic top-down L-shaped corner retaining clip made from aged satin brass, with equal horizontal and vertical arms, softly rounded outer corners, a clean rounded inner notch, and one domed brass rivet close to the outside corner.
+Composition: the clip is centred, perfectly top-down, fully visible, with generous uniform padding. Its L orientation is top-left: arms extend right and downward from the riveted outer corner.
+Materials/textures: convincingly manufactured aged brass with restrained hand wear, tiny scratches, mottled patina and softly burnished raised edges; detailed but not rustic or corroded.
+Lighting: even diffuse frontal illumination contained entirely within the brass surface. No directional cast shadow and no contact shadow anywhere outside the silhouette.
+Background: perfectly flat solid #00ff00 chroma-key background for removal. One uniform colour with no gradient, texture, reflection, floor plane, halo, glow, or lighting variation. Do not use #00ff00 in the clip.
+Constraints: crisp complete silhouette; physically plausible proportions; exactly one rivet; no screws; no text; no map, leather, paper, stitching or additional objects.
+Avoid: cast shadow, contact shadow, black outline, dark extrusion, bevel extending outside the silhouette, rectangular backing, cream halo, perspective view, plastic, polished gold, watermark.

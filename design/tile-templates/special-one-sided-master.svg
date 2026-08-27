@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="60mm" height="51.9615mm" viewBox="0 0 1000 866.0254" role="img" aria-labelledby="title desc">
+  <title id="title">The Quiet Vale one-sided Special tile master</title>
+  <desc id="desc">Dimension-locked Special tile template with a fitted tile-name artwork placeholder, Population and Renown markers, Arrival unlock band, and enlarged rules field.</desc>
+  <defs>
+    <clipPath id="trim-clip"><path d="M250 0H750L1000 433.0127 750 866.0254H250L0 433.0127Z"/></clipPath>
+    <clipPath id="artwork-clip"><path d="M163 150H837L998.261 430H1.739Z"/></clipPath>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf6e9"/><stop offset=".55" stop-color="#f4ead6"/><stop offset="1" stop-color="#ede0c8"/></linearGradient>
+    <linearGradient id="header" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#34454b"/><stop offset=".55" stop-color="#2f342e"/><stop offset="1" stop-color="#4d6470"/></linearGradient>
+    <linearGradient id="unlock" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#dce4e4"/><stop offset=".5" stop-color="#f4ead6"/><stop offset="1" stop-color="#dce4e4"/></linearGradient>
+    <linearGradient id="rules" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34454b"/><stop offset="1" stop-color="#26221b"/></linearGradient>
+    <pattern id="paper-fibres" width="62" height="30" patternUnits="userSpaceOnUse"><path d="M2 8c14-5 25 4 39-1 8-3 14-1 19 1M8 22c10-3 22 2 35-1 6-2 12-1 17 1" fill="none" stroke="#d8caaa" stroke-width="1.2" opacity=".34"/></pattern>
+    <filter id="soft-shadow" x="-12%" y="-12%" width="124%" height="128%"><feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#151711" flood-opacity=".24"/></filter>
+    <symbol id="icon-category-placeholder" viewBox="0 0 100 100"><path d="M24 74 68 30M33 20l47 47M24 74l-8 10 10-8M68 30l12-10M33 20l-9-7-11 11 7 9M80 67l7 9-11 11-9-7"/></symbol>
+    <symbol id="icon-placement-any-land" viewBox="0 0 100 100"><path d="M50 10 84 30v40L50 90 16 70V30Z"/><path d="M24 68c10-16 20-20 30-11 8 7 16 6 24-6M31 72V58M24 65l7-7 7 7"/></symbol>
+    <symbol id="icon-population" viewBox="0 0 100 100"><circle cx="50" cy="35" r="16"/><path d="M19 82c5-22 18-31 31-31s26 9 31 31"/></symbol>
+    <symbol id="icon-renown" viewBox="0 0 100 100"><path d="M43 83C24 68 23 40 36 18M57 83c19-15 20-43 7-65"/><path d="M36 64C27 64 22 60 20 53c9 0 14 4 16 11ZM33 46C25 45 21 40 21 33c8 1 12 6 12 13ZM64 64c9 0 14-4 16-11-9 0-14 4-16 11ZM67 46c8-1 12-6 12-13-8 1-12 6-12 13Z"/></symbol>
+    <style>
+      @font-face{font-family:Almendra;src:url('../../src/assets/fonts/almendra-latin-regular.woff2') format('woff2');font-weight:400}
+      @font-face{font-family:Alegreya;src:url('../../src/assets/fonts/alegreya-latin-variable.woff2') format('woff2');font-weight:400 500}
+      @font-face{font-family:'Alegreya Sans';src:url('../../src/assets/fonts/alegreya-sans-latin-medium.woff2') format('woff2');font-weight:500}
+      text{font-family:Alegreya,Georgia,serif;fill:#26221b}.title{font-family:Almendra,Georgia,serif;font-size:46px;fill:#fbf6e9}.title.second{font-size:43px}
+      .side,.corner,.score-label,.unlock-label,.kicker{font-family:'Alegreya Sans',Arial,sans-serif;font-weight:500;letter-spacing:4px}
+      .side{font-size:18px;fill:#d8caaa;letter-spacing:3px}.corner{font-size:16px;fill:#d8caaa;letter-spacing:2.5px}.score-value{font-size:45px}.score-label{font-size:16px;fill:#4d6470;letter-spacing:1.2px}
+      .unlock-label{font-size:20px;fill:#4d6470}.unlock-name{font-family:Almendra,Georgia,serif;font-size:34px}.kicker{font-size:24px;fill:#d8caaa}
+      .rules-copy{font-size:34px;fill:#fbf6e9}.artwork-placeholder{font-family:Almendra,Georgia,serif;fill:#4d6470;opacity:.72}.icon-dark,.score-icon{fill:none;stroke:#4d6470;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+    </style>
+  </defs>
+
+  <g id="background" inkscape:groupmode="layer" inkscape:label="Background" filter="url(#soft-shadow)" clip-path="url(#trim-clip)">
+    <rect width="1000" height="866.0254" fill="url(#paper)"/><rect width="1000" height="866.0254" fill="url(#paper-fibres)"/>
+    <path d="M250 0H750L837 150H163Z" fill="url(#header)"/>
+    <path d="M1.739 430H998.261L955.551 510H44.449Z" fill="url(#unlock)"/>
+    <path d="M44.449 510H955.551L750 866.0254H250Z" fill="url(#rules)"/>
+  </g>
+
+  <g id="artwork" inkscape:groupmode="layer" inkscape:label="ARTWORK — INSERT HERE" clip-path="url(#artwork-clip)">
+    <text class="artwork-placeholder" data-field="artwork-image-1" x="500" y="300" text-anchor="middle" style="font-size:72px">Tile Name Image</text>
+  </g>
+
+  <g id="structure" inkscape:groupmode="layer" inkscape:label="Locked structure"><path d="M1.739 430H998.261M44.449 510H955.551" fill="none" stroke="#4d6470" stroke-width="5"/></g>
+
+  <g id="content" inkscape:groupmode="layer" inkscape:label="Editable content">
+    <circle cx="273" cy="67" r="34" fill="#f4ead6" stroke="#4d6470" stroke-width="2.4"/>
+    <g class="icon-dark" transform="translate(243 37) scale(.6)"><use href="#icon-category-placeholder" width="100" height="100"/></g>
+    <text class="corner" data-field="category-label" x="273" y="125" text-anchor="middle">CATEGORY</text>
+    <text class="title" data-field="tile-name-line-1" x="500" y="58" text-anchor="middle">Special Tile</text>
+    <text class="title second" data-field="tile-name-line-2" x="500" y="100" text-anchor="middle">Name</text>
+    <text class="side" x="500" y="132" text-anchor="middle">SPECIAL • ONE-SIDED</text>
+
+    <g data-field="population" transform="translate(93 383)"><g class="score-icon" transform="translate(-23 -23) scale(.46)"><use href="#icon-population" width="100" height="100"/></g><text class="score-value" x="58" y="13" text-anchor="middle">0</text><text class="score-label" x="58" y="36" text-anchor="middle">POPULATION</text></g>
+    <g data-field="renown" transform="translate(907 383)"><g class="score-icon" transform="translate(-23 -23) scale(.46)"><use href="#icon-renown" width="100" height="100"/></g><text class="score-value" x="-58" y="13" text-anchor="middle">0</text><text class="score-label" x="-58" y="36" text-anchor="middle">RENOWN</text></g>
+
+    <text class="unlock-label" x="175" y="479">UNLOCKED BY ARRIVAL</text>
+    <text class="unlock-name" data-field="arrival-name" x="805" y="480" text-anchor="end">Arrival Name</text>
+
+    <text class="kicker" data-field="effect-type" x="500" y="572" text-anchor="middle">EFFECT TYPE</text>
+    <text class="rules-copy" data-field="effect-line-1" x="500" y="642" text-anchor="middle">Effect line one</text>
+    <text class="rules-copy" data-field="effect-line-2" x="500" y="686" text-anchor="middle">Effect line two</text>
+    <text class="rules-copy" data-field="effect-line-3" x="500" y="730" text-anchor="middle">Effect line three</text>
+    <text class="rules-copy" data-field="effect-line-4" x="500" y="774" text-anchor="middle">Effect line four</text>
+  </g>
+
+  <g id="trim" inkscape:groupmode="layer" inkscape:label="Trim geometry — not printer bleed">
+    <path d="M250 0H750L1000 433.0127 750 866.0254H250L0 433.0127Z" fill="none" stroke="#4d6470" stroke-width="18" stroke-linejoin="round"/>
+    <path d="M250 0H750L1000 433.0127 750 866.0254H250L0 433.0127Z" fill="none" stroke="#26221b" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+</svg>

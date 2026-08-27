@@ -1,0 +1,10 @@
+Use case: product-mockup
+Asset type: raw photographic material source for an exact-scale A1 neoprene board renderer
+Primary request: create one edge-to-edge, straight-down macro material scan of authentic aged solid brass sheet, suitable for texturing small handmade map-retaining corner clips.
+Composition/framing: brass fills the entire image; uniform material scale; no visible sheet edges, object silhouette, border, seams, joins, fasteners, holes, rivets, clips, text, symbols, or background.
+Style/medium: highly realistic studio macro photography, not illustration, not CGI, not vector art.
+Lighting/mood: extremely even diffuse overhead illumination, neutral and restrained; no directional gradient, vignette, cast shadow, hotspot, or artificial glow. The renderer will add all shape lighting later.
+Color palette: deep, warm, naturally aged brown-gold brass rather than yellow or orange.
+Materials/textures: fine physical micro-pitting, subtle oxidation and mottled patina, hairline hand-working scratches in varied directions, restrained tarnish, occasional softly polished high points; detailed enough to remain photographic at 200 PPI on neoprene.
+Constraints: approximately seamless and tile-friendly edges; realistic non-repeating wear; coherent scale across the frame.
+Avoid: flat color, graphic noise, plastic, bronze paint, dramatic reflections, embossed pattern, repeated procedural speckles, objects, labels, watermark, text.

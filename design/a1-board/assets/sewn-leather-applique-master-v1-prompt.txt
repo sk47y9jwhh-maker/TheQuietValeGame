@@ -1,0 +1,10 @@
+Use case: product-mockup
+Asset type: neutral reusable resource-marker master for a printed board-game mat
+Input image: the supplied warehouse close-up is a STYLE REFERENCE ONLY for leather grain, subdued focus, handmade quality and warm lighting; do not reproduce its map, text, frame or layout.
+Primary request: create one single small circular hand-cut leather applique disc, viewed perfectly top-down, intended to look sewn flush onto the same matte black leather product. The applique itself should be neutral warm grey-taupe leather so it can be recoloured later. It has four small punched holes and real tan waxed-linen thread crossing in a neat X. Slight natural edge irregularity and restrained wear, refined rather than rustic.
+Scene/backdrop: perfectly flat solid #00ff00 chroma-key background for removal, uniform edge-to-edge.
+Composition: one centred circular applique, generous empty padding, orthographic top-down view.
+Lighting: very soft diffuse overhead light matching the reference; no directional cast shadow and no contact shadow outside the disc.
+Materials: matte dyed leather or tightly woven leather-like fabric, visible fine fibre/grain, linen thread; no shell, nacre, pearl, plastic, enamel or metal.
+Constraints: crisp usable silhouette; the object must not touch the image edges; no background texture, gradient, floor plane, reflection or lighting variation; do not use #00ff00 in the object; no text, symbols beyond the thread X, logo or watermark.
+Avoid: floating appearance, photographic cut-out halo, deep bevel, glossy highlights, drop shadows, external black rim.

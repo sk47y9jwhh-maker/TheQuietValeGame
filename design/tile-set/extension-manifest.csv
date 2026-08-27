@@ -1,0 +1,3 @@
+extension_id,face,name,copies_per_side,compatible_source_tile_ids,compatible_component_sizes,footprint,svg_path
+travel_extension,basic,Travel Extension,14,c16_street c17_track,2 3,generic-extension,core-extensions/travel-extension-basic.svg
+travel_extension,upgraded,Travel Extension,14,c16_street c17_track,2 3,generic-extension,core-extensions/travel-extension-upgraded.svg

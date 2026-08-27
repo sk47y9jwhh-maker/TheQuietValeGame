@@ -1,0 +1,23 @@
+Use case: product-mockup
+Asset type: raw material source for a unified A1 neoprene board renderer
+Primary request: create one edge-to-edge top-down material scan of refined
+near-black charcoal full-grain vegetable-tanned leather, suitable for a premium
+historical board-game mounting surface.
+Composition/framing: the leather fills the entire image with no border,
+objects, seams, cuts, stitching, holes, hardware, text, symbols, or empty
+background.
+Lighting/mood: extremely even diffuse overhead studio illumination, neutral and
+matte, with no directional gradient, vignette, cast shadow, hotspot, or depth
+cue. The renderer will add all physical lighting later.
+Color palette: near-black charcoal with a restrained moss-green undertone,
+matching a sober medieval craft object; avoid pure black.
+Materials/textures: convincing fine pebble grain, subtle natural pores, faint
+irregular creases and restrained hand wear; refined and cohesive, not
+distressed or rustic. Detail should remain plausible when printed on neoprene.
+Constraints: approximately seamless/tile-friendly edges; uniform material scale
+across the frame; no repeated stamped pattern; no artificial CGI noise.
+Avoid: buttons, rivets, brass, stitching, borders, panels, holes, labels, map,
+paper, shadows, gradients, glossy reflections, dramatic lighting, plastic,
+watermark, text.
+
+Generation mode: OpenAI built-in ImageGen.

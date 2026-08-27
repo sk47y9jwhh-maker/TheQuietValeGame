@@ -1,0 +1,8 @@
+Use case: precise-object-edit
+Asset type: material integration reference for an A1 neoprene board
+Primary request: Replace only the small green circular marker beside the word WOOD with a genuinely photorealistic, hand-made dyed-leather button that is physically seated on and sewn through the existing black leather panel.
+Input image: edit target; preserve the complete board crop exactly except for that one green marker.
+Subject: a small round forest-green vegetable-tanned leather button, hand-cut rather than geometrically perfect, four clearly punched recessed holes, crossed tan waxed-linen thread passing into the holes. The button must retain visible natural hide grain, a slightly burnished cut edge, subtle thickness, and tiny pressure deformation where it meets the black leather.
+Lighting/material match: use exactly the existing soft upper-left light direction, contrast, focus, grain scale, warmth and mild print softness of the surrounding black leather and brass. Add only physically correct tight contact occlusion at the lower-right edge; no separate oval or floating shadow. It must look photographed as part of the same finished leather product, not pasted on.
+Invariants: keep the WOOD lettering, all stitching, leather panels, brass corner, map artwork, framing, positions, crop and resolution unchanged. Keep the marker at the same centre and approximately the same diameter.
+Avoid: flat vector circle, smooth painted disk, plastic, shell, pearl, glossy resin, artificial outline, halo, large drop shadow, text changes, new decorations, sharpening mismatch, blur mismatch.
