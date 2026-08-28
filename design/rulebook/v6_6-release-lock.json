@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "release": "The Quiet Vale Printed Rules",
+  "version": "6.6",
+  "status": "approved-and-locked",
+  "lockedOn": "2026-08-28",
+  "archive": {
+    "path": "output/releases/The_Quiet_Vale_Printed_Rules_v6_6_LOCKED.zip",
+    "byteSize": 104942580,
+    "sha256": "0f986083cc95237c0a3aeefa65fb2aa89a6a97b9a7c657f4c7babd2326dd2767",
+    "integrityTest": "pass"
+  },
+  "packageRecords": {
+    "manifestSha256": "f030ad0d641da39ea2fb6cf99f6186e1ec515da1125c3c5123da2608e8e61dec",
+    "releaseNoticeSha256": "f55996dec1c196350e73b78d5635dfad39d07581836137bafc00ab670e2404bb",
+    "checksumFileSha256": "5e2152c80f24a3ff2eaeecd0b6e2a08f5f57ad0efbd4f76286c0ae6cbd6cd954"
+  },
+  "artifacts": [
+    {
+      "path": "The_Quiet_Vale_Main_Rulebook_v6_6_Card_Guide.docx",
+      "byteSize": 11957339,
+      "sha256": "21d3090fa4d813a7fae6ac07a84b9f6ef17e1933772bacf51026933ad38b8548"
+    },
+    {
+      "path": "The_Quiet_Vale_Main_Rulebook_v6_6.pdf",
+      "byteSize": 39021841,
+      "sha256": "692af1c5c5b80698236dfecd9846a8eadff99d78b7fd2240ddddca890c9d11bf"
+    },
+    {
+      "path": "The_Quiet_Vale_A6_Vanguard_Steward_Aid_v6_6.pdf",
+      "byteSize": 10422449,
+      "sha256": "19f53d1d743129c3f2a90dd6cb49421af0cb3f11ec5f346355d2e4bb2f40f0d7"
+    },
+    {
+      "path": "The_Quiet_Vale_A6_Knight_Steward_Aid_v6_6.pdf",
+      "byteSize": 10422446,
+      "sha256": "b1adeed83a12c02745a3f0cd232bf835569d9368e5a7207c6899c1ee1dd4ed4c"
+    },
+    {
+      "path": "The_Quiet_Vale_A6_Sentinel_Steward_Aid_v6_6.pdf",
+      "byteSize": 10422415,
+      "sha256": "d19c9c0c4da35eb90fd0daa88cbe98d4a0c534b651bf37eef6e7ff9ef94754b4"
+    },
+    {
+      "path": "The_Quiet_Vale_A6_Ranger_Steward_Aid_v6_6.pdf",
+      "byteSize": 10422497,
+      "sha256": "aa2b886e7491f243ad7f14b856d9cd10d3fc5a98b029cc3cbe4b2157c23e2efc"
+    },
+    {
+      "path": "The_Quiet_Vale_A6_Warden_Steward_Aid_v6_6.pdf",
+      "byteSize": 10422408,
+      "sha256": "2cb53b0ecd0c51f20027524a2e49bdfc3f0e7d522fdf68a34a43c5fa5639ed28"
+    },
+    {
+      "path": "The_Quiet_Vale_A6_Quartermaster_Steward_Aid_v6_6.pdf",
+      "byteSize": 10422480,
+      "sha256": "2cb023050ce7995a0b8bbd18ede87a919e74dbd2d1e0179a9620c63c7cae6572"
+    },
+    {
+      "path": "The_Quiet_Vale_Stewards_Ledger_v6_5.pdf",
+      "releaseRole": "carried-forward-five-player-master",
+      "byteSize": 13067511,
+      "sha256": "88a9b49688d8dee056e5894bc2fe3a65e06636e7f2f5e97bdc11e8fe0c04c2b1"
+    }
+  ],
+  "buildSourceFingerprints": {
+    "working/rules-v6_6/update_rulebook_v6_6.py": "8da8e23906081c0e37ea719cfec42e9d835f0a86833c44e90afd76991a2a7809",
+    "working/rulebook-professional-redesign/build_professional_rulebook.py": "90b75a3ad1fb9a0820d6526bdf1e1e55452651253d2c2ba673f82403d4cdc329",
+    "working/rulebook-professional-redesign/audit_professional_rulebook.py": "21ce301e5b0d04efffb1b21411c526137f421b7945eac07ac2314159863683b8",
+    "working/steward-aids-redesign/build_steward_aid.py": "6f8eeef8b585eee1054a51956005a53fbb038c1fb9ce7723b991cc46d488023b",
+    "working/steward-aids-redesign/export_steward_content.ts": "8f4179a2b3f9961920bedbf97c2befd67fe98d2f4694cc89aaa47e98d9bde016",
+    "working/five-player-docs/verify_five_player_artifacts.py": "66e6f7edb2af64dc4c1a6af475b22fe5fa00e20f6da9b7c93ea0f17780871d99"
+  },
+  "verification": {
+    "rulebookFidelityAudit": "pass",
+    "rulebookPages": 28,
+    "stewardAidContentAudits": "pass",
+    "stewardAidCount": 6,
+    "stewardAidPagesEach": 16,
+    "stewardAidLanguageRevision": "v3",
+    "stewardsLedgerVersion": "6.5 five-player master",
+    "stewardsLedgerPages": 32,
+    "fivePlayerCrossArtifactVerification": "pass",
+    "visualQa": "pass"
+  },
+  "excluded": [
+    "Discontinued bot"
+  ]
+}
