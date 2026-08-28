@@ -25,8 +25,7 @@ import type {
 import {
   hasMapArtwork,
   MapArtworkCredit,
-  MapArtworkImage,
-  MapMount
+  MapArtworkImage
 } from "./MapArtwork";
 
 interface HexMapProps {
@@ -318,7 +317,7 @@ export function HexMap({
         </p>
       </div>
       <div className="map-artwork-frame">
-        <MapMount>
+        <div className="map-canvas">
         <svg
           className={`hex-map zoom-high ${hasMapArtwork ? "has-map-artwork" : ""}`}
           style={{
@@ -585,7 +584,7 @@ export function HexMap({
             })}
           </g>
         </svg>
-        </MapMount>
+        </div>
         <MapArtworkCredit />
       </div>
     </section>

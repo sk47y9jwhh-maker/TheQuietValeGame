@@ -8,8 +8,7 @@ import type { GameState } from "../../engine/types";
 import {
   hasMapArtwork,
   MapArtworkCredit,
-  MapArtworkImage,
-  MapMount
+  MapArtworkImage
 } from "../map/MapArtwork";
 
 const setupRadius = 17;
@@ -142,7 +141,7 @@ export function StewardPlacementPanel({
           </div>
         </div>
         <div className="map-artwork-frame">
-          <MapMount canvasClassName="steward-placement-board">
+          <div className="steward-placement-board map-canvas">
             <svg
             className={`steward-start-map ${hasMapArtwork ? "has-map-artwork" : ""}`}
             role="img"
@@ -225,7 +224,7 @@ export function StewardPlacementPanel({
               originY={17}
             />
             </svg>
-          </MapMount>
+          </div>
           <MapArtworkCredit />
         </div>
       </section>

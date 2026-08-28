@@ -3,47 +3,10 @@ import {
   mapLayout,
   type MapArtworkLayerKind
 } from "../../data/map";
-import type { ReactNode } from "react";
 
 const activeMapArtworkLayers = mapArtworkLayers.filter((layer) => layer.src);
 
 export const hasMapArtwork = activeMapArtworkLayers.length > 0;
-
-interface MapMountProps {
-  children: ReactNode;
-  canvasClassName?: string;
-}
-
-export function MapMount({
-  children,
-  canvasClassName = ""
-}: MapMountProps) {
-  return (
-    <div className="map-mount">
-      <span aria-hidden="true" className="map-mount-keyline" />
-      {(["north-west", "north-east", "south-east", "south-west"] as const).map(
-        (corner) => (
-          <span
-            aria-hidden="true"
-            className={`map-mount-corner map-mount-corner-${corner}`}
-            key={corner}
-          >
-            <span className="map-mount-rivet" />
-          </span>
-        )
-      )}
-      <span
-        aria-hidden="true"
-        className="map-mount-studs map-mount-studs-north"
-      />
-      <span
-        aria-hidden="true"
-        className="map-mount-studs map-mount-studs-south"
-      />
-      <div className={`map-canvas ${canvasClassName}`.trim()}>{children}</div>
-    </div>
-  );
-}
 
 export function MapArtworkCredit() {
   if (!hasMapArtwork) return null;
