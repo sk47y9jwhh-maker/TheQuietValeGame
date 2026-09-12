@@ -711,8 +711,8 @@ export const specialTiles: SpecialTileData[] = [
     count: 1,
     unlockSource: "Before the Last Age",
     placement: {
-      adjacentToTileIds: ["c20_dig_site"],
-      text: "Place adjacent to a Salvage Camp / Reclamation Works."
+      terrain: ["ruins"],
+      text: "Place on Ruins terrain."
     },
     effectText:
       "Passive: Once per round, after an adjacent Salvage Camp or Reclamation Works produces, gain 2 Metal.",
@@ -726,8 +726,8 @@ export const specialTiles: SpecialTileData[] = [
     count: 1,
     unlockSource: "The Dryads",
     placement: {
-      adjacentToTileIds: ["c03_gathering_outpost"],
-      text: "Place adjacent to a Gathering Outpost / Gathering Lodge."
+      terrain: ["heaths"],
+      text: "Place on Heaths terrain."
     },
     effectText:
       "Passive: Once per round, after an adjacent Gathering Outpost or Gathering Lodge produces, gain 2 Herbs.",
@@ -741,8 +741,8 @@ export const specialTiles: SpecialTileData[] = [
     count: 1,
     unlockSource: "Blessed Harvest",
     placement: {
-      adjacentToTileIds: ["c04_farmstead"],
-      text: "Place adjacent to a Farmstead / Artisan Farm."
+      terrain: ["arable"],
+      text: "Place on Arable Land terrain."
     },
     effectText:
       "Passive: Once per round, after an adjacent Farmstead or Artisan Farm produces, gain 2 Food.",
@@ -756,8 +756,8 @@ export const specialTiles: SpecialTileData[] = [
     count: 1,
     unlockSource: "Moving Mountains",
     placement: {
-      adjacentToTileIds: ["c02_mine_tunnel"],
-      text: "Place adjacent to a Mine Tunnel / Mine Shaft tile."
+      terrain: ["mountains"],
+      text: "Place on Mountains terrain."
     },
     effectText:
       "Passive: Once per round, after an adjacent Mine Tunnel or Mine Shaft produces, gain 2 Stone.",
@@ -771,8 +771,8 @@ export const specialTiles: SpecialTileData[] = [
     count: 1,
     unlockSource: "Acorns & Oak Trees",
     placement: {
-      adjacentToTileIds: ["c01_lumber_yard"],
-      text: "Place adjacent to a Lumber Yard / Sustainable Lumber Yard."
+      terrain: ["woodland"],
+      text: "Place on Woodland terrain."
     },
     effectText:
       "Passive: Once per round, after an adjacent Lumber Yard or Sustainable Lumber Yard produces, gain 2 Wood.",
@@ -802,8 +802,8 @@ export const specialTiles: SpecialTileData[] = [
     count: 1,
     unlockSource: "Songs of War to Ore",
     placement: {
-      adjacentToTileIds: ["c02_mine_tunnel"],
-      text: "Place adjacent to a Mine Tunnel / Mine Shaft tile."
+      terrain: ["mountains"],
+      text: "Place on Mountains terrain."
     },
     effectText:
       "Passive: Once per round, after an adjacent Mine Tunnel or Mine Shaft produces, gain 1 Metal and remove 1 Strain from that tile.",
@@ -817,8 +817,8 @@ export const specialTiles: SpecialTileData[] = [
     count: 1,
     unlockSource: "Dark Decay to Light",
     placement: {
-      adjacentToTileIds: ["c20_dig_site"],
-      text: "Place adjacent to a Salvage Camp / Reclamation Works."
+      terrain: ["ruins"],
+      text: "Place on Ruins terrain."
     },
     effectText:
       "Passive: Once per round, after an adjacent Salvage Camp or Reclamation Works produces, gain 1 Goods.",
@@ -832,8 +832,8 @@ export const specialTiles: SpecialTileData[] = [
     count: 1,
     unlockSource: "Plunderer to Lumber",
     placement: {
-      adjacentToTileIds: ["c01_lumber_yard"],
-      text: "Place adjacent to a Lumber Yard / Sustainable Lumber Yard."
+      terrain: ["woodland"],
+      text: "Place on Woodland terrain."
     },
     effectText:
       "Passive: Once per round, after a tile is placed, gain 2 Wood.",
@@ -862,8 +862,8 @@ export const specialTiles: SpecialTileData[] = [
     count: 1,
     unlockSource: "Blade to Herb",
     placement: {
-      adjacentToTileIds: ["c03_gathering_outpost"],
-      text: "Place adjacent to a Gathering Outpost / Gathering Lodge."
+      terrain: ["heaths"],
+      text: "Place on Heaths terrain."
     },
     effectText:
       "Passive: Once per round, when Strain would be placed on a tile, you may pay 2 Herbs to prevent 1 Strain.",
@@ -877,8 +877,8 @@ export const specialTiles: SpecialTileData[] = [
     count: 1,
     unlockSource: "Battle to Cattle",
     placement: {
-      adjacentToTileIds: ["c04_farmstead"],
-      text: "Place adjacent to a Farmstead / Artisan Farm."
+      terrain: ["arable"],
+      text: "Place on Arable Land terrain."
     },
     effectText:
       "Passive: Once per round, when paying a cost, pay up to 2 fewer Food.",

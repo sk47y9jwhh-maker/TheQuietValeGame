@@ -1,3 +1,4 @@
+import { TileArtwork } from "../common/TileArtwork";
 import {
   BookMarked,
   CheckCircle2,
@@ -44,6 +45,7 @@ interface BottomDrawerProps {
 }
 
 interface TileReferenceCardProps {
+  tileId: string;
   className?: string;
   effect: string;
   meta: string;
@@ -54,6 +56,7 @@ interface TileReferenceCardProps {
 }
 
 function TileReferenceCard({
+  tileId,
   className = "",
   effect,
   meta,
@@ -76,6 +79,7 @@ function TileReferenceCard({
           />
         </div>
       </div>
+      <TileArtwork tileId={tileId} name={name} />
       <p className="tile-mini-card-meta">{meta}</p>
       <p className="tile-mini-card-placement">
         <strong>Placement:</strong>
@@ -180,6 +184,7 @@ export function BottomDrawer({
                 const remaining = state.tileSupply.special[tile.id] ?? 0;
                 return (
                   <TileReferenceCard
+                    tileId={tile.id}
                     className="available unlocked-special-card"
                     effect={tile.effectText}
                     key={tile.id}
@@ -195,6 +200,7 @@ export function BottomDrawer({
                 const remaining = state.tileSupply.core[tile.id] ?? 0;
                 return (
                   <TileReferenceCard
+                    tileId={tile.id}
                     className={remaining > 0 ? "available" : "locked"}
                     effect={tile.basic.effectText}
                     key={tile.id}
@@ -231,6 +237,7 @@ export function BottomDrawer({
                 const remaining = state.tileSupply.special[tile.id] ?? 0;
                 return (
                   <TileReferenceCard
+                    tileId={tile.id}
                     className={remaining > 0 ? "available" : "locked"}
                     effect={tile.effectText}
                     key={tile.id}

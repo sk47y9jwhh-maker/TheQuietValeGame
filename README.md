@@ -102,6 +102,13 @@ The engine returns validation reasons for illegal actions so the UI can explain 
 
 `npm run loc` reports application, content data, rules, styles, tests, and research tooling separately. Generated playtest output and local analysis archives are intentionally ignored and are not part of the maintained source count.
 
+## Artist tile artwork
+
+The approved complete artist set is documented in `design/artist-tile-templates`.
+The website uses trimmed faces in selection, reference, inspection and on the map;
+full-size print faces retain 3 mm bleed. The full game rules remain available as
+text beneath the artwork.
+
 ## Deployment
 
 The app is static and Vite-compatible. The repository deploys to GitHub Pages through `.github/workflows/pages.yml`: tests run, `dist/` is built, and the artifact is published by GitHub Actions.

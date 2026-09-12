@@ -1,0 +1,76 @@
+<!doctype html><meta charset="utf-8"><style>
+@font-face{font-family:Alegreya;src:url('assets/alegreya-latin-variable.woff2');font-weight:100 900}@font-face{font-family:Alegreya;src:url('assets/alegreya-latin-italic.woff2');font-style:italic;font-weight:100 900}body{margin:0}canvas{display:block}
+</style><canvas width="1560" height="1370"></canvas><script>
+const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d'), W=1560,H=1370;let audit=[];const cache={};
+async function img(name){if(!cache[name])cache[name]=await new Promise((resolve,reject)=>{const i=new Image;i.onload=()=>resolve(i);i.onerror=reject;i.src='assets/'+name});return cache[name]}
+function font(size,style='regular'){ctx.font=`${style==='italic'?'italic ':''}${style==='bold'?'700':'400'} ${size}px Alegreya`;ctx.fontVariantCaps=style==='smallcaps'?'small-caps':'normal';ctx.fillStyle='#201f1b';ctx.textAlign='center';ctx.textBaseline='alphabetic'}
+function measure(t,size,style){font(size,style);return ctx.measureText(t).width}
+function wrap(t,size,width,style){let lines=[],line='';for(const word of t.split(/\s+/)){let test=line?line+' '+word:word;if(line&&measure(test,size,style)>width){lines.push(line);line=word}else line=test}if(line)lines.push(line);return lines}
+function block(text,{x=780,y,width=740,height,size=50,min=25,style='regular',label='text',align='center',colour='#201f1b',lineRatio=1.16,taper=false}){let s=size,lines,ink,ascent;for(;s>=min;s--){
+ if(taper){lines=[];let line='';for(const word of text.split(/\s+/)){let baseline=y+s*.8+lines.length*s*lineRatio;let available=Math.min(width,Math.max(340,860-(baseline-950)*1.85));let test=line?line+' '+word:word;if(line&&measure(test,s,style)>available){lines.push(line);line=word}else line=test}if(line)lines.push(line)}else lines=wrap(text,s,width,style);
+ font(s,style);const metrics=lines.map(l=>ctx.measureText(l));ascent=Math.max(...metrics.map(m=>m.actualBoundingBoxAscent));let descent=Math.max(...metrics.map(m=>m.actualBoundingBoxDescent));ink=ascent+descent+(lines.length-1)*s*lineRatio;
+ if(ink<=height&&lines.every(l=>measure(l,s,style)<=width))break}
+ if(s<min)throw Error('Cannot fit '+label+': '+text);font(s,style);ctx.fillStyle=colour;ctx.textAlign=align;let base=y+(taper?0:(height-ink)/2)+ascent;for(let i=0;i<lines.length;i++)ctx.fillText(lines[i],x,base+i*s*lineRatio);audit.push({field:label,text,px:s,pointSize:+(s*72/600).toFixed(2),preferredPointSize:+(size*72/600).toFixed(2),lines:lines.length,reduced:s<size});return s}
+
+
+// Inline resource symbols retain the original text in the fit audit.
+async function resourceBlock(text,{x=780,y,width,height,size=50,min=28,label='Rules'}){
+ if(!/\b(Wood|Stone|Food|Metal|Herbs|Goods|Population|Renown)\b/.test(text))return block(text,{x,y,width,height,size,min,label,style:'italic',taper:true});
+ const names=['Wood','Stone','Food','Metal','Herbs','Goods','Population','Renown'];
+ const images=Object.fromEntries(await Promise.all(names.map(async n=>[n,await img('icon-'+(['Population','Renown'].includes(n)?'':'Resource ')+n+'.png')])));
+ const words=text.match(/(?:[+]?[0-9]+\s+(?:bonus\s+)?)?\S+/g)||[];
+ function parts(word,s){return word.split(/\b(Wood|Stone|Food|Metal|Herbs|Goods|Population|Renown)\b/g).filter(Boolean).map(v=>images[v]?{im:images[v],w:s*1.15,h:s*1.05}:{text:v,w:measure(v,s,'italic')})}
+ let lines,s=size;
+ for(;s>=min;s--){font(s,'italic');const gap=measure(' ',s,'italic');lines=[];let line={items:[],w:0};
+  for(const word of words){const ps=parts(word,s),w=ps.reduce((a,p)=>a+p.w,0);const available=Math.min(width,Math.max(340,860-(y+s*.85+lines.length*s*1.24-950)*1.85));
+   if(line.items.length&&line.w+gap+w>available){lines.push(line);line={items:[],w:0}}
+   if(line.items.length){line.items.push({text:' ',w:gap});line.w+=gap}line.items.push(...ps);line.w+=w;
+  }if(line.items.length)lines.push(line);
+  if(lines.length*s*1.24<=height&&lines.every((l,i)=>l.w<=Math.min(width,Math.max(340,860-(y+s*.85+i*s*1.24-950)*1.85))))break;
+ }
+ if(s<min)throw Error('Cannot fit icon text: '+text);
+ font(s,'italic');ctx.textAlign='left';
+ for(let i=0;i<lines.length;i++){const l=lines[i],base=y+s*.85+i*s*1.24;let left=x-l.w/2;
+  for(const p of l.items){if(p.im){const f=Math.min(p.w/p.im.width,p.h/p.im.height);ctx.drawImage(p.im,left+(p.w-p.im.width*f)/2,base-s*.82+(p.h-p.im.height*f)/2,p.im.width*f,p.im.height*f)}else ctx.fillText(p.text,left,base);left+=p.w}
+ }
+ audit.push({field:label,text,px:s,pointSize:+(s*72/600).toFixed(2),preferredPointSize:+(size*72/600).toFixed(2),lines:lines.length,reduced:s<size,inlineResourceIcons:true});
+}
+
+async function icon(name,x,y,w=100,h=100){const im=await img('icon-'+name+'.png');const f=Math.min(w/im.width,h/im.height);ctx.drawImage(im,x+(w-im.width*f)/2,y+(h-im.height*f)/2,im.width*f,im.height*f)}
+const cats={resource:'Resource',housing:'House',crafting:'Crafting',merchant:'Merchant',social:'Social',wellbeing:'Wellbeing',travel:'Travel'}, terrains={woodland:'Woodland',mountains:'Mountains',heaths:'Heath',arable:'Arable Land',ruins:'Ruins',water:'Water'};
+async function categoryIcon(category,prefix,x,y){const scale={resource:.9,travel:.9,housing:.95}[category]??1;return icon(prefix+' '+cats[category],x+50*(1-scale),y+47.5*(1-scale),100*scale,95*scale)}
+async function terrainIcon(name){return name.endsWith(' Water')?icon(name,980,166,130,123.5):icon(name,1014,180,100,95)}
+async function heading(t,kind,face){let right=false,p=t.placement;
+ if(kind==='golden'){await icon('Type Gold',446,180,100,95)}else await categoryIcon(t.category,'Type',446,180);
+ if(p?.adjacentToCategory?.length===1){await categoryIcon(p.adjacentToCategory[0],'Adjacent',1014,180);right=true}
+ else if(p?.adjacentToTerrain?.length===1){await terrainIcon('Adjacent '+terrains[p.adjacentToTerrain[0]]);right=true}
+ else if(p?.terrain?.length===1&&terrains[p.terrain[0]]){await terrainIcon('Placement '+terrains[p.terrain[0]]);right=true}
+ block(t.name,{y:151,width:450,height:147,size:83,min:33,style:'smallcaps',lineRatio:1.02,label:'Title'});
+
+ // Place complex restrictions explicitly because no exact combined icon exists in the delivery.
+ if(kind!=='golden'&&p&&(p.adjacentToTileIds||p.notAdjacentToTerrain||p.terrain?.length>1||p.adjacentToCategory?.length>1||(!p.terrain&&!p.adjacentToTerrain&&!p.adjacentToCategory&&p.text))) block(p.text,{y:505,width:850,height:85,size:38,min:29,label:'Placement rule'});
+ if(t.size>1&&t.footprint!=='detached')block(`PLACE WITH ${t.size-1} TRAVEL EXTENSION ${t.size===2?'HEX':'HEXES'}`,{y:518,width:900,height:53,size:35,label:'Assembly instruction'});
+}
+async function scores(t){if(t.population){await icon('Population',232,580,66,77);block(String(t.population),{x:330,y:593,width:78,height:68,size:67,label:'Population'})}if(t.renown){block(String(t.renown),{x:1190,y:593,width:82,height:68,size:67,label:'Renown'});await icon('Renown',1238,585,77,72)}}
+async function costRow(d,y){let values=Object.entries(d.cost).filter(([r,n])=>n);const alt=d.alternateCostText;if(alt){const parts=alt.match(/(\d+) (\w+) or (\d+) (\w+)/i);values=[[parts[2].toLowerCase(),+parts[1]],[parts[4].toLowerCase(),+parts[3]]]}if(!values.length){block('Free',{x:890,y:y-29,width:620,height:64,size:48,label:'Cost'});return}let centres=values.length===1?[870]:values.length===2?[738,1045]:[663,887,1110];for(let i=0;i<values.length;i++){const [r,n]=values[i],x=centres[i];block(String(n),{x:x-34,y:y-34,width:80,height:70,size:65,label:'Cost quantity'});await icon('Resource '+r[0].toUpperCase()+r.slice(1),x+13,y-35,81,68)}if(alt)block('OR',{x:909,y:y-26,width:61,height:52,size:33,label:'Alternative cost'})}
+function effect(t){let text=t.effectText,heading='PASSIVE';if(text.startsWith('Activate:')){heading='ACTIVATE';text=text.slice(9).trim()}else if(/^Activated Effect,/.test(text)){heading='ACTIVATE';text=text.replace(/^Activated Effect,\s*/, '');text=text[0].toUpperCase()+text.slice(1)}else if(text.startsWith('When placed or activated:')){heading='PLACE / ACTIVATE';text=text.replace(/^When placed or activated:\s*/, '')}else if(text.startsWith('Activated Effect:')){heading='ACTIVATE';text=text.slice(17).trim()}else if(text.startsWith('Passive:'))text=text.slice(8).trim();if(text.includes('Passive: Linked Production'))text=text.split('Passive: Linked Production')[0].trim()+' Linked Production (once per round).';return {text,heading}}
+window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind,face,t}=item;const type=kind==='core'?(face==='basic'?'Core Basic':'Core Upgrade'):kind==='special'?'Special':kind==='golden'?'Golden':kind==='extension'?'Travel Extension':'Special back';const bg=await img('Quiet Valley Tile '+type+'-managed.png');
+ // Clip only the outside-canvas background to the delivered artwork silhouette.
+ ctx.save();ctx.beginPath();ctx.moveTo(390,10);ctx.lineTo(1170,10);ctx.lineTo(1560,685);ctx.lineTo(1170,1360);ctx.lineTo(390,1360);ctx.lineTo(0,685);ctx.closePath();ctx.clip();ctx.drawImage(bg,0,0);ctx.restore();
+ if(kind==='back'){block(String(item.number),{x:780,y:445,width:700,height:500,size:580,min:480,label:'Back number',colour:'#d8caaa'});return audit}
+ if(kind==='extension'){block('Travel Extension',{y:151,width:650,height:147,size:83,style:'smallcaps',label:'Title'});for(const [a,b,y] of [['STREET','Use 1 travel extension hex',711],['TRACK','Use 2 travel extension hexes',794]]){block(a,{x:426,y,width:220,height:51,size:42,label:'Assembly label'});block(b,{x:894,y,width:620,height:51,size:46,label:'Assembly guide'})}return audit}
+ const td=kind==='core'?{...t,...t[face]}:t;await heading(td,kind,face);if(kind!=='golden')await scores(td);
+ if(kind==='core'){
+ if(face==='basic'){block('PLACE',{x:426,y:711,width:220,height:53,size:42,label:'Cost label'});block('UPGRADE',{x:426,y:794,width:220,height:53,size:42,label:'Cost label'});await costRow(t.basic,738);await costRow(t.upgraded,815)}else{block('UPGRADED FROM',{y:712,width:790,height:55,size:42,label:'Lineage label'});block(t.basic.name,{y:775,width:920,height:66,size:57,label:'Lineage name'})}
+ }
+ if(kind==='special'){block('UNLOCKED BY ARRIVAL',{y:712,width:880,height:55,size:42,label:'Unlock label'});block(t.unlockSource,{y:775,width:920,height:66,size:55,label:'Arrival name'})}
+ if(kind==='golden'){
+ block('LEDGER UNLOCK',{x:578,y:712,width:350,height:57,size:42,label:'Ledger label'});block(t.unlockAt+' Entries',{x:952,y:712,width:345,height:57,size:52,label:'Ledger threshold'});
+ block('PERSISTENT EFFECT',{y:807,width:900,height:54,size:49,style:'bold',label:'Effect heading'});await resourceBlock(t.effectText,{y:866,width:800,height:155,size:50,min:26,style:'italic',label:'Persistent effect',taper:true});
+ if(t.placement?.text)block(t.id==='golden_tile_the_golden_cairn'?t.placement.text.replace(' Not Grasslands or River/Water.',''):t.placement.text,{y:1040,width:600,height:150,size:42,min:30,style:'regular',label:'Placement rule',taper:true});
+
+ }else{const e=effect(td);block(e.heading,{y:878,width:800,height:58,size:50,style:'bold',label:'Effect heading'});await resourceBlock(e.text,{y:948,width:710,height:245,size:50,min:28,style:'italic',label:'Rules',taper:true})}
+ return audit;
+};
+window.ready=Promise.all([document.fonts.load('400 50px Alegreya'),document.fonts.load('700 50px Alegreya'),document.fonts.load('italic 50px Alegreya')]);
+</script>

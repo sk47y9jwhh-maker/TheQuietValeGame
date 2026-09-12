@@ -1,3 +1,4 @@
+import { TileArtwork } from "../common/TileArtwork";
 import { useEffect } from "react";
 import { X } from "lucide-react";
 import { mapById, terrainLabels } from "../../data/map";
@@ -15,17 +16,20 @@ interface TileInspectModalProps {
 
 interface SidePanelProps {
   title: string;
+  tileId: string;
+  face: "basic" | "upgraded";
   side: TileSideData;
   current: boolean;
 }
 
-function SidePanel({ title, side, current }: SidePanelProps) {
+function SidePanel({ title, side, current, tileId, face }: SidePanelProps) {
   return (
     <article className={`tile-inspect-side ${current ? "current" : ""}`}>
       <div className="tile-inspect-side-header">
         <strong>{title}</strong>
         {current && <span>Current</span>}
       </div>
+      <TileArtwork tileId={tileId} side={face} name={title} />
       <p>
         Cost {side.alternateCostText ?? formatCost(side.cost)} | Pop {side.population} |
         Renown {side.renown}
@@ -134,11 +138,15 @@ export function TileInspectModal({
         {coreTile && (
           <div className="tile-inspect-side-list">
             <SidePanel
+              tileId={coreTile.id}
+              face="basic"
               current={placedTile?.side === "basic"}
               side={coreTile.basic}
               title={coreTile.basic.name}
             />
             <SidePanel
+              tileId={coreTile.id}
+              face="upgraded"
               current={placedTile?.side === "upgraded"}
               side={coreTile.upgraded}
               title={coreTile.upgraded.name}
@@ -152,6 +160,7 @@ export function TileInspectModal({
                 <strong>{specialTile.name}</strong>
                 <span>{goldenTile ? "Golden" : "Special"}</span>
               </div>
+              <TileArtwork tileId={specialTile.id} name={specialTile.name} />
               <p>
                 Unlocked by {specialTile.unlockSource} | Pop {specialTile.population} |
                 Renown {specialTile.renown}

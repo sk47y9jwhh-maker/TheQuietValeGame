@@ -1,3 +1,4 @@
+import { TileArtwork } from "../common/TileArtwork";
 import { Check, Crown, MapPin, SkipForward } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { mapCells, terrainLabels } from "../../data/map";
@@ -83,6 +84,7 @@ export function GoldenTilePlacementPanel({
             <Crown size={18} />
             <h3>{tile?.name ?? "Golden Tile"}</h3>
           </div>
+          {tile && <TileArtwork tileId={tile.id} name={tile.name} />}
           <p>{tile?.placement?.text}</p>
           <p>{tile?.effectText}</p>
           <small>{tile?.scoringText}</small>

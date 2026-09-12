@@ -129,8 +129,8 @@
 
   <g id="content" inkscape:groupmode="layer" inkscape:label="Editable content">
     <metadata>
-      <tile-source id="special_the_tamers_respite" face="one-sided" category="resource" tile-type="resource" tile-type-icon="category-resource" tile-type-glyph="gathering-cart" copies="1" size-hexes="1" print-units-per-copy="1" printed-hexes="1" footprint="single" placement-icon="named-farm">
-        <placement>Place adjacent to a Farmstead / Artisan Farm.</placement>
+      <tile-source id="special_the_tamers_respite" face="one-sided" category="resource" tile-type="resource" tile-type-icon="category-resource" tile-type-glyph="gathering-cart" copies="1" size-hexes="1" print-units-per-copy="1" printed-hexes="1" footprint="single" placement-icon="terrain-arable">
+        <placement>Place on Arable Land terrain.</placement>
         <effect>Passive: Once per round, when paying a cost, pay up to 2 fewer Food.</effect>
       </tile-source>
     </metadata>
@@ -138,8 +138,8 @@
     <g class="icon-dark" data-tile-type-icon="category-resource" data-tile-type="resource" data-tile-type-glyph="gathering-cart" transform="translate(243 37) scale(.6)"><use href="#icon-placement-category-resource" width="100" height="100"/></g>
     <text class="corner" data-field="category-label-1" x="273" y="125" text-anchor="middle" style="font-size:16px" data-safe-x1="177" data-safe-x2="369">RESOURCE</text>
     <circle cx="727" cy="67" r="34" fill="#f4ead6" stroke="#4d6470" stroke-width="2.4"/>
-    <g class="icon-dark" data-placement-icon="named-farm" data-placement-kind="adjacent-named-tile" transform="translate(697 37) scale(.6)"><use href="#icon-placement-named-farm" width="100" height="100"/></g>
-    <text class="corner" data-field="requirement-label-1" x="727" y="125" text-anchor="middle" style="font-size:16px" data-safe-x1="631" data-safe-x2="823">ADJ. FARM</text>
+    <g class="icon-dark" data-placement-icon="terrain-arable" data-placement-kind="terrain" transform="translate(697 37) scale(.6)"><use href="#icon-placement-terrain-arable" width="100" height="100"/></g>
+    <text class="corner" data-field="requirement-label-1" x="727" y="125" text-anchor="middle" style="font-size:16px" data-safe-x1="631" data-safe-x2="823">ARABLE LAND</text>
     <text class="title" data-field="tile-name-line-1" x="500" y="55" text-anchor="middle" style="font-size:48px" data-safe-x1="320" data-safe-x2="680">The Tamers&apos;</text>
     <text class="title" data-field="tile-name-line-2" x="500" y="98" text-anchor="middle" style="font-size:48px" data-safe-x1="320" data-safe-x2="680">Respite</text>
     <text class="side" x="500" y="132" text-anchor="middle">SPECIAL &#x2022; ONE-SIDED</text>

@@ -1,3 +1,4 @@
+import { TileArtwork } from "../common/TileArtwork";
 import {
   BadgeCheck,
   Hammer,
@@ -512,6 +513,7 @@ export function ActionConsole({
                     role="option"
                     tabIndex={0}
                   >
+                    <TileArtwork tileId={tile.id} name={tile.name} thumbnail />
                     <span className="tile-choice-main">
                       <strong>{tile.name}</strong>
                       <small>

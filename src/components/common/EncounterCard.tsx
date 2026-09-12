@@ -3,6 +3,10 @@ import arrivalArtwork from "../../assets/encounter-cards/arrival.png";
 import boonArtwork from "../../assets/encounter-cards/boon.png";
 import burdenArtwork from "../../assets/encounter-cards/burden.png";
 import goldenBoonArtwork from "../../assets/encounter-cards/golden-boon.png";
+import arrivalWebArtwork from "../../assets/encounter-cards/web/arrival.png";
+import boonWebArtwork from "../../assets/encounter-cards/web/boon.png";
+import burdenWebArtwork from "../../assets/encounter-cards/web/burden.png";
+import goldenBoonWebArtwork from "../../assets/encounter-cards/web/golden-boon.png";
 import type { EncounterData, Season } from "../../engine/types";
 import {
   getBoonLifecycleText,
@@ -16,6 +20,13 @@ const artworkByType: Record<EncounterData["type"], string> = {
   boon: boonArtwork,
   burden: burdenArtwork,
   goldenBoon: goldenBoonArtwork
+};
+
+const webArtworkByType: Record<EncounterData["type"], string> = {
+  arrival: arrivalWebArtwork,
+  boon: boonWebArtwork,
+  burden: burdenWebArtwork,
+  goldenBoon: goldenBoonWebArtwork
 };
 
 const seasonNumerals: Record<Season, string> = {
@@ -32,6 +43,7 @@ interface EncounterCardProps
   controls?: ReactNode;
   currentSeason?: Season;
   size?: EncounterCardSize;
+  outputMode?: "web" | "print";
   status?: ReactNode;
   supplementary?: ReactNode;
 }
@@ -156,6 +168,7 @@ export function EncounterCard({
   controls,
   currentSeason,
   size = "standard",
+  outputMode = "web",
   status,
   supplementary,
   ...articleProps
@@ -175,24 +188,26 @@ export function EncounterCard({
     >
       <div
         aria-label={`${getEncounterTypeLabel(card)}: ${card.name}`}
-        className={`physical-encounter-card physical-card-${card.type}`}
+        className={`physical-encounter-card physical-card-${card.type}${outputMode === "print" ? " physical-card-with-bleed" : ""}`}
       >
         <img
           alt=""
           aria-hidden="true"
           className="physical-card-artwork"
           draggable="false"
-          src={artworkByType[card.type]}
+          src={(outputMode === "print" ? artworkByType : webArtworkByType)[card.type]}
         />
-        <p className="physical-card-type">{getEncounterTypeLabel(card)}</p>
-        <h3 className={`physical-card-title ${titleDensity}`}>{card.name}</h3>
-        <p className={`physical-card-flavor ${flavorDensity}`}>{flavorText}</p>
+        <div className="physical-card-print-canvas">
+          <p className="physical-card-type">{getEncounterTypeLabel(card)}</p>
+          <h3 className={`physical-card-title ${titleDensity}`}>{card.name}</h3>
+          <p className={`physical-card-flavor ${flavorDensity}`}>{flavorText}</p>
 
-        {(card.type === "boon" || card.type === "burden") && (
-          <PhysicalSeasonRows card={card} currentSeason={currentSeason} />
-        )}
-        {card.type === "arrival" && <PhysicalArrival card={card} />}
-        {card.type === "goldenBoon" && <PhysicalGoldenBoon card={card} />}
+          {(card.type === "boon" || card.type === "burden") && (
+            <PhysicalSeasonRows card={card} currentSeason={currentSeason} />
+          )}
+          {card.type === "arrival" && <PhysicalArrival card={card} />}
+          {card.type === "goldenBoon" && <PhysicalGoldenBoon card={card} />}
+        </div>
       </div>
 
       {(status || controls || supplementary) && (

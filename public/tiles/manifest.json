@@ -1,0 +1,805 @@
+{
+  "version": "2026-09-12",
+  "faces": [
+    {
+      "id": "c01_lumber_yard-basic",
+      "name": "Lumber Yard",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c01_lumber_yard",
+      "websiteFile": "c01_lumber_yard-basic.webp"
+    },
+    {
+      "id": "c01_lumber_yard-upgraded",
+      "name": "Sustainable Lumber Yard",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c01_lumber_yard",
+      "websiteFile": "c01_lumber_yard-upgraded.webp"
+    },
+    {
+      "id": "c02_mine_tunnel-basic",
+      "name": "Mine Tunnel",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c02_mine_tunnel",
+      "websiteFile": "c02_mine_tunnel-basic.webp"
+    },
+    {
+      "id": "c02_mine_tunnel-upgraded",
+      "name": "Mine Shaft",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c02_mine_tunnel",
+      "websiteFile": "c02_mine_tunnel-upgraded.webp"
+    },
+    {
+      "id": "c03_gathering_outpost-basic",
+      "name": "Gathering Outpost",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c03_gathering_outpost",
+      "websiteFile": "c03_gathering_outpost-basic.webp"
+    },
+    {
+      "id": "c03_gathering_outpost-upgraded",
+      "name": "Gathering Lodge",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c03_gathering_outpost",
+      "websiteFile": "c03_gathering_outpost-upgraded.webp"
+    },
+    {
+      "id": "c04_farmstead-basic",
+      "name": "Farmstead",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c04_farmstead",
+      "websiteFile": "c04_farmstead-basic.webp"
+    },
+    {
+      "id": "c04_farmstead-upgraded",
+      "name": "Artisan Farm",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c04_farmstead",
+      "websiteFile": "c04_farmstead-upgraded.webp"
+    },
+    {
+      "id": "c05_cabin-basic",
+      "name": "Cabin",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c05_cabin",
+      "websiteFile": "c05_cabin-basic.webp"
+    },
+    {
+      "id": "c05_cabin-upgraded",
+      "name": "Fine Cabin",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c05_cabin",
+      "websiteFile": "c05_cabin-upgraded.webp"
+    },
+    {
+      "id": "c06_cottage-basic",
+      "name": "Cottage",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c06_cottage",
+      "websiteFile": "c06_cottage-basic.webp"
+    },
+    {
+      "id": "c06_cottage-upgraded",
+      "name": "Fine Cottage",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c06_cottage",
+      "websiteFile": "c06_cottage-upgraded.webp"
+    },
+    {
+      "id": "c08_inn-basic",
+      "name": "Inn",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c08_inn",
+      "websiteFile": "c08_inn-basic.webp"
+    },
+    {
+      "id": "c08_inn-upgraded",
+      "name": "Dawn Break Inn",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c08_inn",
+      "websiteFile": "c08_inn-upgraded.webp"
+    },
+    {
+      "id": "c07_stedding-basic",
+      "name": "Stedding",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c07_stedding",
+      "websiteFile": "c07_stedding-basic.webp"
+    },
+    {
+      "id": "c07_stedding-upgraded",
+      "name": "Fine Stedding",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c07_stedding",
+      "websiteFile": "c07_stedding-upgraded.webp"
+    },
+    {
+      "id": "c09_tavern-basic",
+      "name": "Tavern",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c09_tavern",
+      "websiteFile": "c09_tavern-basic.webp"
+    },
+    {
+      "id": "c09_tavern-upgraded",
+      "name": "The Steward's Arms",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c09_tavern",
+      "websiteFile": "c09_tavern-upgraded.webp"
+    },
+    {
+      "id": "c10_eatery-basic",
+      "name": "Eatery",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c10_eatery",
+      "websiteFile": "c10_eatery-basic.webp"
+    },
+    {
+      "id": "c10_eatery-upgraded",
+      "name": "The Crock and Ladle",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c10_eatery",
+      "websiteFile": "c10_eatery-upgraded.webp"
+    },
+    {
+      "id": "c11_washhouse-basic",
+      "name": "Washhouse",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c11_washhouse",
+      "websiteFile": "c11_washhouse-basic.webp"
+    },
+    {
+      "id": "c11_washhouse-upgraded",
+      "name": "Sweet Flag Bathhouse",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c11_washhouse",
+      "websiteFile": "c11_washhouse-upgraded.webp"
+    },
+    {
+      "id": "c12_apothecary-basic",
+      "name": "Apothecary",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c12_apothecary",
+      "websiteFile": "c12_apothecary-basic.webp"
+    },
+    {
+      "id": "c12_apothecary-upgraded",
+      "name": "Amaryllis Bloom",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c12_apothecary",
+      "websiteFile": "c12_apothecary-upgraded.webp"
+    },
+    {
+      "id": "c13_workshops-basic",
+      "name": "Workshops",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c13_workshops",
+      "websiteFile": "c13_workshops-basic.webp"
+    },
+    {
+      "id": "c13_workshops-upgraded",
+      "name": "The Makers Conclave",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c13_workshops",
+      "websiteFile": "c13_workshops-upgraded.webp"
+    },
+    {
+      "id": "c14_market_stalls-basic",
+      "name": "Market Stalls",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c14_market_stalls",
+      "websiteFile": "c14_market_stalls-basic.webp"
+    },
+    {
+      "id": "c14_market_stalls-upgraded",
+      "name": "The Seldes",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c14_market_stalls",
+      "websiteFile": "c14_market_stalls-upgraded.webp"
+    },
+    {
+      "id": "c15_path-basic",
+      "name": "Path",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c15_path",
+      "websiteFile": "c15_path-basic.webp"
+    },
+    {
+      "id": "c15_path-upgraded",
+      "name": "Improved Path",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c15_path",
+      "websiteFile": "c15_path-upgraded.webp"
+    },
+    {
+      "id": "c18_common_land-basic",
+      "name": "Common Land",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c18_common_land",
+      "websiteFile": "c18_common_land-basic.webp"
+    },
+    {
+      "id": "c18_common_land-upgraded",
+      "name": "The Pleasance",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c18_common_land",
+      "websiteFile": "c18_common_land-upgraded.webp"
+    },
+    {
+      "id": "c16_street-basic",
+      "name": "Street",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c16_street",
+      "websiteFile": "c16_street-basic.webp"
+    },
+    {
+      "id": "c16_street-upgraded",
+      "name": "Improved Street",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c16_street",
+      "websiteFile": "c16_street-upgraded.webp"
+    },
+    {
+      "id": "c17_track-basic",
+      "name": "Track",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c17_track",
+      "websiteFile": "c17_track-basic.webp"
+    },
+    {
+      "id": "c17_track-upgraded",
+      "name": "Improved Track",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c17_track",
+      "websiteFile": "c17_track-upgraded.webp"
+    },
+    {
+      "id": "c19_bridge-basic",
+      "name": "Bridge",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c19_bridge",
+      "websiteFile": "c19_bridge-basic.webp"
+    },
+    {
+      "id": "c19_bridge-upgraded",
+      "name": "Stone Bridge",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c19_bridge",
+      "websiteFile": "c19_bridge-upgraded.webp"
+    },
+    {
+      "id": "c20_dig_site-basic",
+      "name": "Salvage Camp",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c20_dig_site",
+      "websiteFile": "c20_dig_site-basic.webp"
+    },
+    {
+      "id": "c20_dig_site-upgraded",
+      "name": "Reclamation Works",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c20_dig_site",
+      "websiteFile": "c20_dig_site-upgraded.webp"
+    },
+    {
+      "id": "c21_the_vaults-basic",
+      "name": "The Vaults",
+      "kind": "core",
+      "face": "basic",
+      "tileId": "c21_the_vaults",
+      "websiteFile": "c21_the_vaults-basic.webp"
+    },
+    {
+      "id": "c21_the_vaults-upgraded",
+      "name": "The Restored Vaults",
+      "kind": "core",
+      "face": "upgraded",
+      "tileId": "c21_the_vaults",
+      "websiteFile": "c21_the_vaults-upgraded.webp"
+    },
+    {
+      "id": "special_adventurers_guild",
+      "name": "Adventurers' Guild",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_adventurers_guild",
+      "websiteFile": "special_adventurers_guild.webp"
+    },
+    {
+      "id": "special_alchemist_s_workshop",
+      "name": "Alchemist's Workshop",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_alchemist_s_workshop",
+      "websiteFile": "special_alchemist_s_workshop.webp"
+    },
+    {
+      "id": "special_alms_house",
+      "name": "Alms House",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_alms_house",
+      "websiteFile": "special_alms_house.webp"
+    },
+    {
+      "id": "special_atelier_workshop",
+      "name": "Atelier Workshop",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_atelier_workshop",
+      "websiteFile": "special_atelier_workshop.webp"
+    },
+    {
+      "id": "special_brewery_of_legends",
+      "name": "Brewery of Legends",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_brewery_of_legends",
+      "websiteFile": "special_brewery_of_legends.webp"
+    },
+    {
+      "id": "special_docks",
+      "name": "Docks",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_docks",
+      "websiteFile": "special_docks.webp"
+    },
+    {
+      "id": "special_hearth_garden",
+      "name": "Hearth Garden",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_hearth_garden",
+      "websiteFile": "special_hearth_garden.webp"
+    },
+    {
+      "id": "special_house_of_learning",
+      "name": "House of Learning",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_house_of_learning",
+      "websiteFile": "special_house_of_learning.webp"
+    },
+    {
+      "id": "special_labourers_yard",
+      "name": "Labourers' Yard",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_labourers_yard",
+      "websiteFile": "special_labourers_yard.webp"
+    },
+    {
+      "id": "special_lantern_roadhouse",
+      "name": "Lantern Roadhouse",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_lantern_roadhouse",
+      "websiteFile": "special_lantern_roadhouse.webp"
+    },
+    {
+      "id": "special_reliquary",
+      "name": "Reliquary",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_reliquary",
+      "websiteFile": "special_reliquary.webp"
+    },
+    {
+      "id": "special_shrine_of_ancestors",
+      "name": "Shrine of Ancestors",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_shrine_of_ancestors",
+      "websiteFile": "special_shrine_of_ancestors.webp"
+    },
+    {
+      "id": "special_shrine_of_ancients",
+      "name": "Shrine of Ancients",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_shrine_of_ancients",
+      "websiteFile": "special_shrine_of_ancients.webp"
+    },
+    {
+      "id": "special_shrine_of_bounty",
+      "name": "Shrine of Bounty",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_shrine_of_bounty",
+      "websiteFile": "special_shrine_of_bounty.webp"
+    },
+    {
+      "id": "special_shrine_of_depths",
+      "name": "Shrine of Depths",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_shrine_of_depths",
+      "websiteFile": "special_shrine_of_depths.webp"
+    },
+    {
+      "id": "special_shrine_of_renewal",
+      "name": "Shrine of Renewal",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_shrine_of_renewal",
+      "websiteFile": "special_shrine_of_renewal.webp"
+    },
+    {
+      "id": "special_stables",
+      "name": "Stables",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_stables",
+      "websiteFile": "special_stables.webp"
+    },
+    {
+      "id": "special_the_iron_roots_respite",
+      "name": "The Iron Roots Respite",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_the_iron_roots_respite",
+      "websiteFile": "special_the_iron_roots_respite.webp"
+    },
+    {
+      "id": "special_the_lorekeepers_respite",
+      "name": "The Lorekeepers' Respite",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_the_lorekeepers_respite",
+      "websiteFile": "special_the_lorekeepers_respite.webp"
+    },
+    {
+      "id": "special_the_reavers_respite",
+      "name": "The Reavers' Respite",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_the_reavers_respite",
+      "websiteFile": "special_the_reavers_respite.webp"
+    },
+    {
+      "id": "special_the_resting_hall",
+      "name": "The Resting Hall",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_the_resting_hall",
+      "websiteFile": "special_the_resting_hall.webp"
+    },
+    {
+      "id": "special_the_root_weavers_respite",
+      "name": "The Root Weavers Respite",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_the_root_weavers_respite",
+      "websiteFile": "special_the_root_weavers_respite.webp"
+    },
+    {
+      "id": "special_the_tamers_respite",
+      "name": "The Tamers' Respite",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_the_tamers_respite",
+      "websiteFile": "special_the_tamers_respite.webp"
+    },
+    {
+      "id": "special_the_waystation",
+      "name": "The Waystation",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_the_waystation",
+      "websiteFile": "special_the_waystation.webp"
+    },
+    {
+      "id": "special_theater",
+      "name": "Theatre",
+      "kind": "special",
+      "face": null,
+      "tileId": "special_theater",
+      "websiteFile": "special_theater.webp"
+    },
+    {
+      "id": "golden_tile_the_golden_charter",
+      "name": "The Golden Charter",
+      "kind": "golden",
+      "face": null,
+      "tileId": "golden_tile_the_golden_charter",
+      "websiteFile": "golden_tile_the_golden_charter.webp"
+    },
+    {
+      "id": "golden_tile_the_golden_hearth",
+      "name": "The Golden Hearth",
+      "kind": "golden",
+      "face": null,
+      "tileId": "golden_tile_the_golden_hearth",
+      "websiteFile": "golden_tile_the_golden_hearth.webp"
+    },
+    {
+      "id": "golden_tile_the_golden_river_gate",
+      "name": "The Golden River Gate",
+      "kind": "golden",
+      "face": null,
+      "tileId": "golden_tile_the_golden_river_gate",
+      "websiteFile": "golden_tile_the_golden_river_gate.webp"
+    },
+    {
+      "id": "golden_tile_the_golden_cairn",
+      "name": "The Golden Cairn",
+      "kind": "golden",
+      "face": null,
+      "tileId": "golden_tile_the_golden_cairn",
+      "websiteFile": "golden_tile_the_golden_cairn.webp"
+    },
+    {
+      "id": "golden_tile_the_golden_garden",
+      "name": "The Golden Garden",
+      "kind": "golden",
+      "face": null,
+      "tileId": "golden_tile_the_golden_garden",
+      "websiteFile": "golden_tile_the_golden_garden.webp"
+    },
+    {
+      "id": "travel-extension-basic",
+      "name": "Travel Extension - basic",
+      "kind": "extension",
+      "face": "basic",
+      "tileId": null,
+      "websiteFile": "travel-extension-basic.webp"
+    },
+    {
+      "id": "travel-extension-upgraded",
+      "name": "Travel Extension - upgraded",
+      "kind": "extension",
+      "face": "upgraded",
+      "tileId": null,
+      "websiteFile": "travel-extension-upgraded.webp"
+    },
+    {
+      "id": "special-back-1",
+      "name": "Special back 1",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_adventurers_guild",
+      "websiteFile": "special-back-1.webp"
+    },
+    {
+      "id": "special-back-2",
+      "name": "Special back 2",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_alchemist_s_workshop",
+      "websiteFile": "special-back-2.webp"
+    },
+    {
+      "id": "special-back-3",
+      "name": "Special back 3",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_alms_house",
+      "websiteFile": "special-back-3.webp"
+    },
+    {
+      "id": "special-back-4",
+      "name": "Special back 4",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_atelier_workshop",
+      "websiteFile": "special-back-4.webp"
+    },
+    {
+      "id": "special-back-5",
+      "name": "Special back 5",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_brewery_of_legends",
+      "websiteFile": "special-back-5.webp"
+    },
+    {
+      "id": "special-back-6",
+      "name": "Special back 6",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_docks",
+      "websiteFile": "special-back-6.webp"
+    },
+    {
+      "id": "special-back-7",
+      "name": "Special back 7",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_hearth_garden",
+      "websiteFile": "special-back-7.webp"
+    },
+    {
+      "id": "special-back-8",
+      "name": "Special back 8",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_house_of_learning",
+      "websiteFile": "special-back-8.webp"
+    },
+    {
+      "id": "special-back-9",
+      "name": "Special back 9",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_labourers_yard",
+      "websiteFile": "special-back-9.webp"
+    },
+    {
+      "id": "special-back-10",
+      "name": "Special back 10",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_lantern_roadhouse",
+      "websiteFile": "special-back-10.webp"
+    },
+    {
+      "id": "special-back-11",
+      "name": "Special back 11",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_reliquary",
+      "websiteFile": "special-back-11.webp"
+    },
+    {
+      "id": "special-back-12",
+      "name": "Special back 12",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_shrine_of_ancestors",
+      "websiteFile": "special-back-12.webp"
+    },
+    {
+      "id": "special-back-13",
+      "name": "Special back 13",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_shrine_of_ancients",
+      "websiteFile": "special-back-13.webp"
+    },
+    {
+      "id": "special-back-14",
+      "name": "Special back 14",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_shrine_of_bounty",
+      "websiteFile": "special-back-14.webp"
+    },
+    {
+      "id": "special-back-15",
+      "name": "Special back 15",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_shrine_of_depths",
+      "websiteFile": "special-back-15.webp"
+    },
+    {
+      "id": "special-back-16",
+      "name": "Special back 16",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_shrine_of_renewal",
+      "websiteFile": "special-back-16.webp"
+    },
+    {
+      "id": "special-back-17",
+      "name": "Special back 17",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_stables",
+      "websiteFile": "special-back-17.webp"
+    },
+    {
+      "id": "special-back-18",
+      "name": "Special back 18",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_stables",
+      "websiteFile": "special-back-18.webp"
+    },
+    {
+      "id": "special-back-19",
+      "name": "Special back 19",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_the_iron_roots_respite",
+      "websiteFile": "special-back-19.webp"
+    },
+    {
+      "id": "special-back-20",
+      "name": "Special back 20",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_the_lorekeepers_respite",
+      "websiteFile": "special-back-20.webp"
+    },
+    {
+      "id": "special-back-21",
+      "name": "Special back 21",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_the_reavers_respite",
+      "websiteFile": "special-back-21.webp"
+    },
+    {
+      "id": "special-back-22",
+      "name": "Special back 22",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_the_resting_hall",
+      "websiteFile": "special-back-22.webp"
+    },
+    {
+      "id": "special-back-23",
+      "name": "Special back 23",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_the_root_weavers_respite",
+      "websiteFile": "special-back-23.webp"
+    },
+    {
+      "id": "special-back-24",
+      "name": "Special back 24",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_the_tamers_respite",
+      "websiteFile": "special-back-24.webp"
+    },
+    {
+      "id": "special-back-25",
+      "name": "Special back 25",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_the_waystation",
+      "websiteFile": "special-back-25.webp"
+    },
+    {
+      "id": "special-back-26",
+      "name": "Special back 26",
+      "kind": "back",
+      "face": null,
+      "tileId": "special_theater",
+      "websiteFile": "special-back-26.webp"
+    }
+  ]
+}

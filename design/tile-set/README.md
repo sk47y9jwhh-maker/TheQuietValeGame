@@ -73,3 +73,21 @@ These are face-production masters, not a printer-specific imposed sheet. Street 
 - No footer, aim/target glyph, placeholder copy, duplicate SVG identifier, or horizontal gallery overflow remains.
 - All installed project fonts load in the rendered proof.
 - All measured rules copy stays inside its assigned safe width; the minimum rules size is 30 template units.
+
+## Named producer placement update — 2026-09-12
+
+The ten Special tiles formerly requiring adjacency to a specific producer now
+require placement on that producer's terrain. This applies regardless of whether
+an adjacency icon was available. Category adjacency and terrain adjacency remain
+separate rules. Effect wording and trigger conditions are retained.
+
+| Terrain | Special tiles |
+| --- | --- |
+| Heaths | Shrine of Ancients; The Root Weavers Respite |
+| Mountains | Shrine of Depths; The Iron Roots Respite |
+| Woodland | Shrine of Renewal; The Reavers' Respite |
+| Arable Land | Shrine of Bounty; The Tamers' Respite |
+| Ruins | Shrine of Ancestors; The Lorekeepers' Respite |
+
+The structured tile data, these ten SVG production faces, placement manifests,
+and artist-template sample exports use the terrain placement rules and icons.

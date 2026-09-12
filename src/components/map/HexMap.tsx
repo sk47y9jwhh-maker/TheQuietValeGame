@@ -1,3 +1,4 @@
+import { tileArtworkUrl } from "../common/TileArtwork";
 import { useCallback, useMemo, useRef } from "react";
 import {
   mapCells,
@@ -433,6 +434,13 @@ export function HexMap({
                       : ""}
                   </title>
                   <polygon points={points} />
+                  {placed && <image
+                    className="hex-tile-artwork"
+                    href={tileArtworkUrl(placed.tileId, placed.side === "upgraded" ? "upgraded" : "basic", { thumbnail: true, extension: placed.kind === "core" && placed.hexIds.indexOf(cell.id) > 0 })}
+                    x={x - radius} y={y - hexHeight / 2} width={radius * 2} height={hexHeight}
+                    preserveAspectRatio="none" aria-hidden="true"
+                  />}
+                  {placed && <polygon className="tile-artwork-outline" points={points} />}
                   {placed && tileCategory && (
                     <g
                       aria-hidden="true"

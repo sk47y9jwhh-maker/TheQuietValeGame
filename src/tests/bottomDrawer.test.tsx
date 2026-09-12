@@ -52,7 +52,7 @@ describe("bottom drawer", () => {
     expect(firstTileName).toHaveTextContent("Shrine of Renewal");
     expect(screen.getByText("Unlocked Special | Resource")).toBeInTheDocument();
     expect(
-      screen.getByText("Place adjacent to a Lumber Yard / Sustainable Lumber Yard.")
+      screen.getByText("Place on Woodland terrain.")
     ).toBeInTheDocument();
   });
 

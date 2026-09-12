@@ -41,6 +41,23 @@ The current 1800 × 3000 canvas must not be cropped or resized while the printer
 
 ## Editing rules
 
+### Online display
+
+The artist's card bleed was confirmed as **3 mm per edge** on 2026-09-12.
+The online `EncounterCard` component displays a 70.2 × 121 mm face from
+the full 76.2 × 127 mm composition. It uses the trimmed images in
+`src/assets/encounter-cards/web/` and offsets the live-text coordinate system
+by the same amount, preserving alignment. `outputMode="print"` restores the
+full artwork and text canvas with bleed. The default mode is `web`.
+
+The original PNGs in `src/assets/encounter-cards/` and all PSD masters retain
+their bleed. `tools/export-web-card-artwork.py` regenerates the four web
+backgrounds and keeps explicit print/web copies under `output/card-versions/`.
+It handles both the 900 × 1500 and 1800 × 3000 source resolutions at the same
+physical scale. Never trim a web derivative a second time.
+
+### Master files
+
 1. Never edit a file inside `master-templates/` directly.
 2. Duplicate the appropriate master into `working/` and edit that duplicate in Photopea or Photoshop.
 3. Change only live text fields for normal card production. Preserve artwork, colour mode, frames, icons, and layer positions.

@@ -70,13 +70,35 @@
   position: relative;
   isolation: isolate;
   width: 100%;
-  aspect-ratio: 3 / 5;
-  container-type: inline-size;
+  /* The supplied 76.2 x 127 mm canvas includes 3 mm bleed on every edge. */
+  aspect-ratio: 70.2 / 121;
   overflow: hidden;
   color: #171914;
   font-family: var(--font-body);
   text-rendering: optimizeLegibility;
   filter: drop-shadow(0 5px 7px rgba(20, 19, 15, 0.28));
+}
+
+.physical-card-print-canvas {
+  /* Match live text to the trimmed artwork while retaining the original 3:5
+     coordinate system and its container-relative type sizes. */
+  position: absolute;
+  isolation: isolate;
+  container-type: inline-size;
+  left: -4.2735042735%;
+  top: -2.479338843%;
+  width: 108.547008547%;
+  height: 104.958677686%;
+}
+
+.physical-card-with-bleed {
+  aspect-ratio: 3 / 5;
+}
+
+.physical-card-with-bleed .physical-card-print-canvas {
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .physical-card-artwork {
@@ -7030,3 +7052,17 @@ input,
     min-width: 72px;
   }
 }
+
+/* Approved artist tile faces: web exports exclude the 3 mm print bleed. */
+.tile-artwork { display:block; width:100%; height:auto; max-width:600px; margin:12px auto; }
+.tile-artwork-thumbnail { width:70px; min-width:70px; height:auto; margin:0; flex-shrink:0; }
+.tile-choice-main { min-width:0; flex:1; }
+.hex-tile-artwork { pointer-events:none; }
+.hex-map .hex-cell .tile-artwork-outline { fill:none !important; pointer-events:none; }
+.tile-inspect-modal { width:min(1100px, calc(100vw - 32px)); }
+@media (min-width: 760px) { .tile-inspect-side-list:has(> :nth-child(2)) { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; } }
+@media (max-width: 480px) { .tile-artwork-thumbnail { width:48px; min-width:48px; } }
+
+.tile-choice-row { grid-template-columns:auto minmax(0,1fr); align-items:center; }
+.tile-choice-actions { grid-column:1 / -1; }
+.tile-mini-card .tile-artwork { max-width:320px; }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ruinsHexIds } from "../data/map";
+import { mapCells, ruinsHexIds } from "../data/map";
 import { createNewGame } from "../engine/setup";
 import { canPlaceTile, hasPotentialPlacementOption } from "../engine/placementRules";
 
@@ -70,22 +70,31 @@ describe("placement validation", () => {
     expect(result.reasons.join(" ")).toContain("first action");
   });
 
-  it("enforces named Special Tile adjacency requirements", () => {
+  it.each([
+    ["special_shrine_of_ancestors", "ruins"],
+    ["special_shrine_of_ancients", "heaths"],
+    ["special_shrine_of_bounty", "arable"],
+    ["special_shrine_of_depths", "mountains"],
+    ["special_shrine_of_renewal", "woodland"],
+    ["special_the_iron_roots_respite", "mountains"],
+    ["special_the_lorekeepers_respite", "ruins"],
+    ["special_the_reavers_respite", "woodland"],
+    ["special_the_root_weavers_respite", "heaths"],
+    ["special_the_tamers_respite", "arable"]
+  ] as const)("places %s on %s without a neighbouring producer", (tileId, terrain) => {
     const state = createNewGame(1, ["vanguard"]);
-    state.players[0].hasPlacedFirstTile = true;
-    state.tileSupply.special.special_shrine_of_renewal = 1;
-    state.map.placedTiles.push({
-      instanceId: "tile_1",
-      tileId: "c01_lumber_yard",
-      kind: "core",
-      side: "basic",
-      hexIds: ["G1"],
-      strain: 0,
-      support: { passive: false, singleUse: false, preventedThisRound: false }
-    });
+    const matchingHex = mapCells.find((hex) => hex.terrain === terrain)!;
+    const wrongHex = mapCells.find((hex) => hex.terrain === "grasslands")!;
+    state.tileSupply.special[tileId] = 1;
+    state.players[0].stewardHexId = matchingHex.id;
 
-    expect(canPlaceTile(state, "player_1", "special_shrine_of_renewal", "H1").ok).toBe(true);
-    expect(canPlaceTile(state, "player_1", "special_shrine_of_renewal", "A1").ok).toBe(false);
+    expect(state.map.placedTiles).toHaveLength(0);
+    expect(canPlaceTile(state, "player_1", tileId, matchingHex.id).ok).toBe(true);
+
+    state.players[0].stewardHexId = wrongHex.id;
+    const rejected = canPlaceTile(state, "player_1", tileId, wrongHex.id);
+    expect(rejected.ok).toBe(false);
+    expect(rejected.reasons.join(" ")).toContain("requires");
   });
 
   it("enforces terrain-adjacency bans from tile data", () => {

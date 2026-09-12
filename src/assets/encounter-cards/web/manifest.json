@@ -1,0 +1,98 @@
+[
+  {
+    "file": "arrival.png",
+    "printPixels": [
+      1800,
+      3000
+    ],
+    "webPixels": [
+      1658,
+      2858
+    ],
+    "printCanvasMm": [
+      76.2,
+      127.0
+    ],
+    "webFaceMm": [
+      70.2,
+      121.0
+    ],
+    "bleedMmPerEdge": 3.0,
+    "cropPixelsPerEdge": [
+      70.86614173228347,
+      70.86614173228347
+    ]
+  },
+  {
+    "file": "boon.png",
+    "printPixels": [
+      900,
+      1500
+    ],
+    "webPixels": [
+      829,
+      1429
+    ],
+    "printCanvasMm": [
+      76.2,
+      127.0
+    ],
+    "webFaceMm": [
+      70.2,
+      121.0
+    ],
+    "bleedMmPerEdge": 3.0,
+    "cropPixelsPerEdge": [
+      35.43307086614173,
+      35.43307086614173
+    ]
+  },
+  {
+    "file": "burden.png",
+    "printPixels": [
+      1800,
+      3000
+    ],
+    "webPixels": [
+      1658,
+      2858
+    ],
+    "printCanvasMm": [
+      76.2,
+      127.0
+    ],
+    "webFaceMm": [
+      70.2,
+      121.0
+    ],
+    "bleedMmPerEdge": 3.0,
+    "cropPixelsPerEdge": [
+      70.86614173228347,
+      70.86614173228347
+    ]
+  },
+  {
+    "file": "golden-boon.png",
+    "printPixels": [
+      900,
+      1500
+    ],
+    "webPixels": [
+      829,
+      1429
+    ],
+    "printCanvasMm": [
+      76.2,
+      127.0
+    ],
+    "webFaceMm": [
+      70.2,
+      121.0
+    ],
+    "bleedMmPerEdge": 3.0,
+    "cropPixelsPerEdge": [
+      35.43307086614173,
+      35.43307086614173
+    ]
+  }
+]
