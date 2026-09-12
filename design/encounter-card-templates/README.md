@@ -73,3 +73,10 @@ Verify the complete locked family from the repository root with:
 ```bash
 node design/encounter-card-templates/verify-masters.mjs
 ```
+
+## Arrival reward numbers — 12 September 2026
+
+Arrival faces display `Unlock Special Tile <number> <name>.` using the locked
+Special back mapping in `src/data/specialTileNumbers.ts`. The two Stables copies
+read `Unlock Special Tiles 17 & 18 Stables.` Both print and trimmed web rendering
+use this label; the canonical reward rules and unlock IDs are unchanged.

@@ -9,6 +9,7 @@ import burdenWebArtwork from "../../assets/encounter-cards/web/burden.png";
 import goldenBoonWebArtwork from "../../assets/encounter-cards/web/golden-boon.png";
 import type { EncounterData, Season } from "../../engine/types";
 import {
+  getArrivalRewardText,
   getBoonLifecycleText,
   getBurdenResolutionCurrentText,
   getEncounterTypeLabel,
@@ -108,6 +109,7 @@ function PhysicalSeasonRows({
 }
 
 function PhysicalArrival({ card }: { card: Extract<EncounterData, { type: "arrival" }> }) {
+  const rewardText = getArrivalRewardText(card);
   return (
     <>
       <p className="physical-card-section-label physical-card-requirement-label">
@@ -127,12 +129,12 @@ function PhysicalArrival({ card }: { card: Extract<EncounterData, { type: "arriv
       </p>
       <p
         className={`physical-card-arrival-reward ${densityClass(
-          card.rewardText?.length ?? 0,
-          32,
-          38
+          rewardText.length,
+          48,
+          58
         )}`}
       >
-        {card.rewardText ?? "Unlock the named Special Tile."}
+        {rewardText}
       </p>
     </>
   );

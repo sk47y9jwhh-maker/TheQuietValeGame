@@ -1,3 +1,4 @@
+import { specialTileBackNumbers } from "../../data/specialTileNumbers";
 import { resourceLabels, resources } from "../../data/resources";
 import { burdenResolutionResourceOptions } from "../../data/contentRules";
 import type {
@@ -73,4 +74,12 @@ export function getBoonLifecycleText(
   if (!card || card.type !== "boon") return null;
   if (season && card.lifecycles) return getSeasonText(card.lifecycles, season);
   return card.lifecycle;
+}
+
+export function getArrivalRewardText(card: Extract<EncounterData, { type: "arrival" }>): string {
+  const reward = card.rewardText ?? "Unlock the named Special Tile.";
+  const numbers = [...new Set(card.rewardSpecialTileIds.flatMap(id => specialTileBackNumbers[id] ?? []))];
+  if (!numbers.length) return reward;
+  // The two Stables copies have separate backs (17 and 18), not a tile numbered 2.
+  return reward.replace(/^Unlock\s+(?:2\s+(?=Stables\b))?/, `Unlock Special ${numbers.length > 1 ? "Tiles" : "Tile"} ${numbers.join(" & ")} `);
 }
