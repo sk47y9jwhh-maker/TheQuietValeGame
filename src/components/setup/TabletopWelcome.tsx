@@ -6,6 +6,7 @@ import { stewardById, stewards } from "../../data/stewards";
 import { LegacySetupOptions } from "./LegacySetupOptions";
 import { supportedPlayerCounts } from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
+import { isBoardTableExperience } from "../../app/experience";
 import { RulesGuide } from "../panels/RulesGuide";
 import type { SetupPanelProps } from "./SetupPanel";
 import mapArtwork from "../../assets/quiet_vale_map_v02.webp";
@@ -45,7 +46,7 @@ export function TabletopWelcome(props: SetupPanelProps) {
         </section>
 
         <section className="welcome-setup" aria-labelledby="welcome-setup-heading">
-          <p className="studio-kicker">The Living Table</p>
+          <p className="studio-kicker">{isBoardTableExperience() ? "Playable demo" : "The Living Table"}</p>
           <h2 id="welcome-setup-heading" ref={heading} tabIndex={-1}>Gather your Stewards.</h2>
           <p className="welcome-intro">Play solo or share this device with friends. Everyone helps the same settlement thrive.</p>
           <fieldset className="welcome-player-count">
