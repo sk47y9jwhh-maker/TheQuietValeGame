@@ -36,7 +36,7 @@ import { TabletopWelcome } from "../components/setup/TabletopWelcome";
 import { TabletopLayout } from "../components/layout/TabletopLayout";
 import { TableSeeding } from "../components/seeding/TableSeeding";
 import { isBoardTableExperience, isPlayerExperience } from "./experience";
-import { TableScreen } from "../components/table/TableScreen";
+import { TableChrome, TableScreen } from "../components/table/TableScreen";
 import { describeAutomaticStep, isAutomaticEffect, revealedCardIds } from "../components/table/automaticSteps";
 import { StewardPlacementPanel } from "../components/setup/StewardPlacementPanel";
 import { GoldenTilePlacementPanel } from "../components/setup/GoldenTilePlacementPanel";
@@ -761,7 +761,10 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
 
   // On the board-first table, payments and effects during play are settled
   // beside the board, so their tile choices can be made on the board itself.
-  const tableResolves = isBoardTableExperience() && (state.phase === "turns" || state.phase === "reveal" || state.phase === "endRound");
+  const tableResolves = isBoardTableExperience() && (
+    state.phase === "turns" || state.phase === "reveal" || state.phase === "endRound" ||
+    (state.phase === "seeding" && Boolean(state.pendingEffects[0] || state.pendingCostChoice))
+  );
   const costChoicePanel = state.pendingCostChoice ? (
         <CostChoicePanel
           state={state}
@@ -835,7 +838,24 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
     );
   }
 
-  if (state.phase === "seeding") {
+  if (state.phase === "seeding" && isBoardTableExperience() && !tableResolves) {
+    return withConfirmation(
+      <div className="app-shell board-table-shell">
+        <TableChrome state={state} canUndo={undoStack.length > 0} canRedo={redoStack.length > 0} onUndo={handleUndo} onRedo={handleRedo} onReset={handleResetGame}>
+          <TableSeeding
+            state={state}
+            onConfirm={(selection) =>
+              commitGameState((current) =>
+                commitSeasonSeeding(current, current.currentPlayerId, selection)
+              )
+            }
+          />
+        </TableChrome>
+      </div>
+    );
+  }
+
+  if (state.phase === "seeding" && !tableResolves) {
     const SeedingExperience = isPlayerExperience() ? TableSeeding : SeedingPanel;
     return withConfirmation(
       <div className="app-shell">

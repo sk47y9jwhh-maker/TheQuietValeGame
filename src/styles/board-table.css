@@ -928,3 +928,8 @@
 .board-links marker path { fill: var(--bt-rust); }
 @keyframes bt-link-flow { to { stroke-dashoffset: -11; } }
 @media (prefers-reduced-motion: reduce) { .board-link.is-current { animation: none; } }
+
+/* Full-screen steps inside the table chrome (seeding) */
+.table-stage { flex: 1; min-height: 0; overflow-y: auto; background: var(--bt-table); }
+.table-stage > .table-seeding { min-height: 100%; }
+.experience-table :is(h1, h2, h3)[tabindex="-1"]:focus { outline: none; }

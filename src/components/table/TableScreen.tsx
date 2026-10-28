@@ -313,6 +313,15 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
   </div>;
 }
 
+/** The table's top bar around a full-screen stage, for steps away from the board such as seeding. */
+export function TableChrome({ state, canUndo, canRedo, onUndo, onRedo, onReset, children }: { state: GameState; canUndo: boolean; canRedo: boolean; onUndo: () => void; onRedo: () => void; onReset: () => void; children: ReactNode }) {
+  const compact = useCompact();
+  return <div className={`table-screen${compact ? " is-compact" : ""}`}>
+    <TableTopBar state={state} score={calculateFinalScore(state).finalScore} canUndo={canUndo} canRedo={canRedo} onUndo={onUndo} onRedo={onRedo} onReset={onReset} compact={compact} />
+    <div className="table-stage">{children}</div>
+  </div>;
+}
+
 function stewardName(state: GameState): string {
   const player = state.players.find((candidate) => candidate.id === state.currentPlayerId);
   return (player && stewardById[player.stewardId]?.name) ?? "Your Steward";
