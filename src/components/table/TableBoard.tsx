@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, forwardRef, type KeyboardEvent, type PointerEvent, type ReactNode, type WheelEvent } from "react";
+import { useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, forwardRef, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode, type WheelEvent } from "react";
 import { mapLayout, terrainLabels } from "../../data/map";
 import { stewardById } from "../../data/stewards";
 import { getTileCategory } from "../../engine/placementRules";
@@ -169,6 +169,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     if (pointers.current.size === 1) {
+      suppressClick.current = false;
       gesture.current = { startX: event.clientX, startY: event.clientY, moved: false, view: current, hexId: hexFromEvent(event.target) };
     } else if (pointers.current.size === 2) {
       const [a, b] = [...pointers.current.values()];
@@ -202,15 +203,24 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
     setView(clampView({ ...start.view, cx: start.view.cx - dx * start.view.upp, cy: start.view.cy - dy * start.view.upp }));
   }
 
+  // Taps arrive as ordinary clicks (mouse, touch, assistive tech); a click
+  // that ends a drag or pinch is ignored.
+  const suppressClick = useRef(false);
   function onPointerUp(event: PointerEvent<HTMLDivElement>) {
     const start = gesture.current;
     pointers.current.delete(event.pointerId);
     if (pointers.current.size > 0) return;
     gesture.current = null;
-    if (!start || start.moved) return;
-    if (start.hexId) {
-      setCursorHexId(start.hexId);
-      onHexTap(start.hexId);
+    suppressClick.current = Boolean(start?.moved);
+  }
+
+  function onClick(event: MouseEvent<HTMLDivElement>) {
+    if (suppressClick.current) { suppressClick.current = false; return; }
+    if ((event.target as Element).closest?.(".board-popover")) return;
+    const hexId = hexFromEvent(event.target);
+    if (hexId) {
+      setCursorHexId(hexId);
+      onHexTap(hexId);
     } else onEmptyTap?.();
   }
 
@@ -289,6 +299,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
     onPointerDown={onPointerDown}
     onPointerMove={onPointerMove}
     onPointerUp={onPointerUp}
+    onClick={onClick}
     onPointerCancel={(event) => { pointers.current.delete(event.pointerId); gesture.current = null; }}
     onWheel={onWheel}
   >
