@@ -1,7 +1,7 @@
 import { AlternativeChoices } from "./AlternativeChoices";
 import { EffectSourceSummary } from "./EffectSourceSummary";
 import { TargetCardResolution } from "./TargetCardResolution";
-import { isPlayerExperience } from "../../app/experience";
+import { isBoardTableExperience, isPlayerExperience } from "../../app/experience";
 import { RangerReachChoice, WardenReliefChoice } from "./StewardChoices";
 import {
   Check,
@@ -940,6 +940,15 @@ function StandardEffectPrompt({
     );
   }
 
+  // On the board-first table, only resources that can actually change are listed.
+  const listedResources = visibleResources.length > 0 ? visibleResources : resources;
+  const changeableResources = listedResources.filter((resource) =>
+    resourceDeltas[resource] !== 0 ||
+    canAdjustResource(resource, resourceStepFor(resource)) ||
+    canAdjustResource(resource, -resourceStepFor(resource))
+  );
+  const resourceRows = isBoardTableExperience() && changeableResources.length > 0 ? changeableResources : listedResources;
+
   // The same choices, offered on the board in the board-first table.
   const boardChoices: BoardChoice[] = [];
   const signed = (delta: number) => `${delta > 0 ? "+" : ""}${delta}`;
@@ -1177,7 +1186,7 @@ function StandardEffectPrompt({
           )}
         </div>
         <div className="effect-grid">
-          {(visibleResources.length > 0 ? visibleResources : resources).map((resource) => (
+          {resourceRows.map((resource) => (
             <div className="effect-row" key={resource}>
               <span>
                 {resourceLabels[resource]} {state.warehouse[resource]}
