@@ -63,6 +63,8 @@ export interface TableResolution {
   steps: number;
   content: ReactNode;
   sourceTileId?: string;
+  /** One link of an Overstrain chain: the Overstrained tile and the tile it spreads to. */
+  link?: { fromTileId: string; toTileId?: string };
 }
 
 type Mode =
@@ -88,6 +90,19 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
   const [choices, ChoiceHost] = useBoardChoiceHost();
   const resolving = Boolean(resolution);
   const [sheetLow, setSheetLow] = useState(false);
+  // Earlier links of the current Overstrain chain, so the board shows its path.
+  const [chainTrail, setChainTrail] = useState<{ from: string; to: string }[]>([]);
+  const lastLink = useRef<{ key: string; from: string; to: string } | null>(null);
+  const hexOf = (tileId?: string) => tileId ? state.map.placedTiles.find((tile) => tile.instanceId === tileId)?.hexIds[0] : undefined;
+  const linkFrom = hexOf(resolution?.link?.fromTileId);
+  const linkTo = hexOf(resolution?.link?.toTileId);
+  useEffect(() => {
+    const previous = lastLink.current;
+    if (!resolution?.link) setChainTrail([]);
+    else if (previous && previous.key !== resolution.key) setChainTrail((trail) => [...trail, { from: previous.from, to: previous.to }]);
+    lastLink.current = resolution?.link && linkFrom && linkTo ? { key: resolution.key, from: linkFrom, to: linkTo } : null;
+  }, [resolution?.key, linkFrom, linkTo]);
+  const boardLinks = resolution?.link ? [...chainTrail.map((link) => ({ ...link, current: false })), ...(linkFrom && linkTo ? [{ from: linkFrom, to: linkTo, current: true }] : [])] : undefined;
   const hasChoices = choices.marks.size > 0;
   useEffect(() => { setSheetLow(false); }, [resolution?.key]);
   // Bring the first choice into view when a step with board choices begins.
@@ -249,7 +264,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     : "Tap a tile to use it, or an empty space to build.";
   const sheetOpen = compact && (Boolean(card) || resolving);
   const resolutionPanel = resolution ? <aside className="table-resolution" aria-labelledby="table-resolution-title" key={resolution.key}>
-    <header><p className="eyebrow">{resolution.eyebrow}{resolution.steps > 1 ? ` · ${resolution.steps - 1} more to follow` : ""}</p><h2 id="table-resolution-title">{resolution.title}</h2>{choices.hint && <p className="table-resolution-hint">{choices.hint}</p>}
+    <header><p className="eyebrow">{resolution.eyebrow}{resolution.link && chainTrail.length ? ` · link ${chainTrail.length + 1}` : ""}{resolution.steps > 1 ? ` · ${resolution.steps - 1} more to follow` : ""}</p><h2 id="table-resolution-title">{resolution.title}</h2>{choices.hint && <p className="table-resolution-hint">{choices.hint}</p>}
       {compact && hasChoices && <button type="button" className="sheet-toggle" aria-expanded={!sheetLow} onClick={() => setSheetLow((low) => !low)}>{sheetLow ? "Show details" : "Show the board"}</button>}</header>
     <div className="table-resolution-body"><ChoiceHost>{resolution.content}</ChoiceHost></div>
   </aside> : null;
@@ -267,6 +282,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           glowTileIds={glow}
           footprintHexIds={placingFootprint}
           choiceMarks={resolving ? choices.marks : undefined}
+          links={boardLinks}
           coveredBottom={resolving && compact ? (sheetLow ? 150 : Math.round(window.innerHeight * 0.55)) : sheetOpen ? 330 : compact ? 196 : 0}
           onHexTap={handleHexTap}
           onEmptyTap={() => setMode({ kind: "idle" })}

@@ -35,6 +35,8 @@ interface TableBoardProps {
   footprintHexIds?: ReadonlySet<string>;
   /** Choices offered by a resolution step: candidates get a ring, chosen ones a badge. */
   choiceMarks?: ReadonlyMap<string, { selected: boolean; badge?: string; label: string }>;
+  /** Arrows between spaces, e.g. the path of an Overstrain chain. */
+  links?: { from: string; to: string; current: boolean }[];
   /** Pixels at the bottom of the board hidden behind a sheet on small screens. */
   coveredBottom?: number;
   onHexTap: (hexId: string) => void;
@@ -55,7 +57,7 @@ function tileAt(state: GameState): Map<string, PlacedTile> {
 }
 
 export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function TableBoard(
-  { state, selectedHexId, legalHexIds, glowTileIds, footprintHexIds, choiceMarks, coveredBottom = 0, onHexTap, onEmptyTap, popover },
+  { state, selectedHexId, legalHexIds, glowTileIds, footprintHexIds, choiceMarks, links, coveredBottom = 0, onHexTap, onEmptyTap, popover },
   handle
 ) {
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -341,6 +343,26 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
           </g>;
         })}
       </g>
+      {links && links.length > 0 && <g className="board-links" aria-hidden="true">
+        <defs><marker id="board-link-head" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" /></marker></defs>
+        {links.map((link, index) => {
+          const from = boardCellById.get(link.from);
+          const to = boardCellById.get(link.to);
+          if (!from || !to) return null;
+          const dx = to.x - from.x;
+          const dy = to.y - from.y;
+          const length = Math.hypot(dx, dy) || 1;
+          const inset = 13;
+          const x1 = from.x + (dx / length) * inset;
+          const y1 = from.y + (dy / length) * inset;
+          const x2 = to.x - (dx / length) * inset;
+          const y2 = to.y - (dy / length) * inset;
+          const bend = 0.18;
+          const cx = (x1 + x2) / 2 - dy * bend;
+          const cy = (y1 + y2) / 2 + dx * bend;
+          return <path key={`${link.from}_${link.to}_${index}`} className={`board-link${link.current ? " is-current" : ""}`} d={`M${x1} ${y1} Q${cx} ${cy} ${x2} ${y2}`} markerEnd="url(#board-link-head)" />;
+        })}
+      </g>}
       <g className="board-pawns" aria-hidden="true">
         {stewardMarks.map(({ player, index, steward }) => {
           const at = boardCellById.get(player.stewardHexId);

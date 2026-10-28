@@ -921,3 +921,10 @@
 /* Keep Apply in reach: the command bar sits last and sticks to the bottom. */
 .table-resolution-body .effect-prompt { display: flex; flex-direction: column; gap: 12px; }
 .table-resolution-body .effect-prompt > .effect-command-bar { order: 99; margin-bottom: 0; }
+
+/* Overstrain chain path */
+.board-link { fill: none; stroke: var(--bt-rust); stroke-width: 3; stroke-linecap: round; opacity: 0.55; pointer-events: none; }
+.board-link.is-current { opacity: 1; stroke-width: 3.6; stroke-dasharray: 7 4; animation: bt-link-flow 0.9s linear infinite; }
+.board-links marker path { fill: var(--bt-rust); }
+@keyframes bt-link-flow { to { stroke-dashoffset: -11; } }
+@media (prefers-reduced-motion: reduce) { .board-link.is-current { animation: none; } }
