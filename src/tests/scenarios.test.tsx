@@ -167,11 +167,16 @@ describe("free actions after the normal allowance", () => {
     render(<App initialPreview={scenarios["last-action"]} />);
     fireEvent.click(screen.getByRole("button", { name: "Use Steward Power" }));
     fireEvent.click(screen.getByRole("button", { name: experience === "classic" ? "Prepare Free Travel Placement" : "Prepare 0-action Travel" }));
-    if (experience === "classic") fireEvent.click(screen.getByRole("button", { name: "Place Tile" }));
-    fireEvent.click(screen.getByRole("option", { name: /^Path Travel Core/ }));
-
-    fireEvent.click(screen.getByRole("button", { name: "F2, Grasslands" }));
-    fireEvent.click(screen.getByRole("button", { name: "Place Path" }));
+    if (experience === "table") {
+      // The board-first table starts from the space: tap it, then choose the tile.
+      fireEvent.click(screen.getByRole("button", { name: /^F2, empty Grasslands/ }));
+      fireEvent.click(screen.getByRole("button", { name: /^Path\b/ }));
+    } else {
+      if (experience === "classic") fireEvent.click(screen.getByRole("button", { name: "Place Tile" }));
+      fireEvent.click(screen.getByRole("option", { name: /^Path Travel Core/ }));
+      fireEvent.click(screen.getByRole("button", { name: "F2, Grasslands" }));
+      fireEvent.click(screen.getByRole("button", { name: "Place Path" }));
+    }
     expect(readSavedGame()?.state.actionsRemaining).toBe(0);
     expect(readSavedGame()?.state.map.placedTiles).toHaveLength(4);
     expect(readSavedGame()?.state.map.placedTiles[3].hexIds).toEqual(["F2"]);

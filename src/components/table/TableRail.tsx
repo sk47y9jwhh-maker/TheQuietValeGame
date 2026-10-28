@@ -69,7 +69,7 @@ export function TableRail(props: TableRailProps) {
           <strong>{steward.name} power{powerUsed ? " · used this Season" : power.ok ? " · ready" : ""}</strong>
           <p>{steward.powerText}</p>
         </div>
-        {power.ok && <button type="button" onClick={props.onUseStewardPower}>Use</button>}
+        {power.ok && <button type="button" aria-label="Use Steward Power" onClick={props.onUseStewardPower}>Use</button>}
       </div>}
       {state.boonModifiers.length > 0 && <ul className="rail-prepared" aria-label="Prepared effects">
         {state.boonModifiers.map((modifier) => <li key={modifier.id}><strong>{modifier.name}</strong> {modifier.effectText}</li>)}

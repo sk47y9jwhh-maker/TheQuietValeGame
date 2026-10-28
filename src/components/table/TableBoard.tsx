@@ -263,6 +263,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
 
   let popoverStyle: { left: number; top: number; width: number } | null = null;
   let popoverSide: "left" | "right" = "right";
+  if (popover && !size.width) popoverStyle = { left: 12, top: 12, width: popover.width ?? 340 };
   if (popover && size.width) {
     const anchor = boardCellById.get(popover.hexId);
     if (anchor) {
