@@ -1,0 +1,37 @@
+name: Test work branches
+
+# Runs the test suite and production build for work branches only.
+# It never publishes anything; the live site still deploys from main via pages.yml.
+on:
+  workflow_dispatch:
+  push:
+    branches: ["claude/**", "codex/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
