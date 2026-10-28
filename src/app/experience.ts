@@ -3,8 +3,12 @@ import { getScenario, scenarioStorageVersion } from "./scenarioCatalog";
 export const experienceIds = ["table", "tabletop", "classic"] as const;
 export type ExperienceId = (typeof experienceIds)[number];
 
+/** Optional build-time default, used by hosted previews that cannot carry a query string. */
+const defaultExperience = (import.meta.env?.VITE_DEFAULT_EXPERIENCE ?? "") as string;
+
 export function getExperience(search = typeof window === "undefined" ? "" : window.location.search): ExperienceId | null {
-  const value = new URLSearchParams(search).get("experience");
+  const params = new URLSearchParams(search);
+  const value = params.get("experience") ?? (params.has("scenario") ? null : defaultExperience || null);
   return experienceIds.includes(value as ExperienceId) ? value as ExperienceId : null;
 }
 
