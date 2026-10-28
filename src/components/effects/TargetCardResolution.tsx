@@ -1,4 +1,5 @@
-import { isPlayerExperience } from "../../app/experience";
+import { isBoardTableExperience, isPlayerExperience } from "../../app/experience";
+import { TargetCardStepper } from "../table/TargetCardStepper";
 import { targetCardById, targetCardFilterLabels, targetCardRulesText } from "../../data/targetCards";
 import { selectTileName } from "../../engine/selectors";
 import type { GameState, PendingEffectState, TargetCardSelectionDiagnostic } from "../../engine/types";
@@ -92,7 +93,7 @@ export function TargetCardResolution({ state, effect }: { state: GameState; effe
                   </summary>
                   <div className="target-draw-explanation"><TargetTrace state={state} diagnostic={diagnostic} index={index} enhanced /></div>
                 </details>
-                <div className="target-draw-notes"><TargetNotes diagnostic={diagnostic} conditional /></div>
+                <div className="target-draw-notes"><TargetNotes diagnostic={diagnostic} conditional />{isBoardTableExperience() && <TargetCardStepper state={state} effect={effect} index={index} />}</div>
               </article>
             );
           })}

@@ -54,7 +54,10 @@ export function useBoardChoiceHost(): [BoardChoiceView, (props: { children: Reac
 
   const view = useMemo<BoardChoiceView>(() => {
     void signature;
-    const all = [...latest.current.values()].flat();
+    // A walkthrough ("focus:" owner) temporarily takes over the board's marks.
+    const owners = [...latest.current.entries()];
+    const focused = owners.filter(([owner]) => owner.startsWith("focus:"));
+    const all = (focused.length ? focused : owners).map(([, list]) => list).flat();
     const marks = new Map<string, { selected: boolean; badge?: string; label: string }>();
     for (const choice of all) {
       choice.hexIds.forEach((hexId, index) => {
@@ -66,11 +69,14 @@ export function useBoardChoiceHost(): [BoardChoiceView, (props: { children: Reac
     return {
       marks,
       hint: !all.length ? null
+        : focused.length ? "The marked tiles are still in the running."
         : all.every((choice) => choice.fixed) ? "Marked tiles show what will happen."
         : all.some((choice) => choice.selected) ? "Marked tiles show what will happen. Tap one to change it."
         : "Tap a highlighted tile or space to choose it.",
       tap: (hexId) => {
-        const current = [...latest.current.values()].flat();
+        const entries = [...latest.current.entries()];
+        const focusedNow = entries.filter(([owner]) => owner.startsWith("focus:"));
+        const current = (focusedNow.length ? focusedNow : entries).map(([, list]) => list).flat();
         // Prefer a choice that is not yet made, so one tap moves the decision forward.
         const match = current.find((choice) => choice.hexIds.includes(hexId) && !choice.selected) ?? current.find((choice) => choice.hexIds.includes(hexId));
         if (!match) return false;

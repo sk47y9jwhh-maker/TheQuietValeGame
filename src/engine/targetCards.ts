@@ -327,6 +327,47 @@ export function selectTargetWithCard(
   };
 }
 
+/**
+ * The same narrowing as selectTargetWithCard, kept step by step so a player
+ * can watch the card choose. Read-only: it changes nothing and draws nothing.
+ */
+export interface TargetSelectionTrace {
+  eligible: string[];
+  filters: { filter: TargetCardFilterName; preference: string; any: boolean; applied: boolean; remaining: string[] }[];
+  tied: string[];
+  selected: string;
+}
+
+export function traceTargetSelection(
+  state: GameState,
+  candidates: PlacedTile[],
+  card: TargetCardDefinition
+): TargetSelectionTrace | null {
+  let considered = distinctCandidates(candidates);
+  if (considered.length === 0) return null;
+  const eligible = considered.map((tile) => tile.instanceId);
+  const filters: TargetSelectionTrace["filters"] = [];
+  for (const filter of ["class", "side", "adjacency", "strain"] as const) {
+    const any =
+      (filter === "class" && card.tileClass === "any") ||
+      (filter === "side" && card.side === "any") ||
+      (filter === "adjacency" && card.adjacency === "any") ||
+      (filter === "strain" && card.strain === "any");
+    const matches = considered.filter((tile) => matchesPreference(state, tile, filter, card));
+    const applied = matches.length > 0 && !any;
+    if (applied) considered = matches;
+    filters.push({ filter, preference: preferenceLabel(filter, card), any, applied, remaining: considered.map((tile) => tile.instanceId) });
+  }
+  const tied = isOpenTargetCard(card)
+    ? [...considered].sort(comparePlacedTilesByMapCoordinate)
+    : (() => {
+        const extents = considered.map((tile) => ({ tile, extent: directionExtent(tile, card.direction as TargetCardDirection) }));
+        const furthest = Math.max(...extents.map((entry) => entry.extent));
+        return extents.filter((entry) => Math.abs(entry.extent - furthest) < 0.000001).map((entry) => entry.tile).sort(comparePlacedTilesByMapCoordinate);
+      })();
+  return { eligible, filters, tied: tied.map((tile) => tile.instanceId), selected: tied[0].instanceId };
+}
+
 export type TargetCardPlanningResult =
   | {
       kind: "selected";

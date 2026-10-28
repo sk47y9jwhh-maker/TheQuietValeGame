@@ -38,3 +38,17 @@ describe("board-first table resolutions", () => {
     expect(readSavedGame()?.state.players.find((player) => player.temporaryReachHexId)?.temporaryReachHexId).toBe("E5");
   });
 });
+
+describe("Target Card walkthrough", () => {
+  it("narrows the eligible tiles on the board, step by step, to the drawn target", () => {
+    open("warden-response");
+    fireEvent.click(screen.getByRole("button", { name: "Watch the card choose on the board" }));
+    expect(screen.getByText(/Card 19 is drawn\. 2 tiles are eligible/)).toBeInTheDocument();
+    let guard = 0;
+    while (screen.queryByRole("button", { name: "Next" }) && guard++ < 10) fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(screen.getByText(/Cabin \(A2\) is chosen for \+1 Strain\./)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^A2, Cabin.*Chosen: Chosen by the Target Card/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Done" }));
+    expect(screen.getByRole("button", { name: /^A2, Cabin.*Chosen: \+1 Strain/ })).toBeInTheDocument();
+  });
+});

@@ -841,7 +841,7 @@
 .table-resolution > header {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 6;
   display: grid;
   gap: 4px;
   padding: 14px 16px 12px;
@@ -872,9 +872,9 @@
 
 /* Choices on the board */
 .board-hex-choice {
-  fill: rgba(232, 196, 99, 0.18);
-  stroke: var(--bt-brass-light);
-  stroke-width: 2.4;
+  fill: rgba(232, 196, 99, 0.22);
+  stroke: #9a6f12;
+  stroke-width: 3.2;
   stroke-dasharray: 5 3;
   pointer-events: none;
   animation: bt-choice-pulse 1.6s ease-in-out infinite;
@@ -908,3 +908,16 @@
 .table-sheet.is-resolving.is-low { max-height: 150px; overflow: hidden; }
 .table-sheet.is-resolving.is-low .table-resolution-body { display: none; }
 .sheet-toggle { justify-self: start; min-height: 40px; margin-top: 4px; padding: 6px 14px; border: 1px solid #c5bc9a; border-radius: 999px; background: #efe6c8; font: inherit; font-weight: 700; cursor: pointer; }
+
+/* Target Card walkthrough */
+.target-step-open { margin-top: 8px; min-height: 40px; padding: 6px 14px; border: 1px solid #b9a368; border-radius: 999px; background: #f6ecd0; font: inherit; font-weight: 700; color: var(--bt-ink); cursor: pointer; }
+.target-stepper { display: grid; gap: 10px; margin-top: 8px; padding: 12px; border-radius: 12px; background: var(--bt-green); color: #f6f0dc; }
+.target-stepper p { display: grid; gap: 4px; margin: 0; font-size: 0.98rem; line-height: 1.4; color: #f6f0dc; }
+.target-stepper p span { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--bt-brass-light); }
+.target-stepper div { display: flex; justify-content: flex-end; gap: 8px; }
+.target-stepper button { min-height: 40px; padding: 6px 16px; border: 1px solid rgba(246, 240, 220, 0.5); border-radius: 10px; background: transparent; font: inherit; font-weight: 700; color: #f6f0dc; cursor: pointer; }
+.target-stepper button.is-primary { border-color: var(--bt-brass-light); background: var(--bt-brass-light); color: var(--bt-ink); }
+
+/* Keep Apply in reach: the command bar sits last and sticks to the bottom. */
+.table-resolution-body .effect-prompt { display: flex; flex-direction: column; gap: 12px; }
+.table-resolution-body .effect-prompt > .effect-command-bar { order: 99; margin-bottom: 0; }
