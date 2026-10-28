@@ -52,3 +52,13 @@ describe("Target Card walkthrough", () => {
     expect(screen.getByRole("button", { name: /^A2, Cabin.*Chosen: \+1 Strain/ })).toBeInTheDocument();
   });
 });
+
+describe("board-first table finale", () => {
+  it("shows the final scoring beside the finished board", () => {
+    open("finale");
+    expect(screen.getByRole("heading", { name: "Your settlement is complete" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Final Scoring" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: /The Quiet Vale map/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Record Completed Game" })).toBeInTheDocument();
+  });
+});

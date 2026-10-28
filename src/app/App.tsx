@@ -37,6 +37,8 @@ import { TabletopLayout } from "../components/layout/TabletopLayout";
 import { TableSeeding } from "../components/seeding/TableSeeding";
 import { isBoardTableExperience, isPlayerExperience } from "./experience";
 import { TableChrome, TableScreen } from "../components/table/TableScreen";
+import { CompletedGameReview } from "../components/actions/CompletedGameReview";
+import { completedReviewLedger } from "../components/actions/ledgerSummary";
 import { describeAutomaticStep, isAutomaticEffect, revealedCardIds } from "../components/table/automaticSteps";
 import { StewardPlacementPanel } from "../components/setup/StewardPlacementPanel";
 import { GoldenTilePlacementPanel } from "../components/setup/GoldenTilePlacementPanel";
@@ -1004,7 +1006,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
     setInspectedTileId(null);
   }
 
-  if (isBoardTableExperience() && state.phase !== "gameEnd") {
+  if (isBoardTableExperience()) {
     const clearNotice = () => setTableNotice([]);
     return withConfirmation(
       <div className="app-shell board-table-shell">
@@ -1032,7 +1034,13 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
             reset: handleResetGame
           }}
           tray={<BottomDrawer state={state} ledgerCampaign={ledgerCampaign} onResetLedgerCampaign={handleResetLedgerCampaign} onTileInspect={inspectTileDefinition} />}
-          resolution={state.pendingCostChoice ? {
+          resolution={state.phase === "gameEnd" ? {
+            key: "game-end",
+            eyebrow: `Season ${["", "I", "II", "III"][state.season]} · Round ${state.round} of 12`,
+            title: "Your settlement is complete",
+            steps: 1,
+            content: <div className="completed-game-layout"><CompletedGameReview state={state} onRecord={handleRecordLedgerGame} onNewGame={resetGame} ledger={completedReviewLedger(state, ledgerCampaign)} /></div>
+          } : state.pendingCostChoice ? {
             key: state.pendingCostChoice.id,
             eyebrow: "Payment",
             title: state.pendingCostChoice.title,

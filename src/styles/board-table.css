@@ -933,3 +933,15 @@
 .table-stage { flex: 1; min-height: 0; overflow-y: auto; background: var(--bt-table); }
 .table-stage > .table-seeding { min-height: 100%; }
 .experience-table :is(h1, h2, h3)[tabindex="-1"]:focus { outline: none; }
+
+/* Phone: keep zoom controls out of the way of a raised sheet. */
+.table-screen.is-compact:has(.table-sheet.is-raised:not(.is-low)) .board-tools { display: none; }
+.table-resolution-body .completed-game-review { margin: 0; padding: 0; background: none; box-shadow: none; }
+.table-resolution-body .finale-heading { display: grid; gap: 14px; }
+.table-resolution-body .finale-heading h1 { font-size: 2rem; }
+.table-resolution-body .final-score-total { display: flex; width: 100%; padding: 14px 18px; }
+.table-resolution-body .final-score-total strong { margin-left: auto; font-size: 44px; }
+.table-resolution-body .finale-columns { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.table-resolution-body .finale-record-column { grid-row: 1; }
+.table-resolution-body :is(.finale-score-card, .finale-ledger, .finale-objectives) { padding: 16px; }
+.table-resolution-body .completed-game-layout { padding: 0; overflow: visible; background: none; }

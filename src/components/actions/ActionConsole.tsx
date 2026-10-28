@@ -45,7 +45,7 @@ import {
   getLegalPlacementHexes
 } from "../../engine/placementRules";
 import { calculateFinalScore } from "../../engine/scoring";
-import { evaluateLedgerEntries, getLedgerRun } from "../../engine/ledger";
+import { summariseLedger } from "./ledgerSummary";
 import type { LedgerCampaign } from "../../engine/ledgerCampaign";
 import {
   selectCurrentPlayer,
@@ -155,26 +155,7 @@ export function ActionConsole({
   const enhanced = isPlayerExperience();
   const tileChoiceListRef = useRef<HTMLDivElement>(null);
   const currentPlayer = selectCurrentPlayer(state);
-  const ledgerRun = getLedgerRun(state);
-  const ledgerEvaluations = ledgerCampaign ? evaluateLedgerEntries(state, ledgerCampaign) : [];
-  const recordedGame = ledgerCampaign?.games.find((game) => game.id === ledgerRun.gameId);
-  const gameRecorded = ledgerRun.recorded || Boolean(recordedGame);
-  const recordedEntryIds = new Set(recordedGame?.completedEntryIds ?? []);
-  const newRecordEntryIds = new Set(
-    recordedGame?.newRecordEntryIds ?? recordedGame?.completedEntryIds ?? []
-  );
-  const ledgerAchievements = recordedGame
-    ? ledgerEvaluations.filter((evaluation) => recordedEntryIds.has(evaluation.entry.id))
-    : ledgerEvaluations.filter((evaluation) => evaluation.eligible && evaluation.met);
-  const newLedgerAchievements = recordedGame
-    ? ledgerEvaluations.filter((evaluation) => newRecordEntryIds.has(evaluation.entry.id))
-    : ledgerAchievements.filter((evaluation) => {
-        const completion = ledgerCampaign?.completions[evaluation.entry.id];
-        return !completion || (
-          evaluation.entry.playerCountPrestige &&
-          !completion.completedPlayerCounts?.includes(state.playerCount)
-        );
-      });
+  const { recordedGame, gameRecorded, ledgerAchievements, newLedgerAchievements } = summariseLedger(state, ledgerCampaign);
   const placementDraft: TilePlacementDraft = {
     anchorHexId: selectedHexIds[0],
     orientation: placementOrientation,
