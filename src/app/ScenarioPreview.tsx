@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, FlaskConical, RotateCcw } from "lucide-react";
 import { App } from "./App";
-import type { ExperienceId } from "./experience";
+import { experienceClassName, type ExperienceId } from "./experience";
 import { clearAllSaves } from "./persistence";
 import { clearLedgerCampaign } from "./ledgerPersistence";
 import { comparisonScenarios, type ScenarioId } from "./scenarioCatalog";
@@ -9,7 +9,7 @@ import type { PreviewSnapshot } from "./scenarioTypes";
 import snapshots from "./scenarios.generated.json";
 
 const scenarioSnapshots = snapshots as unknown as Record<ScenarioId, PreviewSnapshot>;
-const designNames: Record<ExperienceId, string> = { tabletop: "Living Table", classic: "Baseline" };
+const designNames: Record<ExperienceId, string> = { table: "Board-first Table", tabletop: "Living Table", classic: "Baseline" };
 
 export default function ScenarioPreview({ experience, scenarioId }: { experience: ExperienceId; scenarioId: ScenarioId }) {
   const [simulateSaveFailure, setSimulateSaveFailure] = useState(false);
@@ -37,6 +37,6 @@ export default function ScenarioPreview({ experience, scenarioId }: { experience
       <span className="scenario-status" role="status">{!restartFailed && message}</span>
     </aside>
     {restartFailed && <p className="scenario-restart-error" role="alert">{message}</p>}
-    <div className={`experience-app experience-${experience}`}><App key={revision} initialPreview={scenarioSnapshots[scenarioId]} simulateSaveFailure={simulateSaveFailure} /></div>
+    <div className={`experience-app ${experienceClassName(experience)}`}><App key={revision} initialPreview={scenarioSnapshots[scenarioId]} simulateSaveFailure={simulateSaveFailure} /></div>
   </div>;
 }

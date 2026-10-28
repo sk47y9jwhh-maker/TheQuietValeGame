@@ -3,7 +3,7 @@ import { ArrowRight, Compass, Map } from "lucide-react";
 import { ScenarioLauncher } from "./ScenarioLauncher";
 import { getScenario } from "./scenarioCatalog";
 import { App } from "./App";
-import { getExperience } from "./experience";
+import { experienceClassName, getExperience } from "./experience";
 import { BrandMark } from "../components/common/BrandMark";
 import mapArtwork from "../assets/quiet_vale_map_v02.webp";
 
@@ -16,7 +16,7 @@ export function ExperienceRoot() {
   if (query.has("experience") && !experience) return <main className="scenario-error"><h1>This layout is not included.</h1><p>This review contains the Living Table alternative and the original baseline.</p><a href="./">Return to the concept preview</a></main>;
   if (query.has("scenario") && (!scenario || !experience)) return <main className="scenario-error"><h1>This comparison link is incomplete.</h1><p>Choose a situation and a design in the studio to open a separate demo.</p><a href="./#compare-scenarios">Return to the comparison studio</a></main>;
   if (experience && scenario) return <Suspense fallback={<main className="scenario-error" role="status">Preparing the comparison…</main>}><ScenarioPreview experience={experience} scenarioId={scenario} /></Suspense>;
-  if (experience) return <div className={`experience-app experience-${experience}`}><App /></div>;
+  if (experience) return <div className={`experience-app ${experienceClassName(experience)}`}><App /></div>;
 
   return <main className="design-studio">
     <header className="studio-header"><BrandMark /><span>The Quiet Vale <small>Alternative layout concept</small></span></header>

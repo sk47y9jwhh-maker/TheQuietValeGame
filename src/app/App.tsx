@@ -35,7 +35,9 @@ import { SetupPanel } from "../components/setup/SetupPanel";
 import { TabletopWelcome } from "../components/setup/TabletopWelcome";
 import { TabletopLayout } from "../components/layout/TabletopLayout";
 import { TableSeeding } from "../components/seeding/TableSeeding";
-import { getExperience, isPlayerExperience } from "./experience";
+import { isBoardTableExperience, isPlayerExperience } from "./experience";
+import { TableScreen } from "../components/table/TableScreen";
+import { describeAutomaticStep, isAutomaticEffect, revealedCardIds } from "../components/table/automaticSteps";
 import { StewardPlacementPanel } from "../components/setup/StewardPlacementPanel";
 import { GoldenTilePlacementPanel } from "../components/setup/GoldenTilePlacementPanel";
 import { stewards } from "../data/stewards";
@@ -145,6 +147,8 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
       : restored;
   });
   const [pendingReset, setPendingReset] = useState<"game" | "ledger" | null>(null);
+  const [tableNotice, setTableNotice] = useState<string[]>([]);
+  const [newCards, setNewCards] = useState<{ round: number; ids: Set<string> }>({ round: 0, ids: new Set() });
   const [undoStack, setUndoStack] = useState<GameState[]>([]);
   const [redoStack, setRedoStack] = useState<GameState[]>([]);
   const [selectedHexIds, setSelectedHexIds] = useState<string[]>([]);
@@ -293,6 +297,43 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
       { undoable: false }
     );
   }, [commitGameState, state?.pendingEffects]);
+
+  // Board-first table: steps with nothing to decide happen by themselves and
+  // are reported in a short notice. They are not separate Undo steps, so Undo
+  // returns to before the player's last real decision.
+  useEffect(() => {
+    if (!state || !isBoardTableExperience()) return;
+    if (state.pendingCostChoice || state.pendingDeckReorder || state.pendingGoldenEffect) return;
+    const head = state.pendingEffects[0];
+    if (head) {
+      if (preparePendingEffectQueueHead(state) !== state) return;
+      const effect = refreshPendingEffectForCurrentState(state, head);
+      if (!isAutomaticEffect(state, effect)) return;
+      const message = describeAutomaticStep(effect);
+      commitGameState((current) => resolvePendingEffect(current, {}), { undoable: false });
+      if (message) setTableNotice((lines) => [...lines, message].slice(-3));
+      return;
+    }
+    if (state.phase === "endRound") {
+      commitGameState((current) => resolveEndRound(current), { undoable: false });
+      return;
+    }
+    if (state.phase === "reveal") {
+      const before = state;
+      const after = revealEncounters(before);
+      if (after === before) return;
+      commitKnownGameState(before, after, { undoable: false });
+      const ids = revealedCardIds(before, after);
+      setNewCards({ round: after.round, ids: new Set(ids.map((entry) => entry.id)) });
+      setTableNotice([`Round ${after.round}${after.round % 4 === 1 ? ` · Season ${["", "I", "II", "III"][after.season]} begins` : ""}. ${ids.length ? `Revealed ${ids.map((entry) => entry.name).join(", ")}.` : "No new encounters."}`]);
+    }
+  }, [commitGameState, commitKnownGameState, state]);
+
+  useEffect(() => {
+    if (tableNotice.length === 0) return undefined;
+    const timer = setTimeout(() => setTableNotice([]), 9000);
+    return () => clearTimeout(timer);
+  }, [tableNotice]);
 
   const resetInteractionForState = useCallback((nextState: GameState) => {
     setSelectedHexIds([]);
@@ -787,7 +828,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
   }
 
   if (state.phase === "seeding") {
-    const SeedingExperience = getExperience() === "tabletop" ? TableSeeding : SeedingPanel;
+    const SeedingExperience = isPlayerExperience() ? TableSeeding : SeedingPanel;
     return withConfirmation(
       <div className="app-shell">
         <TopBar
@@ -933,6 +974,40 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
   function closeTileInspector() {
     setInspectedPlacedTileId(null);
     setInspectedTileId(null);
+  }
+
+  if (isBoardTableExperience() && state.phase !== "gameEnd") {
+    const clearNotice = () => setTableNotice([]);
+    return withConfirmation(
+      <div className="app-shell board-table-shell">
+        <TableScreen
+          state={state}
+          canUndo={undoStack.length > 0}
+          canRedo={redoStack.length > 0}
+          newCardIds={newCards.round === state.round ? newCards.ids : new Set()}
+          notice={tableNotice.length ? tableNotice.join(" ") : null}
+          onDismissNotice={clearNotice}
+          handlers={{
+            activate: (placedTileId) => { clearNotice(); commitGameState((current) => activateTile(current, current.currentPlayerId, placedTileId)); },
+            upgrade: (placedTileId) => { clearNotice(); commitGameState((current) => upgradeTile(current, current.currentPlayerId, placedTileId)); },
+            place: (tileId, draft) => { clearNotice(); commitGameState((current) => placeTile(current, current.currentPlayerId, tileId, draft)); },
+            completeArrival: (cardId) => { clearNotice(); commitGameState((current) => completeArrival(current, cardId)); },
+            resolveBurden: (cardId) => { clearNotice(); handleResolveBurden(cardId); },
+            useBoon: (cardId) => { clearNotice(); handleUseFaceUpBoon(cardId); },
+            useStewardPower: () => { clearNotice(); handleUseStewardPower(); },
+            endTurn: () => { clearNotice(); commitGameState((current) => endCurrentTurn(current)); },
+            reveal: () => commitGameState((current) => revealEncounters(current)),
+            endRound: () => commitGameState((current) => resolveEndRound(current)),
+            inspectPlaced: inspectPlacedTile,
+            undo: () => { clearNotice(); handleUndo(); },
+            redo: () => { clearNotice(); handleRedo(); },
+            reset: handleResetGame
+          }}
+          tray={<BottomDrawer state={state} ledgerCampaign={ledgerCampaign} onResetLedgerCampaign={handleResetLedgerCampaign} onTileInspect={inspectTileDefinition} />}
+        />
+        <TileInspectModal state={state} placedTileId={inspectedPlacedTileId} tileId={inspectedTileId} onClose={closeTileInspector} />
+      </div>
+    );
   }
 
   return withConfirmation(
