@@ -18,6 +18,7 @@ import "./styles/payment-review.css";
 import "./styles/resolution-review.css";
 import "./styles/accessibility-review.css";
 import "./styles/board-table.css";
+import "./styles/private-hand.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
