@@ -13,6 +13,7 @@ import { previewTileAction } from "../actions/actionForecast";
 import { TableBoard, type TableBoardHandle } from "./TableBoard";
 import { TableRail } from "./TableRail";
 import { categoryColors, categoryNames } from "./boardGeometry";
+import { useBoardChoiceHost } from "./boardChoices";
 import {
   describeHexOptions,
   describeTileActions,
@@ -51,6 +52,17 @@ interface TableScreenProps {
   onDismissNotice: () => void;
   /** The reference tray (tiles, hand, specials, Ledger, rules). */
   tray: ReactNode;
+  /** A step to settle before play continues: shown beside the board, with its choices on the board. */
+  resolution?: TableResolution | null;
+}
+
+export interface TableResolution {
+  key: string;
+  eyebrow: string;
+  title: string;
+  steps: number;
+  content: ReactNode;
+  sourceTileId?: string;
 }
 
 type Mode =
@@ -71,15 +83,27 @@ function useCompact() {
   return compact;
 }
 
-export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, notice, onDismissNotice, tray }: TableScreenProps) {
+export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, notice, onDismissNotice, tray, resolution }: TableScreenProps) {
   const compact = useCompact();
+  const [choices, ChoiceHost] = useBoardChoiceHost();
+  const resolving = Boolean(resolution);
+  const [sheetLow, setSheetLow] = useState(false);
+  const hasChoices = choices.marks.size > 0;
+  useEffect(() => { setSheetLow(false); }, [resolution?.key]);
+  // Bring the first choice into view when a step with board choices begins.
+  useEffect(() => {
+    if (!resolution || !hasChoices) return;
+    const marks = [...choices.marks.entries()];
+    const first = (marks.find(([, mark]) => mark.selected) ?? marks[0])?.[0];
+    if (first && compact) requestAnimationFrame(() => boardRef.current?.reveal(first));
+  }, [resolution?.key, hasChoices, sheetLow]);
   const boardRef = useRef<TableBoardHandle>(null);
   const [mode, setMode] = useState<Mode>({ kind: "idle" });
   const [railOpen, setRailOpen] = useState(false);
   const isTurn = state.phase === "turns";
 
   // A new turn, round or phase starts with a clear board.
-  useEffect(() => { setMode({ kind: "idle" }); }, [state.currentPlayerId, state.round, state.phase]);
+  useEffect(() => { setMode({ kind: "idle" }); }, [state.currentPlayerId, state.round, state.phase, resolving]);
 
   const selectedHexId = mode.kind === "selected" ? mode.hexId : mode.kind === "placing" ? mode.anchorHexId ?? null : null;
   const selectedTile = mode.kind === "selected" ? getPlacedTileAtHex(state, mode.hexId) : undefined;
@@ -107,9 +131,10 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
   const placingForecast = placing && placingDraft && placingReady ? previewTileAction(state, state.currentPlayerId, { type: "place", tileId: placing.tileId, draft: placingDraft }) : undefined;
 
   const activeForecast: ActionForecast | undefined = placingForecast ?? tileActions?.options.find((option) => option.available)?.forecast;
-  const glow = useMemo(() => tileActions && tileActions.linkedTileIds.length > 0 ? new Set([tileActions.tile.instanceId, ...tileActions.linkedTileIds]) : undefined, [tileActions]);
+  const glow = useMemo(() => resolution?.sourceTileId ? new Set([resolution.sourceTileId]) : tileActions && tileActions.linkedTileIds.length > 0 ? new Set([tileActions.tile.instanceId, ...tileActions.linkedTileIds]) : undefined, [resolution?.sourceTileId, tileActions]);
 
   function handleHexTap(hexId: string) {
+    if (resolving) { choices.tap(hexId); return; }
     if (placing) {
       if (placingKind === "detached") {
         if (!placing.anchorHexId) { if (placingLegal?.has(hexId)) setMode({ ...placing, anchorHexId: hexId }); return; }
@@ -148,7 +173,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     setMode({ ...placing, orientation: orientations[(index + step + orientations.length) % orientations.length] });
   }
 
-  const card = isTurn ? cardFor() : null;
+  const card = isTurn && !resolving ? cardFor() : null;
   function cardFor(): { hexId: string; content: ReactNode } | null {
     if (placing) {
       const name = tileName(placing.tileId);
@@ -218,11 +243,16 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
   const score = calculateFinalScore(state).finalScore;
   const currentPlayer = state.players.find((player) => player.id === state.currentPlayerId);
   const firstPlacementHex = isTurn && currentPlayer && !currentPlayer.hasPlacedFirstTile ? currentPlayer.stewardHexId : null;
-  const legal = placing ? placingLegal : firstPlacementHex && mode.kind === "idle" ? new Set([firstPlacementHex]) : undefined;
+  const legal = resolving ? undefined : placing ? placingLegal : firstPlacementHex && mode.kind === "idle" ? new Set([firstPlacementHex]) : undefined;
   const hint = firstPlacementHex
     ? `Start by building on your Steward’s space at ${firstPlacementHex}. Tap it to see what fits.`
     : "Tap a tile to use it, or an empty space to build.";
-  const sheetOpen = compact && Boolean(card);
+  const sheetOpen = compact && (Boolean(card) || resolving);
+  const resolutionPanel = resolution ? <aside className="table-resolution" aria-labelledby="table-resolution-title" key={resolution.key}>
+    <header><p className="eyebrow">{resolution.eyebrow}{resolution.steps > 1 ? ` · ${resolution.steps - 1} more to follow` : ""}</p><h2 id="table-resolution-title">{resolution.title}</h2>{choices.hint && <p className="table-resolution-hint">{choices.hint}</p>}
+      {compact && hasChoices && <button type="button" className="sheet-toggle" aria-expanded={!sheetLow} onClick={() => setSheetLow((low) => !low)}>{sheetLow ? "Show details" : "Show the board"}</button>}</header>
+    <div className="table-resolution-body"><ChoiceHost>{resolution.content}</ChoiceHost></div>
+  </aside> : null;
 
   return <div className={`table-screen${compact ? " is-compact" : ""}`}>
     <TableTopBar state={state} forecast={activeForecast} score={score} canUndo={canUndo} canRedo={canRedo} onUndo={handlers.undo} onRedo={handlers.redo} onReset={handlers.reset} compact={compact} />
@@ -236,7 +266,8 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           legalHexIds={legal}
           glowTileIds={glow}
           footprintHexIds={placingFootprint}
-          coveredBottom={sheetOpen ? 330 : compact ? 196 : 0}
+          choiceMarks={resolving ? choices.marks : undefined}
+          coveredBottom={resolving && compact ? (sheetLow ? 150 : Math.round(window.innerHeight * 0.55)) : sheetOpen ? 330 : compact ? 196 : 0}
           onHexTap={handleHexTap}
           onEmptyTap={() => setMode({ kind: "idle" })}
           popover={!compact && card ? { hexId: card.hexId, content: card.content, width: 340 } : null}
@@ -247,14 +278,16 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           <button type="button" aria-label="Show the whole board" onClick={() => boardRef.current?.fit()}><Maximize2 size={16} /></button>
         </div>
         {notice && <div className="table-notice" role="status"><p>{notice}</p><button type="button" aria-label="Dismiss" onClick={onDismissNotice}><X size={16} /></button></div>}
-        {!compact && <div className="table-tray">{tray}</div>}
-        {isTurn && !card && !notice && !compact && state.actionsRemaining > 0 && <p className="board-hint">{hint}</p>}
+        {!compact && !resolving && <div className="table-tray">{tray}</div>}
+        {resolving && !compact && choices.hint && !notice && <p className="board-hint">{choices.hint}</p>}
+        {isTurn && !resolving && !card && !notice && !compact && state.actionsRemaining > 0 && <p className="board-hint">{hint}</p>}
       </section>
-      {!compact && <TableRail state={state} newCardIds={newCardIds} onCompleteArrival={handlers.completeArrival} onResolveBurden={handlers.resolveBurden} onUseBoon={handlers.useBoon} onUseStewardPower={handlers.useStewardPower} onPlaceSpecial={(tileId) => setMode({ kind: "placing", tileId, orientation: 3 })} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} />}
+      {!compact && resolutionPanel}
+      {!compact && !resolving && <TableRail state={state} newCardIds={newCardIds} onCompleteArrival={handlers.completeArrival} onResolveBurden={handlers.resolveBurden} onUseBoon={handlers.useBoon} onUseStewardPower={handlers.useStewardPower} onPlaceSpecial={(tileId) => setMode({ kind: "placing", tileId, orientation: 3 })} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} />}
     </main>
-    {compact && <div className={`table-sheet${sheetOpen ? " is-raised" : ""}`}>
+    {compact && <div className={`table-sheet${sheetOpen ? " is-raised" : ""}${resolving ? " is-resolving" : ""}${resolving && sheetLow ? " is-low" : ""}`}>
       <span className="sheet-handle" aria-hidden="true" />
-      {card ? card.content : <CompactTurn state={state} onOpenRail={() => setRailOpen(true)} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} />}
+      {resolutionPanel ?? (card ? card.content : <CompactTurn state={state} onOpenRail={() => setRailOpen(true)} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} />)}
     </div>}
     {compact && railOpen && <div className="rail-overlay" role="dialog" aria-modal="true" aria-label="Turn and encounters">
       <div className="rail-overlay-head"><button type="button" onClick={() => setRailOpen(false)}><ArrowLeft size={18} aria-hidden="true" />Back to the board</button></div>

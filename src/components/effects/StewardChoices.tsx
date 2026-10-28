@@ -7,6 +7,8 @@ import type { EffectAdjustment, GameState, PendingEffectState, PlacedTile } from
 import { TileArtwork } from "../common/TileArtwork";
 import { HexMap } from "../map/HexMap";
 import { TileInspectModal } from "../map/TileInspectModal";
+import { isBoardTableExperience } from "../../app/experience";
+import { useBoardChoices } from "../table/boardChoices";
 
 interface StewardChoiceProps {
   state: GameState;
@@ -38,6 +40,8 @@ export function RangerReachChoice({ state, effect, onApply }: StewardChoiceProps
   const selectedTile = getPlacedTileAtHex(state, selectedHex);
   const adjustment: EffectAdjustment = selectedHex ? { temporaryReachHexUpdates: { [playerId]: selectedHex } } : {};
   const valid = isPendingEffectAdjustmentValid(state, effect, adjustment);
+  const onBoard = isBoardTableExperience();
+  useBoardChoices(`reach_${effect.id}`, legalHexIds.map((hexId) => ({ key: hexId, hexIds: [hexId], label: "Reach this space", badge: selectedHex === hexId ? "◆" : undefined, selected: selectedHex === hexId, onTap: () => setSelectedHex(selectedHex === hexId ? "" : hexId) })));
   return <section className="steward-choice ranger-reach-choice" aria-label="Choose Ranger reach">
     <header><p className="eyebrow">Ranger · temporary reach</p><h2>Reach a new part of the Vale.</h2><p>Choose an empty hex or a tile below 3 Strain, anywhere on the board. Your Steward stays at {player?.stewardHexId}.</p></header>
     <div className="steward-reach-layout">
@@ -54,7 +58,7 @@ export function RangerReachChoice({ state, effect, onApply }: StewardChoiceProps
         {selectedTile && <button type="button" onClick={() => setInspected(selectedTile.instanceId)}>Inspect {selectTileName(selectedTile)}</button>}
         <p className="steward-choice-note">Normal action costs, resources, terrain, water and printed tile rules still apply. The once-per-Season power was spent when you opened this choice. Undo returns to that step.</p>
       </div>
-      <div className="signet-map steward-reach-map"><HexMap state={state} selectedTileId="c15_path" actionMode="reach" selectedHexIds={selectedHex ? [selectedHex] : []} placementOrientation={3} onHexSelect={setSelectedHex} legalHexIds={legalHexIds} mapHint="Choose a hex for temporary reach. Browse with arrow keys. Enter selects. Zoom for larger touch targets." onTileInspect={setInspected} /></div>
+      {!onBoard && <div className="signet-map steward-reach-map"><HexMap state={state} selectedTileId="c15_path" actionMode="reach" selectedHexIds={selectedHex ? [selectedHex] : []} placementOrientation={3} onHexSelect={setSelectedHex} legalHexIds={legalHexIds} mapHint="Choose a hex for temporary reach. Browse with arrow keys. Enter selects. Zoom for larger touch targets." onTileInspect={setInspected} /></div>}
     </div>
     <footer className="steward-choice-actions"><span>{legalHexIds.length === 0 ? "No eligible reach target remains." : valid ? `Ready · reach ${selectedHex} until your turn ends` : "Select one eligible target to continue."}</span><button className="primary-action" disabled={!valid} onClick={() => onApply(adjustment)} type="button">{legalHexIds.length === 0 ? "Continue" : selectedHex && valid ? `Set reach at ${selectedHex}` : "Set reach"}</button></footer>
     {inspected && <TileInspectModal state={state} placedTileId={inspected} onClose={() => setInspected(null)} />}
@@ -78,6 +82,18 @@ export function WardenReliefChoice({ state, effect, onApply }: StewardChoiceProp
     return updates.length ? [`${selectTileName(after)} (${after.hexIds.join(", ")}): ${updates.join(" · ")}`] : [];
   });
   function select(tileId: string, kind: "strain" | "support") { setChoice((current) => current?.tileId === tileId && current.kind === kind ? null : { tileId, kind }); }
+  useBoardChoices(`relief_${effect.id}`, noTargets ? [] : state.map.placedTiles.filter((tile) => tile.strain > 0 || !supported(tile)).map((tile) => {
+    const chosen = choice?.tileId === tile.instanceId ? choice.kind : null;
+    const next = chosen === null ? (tile.strain > 0 ? "strain" : "support") : chosen === "strain" && !supported(tile) ? "support" : null;
+    return {
+      key: tile.instanceId,
+      hexIds: tile.hexIds,
+      label: chosen === "strain" ? "Remove 1 Strain" : chosen === "support" ? "Give Supported" : tile.strain > 0 ? "Remove 1 Strain or give Supported" : "Give Supported",
+      badge: chosen === "strain" ? "−1" : chosen === "support" ? "✚" : undefined,
+      selected: chosen !== null,
+      onTap: () => setChoice(next ? { tileId: tile.instanceId, kind: next } : null)
+    };
+  }));
   return <section className="steward-choice warden-relief-choice" aria-label="Warden relief choice">
     <header><p className="eyebrow">Warden · reveal prevented</p><h2>Give one tile some relief.</h2><p>The Burden remains active. Choose either 1 Strain removed or Supported on one tile. The Warden’s power is now used for Season {state.season}.</p></header>
     {noTargets ? <p className="steward-choice-preview">Every placed tile is unstrained and already Supported, or no tiles are placed. There is no relief to apply.</p> : <div className="warden-tile-choices">{state.map.placedTiles.map((tile) => {

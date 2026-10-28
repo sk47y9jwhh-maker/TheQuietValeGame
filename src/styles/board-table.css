@@ -824,3 +824,87 @@
 @media (prefers-reduced-motion: reduce) {
   .table-sheet { transition: none; }
 }
+
+/* Resolution beside the board: payments, encounter and tile effects. */
+.table-main:has(> .table-resolution) { grid-template-columns: minmax(0, 1fr) clamp(360px, 34vw, 480px); }
+
+.table-resolution {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--bt-paper);
+  color: var(--bt-ink);
+  border-left: 1px solid #d9cdaa;
+}
+
+.table-resolution > header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px 12px;
+  background: var(--bt-paper);
+  border-bottom: 1px solid #e0d5b5;
+}
+
+.table-resolution .eyebrow { margin: 0; color: #6f5d2e; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.table-resolution h2 { margin: 0; font-family: "Alegreya", Georgia, serif; font-size: 1.45rem; line-height: 1.1; color: var(--bt-ink); }
+.table-resolution-hint { margin: 2px 0 0; font-size: 0.9rem; color: var(--bt-ink-soft); }
+.table-resolution:focus-within > header h2:focus { outline: none; }
+
+.table-resolution-body { padding: 12px 14px 20px; min-width: 0; }
+.table-resolution-body > * { max-width: 100%; box-sizing: border-box; }
+.table-resolution-body :is(.effect-prompt, .cost-choice-panel, .steward-choice) { width: auto; max-width: 100%; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; }
+.table-resolution-body :is(h2, h3) { color: var(--bt-ink); }
+.table-resolution-body .effect-command-bar {
+  position: sticky;
+  top: auto;
+  bottom: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin: 10px -4px;
+  background: var(--bt-paper-light);
+  box-shadow: 0 -6px 16px rgba(38, 34, 27, 0.12);
+}
+.table-resolution-body .effect-command-bar .effect-preview-list { grid-column: 1 / -1; grid-row: 2; }
+.table-resolution-body .effect-command-bar .effect-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* Choices on the board */
+.board-hex-choice {
+  fill: rgba(232, 196, 99, 0.18);
+  stroke: var(--bt-brass-light);
+  stroke-width: 2.4;
+  stroke-dasharray: 5 3;
+  pointer-events: none;
+  animation: bt-choice-pulse 1.6s ease-in-out infinite;
+}
+
+.board-hex.is-chosen .board-hex-choice {
+  fill: rgba(130, 80, 59, 0.22);
+  stroke: var(--bt-rust);
+  stroke-width: 3;
+  stroke-dasharray: none;
+  animation: none;
+}
+
+.board-choice-badge { pointer-events: none; }
+.board-choice-badge circle { fill: var(--bt-rust); stroke: #fffaf0; stroke-width: 1.4; }
+.board-choice-badge text { fill: #fffaf0; font: 700 9px/1 "Source Sans 3", system-ui, sans-serif; }
+
+@keyframes bt-choice-pulse { 50% { stroke-opacity: 0.45; } }
+
+.table-sheet.is-resolving { max-height: min(58dvh, 520px); padding-top: 6px; }
+.table-sheet.is-resolving .table-resolution { border: 0; overflow: visible; }
+.table-sheet.is-resolving .table-resolution > header { padding: 4px 2px 8px; }
+.table-sheet.is-resolving .table-resolution-body { padding: 8px 0 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .board-hex-choice { animation: none; }
+}
+.table-resolution { overflow-x: hidden; }
+.table-resolution-body * { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.table-resolution-body :is([class*="grid"], [class*="choices"], [class*="options"]) { grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)) !important; }
+.table-sheet.is-resolving.is-low { max-height: 150px; overflow: hidden; }
+.table-sheet.is-resolving.is-low .table-resolution-body { display: none; }
+.sheet-toggle { justify-self: start; min-height: 40px; margin-top: 4px; padding: 6px 14px; border: 1px solid #c5bc9a; border-radius: 999px; background: #efe6c8; font: inherit; font-weight: 700; cursor: pointer; }

@@ -55,6 +55,7 @@ import type {
   ResourceType
 } from "../../engine/types";
 import { useEffect, useMemo, useState } from "react";
+import { useBoardChoices, type BoardChoice } from "../table/boardChoices";
 
 interface EffectPromptProps {
   state: GameState;
@@ -938,6 +939,86 @@ function StandardEffectPrompt({
         : [cardId]
     );
   }
+
+  // The same choices, offered on the board in the board-first table.
+  const boardChoices: BoardChoice[] = [];
+  const signed = (delta: number) => `${delta > 0 ? "+" : ""}${delta}`;
+  if (isPreparedPreview) {
+    for (const [tileId, delta] of Object.entries(tileStrainDeltas)) {
+      const tile = state.map.placedTiles.find((candidate) => candidate.instanceId === tileId);
+      if (tile && delta) boardChoices.push({ key: `planned_${tileId}`, hexIds: tile.hexIds, label: `${signed(delta)} Strain`, badge: signed(delta), selected: true, fixed: true, onTap: () => {} });
+    }
+    for (const tileId of supportTileIds) {
+      const tile = state.map.placedTiles.find((candidate) => candidate.instanceId === tileId);
+      if (tile) boardChoices.push({ key: `planned_support_${tileId}`, hexIds: tile.hexIds, label: "Supported", badge: "✚", selected: true, fixed: true, onTap: () => {} });
+    }
+  }
+  if (effect.allowRootWeaversPreventionTileId) {
+    for (const tile of rootWeaversTargets) {
+      const selected = rootWeaversPreventionTargetTileId === tile.instanceId;
+      boardChoices.push({ key: `weave_${tile.instanceId}`, hexIds: tile.hexIds, label: "Prevent 1 Strain here", badge: selected ? "−1" : undefined, selected, onTap: () => setRootWeaversPreventionTargetTileId(selected ? undefined : tile.instanceId) });
+    }
+  }
+  if (showStrainCascadeControls && !isPreparedPreview && strainCascadeRule) {
+    if (!strainCascadeAnchorTileId) {
+      for (const tile of strainCascadeAnchorTargets) boardChoices.push({ key: `anchor_${tile.instanceId}`, hexIds: tile.hexIds, label: "Cascade starts here", selected: false, onTap: () => chooseStrainCascadeAnchor(tile.instanceId) });
+    } else {
+      const anchorTile = state.map.placedTiles.find((tile) => tile.instanceId === strainCascadeAnchorTileId);
+      if (anchorTile) boardChoices.push({ key: `anchor_${anchorTile.instanceId}`, hexIds: anchorTile.hexIds, label: "Cascade starts here", badge: strainCascadeRule.anchorStrain ? signed(strainCascadeRule.anchorStrain) : "•", selected: true, onTap: () => { setStrainCascadeAnchorTileId(undefined); setTileStrainDeltas({}); } });
+      for (const tile of strainCascadeSpreadTargets) {
+        const selected = selectedCascadeSpreadIds.includes(tile.instanceId);
+        if (!selected && selectedCascadeSpreadIds.length >= requiredCascadeSpreadTargets) continue;
+        boardChoices.push({ key: `spread_${tile.instanceId}`, hexIds: tile.hexIds, label: `${signed(strainCascadeRule.spreadStrain)} Strain from the cascade`, badge: selected ? signed(strainCascadeRule.spreadStrain) : undefined, selected, onTap: () => toggleStrainCascadeSpread(tile.instanceId) });
+      }
+    }
+  }
+  if (showTileControls && !isPreparedPreview) {
+    for (const tile of tileControlTargets) {
+      const id = tile.instanceId;
+      const delta = tileStrainDeltas[id] ?? 0;
+      if (canAdjustTileStrain && tileControlData.strainTargetIds.has(id)) {
+        if (effect.allowWardenRelief) {
+          if (tile.strain > 0) boardChoices.push({ key: `relief_${id}`, hexIds: tile.hexIds, label: "Remove 1 Strain", badge: delta === -1 ? "−1" : undefined, selected: delta === -1, onTap: () => chooseWardenStrainRelief(id) });
+        } else {
+          const up = canAdjustStrain(id, 1);
+          const down = canAdjustStrain(id, -1);
+          // At the limit ("choose 1 tile"), tapping another tile moves the choice there.
+          const movable = !up && !down && delta === 0 ? Object.entries(tileStrainDeltas).find(([otherId, other]) => otherId !== id && other > 0 && tileControlData.strainTargetIds.has(otherId)) : undefined;
+          if (movable) {
+            boardChoices.push({ key: `strain_${id}`, hexIds: tile.hexIds, label: `Move the ${signed(movable[1])} Strain here`, selected: false, onTap: () => setTileStrainDeltas((current) => { const next = { ...current }; delete next[movable[0]]; next[id] = movable[1]; return next; }) });
+          } else if (up || down || delta) {
+            boardChoices.push({
+              key: `strain_${id}`,
+              hexIds: tile.hexIds,
+              label: delta ? `${signed(delta)} Strain` : up ? "Place Strain here" : "Remove Strain here",
+              badge: delta ? signed(delta) : undefined,
+              selected: delta !== 0 && !(delta > 0 ? up : down),
+              onTap: () => {
+                if (delta === 0) adjustStrain(id, up ? 1 : -1);
+                else if (delta > 0 && up) adjustStrain(id, 1);
+                else if (delta < 0 && down) adjustStrain(id, -1);
+                else setTileStrainDeltas((current) => { const next = { ...current }; delete next[id]; return next; });
+              }
+            });
+          }
+        }
+      }
+      if (canToggleTileSupport && tileControlData.supportTargetIds.has(id)) {
+        const selected = supportTileIds.includes(id);
+        const full = !selected && supportTileIds.length >= (tileAdjustmentRule.support?.maxTargets ?? 0);
+        if (!full) boardChoices.push({ key: `support_${id}`, hexIds: tile.hexIds, label: "Place Supported", badge: selected ? "✚" : undefined, selected, onTap: () => effect.allowWardenRelief ? chooseWardenSupportRelief(id) : toggleSupported(id) });
+      }
+    }
+  }
+  if (effect.allowStewardMovementPlayerId) {
+    const playerId = effect.allowStewardMovementPlayerId;
+    for (const tile of state.map.placedTiles.filter((candidate) => candidate.strain < 3)) {
+      const destinationHexId = tile.hexIds[0];
+      const selected = stewardHexUpdates[playerId] === destinationHexId;
+      boardChoices.push({ key: `move_${tile.instanceId}`, hexIds: [destinationHexId], label: "Move the Steward here", badge: selected ? "◆" : undefined, selected, onTap: () => moveSteward(playerId, destinationHexId) });
+    }
+  }
+  useBoardChoices(`effect_${effect.id}`, boardChoices);
 
   return (
     <section className={`effect-prompt ${sourceCard ? "effect-prompt-card-source" : ""}`}>

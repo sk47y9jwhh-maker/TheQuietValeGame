@@ -33,6 +33,8 @@ interface TableBoardProps {
   legalHexIds?: ReadonlySet<string>;
   glowTileIds?: ReadonlySet<string>;
   footprintHexIds?: ReadonlySet<string>;
+  /** Choices offered by a resolution step: candidates get a ring, chosen ones a badge. */
+  choiceMarks?: ReadonlyMap<string, { selected: boolean; badge?: string; label: string }>;
   /** Pixels at the bottom of the board hidden behind a sheet on small screens. */
   coveredBottom?: number;
   onHexTap: (hexId: string) => void;
@@ -53,7 +55,7 @@ function tileAt(state: GameState): Map<string, PlacedTile> {
 }
 
 export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function TableBoard(
-  { state, selectedHexId, legalHexIds, glowTileIds, footprintHexIds, coveredBottom = 0, onHexTap, onEmptyTap, popover },
+  { state, selectedHexId, legalHexIds, glowTileIds, footprintHexIds, choiceMarks, coveredBottom = 0, onHexTap, onEmptyTap, popover },
   handle
 ) {
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -312,18 +314,20 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
           const inFootprint = footprintHexIds?.has(cell.id) ?? false;
           const selected = selectedHexId === cell.id || Boolean(placed && selectedHexId && placed.hexIds.includes(selectedHexId));
           const glow = Boolean(placed && glowTileIds?.has(placed.instanceId));
+          const choice = choiceMarks?.get(cell.id);
           const name = placed ? selectTileName(placed) : "";
           const label = placed
             ? `${cell.id}, ${name}${placed.side === "upgraded" ? ", upgraded" : ""}, ${placed.strain} Strain${placed.strain >= 3 ? ", Overstrained" : ""}${placed.support.passive || placed.support.singleUse ? ", Supported" : ""}`
             : `${cell.id}, empty ${terrainLabels[cell.terrain]}${legal ? ", legal space" : ""}`;
+          const fullLabel = choice ? `${label}. ${choice.selected ? "Chosen" : "Choice"}: ${choice.label}` : label;
           return <g
             key={cell.id}
             data-hex-id={cell.id}
-            className={["board-hex", `terrain-${cell.terrain}`, legal ? "is-legal" : "", inFootprint ? "is-footprint" : "", selected ? "is-selected" : "", placed ? "is-placed" : ""].join(" ")}
+            className={["board-hex", `terrain-${cell.terrain}`, legal ? "is-legal" : "", inFootprint ? "is-footprint" : "", selected ? "is-selected" : "", placed ? "is-placed" : "", choice ? (choice.selected ? "is-chosen" : "is-choice") : ""].join(" ")}
             role="button"
             tabIndex={cursorHexId === cell.id ? 0 : -1}
-            aria-label={label}
-            aria-pressed={selected}
+            aria-label={fullLabel}
+            aria-pressed={choice ? choice.selected : selected}
             onKeyDown={(event) => onKeyDown(event, cell.id)}
             onFocus={() => setCursorHexId(cell.id)}
           >
@@ -332,6 +336,8 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
             {placed && <TileToken state={state} tile={placed} hexId={cell.id} x={x} y={y} />}
             {(legal || inFootprint) && <polygon className="board-hex-legal" points={hexPoints(x, y, hexRadius - 2.5)} />}
             {selected && <polygon className="board-hex-selected" points={hexPoints(x, y, hexRadius - 1)} />}
+            {choice && <polygon className="board-hex-choice" points={hexPoints(x, y, hexRadius - 2)} />}
+            {choice?.badge && <g className="board-choice-badge" transform={`translate(${x - 15} ${y - 17})`}><circle r={8.5} /><text y={3.4} textAnchor="middle">{choice.badge}</text></g>}
           </g>;
         })}
       </g>

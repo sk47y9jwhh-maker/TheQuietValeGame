@@ -759,20 +759,10 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
     );
   }
 
-  if (state.pendingCostChoice) {
-    return withConfirmation(
-      <ResolutionShell
-        state={state}
-        eyebrow="Resolution"
-        title={isPlayerExperience() ? "Review payment" : "Confirm Payment"}
-        detail="Review the action and resource costs, choose any available payment effects, then confirm. Cancel keeps your resources and actions."
-        onUseFaceUpBoon={handleUseFaceUpBoon}
-        canUndo={undoStack.length > 0}
-        canRedo={redoStack.length > 0}
-        onUndo={handleUndo}
-        onRedo={handleRedo}
-        onReset={handleResetGame}
-      >
+  // On the board-first table, payments and effects during play are settled
+  // beside the board, so their tile choices can be made on the board itself.
+  const tableResolves = isBoardTableExperience() && (state.phase === "turns" || state.phase === "reveal" || state.phase === "endRound");
+  const costChoicePanel = state.pendingCostChoice ? (
         <CostChoicePanel
           state={state}
           pending={state.pendingCostChoice}
@@ -789,15 +779,44 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
           }}
           onCancel={() => commitGameState((current) => cancelCostChoice(current))}
         />
+  ) : null;
+  const headEffect = state.pendingEffects[0] ? refreshPendingEffectForCurrentState(state, state.pendingEffects[0]) : null;
+  const effectPanel = headEffect ? (
+        <EffectPrompt
+          state={state}
+          effect={headEffect}
+          onApply={(adjustment) =>
+            commitGameState((current) => resolvePendingEffect(current, adjustment))
+          }
+          onSkip={() => commitGameState((current) => skipPendingEffect(current))}
+          canCancelWithWarden={canCancelPendingBurdenWithWarden(state).ok}
+          onCancelWithWarden={() =>
+            commitGameState((current) => cancelPendingBurdenWithWarden(current))
+          }
+        />
+  ) : null;
+
+  if (state.pendingCostChoice && !tableResolves) {
+    return withConfirmation(
+      <ResolutionShell
+        state={state}
+        eyebrow="Resolution"
+        title={isPlayerExperience() ? "Review payment" : "Confirm Payment"}
+        detail="Review the action and resource costs, choose any available payment effects, then confirm. Cancel keeps your resources and actions."
+        onUseFaceUpBoon={handleUseFaceUpBoon}
+        canUndo={undoStack.length > 0}
+        canRedo={redoStack.length > 0}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onReset={handleResetGame}
+      >
+        {costChoicePanel}
       </ResolutionShell>
     );
   }
 
-  if (state.pendingEffects[0]) {
-    const pendingEffect = refreshPendingEffectForCurrentState(
-      state,
-      state.pendingEffects[0]
-    );
+  if (headEffect && !tableResolves) {
+    const pendingEffect = headEffect;
     return withConfirmation(
       <ResolutionShell
         state={state}
@@ -811,18 +830,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
         onRedo={handleRedo}
         onReset={handleResetGame}
       >
-        <EffectPrompt
-          state={state}
-          effect={pendingEffect}
-          onApply={(adjustment) =>
-            commitGameState((current) => resolvePendingEffect(current, adjustment))
-          }
-          onSkip={() => commitGameState((current) => skipPendingEffect(current))}
-          canCancelWithWarden={canCancelPendingBurdenWithWarden(state).ok}
-          onCancelWithWarden={() =>
-            commitGameState((current) => cancelPendingBurdenWithWarden(current))
-          }
-        />
+        {effectPanel}
       </ResolutionShell>
     );
   }
@@ -1004,6 +1012,20 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
             reset: handleResetGame
           }}
           tray={<BottomDrawer state={state} ledgerCampaign={ledgerCampaign} onResetLedgerCampaign={handleResetLedgerCampaign} onTileInspect={inspectTileDefinition} />}
+          resolution={state.pendingCostChoice ? {
+            key: state.pendingCostChoice.id,
+            eyebrow: "Payment",
+            title: state.pendingCostChoice.title,
+            steps: 1 + state.pendingEffects.length,
+            content: costChoicePanel
+          } : headEffect ? {
+            key: headEffect.id,
+            eyebrow: headEffect.sourceType === "card" ? "Encounter" : headEffect.sourceType === "tile" ? "Tile effect" : "Resolution",
+            title: headEffect.title,
+            steps: state.pendingEffects.length,
+            content: effectPanel,
+            sourceTileId: headEffect.sourceType === "tile" ? headEffect.sourceId : undefined
+          } : null}
         />
         <TileInspectModal state={state} placedTileId={inspectedPlacedTileId} tileId={inspectedTileId} onClose={closeTileInspector} />
       </div>
