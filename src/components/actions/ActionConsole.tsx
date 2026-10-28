@@ -1,3 +1,14 @@
+import { stewardPreparations, getPreparedStewardPower } from "./preparedActions";
+import { PreparedStewardNotice } from "./PreparedStewardNotice";
+import { UpgradeChoices } from "./UpgradeChoices";
+import { ActiveRangerReach } from "../effects/StewardChoices";
+import { GoldenVialNotice, goldenVialId } from "./GoldenVialNotice";
+import { TurnHandoffPreview } from "./TurnHandoffPreview";
+import { RoundEndPreview } from "./RoundEndPreview";
+import { isPlayerExperience } from "../../app/experience";
+import { CompletedGameReview } from "./CompletedGameReview";
+import { TileCatalogue } from "./TileCatalogue";
+import { TileActionList } from "./TileActionList";
 import { TileArtwork } from "../common/TileArtwork";
 import {
   BadgeCheck,
@@ -8,7 +19,7 @@ import {
   Sparkles,
   SquarePlus
 } from "lucide-react";
-import { useEffect, useRef, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, type KeyboardEvent } from "react";
 import { InspectIconButton } from "../common/InspectIconButton";
 import { EffectPrompt } from "../effects/EffectPrompt";
 import { encounterById } from "../../data/encounters";
@@ -20,6 +31,7 @@ import {
   getActivatableTileIds,
   canCompleteArrival,
   canUseStewardPower,
+  useStewardPower,
   canCancelPendingBurdenWithWarden,
   canResolveBurden,
   getLinkedProductionTileIds,
@@ -57,6 +69,7 @@ interface ActionConsoleProps {
   onModeChange: (mode: string) => void;
   onSelectedTileChange: (tileId: string) => void;
   onTileInspect: (tileId: string) => void;
+  onPlacedTileInspect?: (placedTileId: string) => void;
   onPlacementOrientationChange: (orientation: HexDirection) => void;
   onConfirmPlace: (placementDraft: TilePlacementDraft, tileId?: string) => void;
   onUpgrade: (placedTileId: string) => void;
@@ -73,6 +86,7 @@ interface ActionConsoleProps {
   onEndRound: () => void;
   ledgerCampaign?: LedgerCampaign;
   onRecordLedgerGame?: () => void;
+  onNewGame?: () => void;
 }
 
 const actions = [
@@ -118,6 +132,7 @@ export function ActionConsole({
   onModeChange,
   onSelectedTileChange,
   onTileInspect,
+  onPlacedTileInspect,
   onPlacementOrientationChange,
   onConfirmPlace,
   onUpgrade,
@@ -133,15 +148,17 @@ export function ActionConsole({
   onEndTurn,
   onEndRound,
   ledgerCampaign,
-  onRecordLedgerGame
+  onRecordLedgerGame,
+  onNewGame
 }: ActionConsoleProps) {
+  const inspectPlaced = onPlacedTileInspect ?? ((id: string) => { const tile = state.map.placedTiles.find((candidate) => candidate.instanceId === id); if (tile) onTileInspect(tile.tileId); });
+  const enhanced = isPlayerExperience();
   const tileChoiceListRef = useRef<HTMLDivElement>(null);
   const currentPlayer = selectCurrentPlayer(state);
   const ledgerRun = getLedgerRun(state);
   const ledgerEvaluations = ledgerCampaign ? evaluateLedgerEntries(state, ledgerCampaign) : [];
-  const recordedGame = ledgerRun.recorded
-    ? ledgerCampaign?.games.find((game) => game.id === ledgerRun.gameId)
-    : undefined;
+  const recordedGame = ledgerCampaign?.games.find((game) => game.id === ledgerRun.gameId);
+  const gameRecorded = ledgerRun.recorded || Boolean(recordedGame);
   const recordedEntryIds = new Set(recordedGame?.completedEntryIds ?? []);
   const newRecordEntryIds = new Set(
     recordedGame?.newRecordEntryIds ?? recordedGame?.completedEntryIds ?? []
@@ -168,7 +185,7 @@ export function ActionConsole({
     currentPlayer.id,
     selectedHexIds,
     placementOrientation,
-    selectedTileId
+    enhanced ? undefined : selectedTileId
   );
   const footprintKind = getTileFootprintKind(selectedTileId);
   const footprintSize = getTileFootprintSize(selectedTileId);
@@ -228,6 +245,25 @@ export function ActionConsole({
       modifier.sourceCardId === currentPlayer.stewardId &&
       modifier.remainingUses > 0
   );
+  const preparedSteward = getPreparedStewardPower(state);
+  const preparation = stewardPreparations[currentPlayer.stewardId];
+  const preparationPreview = useMemo(() => {
+    if (!enhanced || actionMode !== "power" || !preparation || !stewardPowerValidation.ok) return null;
+    const next = useStewardPower(state, currentPlayer.id);
+    const count = preparation.mode === "upgrade"
+      ? getUpgradeableTileIds(next, currentPlayer.id).length
+      : getPlaceTileChoices(next, currentPlayer.id, [], placementOrientation).filter((tile) => tile.category === preparation.category && tile.placeableNow).length;
+    return { count, noun: preparation.mode === "upgrade" ? "Core upgrade" : `${preparation.category === "travel" ? "Travel" : "Housing"} tile` };
+  }, [enhanced, actionMode, preparation, stewardPowerValidation.ok, state, currentPlayer.id, placementOrientation]);
+  function reviewPreparedPower() {
+    if (!preparedSteward) return;
+    if (preparedSteward.mode === "place") {
+      const tile = placeableTiles.find((choice) => choice.category === preparedSteward.category && choice.placeableNow)
+        ?? placeableTiles.find((choice) => choice.category === preparedSteward.category && choice.hasEnoughSupply);
+      if (tile) onSelectedTileChange(tile.id);
+    }
+    onModeChange(preparedSteward.mode);
+  }
   const stewardPowerReactive = currentPlayer.stewardId === "warden";
   const stewardPowerStatus = stewardPowerPrepared
     ? "Prepared"
@@ -306,6 +342,7 @@ export function ActionConsole({
         <p className="muted">
           Arrival timers tick down. Expired Arrivals are discarded unresolved.
         </p>
+        {enhanced && <RoundEndPreview state={state} />}
         <button className="primary-action" onClick={onEndRound} type="button">
           Resolve End Round
         </button>
@@ -314,6 +351,12 @@ export function ActionConsole({
   }
 
   if (state.phase === "gameEnd") {
+    if (enhanced) return <CompletedGameReview state={state} onRecord={onRecordLedgerGame} onNewGame={onNewGame} ledger={ledgerCampaign ? {
+      recorded: gameRecorded,
+      recordedScore: recordedGame?.finalScore,
+      eligibleCount: ledgerAchievements.length,
+      newEntries: newLedgerAchievements.map(({ entry }) => ({ id: entry.id, name: entry.name }))
+    } : undefined} />;
     return (
       <aside className="action-console">
         <p className="eyebrow">Game End</p>
@@ -340,7 +383,7 @@ export function ActionConsole({
             <div className="ledger-end-review-heading">
               <div>
                 <p className="eyebrow">Steward’s Ledger</p>
-                <h3>{ledgerRun.recorded ? "Game recorded" : "Ledger review"}</h3>
+                <h3>{gameRecorded ? "Game recorded" : "Ledger review"}</h3>
               </div>
               <strong>{newLedgerAchievements.length} new records</strong>
             </div>
@@ -359,11 +402,11 @@ export function ActionConsole({
             )}
             <button
               className="primary-action"
-              disabled={ledgerRun.recorded}
+              disabled={gameRecorded}
               onClick={onRecordLedgerGame}
               type="button"
             >
-              {ledgerRun.recorded ? "Recorded in Ledger" : "Record Completed Game"}
+              {gameRecorded ? "Recorded in Ledger" : "Record Completed Game"}
             </button>
           </section>
         )}
@@ -385,6 +428,13 @@ export function ActionConsole({
         </span>
         <span className="steward-power-season">Season {state.season}</span>
       </button>
+      {enhanced && <GoldenVialNotice state={state} onPrepare={() => onUseFaceUpBoon(goldenVialId)} onChooseTravel={actionMode === "place" && placeableTiles.some((tile) => tile.id === selectedTileId && tile.category === "travel" && tile.kind === "core") ? undefined : () => {
+        const travel = placeableTiles.find((tile) => tile.kind === "core" && tile.category === "travel" && tile.placeableNow) ?? placeableTiles.find((tile) => tile.kind === "core" && tile.category === "travel" && tile.hasEnoughSupply);
+        if (travel) onSelectedTileChange(travel.id);
+        onModeChange("place");
+      }} />}
+      {enhanced && <PreparedStewardNotice state={state} onReview={preparedSteward && (actionMode !== preparedSteward.mode || (preparedSteward.mode === "place" && !placeableTiles.some((tile) => tile.id === selectedTileId && tile.category === preparedSteward.category))) ? reviewPreparedPower : undefined} />}
+      {enhanced && <ActiveRangerReach state={state} />}
       <div className="action-grid">
         {actions.map((action) => {
           const Icon = action.icon;
@@ -481,7 +531,10 @@ export function ActionConsole({
               </div>
             </div>
           )}
-          <div className="tile-choice-field">
+          {enhanced ? <TileCatalogue state={state} choices={placeableTiles} selectedTileId={selectedTileId} draft={confirmPlacementDraft} selectedHexIds={selectedHexIds} onSelect={onSelectedTileChange} onInspect={onTileInspect} onPlace={(draft, id) => {
+            if (draft.orientation !== undefined) onPlacementOrientationChange(draft.orientation);
+            onConfirmPlace(draft, id);
+          }} /> : <div className="tile-choice-field">
             <span className="field-label">Choose a tile</span>
             <div
               aria-label="Choose a tile"
@@ -560,7 +613,7 @@ export function ActionConsole({
                 );
               })}
             </div>
-          </div>
+          </div>}
         </section>
       )}
 
@@ -570,7 +623,7 @@ export function ActionConsole({
             <Hammer size={18} />
             <h3>Upgrade Tile</h3>
           </div>
-          {upgradeableIds.length === 0 ? (
+          {enhanced ? <UpgradeChoices state={state} selectedHexIds={selectedHexIds} onUpgrade={onUpgrade} onInspect={inspectPlaced} /> : upgradeableIds.length === 0 ? (
             <p className="muted">No reachable affordable basic Core Tiles can upgrade.</p>
           ) : (
             <div className="flow-list">
@@ -611,15 +664,20 @@ export function ActionConsole({
             <Play size={18} />
             <h3>Activate Tile</h3>
           </div>
-          <p className="muted">
+          {enhanced ? <details className="activation-guidance"><summary>How activation works</summary><p className="muted">
             Passive effects—including Shrines and cost reductions—trigger automatically
             when their condition is met. The first linked Resource activation each round
             produces from the whole adjacent group. Later activations produce only from
             the chosen tile.
-          </p>
+          </p></details> : (<p className="muted">
+            Passive effects—including Shrines and cost reductions—trigger automatically
+            when their condition is met. The first linked Resource activation each round
+            produces from the whole adjacent group. Later activations produce only from
+            the chosen tile.
+          </p>)}
           {activatableIds.length === 0 ? (
             <p className="muted">No reachable activated effects are available.</p>
-          ) : (
+          ) : enhanced ? <TileActionList state={state} ids={activatableIds} mode="activate" selectedHexIds={selectedHexIds} onAction={onActivate} onInspect={inspectPlaced} /> : (
             <div className="flow-list">
               {activatableIds.map((placedTileId) => {
                 const tile = state.map.placedTiles.find(
@@ -668,14 +726,14 @@ export function ActionConsole({
             </p>
           ) : (
             <div className="flow-list">
-              {usableBoonIds.map((boonCardId) => (
+              {usableBoonIds.filter((id) => !enhanced || id !== goldenVialId).map((boonCardId) => (
                 <button
                   key={boonCardId}
                   onClick={() => onUseFaceUpBoon(boonCardId)}
                   type="button"
                 >
                   <strong>Interact with {selectEncounterName(boonCardId)}</strong>
-                  <span>Boon: choose whether to use it on the next screen.</span>
+                  <span>Use this Boon now. Any required choices follow.</span>
                 </button>
               ))}
               {arrivalInteractions.map(({ cardId: arrivalCardId, validation }) => {
@@ -688,7 +746,7 @@ export function ActionConsole({
                     onClick={() => onCompleteArrival(arrivalCardId)}
                     type="button"
                   >
-                    <strong>Interact with {selectEncounterName(arrivalCardId)}</strong>
+                    <strong>{enhanced ? "Review completion of " : "Interact with "}{selectEncounterName(arrivalCardId)}</strong>
                     {card?.type === "arrival" && (
                       <span>Requirement: {card.requirementText}</span>
                     )}
@@ -708,7 +766,7 @@ export function ActionConsole({
                   onClick={() => onResolveBurden(burdenCardId)}
                   type="button"
                 >
-                  <strong>Interact with {selectEncounterName(burdenCardId)}</strong>
+                  <strong>{enhanced ? "Review resolution of " : "Interact with "}{selectEncounterName(burdenCardId)}</strong>
                   <span>
                     {getBurdenResolutionCurrentText(
                       encounterById[burdenCardId],
@@ -738,6 +796,10 @@ export function ActionConsole({
             {stewardPowerTiming[currentPlayer.stewardId]}
           </p>
           <p>{steward?.powerText}</p>
+          {preparationPreview && <div className="steward-preparation-preview">
+            <strong>{preparationPreview.count ? `${preparationPreview.count} ${preparationPreview.noun}${preparationPreview.count === 1 ? "" : "s"} available after preparation` : `No ${preparationPreview.noun} available now`}</strong>
+            <p>{preparationPreview.count ? "Review the tile and its resource payment next." : "You may still prepare for a later turn this Season. Reach, resources and tile rules still apply."} Preparing uses your Season power. It spends no actions or resources.</p>
+          </div>}
           {!stewardPowerValidation.ok && !stewardPowerReactive && !stewardPowerPrepared && (
             <ul className="failure-list">
               {stewardPowerValidation.reasons.map((reason) => (
@@ -752,7 +814,7 @@ export function ActionConsole({
             </p>
           ) : stewardPowerPrepared ? (
             <p className="steward-power-reactive-note">
-              This power is prepared. Take the matching tile action to use it.
+              {enhanced ? "Your prepared power is shown above. Review its matching tiles when ready." : "This power is prepared. Take the matching tile action to use it."}
             </p>
           ) : (
             <button
@@ -761,7 +823,7 @@ export function ActionConsole({
               onClick={onUseStewardPower}
               type="button"
             >
-              {stewardPowerButtonLabel[currentPlayer.stewardId] ?? "Use Steward Power"}
+              {(enhanced && preparation?.prepareLabel) || stewardPowerButtonLabel[currentPlayer.stewardId] || "Use Steward Power"}
             </button>
           )}
         </section>
@@ -773,7 +835,7 @@ export function ActionConsole({
             <BadgeCheck size={18} />
             <h3>End Turn</h3>
           </div>
-          <p className="muted">Unused actions are lost.</p>
+          {enhanced ? <TurnHandoffPreview state={state} /> : <p className="muted">Unused actions are lost.</p>}
           <button className="primary-action" onClick={onEndTurn} type="button">
             End {currentPlayer.name}'s Turn
           </button>

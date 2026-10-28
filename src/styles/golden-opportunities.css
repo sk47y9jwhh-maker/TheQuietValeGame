@@ -1,0 +1,19 @@
+.experience-app .golden-opportunity { padding: 14px; border: 1px solid #b69a55; border-radius: 12px; background: #f6eedb; color: #342b1d; display: grid; gap: 10px; }
+.experience-app .golden-opportunity.is-prepared { background: #e7eee2; border-color: #78896c; }
+.experience-app .golden-opportunity header { display: flex; align-items: flex-start; gap: 10px; }
+.experience-app .golden-opportunity header > svg { flex: none; margin-top: 2px; }
+.experience-app .golden-opportunity h3 { margin: 0 0 3px; font-size: 16px; }
+.experience-app .golden-opportunity header strong { font-size: 13px; color: #65502a; }
+.experience-app .golden-opportunity p { margin: 0; font-size: 14px; line-height: 1.5; color: inherit; }
+.experience-app .golden-opportunity button { min-height: 44px; white-space: normal; background: #fffaf0; border: 1px solid #9b813f; color: #342b1d; }
+.experience-app .vial-encounter-reference { display: grid; gap: 8px; }
+.experience-app .vial-encounter-reference summary { min-height: 44px; padding: 12px; cursor: pointer; }
+.experience-app .turn-handoff-preview { display: grid; gap: 10px; padding: 14px; border: 1px solid #c7cbbb; border-radius: 12px; background: #f1f2e9; color: #2d3b2b; }
+.experience-app .turn-handoff-preview p { margin: 0; line-height: 1.5; font-size: 14px; }
+.experience-app .golden-turn-order { max-width: 640px; margin-top: 10px; border-top: 1px solid #d7cda9; }
+.experience-app .golden-turn-order summary { min-height: 44px; padding: 12px 0 6px; cursor: pointer; font-weight: 700; font-size: 14px; color: #ead5a0; }
+.experience-app .golden-turn-order ol { display: grid; gap: 6px; padding: 0; list-style: none; margin: 10px 0 0; }
+.experience-app .golden-turn-order li { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between; font-size: 13px; border-bottom: 1px solid #ddd4be; padding: 5px 0; }
+.experience-app .golden-turn-order li[aria-current] { color: #fff3c4; font-weight: 700; }
+
+.experience-app .golden-opportunity summary { min-height: 44px; padding: 10px 0; font-size: 14px; cursor: pointer; }

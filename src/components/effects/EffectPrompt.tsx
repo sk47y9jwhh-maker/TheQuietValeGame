@@ -1,3 +1,8 @@
+import { AlternativeChoices } from "./AlternativeChoices";
+import { EffectSourceSummary } from "./EffectSourceSummary";
+import { TargetCardResolution } from "./TargetCardResolution";
+import { isPlayerExperience } from "../../app/experience";
+import { RangerReachChoice, WardenReliefChoice } from "./StewardChoices";
 import {
   Check,
   MapPin,
@@ -14,14 +19,8 @@ import {
   neighbourlySupportEffectRuleId
 } from "../../data/effectRules";
 import { resourceLabels, resources } from "../../data/resources";
-import {
-  targetCardById,
-  targetCardFilterLabels,
-  targetCardRulesText
-} from "../../data/targetCards";
 import { getBurdenResolutionCurrentText } from "../common/gameText";
 import { EncounterCard } from "../common/EncounterCard";
-import { TargetCard } from "../common/TargetCard";
 import {
   getEffectSupportTargets,
   getAlternativeEffectRule,
@@ -87,7 +86,13 @@ function normalizeResourceDeltas(
   return next;
 }
 
-export function EffectPrompt({
+export function EffectPrompt(props: EffectPromptProps) {
+  if (isPlayerExperience() && props.effect.allowTemporaryReachPlayerId) return <RangerReachChoice key={props.effect.id} state={props.state} effect={props.effect} onApply={props.onApply} />;
+  if (isPlayerExperience() && props.effect.allowWardenRelief) return <WardenReliefChoice key={props.effect.id} state={props.state} effect={props.effect} onApply={props.onApply} />;
+  return <StandardEffectPrompt {...props} />;
+}
+
+function StandardEffectPrompt({
   state,
   effect,
   onApply,
@@ -232,6 +237,15 @@ export function EffectPrompt({
     effect.ruleId,
     sourceTile
   );
+  const mixedAlternative = alternativeEffectRule?.kind === "pay_or_strain" || alternativeEffectRule?.kind === "pay_or_timer" ? alternativeEffectRule : null;
+  const emptyResourceChoice = isPlayerExperience() && Boolean(mixedAlternative?.requiredChoices === 0 || resourceGainChoiceRule?.amount === 0);
+  const emptyResourceReason = mixedAlternative?.requiredChoices === 0
+    ? mixedAlternative.kind === "pay_or_strain"
+      ? "No eligible tile needs an outcome, so no payment or Strain choice is required."
+      : "No Arrival needs an outcome, so no payment or timer choice is required."
+    : helpStandsRule
+      ? "No Steward occupies an unstrained tile, so there are no resource gains to choose. Any Strain removal is still shown in the preview."
+      : "This effect currently grants no resources to choose.";
   const timerRule = getTimerAdjustmentRule(state, effect.ruleId, sourceTile);
   const strainCascadeRule = useMemo(
     () => getStrainCascadeRule(state, effect.ruleId, sourceTile),
@@ -379,7 +393,7 @@ export function EffectPrompt({
     state.encounters.activeArrivals.length > 0 &&
     (hasTimerSuggestion ||
       Boolean(
-        effect.requiresManualChoice && controlHints.timerChoice
+        (effect.requiresManualChoice || effect.resourceExchangeOptional) && controlHints.timerChoice
       ));
   const hasTileSuggestion =
     Object.values(effect.suggestedAdjustment?.tileStrainDeltas ?? {}).some(
@@ -444,7 +458,8 @@ export function EffectPrompt({
     resourceGainChoiceInvalid ||
     Boolean(burdenResolveInvalid) ||
     Boolean(wardenReliefInvalid) ||
-    tileAdjustmentInvalid
+    tileAdjustmentInvalid ||
+    (Boolean(effect.allowTemporaryReachPlayerId) && !isPendingEffectAdjustmentValid(state, effect, adjustment))
   );
   const previewItems = useMemo(() => {
     const items: string[] = [];
@@ -551,7 +566,11 @@ export function EffectPrompt({
 
     return items;
   }, [adjustment, state.map.placedTiles, state.players, strainCascadeRule]);
-  const isPreparedPreview = !effect.requiresManualChoice && previewItems.length > 0;
+  // A player's draft can be temporarily incomplete. Only fixed suggestions are
+  // acknowledgement previews; optional exchanges must stay editable throughout.
+  const isPreparedPreview = !effect.requiresManualChoice &&
+    !hasEditableResourceChoice &&
+    hasEffectAdjustment(effect.suggestedAdjustment ?? {});
 
   const alternativeResolvedChoices = (() => {
     if (!alternativeEffectRule) return null;
@@ -585,6 +604,13 @@ export function EffectPrompt({
         0
       )
     : null;
+
+  function replaceAlternativeChoices(next: EffectAdjustment) {
+    setResourceDeltas(normalizeResourceDeltas(next));
+    setTileStrainDeltas(next.tileStrainDeltas ?? {});
+    setArrivalTimerDeltas(next.arrivalTimerDeltas ?? {});
+    setRootWeaversPreventionTargetTileId(undefined);
+  }
 
   function resourceStepFor(resource: ResourceType): number {
     if (!alternativeEffectRule?.resources.includes(resource)) return 1;
@@ -915,7 +941,9 @@ export function EffectPrompt({
 
   return (
     <section className={`effect-prompt ${sourceCard ? "effect-prompt-card-source" : ""}`}>
-      {sourceCard ? (
+      {isPlayerExperience() ? (
+        <EffectSourceSummary key={`source_${effect.id}`} effect={effect} season={state.season} card={sourceCard} />
+      ) : sourceCard ? (
         <EncounterCard
           card={sourceCard}
           className="pending-encounter-card"
@@ -949,108 +977,7 @@ export function EffectPrompt({
         </>
       )}
 
-      {effect.targetCardPrepared && (
-        <section className="target-card-resolution" aria-label="Target Card resolution">
-          <div className="target-card-resolution-heading">
-            <div>
-              <p className="eyebrow">
-                {effect.targetCardManualChoice ? "Player targeting" : "Automatic targeting"}
-              </p>
-              <h3>Target Card result</h3>
-            </div>
-            <span>{effect.targetCardDiagnostics?.length ?? 0} card{effect.targetCardDiagnostics?.length === 1 ? "" : "s"} drawn</span>
-          </div>
-
-          {effect.targetCardDiagnostics?.length ? (
-            <div className="target-card-diagnostic-list">
-              {effect.targetCardDiagnostics.map((diagnostic, index) => {
-                const card = targetCardById[diagnostic.cardId];
-                const selectedTile = state.map.placedTiles.find(
-                  (tile) => tile.instanceId === diagnostic.selectedTileId
-                );
-                return (
-                  <article className="target-card-diagnostic" key={diagnostic.id}>
-                    {card && <TargetCard card={card} />}
-                    <div className="target-card-runtime">
-                      <div className="target-card-diagnostic-heading">
-                        <strong>
-                          {diagnostic.role === "primary"
-                            ? "Primary target"
-                            : diagnostic.role === "spread"
-                              ? "Linked target"
-                              : `Target ${index + 1}`}
-                        </strong>
-                        <span>
-                          {diagnostic.manualChoice
-                            ? "Open target"
-                            : diagnostic.direction
-                              ? `${diagnostic.direction} tie direction`
-                              : `Card ${diagnostic.cardId}`}
-                        </span>
-                      </div>
-                      <ol className="target-card-filter-results">
-                        {diagnostic.filters.map((filter) => {
-                          const anyPreference = filter.preference === "Any";
-                          return (
-                            <li
-                              className={anyPreference ? "neutral" : filter.applied ? "applied" : "ignored"}
-                              key={filter.filter}
-                            >
-                              <span>{targetCardFilterLabels[filter.filter]}: {filter.preference}</span>
-                              <strong>{anyPreference ? "Any" : filter.applied ? "Applied" : "Ignored"}</strong>
-                              <small>{filter.beforeCount} → {filter.afterCount} tiles</small>
-                            </li>
-                          );
-                        })}
-                      </ol>
-                      <div className="target-card-selection-result">
-                        {diagnostic.manualChoice ? (
-                          <strong>Choose any eligible tile from the triggering effect’s current pool.</strong>
-                        ) : (
-                          <>
-                            <strong>
-                              Selected: {selectedTile ? selectTileName(selectedTile) : diagnostic.selectedTileId}
-                            </strong>
-                            <span>{diagnostic.selectedHexIds.join(", ")}</span>
-                          </>
-                        )}
-                        {diagnostic.plannedStrain !== undefined && diagnostic.plannedStrain > 0 && (
-                          <span>Receives {diagnostic.plannedStrain} Strain</span>
-                        )}
-                        <small>
-                          Started with {diagnostic.originalEligibleCount} eligible tile{diagnostic.originalEligibleCount === 1 ? "" : "s"}. {diagnostic.directionRequired
-                            ? `The tie direction was required and left ${diagnostic.directionCandidateCount}.`
-                            : diagnostic.manualChoice
-                              ? "The card does not narrow or widen that eligible pool."
-                              : "The tie direction was not required."}
-                          {diagnostic.coordinateFallbackUsed ? " Map-coordinate fallback resolved the exact tie." : ""}
-                          {diagnostic.printedFallbackUsed ? " The effect’s printed fallback supplied this eligible pool." : ""}
-                        </small>
-                        {diagnostic.supportedWillPrevent && (
-                          <small className="target-card-prevention">Supported will prevent 1 Strain after selection.</small>
-                        )}
-                        {diagnostic.goldenGardenWillPrevent && (
-                          <small className="target-card-prevention">The Golden Garden will prevent 1 Strain after selection.</small>
-                        )}
-                        {diagnostic.alternatePrimaryWouldComplete && (
-                          <small className="target-card-warning">Another primary could have completed every linked target. The card-selected primary is retained.</small>
-                        )}
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="muted">No eligible Strain target was available, so no Target Card was drawn.</p>
-          )}
-
-          <details className="target-card-rules">
-            <summary>How Target Cards work</summary>
-            <p>{targetCardRulesText}</p>
-          </details>
-        </section>
-      )}
+      {!isPlayerExperience() && <TargetCardResolution key={`draw_${effect.id}`} state={state} effect={effect} />}
 
       {effect.allowRootWeaversPreventionTileId && rootWeaversTargets.length > 0 && (
         <section className="effect-control-group">
@@ -1085,7 +1012,15 @@ export function EffectPrompt({
         </section>
       )}
 
-      {canCancelWithWarden && onCancelWithWarden && (
+      {canCancelWithWarden && onCancelWithWarden && (isPlayerExperience() ? (
+        <aside className="warden-prevention" aria-label="Warden's response">
+          <p className="eyebrow">Warden · once this Season</p>
+          <h3>Prevent the reveal effect?</h3>
+          <p>The Burden stays active and can still be resolved later. Using the power spends the Warden’s Season {state.season} use.</p>
+          <p>{hasWardenReliefTarget(state) ? "Then choose a tile to remove 1 Strain or give Supported." : "There is no eligible tile for the follow-up relief."}</p>
+          <button className="secondary-action" onClick={onCancelWithWarden} type="button"><ShieldOff size={18} aria-hidden="true" />Use Warden Power: prevent this effect</button>
+        </aside>
+      ) : (
         <button
           className="secondary-action"
           onClick={onCancelWithWarden}
@@ -1094,7 +1029,10 @@ export function EffectPrompt({
           <ShieldOff size={18} />
           Use Warden Power: prevent this effect
         </button>
-      )}
+      ))}
+
+      {isPlayerExperience() && mixedAlternative && mixedAlternative.requiredChoices > 0 && <AlternativeChoices state={state} rule={mixedAlternative} adjustment={adjustment} suggested={effect.suggestedAdjustment} onReplace={replaceAlternativeChoices} />}
+      {emptyResourceChoice && <aside className="empty-effect-choice" aria-label="No resource choice"><h3>{mixedAlternative ? "No eligible outcome" : "No resources to choose"}</h3><p>{emptyResourceReason}</p><p>Review any other effects, then continue.</p></aside>}
 
       <div className="effect-command-bar">
         <span className={cannotApply ? "effect-choice-waiting" : "effect-choice-ready"}>
@@ -1136,7 +1074,7 @@ export function EffectPrompt({
         </div>
       </div>
 
-      {showResourceControls && !isPreparedPreview && (
+      {showResourceControls && !isPreparedPreview && !emptyResourceChoice && (
       <section className="effect-control-group">
         <div className="effect-control-heading">
           <h3>Resources</h3>
@@ -1251,7 +1189,8 @@ export function EffectPrompt({
               const selected = strainCascadeAnchorTileId === tile.instanceId;
               return (
                 <button
-                  aria-label={`Choose ${selectTileName(tile)} as cascade anchor`}
+                  aria-label={`Choose ${selectTileName(tile)} at ${tile.hexIds.join(", ")} as cascade anchor`}
+                  aria-pressed={selected}
                   className={`effect-row tile-effect-row ${selected ? "selected" : ""}`}
                   key={tile.instanceId}
                   onClick={() => chooseStrainCascadeAnchor(tile.instanceId)}
@@ -1279,7 +1218,8 @@ export function EffectPrompt({
                 const selected = selectedCascadeSpreadIds.includes(tile.instanceId);
                 return (
                   <button
-                    aria-label={`Place ${strainCascadeRule.spreadStrain} Strain on adjacent ${selectTileName(tile)}`}
+                    aria-label={`Place ${strainCascadeRule.spreadStrain} Strain on adjacent ${selectTileName(tile)} at ${tile.hexIds.join(", ")}`}
+                    aria-pressed={selected}
                     className={`effect-row tile-effect-row ${selected ? "selected" : ""}`}
                     disabled={
                       !selected &&
@@ -1338,6 +1278,8 @@ export function EffectPrompt({
                   {canAdjustTileStrain && tileControlData.strainTargetIds.has(tile.instanceId) && (
                     effect.allowWardenRelief ? (
                       <button
+                        aria-label={`Remove 1 Strain from ${selectTileName(tile)} at ${tile.hexIds.join(", ")}`}
+                        aria-pressed={tileStrainDeltas[tile.instanceId] === -1}
                         className={tileStrainDeltas[tile.instanceId] === -1 ? "selected" : ""}
                         disabled={tile.strain <= 0}
                         onClick={() => chooseWardenStrainRelief(tile.instanceId)}
@@ -1348,7 +1290,7 @@ export function EffectPrompt({
                     ) : (
                       <>
                         <button
-                          aria-label={`Decrease Strain adjustment for ${selectTileName(tile)}`}
+                          aria-label={`Decrease Strain adjustment for ${selectTileName(tile)} at ${tile.hexIds.join(", ")}`}
                           disabled={!canAdjustStrain(tile.instanceId, -1)}
                           onClick={() => adjustStrain(tile.instanceId, -1)}
                           type="button"
@@ -1360,7 +1302,7 @@ export function EffectPrompt({
                           {tileStrainDeltas[tile.instanceId] ?? 0}
                         </strong>
                         <button
-                          aria-label={`Increase Strain adjustment for ${selectTileName(tile)}`}
+                          aria-label={`Increase Strain adjustment for ${selectTileName(tile)} at ${tile.hexIds.join(", ")}`}
                           disabled={!canAdjustStrain(tile.instanceId, 1)}
                           onClick={() => adjustStrain(tile.instanceId, 1)}
                           type="button"
@@ -1372,7 +1314,8 @@ export function EffectPrompt({
                   )}
                   {canToggleTileSupport && tileControlData.supportTargetIds.has(tile.instanceId) && (
                     <button
-                      aria-label={`Place Supported on ${selectTileName(tile)}`}
+                      aria-label={`Place Supported on ${selectTileName(tile)} at ${tile.hexIds.join(", ")}`}
+                      aria-pressed={supportTileIds.includes(tile.instanceId)}
                       className={supportTileIds.includes(tile.instanceId) ? "selected" : ""}
                       disabled={
                         !supportTileIds.includes(tile.instanceId) &&
@@ -1542,6 +1485,7 @@ export function EffectPrompt({
             : `Exchange the same number of resources in and out, up to ${effect.resourceExchangeLimit}.`}
         </p>
       )}
+      {isPlayerExperience() && <TargetCardResolution key={`draw_${effect.id}`} state={state} effect={effect} />}
       <p className="muted effect-footer">
         <TimerReset size={15} />
         Next effect: {state.pendingEffects[1]?.title ?? "None"}

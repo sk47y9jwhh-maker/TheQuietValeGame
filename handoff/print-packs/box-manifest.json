@@ -1,0 +1,37 @@
+[
+  {
+    "path": "production/box/current/PRINT-AND-ORDER-INSTRUCTIONS.txt",
+    "bytes": 2264,
+    "sha256": "59a376aeb835ac1a6868bcdd20ccbc7c96fe2cec3c7fab5d140a5615034e29bf"
+  },
+  {
+    "path": "production/box/current/box-base-wrap-300ppi.jpg",
+    "bytes": 12833488,
+    "sha256": "2efe94e03e629cacd8b0c854d86884401108ec37ff7cb13a4babc89ac0e1625a"
+  },
+  {
+    "path": "production/box/current/box-lid-wrap-300ppi.jpg",
+    "bytes": 11052437,
+    "sha256": "d93268b9971645a9926ad7d79f63e5796ac299e52b55e98df848390a05157d61"
+  },
+  {
+    "path": "production/box/current/source-template/BGM-12_5x10_5x3-template.pdf",
+    "bytes": 443714,
+    "sha256": "c2298141da1a66f45903f19f9a0a1729b243e0438b129004e86e5102901e1a3f"
+  },
+  {
+    "path": "production/box/current/the-quiet-vale-seasons-of-settlement-box-12_5x10_5x3-upload.pdf",
+    "bytes": 29859454,
+    "sha256": "4a86238360dfac74fee2abe1c39c8f079ca876b63bcae320c9eb81857261924c"
+  },
+  {
+    "path": "production/box/current/the-quiet-vale-seasons-of-settlement-box-production-proof.png",
+    "bytes": 6015444,
+    "sha256": "76c9381ae6c0fa9e659ce7c87c67e2aa52d216f4c14bf59c88c5ca6d994bed35"
+  },
+  {
+    "path": "production/box/current/CUSTOM-INTERNAL-BOX-RFQ-BRIEF.txt",
+    "bytes": 2448,
+    "sha256": "3c8ebfd5622a41aa6f60f14369e1aac079c2982285257b4c072800ef0db69576"
+  }
+]

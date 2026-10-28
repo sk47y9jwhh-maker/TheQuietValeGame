@@ -197,13 +197,13 @@ describe("app smoke flow", () => {
   });
 
   it("resets the active saved game", () => {
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     render(<App />);
 
     fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
     expect(screen.getByRole("heading", { name: "Vanguard" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /reset game/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear board and start over" }));
 
     expect(screen.getAllByText("1 Player").length).toBeGreaterThan(0);
     expect(screen.getByRole("button", { name: /start season i/i })).toBeInTheDocument();

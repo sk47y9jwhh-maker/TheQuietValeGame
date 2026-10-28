@@ -1,5 +1,11 @@
 # The Quiet Vale: Seasons of Settlement
 
+> **Review and authoring handoff branch — 28 October 2026.** Start with
+> [CLAUDE_HANDOFF.md](CLAUDE_HANDOFF.md) for the selected Living Table concept,
+> approved and latest review documents, print packs, source downloads and checks.
+> This branch is not the production release. The baseline documentation below
+> describes the original game; the handoff documents the additional concept.
+
 Fresh responsive web prototype for **The Quiet Vale**, a cooperative tile-laying settlement game for 1-5 players.
 
 ## Current Status

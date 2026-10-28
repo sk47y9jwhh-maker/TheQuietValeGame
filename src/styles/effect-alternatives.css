@@ -1,0 +1,11 @@
+.experience-app .alternative-choices, .experience-app .empty-effect-choice { padding: 14px; border: 1px solid #b6bba9; border-radius: 10px; background: #f7f2e5; color: #2e392e; }
+.experience-app .alternative-choices h3, .experience-app .empty-effect-choice h3 { margin: 0 0 8px; font-size: 18px; }
+.experience-app .alternative-choices p, .experience-app .empty-effect-choice p { font-size: 14px; line-height: 1.5; margin: 8px 0; }
+.experience-app .alternative-shortcuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 8px; margin-top: 12px; }
+.experience-app .alternative-shortcuts button { display: grid; align-content: center; gap: 4px; min-height: 48px; padding: 10px; border: 1px solid #8d9b83; border-radius: 7px; background: #fffdf5; color: #2e392e; white-space: normal; font-size: 14px; font-weight: 700; }
+.experience-app .alternative-shortcuts button[aria-pressed=true] { background: #405a43; border-color: #405a43; color: #fffdf5; }
+.experience-app .alternative-shortcuts button:disabled { background: #eeeae1; border-color: #b6b5ac; color: #66665e; }
+.experience-app .alternative-shortcuts small { font-size: 12px; font-weight: 400; }
+.experience-app .alternative-shortcuts button:focus-visible { outline: 3px solid #987329; outline-offset: 3px; }
+.experience-app .alternative-over-budget { color: #8b382d; font-weight: 700; }
+@media (max-width: 440px) { .experience-app .alternative-shortcuts { grid-template-columns: 1fr; } }

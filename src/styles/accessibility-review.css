@@ -1,0 +1,32 @@
+/* Legible names/totals and focus on the player experiences' dark guide. */
+.experience-app:not(.experience-classic) .map-artwork-credit {
+  color: #5a5549;
+  font-size: .75rem;
+  line-height: 1.4;
+}
+.experience-app .player-guide-help > summary:focus-visible, .experience-app .player-guide .golden-turn-order > summary:focus-visible {
+  outline-color: #f4e0a3;
+}
+@media (max-width: 620px) {
+  .experience-app:not(.experience-classic) .resource-pill {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 2px;
+    padding: 5px 4px;
+    min-height: 54px;
+    white-space: normal;
+  }
+  .experience-app:not(.experience-classic) .resource-pill small {
+    font-size: .75rem;
+    line-height: 1.2;
+  }
+  .experience-app:not(.experience-classic) .resource-pill strong {
+    font-size: 1.125rem;
+    line-height: 1.15;
+  }
+  .experience-app:not(.experience-classic) .resource-fill { justify-self: stretch; }
+}
+
+/* A solid light badge keeps the remaining-action count distinct on the selected view. */
+
+.experience-app .resolution-focus-table .stepper button { scroll-margin-block: 12px; }

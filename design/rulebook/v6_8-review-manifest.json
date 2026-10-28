@@ -1,0 +1,24 @@
+{
+  "version": "6.8",
+  "status": "Polished review edition",
+  "date": "2026-09-12",
+  "files": [
+    {
+      "file": "The_Quiet_Vale_Main_Rulebook_v6_8.pdf",
+      "sha256": "657b7a4fceaf3124117787fbeb719ad4be6d83697765e0e6037ed3db6fb18b37",
+      "bytes": 75103249,
+      "pages": 32
+    },
+    {
+      "file": "The_Quiet_Vale_Main_Rulebook_v6_8.docx",
+      "sha256": "55c618d4cccf6ade20a29b9aa0d41e816db2406c94298986c334717dcf183145",
+      "bytes": 25514031
+    }
+  ],
+  "rules_rebalanced": false,
+  "fidelity_audit_passed": true,
+  "declared_wording_edits": 10,
+  "steward_guides": "Existing v6.7 guides remain compatible and unchanged",
+  "bundle": "/Users/robertlittle/Documents/The Quiet Vale Game/output/releases/The_Quiet_Vale_Polished_Rulebook_v6_8.zip",
+  "bundle_sha256": "ba11eac9a62757097b1de8ac115a52a3eb9261143758f5c7b67d1789091f4caa"
+}

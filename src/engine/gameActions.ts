@@ -2324,10 +2324,25 @@ export function useFaceUpBoon(state: GameState, boonCardId: string): GameState {
   return queueBoonEffectPrompt(nextState, activeBoon);
 }
 
+/** Open a resumable review without paying or consuming a prepared effect. */
+export function reviewArrivalCompletion(state: GameState, arrivalCardId: string): GameState {
+  if (!canCompleteArrival(state, arrivalCardId).ok) return state;
+  return transitionArrivalCompletion(state, arrivalCardId, undefined, true);
+}
+
 export function completeArrival(
   state: GameState,
   arrivalCardId: string,
   costSelection?: CostChoiceSelection
+): GameState {
+  return transitionArrivalCompletion(state, arrivalCardId, costSelection);
+}
+
+function transitionArrivalCompletion(
+  state: GameState,
+  arrivalCardId: string,
+  costSelection?: CostChoiceSelection,
+  reviewPayment = false
 ): GameState {
   if (hasNonCostPendingEffects(state)) return state;
   if (state.pendingCostChoice && !costSelection) return state;
@@ -2365,7 +2380,7 @@ export function completeArrival(
   });
   const paymentOptions = [...boonCostOptions, ...passiveCostOptions];
 
-  if (paymentOptions.length > 0 && !costSelection) {
+  if ((reviewPayment || paymentOptions.length > 0) && !costSelection) {
     return queueCostChoice(state, {
       title: `Complete ${card.name}`,
       action: {

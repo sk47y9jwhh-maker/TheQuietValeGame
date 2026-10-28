@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, ScrollText } from "lucide-react";
 import { encounterById } from "../../data/encounters";
 import { stewardById } from "../../data/stewards";
+import { PrivateHandGate } from "../common/PrivateHandGate";
 import { EncounterCard } from "../common/EncounterCard";
 import { selectCurrentPlayer } from "../../engine/selectors";
 import { validateSeedingSelection } from "../../engine/gameActions";
@@ -87,6 +88,7 @@ export function SeedingPanel({ state, onConfirm }: SeedingPanelProps) {
   }
 
   return (
+    <PrivateHandGate state={state}>
     <main className="command-table setup-flow-table seeding-flow">
       <section className="action-console seeding-control-panel">
         <div className="turn-summary">
@@ -224,6 +226,7 @@ export function SeedingPanel({ state, onConfirm }: SeedingPanelProps) {
         </div>
       )}
     </main>
+    </PrivateHandGate>
   );
 }
 

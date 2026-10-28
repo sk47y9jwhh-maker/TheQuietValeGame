@@ -1,0 +1,32 @@
+[
+  {
+    "path": "the-quiet-vale-steward-aids-v6_7/artifacts/The_Quiet_Vale_A6_Knight_Steward_Aid_v6_7.pdf",
+    "bytes": 27955806,
+    "sha256": "a5ba758207b9d6127e3be6614b01c88639afabad256f1171b61da2547d42968d"
+  },
+  {
+    "path": "the-quiet-vale-steward-aids-v6_7/artifacts/The_Quiet_Vale_A6_Quartermaster_Steward_Aid_v6_7.pdf",
+    "bytes": 27955839,
+    "sha256": "7d3faca3723a0e2a1e535fe52498e1fce719f2298261ebcfb9926bb3db19d2ef"
+  },
+  {
+    "path": "the-quiet-vale-steward-aids-v6_7/artifacts/The_Quiet_Vale_A6_Ranger_Steward_Aid_v6_7.pdf",
+    "bytes": 27955858,
+    "sha256": "68be772e4ef3e74dbe6aa94b88c64a9dd5a6fcbf72207c76b5a2566352f6127a"
+  },
+  {
+    "path": "the-quiet-vale-steward-aids-v6_7/artifacts/The_Quiet_Vale_A6_Sentinel_Steward_Aid_v6_7.pdf",
+    "bytes": 27955773,
+    "sha256": "ab67131636806fd2cc4c82feedebfd7723eef8fcc2a95904b4b92d2b2c50dc44"
+  },
+  {
+    "path": "the-quiet-vale-steward-aids-v6_7/artifacts/The_Quiet_Vale_A6_Vanguard_Steward_Aid_v6_7.pdf",
+    "bytes": 27955807,
+    "sha256": "b96f4cafbfbfee08fc21466da31a7048cd3155682f6da3b9506c003b0f03089d"
+  },
+  {
+    "path": "the-quiet-vale-steward-aids-v6_7/artifacts/The_Quiet_Vale_A6_Warden_Steward_Aid_v6_7.pdf",
+    "bytes": 27955767,
+    "sha256": "b6fe30e5d51407acf326f135736680a8ae77ee2cafaebfb79d5317448d962b38"
+  }
+]

@@ -1,0 +1,55 @@
+.steward-choice { padding: 18px; color: #31442f; font-family: var(--font-ui); }
+.steward-choice header h2 { margin: 8px 0; font: 600 clamp(27px, 3vw, 36px)/1.1 "Alegreya", serif; }
+.steward-choice p { font-size: 15px; line-height: 1.55; }
+.steward-choice header > p:last-child { max-width: 66ch; }
+.steward-choice button { min-height: 44px; padding: 10px 13px; border: 1px solid #aab39c; border-radius: 6px; background: #fffdf7; color: #33482f; font: 600 15px/1.35 var(--font-ui); }
+.steward-choice button:disabled { opacity: .55; cursor: not-allowed; }
+.steward-choice button[aria-pressed="true"] { border-color: #6a511e; background: #f4e7ba; box-shadow: inset 0 0 0 1px #6a511e; }
+.steward-choice button:focus-visible, .steward-choice select:focus-visible { outline: 3px solid #895a1d; outline-offset: 3px; }
+.steward-choice .primary-action { margin: 0; background: #445a3f; color: #fffdf7; }
+.steward-choice-preview { margin: 14px 0; padding: 14px; border: 1px solid #b6c3a7; border-radius: 8px; background: #eaf0e2; }
+.steward-choice-preview strong { font-size: 16px; line-height: 1.45; }
+.steward-choice-preview p { margin: 7px 0 0; }
+.steward-choice-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; border-top: 1px solid #bdc4b2; padding-top: 16px; margin-top: 18px; }
+.steward-choice-actions > span { flex: 1 1 200px; font-size: 14px; line-height: 1.5; }
+.steward-reach-layout { display: grid; gap: 18px; }
+.steward-reach-controls { min-width: 0; }
+.steward-reach-controls label { font-weight: 700; font-size: 15px; }
+.steward-reach-controls select { display: block; width: 100%; min-height: 46px; margin-top: 8px; padding: 8px; border: 1px solid #aab39c; border-radius: 5px; background: #fffdf7; color: #33482f; font: 500 16px var(--font-ui); }
+.steward-reach-map { height: 380px; }
+.steward-choice .steward-choice-note { font-size: 14px; }
+.warden-tile-choices { display: grid; gap: 12px; }
+.warden-tile-choices article { padding: 12px; border: 1px solid #bdc4b2; border-radius: 8px; background: #fffdf7; }
+.warden-tile-choices article.is-selected { border-color: #6a511e; box-shadow: inset 0 0 0 1px #6a511e; }
+.warden-tile-heading { display: flex; align-items: center; gap: 12px; }
+.warden-tile-heading .tile-artwork { flex: 0 0 58px; width: 58px; height: 52px; object-fit: contain; }
+.warden-tile-heading h3 { margin: 0; font: 600 23px/1.2 "Alegreya", serif; }
+.warden-tile-heading p { margin: 4px 0; font-size: 14px; }
+.warden-tile-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.warden-tile-actions button { flex: 1 1 130px; }
+.warden-tile-actions small { display: block; font-size: 12px; font-weight: 400; }
+.steward-choice .steward-inspect { border: 0; background: transparent; text-decoration: underline; font-size: 13px; padding: 8px 0; }
+.warden-prevention { padding: 16px; border: 1px solid #b6c3a7; border-radius: 8px; background: #eaf0e2; margin: 14px 0; }
+.warden-prevention h3 { margin: 6px 0; font: 600 23px "Alegreya", serif; }
+.warden-prevention p { font-size: 14px; line-height: 1.5; }
+.warden-prevention .secondary-action { margin: 8px 0 0; min-height: 44px; }
+.active-ranger-reach { margin: 12px 0; padding: 12px; border: 1px solid #b6c3a7; border-radius: 8px; background: #eaf0e2; color: #31442f; }
+.active-ranger-reach strong { font-size: 14px; line-height: 1.4; }
+.active-ranger-reach p { margin: 5px 0 0; font-size: 13px; line-height: 1.5; }
+@media (min-width: 1100px) { .steward-reach-layout { grid-template-columns: minmax(240px, .7fr) minmax(0, 1fr); } .steward-reach-map { height: 420px; } }
+@media (max-width: 620px) { .steward-choice { padding: 12px; } .steward-choice-actions > button { width: 100%; } .steward-reach-map { height: 360px; } }
+
+.experience-app .prepared-steward-notice { display: grid; gap: 9px; padding: 14px; border: 1px solid #78896c; border-radius: 12px; color: #293b2e; background: #e7eee2; }
+.experience-app .prepared-steward-notice header { display: flex; align-items: center; gap: 8px; }
+.experience-app .prepared-steward-notice h3 { margin: 0; font-size: 16px; }
+.experience-app .prepared-steward-notice p { margin: 0; color: inherit; font-size: 14px; line-height: 1.5; }
+.experience-app .prepared-steward-notice summary, .experience-app .blocked-upgrades > summary { cursor: pointer; min-height: 44px; padding: 10px 0; font-size: 14px; }
+.experience-app .prepared-steward-notice button { min-height: 44px; background: #fffdf5; color: #293b2e; border: 1px solid #78896c; }
+.experience-app .steward-preparation-preview { padding: 12px; margin: 12px 0; background: #f1eee3; border-left: 3px solid #78896c; font-size: 14px; line-height: 1.5; }
+.experience-app .steward-preparation-preview p { margin: 6px 0 0; }
+.experience-app .upgrade-choices { min-width: 0; scroll-margin: 12px; }
+.experience-app .upgrade-choices > h4 { font-size: 15px; margin: 0 0 12px; }
+.experience-app .upgrade-choices:focus { outline: 3px solid #987329; outline-offset: 3px; border-radius: 5px; }
+.experience-app .blocked-upgrades { margin-top: 12px; border-top: 1px solid #b7c1aa; }
+.experience-app .upgrade-blockers { padding-left: 20px; font-size: 14px; line-height: 1.5; color: #793b30; }
+.modifier-row .modifier-owner { font-weight: 700; color: #293b2e; margin: 5px 0; }

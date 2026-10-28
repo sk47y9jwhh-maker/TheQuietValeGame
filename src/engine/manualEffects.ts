@@ -1,3 +1,4 @@
+import { getTemporaryReachHexIds } from "./reachability";
 import { resources, warehouseCap } from "../data/resources";
 import { encounterById } from "../data/encounters";
 import { mapById } from "../data/map";
@@ -222,6 +223,24 @@ function isRootWeaversPreventionAdjustmentValid(
   return selectedStrain > 0 || selectedCascadeAnchor;
 }
 
+function nextPendingEffectId(
+  state: GameState,
+  additional: PendingEffectState[] = [],
+  reservedIds: string[] = []
+): string {
+  // A chained effect must differ from both the queue and its just-resolved head.
+  // The history length stops growing at 80, so length + timestamp alone can collide.
+  const occupied = new Set([
+    ...state.pendingEffects.map((effect) => effect.id),
+    ...additional.map((effect) => effect.id),
+    ...reservedIds
+  ]);
+  const timestamp = Date.now();
+  let sequence = state.pendingEffects.length + state.log.length + additional.length + 1;
+  while (occupied.has(`effect_${sequence}_${timestamp}`)) sequence += 1;
+  return `effect_${sequence}_${timestamp}`;
+}
+
 export function queuePendingEffect(
   state: GameState,
   effect: Omit<PendingEffectState, "id">
@@ -233,7 +252,7 @@ export function queuePendingEffect(
       {
         ...effect,
         controlHints: effect.controlHints ?? describeEffectControls(effect.ruleId),
-        id: `effect_${state.pendingEffects.length + state.log.length + 1}_${Date.now()}`
+        id: nextPendingEffectId(state)
       }
     ]
   });
@@ -249,7 +268,7 @@ export function queuePendingEffectFirst(
       {
         ...effect,
         controlHints: effect.controlHints ?? describeEffectControls(effect.ruleId),
-        id: `effect_${state.pendingEffects.length + state.log.length + 1}_${Date.now()}`
+        id: nextPendingEffectId(state)
       },
       ...state.pendingEffects
     ]
@@ -260,7 +279,8 @@ const overstrainSpreadRuleId = systemEffectRuleId("overstrain-spread");
 
 function queueOverstrainSpreadEffects(
   state: GameState,
-  sourceTileIds: string[]
+  sourceTileIds: string[],
+  resolvedEffectId: string
 ): GameState {
   const sourceTiles = sourceTileIds
     .map((sourceTileId) =>
@@ -312,7 +332,7 @@ function queueOverstrainSpreadEffects(
 
     const sourceName = getPlacedTileName(sourceTile);
     spreadEffects.push({
-      id: `effect_${nextState.pendingEffects.length + nextState.log.length + spreadEffects.length + 1}_${Date.now()}`,
+      id: nextPendingEffectId(nextState, spreadEffects, [resolvedEffectId]),
       sourceType: "tile",
       ruleId: overstrainSpreadRuleId,
       sourceId: sourceTile.instanceId,
@@ -2010,6 +2030,30 @@ function isStewardMoveAdjustmentValid(
   );
 }
 
+function isTemporaryReachAdjustmentValid(
+  state: GameState,
+  effect: PendingEffectState,
+  adjustment: EffectAdjustment
+): boolean {
+  const playerId = effect.allowTemporaryReachPlayerId;
+  if (!playerId || !state.players.some((player) => player.id === playerId)) return false;
+  if (
+    hasResourceChanges(adjustment) ||
+    hasRecordChanges(adjustment.arrivalTimerDeltas) ||
+    hasRecordChanges(adjustment.tileStrainDeltas) ||
+    hasStringRecordChanges(adjustment.stewardHexUpdates) ||
+    Boolean(adjustment.supportTileIds?.length) ||
+    Boolean(adjustment.strainCascadeAnchorTileId) ||
+    Boolean(adjustment.rootWeaversPreventionTargetTileId) ||
+    Boolean(adjustment.ignoredBurdenIds?.length) ||
+    Boolean(adjustment.resolvedBurdenIds?.length)
+  ) return false;
+  const targets = getTemporaryReachHexIds(state);
+  const updates = Object.entries(adjustment.temporaryReachHexUpdates ?? {}).filter(([, hex]) => Boolean(hex));
+  if (!targets.length) return updates.length === 0;
+  return updates.length === 1 && updates[0][0] === playerId && targets.includes(updates[0][1]);
+}
+
 /**
  * Checks the structured parts of a pending-effect adjustment against the
  * current state. This deliberately does not enforce the UI's "make a choice"
@@ -2021,6 +2065,9 @@ export function isPendingEffectAdjustmentValid(
   pendingEffect: PendingEffectState,
   adjustment: EffectAdjustment
 ): boolean {
+  if (pendingEffect.allowTemporaryReachPlayerId || hasStringRecordChanges(adjustment.temporaryReachHexUpdates)) {
+    return isTemporaryReachAdjustmentValid(state, pendingEffect, adjustment);
+  }
   if (
     !hasEffectAdjustment(adjustment) &&
     canResolvePendingEffectWithoutAdjustment(state, pendingEffect)
@@ -2095,6 +2142,7 @@ export function canResolvePendingEffectWithoutAdjustment(
   state: GameState,
   pendingEffect: PendingEffectState
 ): boolean {
+  if (pendingEffect.allowTemporaryReachPlayerId) return getTemporaryReachHexIds(state).length === 0;
   if (pendingEffect.resourceExchangeOptional) return true;
   if (pendingEffect.allowWardenRelief && !hasWardenReliefTarget(state)) {
     return true;
@@ -2258,6 +2306,18 @@ export function resolvePendingEffect(
     effectiveAdjustment = {
       ...effectiveAdjustment,
       tileStrainDeltas: { ...adjustment.tileStrainDeltas }
+    };
+  }
+  // A payment choice can explicitly clear a previously suggested timer loss.
+  // Merging an empty draft into that suggestion would silently restore it.
+  if (
+    adjustment.arrivalTimerDeltas !== undefined &&
+    getAlternativeEffectRule(state, pendingEffect.ruleId,
+      getPendingEffectSourceTile(state, pendingEffect))?.kind === "pay_or_timer"
+  ) {
+    effectiveAdjustment = {
+      ...effectiveAdjustment,
+      arrivalTimerDeltas: { ...adjustment.arrivalTimerDeltas }
     };
   }
   if (
@@ -2648,7 +2708,8 @@ export function resolvePendingEffect(
   };
   nextState = queueOverstrainSpreadEffects(
     nextState,
-    newlyOverstrainedTileIds
+    newlyOverstrainedTileIds,
+    pendingEffect.id
   );
   return refreshPendingEffectQueueHead(
     discardBlockedOverstrainSpreadEffects(nextState)

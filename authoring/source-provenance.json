@@ -1,0 +1,251 @@
+{
+  "scope": "Repository-root detection made portable; optional card capture uses installed Playwright and authoring/card-preview. Original bytes remain in the inputs archive.",
+  "files": [
+    {
+      "path": "working/rules-v6_6/update_rulebook_v6_6.py",
+      "original_sha256": "8da8e23906081c0e37ea719cfec42e9d835f0a86833c44e90afd76991a2a7809",
+      "published_sha256": "8da8e23906081c0e37ea719cfec42e9d835f0a86833c44e90afd76991a2a7809",
+      "changed": false
+    },
+    {
+      "path": "working/rules-v6_7/audit_professional_rulebook.py",
+      "original_sha256": "f20dd03cc38fc538d38df0c5cb7597b7b570ad2149fb8777afc7084d2d2d063d",
+      "published_sha256": "4cd108cb3db9d5d9566bedfcce0e9721f2d7d65c9035601bb2651b6126b16182",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_7/build_professional_rulebook.py",
+      "original_sha256": "5ed260fb04923a87da03cf65bc25ec01c2fa5e4f5c9fec92404d5ab6a881fc94",
+      "published_sha256": "be8a3f22b4bce2aeab24acf2812371ea458e4fbb196eafe2c57217218e02e382",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_7/build_steward_aid.py",
+      "original_sha256": "cf75894f1bf93b891f3d237a960eef881f45d403c44b7a9c9c45002a039aae37",
+      "published_sha256": "c412ee5eb16ace5b8759c60c784793a6cd7317dfa7527bc99536cb859fa6a9e4",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_7/capture-cards.cjs",
+      "original_sha256": "4c750c1463182c88d4a0e093d9b83d07bf55622ebefdb2d71e8ca9ab0c448542",
+      "published_sha256": "44d98d6728d0215e12e8fe2c3897ed05827030af0cf9d92a0f0a28b932d1f7ce",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_7/check_layout.py",
+      "original_sha256": "bc44939b7d70967f2f8d5c39d72dfdf2ae382e9d99f1fd2112f614f20cc285ca",
+      "published_sha256": "b4b8614142d0f6234cdc5e1d26ba673b12b944d271ebf409a5985ce54579bfcf",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_7/optimise_aid_art.py",
+      "original_sha256": "e4a8e7858463a31487891f981d04166b674ff47d372931554faa70ae63a4b050",
+      "published_sha256": "6cae8faa8be04dd1bfd1efc33b86735806fef83a3cd870d3dbbc79dd2bb23b22",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_7/package_suite.py",
+      "original_sha256": "cb0dd1e8be0b3367884dafd26f64d84ba0c4fd7d0c815c58f694065fd61a3d53",
+      "published_sha256": "d124f111ac4de77838235efcddf0a2948c3f507f1f7de69cb9e3e6dc08da40c0",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_7/refine.py",
+      "original_sha256": "badd378dbec05570ef5a6a25430cc2def0c1a9d35b771cdcd399a05511133b7c",
+      "published_sha256": "65d437e4b25ac51ee1bf9acaa3006ae5e362c140328910b49ddeb7da4796eccb",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_7/suite_reference_pages.py",
+      "original_sha256": "70ae9d7644c50fe9ff7055b12516ec632b043ec8638a5f919cdff624ac49109d",
+      "published_sha256": "1fa73ff1d239fbd2adbda24bef6194ab4263007e11b5f3d596299713523a3596",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_7/update_suite.py",
+      "original_sha256": "44a83f8ee4a570a4c6e575b06d9ad3c3bf46b7550225b7a8260a85598cf5721c",
+      "published_sha256": "6b5c523cffdc0e039db3d53847e7d44df4bce6a6fd7ffdf8080339cda075e1a7",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_7/verify_suite.py",
+      "original_sha256": "05edf17fa4c643e3e70c19761e679940fad3dc8f46f342b44cfb6d604a6ea96b",
+      "published_sha256": "5df2e39ce62b33f606ffb52bf536ef0ed8c5b90086f0e29ad44935055232dccf",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_8/audit_professional_rulebook.py",
+      "original_sha256": "1293d8d0281f4ab7d7a2294ab32001f3297df495817a24231ac50f0ee7a47552",
+      "published_sha256": "d7850e25c91e282b143ec3fc1b566aa46d04ab73508050b6461d346465b44dcd",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_8/build_professional_rulebook.py",
+      "original_sha256": "902fd259347b06899000940dcf94de1b821f21b6eb2702937f373e0d91c88d74",
+      "published_sha256": "d3bd58e8e629b602dda9811a7446428dbf6b135e2e9a3e41fbe2ac88941e5f36",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_8/check_editorial.py",
+      "original_sha256": "412aac65c26871764d9f508890747a230a7cbb9c41ba4775abdce05c8839568b",
+      "published_sha256": "6ed25b7a38f3f664cb112b828060d263e67ce0871ed048415097f46a4a15bfef",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_8/editorial-checks.json",
+      "original_sha256": "32dc35d2aa84df3cb8c5eccc9f2451fac79bd2fcd9272b482daaba452b473861",
+      "published_sha256": "32dc35d2aa84df3cb8c5eccc9f2451fac79bd2fcd9272b482daaba452b473861",
+      "changed": false
+    },
+    {
+      "path": "working/rules-v6_8/final_layout.py",
+      "original_sha256": "edb14cf39ee7bcd1cb3081dabdf75d2f0232a7ed9df9bc478e6120e98c98d87c",
+      "published_sha256": "772cf37fdb6dcc2fa503229e79dba1007d25fcd8a3428b08a8ceabbc7bcab564",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_8/package_rulebook.py",
+      "original_sha256": "b88697beafdaadf8fdea399421e0fd05b239b212859944cd9013a9beac9c43b7",
+      "published_sha256": "7c336cd8ecdde1a3a40a56d45447a3d3e5c80a53b27a186f051694ccaac39d92",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_8/polish_reference.py",
+      "original_sha256": "880a63713fe26567a0835cfce75a85f79a1ac68258d3bd3c5aade3eb26fc57d8",
+      "published_sha256": "f925adb62a31b9cdbb53f3d7ebcbe4e7f22d03319ca30da82c9c38915101ddd9",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_8/polish_rulebook.py",
+      "original_sha256": "836a2da30bc80ba3ff57714dac3b694d08daab3b3433b7dab94cf9fa4bbe8d05",
+      "published_sha256": "fdce93f3f1f7885488332365afe2bffa575d27dbd530997d4c0b57f352425aff",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_8/refine_layout.py",
+      "original_sha256": "1c95a64737647e3085367e4964dd7de3b0f2a15e9d94d847f54c57aa1e5fa2f6",
+      "published_sha256": "cec072e6ea1495c9e650e1759fb0c208e27d5d1f1e14557075cf9407d9f13fa5",
+      "changed": true
+    },
+    {
+      "path": "working/rules-v6_8/wording-changes.json",
+      "original_sha256": "c346773d0d3165e5c2a8a5c4e151dff5e52aa06a49e8648bd802e7c25e2b5c1e",
+      "published_sha256": "c346773d0d3165e5c2a8a5c4e151dff5e52aa06a49e8648bd802e7c25e2b5c1e",
+      "changed": false
+    },
+    {
+      "path": "working/rulebook-professional-redesign/audit_professional_rulebook.py",
+      "original_sha256": "21ce301e5b0d04efffb1b21411c526137f421b7945eac07ac2314159863683b8",
+      "published_sha256": "00bd6099cbdfda810ae2f65b0d7b574aa3c7a72aa1878d4c57919bb3bdd45683",
+      "changed": true
+    },
+    {
+      "path": "working/rulebook-professional-redesign/build_professional_rulebook.py",
+      "original_sha256": "90b75a3ad1fb9a0820d6526bdf1e1e55452651253d2c2ba673f82403d4cdc329",
+      "published_sha256": "fe344735965762251c6bddb0667ab5afd47b9076aa719b5d7c64d6b2b6c1a391",
+      "changed": true
+    },
+    {
+      "path": "working/rulebook-v6_4-card-visuals/add_tile_teaching.py",
+      "original_sha256": "00601ca1fa35731e8e1a7e704095ed788e69ad8ad0e394d1221a1ae856385774",
+      "published_sha256": "3b20a595ac63283edb0bfc7b286abcc94f8aebfbb640bc3fb6ff5ac6a1880bbb",
+      "changed": true
+    },
+    {
+      "path": "working/rulebook-v6_4-card-visuals/build_rulebook_v6_4.py",
+      "original_sha256": "bacdf2df6e28185d4703035450bf847802d6b1975f978eaf013037885d384db1",
+      "published_sha256": "bc5feed2bb820ec98e344f98f0dbf5c1c3ada70788cd68a60178e14646959a6d",
+      "changed": true
+    },
+    {
+      "path": "working/rulebook-v6_4-card-visuals/build_target_card_visual.py",
+      "original_sha256": "461963e58fd58d4ec623e3862fb15d9a1faab91abff5535b4f552e8536e30f1e",
+      "published_sha256": "4b2d4920663c6d58ebd56135c120a3f5a1c4832dcc7b8893a5092fffc3c0330f",
+      "changed": true
+    },
+    {
+      "path": "working/rulebook-v6_4-card-visuals/build_tile_teaching_visuals.py",
+      "original_sha256": "141b0bdbd1de4526430c601e4e1ddb7176d65d5d5ddff8f134ab8cc7fa6d7710",
+      "published_sha256": "1d77d0c6fb7ecccb149ed6f7e8dfd70ace13ff77b70ec5519b3679c86b5dda90",
+      "changed": true
+    },
+    {
+      "path": "working/rulebook-v6_4-card-visuals/final-a11y.json",
+      "original_sha256": "dad4c0672481749e3439dbe05892ed8cbc655d75a5a5fcf3598391dd84f5307b",
+      "published_sha256": "dad4c0672481749e3439dbe05892ed8cbc655d75a5a5fcf3598391dd84f5307b",
+      "changed": false
+    },
+    {
+      "path": "working/rulebook-v6_4-card-visuals/final-style-lint.json",
+      "original_sha256": "91f1fbffd27710bf2cc4d02efac24dd80a89c9a6bf00a4b959bd2509bfec3f59",
+      "published_sha256": "91f1fbffd27710bf2cc4d02efac24dd80a89c9a6bf00a4b959bd2509bfec3f59",
+      "changed": false
+    },
+    {
+      "path": "working/rulebook-v6_4-card-visuals/inspect_rulebook.py",
+      "original_sha256": "d7a17d87f1a3d92e45f71ac2a6522504a79a4645fc81aedf28a2ceaa438939ee",
+      "published_sha256": "d7a17d87f1a3d92e45f71ac2a6522504a79a4645fc81aedf28a2ceaa438939ee",
+      "changed": false
+    },
+    {
+      "path": "working/rulebook-v6_4-card-visuals/template-style-evidence.json",
+      "original_sha256": "86ccc14d233506ea2ca944249ff19efc156ddfdfc386bd3c09a3dffcd910fcdc",
+      "published_sha256": "86ccc14d233506ea2ca944249ff19efc156ddfdfc386bd3c09a3dffcd910fcdc",
+      "changed": false
+    },
+    {
+      "path": "working/rulebook-v6_4-card-visuals/update_target_deck_section.py",
+      "original_sha256": "1d4041399c404cd6fc249a67dcdabbfa0707907dd44d4ad95030a976b71e1a4d",
+      "published_sha256": "c8920373ab49e555062a39fde91f031233cb4d64d3fbd2c5eb6c5d685f4df3ed",
+      "changed": true
+    },
+    {
+      "path": "working/steward-aids-redesign/build_steward_aid.py",
+      "original_sha256": "6f8eeef8b585eee1054a51956005a53fbb038c1fb9ce7723b991cc46d488023b",
+      "published_sha256": "680d3a619e6f71bd0507ec11c3dd484ee547f7b2c79dbf8597246ae1d09c6427",
+      "changed": true
+    },
+    {
+      "path": "working/steward-aids-redesign/export_steward_content.ts",
+      "original_sha256": "8f4179a2b3f9961920bedbf97c2befd67fe98d2f4694cc89aaa47e98d9bde016",
+      "published_sha256": "8f4179a2b3f9961920bedbf97c2befd67fe98d2f4694cc89aaa47e98d9bde016",
+      "changed": false
+    },
+    {
+      "path": "working/stewards-ledger-redesign/audit_stewards_ledger.py",
+      "original_sha256": "6b13059198338bdd0db3080897f225ed9d161e7e66867eb96fde04fd2136afbb",
+      "published_sha256": "6d87be3305301e7dec29d4af299a0258b8d986acffec0eb517378270f42edaf4",
+      "changed": true
+    },
+    {
+      "path": "working/stewards-ledger-redesign/build_stewards_ledger.py",
+      "original_sha256": "7858db9f86f8ce9f3fecdd7be4f3434d9e03a2e4d69a1b34290929218ec14862",
+      "published_sha256": "c826807f6bb403362ce17ddb0ebe49247e9a7ee1b73822b10946fdf5af0a90c2",
+      "changed": true
+    },
+    {
+      "path": "working/five-player-docs/build_rulebook_v6_5.py",
+      "original_sha256": "031f8e79ef1a07f51f904696ce7237fad09cef664acc5675b3ebc307ca31e1e4",
+      "published_sha256": "90b9d2c69e85605f69263d2de46ce10e18eef2c48320baf66080b2fc94ca20e0",
+      "changed": true
+    },
+    {
+      "path": "working/five-player-docs/make_contact_sheets.py",
+      "original_sha256": "a8c72e00b86b34edc8482efe43db28c8934f6669b9d2c1cfc12e05adc77564e5",
+      "published_sha256": "a8c72e00b86b34edc8482efe43db28c8934f6669b9d2c1cfc12e05adc77564e5",
+      "changed": false
+    },
+    {
+      "path": "working/five-player-docs/verify_five_player_artifacts.py",
+      "original_sha256": "66e6f7edb2af64dc4c1a6af475b22fe5fa00e20f6da9b7c93ea0f17780871d99",
+      "published_sha256": "66e6f7edb2af64dc4c1a6af475b22fe5fa00e20f6da9b7c93ea0f17780871d99",
+      "changed": false
+    },
+    {
+      "path": "working/document-suite-consistency/audit_document_suite.py",
+      "original_sha256": "e356fde5ecd0dd6e41a5c6e4df8a852e85abae12cbc9e9a483399051f40ecb8c",
+      "published_sha256": "5f0fb982ab9b0dab4fd08241e6f17311f82a825bbe96fa47b46ac79042e395e5",
+      "changed": true
+    }
+  ]
+}

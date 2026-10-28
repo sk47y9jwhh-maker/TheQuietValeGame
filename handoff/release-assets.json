@@ -1,0 +1,58 @@
+{
+  "release_tag": "project-handoff-2026-10-28",
+  "release_url": "https://github.com/sk47y9jwhh-maker/TheQuietValeGame/releases/tag/project-handoff-2026-10-28",
+  "branch": "codex/claude-code-handoff",
+  "approved_rules_version": "6.6",
+  "latest_rulebook_review_version": "6.8",
+  "latest_steward_aids_review_version": "6.7",
+  "assets": [
+    {
+      "name": "The_Quiet_Vale_Latest_Board_Print_Pack.zip",
+      "bytes": 270392914,
+      "sha256": "095987e30cb5a69e0fcca23e69262d25d393893dc77e2633f0d42158e9acfa81",
+      "url": "https://github.com/sk47y9jwhh-maker/TheQuietValeGame/releases/download/project-handoff-2026-10-28/The_Quiet_Vale_Latest_Board_Print_Pack.zip",
+      "group": "print",
+      "extract_to": "."
+    },
+    {
+      "name": "The_Quiet_Vale_Latest_Box_Print_Pack.zip",
+      "bytes": 54767397,
+      "sha256": "bb068cccaee584687b4cc24311e023a7e492741f317c9cd50d4abed768e0446d",
+      "url": "https://github.com/sk47y9jwhh-maker/TheQuietValeGame/releases/download/project-handoff-2026-10-28/The_Quiet_Vale_Latest_Box_Print_Pack.zip",
+      "group": "print",
+      "extract_to": "."
+    },
+    {
+      "name": "The_Quiet_Vale_Latest_Steward_Aids_v6_7.zip",
+      "bytes": 137377715,
+      "sha256": "bbcbea2471ad91fb6171106e2e25d80ab15f578c556b6d27b7dc4849493bc4e2",
+      "url": "https://github.com/sk47y9jwhh-maker/TheQuietValeGame/releases/download/project-handoff-2026-10-28/The_Quiet_Vale_Latest_Steward_Aids_v6_7.zip",
+      "group": "rules",
+      "extract_to": "output/releases"
+    },
+    {
+      "name": "The_Quiet_Vale_Polished_Rulebook_v6_8.zip",
+      "bytes": 86456427,
+      "sha256": "ba11eac9a62757097b1de8ac115a52a3eb9261143758f5c7b67d1789091f4caa",
+      "url": "https://github.com/sk47y9jwhh-maker/TheQuietValeGame/releases/download/project-handoff-2026-10-28/The_Quiet_Vale_Polished_Rulebook_v6_8.zip",
+      "group": "rules",
+      "extract_to": "output/releases/the-quiet-vale-rulebook-v6_8"
+    },
+    {
+      "name": "The_Quiet_Vale_Printed_Rules_v6_6_LOCKED.zip",
+      "bytes": 104942580,
+      "sha256": "0f986083cc95237c0a3aeefa65fb2aa89a6a97b9a7c657f4c7babd2326dd2767",
+      "url": "https://github.com/sk47y9jwhh-maker/TheQuietValeGame/releases/download/project-handoff-2026-10-28/The_Quiet_Vale_Printed_Rules_v6_6_LOCKED.zip",
+      "group": "rules",
+      "extract_to": "output/releases"
+    },
+    {
+      "name": "The_Quiet_Vale_Rulebook_Authoring_Inputs.zip",
+      "bytes": 495212742,
+      "sha256": "7c0e9b429f06036598bac91a5da830ae7df8419f1d43d77362aa29985db017ac",
+      "url": "https://github.com/sk47y9jwhh-maker/TheQuietValeGame/releases/download/project-handoff-2026-10-28/The_Quiet_Vale_Rulebook_Authoring_Inputs.zip",
+      "group": "authoring",
+      "extract_to": "."
+    }
+  ]
+}

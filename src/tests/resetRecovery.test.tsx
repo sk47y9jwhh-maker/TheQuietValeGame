@@ -1,0 +1,153 @@
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { App } from "../app/App";
+import { readSavedGame } from "../app/persistence";
+import { readLedgerCampaign } from "../app/ledgerPersistence";
+import { experienceIds } from "../app/experience";
+import { encounterById } from "../data/encounters";
+import { recordLedgerGame } from "../engine/ledger";
+import snapshots from "../app/scenarios.generated.json";
+import type { PreviewSnapshot } from "../app/scenarioTypes";
+
+const settlement = snapshots.settlement as unknown as PreviewSnapshot;
+const finale = snapshots.finale as unknown as PreviewSnapshot;
+const returning = snapshots.returning as unknown as PreviewSnapshot;
+function openLedgerReset() {
+  fireEvent.click(screen.getByRole("tab", { name: /^Ledger/ }));
+  fireEvent.click(screen.getByRole("tab", { name: "Unlocks" }));
+  fireEvent.click(screen.getByRole("button", { name: "Reset Ledger Progress" }));
+}
+beforeEach(() => { localStorage.clear(); window.history.replaceState(null, "", "/?experience=tabletop&scenario=settlement"); });
+afterEach(() => { vi.restoreAllMocks(); window.history.replaceState(null, "", "/"); });
+
+describe("deliberate local reset and recovery", () => {
+  it.each(experienceIds)("confirms only the active %s board, with safe focus and separate Ledger saves", (experience) => {
+    window.history.replaceState(null, "", `/?experience=${experience}&scenario=settlement`);
+    const untouched = ["quietVale.activeGame.v1", "quietVale.stewardsLedger.v1", `quietVale.preview.${experience}.quietVale.activeGame.v1`, "quietVale.preview.guided.scenario.v1.handoff.quietVale.activeGame.v1"];
+    untouched.forEach((key) => localStorage.setItem(key, "original save"));
+    const nativeConfirm = vi.spyOn(window, "confirm");
+    const preview = { ...settlement, campaign: returning.campaign };
+    const view = render(<App initialPreview={preview} />);
+    const before = readSavedGame();
+    const campaign = readLedgerCampaign();
+    fireEvent.click(screen.getByRole("button", { name: "Reset game" }));
+    const dialog = screen.getByRole("alertdialog", { name: "Start this settlement over?" });
+    expect(dialog).toHaveTextContent("Recorded Ledger progress is kept");
+    expect(screen.getByRole("button", { name: "Keep playing" })).toHaveFocus();
+    expect(view.container).toHaveAttribute("inert");
+    expect(view.container).toHaveAttribute("aria-hidden", "true");
+    expect(document.body.style.overflow).toBe("hidden");
+    expect(readSavedGame()).toEqual(before);
+    fireEvent.keyDown(document.activeElement!, { key: "Tab" });
+    expect(screen.getByRole("button", { name: "Clear board and start over" })).toHaveFocus();
+    fireEvent.keyDown(document.activeElement!, { key: "Tab", shiftKey: true });
+    expect(screen.getByRole("button", { name: "Keep playing" })).toHaveFocus();
+    fireEvent.keyDown(document.activeElement!, { key: "Escape" });
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Reset game" })).toHaveFocus();
+    expect(view.container).not.toHaveAttribute("inert");
+    expect(view.container).not.toHaveAttribute("aria-hidden");
+    expect(document.body.style.overflow).toBe("");
+    expect(readSavedGame()).toEqual(before);
+    fireEvent.click(screen.getByRole("button", { name: "Reset game" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear board and start over" }));
+    expect(readSavedGame()).toBeNull();
+    expect(readLedgerCampaign()).toEqual(campaign);
+    const setupTitle = experience === "classic" ? "New Game" : "Gather your Stewards.";
+    expect(screen.getByRole("heading", { name: setupTitle })).toHaveFocus();
+    untouched.forEach((key) => expect(localStorage.getItem(key)).toBe("original save"));
+    expect(nativeConfirm).not.toHaveBeenCalled();
+    act(() => window.dispatchEvent(new PopStateEvent("popstate", { state: { quietValeHistory: true, quietValeIndex: 0 } })));
+    expect(readSavedGame()).toBeNull();
+    view.unmount();
+    render(<App initialPreview={preview} />);
+    expect(readSavedGame()).toBeNull();
+    expect(readLedgerCampaign()).toEqual(campaign);
+  });
+
+  it("keeps a partial pending choice when cancelled, then resolves that same draft", () => {
+    window.history.replaceState(null, "", "/?experience=tabletop&scenario=choice");
+    render(<App initialPreview={snapshots.choice as unknown as PreviewSnapshot} />);
+    fireEvent.click(screen.getByRole("button", { name: "Decrease Wood adjustment" }));
+    const before = readSavedGame();
+    fireEvent.click(screen.getByRole("button", { name: "Reset game" }));
+    fireEvent.click(screen.getByRole("button", { name: "Keep playing" }));
+    expect(readSavedGame()).toEqual(before);
+    fireEvent.click(screen.getByRole("button", { name: "Increase Food adjustment" }));
+    fireEvent.click(screen.getByRole("button", { name: "Use Quartermaster Power" }));
+    expect(readSavedGame()?.state.pendingEffects).toHaveLength(0);
+    expect(readSavedGame()?.state.warehouse.wood).toBe(12);
+    expect(readSavedGame()?.state.warehouse.food).toBe(11);
+  });
+
+  it("does not reveal a hidden hand or discard its unconfirmed selection on cancellation", () => {
+    const preview = snapshots.handoff as unknown as PreviewSnapshot;
+    render(<App initialPreview={preview} />);
+    fireEvent.click(screen.getByRole("button", { name: "Reset game" }));
+    fireEvent.click(screen.getByRole("button", { name: "Keep playing" }));
+    expect(screen.getByRole("button", { name: "Reveal Vanguard’s hand" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Reveal Vanguard’s hand" }));
+    const card = encounterById[preview.state!.encounters.handsByPlayerId.player_1[0]];
+    fireEvent.click(screen.getByRole("button", { name: `Seed ${card.name} at top` }));
+    fireEvent.click(screen.getByRole("button", { name: "Reset game" }));
+    fireEvent.click(screen.getByRole("button", { name: "Keep playing" }));
+    expect(screen.getByRole("button", { name: "Change Top card" })).toHaveTextContent(card.name);
+    expect(readSavedGame()?.state).toEqual(preview.state);
+  });
+
+  it("allows a retained completed game to be recorded again after clearing its Ledger", () => {
+    const recorded = recordLedgerGame(finale.state!, finale.campaign);
+    const preview = { ...finale, state: recorded.state, campaign: recorded.campaign };
+    const view = render(<App initialPreview={preview} />);
+    openLedgerReset();
+    expect(screen.getByRole("alertdialog")).toHaveTextContent("1 recorded settlement");
+    expect(screen.getByRole("button", { name: "Keep Ledger progress" })).toHaveFocus();
+    fireEvent.click(screen.getByRole("button", { name: "Keep Ledger progress" }));
+    expect(screen.getByRole("button", { name: "Reset Ledger Progress" })).toHaveFocus();
+    expect(readLedgerCampaign()).toEqual(recorded.campaign);
+    fireEvent.click(screen.getByRole("button", { name: "Reset Ledger Progress" }));
+    fireEvent.click(screen.getByRole("button", { name: "Clear Ledger progress" }));
+    expect(readLedgerCampaign().games).toHaveLength(0);
+    expect(readLedgerCampaign().completions).toEqual({});
+    expect(readSavedGame()?.state.map).toEqual(recorded.state.map);
+    expect(readSavedGame()?.state.ledgerRun?.recorded).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Close reference tray" }));
+    expect(screen.getByRole("button", { name: "Record Completed Game" })).toBeEnabled();
+    view.unmount();
+    render(<App initialPreview={preview} />);
+    expect(readLedgerCampaign().games).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Record Completed Game" }));
+    expect(readLedgerCampaign().games).toHaveLength(1);
+    expect(readLedgerCampaign().games[0].id).toBe(recorded.campaign.games[0].id);
+    expect(readLedgerCampaign().games[0].finalScore).toBe(recorded.campaign.games[0].finalScore);
+    expect(screen.getByRole("button", { name: "Recorded in Ledger" })).toBeDisabled();
+  });
+
+  it("keeps board undo and redo without bringing cleared recording metadata back", () => {
+    const recorded = recordLedgerGame(finale.state!, finale.campaign);
+    const state = { ...settlement.state!, ledgerRun: { ...settlement.state!.ledgerRun!, recorded: true } };
+    render(<App initialPreview={{ ...settlement, state, campaign: recorded.campaign }} />);
+    fireEvent.click(screen.getByRole("button", { name: "Activate Tile" }));
+    fireEvent.click(screen.getByRole("button", { name: "Activate Lumber Yard" }));
+    expect(readSavedGame()?.state.warehouse.wood).toBe(10);
+    fireEvent.click(screen.getByRole("button", { name: "Activate Lumber Yard" }));
+    expect(readSavedGame()?.state.warehouse.wood).toBe(12);
+    fireEvent.click(screen.getByRole("button", { name: "Undo last game step" }));
+    expect(readSavedGame()?.state.warehouse.wood).toBe(10);
+    openLedgerReset();
+    fireEvent.click(screen.getByRole("button", { name: "Clear Ledger progress" }));
+    fireEvent.click(screen.getByRole("button", { name: "Close reference tray" }));
+    fireEvent.click(screen.getByRole("button", { name: "Redo undone game step" }));
+    expect(readSavedGame()?.state.warehouse.wood).toBe(12);
+    expect(readSavedGame()?.state.actionsRemaining).toBe(2);
+    expect(readSavedGame()?.state.ledgerRun?.recorded).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Undo last game step" }));
+    expect(readSavedGame()?.state.warehouse.wood).toBe(10);
+    expect(readSavedGame()?.state.ledgerRun?.recorded).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Undo last game step" }));
+    expect(readSavedGame()?.state.warehouse.wood).toBe(8);
+    expect(readSavedGame()?.state.actionsRemaining).toBe(4);
+    expect(readSavedGame()?.state.ledgerRun?.recorded).toBe(false);
+    expect(readLedgerCampaign().games).toHaveLength(0);
+  });
+});

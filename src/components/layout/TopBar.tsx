@@ -11,6 +11,8 @@ import { stewardById } from "../../data/stewards";
 import { selectCurrentPlayer } from "../../engine/selectors";
 import type { GameState } from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
+import { isPlayerExperience } from "../../app/experience";
+import { PlayerGuide } from "./PlayerGuide";
 
 type ResourceFillStyle = CSSProperties & { "--resource-fill": string };
 type BrowserFullscreenDocument = Document & {
@@ -64,6 +66,7 @@ export function TopBar({
   onRedo,
   onReset
 }: TopBarProps) {
+  const tabletop = isPlayerExperience();
   const currentPlayer = selectCurrentPlayer(state);
   const steward = stewardById[currentPlayer.stewardId];
   const [fullscreenSupported, setFullscreenSupported] = useState(false);
@@ -107,11 +110,12 @@ export function TopBar({
   }, []);
 
   return (
+    <>
     <header className="top-bar">
       <div className="top-brand">
         <BrandMark />
         <div>
-          <strong>The Quiet Vale</strong>
+          <strong>{tabletop ? <a href="?" aria-label="The Quiet Vale experience studio">The Quiet Vale</a> : "The Quiet Vale"}</strong>
           <span>Seasons of Settlement</span>
         </div>
       </div>
@@ -171,7 +175,7 @@ export function TopBar({
         </button>
         <button
           aria-label="Reset game"
-          onClick={onReset}
+          onClick={(event) => { event.currentTarget.focus({ preventScroll: true }); onReset?.(); }}
           title="Reset game"
           type="button"
         >
@@ -194,5 +198,7 @@ export function TopBar({
         </button>
       </div>
     </header>
+    {tabletop && <PlayerGuide state={state} />}
+    </>
   );
 }

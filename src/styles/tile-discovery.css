@@ -1,0 +1,74 @@
+.experience-app .tile-catalogue { display: grid; gap: 16px; min-width: 0; }
+.experience-app .selected-tile { display: grid; gap: 10px; padding: 14px; border: 2px solid #576d52; border-radius: 10px; background: #f5f2e7; min-width: 0; }
+.experience-app .selected-tile-heading, .experience-app .tile-action-heading { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.experience-app .selected-tile-heading > div, .experience-app .tile-action-heading > div { min-width: 0; }
+.experience-app .selected-tile-heading .tile-artwork, .experience-app .tile-action-heading .tile-artwork { flex: 0 0 62px; width: 62px; height: 56px; object-fit: contain; }
+.experience-app .selected-tile-heading p { font: 700 10px var(--font-ui); letter-spacing: .09em; text-transform: uppercase; color: #58624c; margin: 0 0 4px; }
+.experience-app .selected-tile h4, .experience-app .tile-action-card h4 { margin: 0 0 3px; font: 700 19px/1.15 var(--font-ui); overflow-wrap: anywhere; color: #273a2e; }
+.experience-app .selected-tile-heading span, .experience-app .tile-action-heading span { font: 500 12px/1.4 var(--font-ui); color: #505b4d; }
+.experience-app .selected-tile-price, .experience-app .selected-tile-location, .experience-app .selected-tile-blocker { margin: 0; font: 500 14px/1.4 var(--font-ui); color: #344434; }
+.experience-app .selected-tile-price small { display: block; font-size: 11px; color: #5d6257; margin-top: 4px; }
+.experience-app .selected-tile-location { padding-top: 7px; border-top: 1px solid #c9d0bc; }
+.experience-app .selected-tile-blocker { color: #80551d; }
+.experience-app .selected-tile-rules summary { min-height: 38px; display: flex; align-items: center; cursor: pointer; text-decoration: underline; font: 600 13px var(--font-ui); color: #40543d; }
+.experience-app .selected-tile-rules summary::before { content: "+"; margin-right: 7px; text-decoration: none; }
+.experience-app .selected-tile-rules[open] summary::before { content: "−"; }
+.experience-app .selected-tile-rules p { font: 400 14px/1.5 var(--font-ui); margin: 4px 0 8px; }
+.experience-app .selected-tile-actions, .experience-app .tile-action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.experience-app .selected-tile-actions > button, .experience-app .tile-action-buttons > button { flex: 1 1 90px; min-height: 44px; padding: 9px 10px; border: 1px solid #9fae95; border-radius: 6px; font: 700 13px/1.25 var(--font-ui); cursor: pointer; color: #324731; background: #fffdf5; }
+.experience-app .selected-tile-actions > .primary-action, .experience-app .tile-action-buttons > .primary-action { background: #405a43; color: #fffdf5; border-color: #405a43; }
+.experience-app .selected-tile-actions > button:disabled, .experience-app .tile-action-buttons > button:disabled { background: #e5e4db; color: #65675d; border-color: #b8bbac; cursor: default; }
+.experience-app .selected-outside-filter { font: 500 12px/1.4 var(--font-ui); margin: 0; color: #5f6358; }
+.experience-app .tile-catalogue-filters { display: grid; gap: 9px; }
+.experience-app .tile-search, .experience-app .tile-category { font: 700 13px var(--font-ui); display: grid; gap: 5px; }
+.experience-app .tile-search > span:last-child { display: flex; align-items: center; gap: 7px; border: 1px solid #a9b29d; border-radius: 6px; padding: 0 10px; background: #fffdf7; }
+.experience-app .tile-search input { min-width: 0; width: 100%; min-height: 44px; font: 400 15px var(--font-ui); border: 0; background: transparent; color: #273a2e; padding: 7px 0; }
+.experience-app .tile-category select { width: 100%; min-height: 44px; font: 500 15px var(--font-ui); background: #fffdf7; color: #273a2e; border: 1px solid #a9b29d; border-radius: 6px; padding: 8px 10px; }
+.experience-app .tile-supply-filter { display: flex; align-items: center; gap: 8px; min-height: 40px; font: 500 14px var(--font-ui); }
+.experience-app .tile-supply-filter input { width: 20px; height: 20px; accent-color: #405a43; }
+.experience-app .tile-catalogue-count { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 32px; font: 500 12px var(--font-ui); color: #535f4e; }
+.experience-app .tile-catalogue-count button { display: flex; align-items: center; gap: 3px; min-height: 44px; border: 0; background: none; color: #405a43; text-decoration: underline; font: inherit; }
+.experience-app .tile-catalogue-list { display: grid; gap: 7px; min-width: 0; }
+.experience-app .catalogue-tile { width: 100%; min-width: 0; display: grid; grid-template-columns: 50px minmax(0, 1fr); align-items: center; gap: 6px 10px; padding: 11px; border: 1px solid #b9c1ad; border-radius: 8px; text-align: left; background: #fffdf7; color: #2a3a2d; cursor: pointer; }
+.experience-app .catalogue-tile .tile-artwork { width: 50px; height: 48px; object-fit: contain; }
+.experience-app .catalogue-tile > span { min-width: 0; }
+.experience-app .catalogue-tile strong { display: block; font: 700 16px/1.25 var(--font-ui); }
+.experience-app .catalogue-tile small { display: block; font: 500 12px/1.4 var(--font-ui); margin-top: 3px; }
+.experience-app .catalogue-tile-supply { grid-column: 1 / -1; font: 500 11px var(--font-ui); color: #626751; }
+.experience-app .catalogue-tile.selected { background: #e7ecd9; border: 2px solid #576d52; padding: 10px; }
+.experience-app .tile-catalogue-empty { font: 500 14px/1.5 var(--font-ui); padding: 14px; margin: 0; border: 1px dashed #a9b29d; border-radius: 7px; }
+.experience-app .tile-action-list { display: grid; gap: 12px; }
+.experience-app .tile-action-card { padding: 14px; background: #faf7ee; border: 1px solid #b7c1aa; border-radius: 9px; min-width: 0; }
+.experience-app .tile-action-card.selected { border: 2px solid #576d52; padding: 13px; }
+.experience-app .tile-action-effect, .experience-app .tile-action-linked { font: 400 14px/1.45 var(--font-ui); margin: 10px 0; }
+.experience-app .tile-action-linked { font-weight: 600; color: #496146; }
+.experience-app .action-cost-label { margin: 0 0 8px; display: flex; flex-wrap: wrap; gap: 5px 10px; font: 600 13px/1.4 var(--font-ui); }
+.experience-app .action-cost-label > span { color: #626751; }
+.experience-app .resource-forecast { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 5px; }
+.experience-app .resource-forecast li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 7px; align-items: center; padding: 7px 8px; border-radius: 5px; background: #e6eadc; font: 500 13px var(--font-ui); }
+.experience-app .resource-forecast small { font-size: 11px; }
+.experience-app .resource-forecast .resource-spend { background: #eee3d5; }
+.experience-app .resource-forecast .resource-unchanged { background: #eee6d5; }
+.experience-app .action-forecast-warning { padding: 9px; color: #6d461b; background: #f0e4c5; border-left: 3px solid #977437; font: 600 13px/1.45 var(--font-ui); margin: 9px 0; }
+.experience-app .action-forecast-note { font: 500 12px/1.4 var(--font-ui); margin: 5px 0; }
+.experience-app .tile-action-buttons { margin-top: 12px; }
+.experience-app .tile-catalogue :focus-visible, .experience-app .tile-action-card :focus-visible { outline: 3px solid #987329; outline-offset: 2px; }
+@media (max-width: 620px) {
+  .experience-app .selected-tile-rules summary, .experience-app .tile-supply-filter { min-height: 44px; }
+}
+
+/* Keep the sidebar's common decisions and current tile within reach. */
+.experience-tabletop .steward-power-summary { min-height: 44px; padding: 8px 10px; }
+.experience-tabletop .steward-power-summary > span:first-of-type { display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
+.experience-tabletop .steward-power-summary strong { font-size: 13px; }
+.experience-tabletop .steward-power-summary .steward-power-season { display: none; }
+.experience-tabletop .selected-tile { gap: 6px; padding: 10px; }
+.experience-tabletop .selected-tile-rules summary { min-height: 32px; }
+@media (max-width: 620px) {
+  .experience-tabletop .selected-tile-rules summary { min-height: 44px; }
+}
+
+.experience-app .catalogue-browse { min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #a9b29d; border-radius: 6px; background: #faf7ee; color: #405a43; font: 700 14px var(--font-ui); cursor: pointer; }
+.experience-app .activation-guidance { margin-bottom: 12px; }
+.experience-app .activation-guidance summary { min-height: 44px; cursor: pointer; font: 600 14px var(--font-ui); padding-block: 12px; }
+.experience-app .resource-forecast strong { font-size: 14px; }

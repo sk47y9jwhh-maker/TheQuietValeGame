@@ -1,0 +1,73 @@
+/* Keep the current decision in view; preserve card artwork and the complete draw explanation as references. */
+.experience-app .resolution-focus-table .resolution-board { justify-items: stretch; grid-template-rows: minmax(0, 1fr); }
+.experience-app .resolution-focus-table .effect-prompt { align-content: start; }
+.experience-app .effect-open-target { margin: 8px 0 0; padding: 8px; background: #f5edf2; font-size: 15px; line-height: 1.4; color: #624057; }
+.experience-app .resolution-context-panel { gap: 8px; }
+.experience-app .resolution-references > summary, .experience-app .resolution-step-help > summary { min-height: 44px; padding: 12px; cursor: pointer; font-size: 15px; font-weight: 600; }
+.experience-app .resolution-step-help > p { font-size: 15px; line-height: 1.5; margin: 0; padding: 0 12px 12px; }
+.experience-app .effect-source-summary { padding: 12px 14px; border-left: 4px solid var(--qv-muted-green); background: #fffdf7; border-radius: 5px; }
+.experience-app .effect-source-summary .eyebrow { margin: 0 0 4px; font-size: 12px; color: #586451; }
+.experience-app .effect-source-summary h3 { margin: 0; font: 600 28px/1.15 "Alegreya", serif; color: var(--qv-ink); }
+.experience-app .effect-rule-text { margin: 10px 0 0; font-size: 17px; font-weight: 600; line-height: 1.45; }
+.experience-app .effect-source-detail, .experience-app .effect-source-name { margin: 6px 0 0; font-size: 14px; line-height: 1.4; color: #596052; }
+.experience-app .effect-source-card { margin-top: 4px; }
+.experience-app .effect-source-card > summary { min-height: 44px; padding: 12px 0; font-size: 14px; font-weight: 600; cursor: pointer; }
+.experience-app .effect-source-card > .encounter-card-shell { width: min(100%, 430px); margin: 8px auto; }
+.experience-app .target-draw-review { padding: 12px 14px; gap: 8px; border-left-width: 4px; border-radius: 5px; background: #f6f3ed; }
+.experience-app .target-draw-review .target-card-resolution-heading { align-items: center; flex-wrap: wrap; }
+.experience-app .target-draw-review .target-card-resolution-heading h3 { font-size: 18px; }
+.experience-app .target-draw-review .target-card-resolution-heading > span { font-size: 13px; color: #624057; }
+.experience-app .target-draw-list { display: grid; gap: 6px; }
+.experience-app .target-draw { border: 1px solid #c4b8bf; border-radius: 6px; background: #fffdf9; min-width: 0; }
+.experience-app .target-draw summary { cursor: pointer; min-height: 48px; padding: 10px 12px; list-style-position: outside; margin-left: 20px; }
+.experience-app .target-draw-summary { display: inline-grid; grid-template-columns: 85px minmax(90px, 1fr) auto auto; gap: 4px 12px; align-items: center; width: 100%; vertical-align: middle; font-size: 15px; line-height: 1.4; }
+.experience-app .target-draw-position { color: #665266; font-size: 13px; }
+.experience-app .target-draw-strain { color: #654b39; font-size: 14px; }
+.experience-app .target-draw-explain { color: #69435c; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+.experience-app .target-draw-explanation { padding: 14px; display: grid; grid-template-columns: minmax(180px, 230px) minmax(0, 1fr); align-items: start; gap: 16px; border-top: 1px solid #d2c7cb; }
+.experience-app .target-draw-explanation .target-card-filter-results li { font-size: 14px; padding: 8px; }
+.experience-app .target-draw-explanation .target-card-filter-results small { font-size: 12px; }
+.experience-app .target-draw-explanation .target-card-selection-result small { font-size: 14px; line-height: 1.5; color: #57554f; }
+.experience-app .target-draw-explanation .target-card-diagnostic-heading span { font-size: 13px; }
+.experience-app .target-draw-notes:empty { display: none; }
+.experience-app .target-draw-notes { display: grid; gap: 4px; margin: 0 12px 10px; color: #515d49; }
+.experience-app .target-draw-notes p, .experience-app .target-draw-notes small { margin: 0; font-size: 14px; line-height: 1.45; }
+.experience-app .target-draw-caution { margin: 2px 0 0; color: #57554f; font-size: 14px; line-height: 1.5; }
+.experience-app .target-draw-review .target-card-rules > summary { padding: 12px 0; min-height: 44px; font-size: 14px; }
+.experience-app .target-draw-review .target-card-rules > p { font-size: 15px; line-height: 1.5; }
+.experience-app .resolution-focus-table summary:focus-visible { outline: 3px solid #926627; outline-offset: 2px; border-radius: 3px; }
+@media (min-width: 901px) and (min-height: 601px) {
+  .experience-app .resolution-focus-table { grid-template-columns: minmax(205px, 230px) minmax(0, 1fr); }
+  .experience-app .resolution-focus-table .effect-prompt { padding: 8px; }
+}
+@media (max-width: 1100px) {
+  .experience-app .target-draw-summary { grid-template-columns: 80px minmax(0, 1fr) auto; }
+  .experience-app .target-draw-strain { grid-column: 2; grid-row: 2; }
+  .experience-app .target-draw-explain { grid-column: 3; grid-row: 1 / span 2; }
+}
+@media (max-width: 900px), (max-height: 600px) {
+  .experience-app .resolution-focus-table .resolution-context-panel { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .experience-app .resolution-focus-table .turn-summary, .experience-app .resolution-focus-table .resolution-context-panel > details[open] { grid-column: 1 / -1; }
+  .experience-app .resolution-focus-table .resolution-context-panel summary { padding: 10px 4px; }
+}
+@media (max-width: 560px) {
+  .experience-app .resolution-focus-table .resolution-context-panel { grid-template-columns: 1fr; padding: 10px; }
+  .experience-app .resolution-focus-table .resolution-context-panel summary { padding: 8px 2px; }
+  .experience-app .effect-source-summary, .experience-app .target-draw-review { padding: 10px; }
+  .experience-app .effect-source-summary h3 { font-size: 25px; }
+  .experience-app .target-draw-summary { grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; }
+  .experience-app .target-draw-position { grid-column: 1; }
+  .experience-app .target-draw-summary strong { grid-column: 1; grid-row: 2; }
+  .experience-app .target-draw-strain { grid-column: 1; grid-row: 3; }
+  .experience-app .target-draw-explain { grid-column: 2; grid-row: 1 / span 3; max-width: 60px; }
+  .experience-app .target-draw-explanation { grid-template-columns: minmax(0, 1fr); padding: 10px; }
+  .experience-app .target-draw-explanation .physical-target-card { justify-self: center; }
+}
+
+.experience-app .resolution-focus-table .turn-summary h2 { font-size: 25px; }
+.experience-app .resolution-focus-table .stepper button { min-width: 44px; min-height: 44px; }
+.experience-app .resolution-focus-table .effect-preview-item { font-size: 14px; }
+@media (max-width: 560px) {
+  .experience-app .resolution-focus-table .alternative-shortcuts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .experience-app .resolution-focus-table .effect-command-bar { position: static; }
+}

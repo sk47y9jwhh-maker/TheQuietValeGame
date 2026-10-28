@@ -1,5 +1,5 @@
 import { coreTileById } from "../data/tiles";
-import { mapById, mapColumns } from "../data/map";
+import { mapById, mapCells, mapColumns } from "../data/map";
 import { getHexNeighbors } from "./hex";
 import type { GameState, PlacedTile } from "./types";
 
@@ -8,6 +8,14 @@ export function getPlacedTileAtHex(
   hexId: string
 ): PlacedTile | undefined {
   return state.map.placedTiles.find((tile) => tile.hexIds.includes(hexId));
+}
+
+/** Ranger changes reach only; terrain, costs and printed placement rules still apply. */
+export function getTemporaryReachHexIds(state: Pick<GameState, "map">): string[] {
+  return mapCells.filter((cell) => {
+    const tile = getPlacedTileAtHex(state, cell.id);
+    return !tile || !isOverstrained(tile);
+  }).map((cell) => cell.id);
 }
 
 export function isOverstrained(tile: Pick<PlacedTile, "strain">): boolean {

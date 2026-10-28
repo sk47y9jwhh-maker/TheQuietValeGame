@@ -1,0 +1,31 @@
+.experience-app .payment-consequences { border: 1px solid #abb49a; border-radius: 12px; background: #fffdf5; color: #28382f; padding: 18px; }
+.experience-app .payment-consequences h2 { font: 700 28px/1.2 var(--font-display); margin: 5px 0; }
+.experience-app .payment-consequences p { margin: 7px 0; font-size: 15px; line-height: 1.5; }
+.experience-app .payment-resource-changes { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin: 16px 0; gap: 10px; }
+.experience-app .payment-resource-changes > div { padding: 12px; background: #eff2e6; border: 1px solid #c4cbb8; border-radius: 8px; }
+.experience-app .payment-resource-changes dt { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 16px; font-weight: 700; }
+.experience-app .payment-resource-changes small { font-size: 13px; font-weight: 400; }
+.experience-app .payment-resource-changes dd { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 12px 0 0; font-size: 21px; }
+.experience-app .payment-resource-changes dd strong { font-size: 21px; }
+.experience-app .payment-resource-changes .payment-shortfall { background: #f6e5d9; border-color: #a36950; color: #7c3423; }
+.experience-app .payment-resource-changes .payment-shortfall dd strong { font-size: 15px; }
+.experience-app .payment-outcome { border-top: 1px solid #bec6b0; margin-top: 16px; padding-top: 16px; }
+.experience-app .payment-outcome h3 { display: flex; align-items: center; gap: 8px; font-size: 18px; margin: 0 0 8px; }
+.experience-app .payment-outcome h3 svg { flex: none; }
+.experience-app .payment-outcome ul { padding-left: 22px; font-size: 15px; line-height: 1.5; }
+.experience-app .payment-commit-note { border-top: 1px solid #bec6b0; padding-top: 12px; color: #536048; }
+.experience-app .cost-choice-screen .cost-choice-actions { position: sticky; bottom: 0; z-index: 3; padding: 10px; border: 1px solid #b5bdaa; border-radius: 9px; background: #fffdf5; }
+.experience-app .cost-choice-screen .cost-choice-actions button { min-height: 44px; }
+.experience-app .cost-choice-screen .cost-option-list:empty { display: none; }
+@media (max-width: 440px) { .experience-app .payment-resource-changes { grid-template-columns: minmax(0, 1fr); } .experience-app .payment-consequences { padding: 14px; } }
+.experience-app .payment-base-cost { font-size: 14px; color: #405239; }
+.experience-app .payment-base-cost summary { cursor: pointer; min-height: 44px; padding: 10px 4px; }
+.experience-app .payment-base-cost .cost-line { padding: 12px; }
+
+.experience-app .payment-flexible-mix { padding: 16px; border: 1px solid #aab89a; border-radius: 10px; background: #f0f3e6; }
+.experience-app .payment-flexible-mix h2 { margin: 0 0 8px; font-size: 20px; }
+.experience-app .payment-flexible-mix p { font-size: 15px; line-height: 1.5; }
+.experience-app .payment-flexible-mix label { display: grid; gap: 8px; font-weight: 700; font-size: 15px; }
+.experience-app .payment-flexible-mix select { width: 100%; min-width: 0; min-height: 44px; font: inherit; border: 1px solid #8c9d7d; border-radius: 6px; padding: 10px; background: #fffdf5; color: #28382f; }
+
+.payment-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }

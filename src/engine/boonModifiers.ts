@@ -88,6 +88,11 @@ function matchesModifier(
   modifier: ActiveBoonModifier,
   target: BoonModifierTarget
 ): boolean {
+  if (modifier.remainingUses <= 0) return false;
+  // Prepared Steward powers belong to the Steward who prepared them. Boons
+  // remain shared, including when a turn passes before their use.
+  if (modifier.sourceType === "steward" &&
+      modifier.sourceCardId !== state.players.find((player) => player.id === state.currentPlayerId)?.stewardId) return false;
   if (!modifier.actions.includes(target.action)) return false;
   if (modifier.coreOnly && target.kind !== "core") return false;
   if (

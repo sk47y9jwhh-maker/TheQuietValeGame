@@ -1,0 +1,2107 @@
+[
+  {
+    "path": "output/artist-tiles-complete/samples.json",
+    "bytes": 206698,
+    "sha256": "25044acd4d8f5c6c247278799d08fa2095d6d89100d8aa3a1c7296f48dddaca1"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c01_lumber_yard-basic.png",
+    "bytes": 2325287,
+    "sha256": "2e639097c83710b044c27ce9a7b72ae646c5bf8766095879ca6ff12a1d8c51f5"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c01_lumber_yard-upgraded.png",
+    "bytes": 2297304,
+    "sha256": "cd9aac3b136a7f311133eae0d603ccda55c97345dc6ad43dd7a17389d90bb185"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c02_mine_tunnel-basic.png",
+    "bytes": 2319432,
+    "sha256": "3c0845b706dafa27d0c75a0d4c7c73373f47ebc5c86717d3edb71036984a884c"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c02_mine_tunnel-upgraded.png",
+    "bytes": 2285665,
+    "sha256": "e2b7a2c2051cab9879ee2c731b593bcb39569b4d8aebeac363791716b9c04b6e"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c03_gathering_outpost-basic.png",
+    "bytes": 2326753,
+    "sha256": "e8c0db5c4bfa45915e2b5b1d2354b8aaf26d792cacf1959744fe2a711b8098fd"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c03_gathering_outpost-upgraded.png",
+    "bytes": 2295834,
+    "sha256": "f480963c9beda9023f3460aedb70b395c5fc914580bce87689ed43f6cde9250b"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c04_farmstead-basic.png",
+    "bytes": 2319572,
+    "sha256": "324a08268acdbe1a89270415cfcf88f76900820459303e1b4527c4345795e6ab"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c04_farmstead-upgraded.png",
+    "bytes": 2289303,
+    "sha256": "6e1acc0d2aa82e31b59c609d32c76c755d9dc1a0d5c8861f974cdd512e3204cd"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c05_cabin-basic.png",
+    "bytes": 2339774,
+    "sha256": "804823a69c7058d542825da66d94938aaf78c85a9ede76c3accbd95bf6381b9f"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c05_cabin-upgraded.png",
+    "bytes": 2291822,
+    "sha256": "c3d61af72de444896863b99ae198e47d5c5632ca932fe30003f0ed39f19ce92a"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c06_cottage-basic.png",
+    "bytes": 2354148,
+    "sha256": "15d2ab30c94d046a2c034c12967d867f674e67bc08ead4ea3cd275572b5ebbd5"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c06_cottage-upgraded.png",
+    "bytes": 2299975,
+    "sha256": "affa0c3f742366f8331c74cacd0a0182cadc3729271f5340e52abe610b8d493f"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c07_stedding-basic.png",
+    "bytes": 2350352,
+    "sha256": "cc49ae9085a7b31d08099edfc831bb6ba5d6bb6714834d43bb60354df677faa5"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c07_stedding-upgraded.png",
+    "bytes": 2300045,
+    "sha256": "f6796c6fc0e8de0d96f2b135f3910730a0c4ca5b48c0160bcdd166dfec9d32d6"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c08_inn-basic.png",
+    "bytes": 2364749,
+    "sha256": "7a7b57e1124250e76a3a74b91b9600af6676e5134d4f83db78a39d479998efa0"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c08_inn-upgraded.png",
+    "bytes": 2297883,
+    "sha256": "6789834b524ef2364aa47c5f5425320b367636bbc41290293919cf53e0b7c927"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c09_tavern-basic.png",
+    "bytes": 2351412,
+    "sha256": "bf96acaf9d2e7c239a748fce6bcee9eb5e832812f86bdbbf3b79a1b2221a7add"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c09_tavern-upgraded.png",
+    "bytes": 2290486,
+    "sha256": "822db5b37b5628415195ec641a162d9a314e1c4ab26a660c31305fb08d86510a"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c10_eatery-basic.png",
+    "bytes": 2352658,
+    "sha256": "ad8a7d6d96dfda6f6bed4108990566a5d8de90480cc34dbcf47eb90cd830e9d2"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c10_eatery-upgraded.png",
+    "bytes": 2290779,
+    "sha256": "971ffce1fde6d86607e3d326541db509295bd29bfc6d3d2eeb1c60df3c3d49e8"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c11_washhouse-basic.png",
+    "bytes": 2351434,
+    "sha256": "7368ca343e7ed4e6794e829820a7bc6ab337efd519aee30459237e0bc4f14c4a"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c11_washhouse-upgraded.png",
+    "bytes": 2301399,
+    "sha256": "de8f3b3138d669457c30a5ef15e76cf8314f5fea8acb4f5faa2676d0923d64dc"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c12_apothecary-basic.png",
+    "bytes": 2346641,
+    "sha256": "bfbec3e2fd92814eed44a6e74d7d1f2b0bb6cc142bbc4bb9ca61a7b5218238c3"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c12_apothecary-upgraded.png",
+    "bytes": 2285436,
+    "sha256": "88374b3bdebeddd203aec35eb425a46d9beacde0c290547c01aa19e0177594a2"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c13_workshops-basic.png",
+    "bytes": 2361762,
+    "sha256": "ee141738e7116e4872999c352485805e62157eaaeda10e4a37803ada004275ef"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c13_workshops-upgraded.png",
+    "bytes": 2301649,
+    "sha256": "28cfb256affd207d2f4c048e1e637b7793c48d4b3d0ab2a139c747ded8fca1ab"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c14_market_stalls-basic.png",
+    "bytes": 2372047,
+    "sha256": "b3fd4adc3f949151de890872d6882a0d6b54ebbe87712beae058a73eb1cab585"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c14_market_stalls-upgraded.png",
+    "bytes": 2300544,
+    "sha256": "4a13a34fe2c8b3acada4523432da6c4e0d1172d90c00bc98967db03d24861665"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c15_path-basic.png",
+    "bytes": 2328456,
+    "sha256": "cabbe9615fe31be178198aba5a51d3f4850bef0b6d5788685f4c56345a465e32"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c15_path-upgraded.png",
+    "bytes": 2294028,
+    "sha256": "bb87dd92603ff6f9ba8b126236456ae736f5eca224e3e4eddb3c3f8356a51995"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c16_street-basic.png",
+    "bytes": 2346932,
+    "sha256": "43c15ad94ecf73d70c53dccba6657ff382d7fc65a5cfbe49114e3102b8a0370e"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c16_street-upgraded.png",
+    "bytes": 2303609,
+    "sha256": "617042886a7eb4893f82c839f1edce6d0586e240d56eae863aa9fb06888d4fba"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c17_track-basic.png",
+    "bytes": 2348416,
+    "sha256": "0cb8b2b96ffca498806787523194a39d34202f4e6a33a7c8b4b54a0da4c397f6"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c17_track-upgraded.png",
+    "bytes": 2304230,
+    "sha256": "202cf5dbdb65f00856859a7cc818e77fd7efb1fa793edad45a7917f171a33e90"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c18_common_land-basic.png",
+    "bytes": 2352085,
+    "sha256": "0cadeddcdabb7e51e42a2e98d6a023a2736a579b8aed69c33276ec0c40e8f941"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c18_common_land-upgraded.png",
+    "bytes": 2296522,
+    "sha256": "3435b0c45d9f6b290f3f7a4a986289292525a9d13b0b3d572b677dd63dd2c155"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c19_bridge-basic.png",
+    "bytes": 2333620,
+    "sha256": "a5c5a1dbbaecc75b5bb83fa2acc22be19deb2c424cc57ac56876d44ecc70750c"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c19_bridge-upgraded.png",
+    "bytes": 2295998,
+    "sha256": "2c5116ee942e5f8a37b602ffd59449433adf26a9f0dc54ea2b51e19c9fabd171"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c20_dig_site-basic.png",
+    "bytes": 2322872,
+    "sha256": "c419ace08bcc66e815c8bf3a65fb6a0f5b8a0d3954d1677edaa72f285180673e"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c20_dig_site-upgraded.png",
+    "bytes": 2296352,
+    "sha256": "5482c74c0a249c605d6bf63f4e80ed6e8c522a6520717cc37033a0e90e8d1796"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c21_the_vaults-basic.png",
+    "bytes": 2355120,
+    "sha256": "7311684e196f5123805e039ecf407a9f19ae545d74888ba50c6f02598f988849"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/c21_the_vaults-upgraded.png",
+    "bytes": 2287731,
+    "sha256": "c5eaa96c38b4117c7c0e9b705f7c94da0f310c5d0788ad96cc58a465adce0687"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/golden_tile_the_golden_cairn.png",
+    "bytes": 2332502,
+    "sha256": "b77c4572d2fa572a14124e1776ef6611fba0ac01edb9a9f5b7f0032822c46ce9"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/golden_tile_the_golden_charter.png",
+    "bytes": 2325343,
+    "sha256": "6ac81df9d752f51e61574fc90ec4541cba3a0c593c04cecfd86366519e57cedf"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/golden_tile_the_golden_garden.png",
+    "bytes": 2328195,
+    "sha256": "205c76b543f57140376b754dbb3f262c4bf7548ff3d146b2521044c9f70719f9"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/golden_tile_the_golden_hearth.png",
+    "bytes": 2328932,
+    "sha256": "8edfaec94fb0bd3352970febb56bdf6dae467bc3a8064aa3686fc913af2202a0"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/golden_tile_the_golden_river_gate.png",
+    "bytes": 2337192,
+    "sha256": "b38e600dc1598ad6f6dc33dc9f55e988ea70be9253cb3fb249d4f8929ae60275"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-1.png",
+    "bytes": 2185913,
+    "sha256": "149b1219ca54bd658d854a580b0b1921c40cdd4ac5389155c231b816fdf3433c"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-10.png",
+    "bytes": 2162634,
+    "sha256": "6b15d3a8c5aa2f5702e4470a4d645206c6673ca127ce94c681023faac9646e8a"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-11.png",
+    "bytes": 2170581,
+    "sha256": "81f302ae85d84d245b71f510252e03f2e3a520d3ebc68d58c54b7be7fdddbd22"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-12.png",
+    "bytes": 2165774,
+    "sha256": "581759e06230375da82c23280a1bd9f9c9214fc59f8b4e502b1de46a6462eab9"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-13.png",
+    "bytes": 2168345,
+    "sha256": "955bdc72b2b9f2fad53e207d52a138b3a400b61b8b9be8197ad241c3b6bf0d82"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-14.png",
+    "bytes": 2162471,
+    "sha256": "ffe80822382b0b54dc635a45d5dea97f6afcebb99cb5dab058cbf8b8208ae6fd"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-15.png",
+    "bytes": 2165227,
+    "sha256": "fb2b74ce1e94e61046f2fad4a1e05d4efaa06c9875084342d4df1b140fc179ab"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-16.png",
+    "bytes": 2163989,
+    "sha256": "dad17ba038f32faeaf4bedd3c1d6ca45ff266b857ddb1ee7dd17012257bb3834"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-17.png",
+    "bytes": 2167546,
+    "sha256": "4d82580f5732eea805d625a12fdd56608b3d2578492f72dfdcf6942af5d05936"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-18.png",
+    "bytes": 2160473,
+    "sha256": "25d0025f78b88ae513126e45b24e9815d3fe83286c1c56f61ff0825f62d376aa"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-19.png",
+    "bytes": 2164710,
+    "sha256": "bdc30cd8a458b4d4ee6b470a55f5b35ad6774489ab5be69fdfa5c67941c8de84"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-2.png",
+    "bytes": 2182351,
+    "sha256": "a7704b06487791e57f78434b756e41f4d173e3b99f067ac0d5839915c1531d5d"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-20.png",
+    "bytes": 2158656,
+    "sha256": "38ef1ae1a16ffb776d80487552ae49a85281007772a865308a8d03a50a300062"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-21.png",
+    "bytes": 2165325,
+    "sha256": "83cd162b370d8e956c94aefc93acc48a043214850eb0429a45043baf9d6e35df"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-22.png",
+    "bytes": 2160433,
+    "sha256": "431d55da02c046f1a51f1cd6a433eee22dba07ecea77e0f28b265d8adab0d8c5"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-23.png",
+    "bytes": 2163661,
+    "sha256": "e7cd00e0072547f54d183fcdf2d9a67406c1a0d3f34f840116d1775f554bc837"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-24.png",
+    "bytes": 2156808,
+    "sha256": "a27bce3c96f62a559b7f28cd8f5a164941706527fbd8de45be4a52363790fa68"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-25.png",
+    "bytes": 2160295,
+    "sha256": "d890fd42b8ffe63d9b0fb18cdf79d4e5d40f49f6437e0f29edf7ee718d19b95c"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-26.png",
+    "bytes": 2158419,
+    "sha256": "0a4859d65f9efa427df18aabef44254f1b2033bab63782b4ade70bed231ab99b"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-3.png",
+    "bytes": 2183592,
+    "sha256": "2ad256ba9f3edc2aa60c35abe53078b71ef7952305fdd5b61c4a7ba111d1ad0f"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-4.png",
+    "bytes": 2177535,
+    "sha256": "3a061988444faa74d8b47c318bcfdf9c911002e3e375386dbf4fdf0cf8245ce8"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-5.png",
+    "bytes": 2180019,
+    "sha256": "7ec1802b6ee889261f460869128fefb204dfe8793acd61d55abeb834f06247c2"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-6.png",
+    "bytes": 2179770,
+    "sha256": "e0d61380494892741133a3b701918274b0bcc0e53ebcb6b80caa2374722e28bb"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-7.png",
+    "bytes": 2183295,
+    "sha256": "5a502e04d6b34971956481d7ac8b53cf48c1f3bfce8a67496e2cb55bc314e602"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-8.png",
+    "bytes": 2176077,
+    "sha256": "4e524f8345b2ca66468c3c6d723c05c64407b01a93f66838f5486387feffff13"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special-back-9.png",
+    "bytes": 2180189,
+    "sha256": "3ce1cefeb28ab5dd5d207a79c20ce6972a1383dcdff65c15c05967c8804bd6dd"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_adventurers_guild.png",
+    "bytes": 2310694,
+    "sha256": "be6069dce3a0b691c1c391d73dbc4e523b21cdf7fef9f658ae9cb075c17a416c"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_alchemist_s_workshop.png",
+    "bytes": 2332640,
+    "sha256": "91c4f0e53a68da4bdc19c89f8276eecab411a1746a2ee8d342380fb2412f980f"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_alms_house.png",
+    "bytes": 2307691,
+    "sha256": "605d5310644ee17b596f7faf60f64f14cc633030f378247a0a2ed805581630e5"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_atelier_workshop.png",
+    "bytes": 2333334,
+    "sha256": "6865efff5f84d98f68943b6c9bca6767b3c7f8eed371462ef1dc05c87b8ada90"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_brewery_of_legends.png",
+    "bytes": 2327671,
+    "sha256": "1b9796784dcd6144e26516f8a0c111c4c365912a66b45f769cf7047de6d8e5b6"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_docks.png",
+    "bytes": 2339614,
+    "sha256": "0433d66b6c60cc9ed6b6fb4d43f9750c80ab6a8648bd0e038624d32ffb5bcc59"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_hearth_garden.png",
+    "bytes": 2321479,
+    "sha256": "6428ce59533f2b63293b534b785f1bfa656c44ba063ca695b38b656f72c65a6a"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_house_of_learning.png",
+    "bytes": 2321310,
+    "sha256": "98431bc1175f43f867fa12ef9d4aca23f9db67476d59d73238c772467d96bb73"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_labourers_yard.png",
+    "bytes": 2320292,
+    "sha256": "617d5ee7d018d1388d5e01955979701e648ebb25d1b01d5172697fa9149dceac"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_lantern_roadhouse.png",
+    "bytes": 2332027,
+    "sha256": "b596541aa221743e05694549236f4227b8d5cf5436ba3ebeeb75341026f8dc08"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_reliquary.png",
+    "bytes": 2316150,
+    "sha256": "7f46c1a64491ccebe60d54f40665701e54815ce1c1e8e7dcf86df57e6bd46bdf"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_shrine_of_ancestors.png",
+    "bytes": 2321806,
+    "sha256": "0a3f372120c095114940bfc11e2588df7ff2052f50428fe603e129f0595b7439"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_shrine_of_ancients.png",
+    "bytes": 2322058,
+    "sha256": "bed3fff1896212aeabdfb2c473d349f4b8d2e514474261b39ee311203d1587d7"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_shrine_of_bounty.png",
+    "bytes": 2317751,
+    "sha256": "38b6f56c2153bfc23a5ba79652808a8670c82ba3c0b50a2da0b3293278b278ee"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_shrine_of_depths.png",
+    "bytes": 2316535,
+    "sha256": "1774e2e5d4c023dae8c823c0923ed72821599ca440eec56daab902ac52b1a22f"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_shrine_of_renewal.png",
+    "bytes": 2325810,
+    "sha256": "173f2d0f7f69967b21d7c65e5679fbbc4120204d675b1eb0c10d88bd4d6526b4"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_stables.png",
+    "bytes": 2345346,
+    "sha256": "56d2f4d21f1927cf263d780d6ef3423d3f0bef831de14cc8d831d240fb5f4dcc"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_the_iron_roots_respite.png",
+    "bytes": 2330701,
+    "sha256": "454757fd04de50bbc28863358702fffbae1ecf703d9f881b7575297de4cf85c1"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_the_lorekeepers_respite.png",
+    "bytes": 2329760,
+    "sha256": "c47afbbce33e035f7cc58a7c6e668534117017c0a6f7f50a061edd3f6671f93d"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_the_reavers_respite.png",
+    "bytes": 2321072,
+    "sha256": "14987f3287e4a2962edd38a8ae1e85866129ca8f5383b87bc225f440f5828f82"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_the_resting_hall.png",
+    "bytes": 2324712,
+    "sha256": "ef926e2bfdac6d3651c746989cea66a2e03fa9f9a8eb910e3e053d3273680723"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_the_root_weavers_respite.png",
+    "bytes": 2328503,
+    "sha256": "c8f92924e10af824656f773671990d878479f09cc80d1e69d2a76b9d78d8df89"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_the_tamers_respite.png",
+    "bytes": 2317961,
+    "sha256": "af62ba9094614bb96607a61a44e6e9f05046706b0f0289d301a5afe85ccbdb55"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_the_waystation.png",
+    "bytes": 2321412,
+    "sha256": "792488b7990915a31283fd66990ff83234e348fd3260172e5a4c765727c1bbc5"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/special_theater.png",
+    "bytes": 2328991,
+    "sha256": "fa8dc3ff5e8d32ded5fbaa88c051afef3e8e37986009ed8c2ce08b260a5861e5"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/travel-extension-basic.png",
+    "bytes": 2364046,
+    "sha256": "59ada70d6119989fb249540c4d94e274c2643c65345b640ea1dabdc12f0cd968"
+  },
+  {
+    "path": "output/artist-tiles-complete/tiles-web/travel-extension-upgraded.png",
+    "bytes": 2364046,
+    "sha256": "59ada70d6119989fb249540c4d94e274c2643c65345b640ea1dabdc12f0cd968"
+  },
+  {
+    "path": "output/docx/rulebook-v6_4/The_Quiet_Vale_Main_Rulebook_v6_4_Card_Guide.docx",
+    "bytes": 11953943,
+    "sha256": "af03621091b678ea5530e760534edd399e600b3d5f3065b8b30d5c011c1d9368"
+  },
+  {
+    "path": "output/docx/rulebook-v6_4/The_Quiet_Vale_Main_Rulebook_v6_4_Twin_Settlements.docx",
+    "bytes": 3949394,
+    "sha256": "9cc4749ff12bb851b3ea6ec91bf88ca765dd167751ecd4703b23401fded73653"
+  },
+  {
+    "path": "output/docx/rulebook-v6_5/The_Quiet_Vale_Main_Rulebook_v6_5_Card_Guide.docx",
+    "bytes": 11953994,
+    "sha256": "98171e6515ce3583aefecc5207b3be49de6f5268078c836bfbbb59a27ae38555"
+  },
+  {
+    "path": "output/docx/rulebook-v6_6/The_Quiet_Vale_Main_Rulebook_v6_6_Card_Guide.docx",
+    "bytes": 11957339,
+    "sha256": "21d3090fa4d813a7fae6ac07a84b9f6ef17e1933772bacf51026933ad38b8548"
+  },
+  {
+    "path": "output/docx/rulebook-v6_7/The_Quiet_Vale_Main_Rulebook_v6_7_Card_Guide.docx",
+    "bytes": 24503630,
+    "sha256": "7682b9c7c5a6bd95a0c854f4e76550eebdc7d799eb9f4d618860e2cd845ed333"
+  },
+  {
+    "path": "output/docx/rulebook-v6_8/The_Quiet_Vale_Main_Rulebook_v6_8.docx",
+    "bytes": 25514031,
+    "sha256": "55c618d4cccf6ade20a29b9aa0d41e816db2406c94298986c334717dcf183145"
+  },
+  {
+    "path": "tmp/rules-v6_7-qa/The_Quiet_Vale_A6_Knight_Steward_Aid_v6_7/page-1.png",
+    "bytes": 37416,
+    "sha256": "9b1b0a831e49441aeddda7534d330c2cb0177abb4b1b880f1fa919d73d9aca7a"
+  },
+  {
+    "path": "tmp/rules-v6_7-qa/The_Quiet_Vale_A6_Quartermaster_Steward_Aid_v6_7/page-1.png",
+    "bytes": 39829,
+    "sha256": "d6c5ceeed4ae4e0a63e8e432bf2dac8b7316278d1e50818209e011a872c6baf7"
+  },
+  {
+    "path": "tmp/rules-v6_7-qa/The_Quiet_Vale_A6_Ranger_Steward_Aid_v6_7/page-1.png",
+    "bytes": 38682,
+    "sha256": "23257c8de69658d8c5ffac77d08a42475df29b0bef67f5b72b85d86392e6aec6"
+  },
+  {
+    "path": "tmp/rules-v6_7-qa/The_Quiet_Vale_A6_Sentinel_Steward_Aid_v6_7/page-1.png",
+    "bytes": 37470,
+    "sha256": "9723793defa9fd68c46eab7b13e8ef6cdd9cf1f603db5778de7ac7bc33e6d505"
+  },
+  {
+    "path": "tmp/rules-v6_7-qa/The_Quiet_Vale_A6_Vanguard_Steward_Aid_v6_7/page-1.png",
+    "bytes": 39963,
+    "sha256": "b538be6260532a1d391191e94f583591102e3559beea275290c85c0d3b7a4824"
+  },
+  {
+    "path": "tmp/rules-v6_7-qa/The_Quiet_Vale_A6_Warden_Steward_Aid_v6_7/page-1.png",
+    "bytes": 39080,
+    "sha256": "07c1b7f79d0cbc5c2270225f9cf5c833ca30302acbaf3d7592c062d78dab5134"
+  },
+  {
+    "path": "tmp/rules-v6_8-docx-final-render/The_Quiet_Vale_Main_Rulebook_v6_8.pdf",
+    "bytes": 3541260,
+    "sha256": "87f9c68fafe03970b748d4507821626e7085dbfac410199b7a18d27ce3101c02"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/arrival-timing.png",
+    "bytes": 37536,
+    "sha256": "948a6e76e69e49d2d693b64278bcf63bbe6b7b2870339333212a1fd9065489ab"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/core-tile-patterns.png",
+    "bytes": 113435,
+    "sha256": "2dcd8f0eaaa5c9c96278cd9f490b0e79015f4fdf4b6cd9e28a53842e0b95dd08"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/cover-hero.png",
+    "bytes": 1907786,
+    "sha256": "e6e5e7cca15b8fb6e894b64e50a381ceed58fc5673b77a79a63c24d09cd1e908"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/current-card-examples/all-cards.png",
+    "bytes": 608133,
+    "sha256": "593f72e659de0d0be32d23bd984151d9e135986dd3d7a653446e67f3300d6d29"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/current-card-examples/arrival-quiet-quest.png",
+    "bytes": 116531,
+    "sha256": "12d7be0990308db561c0a996244029369f418236eed239d5daa8f194fb9ef9ef"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/current-card-examples/boon-a-little-time.png",
+    "bytes": 138985,
+    "sha256": "156e07c7b7faf7dca55288e9ecb67496b5475d1691c7569da33afddf67fd91e5"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/current-card-examples/burden-old-wounds-reopen.png",
+    "bytes": 131125,
+    "sha256": "1a53a31a66ef72901dc393e150be8b982b869fe70f6f4052c71028adac6ff3c2"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/current-card-examples/golden-boon-the-golden-scroll.png",
+    "bytes": 152535,
+    "sha256": "7ca2d7e769529261833098c3cb768f0baed079da6714d6e081febe0e4cc32c26"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/encounter-seeding.png",
+    "bytes": 51971,
+    "sha256": "198ee1c4e2b5bb1cf05517395b381d5951f11288428c1b4be7538ca6f72bd551"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image1.png",
+    "bytes": 1246847,
+    "sha256": "7a0dd6882d4bad66fc3ac47fe7c7385e87eccaf67e273c0d32f75ea658780299"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image10.png",
+    "bytes": 138985,
+    "sha256": "156e07c7b7faf7dca55288e9ecb67496b5475d1691c7569da33afddf67fd91e5"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image11.png",
+    "bytes": 131125,
+    "sha256": "1a53a31a66ef72901dc393e150be8b982b869fe70f6f4052c71028adac6ff3c2"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image12.png",
+    "bytes": 116531,
+    "sha256": "12d7be0990308db561c0a996244029369f418236eed239d5daa8f194fb9ef9ef"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image13.png",
+    "bytes": 152535,
+    "sha256": "7ca2d7e769529261833098c3cb768f0baed079da6714d6e081febe0e4cc32c26"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image14.png",
+    "bytes": 2669134,
+    "sha256": "89f80bca5ebee9170b046a5256662c1cd62b421888207ca698b52bb29d43412d"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image15.png",
+    "bytes": 2669858,
+    "sha256": "14ec1a31d45862214bd966195301287577cb8893d31e4d3a98f5d847a59c092d"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image2.png",
+    "bytes": 815547,
+    "sha256": "b4d4350204e5d233a6cc3d8ce39890cea98a614862719a858980f349e7da9bc5"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image3.png",
+    "bytes": 241966,
+    "sha256": "39dfc638545aea3f235f0914555386d696f27d13bd1ab50a4045e42a96b98619"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image4.png",
+    "bytes": 89945,
+    "sha256": "0f7f4c5c63530441d216c38b05f674befa813b7896351905c61084ca67b788e0"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image5.png",
+    "bytes": 205421,
+    "sha256": "ed8936306e8007b69c196eadcdeae5221851cc914b3aa424fc89c98bc2ff8b50"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image6.png",
+    "bytes": 188060,
+    "sha256": "6818be6380b1a5f51a210df75a48f65511b33f45d29e1f9c71776cd9fb8bdc00"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image7.png",
+    "bytes": 210990,
+    "sha256": "e67162d8fcec08b44fdfb924b4d508fa7cd555ed847dd8e1de5e21a8851651a3"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image8.png",
+    "bytes": 190484,
+    "sha256": "5fdd29bd9d9369fa39dcb5137d015c14d8ae11e47fcdd8a8c613789c96a3b167"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/extracted-media/image9.png",
+    "bytes": 198954,
+    "sha256": "23625e08ae317222832214b33d6788a3d834e084cedfba9119b01e5466f5f422"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/four-actions.png",
+    "bytes": 20651,
+    "sha256": "30772d8d4a69c51a044204e43d9919ac3336c90a98848128582898833bb5489a"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/inn-arrival-timers.png",
+    "bytes": 154493,
+    "sha256": "5720f056143705288ab2bffdcd3940c391297b3661ec9d5218c16be4f7e43a88"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/linked-production.png",
+    "bytes": 39891,
+    "sha256": "c8ba931161e7b7e3b5e7f94e7c4ad33d04ff6ddaf40631b5ab77c87d500e1cd0"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/merchant-core.png",
+    "bytes": 60744,
+    "sha256": "c9b95861cac7bb19af95f68c41b76c8ed114836d1b3588d67821ad11796e27ee"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/neighbourly-support.png",
+    "bytes": 63434,
+    "sha256": "71193117218c4c2bcf8c5e9d106519f44932d0a6e7796daeb16b3fc59fd3bd08"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/overstrain-chain.png",
+    "bytes": 60206,
+    "sha256": "87b98660154709758dd7a71487aafaf48808d2ecd57f95cbc60740fb19500340"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/river-connection.png",
+    "bytes": 43284,
+    "sha256": "af4e121208a488c2c771cb3bf555bd4453e2367008a606185ff8b728d11aaa58"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/seasons-rounds.png",
+    "bytes": 34227,
+    "sha256": "1140cfcc6e93af847ae0d235d1feb1769846616a6c59dc70f70f709d94255fbb"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/source/The_Quiet_Vale_Main_Rulebook_v6_3_OneDrive_Table_Fix.docx",
+    "bytes": 3433032,
+    "sha256": "92ab91319694c0d452eac0752d5b1dab909157c209fad7cc9aace3f0091614ec"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/standard-setup.png",
+    "bytes": 623719,
+    "sha256": "a532078391dad90f0883e9f376eb8206d64acbae1a69a6edfae0b0d4147fc66e"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/steward-token-movement.png",
+    "bytes": 46837,
+    "sha256": "4fd60a866bdf9449667872b1defe802ab17adee271cdad0c026c50a9f835f031"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/supported-from-core.png",
+    "bytes": 66293,
+    "sha256": "04908c41c016fed92e83324c7ee599888c2983eab42e2b730c06ffd9a59e1950"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/target-card-in-action.png",
+    "bytes": 156244,
+    "sha256": "b355cde4ea8540dcf124a30bc475175cce68002e44d284b42831a647c1dee5a3"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/terrain-map-legend.png",
+    "bytes": 450830,
+    "sha256": "0553598a1b0c658a2f48cac71643ff98dc37fbcc4c2c69f80a89902661c7d1f6"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/terrain-placement.png",
+    "bytes": 90626,
+    "sha256": "b098fc333b829ef1c6712bf32b6b640ae0b03b892166ea83c09480fd78c6419e"
+  },
+  {
+    "path": "working/rulebook-v6_4-card-visuals/workshops-core.png",
+    "bytes": 56582,
+    "sha256": "10ab34fe3e579d89ebca05344401fd6ebce7c45f0fc72aa8e148b9c86f5d612c"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-cards/arrival.png",
+    "bytes": 1022542,
+    "sha256": "4c0098116cc55f1bc094cac30a23a3727df854b5012f76708c875be8c4c63257"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-cards/boon.png",
+    "bytes": 983464,
+    "sha256": "48717c229296a0a1f9a7398f9b09b169c9108c24719baa54843af23d527e662b"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-cards/burden.png",
+    "bytes": 593706,
+    "sha256": "09f914ac321c730c7dce025307dffc7c2b68de843838de8a14b3f1579a7e32d4"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-cards/golden.png",
+    "bytes": 1068622,
+    "sha256": "2b926bc021da6af361a0e4480212b8a2cbda4317de8f9f719e301adb77965442"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-cards/root-weavers.png",
+    "bytes": 1024524,
+    "sha256": "c375e2c8b1756e31fd241cc4549cc0af1f4b24196735f69dd055f88e37623392"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-map.png",
+    "bytes": 2529143,
+    "sha256": "cc0f189c9d66f60d1e072f613aef4fd60cc6c54a68bf3ed505de847ac2e54bf8"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c01_lumber_yard-basic.png",
+    "bytes": 1066806,
+    "sha256": "a5efd29751663b9644fefa4b4da812afe729d2bf5cafde0a623084084e062e19"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c01_lumber_yard-upgraded.png",
+    "bytes": 1067394,
+    "sha256": "f38bb4b6a5e08be5753e7fdf0ad949d722bd1e707f77b1459248d5ece36ac74c"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c02_mine_tunnel-basic.png",
+    "bytes": 432008,
+    "sha256": "7b89ecba70e158dc0b068227e4aaf49c1b4883282988aafc907e135bc6aae092"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c02_mine_tunnel-upgraded.png",
+    "bytes": 430930,
+    "sha256": "e5f71203bcf526aba3fb599cce3cf55198f6d510d7b8ce9f1dabbfb2478e56ce"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c03_gathering_outpost-basic.png",
+    "bytes": 435050,
+    "sha256": "e6986f65afd78ef86ef01a716184443c66f652b97b8738ff7fab4f4c7e481c10"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c03_gathering_outpost-upgraded.png",
+    "bytes": 434415,
+    "sha256": "93bea2a7091a2737bc6be72754f38e45a9067ac113720a19d5303d55c4cbe65c"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c04_farmstead-basic.png",
+    "bytes": 431694,
+    "sha256": "0d105dbb7ab85b71f71feb65d26f071cb2f7ce494fc1e94e48295a8c2b587c77"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c04_farmstead-upgraded.png",
+    "bytes": 431599,
+    "sha256": "ce1a4facd51442d8805960ed7a8310f98bf5feceeca4b17fd0645a6f9e697cff"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c05_cabin-basic.png",
+    "bytes": 433340,
+    "sha256": "4421221b3f9022e4aaa2b8354f1768288c8a8058eb8c00d87809659f540defdf"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c05_cabin-upgraded.png",
+    "bytes": 431214,
+    "sha256": "d89f7999d74e4f4d3b5dd3e6a8cce87b239b7c4053e7846edbb6ce22ddf38591"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c06_cottage-basic.png",
+    "bytes": 439785,
+    "sha256": "091fb416bfd866590595a915533b3abc4f4d2e9882ac9033218b309fe72d0a0f"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c06_cottage-upgraded.png",
+    "bytes": 434712,
+    "sha256": "6b633bd94152269373331681c106d4761d40726e8d26fef971d8ca77d20642fb"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c07_stedding-basic.png",
+    "bytes": 439677,
+    "sha256": "de050ed47f67845fe6680ef131d99670faf49777e40fc9d1057229363c8aa66f"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c07_stedding-upgraded.png",
+    "bytes": 435167,
+    "sha256": "e8f3f7b46b6c63c3245c4c4c2292fed4e2a08b7a7f763abd36987f304852b1d9"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c08_inn-basic.png",
+    "bytes": 441074,
+    "sha256": "65378477fa3c1a413da50e0e7c9af60b99e6b8e3adfa50991d5149409c31e128"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c08_inn-upgraded.png",
+    "bytes": 434714,
+    "sha256": "816c7d2e5a67bf39510eb9563cf36a532e555449af920ceec1e4479cb0578f96"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c09_tavern-basic.png",
+    "bytes": 440216,
+    "sha256": "ff4fd5f9d30b578cbd4c491aa03252ee00c637a8ef84e3b80ec9779e909c1c2b"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c09_tavern-upgraded.png",
+    "bytes": 433578,
+    "sha256": "7d5418f70ab287e0e8efc0df6322427c6db33285c9037ee1a356229c7d00004d"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c10_eatery-basic.png",
+    "bytes": 438452,
+    "sha256": "58c38f686de63df586f25112876db99f292fbe8ce40667e831fb638156c69626"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c10_eatery-upgraded.png",
+    "bytes": 433005,
+    "sha256": "f8f60e816a9bfec4027fd9c3162ea62ac0a8c14b38cf00d0251db2b3374c4e34"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c11_washhouse-basic.png",
+    "bytes": 441404,
+    "sha256": "7942cb3ea527379d01deeb34f9f2ba13968b54519a93a993f811701d0f1f71be"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c11_washhouse-upgraded.png",
+    "bytes": 437849,
+    "sha256": "71e2a6ad1028ce1a338ff8d1f026d8ca809af92d52c18c13053097c1d12cab85"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c12_apothecary-basic.png",
+    "bytes": 438277,
+    "sha256": "46230a4431f753fd9d463f0f675696c1b240d1ab29b5e99f27469b21d30658ef"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c12_apothecary-upgraded.png",
+    "bytes": 431722,
+    "sha256": "11545f13457960106bb88e89c35dcbfc9f1b9910692875f144625d7b0973f66a"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c13_workshops-basic.png",
+    "bytes": 447474,
+    "sha256": "e9749bd6a3631dd78c14bbc69d036c2af96ce1eb28ec171d76c8cf41d647d2d2"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c13_workshops-upgraded.png",
+    "bytes": 442212,
+    "sha256": "494a43f2c28fbce1ce1ee4c09c2061e7fec33b2d5937f1c38cbdfc5b156e58f6"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c14_market_stalls-basic.png",
+    "bytes": 449350,
+    "sha256": "4fb60e3636fa406f5e9cc769dccc20c349cabddb5a9cc3015805bc1378e80b5d"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c14_market_stalls-upgraded.png",
+    "bytes": 438489,
+    "sha256": "dee19fd64d5757285fcee96c30b3c3db6f52bb93c1ccdb441c15c41a959b0401"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c15_path-basic.png",
+    "bytes": 432293,
+    "sha256": "33f956c149b899dcd4b45033af6a0c326dcf488dd910be0f38d19b5ebdb84825"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c15_path-upgraded.png",
+    "bytes": 434755,
+    "sha256": "9ed764b53cac025da51153ea0f89ef5cb10f5075562db6fd441cab80d0e3b7f7"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c16_street-basic.png",
+    "bytes": 441191,
+    "sha256": "0c7173cd89f306d8be554bc270b6736ffe9ffb76c78bed3a710dff36676022fb"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c16_street-upgraded.png",
+    "bytes": 440863,
+    "sha256": "325a161bf4b4648c56c0363595c4944c65133cb6d9fa79353194748cafe942ef"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c17_track-basic.png",
+    "bytes": 441172,
+    "sha256": "a18a00cff6d9797aa78ff82f5702d8b1435ce7c03d4f128a169280663a1e63bd"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c17_track-upgraded.png",
+    "bytes": 440725,
+    "sha256": "206d4fb47a37cf9820fee420b5210ac9d598949e57e0d6c683a5bbdd6f543b89"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c18_common_land-basic.png",
+    "bytes": 443426,
+    "sha256": "63e3e6765300805c2c3602c70c4ee19fab4650d817d27f2e030847e8a1002775"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c18_common_land-upgraded.png",
+    "bytes": 438005,
+    "sha256": "b8238ea9a85bcdc0802bae51f77dd3b9fef25f8dc0c4d0dd2fc932c45e47a0a6"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c19_bridge-basic.png",
+    "bytes": 433920,
+    "sha256": "991e5c63297163152e1b2d108bb5c3f2932d9adab03d4f28fbab94d8d2f70345"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c19_bridge-upgraded.png",
+    "bytes": 434574,
+    "sha256": "c884c637554883efa811e1faa40f35011e8992870fb6f653eb1b7f2123c003e8"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c20_dig_site-basic.png",
+    "bytes": 433402,
+    "sha256": "66feeec5d5e02e3d753a3a31f380df7357eb178ef339ff31713f346f2827bb49"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c20_dig_site-upgraded.png",
+    "bytes": 435872,
+    "sha256": "d2ccd0a07c3ca8db6f16decabae73458bc330684bcf502462e0431e014af081e"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c21_the_vaults-basic.png",
+    "bytes": 441718,
+    "sha256": "ad3cb78d2c8781633bf79f14810fcba3f28fb390f29da5eeae4c0dbcf695ff90"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/c21_the_vaults-upgraded.png",
+    "bytes": 433628,
+    "sha256": "a0957197f48ad3eed2d29d50953427ee8cf3ebe6b5289ecdc289ddf38de35e86"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/golden_tile_the_golden_cairn.png",
+    "bytes": 453087,
+    "sha256": "f10181822b22edbb6744b697e0a2dd5dbb0ae08dba3333ef7c880c799c1c4fa0"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/golden_tile_the_golden_charter.png",
+    "bytes": 449443,
+    "sha256": "f113a81556d096d2e91b47b96bafaccbf7baa5f6f0c508476c652491221a9d7f"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/golden_tile_the_golden_garden.png",
+    "bytes": 451530,
+    "sha256": "475806ae429e27383b9c1a06e930fb320a4e5e0f32055c330292d24f385034b1"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/golden_tile_the_golden_hearth.png",
+    "bytes": 451176,
+    "sha256": "09fcfde456b557e6aba2d84aca94566da7ac12011b70cc711c88cd8314c92646"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/golden_tile_the_golden_river_gate.png",
+    "bytes": 456304,
+    "sha256": "ee488f3c2154415b080b5176a562669f61f9af96a7cff7a0d2817d51c081b448"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-1.png",
+    "bytes": 485061,
+    "sha256": "393969466d8c073a5020db86964600c4fdee62224dea3cfe37f486b8665a5459"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-10.png",
+    "bytes": 482101,
+    "sha256": "db390ff0f937d0a3a9a3f64a56ec6e7925f306e5c19fd6cb1827c214355798d5"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-11.png",
+    "bytes": 482348,
+    "sha256": "a7872cfc011469e66386a34564ee42f0975053c971c1a8284d977b3ed3f294ef"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-12.png",
+    "bytes": 482573,
+    "sha256": "1cdc69210576809d27239b4dee08132afccddfcf6cf2fb7fbff179883cdbdcb8"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-13.png",
+    "bytes": 483296,
+    "sha256": "91f2a3f796c85f477c91f422ac4c4a0d8017dc86ec12e235c42c4645b457cb26"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-14.png",
+    "bytes": 481052,
+    "sha256": "db515d8ebe02664f8ba8ab87096c4f38dfe267de133bd3af91dcf803e6e9db2a"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-15.png",
+    "bytes": 482134,
+    "sha256": "bf5c6816f4518a03147485e422f423e352622d7ee8bfadaed3fc5f4ef703596a"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-16.png",
+    "bytes": 482493,
+    "sha256": "32d4cf5cbbc6f6810822ecc1cd888fb32c79977c259f035d08c855f525a59d35"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-17.png",
+    "bytes": 482831,
+    "sha256": "1fa800728e4b01763c9c7ced0a3ed90723119cf927cc40126d1bbab3ee8cfbf8"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-18.png",
+    "bytes": 482155,
+    "sha256": "340927275579c623ec1d36604d02278a70382b45ed7f4f7a98863457d87931ab"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-19.png",
+    "bytes": 482690,
+    "sha256": "9ad4257a8ed6313a4b4d1ce3b35362714f852d686b85a28738d289d93f54b0f1"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-2.png",
+    "bytes": 485288,
+    "sha256": "92d8a8ef2bef8dcb00de1853659fc5ed0f63d5bd1739da2aba30c55225847a81"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-20.png",
+    "bytes": 482228,
+    "sha256": "d8c9af4b4f5d0e3c3bc6f8d059219b9453c668722759ccc0281d882a482a4255"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-21.png",
+    "bytes": 482598,
+    "sha256": "8400dd0f270f4bf7cf29f698ce1b29fb03605ad11ffaf4c7c53889cc1b8cccb6"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-22.png",
+    "bytes": 482239,
+    "sha256": "bdedcef1e0afe3385db25c8e192fb1074055c72896000fb2cf62ab960ebb54ed"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-23.png",
+    "bytes": 483213,
+    "sha256": "69907574e73d17996f2f6253eb5fb8fa2ce2bc063acaf2e107ada1cb8fdb9d7d"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-24.png",
+    "bytes": 480999,
+    "sha256": "1ab17c0b2e8efe2c91452333b60d724d4a11863610ef5e5e4339019a551b7ba3"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-25.png",
+    "bytes": 482255,
+    "sha256": "d625c8449675c439889bab1e75ac8a34e0cf4320f3625158543e133c0a69e0b0"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-26.png",
+    "bytes": 482700,
+    "sha256": "130e215b2e951ccf1ba7ea04adaf994122e34cac6de417b431f4c9d3349ec9f6"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-3.png",
+    "bytes": 485694,
+    "sha256": "e0359e0a96644eddc58909db1a98f09caa72dd06937c717817af9e04102d70a7"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-4.png",
+    "bytes": 483651,
+    "sha256": "ac659ba946a9e3a38d6dd7c6d61a97d9d682590c69076210442d2e246c64b734"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-5.png",
+    "bytes": 484603,
+    "sha256": "8fa3e6bec7f52f37cd0f45d670c0bfdde38843c11245aae00d1d765c8b04d87f"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-6.png",
+    "bytes": 485320,
+    "sha256": "33a37d268b23d189174d3c13a7054ed04d27ced5f1237559ba1b98b47d5604ee"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-7.png",
+    "bytes": 485278,
+    "sha256": "b47cc73da7e3854203f4d1ab595aad34d7bea14e063c873493b8a575e275bc95"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-8.png",
+    "bytes": 484457,
+    "sha256": "e732b79fc93dddc8f29392bef941424c61fddcb8ea140749c452f8af396f17d8"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special-back-9.png",
+    "bytes": 485099,
+    "sha256": "fb84559de6e23ecb1edd98983997c3262cfbc33e767b254e93852709cd02c007"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_adventurers_guild.png",
+    "bytes": 440369,
+    "sha256": "781fc79e391f2b24346e23a87b4f140a0f480a4d9aa106cb4742d96ad36d61ad"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_alchemist_s_workshop.png",
+    "bytes": 452445,
+    "sha256": "46cef19cd4bfd44794f5193d4b8fab69ecca9eb886f568d3d1bff471fa725420"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_alms_house.png",
+    "bytes": 439511,
+    "sha256": "50df0e318a6a07221a37f3ca6c59713df487b73b100923c53345feb6245c86ac"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_atelier_workshop.png",
+    "bytes": 451015,
+    "sha256": "aa59b6472f5044e999f071b7f6f653e01ce60364668c20551837095eafe58bae"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_brewery_of_legends.png",
+    "bytes": 450311,
+    "sha256": "4b64eb9fed3d57f8bf59e53a2cd3b3a9ebbdc7759cad16cf686f391c209c584c"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_docks.png",
+    "bytes": 451860,
+    "sha256": "9aa9db74af6d4acaca118e4b9f7844089e85e413bc4addab6401a544fc494b55"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_hearth_garden.png",
+    "bytes": 446606,
+    "sha256": "081b3e658930fa463da35a50f24a1f6b6ec67d7956feb3b1f9f5c0b56bf1e55f"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_house_of_learning.png",
+    "bytes": 447146,
+    "sha256": "d0fca03e77655a86ab2ee617b89f5b028f20de8f2f778c6688d204115293be43"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_labourers_yard.png",
+    "bytes": 445658,
+    "sha256": "ca24c3b6d52682243f4222146f4019d1164095481b3d1a3296a616259f2ef240"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_lantern_roadhouse.png",
+    "bytes": 452512,
+    "sha256": "6680548a0ff2fce3b39fa08eb4e29c54ba9fcfc70a85c7c762c84e87cce06b11"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_reliquary.png",
+    "bytes": 444435,
+    "sha256": "0a91536d934cd19e31d41a542e709c96957003dc67e7c187d2c1e1876c1d7dab"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_shrine_of_ancestors.png",
+    "bytes": 447841,
+    "sha256": "10c1f610cca6d4b0c8a73cda232e8bfd21621c407b1c424b09367d4487576082"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_shrine_of_ancients.png",
+    "bytes": 446450,
+    "sha256": "bb68de9d3d0ffdc7437fbcb3319aab2d73e582c568a864eeea3ed130a54b0667"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_shrine_of_bounty.png",
+    "bytes": 444289,
+    "sha256": "c41f9adaf6a016110c3804fcc7f76e0c5869cfd5b88a091f7f8cc2f490e11190"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_shrine_of_depths.png",
+    "bytes": 444823,
+    "sha256": "e38acab5f5696f3c3bca16df345032498e26b1f9573e1af105dffa27024cb0fa"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_shrine_of_renewal.png",
+    "bytes": 448271,
+    "sha256": "bf8b154a87180054e4948e681943ff00ad6cb56b3f93f74fedba8f102bd96126"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_stables.png",
+    "bytes": 463837,
+    "sha256": "dd4e25a2d0619f7a04cda111adb94eaa2a5cd31d39cf26510a2c27a2c298b507"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_the_iron_roots_respite.png",
+    "bytes": 452557,
+    "sha256": "66f2edfd5abf1311c5c88dfed6a68887d43d4a7088a77d9ed66178235ffd6266"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_the_lorekeepers_respite.png",
+    "bytes": 448833,
+    "sha256": "1415b38263795edec37655ef3b22ab7c642b28cfdf69116d086e8f5ab8cbd546"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_the_reavers_respite.png",
+    "bytes": 442598,
+    "sha256": "23ee023e64117e33bf9f1b14ddae72b862d335193f48737094c585f44ece2639"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_the_resting_hall.png",
+    "bytes": 450387,
+    "sha256": "112fea0135b3805cf3f10aef5401c6f234c8e2ab8d6b1fa8676ac2407b4c71be"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_the_root_weavers_respite.png",
+    "bytes": 447711,
+    "sha256": "f10d2364bce1fd3b0a3ba3cfd4269d876df0bc3bf8cf9eb437351fc98cd595bb"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_the_tamers_respite.png",
+    "bytes": 442092,
+    "sha256": "6abbb16b92567ab2bca17ac6bda1ae6a9b2e84540496f6f443f4a319e826827e"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_the_waystation.png",
+    "bytes": 446950,
+    "sha256": "b479155f6702e9226a004489eee0fa5dec21b7de620f90521ef980ccd8fe6009"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/special_theater.png",
+    "bytes": 450328,
+    "sha256": "dfb5683580b2b4f16b39eb5cae28c06028de0be49db321af509d82131a141c14"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/travel-extension-basic.png",
+    "bytes": 443211,
+    "sha256": "0974aad7efee8f484bc7c1e41f25b921494b721d4c5fc97132a26af55b3a5d91"
+  },
+  {
+    "path": "working/rules-v6_7/assets/aid-tiles/travel-extension-upgraded.png",
+    "bytes": 443211,
+    "sha256": "0974aad7efee8f484bc7c1e41f25b921494b721d4c5fc97132a26af55b3a5d91"
+  },
+  {
+    "path": "working/rules-v6_7/assets/arrival-match.pdf",
+    "bytes": 10394712,
+    "sha256": "7eaaae012d49878ee1085a1e17c1df56980335db7666d67a577b59a21cc43c70"
+  },
+  {
+    "path": "working/rules-v6_7/assets/arrival-match.png",
+    "bytes": 1432167,
+    "sha256": "b73371e0ce9f576ee691088618af666a61bca3ea341602398d6a67a18975fa5f"
+  },
+  {
+    "path": "working/rules-v6_7/assets/arrival.png",
+    "bytes": 3751545,
+    "sha256": "e334c2927355a075aa7afb62bbe3a08278eef612eaf88cb2734c56fa0de7016c"
+  },
+  {
+    "path": "working/rules-v6_7/assets/boon.png",
+    "bytes": 2879456,
+    "sha256": "038fb8b6107193e68c5f8851cbed735cb862737806fc7945063bc19992be339a"
+  },
+  {
+    "path": "working/rules-v6_7/assets/burden.png",
+    "bytes": 1937110,
+    "sha256": "eb0e126ce9bdc15f17380f7198f71bf955795b94d4c7e56388645a1b1b879740"
+  },
+  {
+    "path": "working/rules-v6_7/assets/core-faces.pdf",
+    "bytes": 6164398,
+    "sha256": "8129be1e7743f415766d68ecc6d9cb85c48cd32791b92df7495735cdaed8b19d"
+  },
+  {
+    "path": "working/rules-v6_7/assets/core-faces.png",
+    "bytes": 1081997,
+    "sha256": "4725d03ddbc18e945c0f0bed01166a70f2e4554ca2c831ec3602fed96ecb9ea3"
+  },
+  {
+    "path": "working/rules-v6_7/assets/effect-icons.pdf",
+    "bytes": 350379,
+    "sha256": "e017b0c33da7b26601878577315a3e6ab0ea0ed18565272d9c0d8a0e85eb7c96"
+  },
+  {
+    "path": "working/rules-v6_7/assets/effect-icons.png",
+    "bytes": 131511,
+    "sha256": "5a88d28911a29ae0f3ca0b83f6526072819840a8d3e8811b5509e7c1bb873b0e"
+  },
+  {
+    "path": "working/rules-v6_7/assets/golden-faces.pdf",
+    "bytes": 15038667,
+    "sha256": "d9bea4feb7c451d7f73500abccaf51a04655d44a0f35527dd7d856e0dde55fb3"
+  },
+  {
+    "path": "working/rules-v6_7/assets/golden-faces.png",
+    "bytes": 257567,
+    "sha256": "4bf535513a3f98cbbfac997337570fb6012fd698cd9d5adc38d33c1977e357dd"
+  },
+  {
+    "path": "working/rules-v6_7/assets/golden.png",
+    "bytes": 3149940,
+    "sha256": "870f0191f2fa431da2092818596a4c0db5e05e1208a8aa70b9049b58cc51840d"
+  },
+  {
+    "path": "working/rules-v6_7/assets/reference-data.json",
+    "bytes": 4971,
+    "sha256": "27580c39f5c60b4b0a4931f406dec1485e5e697bf9fc43aec96aef281e04e381"
+  },
+  {
+    "path": "working/rules-v6_7/assets/root-weavers.png",
+    "bytes": 3752578,
+    "sha256": "19380d1680727972a767ecbc5020e8fc5bc6f2f2c248c099862704687f06aedd"
+  },
+  {
+    "path": "working/rules-v6_7/assets/target-25.png",
+    "bytes": 1840521,
+    "sha256": "0ff5b835e93c7f7df003f52ce40492f99cca8987853ad14d4d06ed37f028b570"
+  },
+  {
+    "path": "working/rules-v6_7/assets/target-5.png",
+    "bytes": 1986430,
+    "sha256": "3ce3bb900378cd88879866051af456e194d218cc5222b2aae4e595c0b1233374"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c01_lumber_yard-basic.png",
+    "bytes": 200204,
+    "sha256": "4a1c3103c710794e0dae85f3c85c1dd4f878b09827ac0436de26ea52c70ea116"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c01_lumber_yard-upgraded.png",
+    "bytes": 201722,
+    "sha256": "18fbee40e073ea9a70cd408ef869c9ebeea1e1a987cc4f9bed4c95e740b64852"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c02_mine_tunnel-basic.png",
+    "bytes": 199881,
+    "sha256": "2489786013134ffe5a2f6e0513a7cb74eda5dcc876b62c19db592fce3e3ad1d5"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c02_mine_tunnel-upgraded.png",
+    "bytes": 199358,
+    "sha256": "83fd3a9368d70e8c733ac941f7c1f5b10851880611714775c77449b397432906"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c03_gathering_outpost-basic.png",
+    "bytes": 201365,
+    "sha256": "c84942805724cf65bc059ea3598774ef1d7fba715da7690d708baf0c66e5c62f"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c03_gathering_outpost-upgraded.png",
+    "bytes": 201317,
+    "sha256": "f83454d528026126b0dd087d2aaa87ca34d04e26fbb4370720e5f24dcfaf1828"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c04_farmstead-basic.png",
+    "bytes": 199600,
+    "sha256": "7f3493b722d911c964e9c64501d2af01456650ffca9f3a2b46f5321a109c4b7d"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c04_farmstead-upgraded.png",
+    "bytes": 199584,
+    "sha256": "e20e8e612f401483bb81c39a14765efa2a5e42e9242ac204e836c3569a0168f8"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c05_cabin-basic.png",
+    "bytes": 200025,
+    "sha256": "330839a8ba17865f6b960da2c0cb9ed46d354718de9084aea21fc0abe0de6dda"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c05_cabin-upgraded.png",
+    "bytes": 199453,
+    "sha256": "5eb458988828caf93b94379fad320a0cf953c6aa2bcffde1438996d6e5c7d223"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c06_cottage-basic.png",
+    "bytes": 203523,
+    "sha256": "4deebd9b43b73727f2a2deda60d39c8f12eefb77210e96945871413d3bb2432f"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c06_cottage-upgraded.png",
+    "bytes": 201279,
+    "sha256": "56f50e4e4007e032f5975133d9740881307da5b4e1524fbbbee41641227ee858"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c07_stedding-basic.png",
+    "bytes": 203507,
+    "sha256": "c713e3e36131025581bc82ee035745d4fa28ce60a4dea21f7e149205b152b30f"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c07_stedding-upgraded.png",
+    "bytes": 201839,
+    "sha256": "9b74f3a19a41d329a8eeab134e9b56d4793341f453f0a6d16acd37b462d46729"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c08_inn-basic.png",
+    "bytes": 203643,
+    "sha256": "8732c829aba50465fa2f87905e7e0f65b2f027a8a80271343660fdfecfa36553"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c08_inn-upgraded.png",
+    "bytes": 201057,
+    "sha256": "9bb3a5e541fcc8d56c5663859e3a40c0d4a8e1ba7801bcf8970853857c676bac"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c09_tavern-basic.png",
+    "bytes": 203586,
+    "sha256": "6ac997af3c7e5011e433d6bdd9a4d3051bb077ceddd54acaf3c35e8aaecba0e9"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c09_tavern-upgraded.png",
+    "bytes": 200593,
+    "sha256": "19e3f34086f3d58387e1f50ea74076f1ad05afeea627433a62a2070082ce2ab2"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c10_eatery-basic.png",
+    "bytes": 202135,
+    "sha256": "8cab66740f2f9eeaef0e6a33ce029167bc7ea231618ec924e3d52f5ec35741f0"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c10_eatery-upgraded.png",
+    "bytes": 200356,
+    "sha256": "1f0a62c3c159ac0a886567e45704ecad1118a3dded0999a57c41b7e958535aaf"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c11_washhouse-basic.png",
+    "bytes": 204280,
+    "sha256": "7aec3cc42c26991a6812e35074d574ac5bda70681989e72e4e6258f0dee9cd44"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c11_washhouse-upgraded.png",
+    "bytes": 202857,
+    "sha256": "105d86f7d1fa25f8abd0b67e20f13996d95b5e035baf91db55826146c72c6c2e"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c12_apothecary-basic.png",
+    "bytes": 202598,
+    "sha256": "3c865657fba4f6a6be0cc1e591bae2420eb0cbaca157a27f5f0a5cccf505c3b3"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c12_apothecary-upgraded.png",
+    "bytes": 199560,
+    "sha256": "5bc1a43147d02bf86c9974f75fa879c8dcfd91ed5c653061327799712dd7e568"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c13_workshops-basic.png",
+    "bytes": 207616,
+    "sha256": "8e48b3e03b29ef2cf2a4dbced0684f4914982b95f23fcf9c89b4377604aa8335"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c13_workshops-upgraded.png",
+    "bytes": 205513,
+    "sha256": "912fb8cbbc9b52dd4441b57af18f98dc27c09b1d24c821f0e4ebcbdfd5aee0cb"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c14_market_stalls-basic.png",
+    "bytes": 208492,
+    "sha256": "ee2f4f0d1fc62b10e078a574acf671d935a076e88db79d47564c647c81bcb4e4"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c14_market_stalls-upgraded.png",
+    "bytes": 203407,
+    "sha256": "1b8029c1c282d12cdf01d6d3f33815db821e52e43d4d898ecf4c612b13df3d7a"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c15_path-basic.png",
+    "bytes": 199453,
+    "sha256": "ef559856f585f05d332eca62e87f80a3f5269ee680d667afae25a773fbee02cd"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c15_path-upgraded.png",
+    "bytes": 201196,
+    "sha256": "b98829962d5385805e4f94287f57e728bd6e2d68cde0c14d72998e2f99fe5554"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c16_street-basic.png",
+    "bytes": 204712,
+    "sha256": "3d0e438bf17d69e0b649227cb50241fc6b802c45044a8cf824a1d5e79543b6ee"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c16_street-upgraded.png",
+    "bytes": 205098,
+    "sha256": "b2dad60da0fa90f6c595f5f9e5b2f36f22edffc56897ae6905ab3343d0533aa2"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c17_track-basic.png",
+    "bytes": 204687,
+    "sha256": "79867983c6ffa4f81f773e6e4056bd88155a15ccfcaaa43bcedbffb69f2487f6"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c17_track-upgraded.png",
+    "bytes": 205133,
+    "sha256": "448b22de27bc03fe210371d6bc930d8b7cf17e77f8330c151935b4f53ac24673"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c18_common_land-basic.png",
+    "bytes": 205569,
+    "sha256": "52f3671f7c3eb08abff647bfadb9c7922741d03cd52251eee86dd4a92979a51e"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c18_common_land-upgraded.png",
+    "bytes": 203172,
+    "sha256": "ae68862338e1aba22df09de4409124e3c65e97676c76646817f57f99204e5c29"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c19_bridge-basic.png",
+    "bytes": 200459,
+    "sha256": "2f340f4e8b75a49e57c4eca00022851fc1a1f4546d6d2f99388dc990ed9919b1"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c19_bridge-upgraded.png",
+    "bytes": 201024,
+    "sha256": "5bd10cb73a809584f259dda446d2c5d3690f053678eefaf0cb4f1bd22194b9dc"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c20_dig_site-basic.png",
+    "bytes": 200533,
+    "sha256": "be48430391faeb169585ec6547b1d3acd614b92b16ce58da9675bcd11f98d92a"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c20_dig_site-upgraded.png",
+    "bytes": 201930,
+    "sha256": "fef5da5d2901115138a32862d27733e791e50783249a4d500e0f4ba7568a00c3"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c21_the_vaults-basic.png",
+    "bytes": 204672,
+    "sha256": "806ddcf9d9033277e0019e02903282d9d2badcd3a780aceba33cfad6d4ebcf54"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/c21_the_vaults-upgraded.png",
+    "bytes": 200859,
+    "sha256": "38984d089197657a151232395b783d44d0597e49bac3ee56ad9ede29349857b2"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/golden_tile_the_golden_cairn.png",
+    "bytes": 211268,
+    "sha256": "d6877b12f0bbfd705ba6cd2ba74ef949b18a3dbe2dea90542e5c84fbaedb2bb1"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/golden_tile_the_golden_charter.png",
+    "bytes": 209482,
+    "sha256": "29ffad38d3244282ad9e29ff68c15a57f22bd8e9de0d1784efad86a3a7f3b4de"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/golden_tile_the_golden_garden.png",
+    "bytes": 210227,
+    "sha256": "9821e8eaee7f2ddbf91adc24421cd63ef7ab469b2b46049d8acbfceba8561398"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/golden_tile_the_golden_hearth.png",
+    "bytes": 210210,
+    "sha256": "a5deacc88cdc623ce20b2566800b3f5d31fa4e67c349e582570018ec0160a163"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/golden_tile_the_golden_river_gate.png",
+    "bytes": 212862,
+    "sha256": "9780cfb860767c9fa89e84fc7f3ff7c1183bf93545aa7d35a4e4b44082f07d6d"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-1.png",
+    "bytes": 227677,
+    "sha256": "5ead9b67b52ffb7477965b32aa6a8a72efbd43aebf6ea52f68fb6d829460460a"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-10.png",
+    "bytes": 226717,
+    "sha256": "ed2f52187360fa09ff58953521eb6ca6a28f8f5f08492d64764fbce7c547b616"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-11.png",
+    "bytes": 226712,
+    "sha256": "b1c23dafca9a3e55c5fb1e4637543ad9c26ca8af143a6cddebe962d10b4415be"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-12.png",
+    "bytes": 227033,
+    "sha256": "241e7635447b7beae28171498567719c6be880e1ea05bb5e0759ca54a5843470"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-13.png",
+    "bytes": 227494,
+    "sha256": "f81a5b67ba34cd30f1606b01b126212e950e89af99ac564fad64a4e6a768437f"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-14.png",
+    "bytes": 226656,
+    "sha256": "edded64854a3b784fe1f053a439d31a2a2aba0b66b279b706769196519695845"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-15.png",
+    "bytes": 227205,
+    "sha256": "1f5d041b6c5c705e8cba2919116dca5fd887b2af31d4306192d563229a4c8593"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-16.png",
+    "bytes": 227544,
+    "sha256": "00ffb9ff6e75fefffb997ce9f8ed61d945682dd50bcd8b800fbe29b00760fc42"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-17.png",
+    "bytes": 227252,
+    "sha256": "d08f4c262d9f922d7aa467b7172c496739d21abdeb5d1110ec2136991aaa7359"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-18.png",
+    "bytes": 227344,
+    "sha256": "79fb2359811915b062a1da7fdeffb65d13cca611e7ebe97e32ff8bccbc742015"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-19.png",
+    "bytes": 227204,
+    "sha256": "7e53996a793f0c9160a559b1b2eebaf1beb5310e2b5419f1a155372f322f426b"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-2.png",
+    "bytes": 227721,
+    "sha256": "89f8872d5c2df27e2cd5e355758ed2632384ec8536f8ff6e28fcec3f0ea3213b"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-20.png",
+    "bytes": 227191,
+    "sha256": "28080c74ff271bb10a2563b7a37d036fcdddfd5d63089fb9e375af9680ca6c44"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-21.png",
+    "bytes": 226930,
+    "sha256": "342b46ff8a177ae2702552d3824dce6674cc90aca4b139e2968595d0a50eade4"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-22.png",
+    "bytes": 227169,
+    "sha256": "467ae0c2bf178f218ff7342e4011b9756fc5a5309d61df235f0d2f54442d12c7"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-23.png",
+    "bytes": 227488,
+    "sha256": "882809c7cbbafd81b864bc17f09251a981a01ce325997865729af5136861228d"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-24.png",
+    "bytes": 226644,
+    "sha256": "f7b3f0f651f00ddf3345d1db86a7bc8332b6e6817918b23a868bdbbd36b40588"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-25.png",
+    "bytes": 227294,
+    "sha256": "2b7d7af0fd989b69cef4748cbf75face68c00b44b7ab7c00b4a0406ca1b2c577"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-26.png",
+    "bytes": 227506,
+    "sha256": "08b15e603d65f25569e6a0c01e23e58842585fe163d3e7769c1ebe92f807e066"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-3.png",
+    "bytes": 227774,
+    "sha256": "74e2362647148eaf54f6f9ee6fc5e6f30428c050f8eba10a380f90e89bd407cc"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-4.png",
+    "bytes": 227190,
+    "sha256": "1ce6ad0ebd0225e962f3baf694259e2bcba47f48b308eec65b82c0722c467105"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-5.png",
+    "bytes": 227236,
+    "sha256": "80d333c74138eaaf2109d299bf3c1f5281f11267eca18551fed607aeb0241ce0"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-6.png",
+    "bytes": 227968,
+    "sha256": "ae5d7bb388cdd4d23555f2fb329e5f437e7830ba483678528579761e9e7f468b"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-7.png",
+    "bytes": 227903,
+    "sha256": "fda964349ba81ae6776696ade332d591274b330e1c1328c465f7632b398df9f2"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-8.png",
+    "bytes": 227023,
+    "sha256": "7e7c5a0ca14d4f240228795fbc33c8e543baa64191c81169d706369fe4cb5c35"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special-back-9.png",
+    "bytes": 227571,
+    "sha256": "041a3d3c7bfd6a4a7e88d7d626ba25050736f3b25648a0e2b26f09d85602fff9"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_adventurers_guild.png",
+    "bytes": 203960,
+    "sha256": "3497efc8678198fcf7dfae2169c8e66d5b1abe147b17491a1f25cd65b65bfb00"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_alchemist_s_workshop.png",
+    "bytes": 210916,
+    "sha256": "47cd651bc42615a94039fd940499d6fe45db075a3741cfa54a5450464eac9b96"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_alms_house.png",
+    "bytes": 203584,
+    "sha256": "10e514a711007e5f7e0028ca6fd08e75dc04e4b3d3e7d5f169988c9282ec5ad7"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_atelier_workshop.png",
+    "bytes": 209945,
+    "sha256": "a8587d429dbe61eb89063a43866cd21990a67d1470b7f0bad847fadf67fb35a1"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_brewery_of_legends.png",
+    "bytes": 209665,
+    "sha256": "b76a5a41cdcc725fe1532a9d5c0d24c6285f3ba50f10ee04a62521abc7581a50"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_docks.png",
+    "bytes": 209989,
+    "sha256": "cc8378057b9ecb722f69dc3aa91eb9682e73efd69fc2d1f3bb9505f49942b9e2"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_hearth_garden.png",
+    "bytes": 207965,
+    "sha256": "5e3a7db8667525a2475ead0ee14b54539e92b39b7c2b8bbb32bbb13762ec16ec"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_house_of_learning.png",
+    "bytes": 208198,
+    "sha256": "2dc0b5ac5d4460e188f542cdc6d681c3f8d87c156a4f4b6dab13bcfd40bf71f5"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_labourers_yard.png",
+    "bytes": 207175,
+    "sha256": "d32fa4f8ab50932258e3816ddcb1d764e4151c2e0aa1326b907c3336dfe6254a"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_lantern_roadhouse.png",
+    "bytes": 210541,
+    "sha256": "f6e6340988c2a4ff19841a2acecfdd4432c38ff513ff518d6e46b82d87ead12e"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_reliquary.png",
+    "bytes": 206859,
+    "sha256": "6312950b798a9af76a3b2510d3fdec9f00d66e3db2d550e767cdad3b975e3afa"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_shrine_of_ancestors.png",
+    "bytes": 208898,
+    "sha256": "79c3ef3ec47af12d5b78f6421367e71c07de166930e6a22b642e6c94004110e1"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_shrine_of_ancients.png",
+    "bytes": 208087,
+    "sha256": "141f72e6cb7117aebd17afacfc211a6f6f0defebfa4639b6cafd1c682388a085"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_shrine_of_bounty.png",
+    "bytes": 206745,
+    "sha256": "dc2361664578c5e96dfce6b0383ab36bb567ca5a7dcc378de4c3ffaf5564ce39"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_shrine_of_depths.png",
+    "bytes": 207138,
+    "sha256": "abb431b7c436cc0b6cec28cc0e9b462df1e63a1f1cb537ced935ea2af6da621c"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_shrine_of_renewal.png",
+    "bytes": 208900,
+    "sha256": "656876c1afc95638b7d5f36bbeafc0ce25117d3a7966ec54c92e0a32c2b7b319"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_stables.png",
+    "bytes": 216366,
+    "sha256": "3fbd1b9cd537cc11437aac3f0670be1ddb7c859196c8d6159a729bbbce57be22"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_the_iron_roots_respite.png",
+    "bytes": 210726,
+    "sha256": "0f8692935e443bed8c3def6922378a482479f5b8814d8ab3623d6bff5cb1845a"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_the_lorekeepers_respite.png",
+    "bytes": 209375,
+    "sha256": "1520584b6b6638fa9fb2a9f6a79c1e9ad0737b1503f287eb4cf07f2d3f9ad20e"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_the_reavers_respite.png",
+    "bytes": 205636,
+    "sha256": "7ba14690fec9f019c1c97f56aa5d5110f1d6697013ab3294e5f8db162e1b02ed"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_the_resting_hall.png",
+    "bytes": 209709,
+    "sha256": "d1958ee5342bd3db6ddfebd93d6bc60fe6752168c9f558d1664da12dfb18a81e"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_the_root_weavers_respite.png",
+    "bytes": 208582,
+    "sha256": "3d63cb31edd2fded4d8409148c3079999dee48e3ee30b61796798a7a0b8da9c0"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_the_tamers_respite.png",
+    "bytes": 205409,
+    "sha256": "8d844a642b1c36a89042f2d2089cbaea173f84149daa6f1814f0cc2da1e5697a"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_the_waystation.png",
+    "bytes": 208128,
+    "sha256": "60626bc94242dfd50bdcfa184331cd5e8300b2bfaedf11d2e969a6c02b81875a"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/special_theater.png",
+    "bytes": 209627,
+    "sha256": "5deefc9c3175a0177d935f5229d2a650b1cfc54005bf0917db863a94de1f8d8e"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/travel-extension-basic.png",
+    "bytes": 205316,
+    "sha256": "ea8eb60569f63d45c428c6eb30ab5e1b954ddfa9d6b0aa3207da9bad771f6ce7"
+  },
+  {
+    "path": "working/rules-v6_7/assets/tile-thumbnails/travel-extension-upgraded.png",
+    "bytes": 205316,
+    "sha256": "ea8eb60569f63d45c428c6eb30ab5e1b954ddfa9d6b0aa3207da9bad771f6ce7"
+  },
+  {
+    "path": "working/rules-v6_8/assets/component-families.pdf",
+    "bytes": 37975789,
+    "sha256": "c5f74334ed05c21181781773d7fa2967f3fef4afd318b850f1867f809a59ba07"
+  },
+  {
+    "path": "working/rules-v6_8/assets/component-families.png",
+    "bytes": 973698,
+    "sha256": "8df8b4367139b96bef35b9f71d33da3c734f30542a22dba161c05a1513480e47"
+  },
+  {
+    "path": "working/rules-v6_8/assets/steward-guides.pdf",
+    "bytes": 275658,
+    "sha256": "01cdc2ebf4342f2fa9145c742a24d248f557f4f41e675810b5755b0988caa777"
+  },
+  {
+    "path": "working/rules-v6_8/assets/steward-guides.png",
+    "bytes": 45846,
+    "sha256": "852e4d86acf17b61cfca265d1851ae5d5be7c426da35e94f1b5f1cdd1e6f6686"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_6/update_rulebook_v6_6.py",
+    "bytes": 55374,
+    "sha256": "8da8e23906081c0e37ea719cfec42e9d835f0a86833c44e90afd76991a2a7809"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_7/audit_professional_rulebook.py",
+    "bytes": 12720,
+    "sha256": "f20dd03cc38fc538d38df0c5cb7597b7b570ad2149fb8777afc7084d2d2d063d"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_7/build_professional_rulebook.py",
+    "bytes": 127247,
+    "sha256": "5ed260fb04923a87da03cf65bc25ec01c2fa5e4f5c9fec92404d5ab6a881fc94"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_7/build_steward_aid.py",
+    "bytes": 48474,
+    "sha256": "cf75894f1bf93b891f3d237a960eef881f45d403c44b7a9c9c45002a039aae37"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_7/capture-cards.cjs",
+    "bytes": 807,
+    "sha256": "4c750c1463182c88d4a0e093d9b83d07bf55622ebefdb2d71e8ca9ab0c448542"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_7/check_layout.py",
+    "bytes": 1129,
+    "sha256": "bc44939b7d70967f2f8d5c39d72dfdf2ae382e9d99f1fd2112f614f20cc285ca"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_7/optimise_aid_art.py",
+    "bytes": 1435,
+    "sha256": "e4a8e7858463a31487891f981d04166b674ff47d372931554faa70ae63a4b050"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_7/package_suite.py",
+    "bytes": 4512,
+    "sha256": "cb0dd1e8be0b3367884dafd26f64d84ba0c4fd7d0c815c58f694065fd61a3d53"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_7/refine.py",
+    "bytes": 2915,
+    "sha256": "badd378dbec05570ef5a6a25430cc2def0c1a9d35b771cdcd399a05511133b7c"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_7/suite_reference_pages.py",
+    "bytes": 4719,
+    "sha256": "70ae9d7644c50fe9ff7055b12516ec632b043ec8638a5f919cdff624ac49109d"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_7/update_suite.py",
+    "bytes": 11238,
+    "sha256": "44a83f8ee4a570a4c6e575b06d9ad3c3bf46b7550225b7a8260a85598cf5721c"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_7/verify_suite.py",
+    "bytes": 1564,
+    "sha256": "05edf17fa4c643e3e70c19761e679940fad3dc8f46f342b44cfb6d604a6ea96b"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_8/audit_professional_rulebook.py",
+    "bytes": 12496,
+    "sha256": "1293d8d0281f4ab7d7a2294ab32001f3297df495817a24231ac50f0ee7a47552"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_8/build_professional_rulebook.py",
+    "bytes": 122770,
+    "sha256": "902fd259347b06899000940dcf94de1b821f21b6eb2702937f373e0d91c88d74"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_8/check_editorial.py",
+    "bytes": 1531,
+    "sha256": "412aac65c26871764d9f508890747a230a7cbb9c41ba4775abdce05c8839568b"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_8/editorial-checks.json",
+    "bytes": 112,
+    "sha256": "32dc35d2aa84df3cb8c5eccc9f2451fac79bd2fcd9272b482daaba452b473861"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_8/final_layout.py",
+    "bytes": 2787,
+    "sha256": "edb14cf39ee7bcd1cb3081dabdf75d2f0232a7ed9df9bc478e6120e98c98d87c"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_8/package_rulebook.py",
+    "bytes": 4272,
+    "sha256": "b88697beafdaadf8fdea399421e0fd05b239b212859944cd9013a9beac9c43b7"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_8/polish_reference.py",
+    "bytes": 6113,
+    "sha256": "880a63713fe26567a0835cfce75a85f79a1ac68258d3bd3c5aade3eb26fc57d8"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_8/polish_rulebook.py",
+    "bytes": 14601,
+    "sha256": "836a2da30bc80ba3ff57714dac3b694d08daab3b3433b7dab94cf9fa4bbe8d05"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_8/refine_layout.py",
+    "bytes": 5433,
+    "sha256": "1c95a64737647e3085367e4964dd7de3b0f2a15e9d94d847f54c57aa1e5fa2f6"
+  },
+  {
+    "path": "authoring/original-scripts/working/rules-v6_8/wording-changes.json",
+    "bytes": 10729,
+    "sha256": "c346773d0d3165e5c2a8a5c4e151dff5e52aa06a49e8648bd802e7c25e2b5c1e"
+  },
+  {
+    "path": "authoring/original-scripts/working/rulebook-professional-redesign/audit_professional_rulebook.py",
+    "bytes": 12852,
+    "sha256": "21ce301e5b0d04efffb1b21411c526137f421b7945eac07ac2314159863683b8"
+  },
+  {
+    "path": "authoring/original-scripts/working/rulebook-professional-redesign/build_professional_rulebook.py",
+    "bytes": 126810,
+    "sha256": "90b75a3ad1fb9a0820d6526bdf1e1e55452651253d2c2ba673f82403d4cdc329"
+  },
+  {
+    "path": "authoring/original-scripts/working/rulebook-v6_4-card-visuals/add_tile_teaching.py",
+    "bytes": 19474,
+    "sha256": "00601ca1fa35731e8e1a7e704095ed788e69ad8ad0e394d1221a1ae856385774"
+  },
+  {
+    "path": "authoring/original-scripts/working/rulebook-v6_4-card-visuals/build_rulebook_v6_4.py",
+    "bytes": 24381,
+    "sha256": "bacdf2df6e28185d4703035450bf847802d6b1975f978eaf013037885d384db1"
+  },
+  {
+    "path": "authoring/original-scripts/working/rulebook-v6_4-card-visuals/build_target_card_visual.py",
+    "bytes": 6130,
+    "sha256": "461963e58fd58d4ec623e3862fb15d9a1faab91abff5535b4f552e8536e30f1e"
+  },
+  {
+    "path": "authoring/original-scripts/working/rulebook-v6_4-card-visuals/build_tile_teaching_visuals.py",
+    "bytes": 44744,
+    "sha256": "141b0bdbd1de4526430c601e4e1ddb7176d65d5d5ddff8f134ab8cc7fa6d7710"
+  },
+  {
+    "path": "authoring/original-scripts/working/rulebook-v6_4-card-visuals/final-a11y.json",
+    "bytes": 3745,
+    "sha256": "dad4c0672481749e3439dbe05892ed8cbc655d75a5a5fcf3598391dd84f5307b"
+  },
+  {
+    "path": "authoring/original-scripts/working/rulebook-v6_4-card-visuals/final-style-lint.json",
+    "bytes": 3654,
+    "sha256": "91f1fbffd27710bf2cc4d02efac24dd80a89c9a6bf00a4b959bd2509bfec3f59"
+  },
+  {
+    "path": "authoring/original-scripts/working/rulebook-v6_4-card-visuals/inspect_rulebook.py",
+    "bytes": 1770,
+    "sha256": "d7a17d87f1a3d92e45f71ac2a6522504a79a4645fc81aedf28a2ceaa438939ee"
+  },
+  {
+    "path": "authoring/original-scripts/working/rulebook-v6_4-card-visuals/template-style-evidence.json",
+    "bytes": 3624,
+    "sha256": "86ccc14d233506ea2ca944249ff19efc156ddfdfc386bd3c09a3dffcd910fcdc"
+  },
+  {
+    "path": "authoring/original-scripts/working/rulebook-v6_4-card-visuals/update_target_deck_section.py",
+    "bytes": 11567,
+    "sha256": "1d4041399c404cd6fc249a67dcdabbfa0707907dd44d4ad95030a976b71e1a4d"
+  },
+  {
+    "path": "authoring/original-scripts/working/steward-aids-redesign/build_steward_aid.py",
+    "bytes": 48198,
+    "sha256": "6f8eeef8b585eee1054a51956005a53fbb038c1fb9ce7723b991cc46d488023b"
+  },
+  {
+    "path": "authoring/original-scripts/working/steward-aids-redesign/export_steward_content.ts",
+    "bytes": 166,
+    "sha256": "8f4179a2b3f9961920bedbf97c2befd67fe98d2f4694cc89aaa47e98d9bde016"
+  },
+  {
+    "path": "authoring/original-scripts/working/stewards-ledger-redesign/audit_stewards_ledger.py",
+    "bytes": 26830,
+    "sha256": "6b13059198338bdd0db3080897f225ed9d161e7e66867eb96fde04fd2136afbb"
+  },
+  {
+    "path": "authoring/original-scripts/working/stewards-ledger-redesign/build_stewards_ledger.py",
+    "bytes": 61779,
+    "sha256": "7858db9f86f8ce9f3fecdd7be4f3434d9e03a2e4d69a1b34290929218ec14862"
+  },
+  {
+    "path": "authoring/original-scripts/working/five-player-docs/build_rulebook_v6_5.py",
+    "bytes": 9902,
+    "sha256": "031f8e79ef1a07f51f904696ce7237fad09cef664acc5675b3ebc307ca31e1e4"
+  },
+  {
+    "path": "authoring/original-scripts/working/five-player-docs/make_contact_sheets.py",
+    "bytes": 1859,
+    "sha256": "a8c72e00b86b34edc8482efe43db28c8934f6669b9d2c1cfc12e05adc77564e5"
+  },
+  {
+    "path": "authoring/original-scripts/working/five-player-docs/verify_five_player_artifacts.py",
+    "bytes": 10022,
+    "sha256": "66e6f7edb2af64dc4c1a6af475b22fe5fa00e20f6da9b7c93ea0f17780871d99"
+  },
+  {
+    "path": "authoring/original-scripts/working/document-suite-consistency/audit_document_suite.py",
+    "bytes": 13786,
+    "sha256": "e356fde5ecd0dd6e41a5c6e4df8a852e85abae12cbc9e9a483399051f40ecb8c"
+  }
+]

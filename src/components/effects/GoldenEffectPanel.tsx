@@ -1,3 +1,7 @@
+import { isPlayerExperience } from "../../app/experience";
+import { GoldenSignet } from "./GoldenSignet";
+import { GoldenBell } from "./GoldenBell";
+import { GoldenScroll } from "./GoldenScroll";
 import { Crown, Move, ScrollText } from "lucide-react";
 import { useMemo, useState } from "react";
 import { encounterById } from "../../data/encounters";
@@ -57,6 +61,7 @@ export function GoldenEffectPanel({
   const card = encounterById[pending.cardId];
 
   if (pending.kind === "bell") {
+    if (isPlayerExperience()) return <GoldenBell state={state} onResolve={onResolveBell} />;
     return (
       <div className="golden-effect-panel">
         <header>
@@ -90,6 +95,7 @@ export function GoldenEffectPanel({
   }
 
   if (pending.kind === "scroll") {
+    if (isPlayerExperience()) return <GoldenScroll state={state} onResolve={onResolveScroll} />;
     return (
       <div className="golden-effect-panel">
         <header>
@@ -146,6 +152,8 @@ export function GoldenEffectPanel({
       </div>
     );
   }
+
+  if (isPlayerExperience()) return <GoldenSignet state={state} onResolve={onResolveSignet} />;
 
   return (
     <div className="golden-effect-panel golden-signet-panel">

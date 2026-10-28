@@ -1,3 +1,6 @@
+import { stewardById } from "../../data/stewards";
+import { isPlayerExperience } from "../../app/experience";
+import { GoldenVialNotice, goldenVialId } from "../actions/GoldenVialNotice";
 import { encounterById } from "../../data/encounters";
 import { useState } from "react";
 import { specialTileById } from "../../data/tiles";
@@ -57,6 +60,10 @@ export function EncounterPanel({
           state.encounters.faceUpBoons.map((boon) => {
             const card = encounterById[boon.cardId];
             if (!card) return null;
+            if (isPlayerExperience() && boon.cardId === goldenVialId) return <div key={boon.cardId} className="vial-encounter-reference">
+              <GoldenVialNotice state={state} onPrepare={() => onUseFaceUpBoon(boon.cardId)} />
+              <details><summary>View Golden Vial card</summary><EncounterCard card={card} currentSeason={state.season} size="compact" /></details>
+            </div>;
 
             return (
               <EncounterCard
@@ -84,7 +91,7 @@ export function EncounterPanel({
         )}
       </section>
 
-      <section className="encounter-section">
+      <section className="encounter-section" aria-label="Prepared effects">
         <h3>Prepared Effects</h3>
         {state.boonModifiers.length === 0 ? (
           <p className="muted">No prepared effects.</p>
@@ -93,6 +100,7 @@ export function EncounterPanel({
             <div key={modifier.id} className="encounter-row modifier-row card-row">
               <div>
                 <span>{modifier.name}</span>
+                {modifier.sourceType === "steward" && <small className="modifier-owner">{stewardById[modifier.sourceCardId]?.name ?? modifier.sourceCardId} only · This Season</small>}
                 <small>{modifier.effectText}</small>
               </div>
               <strong>
@@ -118,14 +126,18 @@ export function EncounterPanel({
             return (
               <EncounterCard
                 card={card}
+                data-arrival-id={arrival.cardId}
+                tabIndex={-1}
+                className="priority-arrival-target"
+                aria-label={`Arrival review: ${card.name}`}
                 controls={(
                   <button
                     disabled={!validation.ok || !onCompleteArrival}
-                    aria-label={`Interact with ${card.name}`}
+                    aria-label={isPlayerExperience() ? `Review completion of ${card.name}` : `Interact with ${card.name}`}
                     onClick={() => onCompleteArrival?.(arrival.cardId)}
                     type="button"
                   >
-                    Interact
+                    {isPlayerExperience() ? "Review completion" : "Interact"}
                   </button>
                 )}
                 currentSeason={state.season}
@@ -172,11 +184,11 @@ export function EncounterPanel({
                 controls={(
                   <button
                     disabled={!validation.ok || !onResolveBurden}
-                    aria-label={`Interact with ${card.name}`}
+                    aria-label={isPlayerExperience() ? `Review resolution of ${card.name}` : `Interact with ${card.name}`}
                     onClick={() => onResolveBurden?.(cardId)}
                     type="button"
                   >
-                    Interact
+                    {isPlayerExperience() ? "Review resolution" : "Interact"}
                   </button>
                 )}
                 currentSeason={state.season}

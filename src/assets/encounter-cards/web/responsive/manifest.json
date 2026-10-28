@@ -1,0 +1,168 @@
+{
+  "format": "Lossless WebP",
+  "resize": "Lanczos3, aspect ratio retained, no enlargement",
+  "encoder": {
+    "sharp": "0.35.4",
+    "webp": "1.6.0"
+  },
+  "entries": {
+    "arrival": {
+      "source": {
+        "path": "src/assets/encounter-cards/web/arrival.png",
+        "width": 1658,
+        "height": 2858,
+        "bytes": 5430048,
+        "sha256": "2a886167da88933b5d16ae13d23056a5ff3f754b148bd40212c12d6826b165cb",
+        "pixelSha256": "2961bb7ff4abb16a7a6a519215a323593ce9d63cd7c7684b3ee5eb77d9941c1b"
+      },
+      "print": {
+        "path": "src/assets/encounter-cards/arrival.png",
+        "bytes": 6490546,
+        "sha256": "762805a8a5c0c7b0ea2a84f5791d715ca22953a75e8cc0b57886d775a0c895ca"
+      },
+      "variants": [
+        {
+          "path": "src/assets/encounter-cards/web/responsive/arrival-420.webp",
+          "width": 420,
+          "height": 724,
+          "bytes": 274066,
+          "sha256": "e2228aadd6cffccab9bc29a640e4ff485a409e26aac2ac2f4ddf3b682ffd150b",
+          "pixelSha256": "b68f151eaee0c30811c76fc77da81271e6c26b4f3e73933fe757208018242582",
+          "fullSize": false
+        },
+        {
+          "path": "src/assets/encounter-cards/web/responsive/arrival-840.webp",
+          "width": 840,
+          "height": 1448,
+          "bytes": 1111664,
+          "sha256": "096b9f2746a65382d256e02c6ddd4066da46de7df80b30970532b0922b8db17b",
+          "pixelSha256": "d88fb860f8e2489de650460473e199c9f420b87a96e86b995b293a5ae192a773",
+          "fullSize": false
+        },
+        {
+          "path": "src/assets/encounter-cards/web/responsive/arrival-1658.webp",
+          "width": 1658,
+          "height": 2858,
+          "bytes": 4110840,
+          "sha256": "1722a2f7860439ffd46bc5267e067b041826f9ae7e796854093315e643c66e01",
+          "pixelSha256": "2961bb7ff4abb16a7a6a519215a323593ce9d63cd7c7684b3ee5eb77d9941c1b",
+          "fullSize": true
+        }
+      ]
+    },
+    "boon": {
+      "source": {
+        "path": "src/assets/encounter-cards/web/boon.png",
+        "width": 829,
+        "height": 1429,
+        "bytes": 1587505,
+        "sha256": "bbe361101ddca5c9415d2dedf953c0a3561c81b8a3cfad461966c84da9e9142c",
+        "pixelSha256": "80877ea38dbbdb5a835a0f41f718647597d0f604d501d1a0d02372c68603dfdb"
+      },
+      "print": {
+        "path": "src/assets/encounter-cards/boon.png",
+        "bytes": 1829970,
+        "sha256": "cfd559df8507329a36c9c3466643d28a02b6bb9a9d7b476571c3aecd8a3cd020"
+      },
+      "variants": [
+        {
+          "path": "src/assets/encounter-cards/web/responsive/boon-420.webp",
+          "width": 420,
+          "height": 724,
+          "bytes": 301834,
+          "sha256": "bc07433e99b82b24ec3d01b8643030db0b73a5c8a5ba3ab9d4690dafe71ec3af",
+          "pixelSha256": "23c0b873700f68b3dfc8c7b31881a31e919a92e00ae49124c9deda1de84f8901",
+          "fullSize": false
+        },
+        {
+          "path": "src/assets/encounter-cards/web/responsive/boon-829.webp",
+          "width": 829,
+          "height": 1429,
+          "bytes": 1125430,
+          "sha256": "642cf284addcf9827ad6f0aefa1ce8064a685a49c5afeeb5fb4ada30f73cd657",
+          "pixelSha256": "80877ea38dbbdb5a835a0f41f718647597d0f604d501d1a0d02372c68603dfdb",
+          "fullSize": true
+        }
+      ]
+    },
+    "burden": {
+      "source": {
+        "path": "src/assets/encounter-cards/web/burden.png",
+        "width": 1658,
+        "height": 2858,
+        "bytes": 2685654,
+        "sha256": "ef1dcdb5b910475a4178ee2cd64c018435a2f93c928a4b91f7afdf9c415cc966",
+        "pixelSha256": "a1fd5181c8c443ec3eb7b1fda0796fe8e01b25c517ec483cbd64fed52e82ab79"
+      },
+      "print": {
+        "path": "src/assets/encounter-cards/burden.png",
+        "bytes": 3041257,
+        "sha256": "ad637a7276dbf1839d8752d71eb2f3262eccf6f9d6519dd02d3302fcdb0c0a13"
+      },
+      "variants": [
+        {
+          "path": "src/assets/encounter-cards/web/responsive/burden-420.webp",
+          "width": 420,
+          "height": 724,
+          "bytes": 126460,
+          "sha256": "5a1f10eb5b95f27161cf0947d99a74dd7cb8be834f77d7c67496f1e97ace41d3",
+          "pixelSha256": "c190927dce4a6d11cbbe67905d34b8213da78454519a1098bf548b2a58b6d81b",
+          "fullSize": false
+        },
+        {
+          "path": "src/assets/encounter-cards/web/responsive/burden-840.webp",
+          "width": 840,
+          "height": 1448,
+          "bytes": 507792,
+          "sha256": "ffee15c217599ca010486a4dcf3bab85c943f674d1aad9f3f5a3818c074ae704",
+          "pixelSha256": "ae15a3e439cf5b36e68f1e8485aed9957b7165b8633dd312155e278266534537",
+          "fullSize": false
+        },
+        {
+          "path": "src/assets/encounter-cards/web/responsive/burden-1658.webp",
+          "width": 1658,
+          "height": 2858,
+          "bytes": 1739946,
+          "sha256": "d623a79f99bcfe42f83999ce057fdd4fe4e31c41d418e4614ae7e1297ff823cf",
+          "pixelSha256": "a1fd5181c8c443ec3eb7b1fda0796fe8e01b25c517ec483cbd64fed52e82ab79",
+          "fullSize": true
+        }
+      ]
+    },
+    "goldenBoon": {
+      "source": {
+        "path": "src/assets/encounter-cards/web/golden-boon.png",
+        "width": 829,
+        "height": 1429,
+        "bytes": 1521315,
+        "sha256": "20d1f203a1d442db404b67469b07081b3ca24933244fbfd5a2468a7da2d4bd4b",
+        "pixelSha256": "8fd740e2e05cd55b1ad385c62c31a509694b4e0bb41d5ce0377788c49e71418f"
+      },
+      "print": {
+        "path": "src/assets/encounter-cards/golden-boon.png",
+        "bytes": 1776545,
+        "sha256": "3ecc627f284a7c337356ee25acc8f51e694af21d4a3533375e671e85008da250"
+      },
+      "variants": [
+        {
+          "path": "src/assets/encounter-cards/web/responsive/golden-boon-420.webp",
+          "width": 420,
+          "height": 724,
+          "bytes": 292114,
+          "sha256": "b861e3f904265d9e41fd9310fd313cb313977b406eec78f9e611669e48e8fb5b",
+          "pixelSha256": "55908be068dfea1f3459b94aac6585fdffe61d8c645e025e752bf4a31c452572",
+          "fullSize": false
+        },
+        {
+          "path": "src/assets/encounter-cards/web/responsive/golden-boon-829.webp",
+          "width": 829,
+          "height": 1429,
+          "bytes": 1091340,
+          "sha256": "bc44b66d170ea0f7893e3375c0fc3480231ea0fe67713972f4b53b50f879f63d",
+          "pixelSha256": "8fd740e2e05cd55b1ad385c62c31a509694b4e0bb41d5ce0377788c49e71418f",
+          "fullSize": true
+        }
+      ]
+    }
+  }
+}

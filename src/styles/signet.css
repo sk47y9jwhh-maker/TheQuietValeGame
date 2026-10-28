@@ -1,0 +1,75 @@
+.signet-tile-choices { display: grid; gap: 10px; }
+.signet-tile-choices label { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid #bdc4b2; border-radius: 8px; background: #fffdf7; cursor: pointer; }
+.signet-tile-choices label.is-selected { border: 2px solid #80652d; padding: 9px; background: #f3ebd3; }
+.signet-tile-choices input { width: 22px; height: 22px; min-height: 0; flex: 0 0 auto; accent-color: #516647; }
+.signet-tile-choices .tile-artwork { width: 60px; height: 52px; flex: 0 0 auto; object-fit: contain; }
+.signet-tile-choices strong { display: block; font: 600 23px/1.2 "Alegreya", serif; }
+.signet-tile-choices label > span > span { display: block; margin-top: 6px; font-size: 14px; line-height: 1.4; }
+.signet-count, .signet-review-summary { font-size: 16px; line-height: 1.5; font-weight: 700; }
+.signet-actions, .signet-map-target { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.golden-signet-experience button { min-height: 44px; padding: 10px 13px; border: 1px solid #aab39c; border-radius: 6px; background: #fffdf7; color: #33482f; font: 600 15px/1.35 var(--font-ui); }
+.golden-signet-experience button:disabled { opacity: .5; cursor: not-allowed; }
+.golden-signet-experience .primary-action { margin-top: 0; background: #445a3f; color: #fffdf7; }
+.signet-plan-tabs { display: flex; gap: 7px; overflow-x: auto; padding: 4px; margin: 18px -4px 0; }
+.signet-plan-tabs button { flex: 0 0 auto; max-width: 200px; }
+.signet-plan-tabs small { display: block; margin-top: 4px; font-weight: 400; }
+.signet-plan-tabs [aria-current], .signet-map-target [aria-pressed="true"] { border-color: #745724; background: #f0e6c8; box-shadow: inset 0 0 0 1px #745724; }
+.signet-plan-note, .signet-empty { font-size: 15px; line-height: 1.5; }
+.signet-destination-controls { display: flex; flex-wrap: wrap; gap: 12px; }
+.signet-destination-controls label { flex: 1 1 180px; font-size: 15px; font-weight: 700; }
+.signet-destination-controls select { display: block; width: 100%; min-height: 46px; margin-top: 6px; padding: 8px; border: 1px solid #aab39c; border-radius: 5px; background: #fffdf7; color: #33482f; font: 500 16px var(--font-ui); }
+.signet-position-status { padding: 14px 0; line-height: 1.5; }
+.signet-position-status strong, .signet-position-status span { display: block; font-size: 15px; }
+.signet-position-status span { margin-top: 5px; }
+.signet-map { height: clamp(360px, 62vw, 560px); min-width: 0; }
+.signet-map > .map-panel { height: 100%; min-height: 0; padding: 8px; border: 1px solid #b7c2a9; border-radius: 8px; background: #eeeadd; }
+.signet-map .map-artwork-frame { min-height: 0; }
+.signet-map .tabletop-map-toolbar > strong { display: none; }
+.signet-map .board-navigation-help { margin-right: auto; }
+.signet-map .map-gesture-hint { font-size: 13px; line-height: 1.35; }
+.signet-review-list { list-style: none; padding: 0; }
+.signet-review-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid #bdc4b2; }
+.signet-review-list strong, .signet-review-list span, .signet-review-list small { display: block; line-height: 1.5; }
+.signet-review-list strong { font-size: 18px; }
+.signet-review-list small { font-size: 14px; }
+.signet-consequences { padding: 12px 16px; border: 1px solid #bcc7b2; border-radius: 8px; background: #e7eddd; margin: 12px 0; }
+.signet-consequences h3 { margin: 0 0 8px; font: 600 21px "Alegreya", serif; }
+.signet-consequences ul { margin: 0; padding-left: 20px; line-height: 1.5; }
+@media (max-width: 620px) {
+  .signet-actions > button { flex: 1 1 100%; }
+  .signet-review-list li { align-items: flex-start; flex-direction: column; }
+  .signet-map { height: 360px; }
+  .signet-tile-choices label { gap: 8px; }
+  .signet-tile-choices .tile-artwork { width: 42px; height: 38px; }
+}
+
+/* Repositioning needs a wide map. Encounter reference remains available in the
+   context disclosure rather than competing with the planning surface. */
+@media (min-width: 901px) and (min-height: 601px) {
+  .experience-app .resolution-plan-table { grid-template-columns: minmax(190px, 220px) minmax(0, 1fr); }
+}
+.resolution-encounter-review > summary { min-height: 44px; padding: 12px 0; cursor: pointer; font: 600 15px/1.4 var(--font-ui); }
+.resolution-encounter-review > .right-panel { display: block; max-height: none; overflow: visible; padding: 10px 0; border: 0; background: none; }
+.resolution-encounter-review .encounter-card-shell { max-width: 100%; }
+.signet-arrangement { display: grid; gap: 16px; margin-top: 16px; }
+.signet-controls { min-width: 0; }
+.signet-controls > p:first-child { margin-top: 0; }
+@media (min-width: 1100px) {
+  .signet-arrangement { grid-template-columns: minmax(240px, .72fr) minmax(0, 1fr); }
+  .signet-arrangement .signet-map { height: 420px; }
+}
+
+.resolution-plan-table .resolution-summary-card { display: none; }
+@media (max-width: 900px), (max-height: 600px) {
+  .experience-app .resolution-plan-table .resolution-context-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  .resolution-plan-table .resolution-context-panel .turn-summary { grid-column: 1 / -1; }
+  .resolution-plan-table .resolution-encounter-review[open], .resolution-plan-table .resolution-queue-preview[open] { grid-column: 1 / -1; }
+}
+
+.signet-map .map-canvas { height: 100%; min-height: 0; display: block; place-items: start; overflow: auto; overscroll-behavior: contain; touch-action: pan-x pan-y; }
+.signet-map .hex-map { width: calc(100% * var(--map-zoom, 1)) !important; height: calc(100% * var(--map-zoom, 1)) !important; min-width: 0; max-width: none; touch-action: pan-x pan-y; }
+
+.hex-planning-overlay > circle { fill: #fff9e5; stroke: #4f663b; stroke-width: 1.8; }
+.hex-planning-overlay polygon { fill: #ffe8a342; stroke: #5c431a; stroke-width: 3; vector-effect: non-scaling-stroke; }
+.hex-planning-overlay rect { fill: #fff9e5; stroke: #5c431a; stroke-width: 1; }
+.hex-planning-overlay text { fill: #3e3018; font: 700 12px var(--font-ui); }

@@ -1,0 +1,72 @@
+.table-seeding { min-height: 0; flex: 1; overflow: auto; display: grid; grid-template-columns: 280px minmax(0, 1fr); align-items: start; gap: 28px; padding: 24px; color: #253c30; background: #eeeadd; font-family: var(--font-ui); }
+.table-seeding :is(h1, h2, p) { margin: 0; }
+.table-seeding .eyebrow { color: #526750; font-size: 11px; line-height: 1.5; letter-spacing: .08em; }
+.table-seed-plan { position: sticky; top: 0; padding: 20px; border: 1px solid #b7bfa8; border-radius: 12px; background: #faf7eb; }
+.table-seed-plan h2 { font: 600 27px/1.15 "Alegreya", serif; margin: 10px 0; }
+.table-seed-progress { font-size: 13px; color: #516343; }
+.table-seed-slots { display: grid; gap: 8px; margin: 18px 0; }
+.table-seed-slots button { text-align: left; padding: 12px; border: 1px solid #b1bba6; border-radius: 7px; background: #fffdf5; color: #2d4436; min-width: 0; }
+.table-seed-slots button[aria-pressed=true] { border-color: #36523c; box-shadow: inset 0 0 0 1px #36523c; background: #e2ead9; }
+.table-seed-slots span { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+.table-seed-slots strong { display: block; margin-top: 6px; font: 500 17px/1.2 "Alegreya", serif; }
+.table-seed-help { font-size: 13px; line-height: 1.5; }
+.table-seed-help summary { padding-block: 12px; min-height: 44px; cursor: pointer; font-weight: 600; }
+.table-seed-help p + p { margin-top: 12px; }
+.table-seed-hand { min-width: 0; max-width: 1100px; }
+.table-seed-hand > header { margin: 0 0 22px; }
+.table-seed-hand h1 { font: 600 36px/1.15 "Alegreya", serif; margin: 5px 0 10px; }
+.table-seed-hand > header > p:last-child { font-size: 15px; line-height: 1.5; max-width: 700px; color: #50604a; }
+.table-seed-cards, .table-seed-review { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.table-seed-card { min-width: 0; display: flex; flex-direction: column; padding: 20px; border: 1px solid #c2c6b2; border-top: 4px solid #4e684d; border-radius: 10px; background: #fffdf5; }
+.table-seed-card.card-arrival { border-top-color: #9c7725; }
+.table-seed-card.card-burden { border-top-color: #9a5344; }
+.table-seed-card.card-goldenBoon { border-top-color: #967426; }
+.table-seed-type { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 11px; color: #576147; }
+.table-seed-type span { padding: 3px 6px; background: #e5ebda; border-radius: 3px; color: #374e32; }
+.table-seed-card h2 { font: 600 25px/1.12 "Alegreya", serif; margin: 10px 0 12px; }
+.table-seed-effect { flex: 1; font-size: 15px; line-height: 1.5; }
+.table-seed-effect small { display: block; font-size: 13px; color: #59634e; margin-top: 9px; }
+.table-seed-card-actions { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.table-seeding button { font-family: var(--font-ui); cursor: pointer; }
+.table-seed-card-actions button, .table-seed-back, .table-seed-review-heading button, .table-seed-review-link { display: inline-flex; justify-content: center; align-items: center; gap: 7px; min-height: 44px; padding: 10px 12px; border-radius: 5px; border: 1px solid #a9b29d; background: #fffdf5; color: #365038; font-size: 13px; font-weight: 600; }
+.table-seed-card-actions button:last-child { background: #e5ecd9; border-color: #8f9d7f; }
+.table-seed-card-actions button[aria-pressed=true] { background: #d3e1bf; }
+.table-seeding button:focus-visible, .table-seeding summary:focus-visible { outline: 3px solid #8c551e; outline-offset: 3px; }
+.table-seed-hand h1:focus { outline: none; }
+.table-seed-review-link { width: 100%; margin-bottom: 5px; }
+.table-seed-inspection { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
+.table-seed-inspection > .encounter-card-shell { align-self: center; }
+.table-seed-inspection > .primary-action { width: min(100%, 420px); align-self: center; }
+.table-seed-review { grid-template-columns: 1fr; }
+.table-seed-review-heading { display: flex; justify-content: space-between; align-items: center; gap: 14px; font-size: 14px; font-weight: 700; }
+.table-seed-review-heading small { font-size: 12px; font-weight: 400; margin-left: 10px; }
+.table-seed-review .table-seed-card { padding: 16px 20px; }
+.table-seed-review h2 { margin-top: 0; }
+.table-seed-confirm { padding: 10px 0 20px; }
+.table-seed-confirm p { font-size: 14px; line-height: 1.5; margin-bottom: 12px; }
+.table-seed-confirm .primary-action { width: 100%; }
+@media (max-width: 1100px) { .table-seeding { grid-template-columns: 235px minmax(0, 1fr); padding: 18px; gap: 18px; } .table-seed-cards { grid-template-columns: 1fr; } }
+@media (max-width: 900px) {
+  .table-seeding { display: block; flex: none; overflow: visible; padding: 14px; }
+  .table-seed-plan { position: static; padding: 14px; margin-bottom: 20px; }
+  .table-seed-plan h2 { font-size: 24px; margin: 5px 0 8px; }
+  .table-seed-slots { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 12px 0 4px; }
+  .table-seed-slots button { padding: 10px 8px; min-height: 80px; }
+  .table-seed-slots strong { font-size: 15px; overflow-wrap: anywhere; }
+  .table-seed-hand h1 { font-size: 30px; }
+  .table-seed-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) { .table-seed-cards { grid-template-columns: 1fr; } .table-seed-card { padding: 17px; } .table-seed-slots strong { font-size: 14px; } }
+@media (max-height: 600px) { .table-seeding { flex: none; overflow: visible; } .table-seed-plan { position: static; } }
+
+.round-end-preview { color: #304635; font: 14px/1.5 var(--font-ui); margin: 18px 0; }
+.round-end-preview > div { margin-top: 16px; padding-top: 14px; border-top: 1px solid #c3c9b9; }
+.round-end-preview .round-end-next { padding: 12px; border-radius: 6px; background: #e1e9d8; color: #31452c; font-weight: 700; }
+.round-end-preview h3 { font: 700 14px/1.4 var(--font-ui); margin: 0 0 7px; }
+.round-end-preview p { margin: 8px 0; }
+.round-end-preview ul { display: grid; gap: 9px; margin: 8px 0; padding-left: 18px; }
+.round-end-preview li > strong { display: block; font-size: 12px; }
+.round-end-preview details { margin-top: 12px; }
+.round-end-preview summary { min-height: 44px; padding-block: 10px; cursor: pointer; font-weight: 600; }
+.round-end-preview details li > strong { font-size: 14px; }
+.round-end-preview details li > span { display: block; margin-top: 4px; }

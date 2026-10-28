@@ -10,6 +10,8 @@
     "test": "vitest run --config vitest.config.ts",
     "test:watch": "vitest --config vitest.config.ts",
     "lint": "tsc -b --pretty false",
+    "artwork:encode": "node tools/encode-encounter-artwork.mjs",
+    "preview:scenarios": "vite-node tools/build-comparison-scenarios.ts",
     "simulate:target-cards": "vite-node tools/target-card-simulation.ts",
     "loc": "node tools/loc-report.mjs"
   },

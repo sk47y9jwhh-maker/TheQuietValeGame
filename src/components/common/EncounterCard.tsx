@@ -3,10 +3,7 @@ import arrivalArtwork from "../../assets/encounter-cards/arrival.png";
 import boonArtwork from "../../assets/encounter-cards/boon.png";
 import burdenArtwork from "../../assets/encounter-cards/burden.png";
 import goldenBoonArtwork from "../../assets/encounter-cards/golden-boon.png";
-import arrivalWebArtwork from "../../assets/encounter-cards/web/arrival.png";
-import boonWebArtwork from "../../assets/encounter-cards/web/boon.png";
-import burdenWebArtwork from "../../assets/encounter-cards/web/burden.png";
-import goldenBoonWebArtwork from "../../assets/encounter-cards/web/golden-boon.png";
+import { responsiveEncounterArtwork } from "../../assets/encounter-cards/web/responsive/artwork.generated";
 import type { EncounterData, Season } from "../../engine/types";
 import {
   getArrivalRewardText,
@@ -21,13 +18,6 @@ const artworkByType: Record<EncounterData["type"], string> = {
   boon: boonArtwork,
   burden: burdenArtwork,
   goldenBoon: goldenBoonArtwork
-};
-
-const webArtworkByType: Record<EncounterData["type"], string> = {
-  arrival: arrivalWebArtwork,
-  boon: boonWebArtwork,
-  burden: burdenWebArtwork,
-  goldenBoon: goldenBoonWebArtwork
 };
 
 const seasonNumerals: Record<Season, string> = {
@@ -175,6 +165,9 @@ export function EncounterCard({
   supplementary,
   ...articleProps
 }: EncounterCardProps) {
+  const webArtwork = responsiveEncounterArtwork[card.type];
+  const print = outputMode === "print";
+  const cardWidth = size === "mini" ? 260 : size === "compact" ? 360 : 420;
   const flavorText = card.flavorText ?? "";
   const titleDensity = densityClass(card.name.length, 20, 27);
   const flavorDensity = densityClass(
@@ -197,7 +190,13 @@ export function EncounterCard({
           aria-hidden="true"
           className="physical-card-artwork"
           draggable="false"
-          src={(outputMode === "print" ? artworkByType : webArtworkByType)[card.type]}
+          src={print ? artworkByType[card.type] : webArtwork.src}
+          srcSet={print ? undefined : webArtwork.srcSet}
+          sizes={print ? undefined : `(max-width: ${cardWidth + 48}px) calc(100vw - 48px), ${cardWidth}px`}
+          loading={print ? "eager" : "lazy"}
+          decoding="async"
+          width={print ? (card.type === "arrival" || card.type === "burden" ? 1800 : 900) : webArtwork.width}
+          height={print ? (card.type === "arrival" || card.type === "burden" ? 3000 : 1500) : webArtwork.height}
         />
         <div className="physical-card-print-canvas">
           <p className="physical-card-type">{getEncounterTypeLabel(card)}</p>

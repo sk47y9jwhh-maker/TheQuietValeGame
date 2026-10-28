@@ -3287,8 +3287,8 @@ button.effect-row {
   position: absolute;
   top: 12px;
   right: 12px;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   display: inline-grid;
   place-items: center;
   border: 1px solid rgba(38, 34, 27, 0.16);
@@ -3300,7 +3300,7 @@ button.effect-row {
 .tile-inspect-header {
   display: grid;
   gap: 3px;
-  padding-right: 42px;
+  padding-right: 50px;
 }
 
 .tile-inspect-header h2 {

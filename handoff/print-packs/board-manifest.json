@@ -1,0 +1,47 @@
+[
+  {
+    "path": "production/boards/current/01-map-board-upload-with-bleed.pdf",
+    "bytes": 112415013,
+    "sha256": "14d969fc604d2b47d4834708818a8af9199b2ce50e0282f4fb6ec03f2c31fcc8"
+  },
+  {
+    "path": "production/boards/current/01-map-board-upload-with-bleed.png",
+    "bytes": 68316557,
+    "sha256": "f99d822bda13b2adfd276db098eb6dc89997f3f6804eaab5d394c90fa375cee4"
+  },
+  {
+    "path": "production/boards/current/02-encounter-board-bgm-live-template-300dpi.pdf",
+    "bytes": 20441041,
+    "sha256": "a1a25296d91b92c709fa56bd13b2466af407c5043b6e7a57423f64e0911247c5"
+  },
+  {
+    "path": "production/boards/current/02-encounter-board-upload-with-bleed.png",
+    "bytes": 16635398,
+    "sha256": "cbf7b1a764fe694e20392a74db67ef41b5a412bedcbb884f577537a284aae9bd"
+  },
+  {
+    "path": "production/boards/current/03-logistics-board-bgm-compatible-v2.pdf",
+    "bytes": 41105748,
+    "sha256": "c42e60dfbaab8c376d31094749ca97a88c04516b2214be8329c797d619cd5200"
+  },
+  {
+    "path": "production/boards/current/03-logistics-board-upload-with-bleed.png",
+    "bytes": 16628588,
+    "sha256": "3d26c7632da093f11aa296ec2db7dde39fcec3975b79fdcd1b0042b3163181cf"
+  },
+  {
+    "path": "production/boards/current/04-core-tiles-board-bgm-live-template-300dpi.pdf",
+    "bytes": 16191961,
+    "sha256": "8dcb1d047c650a8349e6cdbed7da5b7ec68f4163b972de6a8bdee02f86154e75"
+  },
+  {
+    "path": "production/boards/current/04-core-tiles-board-upload-with-bleed.png",
+    "bytes": 13235610,
+    "sha256": "42d42a237eee95efdd3c26d1f5f8f5b1ce65c568ff8c358dd21ff624c7247421"
+  },
+  {
+    "path": "production/boards/current/BOARDGAMESMAKER-ORDER-GUIDE-V2.txt",
+    "bytes": 5751,
+    "sha256": "dd82e633f5e4e7327ff6271b1388f70c6404526c7abea189d45dc56dad42cad5"
+  }
+]

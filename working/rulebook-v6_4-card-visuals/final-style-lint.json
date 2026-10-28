@@ -1,0 +1,171 @@
+{
+  "input": "/Users/robertlittle/Documents/The Quiet Vale Game/output/docx/rulebook-v6_4/The_Quiet_Vale_Main_Rulebook_v6_4_Card_Guide.docx",
+  "fonts_by_char_count": {
+    "Aptos": 20356,
+    "Georgia": 35
+  },
+  "direct_run_formatting_runs": 344,
+  "direct_paragraph_formatting_paragraphs": 288,
+  "heading_like_paragraphs_not_heading_style": [
+    {
+      "para_index": 1,
+      "text": "THE QUIET VALE",
+      "style": "Normal"
+    },
+    {
+      "para_index": 3,
+      "text": "MAIN RULEBOOK",
+      "style": "Normal"
+    },
+    {
+      "para_index": 199,
+      "text": "Season start",
+      "style": "Normal"
+    },
+    {
+      "para_index": 200,
+      "text": "Each round",
+      "style": "Normal"
+    },
+    {
+      "para_index": 201,
+      "text": "Season end",
+      "style": "Normal"
+    },
+    {
+      "para_index": 205,
+      "text": "Section",
+      "style": "Normal"
+    },
+    {
+      "para_index": 206,
+      "text": "Page",
+      "style": "Normal"
+    },
+    {
+      "para_index": 225,
+      "text": "Component group",
+      "style": "Normal"
+    },
+    {
+      "para_index": 226,
+      "text": "Purpose",
+      "style": "Normal"
+    },
+    {
+      "para_index": 246,
+      "text": "Players",
+      "style": "Normal"
+    },
+    {
+      "para_index": 247,
+      "text": "Start with",
+      "style": "Normal"
+    },
+    {
+      "para_index": 259,
+      "text": "Phase",
+      "style": "Normal"
+    },
+    {
+      "para_index": 260,
+      "text": "What happens",
+      "style": "Normal"
+    },
+    {
+      "para_index": 268,
+      "text": "Action",
+      "style": "Normal"
+    },
+    {
+      "para_index": 269,
+      "text": "Use it to",
+      "style": "Normal"
+    },
+    {
+      "para_index": 280,
+      "text": "BOON",
+      "style": "Normal"
+    },
+    {
+      "para_index": 281,
+      "text": "Season numeral \u2192 effect \u2192 italic duration",
+      "style": "Normal"
+    },
+    {
+      "para_index": 284,
+      "text": "BURDEN",
+      "style": "Normal"
+    },
+    {
+      "para_index": 285,
+      "text": "Season numeral \u2192 effect \u2192 italic resolution",
+      "style": "Normal"
+    },
+    {
+      "para_index": 288,
+      "text": "ARRIVAL",
+      "style": "Normal"
+    }
+  ],
+  "examples": {
+    "direct_paragraph_formatting": [
+      {
+        "para_index": 1,
+        "text": "THE QUIET VALE",
+        "style": "Normal"
+      },
+      {
+        "para_index": 2,
+        "text": "Seasons of Settlement",
+        "style": "Normal"
+      },
+      {
+        "para_index": 5,
+        "text": "",
+        "style": "Normal"
+      },
+      {
+        "para_index": 6,
+        "text": "",
+        "style": "Normal"
+      },
+      {
+        "para_index": 13,
+        "text": "",
+        "style": "Normal"
+      }
+    ],
+    "direct_run_formatting": [
+      {
+        "para_index": 1,
+        "run_text": "THE QUIET VALE",
+        "style": "Normal"
+      },
+      {
+        "para_index": 2,
+        "run_text": "Seasons of Settlement",
+        "style": "Normal"
+      },
+      {
+        "para_index": 3,
+        "run_text": "MAIN RULEBOOK",
+        "style": "Normal"
+      },
+      {
+        "para_index": 4,
+        "run_text": "1\u20134 players  \u2022  45\u2013120 minutes  \u2022  Cooperative",
+        "style": "Normal"
+      },
+      {
+        "para_index": 9,
+        "run_text": "The banners of war have long since fallen silent. Roads once marched by armies n",
+        "style": "Normal"
+      }
+    ]
+  },
+  "notes": [
+    "Direct formatting is not always wrong, but it often causes inconsistent output when templates change.",
+    "Heading-like paragraphs not using Heading styles can break TOC and accessibility."
+  ]
+}

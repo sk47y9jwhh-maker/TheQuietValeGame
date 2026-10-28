@@ -1,3 +1,6 @@
+import { isPlayerExperience } from "../../app/experience";
+import { LedgerHistory } from "./LedgerHistory";
+import { PrivateHandGate } from "../common/PrivateHandGate";
 import { TileArtwork } from "../common/TileArtwork";
 import {
   BookMarked,
@@ -35,7 +38,14 @@ import { formatCategory, formatCost } from "../common/gameText";
 import { RulesGuide } from "./RulesGuide";
 
 type DrawerSection = "tiles" | "hand" | "specials" | "ledger" | "rules";
-type LedgerView = "game" | "chronicles" | "unlocks" | "log";
+type LedgerView = "game" | "history" | "chronicles" | "unlocks" | "log";
+const ledgerViews = [
+  { id: "game", label: "This Game", Icon: Target },
+  { id: "history", label: "Settlements", Icon: History },
+  { id: "chronicles", label: "Chronicles", Icon: BookMarked },
+  { id: "unlocks", label: "Unlocks", Icon: Trophy },
+  { id: "log", label: "Game Log", Icon: History }
+] as const;
 
 interface BottomDrawerProps {
   state: GameState;
@@ -105,6 +115,9 @@ export function BottomDrawer({
   const ledgerCampaign = providedLedgerCampaign ?? storedLedgerCampaign;
   const currentPlayer = selectCurrentPlayer(state);
   const ledgerRun = getLedgerRun(state);
+  const recordedGame = ledgerRun.recorded || ledgerCampaign.games.some((game) => game.id === ledgerRun.gameId);
+  const visibleLedgerViews = ledgerViews.filter((view) => view.id !== "history" || isPlayerExperience());
+  const ledgerPanel = { role: "tabpanel", id: "ledger-view-panel", "aria-labelledby": `ledger-view-${ledgerView}`, tabIndex: 0 };
   const ledgerEvaluations = evaluateLedgerEntries(state, ledgerCampaign);
   const ledgerEvaluationById = new Map(
     ledgerEvaluations.map((evaluation) => [evaluation.entry.id, evaluation])
@@ -215,6 +228,7 @@ export function BottomDrawer({
             </div>
           )}
           {activeSection === "hand" && (
+            <PrivateHandGate state={state}>
             <div className="tile-reference-grid cards">
               {hand.length === 0 && <p className="muted">No hidden Encounter cards.</p>}
               {hand.map((cardId) => {
@@ -230,6 +244,7 @@ export function BottomDrawer({
                 );
               })}
             </div>
+            </PrivateHandGate>
           )}
           {activeSection === "specials" && (
             <div className="tile-reference-grid compact-reference">
@@ -253,51 +268,32 @@ export function BottomDrawer({
           )}
           {activeSection === "ledger" && (
             <div className="ledger-shell">
-              <nav className="ledger-view-tabs" aria-label="Ledger sections">
-                <button
-                  aria-selected={ledgerView === "game"}
-                  className={ledgerView === "game" ? "selected" : ""}
-                  onClick={() => setLedgerView("game")}
+              <div className="ledger-view-tabs" role="tablist" aria-label="Ledger sections">
+                {visibleLedgerViews.map(({ id, label, Icon }, index) => <button
+                  aria-selected={ledgerView === id}
+                  aria-controls="ledger-view-panel"
+                  id={`ledger-view-${id}`}
+                  className={ledgerView === id ? "selected" : ""}
+                  key={id}
+                  tabIndex={ledgerView === id ? 0 : -1}
+                  onClick={() => setLedgerView(id)}
+                  onKeyDown={(event) => {
+                    const next = event.key === "Home" ? 0 : event.key === "End" ? visibleLedgerViews.length - 1 : event.key === "ArrowRight" ? (index + 1) % visibleLedgerViews.length : event.key === "ArrowLeft" ? (index - 1 + visibleLedgerViews.length) % visibleLedgerViews.length : null;
+                    if (next === null) return;
+                    event.preventDefault();
+                    setLedgerView(visibleLedgerViews[next].id);
+                    const buttons = event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>("button");
+                    buttons?.[next].focus();
+                  }}
                   role="tab"
                   type="button"
                 >
-                  <Target size={15} />
-                  This Game
-                </button>
-                <button
-                  aria-selected={ledgerView === "chronicles"}
-                  className={ledgerView === "chronicles" ? "selected" : ""}
-                  onClick={() => setLedgerView("chronicles")}
-                  role="tab"
-                  type="button"
-                >
-                  <BookMarked size={15} />
-                  Chronicles
-                </button>
-                <button
-                  aria-selected={ledgerView === "unlocks"}
-                  className={ledgerView === "unlocks" ? "selected" : ""}
-                  onClick={() => setLedgerView("unlocks")}
-                  role="tab"
-                  type="button"
-                >
-                  <Trophy size={15} />
-                  Unlocks
-                </button>
-                <button
-                  aria-selected={ledgerView === "log"}
-                  className={ledgerView === "log" ? "selected" : ""}
-                  onClick={() => setLedgerView("log")}
-                  role="tab"
-                  type="button"
-                >
-                  <History size={15} />
-                  Game Log
-                </button>
-              </nav>
+                  <Icon size={15} aria-hidden="true" />{label}
+                </button>)}
+              </div>
 
               {ledgerView === "game" && (
-                <div className="ledger-scroll-region">
+                <div {...ledgerPanel} className="ledger-scroll-region">
                   <section className="ledger-campaign-summary">
                     <div>
                       <p className="eyebrow">Steward’s Ledger</p>
@@ -341,7 +337,7 @@ export function BottomDrawer({
                       <p className="eyebrow">Current Game</p>
                       <h3>Steward objectives</h3>
                     </div>
-                    <span>{stewardObjectives.filter((objective) => objective.met).length}/{stewardObjectives.length} on track</span>
+                    <span>{stewardObjectives.filter((objective) => objective.met).length}/{stewardObjectives.length} {state.phase === "gameEnd" ? "met at the end" : "on track"}</span>
                   </div>
 
                   <div className="ledger-objective-grid">
@@ -360,7 +356,7 @@ export function BottomDrawer({
                               ? state.phase === "gameEnd"
                                 ? "Achieved"
                                 : "On track"
-                              : "In progress"}
+                              : state.phase === "gameEnd" ? "Not met" : "In progress"}
                           </span>
                         </header>
                         <p>{objective.objectiveText}</p>
@@ -382,7 +378,7 @@ export function BottomDrawer({
                   </div>
 
                   <p className="ledger-foundation-note">
-                    {ledgerRun.recorded
+                    {recordedGame
                       ? "This game has been recorded in the campaign Ledger."
                       : state.phase === "gameEnd"
                         ? "Review and record this game from the Final Scoring panel."
@@ -391,8 +387,12 @@ export function BottomDrawer({
                 </div>
               )}
 
+              {ledgerView === "history" && (
+                <div {...ledgerPanel} className="ledger-scroll-region"><LedgerHistory campaign={ledgerCampaign} /></div>
+              )}
+
               {ledgerView === "chronicles" && (
-                <div className="ledger-chronicles-layout">
+                <div {...ledgerPanel} className="ledger-chronicles-layout">
                   <nav className="ledger-chronicle-nav" aria-label="Ledger Chronicles">
                     {ledgerChronicles.map((chronicle) => {
                       const complete = ledgerEntries.filter(
@@ -484,7 +484,7 @@ export function BottomDrawer({
               )}
 
               {ledgerView === "unlocks" && (
-                <div className="ledger-scroll-region">
+                <div {...ledgerPanel} className="ledger-scroll-region">
                   <section className="ledger-campaign-summary unlock-summary">
                     <div>
                       <p className="eyebrow">Golden Milestones</p>
@@ -543,7 +543,7 @@ export function BottomDrawer({
                           The active game is kept.
                         </span>
                       </div>
-                      <button onClick={onResetLedgerCampaign} type="button">
+                      <button onClick={(event) => { event.currentTarget.focus({ preventScroll: true }); onResetLedgerCampaign(); }} type="button">
                         <Trash2 size={15} />
                         Reset Ledger Progress
                       </button>
@@ -553,7 +553,7 @@ export function BottomDrawer({
               )}
 
               {ledgerView === "log" && (
-                <div className="log-list tray-log-list ledger-scroll-region">
+                <div {...ledgerPanel} className="log-list tray-log-list ledger-scroll-region">
                   {state.log.length === 0 && <p>No log entries yet.</p>}
                   {state.log.map((entry) => (
                     <p key={entry.id}>

@@ -1,5 +1,6 @@
+import { isPlayerExperience } from "../../app/experience";
 import { Check, MapPin, Shield } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { mapCells, terrainLabels } from "../../data/map";
 import { stewardById } from "../../data/stewards";
 import { selectCurrentPlayer } from "../../engine/selectors";
@@ -59,6 +60,9 @@ export function StewardPlacementPanel({
   state,
   onConfirm
 }: StewardPlacementPanelProps) {
+  const enhanced = isPlayerExperience();
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const [zoom, setZoom] = useState(1);
   const currentPlayer = selectCurrentPlayer(state);
   const steward = stewardById[currentPlayer.stewardId];
   const [selectedHexId, setSelectedHexId] = useState(currentPlayer.stewardHexId);
@@ -66,6 +70,12 @@ export function StewardPlacementPanel({
   useEffect(() => {
     setSelectedHexId(currentPlayer.stewardHexId);
   }, [currentPlayer.id, currentPlayer.stewardHexId]);
+
+  useEffect(() => {
+    if (enhanced) headingRef.current?.focus();
+    setZoom(1);
+  }, [currentPlayer.id, enhanced]);
+  const validStarts = mapCells.filter((cell) => validateStewardPlacement(state, currentPlayer.id, cell.id).ok);
 
   const validation = validateStewardPlacement(state, currentPlayer.id, selectedHexId);
   const selectedCell = mapCells.find((cell) => cell.id === selectedHexId);
@@ -81,6 +91,136 @@ export function StewardPlacementPanel({
     });
     return byHex;
   }, [currentPlayer.id, state.players]);
+
+  const map = (
+<section className="map-panel setup-map-panel" aria-label="Steward starting map">
+        <div className="setup-map-meta">
+          <div className="terrain-key setup-terrain-key" aria-label="Terrain colour key">
+            {setupTerrainKey.map((terrain) => (
+              <span className="terrain-key-item" key={terrain}>
+                <span className={`terrain-swatch terrain-${terrain}`} />
+                {terrainLabels[terrain]}
+              </span>
+            ))}
+          </div>
+        </div>
+        {enhanced && <div className="starting-map-tools" role="group" aria-label="Starting map zoom"><span>{zoom === 1 ? "Whole board" : "Zoomed · scroll to explore"}</span><button type="button" onClick={() => setZoom(1)} disabled={zoom === 1}>Fit starting map</button><button type="button" onClick={() => setZoom(zoom === 1 ? 2 : 1)}>{zoom === 1 ? "Zoom starting map" : "Zoom out"}</button></div>}
+        <div className="map-artwork-frame">
+          <div className="starting-map-scroll"><div className="steward-placement-board map-canvas" style={enhanced ? { width: `${zoom * 100}%` } : undefined}>
+            <svg
+            className={`steward-start-map ${hasMapArtwork ? "has-map-artwork" : ""}`}
+            style={enhanced ? { maxHeight: `calc(var(--starting-map-height, 540px) * ${zoom})` } : undefined}
+            role={enhanced ? "group" : "img"}
+            aria-label={`${steward.name} starting map`}
+            viewBox={`0 0 ${setupMapWidth} ${setupMapHeight}`}
+          >
+            <MapArtworkImage
+              hexRadius={setupRadius}
+              kind="underlay"
+              originX={14}
+              originY={17}
+            />
+            {setupMapGeometry.map(({ cell, x, y, points }) => {
+              const allowed = steward.startingTerrains.includes(cell.terrain);
+              const occupiedPlayerIndex = occupiedPlayerIndexByHex.get(cell.id);
+              const occupiedByOther = occupiedPlayerIndex !== undefined;
+              const selectable = allowed && !occupiedByOther;
+              const selected = selectedHexId === cell.id;
+
+              return (
+                <g
+                  aria-disabled={selectable ? undefined : true}
+                  aria-label={`${enhanced ? `${cell.id}, ` : ""}${terrainLabels[cell.terrain]}${
+                    selectable ? ", valid start" : ", unavailable start"
+                  }${occupiedByOther ? ", occupied" : ""}`}
+                  aria-pressed={enhanced && selectable ? selected : undefined}
+                  data-start-hex={cell.id}
+                  className={[
+                    "steward-start-cell",
+                    `terrain-${cell.terrain}`,
+                    selectable ? "is-selectable" : "is-unavailable",
+                    occupiedByOther ? "occupied" : "",
+                    selected ? "selected" : ""
+                  ].join(" ")}
+                  key={cell.id}
+                  onClick={selectable ? () => setSelectedHexId(cell.id) : undefined}
+                  onKeyDown={
+                    selectable
+                      ? (event) => {
+                          if (enhanced && ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"].includes(event.key)) {
+                            event.preventDefault();
+                            const index = validStarts.findIndex((start) => start.id === cell.id);
+                            const delta = event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 1;
+                            const next = event.key === "Home" ? 0 : event.key === "End" ? validStarts.length - 1 : (index + delta + validStarts.length) % validStarts.length;
+                            const id = validStarts[next].id;
+                            setSelectedHexId(id);
+                            event.currentTarget.parentElement?.querySelector<SVGGElement>(`[data-start-hex="${id}"]`)?.focus();
+                          }
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            setSelectedHexId(cell.id);
+                          }
+                        }
+                      : undefined
+                  }
+                  role={selectable ? "button" : undefined}
+                  tabIndex={selectable ? enhanced ? selected || (!validation.ok && cell.id === validStarts[0]?.id) ? 0 : -1 : 0 : undefined}
+                >
+                  <title>
+                    {terrainLabels[cell.terrain]}
+                    {selectable ? " | Valid start" : " | Unavailable start"}
+                    {occupiedByOther ? " | Occupied" : ""}
+                  </title>
+                  <polygon points={points} />
+                  {selectable && !selected && (
+                    <circle className="steward-start-option-dot" cx={x} cy={y} r={3.5} />
+                  )}
+                  {selected && (
+                    <g className="steward-start-selected-token" transform={`translate(${x}, ${y})`}>
+                      <circle cx={0} cy={0} r={8} />
+                      <text x={0} y={4} textAnchor="middle">
+                        S
+                      </text>
+                    </g>
+                  )}
+                  {occupiedByOther && (
+                    <g className="steward-start-occupied" transform={`translate(${x}, ${y + 12})`}>
+                      <circle cx={0} cy={0} r={6} />
+                      <text x={0} y={4} textAnchor="middle">
+                        {(occupiedPlayerIndex ?? 0) + 1}
+                      </text>
+                    </g>
+                  )}
+                </g>
+              );
+            })}
+            <MapArtworkImage
+              hexRadius={setupRadius}
+              kind="overlay"
+              originX={14}
+              originY={17}
+            />
+            </svg>
+          </div>
+          </div><MapArtworkCredit />
+        </div>
+      </section>
+  );
+
+  if (enhanced) return <main className="starting-experience">
+    <header className="starting-heading"><p className="eyebrow">Choose your place in the Vale</p><h1 ref={headingRef} tabIndex={-1}>Place your {steward.name}</h1><p>{currentPlayer.name} · Steward {state.players.findIndex((player) => player.id === currentPlayer.id) + 1} of {state.playerCount}</p></header>
+    <section className="starting-choice" aria-label="Choose a starting position">
+      <p>Your {steward.name} starts on <strong>{allowedTerrainText}</strong>. Choose on the map or use the list of legal spaces.</p>
+      <label>Starting space<select value={selectedHexId} onChange={(event) => setSelectedHexId(event.target.value)}>{!validation.ok && <option value={selectedHexId}>Choose a valid space</option>}{validStarts.map((cell) => <option key={cell.id} value={cell.id}>{cell.id} · {terrainLabels[cell.terrain]}</option>)}</select></label>
+      <p className="starting-selection" role="status"><MapPin size={19} aria-hidden="true" /><span>Selected start<strong>{selectedCell ? `${selectedHexId} · ${terrainLabels[selectedCell.terrain]}` : "Choose a space"}</strong></span></p>
+      {!validation.ok && <ul className="failure-list">{validation.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>}
+      <button className="primary-action" disabled={!validation.ok} onClick={() => onConfirm(selectedHexId)} type="button"><Check size={18} aria-hidden="true" />Confirm {steward.name} Start</button>
+      <small>{state.players.findIndex((player) => player.id === currentPlayer.id) + 1 < state.playerCount ? "The next Steward chooses after you confirm." : state.goldenSetup.selectedTileId ? "Next, place your Golden Tile." : "Next, prepare the first season."}</small>
+      <details className="starting-steward-help"><summary>Your Steward’s power and objective</summary><h2>{steward.name}</h2><p>{steward.powerText}</p><p>{steward.objectiveText}</p></details>
+    </section>
+    {map}
+    <details className="starting-roster"><summary>Stewards at this table · {state.playerCount}</summary><ul>{state.players.map((player) => <li key={player.id}><strong>{player.name} · {stewardById[player.stewardId].name}</strong><span>{player.id === currentPlayer.id ? `Choosing ${selectedHexId}` : `${state.players.indexOf(player) < state.players.indexOf(currentPlayer) ? "Confirmed" : "Suggested"} · ${player.stewardHexId}`}</span></li>)}</ul></details>
+  </main>;
 
   return (
     <main className="command-table setup-flow-table steward-start-flow">
@@ -129,105 +269,7 @@ export function StewardPlacementPanel({
         </button>
       </section>
 
-      <section className="map-panel setup-map-panel" aria-label="Steward starting map">
-        <div className="setup-map-meta">
-          <div className="terrain-key setup-terrain-key" aria-label="Terrain colour key">
-            {setupTerrainKey.map((terrain) => (
-              <span className="terrain-key-item" key={terrain}>
-                <span className={`terrain-swatch terrain-${terrain}`} />
-                {terrainLabels[terrain]}
-              </span>
-            ))}
-          </div>
-        </div>
-        <div className="map-artwork-frame">
-          <div className="steward-placement-board map-canvas">
-            <svg
-            className={`steward-start-map ${hasMapArtwork ? "has-map-artwork" : ""}`}
-            role="img"
-            aria-label={`${steward.name} starting map`}
-            viewBox={`0 0 ${setupMapWidth} ${setupMapHeight}`}
-          >
-            <MapArtworkImage
-              hexRadius={setupRadius}
-              kind="underlay"
-              originX={14}
-              originY={17}
-            />
-            {setupMapGeometry.map(({ cell, x, y, points }) => {
-              const allowed = steward.startingTerrains.includes(cell.terrain);
-              const occupiedPlayerIndex = occupiedPlayerIndexByHex.get(cell.id);
-              const occupiedByOther = occupiedPlayerIndex !== undefined;
-              const selectable = allowed && !occupiedByOther;
-              const selected = selectedHexId === cell.id;
-
-              return (
-                <g
-                  aria-disabled={selectable ? undefined : true}
-                  aria-label={`${terrainLabels[cell.terrain]}${
-                    selectable ? ", valid start" : ", unavailable start"
-                  }${occupiedByOther ? ", occupied" : ""}`}
-                  className={[
-                    "steward-start-cell",
-                    `terrain-${cell.terrain}`,
-                    selectable ? "is-selectable" : "is-unavailable",
-                    occupiedByOther ? "occupied" : "",
-                    selected ? "selected" : ""
-                  ].join(" ")}
-                  key={cell.id}
-                  onClick={selectable ? () => setSelectedHexId(cell.id) : undefined}
-                  onKeyDown={
-                    selectable
-                      ? (event) => {
-                          if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-                            setSelectedHexId(cell.id);
-                          }
-                        }
-                      : undefined
-                  }
-                  role={selectable ? "button" : undefined}
-                  tabIndex={selectable ? 0 : undefined}
-                >
-                  <title>
-                    {terrainLabels[cell.terrain]}
-                    {selectable ? " | Valid start" : " | Unavailable start"}
-                    {occupiedByOther ? " | Occupied" : ""}
-                  </title>
-                  <polygon points={points} />
-                  {selectable && !selected && (
-                    <circle className="steward-start-option-dot" cx={x} cy={y} r={3.5} />
-                  )}
-                  {selected && (
-                    <g className="steward-start-selected-token" transform={`translate(${x}, ${y})`}>
-                      <circle cx={0} cy={0} r={8} />
-                      <text x={0} y={4} textAnchor="middle">
-                        S
-                      </text>
-                    </g>
-                  )}
-                  {occupiedByOther && (
-                    <g className="steward-start-occupied" transform={`translate(${x}, ${y + 12})`}>
-                      <circle cx={0} cy={0} r={6} />
-                      <text x={0} y={4} textAnchor="middle">
-                        {(occupiedPlayerIndex ?? 0) + 1}
-                      </text>
-                    </g>
-                  )}
-                </g>
-              );
-            })}
-            <MapArtworkImage
-              hexRadius={setupRadius}
-              kind="overlay"
-              originX={14}
-              originY={17}
-            />
-            </svg>
-          </div>
-          <MapArtworkCredit />
-        </div>
-      </section>
+      {map}
 
       <aside className="right-panel setup-roster-panel">
         <p className="eyebrow">Stewards Board</p>

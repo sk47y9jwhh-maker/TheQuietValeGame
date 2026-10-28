@@ -1,0 +1,56 @@
+{
+  "version": "6.7",
+  "date": "2026-09-12",
+  "status": "Updated review edition; v6.6 locked release preserved",
+  "files": [
+    {
+      "file": "The_Quiet_Vale_Main_Rulebook_v6_7.pdf",
+      "sha256": "c15319afecf298ace4b5757ab51d37a73f44708d11c9a77de76ae35b60ea49d4",
+      "bytes": 58946851,
+      "pages": 28
+    },
+    {
+      "file": "The_Quiet_Vale_Main_Rulebook_v6_7_Card_Guide.docx",
+      "sha256": "7682b9c7c5a6bd95a0c854f4e76550eebdc7d799eb9f4d618860e2cd845ed333",
+      "bytes": 24503630
+    },
+    {
+      "file": "The_Quiet_Vale_A6_Knight_Steward_Aid_v6_7.pdf",
+      "sha256": "a5ba758207b9d6127e3be6614b01c88639afabad256f1171b61da2547d42968d",
+      "bytes": 27955806,
+      "pages": 20
+    },
+    {
+      "file": "The_Quiet_Vale_A6_Quartermaster_Steward_Aid_v6_7.pdf",
+      "sha256": "7d3faca3723a0e2a1e535fe52498e1fce719f2298261ebcfb9926bb3db19d2ef",
+      "bytes": 27955839,
+      "pages": 20
+    },
+    {
+      "file": "The_Quiet_Vale_A6_Ranger_Steward_Aid_v6_7.pdf",
+      "sha256": "68be772e4ef3e74dbe6aa94b88c64a9dd5a6fcbf72207c76b5a2566352f6127a",
+      "bytes": 27955858,
+      "pages": 20
+    },
+    {
+      "file": "The_Quiet_Vale_A6_Sentinel_Steward_Aid_v6_7.pdf",
+      "sha256": "ab67131636806fd2cc4c82feedebfd7723eef8fcc2a95904b4b92d2b2c50dc44",
+      "bytes": 27955773,
+      "pages": 20
+    },
+    {
+      "file": "The_Quiet_Vale_A6_Vanguard_Steward_Aid_v6_7.pdf",
+      "sha256": "b96f4cafbfbfee08fc21466da31a7048cd3155682f6da3b9506c003b0f03089d",
+      "bytes": 27955807,
+      "pages": 20
+    },
+    {
+      "file": "The_Quiet_Vale_A6_Warden_Steward_Aid_v6_7.pdf",
+      "sha256": "b6fe30e5d51407acf326f135736680a8ae77ee2cafaebfb79d5317448d962b38",
+      "bytes": 27955767,
+      "pages": 20
+    }
+  ],
+  "bundle": "/Users/robertlittle/Documents/The Quiet Vale Game/output/releases/The_Quiet_Vale_Rulebook_and_Steward_Guides_v6_7.zip",
+  "bundle_sha256": "449c9756fccbafde3446b9ae1d8ccdaf93c138746aef7759882d2bac682e3198"
+}

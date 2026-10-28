@@ -1,0 +1,82 @@
+{
+  "capturedOn": "2026-10-02",
+  "branch": "codex/holiday-ui-ux-2026-09",
+  "format": "Unedited JPEG bytes returned by the browser screenshot tool",
+  "note": "Viewport captures of real local rendering. Demos show preserved progress from their own isolated namespaces, not identical current board positions. No physical-device or screen-reader certification. The two accessibility-review images show the latest phone headers; the first six preserve the preceding checkpoint.",
+  "images": [
+    {
+      "file": "living-table-desktop.jpg",
+      "width": 1440,
+      "height": 1000,
+      "url": "http://127.0.0.1:5174/?experience=tabletop&scenario=settlement",
+      "caption": "Living Table: Season II, round five, Knight, three actions; the saved eight-tile settlement. The recommended board-led design.",
+      "bytes": 205441,
+      "sha256": "d777039081b70758993c3612e78d5e3bf4aab8a038d8348e75599c0f552500b8"
+    },
+    {
+      "file": "council-desk-tablet.jpg",
+      "width": 768,
+      "height": 1024,
+      "url": "http://127.0.0.1:5174/?experience=council&scenario=settlement",
+      "caption": "Council Desk: Season I, round two, Vanguard, four actions; six tiles with score, objectives and decisions visible.",
+      "bytes": 107369,
+      "sha256": "6f1028d6088d7dba9e43d0c3460721f3b904251a6a57fa0dc447904fed07bdc0"
+    },
+    {
+      "file": "pocket-vale-phone.jpg",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:5174/?experience=guided&scenario=settlement",
+      "caption": "Pocket Vale: Season I, round two, Vanguard, one action; a saved seven-tile settlement. The guided intention menu keeps each choice separate from the board.",
+      "bytes": 47522,
+      "sha256": "c07275b47c8b109c0708cfa2485ef2d8e9f0bdb33847e258f73d7529906111d4"
+    },
+    {
+      "file": "council-resolution-desktop.jpg",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:5174/?experience=council&scenario=season-three",
+      "caption": "Season III, round nine: the current printed rule, payment alternatives, selected Strain outcomes and confirmation are visible before the supporting references.",
+      "bytes": 94919,
+      "sha256": "481db772ba0f2042a19096d24ef6ffc9dec478c40686cd64d76dccc54c3dd685"
+    },
+    {
+      "file": "target-explanation-phone.jpg",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:5174/?experience=council&scenario=season-three",
+      "caption": "Scrolled phone viewport showing the expanded Target Card 16 filter trace, selected Cabin at H1 and later target summaries. This is the draw explanation, not the final payment preview.",
+      "bytes": 42581,
+      "sha256": "1809513dcbd80d9a16ed5c03167d46a8db9b47654c0adeb7c138a32611ccd49f"
+    },
+    {
+      "file": "comparison-studio.jpg",
+      "width": 1280,
+      "height": 900,
+      "url": "http://127.0.0.1:5174/",
+      "caption": "The local comparison entry point, recommendation and three design directions.",
+      "bytes": 100480,
+      "sha256": "ec3f33e231d39e8f4dab7d4f1db0a2aeec7be072d5aad7e662630667937303d2"
+    },
+    {
+      "file": "council-accessibility-320.jpg",
+      "width": 320,
+      "height": 740,
+      "url": "http://127.0.0.1:5174/?experience=council&scenario=season-three",
+      "caption": "Council at 320 pixels after the accessibility pass: separated resource names/totals and a pale keyboard-focus ring on the dark guide.",
+      "bytes": 39896,
+      "sha256": "4728ec7aa6d15da2627f74c2357bf1bf5a9be3338c997ab7aed530a8f7d7612e",
+      "milestone": "accessibility review"
+    },
+    {
+      "file": "pocket-accessibility-phone.jpg",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:5174/?experience=guided&scenario=settlement",
+      "caption": "Pocket Vale after the accessibility pass: stacked resource totals and a higher-contrast remaining-action badge. The saved one-action settlement is unchanged.",
+      "bytes": 44007,
+      "sha256": "c0c593b4d2a9c15e68f2513bbeec9a36c11db3bdc1ba6c199f9632128e9038a7",
+      "milestone": "accessibility review"
+    }
+  ]
+}

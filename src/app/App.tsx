@@ -1,11 +1,19 @@
+import { getPreparedStewardPower } from "../components/actions/preparedActions";
+import { goldenVialId } from "../components/actions/GoldenVialNotice";
 import {
   useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
-  useState
+  useState,
+  type CSSProperties,
+  type ReactNode
 } from "react";
+import { SaveNotice } from "../components/common/SaveNotice";
+import { saveSession } from "./saveSession";
+import type { StorageResult } from "./browserStorage";
+import { ConfirmationDialog } from "../components/common/ConfirmationDialog";
 import { ActionConsole } from "../components/actions/ActionConsole";
 import {
   getDefaultPlaceTileId,
@@ -24,6 +32,10 @@ import { BottomDrawer } from "../components/panels/BottomDrawer";
 import { EncounterPanel } from "../components/panels/EncounterPanel";
 import { SeedingPanel } from "../components/seeding/SeedingPanel";
 import { SetupPanel } from "../components/setup/SetupPanel";
+import { TabletopWelcome } from "../components/setup/TabletopWelcome";
+import { TabletopLayout } from "../components/layout/TabletopLayout";
+import { TableSeeding } from "../components/seeding/TableSeeding";
+import { getExperience, isPlayerExperience } from "./experience";
 import { StewardPlacementPanel } from "../components/setup/StewardPlacementPanel";
 import { GoldenTilePlacementPanel } from "../components/setup/GoldenTilePlacementPanel";
 import { stewards } from "../data/stewards";
@@ -39,6 +51,7 @@ import {
   commitStewardPlacement,
   confirmCostChoice,
   completeArrival,
+  reviewArrivalCompletion,
   commitSeasonSeeding,
   endCurrentTurn,
   getActivatableTileIds,
@@ -60,7 +73,7 @@ import {
 import { getTileFootprintKind } from "../engine/placementRules";
 import { getPlacedTileAtHex } from "../engine/reachability";
 import { createNewGame } from "../engine/setup";
-import { recordLedgerGame, trackLedgerTransition } from "../engine/ledger";
+import { getLedgerRun, recordLedgerGame, trackLedgerTransition } from "../engine/ledger";
 import {
   countCompletedLedgerEntries,
   createEmptyLedgerCampaign
@@ -75,21 +88,16 @@ import {
 import { selectCurrentPlayer, selectTileName } from "../engine/selectors";
 import type { GameState, HexDirection, PlayerCount, TilePlacementDraft } from "../engine/types";
 import {
-  clearAllSaves,
-  clearSavedGame,
   getBrowserHistoryIndex,
   pushBrowserUndoMarker,
-  readSavedGame,
-  readSavedSetup,
-  resetBrowserHistoryAnchor,
-  writeSavedGame,
-  writeSavedSetup
+  readSavedGameResult,
+  readSavedSetupResult,
+  resetBrowserHistoryAnchor
 } from "./persistence";
 import {
-  clearLedgerCampaign,
-  readLedgerCampaign,
-  writeLedgerCampaign
+  readLedgerCampaignResult
 } from "./ledgerPersistence";
+import type { PreviewSnapshot } from "./scenarioTypes";
 import { fitContextMenuToViewport } from "./contextMenuPosition";
 
 function createSetupSeed(): string {
@@ -98,19 +106,25 @@ function createSetupSeed(): string {
 
 const undoHistoryLimit = 40;
 
-export function App() {
-  const [initialSavedGame] = useState(readSavedGame);
-  const [initialSavedSetup] = useState(readSavedSetup);
+export function App({ initialPreview, simulateSaveFailure = false }: { initialPreview?: PreviewSnapshot; simulateSaveFailure?: boolean } = {}) {
+  const [initialStorage] = useState(() => ({ game: readSavedGameResult(), setup: readSavedSetupResult(), campaign: readLedgerCampaignResult() }));
+  const initialSavedGame = initialStorage.game.ok ? initialStorage.game.value : null;
+  const initialSavedSetup = initialStorage.setup.ok ? initialStorage.setup.value : null;
+  const initialCampaign = (initialStorage.campaign.ok ? initialStorage.campaign.value : null) ?? initialPreview?.campaign ?? createEmptyLedgerCampaign();
+  const loadProblem = [initialStorage.game, initialStorage.setup, initialStorage.campaign].find((result) => !result.ok);
+  const [saveResult, setSaveResult] = useState<StorageResult>({ ok: true });
+  const [saveAttempt, setSaveAttempt] = useState(0);
+  const [saveNoticeHeight, setSaveNoticeHeight] = useState(0);
   const [playerCount, setPlayerCount] = useState<PlayerCount>(
-    initialSavedGame?.playerCount ?? initialSavedSetup?.playerCount ?? 1
+    initialSavedGame?.playerCount ?? initialSavedSetup?.playerCount ?? initialPreview?.setup.playerCount ?? 1
   );
   const [stewardIds, setStewardIds] = useState(
     initialSavedGame?.stewardIds ??
-      initialSavedSetup?.stewardIds ??
+      initialSavedSetup?.stewardIds ?? initialPreview?.setup.stewardIds ??
       stewards.slice(0, 1).map((steward) => steward.id)
   );
   const [encounterSeed, setEncounterSeed] = useState(
-    initialSavedGame?.encounterSeed ?? initialSavedSetup?.encounterSeed ?? createSetupSeed
+    initialSavedGame?.encounterSeed ?? initialSavedSetup?.encounterSeed ?? initialPreview?.setup.encounterSeed ?? createSetupSeed
   );
   const [declaredVowId, setDeclaredVowId] = useState(
     initialSavedGame?.declaredVowId ?? initialSavedSetup?.declaredVowId ?? ""
@@ -121,11 +135,20 @@ export function App() {
   const [selectedGoldenBoonId, setSelectedGoldenBoonId] = useState(
     initialSavedGame?.selectedGoldenBoonId ?? initialSavedSetup?.selectedGoldenBoonId ?? ""
   );
-  const [ledgerCampaign, setLedgerCampaign] = useState(readLedgerCampaign);
-  const [state, setState] = useState<GameState | null>(initialSavedGame?.state ?? null);
+  const [ledgerCampaign, setLedgerCampaign] = useState(initialCampaign);
+  const [state, setState] = useState<GameState | null>(() => {
+    const restored = initialSavedGame?.state ?? (initialSavedSetup ? null : initialPreview?.state ?? null);
+    // The campaign is authoritative if a previous multi-key save stopped after
+    // clearing the Ledger but before the board's cached recording flag updated.
+    return restored?.ledgerRun?.recorded && initialStorage.campaign.ok && !initialCampaign.games.some((game) => game.id === restored.ledgerRun!.gameId)
+      ? { ...restored, ledgerRun: { ...restored.ledgerRun, recorded: false } }
+      : restored;
+  });
+  const [pendingReset, setPendingReset] = useState<"game" | "ledger" | null>(null);
   const [undoStack, setUndoStack] = useState<GameState[]>([]);
   const [redoStack, setRedoStack] = useState<GameState[]>([]);
   const [selectedHexIds, setSelectedHexIds] = useState<string[]>([]);
+  const [boardSelectionVersion, setBoardSelectionVersion] = useState(0);
   const [selectedTileId, setSelectedTileId] = useState(coreTiles[0].id);
   const [placementOrientation, setPlacementOrientation] = useState<HexDirection>(3);
   const [actionMode, setActionMode] = useState("place");
@@ -145,6 +168,7 @@ export function App() {
   const undoStackRef = useRef<GameState[]>(undoStack);
   const redoStackRef = useRef<GameState[]>(redoStack);
   const browserHistoryIndexRef = useRef(0);
+  const focusSetupOnMount = useRef(false);
 
   const normalizedStewards = useMemo(() => {
     const next = [...stewardIds];
@@ -201,36 +225,28 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    if (state) {
-      writeSavedGame({
+    if (loadProblem) {
+      setSaveResult(loadProblem);
+      return;
+    }
+    setSaveResult(saveSession({
+      state,
+      campaign: ledgerCampaign,
+      setup: {
         playerCount,
         stewardIds: normalizedStewards,
         encounterSeed,
-        declaredVowId: state.ledgerRun?.declaredVowId,
-        selectedGoldenTileId: state.goldenSetup.selectedTileId,
-        selectedGoldenBoonId: state.goldenSetup.selectedBoonId,
-        state
-      });
-      return;
-    }
-
-    writeSavedSetup({
-      playerCount,
-      stewardIds: normalizedStewards,
-      encounterSeed,
-      declaredVowId: declaredVowId || undefined,
-      selectedGoldenTileId: selectedGoldenTileId || undefined,
-      selectedGoldenBoonId: selectedGoldenBoonId || undefined
-    });
-    clearSavedGame();
-  }, [declaredVowId, encounterSeed, normalizedStewards, playerCount, selectedGoldenBoonId, selectedGoldenTileId, state]);
+        declaredVowId: state ? state.ledgerRun?.declaredVowId : declaredVowId || undefined,
+        selectedGoldenTileId: state ? state.goldenSetup.selectedTileId : selectedGoldenTileId || undefined,
+        selectedGoldenBoonId: state ? state.goldenSetup.selectedBoonId : selectedGoldenBoonId || undefined
+      }
+    }, simulateSaveFailure));
+  }, [declaredVowId, encounterSeed, normalizedStewards, playerCount, selectedGoldenBoonId, selectedGoldenTileId, state, ledgerCampaign, saveAttempt, simulateSaveFailure, loadProblem]);
 
   const pushUndoSnapshot = useCallback((previousState: GameState) => {
-    setUndoStack((current) => {
-      const next = [previousState, ...current].slice(0, undoHistoryLimit);
-      undoStackRef.current = next;
-      return next;
-    });
+    const next = [previousState, ...undoStackRef.current].slice(0, undoHistoryLimit);
+    undoStackRef.current = next;
+    setUndoStack(next);
     redoStackRef.current = [];
     setRedoStack([]);
     browserHistoryIndexRef.current += 1;
@@ -246,6 +262,7 @@ export function App() {
       if (nextState === previousState) return;
       const trackedState = trackLedgerTransition(previousState, nextState);
       if (options.undoable !== false) pushUndoSnapshot(previousState);
+      stateRef.current = trackedState;
       setState(trackedState);
     },
     [pushUndoSnapshot]
@@ -256,16 +273,13 @@ export function App() {
       updater: (current: GameState) => GameState,
       options: { undoable?: boolean } = {}
     ) => {
-      setState((current) => {
-        if (!current) return current;
-        const nextState = updater(current);
-        if (nextState === current) return current;
-        const trackedState = trackLedgerTransition(current, nextState);
-        if (options.undoable !== false) pushUndoSnapshot(current);
-        return trackedState;
-      });
+      // Commits include history and Ledger effects. Keep them outside React's
+      // replayable state updater so StrictMode cannot record a decision twice.
+      const current = stateRef.current;
+      if (!current) return;
+      commitKnownGameState(current, updater(current), options);
     },
-    [pushUndoSnapshot]
+    [commitKnownGameState]
   );
 
   useEffect(() => {
@@ -282,15 +296,12 @@ export function App() {
 
   const resetInteractionForState = useCallback((nextState: GameState) => {
     setSelectedHexIds([]);
-    setSelectedTileId(
-      getDefaultPlaceTileId(
-        nextState,
-        nextState.currentPlayerId,
-        [],
-        placementOrientation
-      )
-    );
-    setActionMode("place");
+    const prepared = isPlayerExperience() ? getPreparedStewardPower(nextState) : null;
+    const matchingTile = prepared?.mode === "place"
+      ? getPlaceTileChoices(nextState, nextState.currentPlayerId, [], placementOrientation).find((tile) => tile.category === prepared.category && tile.placeableNow)
+      : undefined;
+    setSelectedTileId(matchingTile?.id ?? getDefaultPlaceTileId(nextState, nextState.currentPlayerId, [], placementOrientation));
+    setActionMode(prepared?.mode ?? "place");
     setMapContextMenu(null);
   }, [placementOrientation]);
 
@@ -330,6 +341,7 @@ export function App() {
 
   useEffect(() => {
     function handleBrowserNavigation(event: PopStateEvent) {
+      setPendingReset(null);
       if (!stateRef.current) return;
 
       const nextIndex = getBrowserHistoryIndex(event);
@@ -349,14 +361,12 @@ export function App() {
   }, [handleRedo, handleUndo]);
 
   function handleResetGame() {
-    if (
-      state &&
-      !window.confirm("Reset this game? This clears the saved game and starts over.")
-    ) {
-      return;
-    }
+    if (state) setPendingReset("game");
+  }
 
-    clearAllSaves();
+  function resetGame() {
+    focusSetupOnMount.current = true;
+    setPendingReset(null);
     undoStackRef.current = [];
     redoStackRef.current = [];
     stateRef.current = null;
@@ -382,18 +392,29 @@ export function App() {
     const result = recordLedgerGame(state, ledgerCampaign);
     if (result.campaign === ledgerCampaign) return;
     setLedgerCampaign(result.campaign);
-    writeLedgerCampaign(result.campaign);
     stateRef.current = result.state;
     setState(result.state);
   }
 
   function handleResetLedgerCampaign() {
-    const confirmed = window.confirm(
-      "Reset all Steward's Ledger progress? This clears completed entries, prestige records, Golden unlocks, and campaign history. Your current game will not be reset."
-    );
-    if (!confirmed) return;
-    clearLedgerCampaign();
-    setLedgerCampaign(createEmptyLedgerCampaign());
+    setPendingReset("ledger");
+  }
+
+  function resetLedgerCampaign() {
+    setPendingReset(null);
+    const emptyCampaign = createEmptyLedgerCampaign();
+    setLedgerCampaign(emptyCampaign);
+    // Recording belongs to the campaign, so retained boards must not claim a
+    // cleared result is still recorded — including boards reached by Undo/Redo.
+    const unrecord = (snapshot: GameState): GameState => snapshot.ledgerRun?.recorded
+      ? { ...snapshot, ledgerRun: { ...snapshot.ledgerRun, recorded: false } }
+      : snapshot;
+    stateRef.current = stateRef.current ? unrecord(stateRef.current) : null;
+    undoStackRef.current = undoStackRef.current.map(unrecord);
+    redoStackRef.current = redoStackRef.current.map(unrecord);
+    setState(stateRef.current);
+    setUndoStack(undoStackRef.current);
+    setRedoStack(redoStackRef.current);
     if (!state) {
       setSelectedGoldenTileId("");
       setSelectedGoldenBoonId("");
@@ -430,16 +451,14 @@ export function App() {
 
   function handleHexSelect(hexId: string) {
     setMapContextMenu(null);
-    if (actionMode !== "place" || getTileFootprintKind(selectedTileId) !== "detached") {
-      setSelectedHexIds([hexId]);
-      return;
-    }
-
-    setSelectedHexIds((current) => {
-      if (current.includes(hexId)) return current.filter((selectedId) => selectedId !== hexId);
-      if (current.length >= 2) return [hexId];
-      return [...current, hexId];
-    });
+    const isDetached = actionMode === "place" && getTileFootprintKind(selectedTileId) === "detached";
+    const next = !isDetached ? [hexId]
+      : selectedHexIds.includes(hexId) ? selectedHexIds.filter((selectedId) => selectedId !== hexId)
+      : selectedHexIds.length >= 2 ? [hexId] : [...selectedHexIds, hexId];
+    setSelectedHexIds(next);
+    // A deliberate selection also counts when the same hex was already selected.
+    // Keep a detached footprint on the board until both spaces are chosen.
+    if (!isDetached || next.length === 2) setBoardSelectionVersion((version) => version + 1);
   }
 
   useEffect(() => {
@@ -498,15 +517,19 @@ export function App() {
       state.pendingEffects.length > 0 ||
       state.pendingGoldenEffect ||
       state.pendingDeckReorder ||
-      state.pendingCostChoice ||
-      actionMode === "end"
+      state.pendingCostChoice
     ) {
       return;
     }
 
-    setActionMode("end");
+    // Restored preparations still have a useful action after the ordinary four.
+    const prepared = isPlayerExperience() ? getPreparedStewardPower(state) : null;
+    if (prepared?.mode === "place") {
+      const tile = getPlaceTileChoices(state, state.currentPlayerId, [], placementOrientation).find((choice) => choice.category === prepared.category && choice.placeableNow);
+      if (tile) setSelectedTileId(tile.id);
+    }
+    setActionMode(prepared?.mode ?? "end");
   }, [
-    actionMode,
     state?.actionsRemaining,
     state?.pendingCostChoice,
     state?.pendingDeckReorder,
@@ -515,9 +538,34 @@ export function App() {
     state?.phase
   ]);
 
+  function withConfirmation(content: ReactNode) {
+    const recorded = state && (state.ledgerRun?.recorded || ledgerCampaign.games.some((game) => game.id === getLedgerRun(state).gameId));
+    const completed = state?.phase === "gameEnd";
+    return <div className="save-boundary" style={{ "--save-notice-height": `${saveNoticeHeight}px` } as CSSProperties}>
+      <SaveNotice result={saveResult} loadProtected={Boolean(loadProblem)} simulated={simulateSaveFailure} onRetry={() => setSaveAttempt((attempt) => attempt + 1)} onHeightChange={setSaveNoticeHeight} />
+      {content}{pendingReset && <ConfirmationDialog
+      title={pendingReset === "ledger" ? "Clear this Ledger’s progress?" : completed ? "Begin another settlement?" : "Start this settlement over?"}
+      cancelLabel={pendingReset === "ledger" ? "Keep Ledger progress" : completed ? "Keep reviewing" : "Keep playing"}
+      confirmLabel={pendingReset === "ledger" ? "Clear Ledger progress" : completed ? "Begin new settlement" : "Clear board and start over"}
+      destructive={pendingReset === "ledger" || !completed}
+      onCancel={() => setPendingReset(null)}
+      onConfirm={pendingReset === "ledger" ? resetLedgerCampaign : resetGame}
+    >{pendingReset === "ledger" ? <>
+      <p>This clears {countCompletedLedgerEntries(ledgerCampaign)} completed Ledger entries, {ledgerCampaign.games.length} recorded settlement{ledgerCampaign.games.length === 1 ? "" : "s"}, prestige records and Golden unlocks.</p>
+      <p>The active game and its recent Undo/Redo steps are kept. {completed && "You can record this completed settlement again afterward."}</p>
+      <p><strong>Cleared campaign progress cannot be restored with Undo.</strong></p>
+    </> : <>
+      {completed && !recorded && <p><strong>This completed game has not been recorded in the Ledger.</strong> Keep reviewing to record it first.</p>}
+      <p>The current saved board and recent Undo/Redo history will be cleared. Recorded Ledger progress is kept.</p>
+      <p>You’ll return to setup. This cannot be undone.</p>
+    </>}</ConfirmationDialog>}</div>;
+  }
+
   if (!state) {
-    return (
-      <SetupPanel
+    const SetupExperience = isPlayerExperience() ? TabletopWelcome : SetupPanel;
+    return withConfirmation(
+      <SetupExperience
+        focusOnMount={focusSetupOnMount.current}
         playerCount={playerCount}
         stewardIds={normalizedStewards}
         declaredVowId={declaredVowId}
@@ -534,8 +582,9 @@ export function App() {
         onGoldenTileChange={setSelectedGoldenTileId}
         onGoldenBoonChange={setSelectedGoldenBoonId}
         onStart={() => {
-          const randomizedSeed = createSetupSeed();
-          setEncounterSeed(randomizedSeed);
+          // Comparisons keep their advertised deal. Ordinary games still get a fresh seed.
+          const nextSeed = initialPreview?.setup.encounterSeed ?? createSetupSeed();
+          setEncounterSeed(nextSeed);
           undoStackRef.current = [];
           redoStackRef.current = [];
           setUndoStack([]);
@@ -545,7 +594,7 @@ export function App() {
           setActionMode("place");
           setState(
             createNewGame(playerCount, normalizedStewards, {
-              encounterSeed: randomizedSeed,
+              encounterSeed: nextSeed,
               declaredVowId: declaredVowId || undefined,
               selectedGoldenTileId: selectedGoldenTileId || undefined,
               selectedGoldenBoonId: selectedGoldenBoonId || undefined
@@ -568,11 +617,43 @@ export function App() {
   }
 
   function handleUseFaceUpBoon(boonCardId: string) {
-    commitGameState((current) => useFaceUpBoon(current, boonCardId));
+    if (isPlayerExperience() && boonCardId === goldenVialId && state) {
+      const next = useFaceUpBoon(state, boonCardId);
+      commitKnownGameState(state, next);
+      if (next !== state) {
+        const choices = getPlaceTileChoices(next, next.currentPlayerId, [], placementOrientation);
+        const travel = choices.find((tile) => tile.kind === "core" && tile.category === "travel" && tile.placeableNow) ?? choices.find((tile) => tile.kind === "core" && tile.category === "travel" && tile.hasEnoughSupply);
+        setSelectedHexIds([]);
+        if (travel) setSelectedTileId(travel.id);
+        setActionMode("place");
+      }
+    } else commitGameState((current) => useFaceUpBoon(current, boonCardId));
+  }
+
+  function handleUseStewardPower() {
+    const current = stateRef.current;
+    if (!current) return;
+    const next = useStewardPower(current, current.currentPlayerId);
+    commitKnownGameState(current, next);
+    if (isPlayerExperience() && next !== current) reviewPreparedStewardPower(next);
+  }
+
+  function reviewPreparedStewardPower(next: GameState) {
+    const prepared = getPreparedStewardPower(next);
+    if (prepared) {
+      setSelectedHexIds([]);
+      if (prepared.mode === "place") {
+        const choices = getPlaceTileChoices(next, next.currentPlayerId, [], placementOrientation);
+        const tile = choices.find((choice) => choice.category === prepared.category && choice.placeableNow)
+          ?? choices.find((choice) => choice.category === prepared.category && choice.hasEnoughSupply);
+        if (tile) setSelectedTileId(tile.id);
+      }
+      setActionMode(prepared.mode);
+    }
   }
 
   function handleCompleteArrival(arrivalCardId: string) {
-    commitGameState((current) => completeArrival(current, arrivalCardId));
+    commitGameState((current) => isPlayerExperience() ? reviewArrivalCompletion(current, arrivalCardId) : completeArrival(current, arrivalCardId));
   }
 
   function handleResolveBurden(burdenCardId: string) {
@@ -580,7 +661,7 @@ export function App() {
   }
 
   if (state.pendingGoldenEffect) {
-    return (
+    return withConfirmation(
       <ResolutionShell
         state={state}
         eyebrow="Golden Boon"
@@ -610,7 +691,7 @@ export function App() {
   }
 
   if (state.pendingDeckReorder) {
-    return (
+    return withConfirmation(
       <ResolutionShell
         state={state}
         eyebrow="Resolution"
@@ -638,12 +719,12 @@ export function App() {
   }
 
   if (state.pendingCostChoice) {
-    return (
+    return withConfirmation(
       <ResolutionShell
         state={state}
         eyebrow="Resolution"
-        title="Confirm Payment"
-        detail="Choose any passive payment effects, then confirm or cancel before spending the action."
+        title={isPlayerExperience() ? "Review payment" : "Confirm Payment"}
+        detail="Review the action and resource costs, choose any available payment effects, then confirm. Cancel keeps your resources and actions."
         onUseFaceUpBoon={handleUseFaceUpBoon}
         canUndo={undoStack.length > 0}
         canRedo={redoStack.length > 0}
@@ -676,10 +757,10 @@ export function App() {
       state,
       state.pendingEffects[0]
     );
-    return (
+    return withConfirmation(
       <ResolutionShell
         state={state}
-        eyebrow={pendingEffect.sourceType === "card" ? "Encounter Reveal" : "Resolution"}
+        eyebrow={state.phase === "seeding" ? "Season transition" : pendingEffect.sourceType === "card" ? "Encounter resolution" : "Resolution"}
         title="Resolve Effect"
         detail="Read the card or tile effect, make any required choices, then apply or skip where allowed."
         onUseFaceUpBoon={handleUseFaceUpBoon}
@@ -706,7 +787,8 @@ export function App() {
   }
 
   if (state.phase === "seeding") {
-    return (
+    const SeedingExperience = getExperience() === "tabletop" ? TableSeeding : SeedingPanel;
+    return withConfirmation(
       <div className="app-shell">
         <TopBar
           state={state}
@@ -716,7 +798,7 @@ export function App() {
           onRedo={handleRedo}
           onReset={handleResetGame}
         />
-        <SeedingPanel
+        <SeedingExperience
           state={state}
           onConfirm={(selection) =>
             commitGameState((current) =>
@@ -729,7 +811,7 @@ export function App() {
   }
 
   if (state.phase === "goldenSetup") {
-    return (
+    return withConfirmation(
       <div className="app-shell">
         <TopBar
           state={state}
@@ -751,7 +833,7 @@ export function App() {
   }
 
   if (state.phase === "setup") {
-    return (
+    return withConfirmation(
       <div className="app-shell">
         <TopBar
           state={state}
@@ -853,7 +935,7 @@ export function App() {
     setInspectedTileId(null);
   }
 
-  return (
+  return withConfirmation(
     <div className="app-shell">
       <TopBar
         state={state}
@@ -863,93 +945,104 @@ export function App() {
         onRedo={handleRedo}
         onReset={handleResetGame}
       />
-      <main className="command-table">
-        <ActionConsole
-          state={state}
-          ledgerCampaign={ledgerCampaign}
-          onRecordLedgerGame={handleRecordLedgerGame}
-          selectedTileId={selectedTileId}
-          selectedHexIds={selectedHexIds}
-          placementOrientation={placementOrientation}
-          actionMode={actionMode}
-          onModeChange={setActionMode}
-          onSelectedTileChange={handleTileChange}
-          onTileInspect={inspectTileDefinition}
-          onPlacementOrientationChange={setPlacementOrientation}
-          onConfirmPlace={(resolvedPlacementDraft, tileId = selectedTileId) => {
-            if (!resolvedPlacementDraft.anchorHexId) return;
-            commitTilePlacement(
-              state,
-              currentPlayer.id,
-              tileId,
-              resolvedPlacementDraft
-            );
-          }}
-          onUpgrade={(placedTileId) =>
-            commitGameState((current) =>
-              upgradeTile(current, currentPlayer.id, placedTileId)
-            )
-          }
-          onActivate={(placedTileId) =>
-            commitGameState((current) =>
-              activateTile(current, currentPlayer.id, placedTileId)
-            )
-          }
-          onCompleteArrival={(arrivalCardId) =>
-            handleCompleteArrival(arrivalCardId)
-          }
-          onResolveBurden={(burdenCardId) =>
-            handleResolveBurden(burdenCardId)
-          }
-          onUseFaceUpBoon={(boonCardId) =>
-            commitGameState((current) => useFaceUpBoon(current, boonCardId))
-          }
-          onUseStewardPower={() =>
-            commitGameState((current) => useStewardPower(current, currentPlayer.id))
-          }
-          onCancelPendingBurdenWithWarden={() =>
-            commitGameState((current) => cancelPendingBurdenWithWarden(current))
-          }
-          onResolvePendingEffect={(adjustment) =>
-            commitGameState((current) =>
-              resolvePendingEffect(current, adjustment)
-            )
-          }
-          onSkipPendingEffect={() =>
-            commitGameState((current) => skipPendingEffect(current))
-          }
-          onReveal={() => {
-            setActionMode("place");
-            commitGameState((current) => revealEncounters(current));
-          }}
-          onEndTurn={() => {
-            setActionMode("place");
-            commitGameState((current) => endCurrentTurn(current));
-          }}
-          onEndRound={() =>
-            commitGameState((current) => resolveEndRound(current))
-          }
-        />
-        <HexMap
-          state={state}
-          selectedTileId={selectedTileId}
-          actionMode={actionMode}
-          selectedHexIds={selectedHexIds}
-          placementOrientation={placementOrientation}
-          onHexSelect={handleHexSelect}
-          onHexContextMenu={(hexId, point) =>
-            setMapContextMenu({ hexId, x: point.x, y: point.y })
-          }
-          onTileInspect={inspectPlacedTile}
-        />
-        <EncounterPanel
-          state={state}
-          onUseFaceUpBoon={(boonCardId) =>
-            handleUseFaceUpBoon(boonCardId)
-          }
-          onCompleteArrival={handleCompleteArrival}
-          onResolveBurden={handleResolveBurden}
-        />
+      <TabletopLayout
+        actionMode={actionMode}
+        onModeChange={setActionMode}
+        onReviewPreparedPower={() => reviewPreparedStewardPower(state)}
+        state={state}
+        selectionKey={`${selectedTileId}:${selectedHexIds.join(",")}:${actionMode}`}
+        boardSelectionKey={String(boardSelectionVersion)}
+        actions={
+          <ActionConsole
+            state={state}
+            ledgerCampaign={ledgerCampaign}
+            onRecordLedgerGame={handleRecordLedgerGame}
+            onNewGame={resetGame}
+            selectedTileId={selectedTileId}
+            selectedHexIds={selectedHexIds}
+            placementOrientation={placementOrientation}
+            actionMode={actionMode}
+            onModeChange={setActionMode}
+            onSelectedTileChange={handleTileChange}
+            onTileInspect={inspectTileDefinition}
+            onPlacedTileInspect={inspectPlacedTile}
+            onPlacementOrientationChange={setPlacementOrientation}
+            onConfirmPlace={(resolvedPlacementDraft, tileId = selectedTileId) => {
+              if (!resolvedPlacementDraft.anchorHexId) return;
+              commitTilePlacement(
+                state,
+                currentPlayer.id,
+                tileId,
+                resolvedPlacementDraft
+              );
+            }}
+            onUpgrade={(placedTileId) =>
+              commitGameState((current) =>
+                upgradeTile(current, currentPlayer.id, placedTileId)
+              )
+            }
+            onActivate={(placedTileId) =>
+              commitGameState((current) =>
+                activateTile(current, currentPlayer.id, placedTileId)
+              )
+            }
+            onCompleteArrival={(arrivalCardId) =>
+              handleCompleteArrival(arrivalCardId)
+            }
+            onResolveBurden={(burdenCardId) =>
+              handleResolveBurden(burdenCardId)
+            }
+            onUseFaceUpBoon={handleUseFaceUpBoon}
+            onUseStewardPower={handleUseStewardPower}
+            onCancelPendingBurdenWithWarden={() =>
+              commitGameState((current) => cancelPendingBurdenWithWarden(current))
+            }
+            onResolvePendingEffect={(adjustment) =>
+              commitGameState((current) =>
+                resolvePendingEffect(current, adjustment)
+              )
+            }
+            onSkipPendingEffect={() =>
+              commitGameState((current) => skipPendingEffect(current))
+            }
+            onReveal={() => {
+              setActionMode("place");
+              commitGameState((current) => revealEncounters(current));
+            }}
+            onEndTurn={() => {
+              setActionMode("place");
+              commitGameState((current) => endCurrentTurn(current));
+            }}
+            onEndRound={() =>
+              commitGameState((current) => resolveEndRound(current))
+            }
+          />
+        }
+        board={
+          <HexMap
+            state={state}
+            selectedTileId={selectedTileId}
+            actionMode={actionMode}
+            selectedHexIds={selectedHexIds}
+            placementOrientation={placementOrientation}
+            onHexSelect={handleHexSelect}
+            onHexContextMenu={(hexId, point) =>
+              setMapContextMenu({ hexId, x: point.x, y: point.y })
+            }
+            onTileInspect={inspectPlacedTile}
+          />
+        }
+        encounters={
+          <EncounterPanel
+            state={state}
+            onUseFaceUpBoon={(boonCardId) =>
+              handleUseFaceUpBoon(boonCardId)
+            }
+            onCompleteArrival={handleCompleteArrival}
+            onResolveBurden={handleResolveBurden}
+          />
+        }
+      >
         {mapContextMenu && (
           <div
             className="context-menu map-context-menu"
@@ -1058,7 +1151,7 @@ export function App() {
             )}
           </div>
         )}
-      </main>
+      </TabletopLayout>
       <TileInspectModal
         state={state}
         placedTileId={inspectedPlacedTileId}

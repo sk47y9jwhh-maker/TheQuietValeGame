@@ -1,0 +1,27 @@
+export const scenarioIds = ["welcome", "settlement", "choice", "handoff", "last-action", "finale", "returning", "golden-bell", "golden-scroll", "golden-signet", "golden-vial", "golden-traveller", "ranger-reach", "warden-response", "sentinel-upgrade", "season-three"] as const;
+export type ScenarioId = (typeof scenarioIds)[number];
+export const scenarioStorageVersion = 1;
+
+export const comparisonScenarios: Record<ScenarioId, { name: string; description: string; tasks: string[] }> = {
+  welcome: { name: "A fresh start", description: "The same two-player table and encounter deal, ready for a new settlement.", tasks: ["Choose your Stewards", "Find the learning guide", "Place the first starting token"] },
+  settlement: { name: "A settlement in motion", description: "Round two: six placed tiles, two Arrivals, a Burden and a Boon. Resources and cards match in every design.", tasks: ["Find the current player and next action", "Inspect a tile and an Arrival", "Build, produce or improve the settlement"] },
+  choice: { name: "A choice to resolve", description: "The Quartermaster’s resource exchange is waiting for a decision.", tasks: ["Understand the required choice", "Exchange resources or finish without an exchange", "Return to normal play"] },
+  handoff: { name: "A private handoff", description: "Vanguard and Knight have chosen their starts. Each player must seed three hidden cards.", tasks: ["Reveal only your hand", "Seed top, middle and bottom", "Pass the device to the next Steward"] },
+  "last-action": { name: "After the last action", description: "Vanguard has used four actions. Their once-per-season free Travel placement is still available.", tasks: ["Find the available Steward power", "Prepare and place a free Path", "Pass the turn when ready"] },
+  finale: { name: "The final reckoning", description: "A completed scripted twelve-round game, ready to inspect and record in this demo’s Ledger.", tasks: ["Understand the score and penalties", "Review the Steward objectives", "Record the game and inspect the Ledger"] },
+  "golden-bell": { name: "The Golden Bell", description: "A Golden Bell reveal is waiting to add an Arrival with three timer tokens. This is an isolated engine-generated game.", tasks: ["Read the revealed Arrival", "Add it to the board", "Continue the encounter queue"] },
+  "golden-scroll": { name: "A private Golden exchange", description: "Two Stewards may exchange hidden cards with the Golden Scroll. Choices are applied together after both players are ready.", tasks: ["Reveal only your own hand", "Choose cards or keep your hand", "Pass privately and resolve the exchange"] },
+  "golden-signet": { name: "Reshape the settlement", description: "The Golden Signet Ring may move up to five placed tiles. Plan destinations and review the whole settlement before applying the move.", tasks: ["Choose tiles to lift together", "Plan legal destinations on the map", "Review and apply, then try Undo"] },
+  "golden-vial": { name: "A road without an action", description: "The Golden Vial is ready for its once-per-round Core Travel placement. Costs and legal placement still apply.", tasks: ["Prepare the shared Travel opportunity", "Choose a tile and review the actual cost", "Place for zero actions and try Undo"] },
+  "golden-traveller": { name: "One more turn together", description: "The Golden-Eyed Traveller grants a second set of player turns this round. Finish normal turns before the bonus sequence.", tasks: ["Find the bonus turn order", "Pass from normal to bonus turns", "Check timers stay unchanged until round end"] },
+  "ranger-reach": { name: "Reach beyond the settlement", description: "Ranger and Warden have built separate groups of tiles. Ranger’s Season power can open a new point of reach for this turn.", tasks: ["Open Ranger’s power and choose a target", "Review the unchanged costs and placement rules", "Set reach, try a tile action and Undo"] },
+  "warden-response": { name: "A Warden’s response", description: "A Burden reveal is waiting. Warden may spend the Season power to prevent that reveal and help one tile. The Burden stays active.", tasks: ["Compare applying the reveal with using Warden", "Choose Strain removal or Supported", "Apply relief, then try Undo and reload"] },
+  "sentinel-upgrade": { name: "An improvement after the last action", description: "Sentinel has used four actions. A basic Path beside an upgraded Mine can still benefit from the Season power.", tasks: ["Prepare a 0-action Core upgrade", "Review the resource cost and Supported bonus", "Upgrade the Path, then try Undo and reload"] },
+  "season-three": { name: "The third Season's demands", description: "A real seven-tile game reaches Season III. Houses, Not Homes has a larger payment-or-Strain choice before the next seeding.", tasks: ["Compare three reveal outcomes", "Use a payment or mixed choice and inspect the next effect", "Continue into Season III and review Burden resolution costs"] },
+  returning: { name: "Return to a growing Ledger", description: "An example campaign with five completed entries and its first Golden unlock. All progress belongs to this demo.", tasks: ["Find the optional Golden choices", "Inspect the unlocked content", "Start a new settlement"] }
+};
+
+export function getScenario(search = typeof window === "undefined" ? "" : window.location.search): ScenarioId | null {
+  const value = new URLSearchParams(search).get("scenario");
+  return scenarioIds.includes(value as ScenarioId) ? value as ScenarioId : null;
+}

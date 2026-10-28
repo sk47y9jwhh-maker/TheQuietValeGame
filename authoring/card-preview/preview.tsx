@@ -1,0 +1,10 @@
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import {EncounterCard} from '../../src/components/common/EncounterCard';
+import {TargetCard} from '../../src/components/common/TargetCard';
+import {arrivals,boons,burdens,goldenBoons} from '../../src/data/encounters';
+import {targetCards} from '../../src/data/targetCards';
+import '../../src/styles/tokens.css';import '../../src/styles/app.css';
+import './preview.css';
+const selected=[['boon',boons.find(c=>c.name==='A Little Time')!],['burden',burdens.find(c=>c.name==='Old Wounds Reopen')!],['arrival',arrivals.find(c=>c.name==='Quiet Quest')!],['golden',goldenBoons.find(c=>c.name==='The Golden Scroll')!],['root-weavers',arrivals.find(c=>c.name==='Blade to Herb')!]] as const;
+createRoot(document.getElementById('root')!).render(<main>{selected.map(([id,card])=><section id={id} key={id}><EncounterCard card={card} outputMode="web"/></section>)}{[5,25].map(id=><section id={`target-${id}`} key={id}><TargetCard card={targetCards.find(c=>c.id===id)!}/></section>)}</main>);

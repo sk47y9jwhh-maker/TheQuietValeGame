@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { isPlayerExperience } from "../../app/experience";
 import type { GameState } from "../../engine/types";
 import { EncounterPanel } from "../panels/EncounterPanel";
 import { TopBar } from "./TopBar";
@@ -59,8 +60,37 @@ export function ResolutionShell({
     }))
   ];
 
+  const playerExperience = isPlayerExperience();
+  const widePlan = playerExperience && (state.pendingGoldenEffect?.kind === "signet" || Boolean(state.pendingEffects[0]?.allowTemporaryReachPlayerId));
+  const encounters = <EncounterPanel state={state} onUseFaceUpBoon={onUseFaceUpBoon} onCompleteArrival={() => {}} onResolveBurden={() => {}} />;
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const focusKey = queueItems[0]?.id ?? state.phase;
+  // The Scroll manages focus between private owners and its shared review.
+  // A parent focus effect must not take focus back from that handoff on mount.
+  const hasPrivateHandoff = state.pendingGoldenEffect?.kind === "scroll";
+  useEffect(() => {
+    if (isPlayerExperience() && !hasPrivateHandoff) titleRef.current?.focus();
+  }, [focusKey, hasPrivateHandoff]);
+
+  const queueContent = (
+    <div className="resolution-queue-list">
+      {queueItems.length === 0 ? (
+        <p className="muted">No pending effects.</p>
+      ) : queueItems.map((item, index) => (
+        <article
+          className={`resolution-queue-item ${index === 0 ? "active" : ""}`}
+          key={item.id}
+        >
+          <span>{index === 0 ? "Now" : `Next ${index}`}</span>
+          <strong>{item.title}</strong>
+          <small>{item.source}</small>
+        </article>
+      ))}
+    </div>
+  );
+
   return (
-    <div className="app-shell">
+    <div className="app-shell resolution-shell">
       <TopBar
         state={state}
         canUndo={canUndo}
@@ -69,52 +99,41 @@ export function ResolutionShell({
         onRedo={onRedo}
         onReset={onReset}
       />
-      <main className="command-table resolution-table">
+      <main className={`command-table resolution-table ${playerExperience ? "resolution-focus-table" : ""} ${widePlan ? "resolution-plan-table" : ""}`}>
         <section className="action-console resolution-context-panel">
           <div className="turn-summary">
             <div>
               <p className="eyebrow">{eyebrow}</p>
-              <h2>{title}</h2>
+              <h2 ref={titleRef} tabIndex={-1}>{title}</h2>
             </div>
             <strong>
               {queueItems.length} step{queueItems.length === 1 ? "" : "s"}
             </strong>
           </div>
 
-          <div className="detail-stack resolution-summary-card">
+          {!playerExperience && <div className="detail-stack resolution-summary-card">
             <strong>{queueItems[0]?.title ?? title}</strong>
             <p>{detail}</p>
-          </div>
+          </div>}
 
-          <section className="resolution-queue">
-            <p className="eyebrow">Resolution Queue</p>
-            <div className="resolution-queue-list">
-              {queueItems.length === 0 ? (
-                <p className="muted">No pending effects.</p>
-              ) : (
-                queueItems.map((item, index) => (
-                  <article
-                    className={`resolution-queue-item ${index === 0 ? "active" : ""}`}
-                    key={item.id}
-                  >
-                    <span>{index === 0 ? "Now" : `Next ${index}`}</span>
-                    <strong>{item.title}</strong>
-                    <small>{item.source}</small>
-                  </article>
-                ))
-              )}
-            </div>
-          </section>
+          {playerExperience ? (
+            <details className="resolution-references" key={`references_${focusKey}`}>
+              <summary>Table references</summary>
+              <details className="resolution-queue-preview">
+                <summary>View resolution order ({queueItems.length} {queueItems.length === 1 ? "step" : "steps"})</summary>
+                {queueContent}
+              </details>
+              <details className="resolution-encounter-review"><summary>Review active encounters</summary>{encounters}</details>
+              <details className="resolution-step-help"><summary>Help with this step</summary><p>{detail}</p></details>
+            </details>
+          ) : (
+            <section className="resolution-queue"><p className="eyebrow">Resolution Queue</p>{queueContent}</section>
+          )}
         </section>
 
         <section className="map-panel resolution-board">{children}</section>
 
-        <EncounterPanel
-          state={state}
-          onUseFaceUpBoon={onUseFaceUpBoon}
-          onCompleteArrival={() => {}}
-          onResolveBurden={() => {}}
-        />
+        {!playerExperience && encounters}
       </main>
     </div>
   );

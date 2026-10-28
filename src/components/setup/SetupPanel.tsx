@@ -5,7 +5,7 @@ import {
   UserRound,
   X
 } from "lucide-react";
-import { useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { getStartingWarehouseAmount } from "../../engine/setup";
 import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { stewardById, stewards } from "../../data/stewards";
@@ -25,7 +25,8 @@ import { RulesGuide } from "../panels/RulesGuide";
 
 type ResourceFillStyle = CSSProperties & { "--resource-fill": string };
 
-interface SetupPanelProps {
+export interface SetupPanelProps {
+  focusOnMount?: boolean;
   playerCount: PlayerCount;
   stewardIds: string[];
   declaredVowId?: string;
@@ -50,6 +51,7 @@ function getResourceFillStyle(value: number): ResourceFillStyle {
 }
 
 export function SetupPanel({
+  focusOnMount = false,
   playerCount,
   stewardIds,
   declaredVowId = "",
@@ -67,6 +69,8 @@ export function SetupPanel({
   onGoldenBoonChange = () => {},
   onStart
 }: SetupPanelProps) {
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { if (focusOnMount) heading.current?.focus(); }, [focusOnMount]);
   const selectedStewards = stewardIds
     .slice(0, playerCount)
     .map((stewardId) => stewardById[stewardId])
@@ -150,7 +154,7 @@ export function SetupPanel({
           <div className="turn-summary">
             <div>
               <p className="eyebrow">Step 1</p>
-              <h2>New Game</h2>
+              <h2 ref={heading} tabIndex={-1}>New Game</h2>
             </div>
             <strong>{playerLabel}</strong>
           </div>

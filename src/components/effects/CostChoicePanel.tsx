@@ -1,3 +1,5 @@
+import { isPlayerExperience } from "../../app/experience";
+import { PaymentConsequences } from "./PaymentConsequences";
 import { Check, X } from "lucide-react";
 import { resourceLabels, resources } from "../../data/resources";
 import {
@@ -28,6 +30,7 @@ export function CostChoicePanel({
   onConfirm,
   onCancel
 }: CostChoicePanelProps) {
+  const enhanced = isPlayerExperience();
   const isBurdenResolution = pending.action.type === "burden";
   const hasMarketExchange = pending.options.some(
     (option) => option.kind === "market"
@@ -41,9 +44,9 @@ export function CostChoicePanel({
         ? "A Merchant exchange is available below. Choose whether to use it before confirming this payment."
         : "Review prepared and passive effects before paying the cost."
       : "Confirm this payment before spending the action.";
-  const confirmLabel = isBurdenResolution
-    ? "Confirm Payment and Resolve"
-    : "Confirm Payment";
+  const confirmLabel = enhanced && pending.action.type === "arrival" ? "Complete Arrival"
+    : enhanced && isBurdenResolution ? "Resolve Burden"
+    : isBurdenResolution ? "Confirm Payment and Resolve" : "Confirm Payment";
   const defaultMarketChoices = Object.fromEntries(
     pending.options
       .filter((option) => option.kind === "market")
@@ -105,6 +108,12 @@ export function CostChoicePanel({
     pending.options,
     selection
   );
+  const flexibleOptions = enhanced ? pending.options.filter((option) =>
+    option.id.startsWith("burden-flex:") && option.kind === "substitute" &&
+    option.substituteFrom === "goods" && option.resourceChoices?.[0] === "food"
+  ) : [];
+  const flexibleIds = new Set(flexibleOptions.map((option) => option.id));
+  const foodParts = flexibleOptions.filter((option) => selectedOptionIds.includes(option.id)).length;
   const canConfirm =
     validateCostChoiceSelection(pending.options, selection) &&
     canAfford(state.warehouse, adjustedCost) &&
@@ -161,27 +170,41 @@ export function CostChoicePanel({
   return (
     <section className="cost-choice-screen">
       <div className="seeding-header">
-        <p className="eyebrow">Payment Choice</p>
+        <p className="eyebrow">{enhanced ? "Payment review" : "Payment Choice"}</p>
         <h1>{pending.title}</h1>
         <p>{paymentPrompt}</p>
       </div>
 
-      <div className="cost-summary">
+      {enhanced && <PaymentConsequences state={state} pending={pending} cost={adjustedCost} actionCost={adjustedActionCost} />}
+      {enhanced ? <details className="payment-base-cost"><summary>Base resource cost</summary><CostLine label="Before payment effects" cost={pending.baseCost} /></details> : <div className="cost-summary">
         <CostLine label="Base Cost" cost={pending.baseCost} />
         <CostLine label="Adjusted Cost" cost={adjustedCost} />
         <div className="cost-line">
           <strong>Action Cost</strong>
           <span>{adjustedActionCost === 1 ? "1 Action" : `${adjustedActionCost} Actions`}</span>
         </div>
-      </div>
+      </div>}
+
+      {flexibleOptions.length > 0 && <section className="payment-flexible-mix" aria-label="Food and Goods payment">
+        <h2>Choose your Food/Goods mix</h2>
+        <p>Choose the base mix. Other payment effects apply to the total shown above.</p>
+        <label>Food in this payment
+          <select value={foodParts} onChange={(event) => {
+            const count = Number(event.target.value);
+            setSelectedOptionIds((current) => [...current.filter((id) => !flexibleIds.has(id)), ...flexibleOptions.slice(0, count).map((option) => option.id)]);
+          }}>
+            {Array.from({ length: flexibleOptions.length + 1 }, (_, count) => <option key={count} value={count}>{count} Food + {flexibleOptions.length - count} Goods</option>)}
+          </select>
+        </label>
+      </section>}
 
       <div className="cost-option-list">
-        {pending.options.length === 0 && (
+        {!enhanced && pending.options.length === 0 && (
           <article className="cost-option">
             <p>No passive payment effects are available for this action.</p>
           </article>
         )}
-        {pending.options.map((option) => {
+        {pending.options.filter((option) => !flexibleIds.has(option.id)).map((option) => {
           const selected = selectedOptionIds.includes(option.id);
           const marketResource = marketResourceByOptionId[option.id];
           return (
@@ -298,9 +321,11 @@ export function CostChoicePanel({
         })}
       </div>
 
-      {!canConfirm && (
-        <p className="failure-note">The adjusted cost is still not payable.</p>
-      )}
+      {!canConfirm && (enhanced ? <div className="failure-note" role="status">
+        {!validateCostChoiceSelection(pending.options, selection) && <p>Choose a valid combination of payment effects.</p>}
+        {state.actionsRemaining < adjustedActionCost && <p>Not enough actions. Review any effect that can waive the action cost, or cancel.</p>}
+        {resources.filter((resource) => adjustedCost[resource] > state.warehouse[resource]).map((resource) => <p key={resource}>Need {adjustedCost[resource] - state.warehouse[resource]} more {resourceLabels[resource]}. Change the payment effects or cancel.</p>)}
+      </div> : <p className="failure-note">The adjusted cost is still not payable.</p>)}
 
       <div className="cost-choice-actions">
         <button className="secondary-action" onClick={onCancel} type="button">

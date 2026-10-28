@@ -7,7 +7,7 @@ import {
   type LedgerCompletionRecord,
   type LedgerGameRecord
 } from "../engine/ledgerCampaign";
-import { readStoredJson, removeStoredItems, writeStoredJson } from "./browserStorage";
+import { readStoredJsonResult, removeStoredItems, writeStoredJson, type StoredRead } from "./browserStorage";
 
 export {
   countCompletedLedgerEntries,
@@ -65,44 +65,48 @@ function isLedgerCampaignShape(value: unknown): value is LedgerCampaign {
   );
 }
 
-export function readLedgerCampaign(): LedgerCampaign {
-  try {
-    const parsed = readStoredJson(ledgerCampaignKey);
-    if (!isLedgerCampaignShape(parsed)) return createEmptyLedgerCampaign();
-    if (
-      parsed.version === ledgerCampaignVersion &&
-      parsed.catalogueVersion === ledgerCatalogueVersion
-    ) return parsed;
+export function readLedgerCampaignResult(): StoredRead<LedgerCampaign> {
+  const result = readStoredJsonResult(ledgerCampaignKey);
+  if (!result.ok) return result;
+  if (result.value === null) return { ok: true, value: null };
+  const parsed = result.value;
+  if (!isLedgerCampaignShape(parsed)) return { ok: false, problem: "unreadable" };
+  if (
+    parsed.version === ledgerCampaignVersion &&
+    parsed.catalogueVersion === ledgerCatalogueVersion
+  ) return { ok: true, value: parsed };
 
-    // Entry IDs were reassigned in v4.6, so old ticks cannot be carried safely.
-    // Preserve the highest Golden unlock tier already earned, then begin the new
-    // catalogue with a clean achievement record.
-    const completed = countCompletedLedgerEntries(parsed);
-    const currentMilestones = [5, 12, 18, 25, 32];
-    const earnedMilestones = currentMilestones.filter(
-      (threshold) => completed >= threshold
-    ).length;
-    const legacyPacingMilestones = parsed.pacingVersion === 2
-      ? 0
-      : [5, 10, 15, 20, 30].filter((threshold) => completed >= threshold).length;
-    const grandfatheredGoldenMilestoneCount = Math.max(
-      parsed.grandfatheredGoldenMilestoneCount ?? 0,
-      earnedMilestones,
-      legacyPacingMilestones
-    );
-    return {
-      ...createEmptyLedgerCampaign(),
-      grandfatheredGoldenMilestoneCount
-    };
-  } catch {
-    return createEmptyLedgerCampaign();
-  }
+  // Entry IDs were reassigned in v4.6, so old ticks cannot be carried safely.
+  // Preserve the highest Golden unlock tier already earned, then begin the new
+  // catalogue with a clean achievement record.
+  const completed = countCompletedLedgerEntries(parsed);
+  const currentMilestones = [5, 12, 18, 25, 32];
+  const earnedMilestones = currentMilestones.filter(
+    (threshold) => completed >= threshold
+  ).length;
+  const legacyPacingMilestones = parsed.pacingVersion === 2
+    ? 0
+    : [5, 10, 15, 20, 30].filter((threshold) => completed >= threshold).length;
+  const grandfatheredGoldenMilestoneCount = Math.max(
+    parsed.grandfatheredGoldenMilestoneCount ?? 0,
+    earnedMilestones,
+    legacyPacingMilestones
+  );
+  return {
+    ok: true,
+    value: { ...createEmptyLedgerCampaign(), grandfatheredGoldenMilestoneCount }
+  };
+}
+
+export function readLedgerCampaign(fallback?: LedgerCampaign): LedgerCampaign {
+  const result = readLedgerCampaignResult();
+  return result.ok ? result.value ?? fallback ?? createEmptyLedgerCampaign() : fallback ?? createEmptyLedgerCampaign();
 }
 
 export function writeLedgerCampaign(campaign: LedgerCampaign) {
-  writeStoredJson(ledgerCampaignKey, campaign);
+  return writeStoredJson(ledgerCampaignKey, campaign);
 }
 
 export function clearLedgerCampaign() {
-  removeStoredItems(ledgerCampaignKey);
+  return removeStoredItems(ledgerCampaignKey);
 }

@@ -1,5 +1,6 @@
 import { tileArtworkUrl } from "../common/TileArtwork";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
+import { isPlayerExperience } from "../../app/experience";
 import {
   mapCells,
   mapLayout,
@@ -36,6 +37,8 @@ interface HexMapProps {
   selectedHexIds: string[];
   placementOrientation: HexDirection;
   onHexSelect: (hexId: string) => void;
+  legalHexIds?: string[];
+  mapHint?: string;
   onHexContextMenu?: (hexId: string, point: { x: number; y: number }) => void;
   onTileInspect?: (placedTileId: string) => void;
 }
@@ -147,9 +150,52 @@ export function HexMap({
   selectedHexIds,
   placementOrientation,
   onHexSelect,
+  legalHexIds,
+  mapHint,
   onHexContextMenu,
   onTileInspect
 }: HexMapProps) {
+  const tabletop = isPlayerExperience();
+  const currentPlayer = selectCurrentPlayer(state);
+  const selectionKey = selectedHexIds.join(",");
+  const preferredHex = selectedHexIds[selectedHexIds.length - 1] ?? currentPlayer.stewardHexId;
+  const [cursorHexId, setCursorHexId] = useState(preferredHex);
+  const [coordinateQuery, setCoordinateQuery] = useState("");
+  const [coordinateError, setCoordinateError] = useState("");
+  const mapRef = useRef<SVGSVGElement>(null);
+  const navigationRef = useRef<HTMLDetailsElement>(null);
+  const [navigationFit, setNavigationFit] = useState({ height: 380, above: false });
+  const fitNavigation = useCallback(() => {
+    const navigation = navigationRef.current;
+    if (!navigation?.open) return;
+    const anchor = navigation.closest(".tabletop-map-toolbar")?.getBoundingClientRect();
+    if (!anchor) return;
+    const tray = document.querySelector('[aria-label="Game reference tray"]')?.getBoundingClientRect();
+    const bottom = tray && tray.height > 0 && tray.top > 0 ? Math.min(window.innerHeight, tray.top) : window.innerHeight;
+    const below = bottom - anchor.bottom - 14;
+    const aboveSpace = anchor.top - 14;
+    const above = below < 240 && aboveSpace > below;
+    const height = Math.max(80, Math.min(420, above ? aboveSpace : below));
+    setNavigationFit((current) => current.height === height && current.above === above ? current : { height, above });
+  }, []);
+  useEffect(() => {
+    window.addEventListener("resize", fitNavigation);
+    window.addEventListener("scroll", fitNavigation, true);
+    return () => { window.removeEventListener("resize", fitNavigation); window.removeEventListener("scroll", fitNavigation, true); };
+  }, [fitNavigation]);
+  const keyboardHelpId = useId();
+  const coordinateErrorId = useId();
+  useEffect(() => {
+    setCursorHexId(preferredHex);
+  }, [selectionKey, currentPlayer.id, currentPlayer.stewardHexId, preferredHex]);
+  const focusHex = (hexId: string) => {
+    const cell = mapRef.current?.querySelector<SVGGElement>(`[data-hex-id="${hexId}"]`);
+    if (!cell) return;
+    setCursorHexId(hexId);
+    cell.focus({ preventScroll: true });
+    cell.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+  };
+  const [mapZoom, setMapZoom] = useState(1);
   const longPressRef = useRef<{
     timer: ReturnType<typeof setTimeout>;
     hexId: string;
@@ -199,7 +245,8 @@ export function HexMap({
     }
   }, []);
 
-  const currentPlayer = selectCurrentPlayer(state);
+  useEffect(() => clearLongPress, [clearLongPress]);
+
   const placementDraft = useMemo<TilePlacementDraft>(
     () => ({
       anchorHexId: selectedHexIds[0],
@@ -210,7 +257,7 @@ export function HexMap({
   );
   const legalHexes = useMemo(
     () =>
-      actionMode === "place"
+      legalHexIds ? new Set(legalHexIds) : actionMode === "place"
         ? new Set(
             getLegalPlacementHexes(
               state,
@@ -220,11 +267,11 @@ export function HexMap({
             )
           )
         : new Set<string>(),
-    [actionMode, currentPlayer.id, placementDraft, selectedTileId, state]
+    [actionMode, currentPlayer.id, placementDraft, selectedTileId, state, legalHexIds]
   );
   const footprintHexes = useMemo(
     () =>
-      actionMode === "place"
+      (actionMode === "place" || actionMode === "signet")
         ? new Set(getTilePlacementHexIds(selectedTileId, placementDraft))
         : new Set<string>(selectedHexIds),
     [actionMode, placementDraft, selectedHexIds, selectedTileId]
@@ -263,9 +310,37 @@ export function HexMap({
     return byHex;
   }, [state.players]);
 
-  return (
-    <section className="map-panel" aria-label="Settlement map">
-      <div className="map-meta-strip">
+  const cursorCell = mapGeometryById.get(cursorHexId)?.cell;
+  const cursorTile = placedTileByHex.get(cursorHexId);
+
+  const boardNavigation = <details className="board-navigation-help" ref={navigationRef} onToggle={fitNavigation} onKeyDown={(event) => {
+    if (event.key === "Escape") { event.preventDefault(); event.currentTarget.open = false; event.currentTarget.querySelector("summary")?.focus(); }
+  }}>
+        <summary>Navigate</summary><div className="board-navigation-popover" style={{ maxHeight: navigationFit.height, top: navigationFit.above ? "auto" : undefined, bottom: navigationFit.above ? "calc(100% + 6px)" : undefined }}>
+        <p id={keyboardHelpId}>Arrow keys browse by column or row. Home and End go to the ends of a row. Ctrl or ⌘ with Home or End goes to a board corner. Enter or Space selects. Press I to inspect a tile. Browsing does not spend an action.</p>
+        <form onSubmit={(event) => {
+          event.preventDefault();
+          const hex = coordinateQuery.trim().toUpperCase();
+          if (!mapGeometryById.has(hex)) { setCoordinateError("Enter a coordinate from A1 to N9."); return; }
+          setCoordinateError("");
+          setCoordinateQuery(hex);
+          event.currentTarget.closest("details")?.removeAttribute("open");
+          focusHex(hex);
+        }}>
+          <label>Hex coordinate<input value={coordinateQuery} onChange={(event) => { setCoordinateQuery(event.target.value); setCoordinateError(""); }} placeholder="For example, G1" autoComplete="off" spellCheck={false} maxLength={8} aria-invalid={Boolean(coordinateError)} aria-describedby={coordinateError ? coordinateErrorId : undefined} /></label>
+          <button type="submit">Find hex</button>
+        </form>
+        {coordinateError && <p className="board-coordinate-error" role="alert" id={coordinateErrorId}>{coordinateError}</p>}
+        {cursorCell && <div className="board-cursor-readout" role="group" aria-label="Board cursor">
+          <p><span>Browsing {cursorHexId} · {terrainLabels[cursorCell.terrain]}</span><strong>{cursorTile ? selectTileName(cursorTile) : "Empty space"}</strong>{cursorTile && <span>{cursorTile.strain} Strain · {cursorTile.support.passive || cursorTile.support.singleUse ? "Supported" : "Unsupported"}</span>}</p>
+          <div>
+            {state.phase !== "gameEnd" && <button type="button" onClick={() => onHexSelect(cursorHexId)}>Select {cursorHexId}</button>}
+            {cursorTile && onTileInspect && <button type="button" onClick={() => onTileInspect(cursorTile.instanceId)}>Inspect {selectTileName(cursorTile)} at {cursorHexId}</button>}
+          </div>
+        </div>}
+      </div></details>;
+
+  const legend = <>
         <div className="terrain-key" aria-label="Terrain colour key">
           {terrainKey.map((terrain) => (
             <span className="terrain-key-item" key={terrain}>
@@ -312,13 +387,33 @@ export function HexMap({
             Steward
           </span>
         </div>
+  </>;
+
+  return (
+    <section className="map-panel" aria-label="Settlement map">
+      <div className="map-meta-strip">
+        {tabletop ? <>
+          <div className="tabletop-map-toolbar">
+            <strong>The settlement</strong>
+            {boardNavigation}
+            <details className="tabletop-map-legend"><summary>Map key</summary><div>{legend}</div></details>
+            <div className="tabletop-map-zoom" role="group" aria-label="Map zoom">
+              <button type="button" aria-label="Zoom out" disabled={mapZoom <= 1} onClick={() => setMapZoom((zoom) => Math.max(1, zoom - .5))}>−</button>
+              <button type="button" aria-label="Fit whole board" onClick={() => setMapZoom(1)}>Fit</button>
+              <button type="button" aria-label="Zoom in" disabled={mapZoom >= 3} onClick={() => setMapZoom((zoom) => Math.min(3, zoom + .5))}>+</button>
+            </div>
+          </div>
+          <p className="map-gesture-hint">{mapHint ?? (state.phase === "gameEnd" ? "Final board · Inspect tiles or zoom in to review your settlement."
+            : mapZoom === 1 ? "Whole board · Zoom in for detail. Select a hex to begin." : "Scroll to explore · Fit returns to the whole board.")}</p>
+        </> : <>{legend}
         <p className="map-gesture-hint">
           <span className="desktop-hint">Right-click a hex for quick actions.</span>
           <span className="touch-hint">Tap a hex to select. Long-press for quick actions.</span>
         </p>
+        </>}
       </div>
       <div className="map-artwork-frame">
-        <div className="map-canvas">
+        <div className="map-canvas" style={tabletop ? { "--map-zoom": mapZoom } as CSSProperties : undefined}>
         <svg
           className={`hex-map zoom-high ${hasMapArtwork ? "has-map-artwork" : ""}`}
           style={{
@@ -327,7 +422,9 @@ export function HexMap({
           }}
           viewBox={`0 0 ${mapWidth} ${mapHeight}`}
           preserveAspectRatio="xMidYMid meet"
-          role="img"
+          role={tabletop ? "group" : "img"}
+          ref={mapRef}
+          aria-describedby={tabletop ? keyboardHelpId : undefined}
           aria-label="The Quiet Vale map"
         >
           <MapArtworkImage kind="underlay" />
@@ -356,6 +453,7 @@ export function HexMap({
                   key={cell.id}
                   className={[
                     "hex-cell",
+                    tabletop && cursorHexId === cell.id ? "is-cursor" : "",
                     `terrain-${cell.terrain}`,
                     legal ? "is-legal" : "",
                     selected ? "is-selected" : "",
@@ -375,8 +473,11 @@ export function HexMap({
                       event.stopPropagation();
                       return;
                     }
+                    if (tabletop) setCursorHexId(cell.id);
                     onHexSelect(cell.id);
                   }}
+                  onFocus={tabletop ? () => setCursorHexId(cell.id) : undefined}
+                  data-hex-id={cell.id}
                   onContextMenu={(event) => {
                     event.preventDefault();
                     clearLongPress();
@@ -413,14 +514,30 @@ export function HexMap({
                   }}
                   onTouchCancel={clearLongPress}
                   onKeyDown={(event) => {
-                    if (event.key !== "Enter" && event.key !== " " && event.key !== "Spacebar") {
-                      return;
+                    if (tabletop) {
+                      const column = cell.col.charCodeAt(0) - 65;
+                      const lastColumn = mapLayout.columns - 1;
+                      const wholeBoard = event.ctrlKey || event.metaKey;
+                      const nextColumn = event.key === "Home" ? 0 : event.key === "End" ? lastColumn : event.key === "ArrowLeft" ? Math.max(0, column - 1) : event.key === "ArrowRight" ? Math.min(lastColumn, column + 1) : column;
+                      const nextRow = event.key === "Home" && wholeBoard ? 1 : event.key === "End" && wholeBoard ? mapLayout.rows : event.key === "ArrowUp" ? Math.max(1, cell.row - 1) : event.key === "ArrowDown" ? Math.min(mapLayout.rows, cell.row + 1) : cell.row;
+                      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+                        event.preventDefault();
+                        focusHex(`${String.fromCharCode(65 + nextColumn)}${nextRow}`);
+                        return;
+                      }
+                      if (event.key.toLowerCase() === "i" && !event.ctrlKey && !event.metaKey && !event.altKey) {
+                        if (placed && onTileInspect) { event.preventDefault(); onTileInspect(placed.instanceId); }
+                        return;
+                      }
                     }
+                    if (event.key !== "Enter" && event.key !== " " && event.key !== "Spacebar") return;
                     event.preventDefault();
                     onHexSelect(cell.id);
                   }}
                   role="button"
-                  tabIndex={0}
+                  tabIndex={tabletop ? cursorHexId === cell.id ? 0 : -1 : 0}
+                  aria-pressed={tabletop ? selected : undefined}
+                  aria-description={tabletop && (legalHexIds || (state.phase === "turns" && actionMode === "place")) ? legal ? "Legal placement for the selected tile." : "Placement unavailable for the selected tile. Select to review the reason." : undefined}
                   aria-label={`${cell.id}, ${accessibleName}${
                     placed ? `, Strain ${placed.strain}, ${supported ? "Supported" : "Unsupported"}` : ""
                   }`}
@@ -485,6 +602,11 @@ export function HexMap({
             })}
           </g>
           <MapArtworkImage kind="overlay" />
+          {tabletop && (legalHexIds || (state.phase === "turns" && actionMode === "place")) && <g className="hex-planning-overlay" aria-hidden="true" pointerEvents="none">
+            {mapGeometry.filter(({ cell }) => legalHexes.has(cell.id) || footprintHexes.has(cell.id)).map(({ cell, x, y, points }) => footprintHexes.has(cell.id)
+              ? <g key={cell.id}><polygon points={points} /><rect x={x - 14} y={y - 9} width={28} height={18} rx={4} /><text x={x} y={y + 4} textAnchor="middle">{cell.id}</text></g>
+              : <circle key={cell.id} cx={x} cy={y} r={4} />)}
+          </g>}
           {onTileInspect && (
             <g className="hex-inspect-layer">
               {state.map.placedTiles.map((placed) => {

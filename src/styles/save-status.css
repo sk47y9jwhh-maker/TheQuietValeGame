@@ -1,0 +1,22 @@
+.save-notice { position: sticky; top: 0; z-index: 45; display: flex; align-items: flex-start; gap: 14px; padding: 16px 24px; border-bottom: 2px solid #987a40; background: #fff0d1; color: #41321e; font-family: var(--font-ui); }
+.save-notice > svg { flex: 0 0 auto; margin-top: 2px; }
+.save-notice > div { flex: 1; min-width: 0; }
+.save-notice strong { display: block; font-size: 17px; }
+.save-notice p { max-width: 82ch; margin: 5px 0 0; font-size: 15px; line-height: 1.45; }
+.save-notice small { display: block; margin-top: 8px; font-size: 13px; line-height: 1.4; }
+.save-notice button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; flex: 0 0 auto; padding: 10px 16px; border: 1px solid #746747; border-radius: 7px; background: #fffdf7; color: #41321e; font: 700 15px/1.3 var(--font-ui); }
+.save-notice :focus-visible { outline: 3px solid #8a541d; outline-offset: 3px; }
+.save-recovered { background: #e5eddc; border-color: #799065; color: #294331; }
+@media (min-width: 901px) and (min-height: 601px) {
+  .save-boundary:has(.save-notice) .app-shell { height: max(400px, calc(100dvh - var(--scenario-bar-height, 0px) - var(--save-notice-height, 0px))); min-height: max(400px, calc(100dvh - var(--scenario-bar-height, 0px) - var(--save-notice-height, 0px))); }
+}
+@media (max-width: 620px) {
+  .save-notice { padding: 12px; gap: 8px; flex-wrap: wrap; }
+  .save-notice > div { flex-basis: calc(100% - 34px); }
+  .save-notice button { width: 100%; }
+}
+/* Keep the game's sticky navigation below a visible save notice. */
+@media (max-width: 900px) {
+  .save-boundary:has(.save-notice) .tabletop-jump-nav { top: var(--save-notice-height, 0px); }
+  .save-boundary:has(.save-notice) :is(.tabletop-dock, .tabletop-board, .tabletop-mobile-context, .tabletop-map-toolbar) { scroll-margin-top: calc(68px + var(--save-notice-height, 0px)); }
+}

@@ -1,5 +1,6 @@
 import { TileArtwork } from "../common/TileArtwork";
-import { useEffect } from "react";
+import { isolateModalBackground } from "../common/modalIsolation";
+import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { mapById, terrainLabels } from "../../data/map";
 import { coreTileById, goldenTileById, specialTileById } from "../../data/tiles";
@@ -56,16 +57,45 @@ export function TileInspectModal({
     placedTile ? selectTileName(placedTile) : coreTile?.basic.name ?? specialTile?.name;
   const isOpen = Boolean(placedTile || coreTile || specialTile);
 
+  const scrimRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  const closeRef = useRef(onClose);
+  useEffect(() => { closeRef.current = onClose; }, [onClose]);
   useEffect(() => {
     if (!isOpen) return undefined;
+    const opener = document.activeElement;
+    const controls = () => Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    ) ?? []);
+    (controls()[0] ?? dialogRef.current)?.focus({ preventScroll: true });
+    const restoreBackground = isolateModalBackground(scrimRef.current);
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        closeRef.current();
+      }
+      if (event.key !== "Tab") return;
+      const items = controls();
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (!first || !last) { event.preventDefault(); dialogRef.current?.focus(); return; }
+      if (!dialogRef.current?.contains(document.activeElement) ||
+          (event.shiftKey && document.activeElement === first) ||
+          (!event.shiftKey && document.activeElement === last)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      }
     }
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      restoreBackground();
+      if ((opener instanceof HTMLElement || opener instanceof SVGElement) && opener.isConnected) opener.focus({ preventScroll: true });
+    };
+  }, [isOpen]);
 
   if (!isOpen || !tileName) return null;
 
@@ -89,13 +119,15 @@ export function TileInspectModal({
   const specialSupply = specialTile ? state.tileSupply.special[specialTile.id] ?? 0 : null;
 
   return (
-    <div className="tile-inspect-scrim" onClick={onClose}>
+    <div ref={scrimRef} className="tile-inspect-scrim" onClick={onClose}>
       <section
         aria-labelledby="tile-inspect-title"
         aria-modal="true"
         className="tile-inspect-modal"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
+        ref={dialogRef}
+        tabIndex={-1}
       >
         <button
           aria-label="Close tile inspection"

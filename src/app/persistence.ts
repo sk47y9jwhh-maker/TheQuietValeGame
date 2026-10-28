@@ -12,7 +12,7 @@ import {
   createTargetCardDeckState,
   normalizeTargetCardDeckState
 } from "../engine/targetCards";
-import { readStoredJson, removeStoredItems, writeStoredJson } from "./browserStorage";
+import { readStoredJsonResult, removeStoredItems, writeStoredJson, type StoredRead } from "./browserStorage";
 
 const saveVersion = 4;
 const gameSaveKey = "quietVale.activeGame.v1";
@@ -261,19 +261,26 @@ function isSavedGame(value: unknown): value is SavedGame {
   );
 }
 
-export function readSavedSetup(): SavedSetup | null {
-  const saved = readStoredJson(setupSaveKey);
-  return isSavedSetup(saved)
-    ? {
-        ...saved,
-        version: saveVersion
-      }
-    : null;
+export function readSavedSetupResult(): StoredRead<SavedSetup> {
+  const result = readStoredJsonResult(setupSaveKey);
+  if (!result.ok) return result;
+  if (result.value === null) return { ok: true, value: null };
+  return isSavedSetup(result.value)
+    ? { ok: true, value: { ...result.value, version: saveVersion } }
+    : { ok: false, problem: "unreadable" };
 }
 
-export function readSavedGame(): SavedGame | null {
-  const saved = readStoredJson(gameSaveKey);
-  if (!isSavedGame(saved)) return null;
+export function readSavedSetup(): SavedSetup | null {
+  const result = readSavedSetupResult();
+  return result.ok ? result.value : null;
+}
+
+export function readSavedGameResult(): StoredRead<SavedGame> {
+  const result = readStoredJsonResult(gameSaveKey);
+  if (!result.ok) return result;
+  if (result.value === null) return { ok: true, value: null };
+  const saved = result.value;
+  if (!isSavedGame(saved)) return { ok: false, problem: "unreadable" };
   const tileSupply = saved.version < 3
     ? {
         ...saved.state.tileSupply,
@@ -286,41 +293,49 @@ export function readSavedGame(): SavedGame | null {
       }
     : saved.state.tileSupply;
   return {
-    ...saved,
-    version: saveVersion,
-    state: {
-      ...saved.state,
-      tileSupply,
-      goldenSetup: saved.state.goldenSetup ?? {
-        selectedTileId: saved.selectedGoldenTileId,
-        selectedBoonId: saved.selectedGoldenBoonId,
-        tilePlaced: false,
-        tileSkipped: false
-      },
-      pendingGoldenEffect: saved.state.pendingGoldenEffect ?? null,
-      bonusTurnsPending: saved.state.bonusTurnsPending ?? false,
-      bonusTurnsActive: saved.state.bonusTurnsActive ?? false,
-      tileActivationRecords: saved.state.tileActivationRecords ?? {},
-      encounters: {
-        ...saved.state.encounters,
-        reserveBoonIds: saved.state.encounters.reserveBoonIds ?? [],
-        reserveArrivalIds: saved.state.encounters.reserveArrivalIds ?? [],
-        selectedGoldenBoonId:
-          saved.state.encounters.selectedGoldenBoonId ?? saved.selectedGoldenBoonId,
-        goldenEnabled: saved.state.encounters.goldenEnabled ?? false
-      },
-      targetCards: saved.state.targetCards
-        ? normalizeTargetCardDeckState(
-            saved.state.targetCards,
-            `${saved.encounterSeed}:targets`
-          )
-        : createTargetCardDeckState(`${saved.encounterSeed}:targets`)
+    ok: true,
+    value: {
+      ...saved,
+      version: saveVersion,
+      state: {
+        ...saved.state,
+        tileSupply,
+        goldenSetup: saved.state.goldenSetup ?? {
+          selectedTileId: saved.selectedGoldenTileId,
+          selectedBoonId: saved.selectedGoldenBoonId,
+          tilePlaced: false,
+          tileSkipped: false
+        },
+        pendingGoldenEffect: saved.state.pendingGoldenEffect ?? null,
+        bonusTurnsPending: saved.state.bonusTurnsPending ?? false,
+        bonusTurnsActive: saved.state.bonusTurnsActive ?? false,
+        tileActivationRecords: saved.state.tileActivationRecords ?? {},
+        encounters: {
+          ...saved.state.encounters,
+          reserveBoonIds: saved.state.encounters.reserveBoonIds ?? [],
+          reserveArrivalIds: saved.state.encounters.reserveArrivalIds ?? [],
+          selectedGoldenBoonId:
+            saved.state.encounters.selectedGoldenBoonId ?? saved.selectedGoldenBoonId,
+          goldenEnabled: saved.state.encounters.goldenEnabled ?? false
+        },
+        targetCards: saved.state.targetCards
+          ? normalizeTargetCardDeckState(
+              saved.state.targetCards,
+              `${saved.encounterSeed}:targets`
+            )
+          : createTargetCardDeckState(`${saved.encounterSeed}:targets`)
+      }
     }
   };
 }
 
+export function readSavedGame(): SavedGame | null {
+  const result = readSavedGameResult();
+  return result.ok ? result.value : null;
+}
+
 export function writeSavedSetup(input: Omit<SavedSetup, "version" | "savedAt">) {
-  writeStoredJson(setupSaveKey, {
+  return writeStoredJson(setupSaveKey, {
     ...input,
     version: saveVersion,
     savedAt: new Date().toISOString()
@@ -328,7 +343,7 @@ export function writeSavedSetup(input: Omit<SavedSetup, "version" | "savedAt">) 
 }
 
 export function writeSavedGame(input: Omit<SavedGame, "version" | "savedAt">) {
-  writeStoredJson(gameSaveKey, {
+  return writeStoredJson(gameSaveKey, {
     ...input,
     version: saveVersion,
     savedAt: new Date().toISOString()
@@ -336,11 +351,11 @@ export function writeSavedGame(input: Omit<SavedGame, "version" | "savedAt">) {
 }
 
 export function clearSavedGame() {
-  removeStoredItems(gameSaveKey);
+  return removeStoredItems(gameSaveKey);
 }
 
 export function clearAllSaves() {
-  removeStoredItems(gameSaveKey, setupSaveKey);
+  return removeStoredItems(gameSaveKey, setupSaveKey);
 }
 
 export function resetBrowserHistoryAnchor(): number {

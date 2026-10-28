@@ -56,7 +56,7 @@ describe("effect prompt controls", () => {
 
     expect(screen.getByText("Tiles")).toBeInTheDocument();
     const selectors = screen.getAllByRole("button", {
-      name: "Decrease Strain adjustment for Path"
+      name: /^Decrease Strain adjustment for Path at /
     });
     expect(selectors).toHaveLength(2);
     fireEvent.click(selectors[1]);
@@ -178,7 +178,7 @@ describe("effect prompt controls", () => {
 
     expect(screen.getByRole("button", { name: /apply warden relief/i })).toBeDisabled();
     fireEvent.click(
-      screen.getByRole("button", { name: "Place Supported on Path" })
+      screen.getByRole("button", { name: "Place Supported on Path at G1" })
     );
     expect(screen.getByLabelText("Effect preview")).toHaveTextContent(
       "Path (G1): gains Supported"
@@ -267,6 +267,34 @@ describe("effect prompt controls", () => {
     expect(
       screen.getByRole("button", { name: "Use Quartermaster Power" })
     ).toBeEnabled();
+  });
+
+  it("keeps optional Quartermaster resource and timer choices editable after preparation", () => {
+    const state = createNewGame(1, ["quartermaster"]);
+    const cardId = "arrival_from_blade_swingers_to_herb_stringers";
+    state.encounters.activeArrivals = [{ cardId, timerTokens: 2 }];
+    const effect: PendingEffectState = {
+      id: "prepared_optional_exchange",
+      sourceType: "system",
+      sourceId: "quartermaster",
+      ruleId: stewardEffectRuleId("quartermaster"),
+      sourceName: "Quartermaster",
+      title: "Steward Power: Quartermaster",
+      effectText: "Exchange up to 5 resources and optionally add a timer.",
+      requiresManualChoice: false,
+      resourceExchangeLimit: 5,
+      resourceExchangeOptional: true,
+      suggestedAdjustment: { arrivalTimerDeltas: { [cardId]: 1 } },
+      confirmLabel: "Use Quartermaster Power"
+    };
+    render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: "Decrease Wood adjustment" }));
+    expect(screen.getByRole("button", { name: "Use Quartermaster Power" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Increase Food adjustment" }));
+    expect(screen.getByRole("button", { name: "Use Quartermaster Power" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Remove timer adjustment from Blade to Herb" }));
+    expect(screen.getByRole("button", { name: "Add timer adjustment to Blade to Herb" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Decrease Wood adjustment" })).toBeVisible();
   });
 
   it("keeps Settlement of Plenty disabled until all five resources are chosen", () => {
@@ -400,7 +428,7 @@ describe("effect prompt controls", () => {
 
     const apply = screen.getByRole("button", { name: /apply effect/i });
     const addSupported = screen.getAllByRole("button", {
-      name: "Increase Strain adjustment for Lumber Yard"
+      name: /^Increase Strain adjustment for Lumber Yard at /
     })[0];
     fireEvent.click(addSupported);
     expect(apply).toBeDisabled();
@@ -446,12 +474,12 @@ describe("effect prompt controls", () => {
     const apply = screen.getByRole("button", { name: /apply effect/i });
     expect(screen.getByText("Strain Cascade")).toBeInTheDocument();
     expect(apply).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "Choose Path as cascade anchor" }));
-    expect(screen.queryByRole("button", { name: "Place 1 Strain on adjacent Tavern" }))
+    fireEvent.click(screen.getByRole("button", { name: /^Choose Path at .+ as cascade anchor$/ }));
+    expect(screen.queryByRole("button", { name: /^Place 1 Strain on adjacent Tavern at / }))
       .not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Place 1 Strain on adjacent Cabin" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Place 1 Strain on adjacent Cabin at / }));
     expect(apply).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "Place 1 Strain on adjacent Workshops" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Place 1 Strain on adjacent Workshops at / }));
     expect(apply).toBeEnabled();
     fireEvent.click(apply);
     expect(applied).toMatchObject([{
@@ -495,7 +523,7 @@ describe("effect prompt controls", () => {
     const apply = screen.getByRole("button", { name: "Spread Strain" });
     expect(apply).toBeDisabled();
     fireEvent.click(screen.getByRole("button", {
-      name: "Increase Strain adjustment for Cabin"
+      name: "Increase Strain adjustment for Cabin at H1"
     }));
     expect(apply).toBeEnabled();
     fireEvent.click(apply);
