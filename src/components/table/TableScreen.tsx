@@ -302,7 +302,7 @@ function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo,
     <span className="table-score" title="The shared score if the game ended now">Score now <strong>{score}</strong></span>
     <button type="button" className="icon-button" aria-label="Undo" disabled={!canUndo} onClick={onUndo}><Undo2 size={19} /></button>
     {!compact && <button type="button" className="icon-button" aria-label="Redo" disabled={!canRedo} onClick={onRedo}><Redo2 size={19} /></button>}
-    <button type="button" className="icon-button" aria-label="Reset game" title="Start this settlement over" onClick={onReset}><RotateCcw size={18} /></button>
+    <button type="button" className="icon-button" aria-label="Reset game" title="Start this settlement over" onClick={(event) => { event.currentTarget.focus({ preventScroll: true }); onReset(); }}><RotateCcw size={18} /></button>
     <div className="table-menu">
       <button type="button" className="icon-button" aria-label="Menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg></button>
       {menuOpen && <div className="table-menu-panel" role="menu">

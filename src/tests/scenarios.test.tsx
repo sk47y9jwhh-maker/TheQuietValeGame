@@ -166,7 +166,8 @@ describe("free actions after the normal allowance", () => {
     window.history.replaceState(null, "", `/?experience=${experience}&scenario=last-action`);
     render(<App initialPreview={scenarios["last-action"]} />);
     fireEvent.click(screen.getByRole("button", { name: "Use Steward Power" }));
-    fireEvent.click(screen.getByRole("button", { name: experience === "classic" ? "Prepare Free Travel Placement" : "Prepare 0-action Travel" }));
+    // The board-first table prepares the free placement as soon as the power is used.
+    if (experience !== "table") fireEvent.click(screen.getByRole("button", { name: experience === "classic" ? "Prepare Free Travel Placement" : "Prepare 0-action Travel" }));
     if (experience === "table") {
       // The board-first table starts from the space: tap it, then choose the tile.
       fireEvent.click(screen.getByRole("button", { name: /^F2, empty Grasslands/ }));
