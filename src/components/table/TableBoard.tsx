@@ -444,7 +444,6 @@ function TileToken({ state, tile, hexId, x, y, arriving = false, sharp = false }
       {lines.length > 0 && <text className="tile-token-name" x={x} y={nameY} textAnchor="middle" fontSize={nameSize}>
         {lines.map((line, index) => <tspan key={line} x={x} dy={index === 0 ? 0 : nameSize * 1.02}>{line}</tspan>)}
       </text>}
-      <rect className="tile-token-category" x={x - 7} y={windowBottom - 4.6} width={14} height={1.3} rx={0.65} fill={accent} />
       {mark && !overstrained && <text className="tile-token-mark" x={x} y={windowBottom - 0.9} textAnchor="middle">{mark}</text>}
       {overstrained && <text className="tile-token-over" x={x} y={windowBottom - 0.9} textAnchor="middle">OVERSTRAINED</text>}
     </g>}

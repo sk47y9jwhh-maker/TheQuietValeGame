@@ -885,8 +885,9 @@
   .board-hex-choice { animation: none; }
 }
 .table-resolution { overflow-x: hidden; }
-.table-resolution-body * { min-width: 0; max-width: 100%; box-sizing: border-box; }
-.table-resolution-body :is([class*="grid"], [class*="choices"], [class*="options"]) { grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)) !important; }
+/* Panel content fits the column, but printed cards keep their own exact layout. */
+.table-resolution-body *:not(.physical-encounter-card, .physical-encounter-card *) { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.table-resolution-body :is([class*="grid"], [class*="choices"], [class*="options"]):not(.physical-encounter-card *) { grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)) !important; }
 .table-sheet.is-resolving.is-low { max-height: 150px; overflow: hidden; }
 .table-sheet.is-resolving.is-low .table-resolution-body { display: none; }
 .sheet-toggle { justify-self: start; min-height: 40px; margin-top: 4px; padding: 6px 14px; border: 1px solid #c5bc9a; border-radius: 999px; background: #efe6c8; font: inherit; font-weight: 700; cursor: pointer; }
