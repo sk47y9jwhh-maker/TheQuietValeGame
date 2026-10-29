@@ -151,9 +151,15 @@ export interface TourControls {
 interface TourPlace { index: number; history: { from: number; played: boolean }[]; mode: "tour" | "play"; }
 let memoryPlace: TourPlace | null = null;
 const tourKey = () => getStorageKey("quietVale.tour.v1");
+const freshPlace = (): TourPlace => ({ index: 0, history: [], mode: "tour" });
 function readPlace(): TourPlace {
-  try { const saved = window.localStorage.getItem(tourKey()); if (saved) return JSON.parse(saved) as TourPlace; } catch { /* fall back to this visit */ }
-  return memoryPlace ?? { index: 0, history: [], mode: "tour" };
+  try {
+    const saved = window.localStorage.getItem(tourKey());
+    return saved ? JSON.parse(saved) as TourPlace : freshPlace();
+  } catch {
+    // Storage is unavailable: remember the place for this visit only.
+    return memoryPlace ?? freshPlace();
+  }
 }
 function writePlace(place: TourPlace) {
   memoryPlace = place;
@@ -164,7 +170,7 @@ export function TableCoach(props: { state: GameState; onTarget?: (target: CoachT
   const [place, setPlace] = useState<TourPlace>(() => {
     const saved = readPlace();
     // A restarted demo is back at its first moment: so is the tour.
-    return props.state.phase === "seeding" && props.state.round === 1 && !props.state.map.placedTiles.length && saved.index > 1 ? { index: 0, history: [], mode: saved.mode } : saved;
+    return props.state.phase === "seeding" && props.state.round === 1 && !props.state.map.placedTiles.length && (saved.index > 1 || saved.mode === "play") ? freshPlace() : saved;
   });
   const update = (next: TourPlace) => { setPlace(next); writePlace(next); };
   if (props.tour && place.mode === "tour") return <TableTour state={props.state} tour={props.tour} place={place} onPlace={update} onTarget={props.onTarget} />;
