@@ -1225,3 +1225,19 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
   .table-screen[data-coach] :is(.rail-arrival, .rail-end > button, .table-score, .rail-heading, .table-seed-slots) { animation: bt-coach-glow 1.8s ease-in-out infinite; }
 }
 @keyframes bt-coach-glow { 50% { box-shadow: 0 0 0 3px rgba(242, 201, 76, 0.55), 0 0 10px rgba(242, 201, 76, 0.25); } }
+
+/* Reveal ceremony: new cards turn over large across the board, then settle into the rail. */
+.reveal-ceremony { position: absolute; inset: 0; z-index: 30; display: grid; place-content: center; justify-items: center; gap: 18px; pointer-events: none; background: radial-gradient(ellipse at center, rgba(18, 22, 16, 0.62), rgba(18, 22, 16, 0.18) 70%, transparent); animation: reveal-veil 2.6s ease forwards; }
+.reveal-title { margin: 0; color: #f6eccb; font-family: var(--bt-display, Georgia, serif); font-size: 1.5rem; letter-spacing: 0.02em; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6); animation: reveal-title 2.6s ease forwards; }
+.reveal-cards { display: flex; gap: 22px; perspective: 1400px; }
+.reveal-card { width: clamp(170px, 15vw, 230px); transform-style: preserve-3d; animation: reveal-flip 2.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 140ms); filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.45)); }
+.reveal-card > * { width: 100%; max-width: none; }
+@keyframes reveal-veil { 0% { opacity: 0; } 12% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes reveal-title { 0% { opacity: 0; transform: translateY(8px); } 15%, 78% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+@keyframes reveal-flip {
+  0% { opacity: 0; transform: translateY(40px) rotateY(-100deg) scale(0.8); }
+  22% { opacity: 1; transform: translateY(0) rotateY(0) scale(1); }
+  76% { opacity: 1; transform: translateY(0) rotateY(0) scale(1); }
+  100% { opacity: 0; transform: translateX(42vw) translateY(-10vh) scale(0.35); }
+}
+@media (prefers-reduced-motion: reduce) { .reveal-ceremony { display: none; } }

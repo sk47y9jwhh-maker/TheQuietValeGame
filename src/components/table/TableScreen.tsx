@@ -18,6 +18,7 @@ import { isHostedDemo } from "../../app/experience";
 import { TableCoach, type CoachTarget } from "./TableCoach";
 import { tileArtworkUrl } from "../common/TileArtwork";
 import { Term } from "./Term";
+import { EncounterCard } from "../common/EncounterCard";
 import {
   describeHexOptions,
   describeTileActions,
@@ -340,6 +341,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           <button type="button" aria-label="Show the whole board" onClick={() => boardRef.current?.fit()}><Maximize2 size={16} /></button>
         </div>
         {coach && !resolving && !compact && <TableCoach state={state} onTarget={setCoachTarget} />}
+        {!compact && <RevealCeremony state={state} newCardIds={newCardIds} />}
         {notice && <div className="table-notice" role="status"><p>{notice}</p><button type="button" aria-label="Dismiss" onClick={onDismissNotice}><X size={16} /></button></div>}
         {!compact && !resolving && <div className="table-tray">{tray}</div>}
 
@@ -475,6 +477,34 @@ function ScoreNow({ state, score }: { state: GameState; score: number }) {
       <dl>{rows.map(([label, value, note]) => <div key={label} className={value < 0 ? "is-loss" : ""}><dt>{label === "Population" ? <Term id="population" /> : label === "Renown from tiles" ? <><Term id="renown" /> from tiles</> : label === "Strain" ? <Term id="strain" /> : label === "Active Burdens" ? <>Active <Term id="burden">Burdens</Term></> : label}{note && <small>{note}</small>}</dt><dd>{value > 0 ? "+" : ""}{value}</dd></div>)}</dl>
       <p><span>Score</span><strong>{score}</strong></p>
     </div>}
+  </div>;
+}
+
+/**
+ * Newly revealed cards turn over large across the board, as they would be
+ * flipped from the deck onto the table, then settle into the rail. It is
+ * decoration only: it takes no clicks, the rail carries the same cards, and
+ * it is skipped for anyone who prefers reduced motion.
+ */
+function RevealCeremony({ state, newCardIds }: { state: GameState; newCardIds: ReadonlySet<string> }) {
+  const ids = [...newCardIds].filter((id) => encounterById[id]).slice(0, 4);
+  const key = ids.join("|");
+  const [shown, setShown] = useState<string | null>(null);
+  const seen = useRef(new Set<string>());
+  useEffect(() => {
+    if (!key || seen.current.has(key)) return undefined;
+    seen.current.add(key);
+    if (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    setShown(key);
+    const timer = window.setTimeout(() => setShown(null), 2600);
+    return () => window.clearTimeout(timer);
+  }, [key]);
+  if (!shown || shown !== key || state.phase === "gameEnd") return null;
+  return <div className="reveal-ceremony" aria-hidden="true">
+    <p className="reveal-title">{ids.length === 1 ? "A card is revealed" : `${ids.length} cards are revealed`}</p>
+    <div className="reveal-cards">{ids.map((id, index) => <div key={id} className="reveal-card" style={{ ["--i" as string]: index, ["--n" as string]: ids.length }}>
+      <EncounterCard card={encounterById[id]} currentSeason={state.season} />
+    </div>)}</div>
   </div>;
 }
 
