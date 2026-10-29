@@ -1041,7 +1041,13 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
             eyebrow: `Season ${["", "I", "II", "III"][state.season]} · Round ${state.round} of 12`,
             title: "Your settlement is complete",
             steps: 1,
-            content: <div className="completed-game-layout"><CompletedGameReview state={state} onRecord={handleRecordLedgerGame} onNewGame={resetGame} ledger={completedReviewLedger(state, ledgerCampaign)} /></div>
+            content: <div className="completed-game-layout"><CompletedGameReview state={state} onRecord={handleRecordLedgerGame} onNewGame={resetGame} ledger={completedReviewLedger(state, ledgerCampaign)} />
+              <aside className="physical-game-note" aria-label="About the board game">
+                <p className="eyebrow">At the table</p>
+                <h2>The Quiet Vale is a board game</h2>
+                <p>This demo plays the printed rules of The Quiet Vale: Seasons of Settlement, a co-operative game for 1–5 players on a hand-painted map, with tiles, Encounter Cards and Target Cards on the table.</p>
+                <p className="physical-game-moments">Want to see another side of it? <a href="?experience=table&scenario=showcase-chain">The Strain spreads</a> · <a href="?experience=table&scenario=showcase-late">A thriving settlement</a></p>
+              </aside></div>
           } : state.pendingCostChoice ? {
             key: state.pendingCostChoice.id,
             eyebrow: "Payment",

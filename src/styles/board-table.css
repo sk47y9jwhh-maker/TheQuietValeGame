@@ -992,3 +992,22 @@
   .welcome-moments { padding: 0 16px; }
   .welcome-moments > div { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Score breakdown */
+.table-score-wrap { position: relative; }
+button.table-score { border: 0; font: inherit; cursor: pointer; }
+.score-popover { position: absolute; top: calc(100% + 8px); right: 0; z-index: 20; width: min(340px, calc(100vw - 24px)); padding: 12px 14px; box-sizing: border-box; border-radius: 14px; background: var(--bt-paper-light); color: var(--bt-ink); box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35); }
+.score-popover header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.score-popover dl { margin: 0; }
+.score-popover dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid #e6dcbd; }
+.score-popover dt { display: grid; font-weight: 600; }
+.score-popover dt small { font-weight: 400; font-size: 0.8rem; color: var(--bt-ink-soft); }
+.score-popover dd { margin: 0; font-weight: 700; }
+.score-popover .is-loss dd { color: var(--bt-rust); }
+.score-popover p { display: flex; justify-content: space-between; margin: 8px 0 0; font-size: 1.1rem; }
+.table-screen.is-compact .score-popover { position: fixed; top: 100px; right: 12px; }
+.physical-game-note { display: grid; gap: 6px; margin-top: 16px; padding: 16px; border-radius: 12px; background: #344531; color: #f6f0dc; }
+.physical-game-note .eyebrow { margin: 0; color: var(--bt-brass-light); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.physical-game-note h2 { margin: 0; font-family: "Alegreya", Georgia, serif; font-size: 1.35rem; color: #f6f0dc !important; }
+.physical-game-note p { margin: 0; line-height: 1.45; }
+.physical-game-note a { color: var(--bt-brass-light) !important; font-weight: 700; }

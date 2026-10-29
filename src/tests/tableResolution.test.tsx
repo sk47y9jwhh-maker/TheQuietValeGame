@@ -75,3 +75,12 @@ describe("guided first game", () => {
     expect(screen.queryByRole("complementary", { name: "Guide" })).not.toBeInTheDocument();
   });
 });
+
+describe("score breakdown", () => {
+  it("explains Score now line by line", () => {
+    open("showcase-late");
+    fireEvent.click(screen.getByRole("button", { name: /^Score now/ }));
+    const dialog = screen.getByRole("dialog", { name: "How the score adds up" });
+    for (const label of ["Population", "Renown from tiles", "Active Burdens", "Strain"]) expect(dialog).toHaveTextContent(label);
+  });
+});

@@ -376,7 +376,7 @@ function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo,
         </li>;
       })}
     </ul>}
-    <span className="table-score" title="The shared score if the game ended now">Score now <strong>{score}</strong></span>
+    <ScoreNow state={state} score={score} />
     <button type="button" className="icon-button" aria-label="Undo" disabled={!canUndo} onClick={onUndo}><Undo2 size={19} /></button>
     {!compact && <button type="button" className="icon-button" aria-label="Redo" disabled={!canRedo} onClick={onRedo}><Redo2 size={19} /></button>}
     <button type="button" className="icon-button" aria-label="Reset game" title="Start this settlement over" onClick={(event) => { event.currentTarget.focus({ preventScroll: true }); onReset(); }}><RotateCcw size={18} /></button>
@@ -388,6 +388,31 @@ function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo,
       </div>}
     </div>
   </header>;
+}
+
+/** "Score now", with how it adds up one tap away. */
+function ScoreNow({ state, score }: { state: GameState; score: number }) {
+  const [open, setOpen] = useState(false);
+  const detail = calculateFinalScore(state);
+  const strainTokens = state.map.placedTiles.reduce((total, tile) => total + tile.strain, 0);
+  const overstrained = state.map.placedTiles.filter((tile) => tile.strain >= 3).length;
+  const rows: [string, number, string?][] = [
+    ["Population", detail.population, detail.passivePopulation ? `${detail.printedPopulation} printed + ${detail.passivePopulation} from neighbours` : undefined],
+    ["Renown from tiles", detail.printedRenown + detail.passiveRenown, detail.passiveRenown ? `${detail.printedRenown} printed + ${detail.passiveRenown} from arrangements` : undefined],
+    ["Steward objectives", detail.stewardObjectiveRenown, "+15 each, if met at the end"],
+    ...(detail.goldenRenown ? [["Golden tiles", detail.goldenRenown] as [string, number]] : []),
+    ["Active Burdens", -detail.burdenPenalty, `${state.encounters.activeBurdens.length} × −10`],
+    ["Arrivals that left unmet", -detail.failedArrivalPenalty, `${detail.failedArrivals} × −10`],
+    ["Strain", -detail.strainPenalty, `${strainTokens} × −10${overstrained ? ` · ${overstrained} Overstrained tile${overstrained === 1 ? " scores" : "s score"} nothing` : ""}`]
+  ];
+  return <div className="table-score-wrap" onKeyDown={(event) => { if (event.key === "Escape") setOpen(false); }}>
+    <button type="button" className="table-score" aria-expanded={open} aria-controls="score-breakdown" title="The shared score if the game ended now" onClick={() => setOpen((value) => !value)}>Score now <strong>{score}</strong></button>
+    {open && <div className="score-popover" id="score-breakdown" role="dialog" aria-label="How the score adds up">
+      <header><strong>If the game ended now</strong><button type="button" className="icon-button" aria-label="Close" onClick={() => setOpen(false)}><X size={16} /></button></header>
+      <dl>{rows.map(([label, value, note]) => <div key={label} className={value < 0 ? "is-loss" : ""}><dt>{label}{note && <small>{note}</small>}</dt><dd>{value > 0 ? "+" : ""}{value}</dd></div>)}</dl>
+      <p><span>Score</span><strong>{score}</strong></p>
+    </div>}
+  </div>;
 }
 
 function EncounterStrip({ state, newCardIds, onOpen }: { state: GameState; newCardIds: ReadonlySet<string>; onOpen: () => void }) {
