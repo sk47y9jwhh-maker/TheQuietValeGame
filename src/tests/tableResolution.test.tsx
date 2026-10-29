@@ -112,3 +112,19 @@ describe("Golden Boons on the table", () => {
     expect(screen.getByText(/1 of 5 selected/)).toBeInTheDocument();
   });
 });
+
+describe("payments that start affordable", () => {
+  it("opens a surcharged payment on resources the Warehouse can cover", async () => {
+    const { placeTile } = await import("../engine/gameActions");
+    const { CostChoicePanel } = await import("../components/effects/CostChoicePanel");
+    window.history.replaceState(null, "", "/?experience=table");
+    let state = structuredClone(scenarios.settlement.state!);
+    state.boonModifiers = [...state.boonModifiers, { id: "modifier_test", sourceCardId: "burden_plans_left_waiting", name: "Plans Left Waiting", effectText: "Next Tile placed/upgraded this round costs 2 more resources.", actions: ["place", "upgrade"], remainingUses: 1, extraCost: 2 }];
+    state.warehouse = { wood: 2, stone: 0, metal: 0, food: 5, herbs: 2, goods: 0 };
+    state = placeTile(state, state.currentPlayerId, "c05_cabin", { anchorHexId: "E1" });
+    expect(state.pendingCostChoice).toBeTruthy();
+    render(<CostChoicePanel state={state} pending={state.pendingCostChoice!} onConfirm={() => {}} onCancel={() => {}} />);
+    expect(screen.getByText(/set to a combination you can afford/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Confirm Payment/ })).toBeEnabled();
+  });
+});

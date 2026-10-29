@@ -17,6 +17,9 @@ import {
   getTilePlacementHexIds
 } from "../../engine/placementRules";
 import { selectReachablePlacedTileIds } from "../../engine/reachability";
+import { applyShelterInTheRuins } from "../../engine/placementRules";
+import { getBoonActionPreview, getBoonCostOptions } from "../../engine/boonModifiers";
+import { applyCostChoice, findAffordableCostSelection, getPassiveCostOptions } from "../../engine/passiveCosts";
 import { selectTileName } from "../../engine/selectors";
 import type { GameState, HexDirection, PlacedTile, TileCategory, TilePlacementDraft, TileSideData } from "../../engine/types";
 import { previewTileAction, type ActionForecast } from "../actions/actionForecast";
@@ -172,6 +175,32 @@ function shortfallText(missing: string[]): string | undefined {
   return named.length ? `Need ${named.join(", ")} more` : undefined;
 }
 
+/**
+ * The same payment check placing makes, including Burden and Boon modifiers
+ * such as a surcharge. The opening check does not count those, so without
+ * this a tile could look buildable and then fail at payment.
+ */
+function placementPayment(state: GameState, playerId: string, tileId: string, draft: TilePlacementDraft): { ok: boolean; reason?: string } {
+  const core = coreTileById[tileId];
+  const special = specialTileById[tileId];
+  const data = core ?? special;
+  if (!data) return { ok: true };
+  const hexIds = getTilePlacementHexIds(tileId, draft);
+  const baseCost = applyShelterInTheRuins(core ? core.basic.cost : { wood: 0, stone: 0, metal: 0, food: 0, herbs: 0, goods: 0 }, hexIds);
+  const target = { action: "place", tileId, category: data.category, kind: core ? "core" : "special", baseCost } as const;
+  const actionCost = getBoonActionPreview(state, target).actionCost;
+  const options = [...getBoonCostOptions(state, target), ...getPassiveCostOptions(state, { action: "place", playerId, category: data.category, kind: core ? "core" : "special", placementHexIds: hexIds, cost: baseCost })];
+  if (findAffordableCostSelection(state, baseCost, options, actionCost)) return { ok: true };
+  const required = options.filter((option) => option.required);
+  const cost = applyCostChoice(state, baseCost, options, {
+    selectedOptionIds: required.map((option) => option.id),
+    surchargeResourceByOptionId: Object.fromEntries(required.filter((option) => option.kind === "surcharge" && option.resourceChoices?.length).map((option) => [option.id, option.resourceChoices![0]]))
+  });
+  const short = resources.filter((resource) => cost[resource] > state.warehouse[resource]).map((resource) => `${cost[resource] - state.warehouse[resource]} ${resourceLabels[resource]}`);
+  const surcharge = required.find((option) => option.kind === "surcharge");
+  return { ok: false, reason: `${short.length ? `Need ${short.join(", ")} more` : "Can’t be paid right now"}${surcharge ? ` with ${surcharge.sourceName}` : ""}` };
+}
+
 /** Every tile that can legally go on this empty space, best first. */
 export function describeHexOptions(state: GameState, hexId: string, orientation: HexDirection): HexOptions {
   const playerId = state.currentPlayerId;
@@ -198,6 +227,8 @@ export function describeHexOptions(state: GameState, hexId: string, orientation:
       needsOrientation: kind === "line",
       needsSecondSpace: kind === "detached"
     };
+    const payment = startable && choice.placeableNow && typeof startable === "object" ? placementPayment(state, playerId, choice.id, startable) : { ok: true };
+    if (startable && choice.placeableNow && !payment.ok) { blocked.push({ ...option, blocked: payment.reason }); continue; }
     if (startable && choice.placeableNow) placeable.push(option);
     else blocked.push({ ...option, blocked: shortfallText(choice.missingResources) ?? choice.blockedReasons.find((reason) => reason !== "No legal placement") ?? "Can’t be placed right now" });
   }

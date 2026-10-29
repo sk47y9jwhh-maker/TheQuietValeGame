@@ -4,6 +4,7 @@ import { Check, X } from "lucide-react";
 import { resourceLabels, resources } from "../../data/resources";
 import {
   applyCostChoice,
+  findAffordableCostSelection,
   getSelectedActionCost,
   validateCostChoiceSelection
 } from "../../engine/passiveCosts";
@@ -63,25 +64,30 @@ export function CostChoicePanel({
       .map((option) => [option.id, option.resourceChoices?.[0] ?? "wood"])
   ) as Record<string, ResourceType>;
   const requiredIds = pending.options.filter((option) => option.required).map((option) => option.id);
-  // On the board-first table, when the cost can only be met with one particular
-  // Merchant exchange, start with that exchange chosen. The player can still
-  // change it or turn it off before confirming.
+  // On the board-first table, the payment never opens on a combination that
+  // cannot be paid when one that can is available. A single Merchant exchange
+  // that covers the shortfall is named; otherwise the engine's own search picks
+  // an affordable set of choices (for example which resources a surcharge
+  // takes). The player can change any of it before confirming.
   const covering = isBoardTableExperience() ? findCoveringExchange(state, pending, requiredIds, defaultMarketChoices, defaultDiscountChoices, defaultSurchargeChoices) : null;
-  const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>(
-    covering ? [...requiredIds, covering.optionId] : requiredIds
-  );
+  const searched = isBoardTableExperience() && !covering ? findStartingSelection(state, pending, requiredIds, defaultMarketChoices, defaultDiscountChoices, defaultSurchargeChoices) : null;
+  const startIds = covering ? [...requiredIds, covering.optionId] : searched?.selectedOptionIds ?? requiredIds;
+  const startMarket = covering ? { ...defaultMarketChoices, [covering.optionId]: covering.resource } : { ...defaultMarketChoices, ...searched?.marketResourceByOptionId };
+  const startDiscount = { ...defaultDiscountChoices, ...searched?.discountResourceByOptionId };
+  const startSurcharge = { ...defaultSurchargeChoices, ...searched?.surchargeResourceByOptionId };
+  const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>(startIds);
   const [marketResourceByOptionId, setMarketResourceByOptionId] =
-    useState<Record<string, ResourceType>>(covering ? { ...defaultMarketChoices, [covering.optionId]: covering.resource } : defaultMarketChoices);
+    useState<Record<string, ResourceType>>(startMarket);
   const [discountResourceByOptionId, setDiscountResourceByOptionId] =
-    useState<Record<string, ResourceType>>(defaultDiscountChoices);
+    useState<Record<string, ResourceType>>(startDiscount);
   const [surchargeResourceByOptionId, setSurchargeResourceByOptionId] =
-    useState<Record<string, ResourceType>>(defaultSurchargeChoices);
+    useState<Record<string, ResourceType>>(startSurcharge);
 
   useEffect(() => {
-    setSelectedOptionIds(covering ? [...requiredIds, covering.optionId] : requiredIds);
-    setMarketResourceByOptionId(covering ? { ...defaultMarketChoices, [covering.optionId]: covering.resource } : defaultMarketChoices);
-    setDiscountResourceByOptionId(defaultDiscountChoices);
-    setSurchargeResourceByOptionId(defaultSurchargeChoices);
+    setSelectedOptionIds(startIds);
+    setMarketResourceByOptionId(startMarket);
+    setDiscountResourceByOptionId(startDiscount);
+    setSurchargeResourceByOptionId(startSurcharge);
   }, [pending.id]);
 
   const selection = useMemo(
@@ -324,6 +330,7 @@ export function CostChoicePanel({
         })}
       </div>
 
+      {searched && <p className="cost-covering-note" role="status">The payment choices below are set to a combination you can afford. Change them if you prefer.</p>}
       {covering && selectedOptionIds.includes(covering.optionId) && marketResourceByOptionId[covering.optionId] === covering.resource && <p className="cost-covering-note" role="status">The {covering.sourceName} exchange is chosen to cover the missing {resourceLabels[covering.resource]}: 1 Goods is spent as 1 {resourceLabels[covering.resource]}. Change it above if you prefer.</p>}
       {!canConfirm && (enhanced ? <div className="failure-note" role="status">
         {!validateCostChoiceSelection(pending.options, selection) && <p>Choose a valid combination of payment effects.</p>}
@@ -406,4 +413,19 @@ function findCoveringExchange(
     }
   }
   return found.length === 1 ? found[0] : null;
+}
+
+/** An affordable set of payment choices when the defaults cannot be paid, from the engine's own search. */
+function findStartingSelection(
+  state: GameState,
+  pending: PendingCostChoiceState,
+  requiredIds: string[],
+  market: Record<string, ResourceType>,
+  discount: Record<string, ResourceType>,
+  surcharge: Record<string, ResourceType>
+): CostChoiceSelection | null {
+  const plain = { selectedOptionIds: requiredIds, marketResourceByOptionId: market, discountResourceByOptionId: discount, ...(Object.keys(surcharge).length ? { surchargeResourceByOptionId: surcharge } : {}) };
+  const plainCost = applyCostChoice(state, pending.baseCost, pending.options, plain);
+  if (validateCostChoiceSelection(pending.options, plain) && canAfford(state.warehouse, plainCost)) return null;
+  return findAffordableCostSelection(state, pending.baseCost, pending.options, pending.actionCost);
 }
