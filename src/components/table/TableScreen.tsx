@@ -316,7 +316,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     <div className="table-resolution-body"><ChoiceHost>{resolution.content}</ChoiceHost></div>
   </aside> : null;
 
-  return <div className={`table-screen${compact ? " is-compact" : ""}${sideSheet ? " is-side-sheet" : ""}`} data-coach={coach && !resolving && coachTarget?.ui ? coachTarget.ui : undefined}>
+  return <div className={`table-screen${compact ? " is-compact" : ""}${sideSheet ? " is-side-sheet" : ""}`} data-coach={coach && (!resolving || tour) && coachTarget?.ui ? coachTarget.ui : undefined}>
     <TableTopBar state={state} forecast={activeForecast} score={score} canUndo={canUndo} canRedo={canRedo} onUndo={handlers.undo} onRedo={handlers.redo} onReset={handlers.reset} compact={compact} asHeading={state.phase !== "gameEnd"} />
     {compact && state.phase !== "setup" && state.phase !== "goldenSetup" && <EncounterStrip state={state} newCardIds={newCardIds} onOpen={() => setRailOpen(true)} />}
     <main className="table-main">
@@ -330,7 +330,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           footprintHexIds={placingFootprint}
           choiceMarks={resolving ? choices.marks : undefined}
           links={boardLinks}
-          beacon={coach && !resolving && !card && coachTarget?.hexIds ? { hexIds: coachTarget.hexIds, label: coachTarget.label } : null}
+          beacon={coach && (!resolving || tour) && !card && coachTarget?.hexIds ? { hexIds: coachTarget.hexIds, label: coachTarget.label } : null}
           hiddenPawnIds={state.phase === "setup" ? new Set(state.players.slice(state.players.findIndex((player) => player.id === state.currentPlayerId)).map((player) => player.id)) : undefined}
           coveredBottom={sideSheet ? 0 : resolving && compact ? (sheetLow ? 150 : Math.round(window.innerHeight * 0.55)) : sheetOpen ? 330 : compact ? 196 : resolving ? 0 : 62}
           onHexTap={handleHexTap}

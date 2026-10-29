@@ -43,6 +43,7 @@ import { TableChrome, TableScreen } from "../components/table/TableScreen";
 import { applyEnhancer, type Enhancer } from "../components/table/tableActions";
 import { TableGoldenStart, TableStewardStart } from "../components/table/TableSetupSteps";
 import { getScenario } from "./scenarioCatalog";
+import { momentTours } from "../components/table/tourScript";
 import { CompletedGameReview } from "../components/actions/CompletedGameReview";
 import { completedReviewLedger } from "../components/actions/ledgerSummary";
 import { describeAutomaticStep, isAutomaticEffect, revealedCardIds } from "../components/table/automaticSteps";
@@ -381,11 +382,15 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
   }, [resetInteractionForState]);
 
   // The guided tour plays scripted steps through the same history as any move.
-  const tourControls = useMemo(() => ({
+  const tourScenario = getScenario();
+  const tourControls = useMemo(() => tourScenario && momentTours[tourScenario] ? {
+    steps: momentTours[tourScenario],
+    guide: tourScenario === "guided",
+    isAtStart: (current: GameState) => { const start = initialPreview?.state; return !!start && current.phase === start.phase && current.round === start.round && current.log.length === start.log.length; },
     commit: (next: GameState) => { setTableNotice([]); commitGameState(() => next); },
     undo: () => { setTableNotice([]); handleUndo(); },
     restart: () => { const start = initialPreview?.state; if (start) { setTableNotice([]); commitGameState(() => structuredClone(start)); } }
-  }), [commitGameState, handleUndo, initialPreview]);
+  } : undefined, [commitGameState, handleUndo, initialPreview, tourScenario]);
 
   const handleRedo = useCallback(() => {
     const currentState = stateRef.current;
@@ -873,7 +878,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
   if (state.phase === "seeding" && isBoardTableExperience() && !tableResolves) {
     return withConfirmation(
       <div className="app-shell board-table-shell">
-        <TableChrome coach={getScenario() === "guided"} tour={getScenario() === "guided" ? tourControls : undefined} state={state} canUndo={undoStack.length > 0} canRedo={redoStack.length > 0} onUndo={handleUndo} onRedo={handleRedo} onReset={handleResetGame}>
+        <TableChrome coach={!!tourControls} tour={tourControls} state={state} canUndo={undoStack.length > 0} canRedo={redoStack.length > 0} onUndo={handleUndo} onRedo={handleRedo} onReset={handleResetGame}>
           <TableSeeding
             state={state}
             onConfirm={(selection) =>
@@ -1064,8 +1069,8 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
             reset: handleResetGame
           }}
           tray={<BottomDrawer state={state} ledgerCampaign={ledgerCampaign} onResetLedgerCampaign={handleResetLedgerCampaign} onTileInspect={inspectTileDefinition} />}
-          coach={getScenario() === "guided"}
-          tour={getScenario() === "guided" ? tourControls : undefined}
+          coach={!!tourControls}
+          tour={tourControls}
           resolution={state.phase === "setup" ? {
             key: `setup_${state.currentPlayerId}`,
             eyebrow: "Setup · choose your starting place",

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Compass, Play, X } from "lucide-react";
-import { tourSteps } from "./tourScript";
+import type { TourStep } from "./tourScript";
 import { stewardById } from "../../data/stewards";
 import { getStorageKey } from "../../app/experience";
 import { getActivatableTileIds } from "../../engine/gameActions";
@@ -142,47 +142,49 @@ function writeDismissed(ids: string[]) {
   try { window.localStorage.setItem(getStorageKey("quietVale.guide.v1"), JSON.stringify(ids)); } catch { /* the guide still works for this visit */ }
 }
 
-/** How the tour drives the table: commit a played step, or undo one. */
+/** How a tour drives the table: its script, and a way to play, undo or restart a step. */
 export interface TourControls {
+  /** The script. Its first step is the introduction. */
+  steps: TourStep[];
+  /** Whether taking over hands the player the hands-on guide. */
+  guide: boolean;
   commit: (next: GameState) => void;
   undo: () => void;
   /** Put the table back at the tour's opening position. */
   restart: () => void;
+  isAtStart: (state: GameState) => boolean;
 }
 
 interface TourPlace { index: number; history: { from: number; played: boolean }[]; mode: "tour" | "play"; }
-let memoryPlace: TourPlace | null = null;
-const tourKey = () => getStorageKey("quietVale.tour.v1");
+// The tour's place lives for this visit only. Every visit to a demo opens its
+// tour afresh, so nothing saved from an earlier visit can hide it.
+const memoryPlaces = new Map<string, TourPlace>();
 const freshPlace = (): TourPlace => ({ index: 0, history: [], mode: "tour" });
-function readPlace(): TourPlace {
-  try {
-    const saved = window.localStorage.getItem(tourKey());
-    return saved ? JSON.parse(saved) as TourPlace : freshPlace();
-  } catch {
-    // Storage is unavailable: remember the place for this visit only.
-    return memoryPlace ?? freshPlace();
-  }
-}
-function writePlace(place: TourPlace) {
-  memoryPlace = place;
-  try { window.localStorage.setItem(tourKey(), JSON.stringify(place)); } catch { /* kept in memory for this visit */ }
-}
 
 export function TableCoach(props: { state: GameState; onTarget?: (target: CoachTarget | null) => void; tour?: TourControls; resolving?: boolean }) {
+  const tourId = props.tour?.steps[0]?.id ?? "";
   const [place, setPlace] = useState<TourPlace>(() => {
-    const saved = readPlace();
+    const saved = memoryPlaces.get(tourId) ?? freshPlace();
     // A restarted demo is back at its first moment: so is the tour.
-    return props.state.phase === "seeding" && props.state.round === 1 && !props.state.map.placedTiles.length && (saved.index > 1 || saved.mode === "play") ? freshPlace() : saved;
+    return props.tour?.isAtStart(props.state) && (saved.index > 1 || saved.mode === "play") ? freshPlace() : saved;
   });
-  const update = (next: TourPlace) => { setPlace(next); writePlace(next); };
+  const update = (next: TourPlace) => { setPlace(next); memoryPlaces.set(tourId, next); };
   if (props.tour && place.mode === "tour") return <TableTour state={props.state} tour={props.tour} place={place} onPlace={update} onTarget={props.onTarget} />;
-  if (props.resolving) return null;
+  if (props.resolving || (props.tour && !props.tour.guide)) return null;
   return <GuideCoach state={props.state} onTarget={props.onTarget} />;
 }
+
+const moreMoments = [
+  { id: "late-intro", href: "?experience=table&scenario=showcase-late", name: "A thriving settlement" },
+  { id: "chain-intro", href: "?experience=table&scenario=showcase-chain", name: "The Strain spreads" },
+  { id: "season-intro", href: "?experience=table&scenario=showcase-season", name: "The turning of the Season" },
+  { id: "welcome", href: "?experience=table&scenario=guided", name: "Your first game" }
+];
 
 /** Next, next, next: the opening plays itself, explained one step at a time. */
 function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState; tour: TourControls; place: TourPlace; onPlace: (place: TourPlace) => void; onTarget?: (target: CoachTarget | null) => void }) {
   const [stuck, setStuck] = useState(false);
+  const tourSteps = tour.steps;
   const step = tourSteps[Math.min(place.index, tourSteps.length - 1)];
   const target = step.target?.(state) ?? null;
   const targetKey = JSON.stringify(target);
@@ -198,28 +200,31 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
     while (index < tourSteps.length - 1 && tourSteps[index].skip?.(after)) index++;
     return index;
   }
-  const atStart = state.phase === "seeding" && state.round === 1 && !state.map.placedTiles.length;
+  const atStart = tour.isAtStart(state);
   // Begin from the opening position, whatever an earlier visit left on the table.
   function begin() {
-    if (!atStart) tour.restart();
     setStuck(false);
     onPlace({ index: 1, history: [], mode: "tour" });
+    if (!atStart) tour.restart();
   }
   function next() {
     if (place.index === 0) { begin(); return; }
     if (!step.play) { onPlace({ ...place, index: following(place.index, state), history: [...place.history, { from: place.index, played: false }] }); return; }
     const played = step.play(state);
     if (!played) { setStuck(true); return; }
-    if (played !== state) tour.commit(played);
+    // Save the tour's place first: the move can swap the screen, and the next
+    // screen's guide reads where the tour is.
     onPlace({ ...place, index: following(place.index, played), history: [...place.history, { from: place.index, played: played !== state }] });
+    if (played !== state) tour.commit(played);
   }
   function back() {
     const previous = place.history[place.history.length - 1];
     if (!previous) return;
-    if (previous.played) tour.undo();
     onPlace({ ...place, index: previous.from, history: place.history.slice(0, -1) });
+    if (previous.played) tour.undo();
   }
   const takeOver = () => onPlace({ ...place, mode: "play" });
+  const takeOverLabel = tour.guide ? "Take over" : "Play on from here";
 
   return <aside className="table-coach is-tour" aria-label="Guided tour" aria-live="polite" key={step.id}>
     <div className="coach-head">
@@ -227,21 +232,20 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
       <ol className="coach-progress" aria-label={`Step ${position + 1} of ${shown.length}`}>{shown.map((candidate, index) => <li key={candidate.id} className={index < position ? "is-done" : index === position ? "is-now" : ""} />)}</ol>
       <span className="tour-count" aria-hidden="true">{position + 1}/{shown.length}</span>
     </div>
-    <p className="tour-eyebrow">Guided tour · press Next</p>
+    <p className="tour-eyebrow">{tour.guide ? "Guided tour" : "Walkthrough"} · press Next</p>
     <h3>{step.title}</h3>
     <p className="coach-why">{step.text(state)}</p>
     {stuck && <p className="coach-do">The table has moved on from this step. Start the tour again, or take over from here.</p>}
     {last ? <nav className="coach-links" aria-label="Where next">
       <button type="button" className="tour-back" onClick={back} aria-label="Back"><ArrowLeft size={16} aria-hidden="true" /></button>
-      <button type="button" className="coach-ok" onClick={takeOver}>Take over and play</button>
-      <a href="?experience=table&scenario=showcase-late">A thriving settlement</a>
-      <a href="?experience=table&scenario=showcase-chain">The Strain spreads</a>
+      <button type="button" className="coach-ok" onClick={takeOver}>{tour.guide ? "Take over and play" : "Play on from here"}</button>
+      {moreMoments.filter((moment) => moment.id !== tourSteps[0].id).slice(0, 2).map((moment) => <a key={moment.href} href={moment.href}>{moment.name}</a>)}
     </nav> : <footer className="tour-controls">
       <button type="button" className="tour-back" onClick={back} disabled={!place.history.length} aria-label="Back"><ArrowLeft size={16} aria-hidden="true" /></button>
       {stuck
         ? <button type="button" className="coach-ok tour-next" onClick={begin}>Start the tour again<ArrowRight size={16} aria-hidden="true" /></button>
         : <button type="button" className="coach-ok tour-next" onClick={next} aria-label={`Next: ${step.verb ?? "continue"}`}><span className="tour-next-word">Next</span>{step.verb && <small>{step.verb}</small>}<ArrowRight size={16} aria-hidden="true" /></button>}
-      <button type="button" className="coach-off" onClick={takeOver}>{place.index === 0 ? "Play it myself instead" : "Take over"}</button>
+      <button type="button" className="coach-off" onClick={takeOver}>{place.index === 0 ? tour.guide ? "Play it myself instead" : "Skip the walkthrough" : takeOverLabel}</button>
     </footer>}
   </aside>;
 }

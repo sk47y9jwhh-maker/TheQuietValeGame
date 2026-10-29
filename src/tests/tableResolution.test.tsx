@@ -100,6 +100,22 @@ describe("guided tour", () => {
   });
 });
 
+describe("moment walkthroughs", () => {
+  it("walks through the Strain chain with Next and plays the spread", async () => {
+    const { calculateFinalScore } = await import("../engine/scoring");
+    open("showcase-chain");
+    const before = calculateFinalScore(scenarios["showcase-chain"].state!).finalScore;
+    const tour = () => screen.getByRole("complementary", { name: "Guided tour" });
+    const next = () => fireEvent.click(within(tour()).getAllByRole("button").find((button) => button.classList.contains("tour-next"))!);
+    expect(within(tour()).getByRole("heading", { name: "The Strain spreads" })).toBeInTheDocument();
+    next(); next();
+    expect(within(tour()).getByRole("heading", { name: "The chain moves on" })).toBeInTheDocument();
+    next();
+    expect(within(tour()).getByRole("heading", { name: "Counting the cost" })).toBeInTheDocument();
+    expect(calculateFinalScore(readSavedGame()!.state).finalScore).toBe(before - 10);
+  });
+});
+
 describe("score breakdown", () => {
   it("explains Score now line by line", () => {
     open("showcase-late");
