@@ -237,8 +237,8 @@ export const tourSteps: TourStep[] = [
   },
   {
     id: "handover",
-    title: "Your turn",
-    text: () => "That is the rhythm of the Vale: seed, reveal, build, produce and welcome newcomers, while keeping Strain down. Take over and play on from here, or jump to a moment from later in a game."
+    title: "Your turn next",
+    text: () => "That is the rhythm of the Vale: seed, reveal, build, produce and welcome newcomers, while keeping Strain down. Now start a real game of your own, or watch a moment from later in a game."
   }
 ];
 
@@ -266,7 +266,7 @@ const groups = (state: GameState) => {
   for (const tile of state.map.placedTiles) counts.set(tile.tileId, (counts.get(tile.tileId) ?? 0) + 1);
   return state.map.placedTiles.filter((tile) => (counts.get(tile.tileId) ?? 0) >= 3 && /mine|outpost|lumber|farmstead/.test(tile.tileId) && tile.strain < 3);
 };
-const handover = (text: string): TourStep => ({ id: "handover", title: "Over to you", text: () => text });
+const handover = (text: string): TourStep => ({ id: "handover", title: "Your turn next", text: () => text });
 
 const lateTour: TourStep[] = [
   {
@@ -316,7 +316,7 @@ const lateTour: TourStep[] = [
     text: (state) => `If the game ended now: ${scoreLine(state)}. Two rounds remain to welcome Arrivals, set down Burdens and keep Strain off the tiles.`,
     target: () => ({ ui: "score" })
   },
-  handover("The table is yours. Play the rest of this turn, or the last two rounds, however you like.")
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another moment.")
 ];
 
 const chainTour: TourStep[] = [
@@ -363,7 +363,7 @@ const chainTour: TourStep[] = [
       return next;
     }
   },
-  handover("The table is yours. See whether you can steady the settlement before Season III.")
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another moment.")
 ];
 
 const seasonTour: TourStep[] = [
@@ -413,7 +413,7 @@ const seasonTour: TourStep[] = [
     target: () => ({ ui: "encounters" }),
     play: (state) => state.phase === "reveal" ? step(state, revealEncounters, true) : state
   },
-  handover("The table is yours. Play the opening turn of Season III.")
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another moment.")
 ];
 
 /** One effect at the head of the queue, settled the way the tour settles everything. */

@@ -38,6 +38,7 @@ export default function ScenarioPreview({ experience, scenarioId }: { experience
         <details><summary><span>{scenario.name}</span><small className="demo-ribbon-line">{scenario.description}</small></summary><div><p>{scenario.description}</p><strong>Things to try</strong><ol>{scenario.tasks.map((task) => <li key={task}>{task}</li>)}</ol><p>Your moves here are saved for this moment only. Restart to begin it again.</p></div></details>
         <button type="button" onClick={restart}><RotateCcw size={16} aria-hidden="true" />Restart</button>
         <a className="demo-play" href="?experience=table">Play a real game</a>
+        <span className="demo-build" title="Demo version">v29 Oct · 4</span>
         <span className="scenario-status" role="status">{!restartFailed && message}</span>
       </aside>
       {restartFailed && <p className="scenario-restart-error" role="alert">{message}</p>}

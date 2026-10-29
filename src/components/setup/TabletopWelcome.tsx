@@ -51,7 +51,7 @@ export function TabletopWelcome(props: SetupPanelProps) {
           <h2 id="welcome-setup-heading" ref={heading} tabIndex={-1}>Gather your Stewards.</h2>
           <p className="welcome-intro">Play solo or share this device with friends. Everyone helps the same settlement thrive.</p>
           {isBoardTableExperience() && <a className="welcome-guided" href="?experience=table&scenario=guided">
-            <span><strong>New to the Vale? Play a guided first game.</strong><small>Solo, about 15 minutes. A guide beside the board teaches you as you play.</small></span>
+            <span><strong>New to the Vale? Watch a guided first game.</strong><small>About 5 minutes. Press Next and the opening plays itself, explained step by step.</small></span>
             <ArrowRight size={20} aria-hidden="true" />
           </a>}
           <fieldset className="welcome-player-count">

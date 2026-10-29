@@ -63,22 +63,8 @@ describe("board-first table finale", () => {
   });
 });
 
-describe("guided first game", () => {
-  it("coaches seeding, then the first placement, and settles the Arrival notice by itself", () => {
-    open("guided");
-    fireEvent.click(screen.getByRole("button", { name: "Play it myself instead" }));
-    expect(screen.getByRole("heading", { name: "Shape the Season ahead" })).toBeInTheDocument();
-    for (const [index, slot] of ["top", "middle", "bottom"].entries()) fireEvent.click(screen.getAllByRole("button", { name: new RegExp(`at ${slot}$`) })[index]);
-    fireEvent.click(screen.getByRole("button", { name: "Confirm Seeding" }));
-    expect(screen.queryByRole("button", { name: "Acknowledge" })).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Build your first tile" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Turn off the guide" }));
-    expect(screen.queryByRole("complementary", { name: "Guide" })).not.toBeInTheDocument();
-  });
-});
-
 describe("guided tour", () => {
-  it("plays the opening one Next at a time, steps back with Back, and hands over", () => {
+  it("plays the opening one Next at a time, steps back with Back, and ends with a real game", () => {
     open("guided");
     const tour = () => screen.getByRole("complementary", { name: "Guided tour" });
     const next = () => fireEvent.click(within(tour()).getAllByRole("button").find((button) => button.classList.contains("tour-next"))!);
@@ -91,12 +77,13 @@ describe("guided tour", () => {
     expect(readSavedGame()!.state.map.placedTiles).toHaveLength(0);
     expect(within(tour()).getByRole("heading", { name: "Build a Lumber Yard" })).toBeInTheDocument();
     let guard = 0;
-    while (!within(tour()).queryByRole("heading", { name: "Your turn" }) && guard++ < 20) next();
+    while (!within(tour()).queryByRole("heading", { name: "Your turn next" }) && guard++ < 20) next();
     const state = readSavedGame()!.state;
     expect(state.round).toBe(2);
     expect(state.log.some((entry) => /^Linked production activated/.test(entry.message))).toBe(true);
-    fireEvent.click(within(tour()).getByRole("button", { name: "Take over and play" }));
-    expect(screen.queryByRole("complementary", { name: "Guided tour" })).not.toBeInTheDocument();
+    // A demo is only ever a walkthrough: the way out is a real game.
+    expect(within(tour()).getByRole("link", { name: "Play a real game" })).toHaveAttribute("href", "?experience=table");
+    expect(within(tour()).queryByRole("button", { name: /Take over|Turn off|Skip/ })).not.toBeInTheDocument();
   });
 });
 

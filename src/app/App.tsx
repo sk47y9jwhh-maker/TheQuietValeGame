@@ -385,7 +385,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
   const tourScenario = getScenario();
   const tourControls = useMemo(() => tourScenario && momentTours[tourScenario] ? {
     steps: momentTours[tourScenario],
-    guide: tourScenario === "guided",
+    kind: tourScenario === "guided" ? "Guided tour" as const : "Walkthrough" as const,
     isAtStart: (current: GameState) => { const start = initialPreview?.state; return !!start && current.phase === start.phase && current.round === start.round && current.log.length === start.log.length; },
     commit: (next: GameState) => { setTableNotice([]); commitGameState(() => next); },
     undo: () => { setTableNotice([]); handleUndo(); },

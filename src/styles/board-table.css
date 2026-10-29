@@ -1271,3 +1271,10 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 /* The tour's Next button: always the word Next, with what it does beside it. */
 .table-coach .tour-next .tour-next-word { font-size: 1.05rem; }
 .table-coach .tour-next small { padding-left: 8px; border-left: 1px solid rgba(42, 33, 18, 0.3); font-size: 0.8rem; font-weight: 600; opacity: 0.85; }
+
+/* A walkthrough runs the table: only Next, Back, zoom and the score can be pressed. */
+.table-screen.is-demo-locked .table-main, .table-screen.is-demo-locked .table-sheet, .table-screen.is-demo-locked .table-stage, .table-screen.is-demo-locked .table-topbar button { pointer-events: none; }
+.table-screen.is-demo-locked .table-coach, .table-screen.is-demo-locked .board-tools, .table-screen.is-demo-locked .table-topbar .table-score, .table-screen.is-demo-locked [role="dialog"] { pointer-events: auto; }
+.table-coach .tour-real { text-decoration: none; }
+.table-coach .coach-off { display: inline-flex; align-items: center; gap: 6px; }
+.demo-build { flex: none; color: #5a4820; font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; opacity: 0.75; }
