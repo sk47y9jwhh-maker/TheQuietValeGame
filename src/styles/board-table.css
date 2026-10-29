@@ -1059,3 +1059,23 @@ button.table-score { border: 0; font: inherit; cursor: pointer; }
 @keyframes bt-bump { 0% { color: var(--bt-brass-light); transform: scale(1.25); } 100% { transform: scale(1); } }
 @keyframes bt-panel-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
 .table-warehouse li strong { display: inline-block; }
+
+/* Windows High Contrast and other forced-colour modes: keep the meaning carried by small dots. */
+@media (forced-colors: active) {
+  .rail-actions span, .rail-timers span, .rail-timer, .res-swatch, .category-dot, .round-track span, .compact-warehouse li { forced-color-adjust: none; }
+  .rail-actions span { border: 1px solid CanvasText; }
+  .rail-actions span.is-left { background: Highlight; }
+  .round-track span { border: 1px solid CanvasText; }
+  .board-hex-choice, .board-hex-legal, .board-hex-selected { forced-color-adjust: none; }
+  .term-word { text-decoration-color: CanvasText; }
+}
+h1.table-brand { margin: 0; line-height: 1; color: inherit; }
+.experience-table .welcome-setup .studio-kicker { color: #4f5f42; }
+
+/* Short, wide screens: the sheet is a column on the right and the board keeps its height. */
+.table-screen.is-side-sheet .table-board { margin-right: min(340px, 44vw); }
+.table-screen.is-side-sheet .table-sheet { top: var(--side-sheet-top, 104px); left: auto; right: 0; bottom: 0; width: min(340px, 44vw); max-height: none !important; border-radius: 14px 0 0 0; box-shadow: -8px 0 24px rgba(0, 0, 0, 0.3); }
+.table-screen.is-side-sheet .sheet-handle, .table-screen.is-side-sheet .sheet-toggle { display: none; }
+.table-screen.is-side-sheet .board-tools { bottom: 12px !important; right: 12px; }
+.table-screen.is-side-sheet .encounter-strip { padding: 4px 8px; }
+.table-screen.is-side-sheet .strip-card { padding: 3px 8px; }

@@ -78,6 +78,20 @@ type Mode =
   | { kind: "selected"; hexId: string }
   | { kind: "placing"; tileId: string; anchorHexId?: string; orientation: HexDirection; secondaryHexId?: string };
 
+/** A short, wide screen (a phone on its side, or a zoomed-in window): the sheet becomes a side column. */
+function useShortLandscape() {
+  const query = "(max-height: 520px) and (min-aspect-ratio: 4/3)";
+  const [match, setMatch] = useState(() => typeof window !== "undefined" && (window.matchMedia?.(query).matches ?? false));
+  useEffect(() => {
+    const media = window.matchMedia?.(query);
+    if (!media) return undefined;
+    const update = () => setMatch(media.matches);
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  return match;
+}
+
 function useCompact() {
   const query = "(max-width: 860px)";
   const [compact, setCompact] = useState(() => typeof window !== "undefined" && (window.matchMedia?.(query).matches ?? false));
@@ -93,6 +107,16 @@ function useCompact() {
 
 export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, notice, onDismissNotice, tray, resolution, coach }: TableScreenProps) {
   const compact = useCompact();
+  const sideSheet = useShortLandscape() && compact;
+  const boardSection = useRef<HTMLElement>(null);
+  const [sideTop, setSideTop] = useState(0);
+  useEffect(() => {
+    if (!sideSheet) return undefined;
+    const measure = () => setSideTop(Math.round(boardSection.current?.getBoundingClientRect().top ?? 0));
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [sideSheet]);
   const [choices, ChoiceHost] = useBoardChoiceHost();
   const resolving = Boolean(resolution);
   const [sheetLow, setSheetLow] = useState(false);
@@ -276,11 +300,11 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     <div className="table-resolution-body"><ChoiceHost>{resolution.content}</ChoiceHost></div>
   </aside> : null;
 
-  return <div className={`table-screen${compact ? " is-compact" : ""}`}>
-    <TableTopBar state={state} forecast={activeForecast} score={score} canUndo={canUndo} canRedo={canRedo} onUndo={handlers.undo} onRedo={handlers.redo} onReset={handlers.reset} compact={compact} />
+  return <div className={`table-screen${compact ? " is-compact" : ""}${sideSheet ? " is-side-sheet" : ""}`}>
+    <TableTopBar state={state} forecast={activeForecast} score={score} canUndo={canUndo} canRedo={canRedo} onUndo={handlers.undo} onRedo={handlers.redo} onReset={handlers.reset} compact={compact} asHeading={state.phase !== "gameEnd"} />
     {compact && state.phase !== "setup" && state.phase !== "goldenSetup" && <EncounterStrip state={state} newCardIds={newCardIds} onOpen={() => setRailOpen(true)} />}
     <main className="table-main">
-      <section className="table-board" aria-label="The settlement">
+      <section className="table-board" aria-label="The settlement" ref={boardSection}>
         <TableBoard
           ref={boardRef}
           state={resolving && choices.preview ? choices.preview : state}
@@ -291,7 +315,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           choiceMarks={resolving ? choices.marks : undefined}
           links={boardLinks}
           hiddenPawnIds={state.phase === "setup" ? new Set(state.players.slice(state.players.findIndex((player) => player.id === state.currentPlayerId)).map((player) => player.id)) : undefined}
-          coveredBottom={resolving && compact ? (sheetLow ? 150 : Math.round(window.innerHeight * 0.55)) : sheetOpen ? 330 : compact ? 196 : 0}
+          coveredBottom={sideSheet ? 0 : resolving && compact ? (sheetLow ? 150 : Math.round(window.innerHeight * 0.55)) : sheetOpen ? 330 : compact ? 196 : 0}
           onHexTap={handleHexTap}
           onEmptyTap={() => setMode({ kind: "idle" })}
           popover={!compact && card ? { hexId: card.hexId, content: card.content, width: 340 } : null}
@@ -310,7 +334,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
       {!compact && resolutionPanel}
       {!compact && !resolving && <TableRail state={state} newCardIds={newCardIds} onCompleteArrival={handlers.completeArrival} onResolveBurden={handlers.resolveBurden} onUseBoon={handlers.useBoon} onUseStewardPower={handlers.useStewardPower} onPlaceSpecial={(tileId) => setMode({ kind: "placing", tileId, orientation: 3 })} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} />}
     </main>
-    {compact && <div className={`table-sheet${sheetOpen ? " is-raised" : ""}${resolving ? " is-resolving" : ""}${resolving && sheetLow ? " is-low" : ""}`}>
+    {compact && <div style={sideSheet && sideTop ? { top: sideTop } : undefined} className={`table-sheet${sheetOpen ? " is-raised" : ""}${resolving ? " is-resolving" : ""}${resolving && sheetLow ? " is-low" : ""}`}>
       <span className="sheet-handle" aria-hidden="true" />
       {resolutionPanel ?? (card ? card.content : <>{coach && <div className="sheet-coach"><TableCoach state={state} /></div>}<CompactTurn state={state} onOpenRail={() => setRailOpen(true)} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} /></>)}
     </div>}
@@ -356,7 +380,7 @@ function placingAnchorHint(state: GameState): string {
   return state.players.find((player) => player.id === state.currentPlayerId)?.stewardHexId ?? "G5";
 }
 
-function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo, onReset, compact }: { state: GameState; forecast?: ActionForecast; score: number; canUndo: boolean; canRedo: boolean; onUndo: () => void; onRedo: () => void; onReset: () => void; compact: boolean }) {
+function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo, onReset, compact, asHeading = false }: { state: GameState; forecast?: ActionForecast; score: number; canUndo: boolean; canRedo: boolean; onUndo: () => void; onRedo: () => void; onReset: () => void; compact: boolean; asHeading?: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const deltas = new Map<ResourceType, number>((forecast?.resources ?? []).map((change) => [change.resource, change.after]));
   // Briefly mark resources whose count just changed.
@@ -372,7 +396,7 @@ function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo,
   }, [state.warehouse]);
   const seasonNames = ["", "Foundations", "Growth", "Maturity"];
   return <header className="table-topbar">
-    <div className="table-brand">The Quiet Vale</div>
+    {asHeading ? <h1 className="table-brand">The Quiet Vale</h1> : <div className="table-brand">The Quiet Vale</div>}
     <div className="table-season">
       <span>Season {["", "I", "II", "III"][state.season]}{compact ? "" : ` · ${seasonNames[state.season]}`} · Round {state.round}{compact ? "" : " of 12"}</span>
       {!compact && <span className="round-track" aria-hidden="true">{[0, 1, 2].map((season) => <span key={season}>{[1, 2, 3, 4].map((step) => {

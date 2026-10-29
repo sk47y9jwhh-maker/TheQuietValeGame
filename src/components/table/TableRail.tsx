@@ -170,7 +170,7 @@ function CardArt({ src }: { src: string }) {
 }
 
 function Timers({ count }: { count: number }) {
-  return <span className="rail-timers" aria-label={`${count} timer${count === 1 ? "" : "s"} left`}>
+  return <span className="rail-timers" role="img" aria-label={`${count} timer${count === 1 ? "" : "s"} left`}>
     {[0, 1, 2].map((index) => <span key={index} className={index < count ? count === 1 ? "is-last" : "is-on" : ""} />)}
   </span>;
 }
