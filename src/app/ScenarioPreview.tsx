@@ -27,7 +27,20 @@ export default function ScenarioPreview({ experience, scenarioId }: { experience
     }
     setRestartFailed(false);
     setRevision((value) => value + 1);
-    setMessage("This demo is back at its starting position.");
+    setMessage(experience === "table" ? "Back to the start of this moment." : "This demo is back at its starting position.");
+  }
+  if (experience === "table") {
+    // The playable demo: a way home, what this moment is, and a restart.
+    return <div className="scenario-preview scenario-preview-table">
+      <aside className="scenario-review-bar" aria-label="Demo controls">
+        <a href="?experience=table" aria-label="Back to the start page"><ArrowLeft size={17} aria-hidden="true" />The Quiet Vale</a>
+        <details><summary><span>{scenario.name}</span></summary><div><p>{scenario.description}</p><strong>Things to try</strong><ol>{scenario.tasks.map((task) => <li key={task}>{task}</li>)}</ol><p>Your moves here are saved for this moment only. Restart to begin it again.</p></div></details>
+        <button type="button" onClick={restart}><RotateCcw size={16} aria-hidden="true" />Restart</button>
+        <span className="scenario-status" role="status">{!restartFailed && message}</span>
+      </aside>
+      {restartFailed && <p className="scenario-restart-error" role="alert">{message}</p>}
+      <div className={`experience-app ${experienceClassName(experience)}`}><App key={revision} initialPreview={scenarioSnapshots[scenarioId]} simulateSaveFailure={false} /></div>
+    </div>;
   }
   return <div className="scenario-preview">
     <aside className="scenario-review-bar" aria-label="Comparison controls">

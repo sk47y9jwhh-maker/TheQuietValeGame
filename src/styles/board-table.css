@@ -1013,3 +1013,19 @@ button.table-score { border: 0; font: inherit; cursor: pointer; }
 .physical-game-note a { color: var(--bt-brass-light) !important; font-weight: 700; }
 .cost-covering-note { margin: 10px 0; padding: 10px 12px; border-radius: 10px; background: #e7efd9; color: #2f4429; font-size: 0.92rem; line-height: 1.4; }
 .rail-card-help { margin: 4px 0 0; padding: 6px 8px; border-radius: 8px; background: #e7efd9; color: #2f4429; font-size: 0.82rem; line-height: 1.35; }
+
+/* Setup on the board */
+.table-setup-step { display: grid; gap: 12px; }
+.table-setup-lead { margin: 0; font-size: 1rem; line-height: 1.45; }
+.table-setup-note { margin: 0; color: var(--bt-ink-soft); font-size: 0.92rem; line-height: 1.45; }
+.table-setup-choice { display: grid; gap: 2px; padding: 12px 14px; border-radius: 12px; background: #e7efd9; }
+.table-setup-choice span { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #4c6145; }
+.table-setup-choice strong { font-family: "Alegreya", Georgia, serif; font-size: 1.35rem; }
+.table-setup-details summary { cursor: pointer; font-weight: 700; }
+.table-setup-details p { margin: 8px 0 0; font-size: 0.92rem; line-height: 1.45; }
+.table-setup-actions { display: grid; gap: 8px; }
+.table-setup-actions .primary-action, .table-setup-actions .secondary-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; border-radius: 12px; font: inherit; font-weight: 700; cursor: pointer; }
+.table-setup-actions .primary-action { border: 0; background: var(--bt-green); color: #f6f0dc !important; }
+.table-setup-actions .primary-action:disabled { opacity: 0.5; cursor: default; }
+.table-setup-actions .secondary-action { border: 2px solid var(--bt-green); background: transparent; color: var(--bt-green) !important; }
+.table-setup-actions small { color: var(--bt-ink-soft); }

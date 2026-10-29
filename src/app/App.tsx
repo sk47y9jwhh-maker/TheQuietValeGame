@@ -36,7 +36,10 @@ import { TabletopWelcome } from "../components/setup/TabletopWelcome";
 import { TabletopLayout } from "../components/layout/TabletopLayout";
 import { TableSeeding } from "../components/seeding/TableSeeding";
 import { isBoardTableExperience, isPlayerExperience } from "./experience";
+import { stewardById } from "../data/stewards";
+import { goldenTileById } from "../data/tiles";
 import { TableChrome, TableScreen } from "../components/table/TableScreen";
+import { TableGoldenStart, TableStewardStart } from "../components/table/TableSetupSteps";
 import { getScenario } from "./scenarioCatalog";
 import { CompletedGameReview } from "../components/actions/CompletedGameReview";
 import { completedReviewLedger } from "../components/actions/ledgerSummary";
@@ -882,7 +885,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
     );
   }
 
-  if (state.phase === "goldenSetup") {
+  if (state.phase === "goldenSetup" && !isBoardTableExperience()) {
     return withConfirmation(
       <div className="app-shell">
         <TopBar
@@ -904,7 +907,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
     );
   }
 
-  if (state.phase === "setup") {
+  if (state.phase === "setup" && !isBoardTableExperience()) {
     return withConfirmation(
       <div className="app-shell">
         <TopBar
@@ -1036,7 +1039,21 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
           }}
           tray={<BottomDrawer state={state} ledgerCampaign={ledgerCampaign} onResetLedgerCampaign={handleResetLedgerCampaign} onTileInspect={inspectTileDefinition} />}
           coach={getScenario() === "guided"}
-          resolution={state.phase === "gameEnd" ? {
+          resolution={state.phase === "setup" ? {
+            key: `setup_${state.currentPlayerId}`,
+            eyebrow: "Setup · choose your starting place",
+            title: `Place your ${stewardById[selectCurrentPlayer(state).stewardId]?.name ?? "Steward"}`,
+            steps: 1,
+            hint: "Highlighted spaces match your Steward’s starting terrain. Tap one to choose it.",
+            content: <TableStewardStart state={state} onConfirm={(hexId) => commitGameState((current) => commitStewardPlacement(current, current.currentPlayerId, hexId))} />
+          } : state.phase === "goldenSetup" ? {
+            key: "golden-setup",
+            eyebrow: "Setup · Golden Legacy",
+            title: `Place ${state.goldenSetup.selectedTileId ? goldenTileById[state.goldenSetup.selectedTileId]?.name ?? "the Golden Tile" : "the Golden Tile"}`,
+            steps: 1,
+            hint: "Highlighted spaces are where the Golden Tile may go. Tap one to choose it.",
+            content: <TableGoldenStart state={state} onConfirm={(hexId) => commitGameState((current) => placeGoldenTileForSetup(current, hexId))} onSkip={() => commitGameState((current) => skipGoldenTileForSetup(current))} />
+          } : state.phase === "gameEnd" ? {
             key: "game-end",
             eyebrow: `Season ${["", "I", "II", "III"][state.season]} · Round ${state.round} of 12`,
             title: "Your settlement is complete",

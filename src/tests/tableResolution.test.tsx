@@ -84,3 +84,17 @@ describe("score breakdown", () => {
     for (const label of ["Population", "Renown from tiles", "Active Burdens", "Strain"]) expect(dialog).toHaveTextContent(label);
   });
 });
+
+describe("setup on the board", () => {
+  it("places each Steward from the main board, then moves on to seeding", () => {
+    window.history.replaceState(null, "", "/?experience=table");
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "2 players" }));
+    fireEvent.click(screen.getByRole("button", { name: /Begin your settlement/ }));
+    expect(screen.getByRole("heading", { name: "Place your Vanguard" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Start at / }));
+    expect(screen.getByRole("heading", { name: "Place your Knight" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Start at / }));
+    expect(readSavedGame()?.state.phase).toBe("seeding");
+  });
+});

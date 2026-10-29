@@ -37,6 +37,8 @@ interface TableBoardProps {
   choiceMarks?: ReadonlyMap<string, { selected: boolean; badge?: string; label: string }>;
   /** Arrows between spaces, e.g. the path of an Overstrain chain. */
   links?: { from: string; to: string; current: boolean }[];
+  /** Stewards not yet on the board (during setup). */
+  hiddenPawnIds?: ReadonlySet<string>;
   /** Pixels at the bottom of the board hidden behind a sheet on small screens. */
   coveredBottom?: number;
   onHexTap: (hexId: string) => void;
@@ -57,7 +59,7 @@ function tileAt(state: GameState): Map<string, PlacedTile> {
 }
 
 export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function TableBoard(
-  { state, selectedHexId, legalHexIds, glowTileIds, footprintHexIds, choiceMarks, links, coveredBottom = 0, onHexTap, onEmptyTap, popover },
+  { state, selectedHexId, legalHexIds, glowTileIds, footprintHexIds, choiceMarks, links, hiddenPawnIds, coveredBottom = 0, onHexTap, onEmptyTap, popover },
   handle
 ) {
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -292,7 +294,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
     }
   }
 
-  const stewardMarks = state.players.map((player, index) => ({ player, index, steward: stewardById[player.stewardId] }));
+  const stewardMarks = state.players.map((player, index) => ({ player, index, steward: stewardById[player.stewardId] })).filter((mark) => !hiddenPawnIds?.has(mark.player.id));
   const currentPlayerIndex = state.players.findIndex((player) => player.id === state.currentPlayerId);
   const hexPx = (hexRadius * 2) / current.upp;
   const detail = hexPx >= 52 ? "full" : hexPx >= 34 ? "name" : "icon";

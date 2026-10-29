@@ -68,6 +68,8 @@ export interface TableResolution {
   sourceTileId?: string;
   /** One link of an Overstrain chain: the Overstrained tile and the tile it spreads to. */
   link?: { fromTileId: string; toTileId?: string };
+  /** Replaces the generic board hint for this step. */
+  hint?: string;
 }
 
 type Mode =
@@ -267,14 +269,14 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     : "Tap a tile to use it, or an empty space to build.";
   const sheetOpen = compact && (Boolean(card) || resolving);
   const resolutionPanel = resolution ? <aside className="table-resolution" aria-labelledby="table-resolution-title" key={resolution.key}>
-    <header><p className="eyebrow">{resolution.eyebrow}{resolution.link && chainTrail.length ? ` · link ${chainTrail.length + 1}` : ""}{resolution.steps > 1 ? ` · ${resolution.steps - 1} more to follow` : ""}</p><h2 id="table-resolution-title">{resolution.title}</h2>{choices.hint && <p className="table-resolution-hint">{choices.hint}</p>}
+    <header><p className="eyebrow">{resolution.eyebrow}{resolution.link && chainTrail.length ? ` · link ${chainTrail.length + 1}` : ""}{resolution.steps > 1 ? ` · ${resolution.steps - 1} more to follow` : ""}</p><h2 id="table-resolution-title">{resolution.title}</h2>{(resolution.hint ?? choices.hint) && <p className="table-resolution-hint">{resolution.hint ?? choices.hint}</p>}
       {compact && hasChoices && <button type="button" className="sheet-toggle" aria-expanded={!sheetLow} onClick={() => setSheetLow((low) => !low)}>{sheetLow ? "Show details" : "Show the board"}</button>}</header>
     <div className="table-resolution-body"><ChoiceHost>{resolution.content}</ChoiceHost></div>
   </aside> : null;
 
   return <div className={`table-screen${compact ? " is-compact" : ""}`}>
     <TableTopBar state={state} forecast={activeForecast} score={score} canUndo={canUndo} canRedo={canRedo} onUndo={handlers.undo} onRedo={handlers.redo} onReset={handlers.reset} compact={compact} />
-    {compact && <EncounterStrip state={state} newCardIds={newCardIds} onOpen={() => setRailOpen(true)} />}
+    {compact && state.phase !== "setup" && state.phase !== "goldenSetup" && <EncounterStrip state={state} newCardIds={newCardIds} onOpen={() => setRailOpen(true)} />}
     <main className="table-main">
       <section className="table-board" aria-label="The settlement">
         <TableBoard
@@ -286,6 +288,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           footprintHexIds={placingFootprint}
           choiceMarks={resolving ? choices.marks : undefined}
           links={boardLinks}
+          hiddenPawnIds={state.phase === "setup" ? new Set(state.players.slice(state.players.findIndex((player) => player.id === state.currentPlayerId)).map((player) => player.id)) : undefined}
           coveredBottom={resolving && compact ? (sheetLow ? 150 : Math.round(window.innerHeight * 0.55)) : sheetOpen ? 330 : compact ? 196 : 0}
           onHexTap={handleHexTap}
           onEmptyTap={() => setMode({ kind: "idle" })}
@@ -299,7 +302,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
         {coach && !resolving && !compact && <TableCoach state={state} />}
         {notice && <div className="table-notice" role="status"><p>{notice}</p><button type="button" aria-label="Dismiss" onClick={onDismissNotice}><X size={16} /></button></div>}
         {!compact && !resolving && <div className="table-tray">{tray}</div>}
-        {resolving && !compact && choices.hint && !notice && <p className="board-hint">{choices.hint}</p>}
+        {resolving && !compact && (resolution?.hint ?? choices.hint) && !notice && <p className="board-hint">{resolution?.hint ?? choices.hint}</p>}
         {isTurn && !resolving && !card && !notice && !compact && state.actionsRemaining > 0 && <p className="board-hint">{hint}</p>}
       </section>
       {!compact && resolutionPanel}
