@@ -1267,3 +1267,7 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .table-coach .tour-next { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 18px; font-size: 1rem; box-shadow: 0 0 0 0 rgba(227, 192, 106, 0.6); animation: tour-next 2.4s ease-in-out infinite; }
 @keyframes tour-next { 0%, 100% { box-shadow: 0 0 0 0 rgba(227, 192, 106, 0.55); } 50% { box-shadow: 0 0 0 8px rgba(227, 192, 106, 0); } }
 @media (prefers-reduced-motion: reduce) { .table-coach .tour-next { animation: none; } }
+
+/* The tour's Next button: always the word Next, with what it does beside it. */
+.table-coach .tour-next .tour-next-word { font-size: 1.05rem; }
+.table-coach .tour-next small { padding-left: 8px; border-left: 1px solid rgba(42, 33, 18, 0.3); font-size: 0.8rem; font-weight: 600; opacity: 0.85; }

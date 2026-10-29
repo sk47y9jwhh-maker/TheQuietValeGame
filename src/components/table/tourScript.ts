@@ -127,7 +127,6 @@ export const tourSteps: TourStep[] = [
     id: "reveal",
     title: "Round 1 begins",
     text: () => "Each round starts by turning over cards from the Encounter Deck. The top card is the Arrival the Vanguard just seeded.",
-    verb: "Reveal the cards",
     target: () => ({ ui: "encounters" }),
     // The table reveals by itself after seeding. Then this step only explains.
     play: (state) => state.phase === "reveal" ? step(state, revealEncounters) : state.phase === "turns" && state.round === 1 ? state : null

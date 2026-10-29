@@ -383,8 +383,9 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
   // The guided tour plays scripted steps through the same history as any move.
   const tourControls = useMemo(() => ({
     commit: (next: GameState) => { setTableNotice([]); commitGameState(() => next); },
-    undo: () => { setTableNotice([]); handleUndo(); }
-  }), [commitGameState, handleUndo]);
+    undo: () => { setTableNotice([]); handleUndo(); },
+    restart: () => { const start = initialPreview?.state; if (start) { setTableNotice([]); commitGameState(() => structuredClone(start)); } }
+  }), [commitGameState, handleUndo, initialPreview]);
 
   const handleRedo = useCallback(() => {
     const currentState = stateRef.current;

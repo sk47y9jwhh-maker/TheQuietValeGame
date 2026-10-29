@@ -146,6 +146,8 @@ function writeDismissed(ids: string[]) {
 export interface TourControls {
   commit: (next: GameState) => void;
   undo: () => void;
+  /** Put the table back at the tour's opening position. */
+  restart: () => void;
 }
 
 interface TourPlace { index: number; history: { from: number; played: boolean }[]; mode: "tour" | "play"; }
@@ -196,7 +198,15 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
     while (index < tourSteps.length - 1 && tourSteps[index].skip?.(after)) index++;
     return index;
   }
+  const atStart = state.phase === "seeding" && state.round === 1 && !state.map.placedTiles.length;
+  // Begin from the opening position, whatever an earlier visit left on the table.
+  function begin() {
+    if (!atStart) tour.restart();
+    setStuck(false);
+    onPlace({ index: 1, history: [], mode: "tour" });
+  }
   function next() {
+    if (place.index === 0) { begin(); return; }
     if (!step.play) { onPlace({ ...place, index: following(place.index, state), history: [...place.history, { from: place.index, played: false }] }); return; }
     const played = step.play(state);
     if (!played) { setStuck(true); return; }
@@ -220,7 +230,7 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
     <p className="tour-eyebrow">Guided tour · press Next</p>
     <h3>{step.title}</h3>
     <p className="coach-why">{step.text(state)}</p>
-    {stuck && <p className="coach-do">The table has moved on from this step. Take over from here.</p>}
+    {stuck && <p className="coach-do">The table has moved on from this step. Start the tour again, or take over from here.</p>}
     {last ? <nav className="coach-links" aria-label="Where next">
       <button type="button" className="tour-back" onClick={back} aria-label="Back"><ArrowLeft size={16} aria-hidden="true" /></button>
       <button type="button" className="coach-ok" onClick={takeOver}>Take over and play</button>
@@ -228,8 +238,10 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
       <a href="?experience=table&scenario=showcase-chain">The Strain spreads</a>
     </nav> : <footer className="tour-controls">
       <button type="button" className="tour-back" onClick={back} disabled={!place.history.length} aria-label="Back"><ArrowLeft size={16} aria-hidden="true" /></button>
-      <button type="button" className="coach-ok tour-next" onClick={stuck ? takeOver : next}>{stuck ? "Take over" : step.verb ?? "Next"}<ArrowRight size={16} aria-hidden="true" /></button>
-      {!stuck && <button type="button" className="coach-off" onClick={takeOver}>{place.index === 0 ? "Play it myself instead" : "Take over"}</button>}
+      {stuck
+        ? <button type="button" className="coach-ok tour-next" onClick={begin}>Start the tour again<ArrowRight size={16} aria-hidden="true" /></button>
+        : <button type="button" className="coach-ok tour-next" onClick={next} aria-label={`Next: ${step.verb ?? "continue"}`}><span className="tour-next-word">Next</span>{step.verb && <small>{step.verb}</small>}<ArrowRight size={16} aria-hidden="true" /></button>}
+      <button type="button" className="coach-off" onClick={takeOver}>{place.index === 0 ? "Play it myself instead" : "Take over"}</button>
     </footer>}
   </aside>;
 }
