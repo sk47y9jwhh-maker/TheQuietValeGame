@@ -15,7 +15,7 @@ import { TableRail } from "./TableRail";
 import { categoryColors, categoryNames } from "./boardGeometry";
 import { useBoardChoiceHost } from "./boardChoices";
 import { isHostedDemo } from "../../app/experience";
-import { TableCoach } from "./TableCoach";
+import { TableCoach, type CoachTarget } from "./TableCoach";
 import { tileArtworkUrl } from "../common/TileArtwork";
 import { Term } from "./Term";
 import {
@@ -125,6 +125,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
   }, [sideSheet]);
   const [choices, ChoiceHost] = useBoardChoiceHost();
   const resolving = Boolean(resolution);
+  const [coachTarget, setCoachTarget] = useState<CoachTarget | null>(null);
   const [sheetLow, setSheetLow] = useState(false);
   // Earlier links of the current Overstrain chain, so the board shows its path.
   const [chainTrail, setChainTrail] = useState<{ from: string; to: string }[]>([]);
@@ -312,7 +313,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     <div className="table-resolution-body"><ChoiceHost>{resolution.content}</ChoiceHost></div>
   </aside> : null;
 
-  return <div className={`table-screen${compact ? " is-compact" : ""}${sideSheet ? " is-side-sheet" : ""}`}>
+  return <div className={`table-screen${compact ? " is-compact" : ""}${sideSheet ? " is-side-sheet" : ""}`} data-coach={coach && !resolving && coachTarget?.ui ? coachTarget.ui : undefined}>
     <TableTopBar state={state} forecast={activeForecast} score={score} canUndo={canUndo} canRedo={canRedo} onUndo={handlers.undo} onRedo={handlers.redo} onReset={handlers.reset} compact={compact} asHeading={state.phase !== "gameEnd"} />
     {compact && state.phase !== "setup" && state.phase !== "goldenSetup" && <EncounterStrip state={state} newCardIds={newCardIds} onOpen={() => setRailOpen(true)} />}
     <main className="table-main">
@@ -326,6 +327,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           footprintHexIds={placingFootprint}
           choiceMarks={resolving ? choices.marks : undefined}
           links={boardLinks}
+          beacon={coach && !resolving && !card && coachTarget?.hexIds ? { hexIds: coachTarget.hexIds, label: coachTarget.label } : null}
           hiddenPawnIds={state.phase === "setup" ? new Set(state.players.slice(state.players.findIndex((player) => player.id === state.currentPlayerId)).map((player) => player.id)) : undefined}
           coveredBottom={sideSheet ? 0 : resolving && compact ? (sheetLow ? 150 : Math.round(window.innerHeight * 0.55)) : sheetOpen ? 330 : compact ? 196 : resolving ? 0 : 62}
           onHexTap={handleHexTap}
@@ -337,7 +339,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           <button type="button" aria-label="Zoom out" onClick={() => boardRef.current?.zoomBy(1 / 1.3)}><Minus size={18} /></button>
           <button type="button" aria-label="Show the whole board" onClick={() => boardRef.current?.fit()}><Maximize2 size={16} /></button>
         </div>
-        {coach && !resolving && !compact && <TableCoach state={state} />}
+        {coach && !resolving && !compact && <TableCoach state={state} onTarget={setCoachTarget} />}
         {notice && <div className="table-notice" role="status"><p>{notice}</p><button type="button" aria-label="Dismiss" onClick={onDismissNotice}><X size={16} /></button></div>}
         {!compact && !resolving && <div className="table-tray">{tray}</div>}
 
@@ -347,7 +349,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     </main>
     {compact && <div style={sideSheet && sideTop ? { top: sideTop } : undefined} className={`table-sheet${sheetOpen ? " is-raised" : ""}${resolving ? " is-resolving" : ""}${resolving && sheetLow ? " is-low" : ""}`}>
       <span className="sheet-handle" aria-hidden="true" />
-      {resolutionPanel ?? (card ? card.content : <>{coach && <div className="sheet-coach"><TableCoach state={state} /></div>}<CompactTurn state={state} onOpenRail={() => setRailOpen(true)} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} /></>)}
+      {resolutionPanel ?? (card ? card.content : <>{coach && <div className="sheet-coach"><TableCoach state={state} onTarget={setCoachTarget} /></div>}<CompactTurn state={state} onOpenRail={() => setRailOpen(true)} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} /></>)}
     </div>}
     {compact && railOpen && <div className="rail-overlay" role="dialog" aria-modal="true" aria-label="Turn and encounters">
       <div className="rail-overlay-head"><button type="button" onClick={() => setRailOpen(false)}><ArrowLeft size={18} aria-hidden="true" />Back to the board</button></div>
@@ -360,10 +362,11 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
 /** The table's top bar around a full-screen stage, for steps away from the board such as seeding. */
 export function TableChrome({ state, canUndo, canRedo, onUndo, onRedo, onReset, children, coach }: { state: GameState; canUndo: boolean; canRedo: boolean; onUndo: () => void; onRedo: () => void; onReset: () => void; children: ReactNode; coach?: boolean }) {
   const compact = useCompact();
+  const [coachTarget, setCoachTarget] = useState<CoachTarget | null>(null);
   const banner = state.phase === "seeding" ? seasonBanner(state) : null;
-  return <div className={`table-screen${compact ? " is-compact" : ""}`}>
+  return <div className={`table-screen${compact ? " is-compact" : ""}`} data-coach={coach && coachTarget?.ui ? coachTarget.ui : undefined}>
     <TableTopBar state={state} score={calculateFinalScore(state).finalScore} canUndo={canUndo} canRedo={canRedo} onUndo={onUndo} onRedo={onRedo} onReset={onReset} compact={compact} />
-    <div className="table-stage">{coach && <div className="table-stage-coach"><TableCoach state={state} /></div>}{banner && <aside className="season-banner" aria-label="Season change"><p className="eyebrow">{banner.eyebrow}</p><p>{banner.text}</p></aside>}{children}</div>
+    <div className="table-stage">{coach && <div className="table-stage-coach"><TableCoach state={state} onTarget={setCoachTarget} /></div>}{banner && <aside className="season-banner" aria-label="Season change"><p className="eyebrow">{banner.eyebrow}</p><p>{banner.text}</p></aside>}{children}</div>
   </div>;
 }
 

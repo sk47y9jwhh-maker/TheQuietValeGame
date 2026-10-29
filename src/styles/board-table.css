@@ -1175,3 +1175,53 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .place-list li .place-enhancer:hover { background: #f7e2a2 !important; }
 .rail-folded { display: flex; align-items: flex-start; gap: 6px; margin: 6px 0 0 !important; padding: 6px 9px; border-radius: 9px; background: #fbefc9; color: #5f4a14 !important; font-size: 0.82rem !important; line-height: 1.35; }
 .rail-folded svg { flex: none; margin-top: 2px; }
+
+/* ---------- The guide, redesigned: a pointer, not a box ---------- */
+.table-coach { gap: 8px; width: min(370px, calc(100% - 28px)); padding: 14px 16px 14px; border: 1px solid rgba(232, 196, 99, 0.32); border-left: 1px solid rgba(232, 196, 99, 0.32); border-radius: 18px; background: linear-gradient(160deg, rgba(38, 50, 42, 0.97) 0%, rgba(24, 31, 26, 0.97) 100%); color: #f2ecdb; box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255, 255, 255, 0.06) inset; backdrop-filter: blur(6px); }
+.coach-head { display: flex; align-items: center; gap: 10px; }
+.coach-emblem { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffe9a6, #c9952f 70%); color: #2b2008; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); }
+.coach-progress { display: flex; flex: 1; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.coach-progress li { flex: 1; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.14); }
+.coach-progress li.is-done { background: #a8893f; }
+.coach-progress li.is-now { background: #f2c94c; box-shadow: 0 0 8px rgba(242, 201, 76, 0.6); }
+.table-coach h3 { margin: 2px 0 0; font-family: "Alegreya", Georgia, serif; font-size: 1.38rem; line-height: 1.12; color: #fff7e0; }
+.table-coach .coach-why { margin: 0; color: #cdd0bd; font-size: 0.92rem; line-height: 1.45; }
+.table-coach .coach-do { display: flex; align-items: flex-start; gap: 7px; margin: 2px 0 0; padding: 8px 10px; border-radius: 10px; background: rgba(242, 201, 76, 0.12); color: #f6dc8f; font-size: 0.93rem; font-weight: 700; line-height: 1.35; }
+.table-coach .coach-do svg { flex: none; margin-top: 2px; }
+.table-coach footer { margin-top: 2px; }
+.table-coach .coach-ok { border: 0; background: #e8c463; color: #241b05 !important; border-radius: 999px; padding: 6px 16px; }
+.table-coach .coach-ok:hover { background: #f2d272; }
+.table-coach .coach-off { color: #aeb09c !important; }
+.table-coach .coach-hide { color: #cdd0bd !important; }
+.table-coach .coach-links a { border-color: rgba(232, 196, 99, 0.45); background: rgba(255, 255, 255, 0.06); color: #f6dc8f !important; }
+.table-coach .coach-links button { background: #e8c463; color: #241b05 !important; }
+.coach-pill { display: inline-flex; align-items: center; gap: 6px; background: #1f2a22; color: #f6dc8f; border: 1px solid rgba(232, 196, 99, 0.4); }
+@media (prefers-reduced-motion: no-preference) { .table-coach { animation: bt-coach-in 0.35s cubic-bezier(0.2, 0.8, 0.3, 1) both; } }
+@keyframes bt-coach-in { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: none; } }
+/* In the seeding chrome and phone sheet, the same card */
+.table-stage-coach .table-coach, .sheet-coach .table-coach { border: 1px solid rgba(232, 196, 99, 0.32); }
+
+/* The pointer on the board */
+.board-beacon { pointer-events: none; }
+.board-beacon-halo { fill: rgba(242, 201, 76, 0.22); stroke: rgba(242, 201, 76, 0.55); stroke-width: 2; }
+.board-beacon-ring { fill: none; stroke: #f2c94c; stroke-width: 3; }
+.board-beacon-label rect { fill: #1f2a22; stroke: #f2c94c; stroke-width: 1; }
+.board-beacon-label path { fill: #f2c94c; }
+.board-beacon-label text { fill: #f8e7b0; font: 700 6.4px "Alegreya Sans", system-ui, sans-serif; letter-spacing: 0.04em; }
+@media (prefers-reduced-motion: no-preference) {
+  .board-beacon-halo { animation: bt-beacon 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  .board-beacon-label { animation: bt-beacon-bob 1.6s ease-in-out infinite; }
+}
+@keyframes bt-beacon { 0%, 100% { opacity: 0.35; transform: scale(0.96); } 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes bt-beacon-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -1.5px; } }
+
+/* The pointer on the screen */
+.table-screen[data-coach="arrivals"] .rail-arrival,
+.table-screen[data-coach="end-turn"] .rail-end > button,
+.table-screen[data-coach="score"] .table-score,
+.table-screen[data-coach="encounters"] .rail-heading,
+.table-screen[data-coach="seed"] .table-seed-slots { position: relative; z-index: 1; border-radius: 12px; box-shadow: 0 0 0 3px #f2c94c, 0 0 22px rgba(242, 201, 76, 0.55); }
+@media (prefers-reduced-motion: no-preference) {
+  .table-screen[data-coach] :is(.rail-arrival, .rail-end > button, .table-score, .rail-heading, .table-seed-slots) { animation: bt-coach-glow 1.8s ease-in-out infinite; }
+}
+@keyframes bt-coach-glow { 50% { box-shadow: 0 0 0 3px rgba(242, 201, 76, 0.55), 0 0 10px rgba(242, 201, 76, 0.25); } }

@@ -40,6 +40,8 @@ interface TableBoardProps {
   links?: { from: string; to: string; current: boolean }[];
   /** Stewards not yet on the board (during setup). */
   hiddenPawnIds?: ReadonlySet<string>;
+  /** The guide's pointer: spaces that pulse, with a label over the first. */
+  beacon?: { hexIds: string[]; label?: string } | null;
   /** Pixels at the bottom of the board hidden behind a sheet on small screens. */
   coveredBottom?: number;
   onHexTap: (hexId: string) => void;
@@ -60,7 +62,7 @@ function tileAt(state: GameState): Map<string, PlacedTile> {
 }
 
 export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function TableBoard(
-  { state, selectedHexId, legalHexIds, glowTileIds, footprintHexIds, choiceMarks, links, hiddenPawnIds, coveredBottom = 0, onHexTap, onEmptyTap, popover },
+  { state, selectedHexId, legalHexIds, glowTileIds, footprintHexIds, choiceMarks, links, hiddenPawnIds, beacon, coveredBottom = 0, onHexTap, onEmptyTap, popover },
   handle
 ) {
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -385,6 +387,17 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
           const cy = (y1 + y2) / 2 + dx * bend;
           return <path key={`${link.from}_${link.to}_${index}`} className={`board-link${link.current ? " is-current" : ""}`} d={`M${x1} ${y1} Q${cx} ${cy} ${x2} ${y2}`} markerEnd="url(#board-link-head)" />;
         })}
+      </g>}
+      {beacon && beacon.hexIds.length > 0 && <g className="board-beacon" aria-hidden="true">
+        {beacon.hexIds.map((hexId) => { const at = boardCellById.get(hexId); return at ? <g key={hexId}>
+          <polygon className="board-beacon-halo" points={hexPoints(at.x, at.y, hexRadius + 2)} />
+          <polygon className="board-beacon-ring" points={hexPoints(at.x, at.y, hexRadius - 1.5)} />
+        </g> : null; })}
+        {beacon.label && (() => { const at = boardCellById.get(beacon.hexIds[0]); if (!at) return null; const width = beacon.label.length * 3.9 + 14; return <g className="board-beacon-label" transform={`translate(${at.x} ${at.y - hexHeight / 2 - 9})`}>
+          <rect x={-width / 2} y={-7} width={width} height={13} rx={6.5} />
+          <path d="M-3 6 L0 9.5 L3 6 Z" />
+          <text y={2.4} textAnchor="middle">{beacon.label}</text>
+        </g>; })()}
       </g>}
       <g className="board-pawns" aria-hidden="true">
         {stewardMarks.map(({ player, index, steward }) => {
