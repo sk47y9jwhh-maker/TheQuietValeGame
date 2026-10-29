@@ -14,6 +14,7 @@ import { TableBoard, type TableBoardHandle } from "./TableBoard";
 import { TableRail } from "./TableRail";
 import { categoryColors, categoryNames } from "./boardGeometry";
 import { useBoardChoiceHost } from "./boardChoices";
+import { TableCoach } from "./TableCoach";
 import {
   describeHexOptions,
   describeTileActions,
@@ -54,6 +55,8 @@ interface TableScreenProps {
   tray: ReactNode;
   /** A step to settle before play continues: shown beside the board, with its choices on the board. */
   resolution?: TableResolution | null;
+  /** Show the guided-first-game coach. */
+  coach?: boolean;
 }
 
 export interface TableResolution {
@@ -85,7 +88,7 @@ function useCompact() {
   return compact;
 }
 
-export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, notice, onDismissNotice, tray, resolution }: TableScreenProps) {
+export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, notice, onDismissNotice, tray, resolution, coach }: TableScreenProps) {
   const compact = useCompact();
   const [choices, ChoiceHost] = useBoardChoiceHost();
   const resolving = Boolean(resolution);
@@ -293,6 +296,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           <button type="button" aria-label="Zoom out" onClick={() => boardRef.current?.zoomBy(1 / 1.3)}><Minus size={18} /></button>
           <button type="button" aria-label="Show the whole board" onClick={() => boardRef.current?.fit()}><Maximize2 size={16} /></button>
         </div>
+        {coach && !resolving && !compact && <TableCoach state={state} />}
         {notice && <div className="table-notice" role="status"><p>{notice}</p><button type="button" aria-label="Dismiss" onClick={onDismissNotice}><X size={16} /></button></div>}
         {!compact && !resolving && <div className="table-tray">{tray}</div>}
         {resolving && !compact && choices.hint && !notice && <p className="board-hint">{choices.hint}</p>}
@@ -303,7 +307,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     </main>
     {compact && <div className={`table-sheet${sheetOpen ? " is-raised" : ""}${resolving ? " is-resolving" : ""}${resolving && sheetLow ? " is-low" : ""}`}>
       <span className="sheet-handle" aria-hidden="true" />
-      {resolutionPanel ?? (card ? card.content : <CompactTurn state={state} onOpenRail={() => setRailOpen(true)} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} />)}
+      {resolutionPanel ?? (card ? card.content : <>{coach && <div className="sheet-coach"><TableCoach state={state} /></div>}<CompactTurn state={state} onOpenRail={() => setRailOpen(true)} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} /></>)}
     </div>}
     {compact && railOpen && <div className="rail-overlay" role="dialog" aria-modal="true" aria-label="Turn and encounters">
       <div className="rail-overlay-head"><button type="button" onClick={() => setRailOpen(false)}><ArrowLeft size={18} aria-hidden="true" />Back to the board</button></div>
@@ -314,12 +318,12 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
 }
 
 /** The table's top bar around a full-screen stage, for steps away from the board such as seeding. */
-export function TableChrome({ state, canUndo, canRedo, onUndo, onRedo, onReset, children }: { state: GameState; canUndo: boolean; canRedo: boolean; onUndo: () => void; onRedo: () => void; onReset: () => void; children: ReactNode }) {
+export function TableChrome({ state, canUndo, canRedo, onUndo, onRedo, onReset, children, coach }: { state: GameState; canUndo: boolean; canRedo: boolean; onUndo: () => void; onRedo: () => void; onReset: () => void; children: ReactNode; coach?: boolean }) {
   const compact = useCompact();
   const banner = state.phase === "seeding" ? seasonBanner(state) : null;
   return <div className={`table-screen${compact ? " is-compact" : ""}`}>
     <TableTopBar state={state} score={calculateFinalScore(state).finalScore} canUndo={canUndo} canRedo={canRedo} onUndo={onUndo} onRedo={onRedo} onReset={onReset} compact={compact} />
-    <div className="table-stage">{banner && <aside className="season-banner" aria-label="Season change"><p className="eyebrow">{banner.eyebrow}</p><p>{banner.text}</p></aside>}{children}</div>
+    <div className="table-stage">{coach && <div className="table-stage-coach"><TableCoach state={state} /></div>}{banner && <aside className="season-banner" aria-label="Season change"><p className="eyebrow">{banner.eyebrow}</p><p>{banner.text}</p></aside>}{children}</div>
   </div>;
 }
 

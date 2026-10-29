@@ -62,3 +62,16 @@ describe("board-first table finale", () => {
     expect(screen.getByRole("button", { name: "Record Completed Game" })).toBeInTheDocument();
   });
 });
+
+describe("guided first game", () => {
+  it("coaches seeding, then the first placement, and settles the Arrival notice by itself", () => {
+    open("guided");
+    expect(screen.getByRole("heading", { name: "Shape the Season ahead" })).toBeInTheDocument();
+    for (const [index, slot] of ["top", "middle", "bottom"].entries()) fireEvent.click(screen.getAllByRole("button", { name: new RegExp(`at ${slot}$`) })[index]);
+    fireEvent.click(screen.getByRole("button", { name: "Confirm Seeding" }));
+    expect(screen.queryByRole("button", { name: "Acknowledge" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Build your first tile" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Turn off the guide" }));
+    expect(screen.queryByRole("complementary", { name: "Guide" })).not.toBeInTheDocument();
+  });
+});

@@ -196,6 +196,9 @@ try {
   result["showcase-chain"] = snapshot(playShowcase(true, (state) => state.pendingEffects[0]?.ruleId === chainRule));
   result["showcase-season"] = snapshot(playShowcase(true, (state) => state.phase === "endRound" && state.round === 8 && !state.pendingEffects.length));
 
+  // The guided first game: solo Vanguard on the shared seed, ready to seed Season I.
+  result.guided = snapshot(startStewards(createNewGame(1, ["vanguard"], { encounterSeed: seed })));
+
   result.returning = snapshot(null);
   for (const entry of ledgerEntries.slice(0, 5)) result.returning.campaign.completions[entry.id] = { entryId: entry.id, completedOnce: true, completedPlayerCounts: [], notes: "Example progress for the isolated comparison scenario." };
   writeFileSync(new URL("../src/app/scenarios.generated.json", import.meta.url), JSON.stringify(result, null, 2) + "\n");

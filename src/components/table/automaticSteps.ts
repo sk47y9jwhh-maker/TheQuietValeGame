@@ -1,4 +1,5 @@
 import { encounterById } from "../../data/encounters";
+import { systemEffectRuleId } from "../../data/effectRules";
 import { canCancelPendingBurdenWithWarden } from "../../engine/gameActions";
 import { describeEffectControls } from "../../engine/effectControls";
 import {
@@ -37,6 +38,8 @@ function hasNoPlayerOptions(state: GameState, effect: PendingEffectState): boole
 function isAcknowledgementOnly(state: GameState, effect: PendingEffectState): boolean {
   if (!hasNoPlayerOptions(state, effect)) return false;
   if (hasEffectAdjustment(effect.suggestedAdjustment ?? {})) return false;
+  // A plain notice, such as "Arrival is now in play with 3 timer tokens".
+  if (effect.ruleId === systemEffectRuleId("acknowledge")) return true;
   return canResolvePendingEffectWithoutAdjustment(state, effect);
 }
 

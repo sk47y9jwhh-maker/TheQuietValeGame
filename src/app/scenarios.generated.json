@@ -15857,6 +15857,290 @@
       "games": []
     }
   },
+  "guided": {
+    "setup": {
+      "playerCount": 1,
+      "stewardIds": [
+        "vanguard"
+      ],
+      "encounterSeed": "QV-COMPARISON-1"
+    },
+    "state": {
+      "playerCount": 1,
+      "players": [
+        {
+          "id": "player_1",
+          "name": "Player 1",
+          "stewardId": "vanguard",
+          "stewardHexId": "G1",
+          "hasPlacedFirstTile": false,
+          "stewardPowerUsesBySeason": {
+            "1": 0,
+            "2": 0,
+            "3": 0
+          }
+        }
+      ],
+      "currentPlayerId": "player_1",
+      "season": 1,
+      "round": 1,
+      "phase": "seeding",
+      "actionsRemaining": 4,
+      "playersActedThisRound": [],
+      "seasonSeededPlayerIds": [],
+      "warehouse": {
+        "wood": 15,
+        "stone": 15,
+        "metal": 15,
+        "food": 15,
+        "herbs": 15,
+        "goods": 15
+      },
+      "map": {
+        "placedTiles": []
+      },
+      "tileSupply": {
+        "core": {
+          "c01_lumber_yard": 4,
+          "c02_mine_tunnel": 4,
+          "c03_gathering_outpost": 4,
+          "c04_farmstead": 4,
+          "c05_cabin": 4,
+          "c06_cottage": 4,
+          "c08_inn": 2,
+          "c07_stedding": 2,
+          "c09_tavern": 2,
+          "c10_eatery": 2,
+          "c11_washhouse": 2,
+          "c12_apothecary": 2,
+          "c13_workshops": 2,
+          "c14_market_stalls": 2,
+          "c15_path": 8,
+          "c18_common_land": 2,
+          "c16_street": 6,
+          "c17_track": 4,
+          "c19_bridge": 4,
+          "c20_dig_site": 4,
+          "c21_the_vaults": 2
+        },
+        "special": {
+          "special_adventurers_guild": 0,
+          "special_alchemist_s_workshop": 0,
+          "special_alms_house": 0,
+          "special_atelier_workshop": 0,
+          "special_brewery_of_legends": 0,
+          "special_docks": 0,
+          "special_hearth_garden": 0,
+          "special_house_of_learning": 0,
+          "special_labourers_yard": 0,
+          "special_lantern_roadhouse": 0,
+          "special_reliquary": 0,
+          "special_shrine_of_ancestors": 0,
+          "special_shrine_of_ancients": 0,
+          "special_shrine_of_bounty": 0,
+          "special_shrine_of_depths": 0,
+          "special_shrine_of_renewal": 0,
+          "special_stables": 0,
+          "special_the_iron_roots_respite": 0,
+          "special_the_lorekeepers_respite": 0,
+          "special_the_reavers_respite": 0,
+          "special_the_resting_hall": 0,
+          "special_the_root_weavers_respite": 0,
+          "special_the_tamers_respite": 0,
+          "special_the_waystation": 0,
+          "special_theater": 0
+        }
+      },
+      "encounters": {
+        "handsByPlayerId": {
+          "player_1": [
+            "arrival_from_songs_of_war_to_the_search_for_ore",
+            "boon_the_ancient_ways_gradually_reemerge",
+            "arrival_the_burden_bearers",
+            "burden_plans_left_waiting",
+            "burden_the_storehouses_disagree",
+            "boon_hearths_soften_feuds",
+            "boon_a_little_more_time",
+            "arrival_blessed_harvest",
+            "arrival_acorns_and_oak_trees"
+          ]
+        },
+        "deck": [
+          "burden_old_wounds_reopen",
+          "boon_clear_nights_make_for_clear_plans",
+          "burden_foundations_remember_war"
+        ],
+        "discardPile": [],
+        "activeArrivals": [],
+        "activeBurdens": [],
+        "faceUpBoons": [],
+        "completedArrivals": [],
+        "reserveBoonIds": [
+          "boon_old_foundations_still_remain",
+          "boon_from_the_brink",
+          "boon_many_hands_make_light_work",
+          "boon_raised_in_good_season",
+          "boon_where_help_stands",
+          "boon_carts_before_sunrise",
+          "boon_bounty_of_the_first_harvest",
+          "boon_what_is_written_in_the_stars_can_finally_be_heeded",
+          "boon_the_settlement_of_plenty",
+          "boon_craft_fair",
+          "boon_a_wonderful_find",
+          "boon_one_thousand_swings_of_the_pickaxe_opens_up_a_new_path",
+          "boon_the_scent_of_herb_and_tonic",
+          "boon_the_rains_that_we_sheltered_from_now_yield_the_bounty_of_nature",
+          "boon_a_light_on_the_long_dark_lanterns_illuminated_the_way_to_a_safer_day",
+          "boon_when_the_roads_filled_once_more",
+          "boon_festival_of_trade",
+          "boon_the_break_holds",
+          "boon_stores_made_ready",
+          "boon_answers_made_ready",
+          "boon_shared_hands_lighter_loads",
+          "boon_ledgers_flow",
+          "boon_change_of_watch",
+          "boon_a_welcome_well_met",
+          "boon_shelter_holds",
+          "boon_the_apprentice_steward"
+        ],
+        "reserveArrivalIds": [
+          "arrival_remnants_of_the_cavalry",
+          "arrival_news_travels_faster_than_goods",
+          "arrival_from_plunderer_to_lumber",
+          "arrival_remnants_of_the_fleet",
+          "arrival_lest_we_forget",
+          "arrival_from_blade_swingers_to_herb_stringers",
+          "arrival_hands_for_heavy_work",
+          "arrival_the_dryads",
+          "arrival_from_dark_decay_to_light_display",
+          "arrival_from_battle_to_cattle",
+          "arrival_no_soul_shall_go_without",
+          "arrival_strong_foundations",
+          "arrival_moving_mountains",
+          "arrival_reablement_for_the_realm",
+          "arrival_the_transmutation_traveler",
+          "arrival_lay_down_the_tools_of_destruction",
+          "arrival_spirit_lifting_spirit",
+          "arrival_the_quiet_quest",
+          "arrival_what_came_before_the_last_age",
+          "arrival_the_hearthbound_circle",
+          "arrival_lanterns_for_the_long_roads"
+        ],
+        "goldenEnabled": false
+      },
+      "goldenSetup": {
+        "tilePlaced": false,
+        "tileSkipped": false
+      },
+      "pendingGoldenEffect": null,
+      "bonusTurnsPending": false,
+      "bonusTurnsActive": false,
+      "boonModifiers": [],
+      "ignoredBurdenIdsThisRound": [],
+      "tileActivationRecords": {},
+      "pendingEffects": [],
+      "pendingDeckReorder": null,
+      "pendingCostChoice": null,
+      "targetCards": {
+        "seed": "QV-COMPARISON-1:1:targets",
+        "drawPile": [
+          17,
+          22,
+          10,
+          2,
+          5,
+          25,
+          23,
+          6,
+          7,
+          8,
+          26,
+          3,
+          12,
+          1,
+          14,
+          9,
+          4,
+          16,
+          20,
+          18,
+          21,
+          30,
+          28,
+          11,
+          19,
+          13,
+          15,
+          29,
+          27,
+          24
+        ],
+        "drawCount": 0,
+        "history": []
+      },
+      "ledgerRun": {
+        "gameId": "qv_game_muj1xxc0",
+        "recorded": false,
+        "arrivalsRevealed": 0,
+        "arrivalsCompleted": 0,
+        "arrivalsExpired": 0,
+        "burdensRevealed": 0,
+        "burdensResolved": 0,
+        "arrivalsCompletedBySeason": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "burdensResolvedBySeason": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "burdensRevealedBySeason": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "arrivalCompletionEvents": [],
+        "burdenRevealEvents": [],
+        "burdenResolutionEvents": [],
+        "strainPreventedBySupported": 0,
+        "strainRemovedByRoundCategory": {},
+        "maxOverstrainedTiles": 0,
+        "rangerPowerTerrainTypes": [],
+        "upgradeActions": 0,
+        "warehousePeakByResource": {
+          "wood": 15,
+          "stone": 15,
+          "metal": 15,
+          "food": 15,
+          "herbs": 15,
+          "goods": 15
+        },
+        "seasonSnapshots": {},
+        "violatedVowReasons": []
+      },
+      "log": [
+        {
+          "id": "log_2_1790467200000",
+          "round": 1,
+          "message": "Vanguard starts at G1. Season I seeding begins."
+        },
+        {
+          "id": "log_setup",
+          "round": 1,
+          "message": "Game created. Choose each Steward's starting hex before Season I seeding."
+        }
+      ]
+    },
+    "campaign": {
+      "version": 2,
+      "catalogueVersion": "v4.6",
+      "pacingVersion": 2,
+      "completions": {},
+      "games": []
+    }
+  },
   "returning": {
     "setup": {
       "playerCount": 2,

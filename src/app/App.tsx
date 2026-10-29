@@ -37,6 +37,7 @@ import { TabletopLayout } from "../components/layout/TabletopLayout";
 import { TableSeeding } from "../components/seeding/TableSeeding";
 import { isBoardTableExperience, isPlayerExperience } from "./experience";
 import { TableChrome, TableScreen } from "../components/table/TableScreen";
+import { getScenario } from "./scenarioCatalog";
 import { CompletedGameReview } from "../components/actions/CompletedGameReview";
 import { completedReviewLedger } from "../components/actions/ledgerSummary";
 import { describeAutomaticStep, isAutomaticEffect, revealedCardIds } from "../components/table/automaticSteps";
@@ -843,7 +844,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
   if (state.phase === "seeding" && isBoardTableExperience() && !tableResolves) {
     return withConfirmation(
       <div className="app-shell board-table-shell">
-        <TableChrome state={state} canUndo={undoStack.length > 0} canRedo={redoStack.length > 0} onUndo={handleUndo} onRedo={handleRedo} onReset={handleResetGame}>
+        <TableChrome coach={getScenario() === "guided"} state={state} canUndo={undoStack.length > 0} canRedo={redoStack.length > 0} onUndo={handleUndo} onRedo={handleRedo} onReset={handleResetGame}>
           <TableSeeding
             state={state}
             onConfirm={(selection) =>
@@ -1034,6 +1035,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
             reset: handleResetGame
           }}
           tray={<BottomDrawer state={state} ledgerCampaign={ledgerCampaign} onResetLedgerCampaign={handleResetLedgerCampaign} onTileInspect={inspectTileDefinition} />}
+          coach={getScenario() === "guided"}
           resolution={state.phase === "gameEnd" ? {
             key: "game-end",
             eyebrow: `Season ${["", "I", "II", "III"][state.season]} · Round ${state.round} of 12`,
