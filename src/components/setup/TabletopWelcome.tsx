@@ -42,6 +42,10 @@ export function TabletopWelcome(props: SetupPanelProps) {
             <p className="studio-kicker"><Leaf size={16} aria-hidden="true" /> A cooperative game for 1–5 players</p>
             <h1>A new season<br />in the Vale.</h1>
             <p>Lay down roots. Welcome new arrivals.<br />Build a place to call home, together.</p>
+            {isBoardTableExperience() && <nav className="welcome-moment-chips" aria-labelledby="welcome-moments-heading">
+              <h2 id="welcome-moments-heading">Or watch a moment from a real game</h2>
+              <div>{(["showcase-late", "showcase-chain", "showcase-season"] as const).map((id) => <a key={id} href={`?experience=table&scenario=${id}`}><strong>{comparisonScenarios[id].name}</strong><small>Watch <ArrowRight size={13} aria-hidden="true" /></small></a>)}</div>
+            </nav>}
           </div>
           <span className="welcome-art-credit">Map by Giovanni Spadaro & Daniele Nicotra</span>
         </section>
@@ -83,15 +87,6 @@ export function TabletopWelcome(props: SetupPanelProps) {
         </section>
       </div>
 
-      {isBoardTableExperience() && <section className="welcome-moments" aria-labelledby="welcome-moments-heading">
-        <h2 id="welcome-moments-heading">Or jump into a moment</h2>
-        <p>Each one is taken from a real game, so you can see the Vale at its busiest without playing up to it.</p>
-        <div>{(["showcase-late", "showcase-chain", "showcase-season"] as const).map((id) => <a key={id} href={`?experience=table&scenario=${id}`}>
-          <strong>{comparisonScenarios[id].name}</strong>
-          <span>{comparisonScenarios[id].description}</span>
-          <small>Open <ArrowRight size={14} aria-hidden="true" /></small>
-        </a>)}</div>
-      </section>}
       <section className="welcome-beginning" aria-label="The journey ahead">
         <div><span>01</span><h3>Find your place</h3><p>Choose a starting place that suits your Steward.</p></div>
         <div><span>02</span><h3>Shape the season</h3><p>Seed encounters to influence what lies ahead.</p></div>

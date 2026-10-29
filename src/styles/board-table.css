@@ -1129,15 +1129,18 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .table-seed-review-cards .table-seed-confirm { grid-column: 1 / -1; }
 .table-seed-slot-label { margin: 0; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.8rem; color: #4e684d; }
 
-/* Seeding: guide and Season note side by side on wide screens */
-@media (min-width: 1100px) {
-  .table-stage:has(.table-stage-coach) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-content: start; column-gap: 18px; padding: 0 24px; }
-  .table-stage:has(.table-stage-coach) > .table-stage-coach, .table-stage:has(.table-stage-coach) > .season-banner { width: auto; max-width: none; margin: 18px 0 0; }
-  .table-stage:has(.table-stage-coach) > .table-seeding, .table-stage:has(.table-stage-coach) > :not(.table-stage-coach):not(.season-banner) { grid-column: 1 / -1; }
+/* Seeding during a walkthrough: the card and the Season note in a left column,
+   the seeding table beside them, so nothing falls below the window. */
+@media (min-width: 1000px) {
+  .table-stage:has(.table-stage-coach) { display: grid; grid-template-columns: 380px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); column-gap: 20px; padding: 16px 20px; overflow: hidden; box-sizing: border-box; }
+  .table-stage:has(.table-stage-coach) > .table-stage-coach { grid-column: 1; grid-row: 1; width: auto; max-width: none; margin: 0; }
+  .table-stage:has(.table-stage-coach) > .season-banner { grid-column: 1; grid-row: 2; align-self: start; width: auto; max-width: none; margin: 14px 0 0; }
+  .table-stage:has(.table-stage-coach) > :not(.table-stage-coach):not(.season-banner) { grid-column: 2; grid-row: 1 / span 2; min-height: 0; overflow-y: auto; border-radius: 14px; }
+  .table-stage:has(.table-stage-coach) .table-seed-hand-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
 }
-@media (min-width: 1100px) {
-  .table-stage:has(.table-stage-coach) > .table-stage-coach, .table-stage:has(.table-stage-coach) > .season-banner { align-self: start; }
-}
+/* Seeding cards are sized by the window's height as well as its width. */
+.table-seed-face, .table-seed-choose { max-width: min(300px, calc((100dvh - 430px) / 1.72)); }
+.table-seed-face { min-width: 120px; }
 .table-seed-hand-grid { grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); }
 .rail-power p.is-clamped { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .table-rail .rail-power-more { min-height: 0 !important; margin-top: 2px; padding: 0 !important; border: 0 !important; background: none !important; font-size: 0.84rem; font-weight: 700 !important; color: #6f5d2e !important; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
@@ -1278,3 +1281,30 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .table-coach .tour-real { text-decoration: none; }
 .table-coach .coach-off { display: inline-flex; align-items: center; gap: 6px; }
 .demo-build { flex: none; color: #5a4820; font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; opacity: 0.75; }
+
+/* Home: the whole front door fits one laptop screen. The setup column scrolls
+   inside itself if it must, with Begin always in view, and the moments sit on
+   the picture. The rest of the page waits below for anyone who scrolls. */
+.experience-app.experience-table:has(.vale-welcome) { height: auto; min-height: 100dvh; }
+.welcome-landscape-copy > p:last-of-type { font: 400 21px/1.5 var(--font-body); color: #e0e3ce; }
+.welcome-moment-chips { margin-top: 18px; }
+.welcome-moment-chips h2 { margin: 0 0 8px; color: #e8c463; font: 700 0.74rem/1.2 var(--font-ui, sans-serif); letter-spacing: 0.12em; text-transform: uppercase; }
+.welcome-moment-chips > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.welcome-moment-chips a { display: inline-flex; align-items: center; gap: 10px; padding: 9px 14px; border: 1px solid rgba(232, 196, 99, 0.45); border-radius: 999px; background: rgba(20, 30, 22, 0.72); color: #fff9e9 !important; text-decoration: none; backdrop-filter: blur(4px); }
+.welcome-moment-chips a:hover { background: rgba(20, 30, 22, 0.92); border-color: #e8c463; }
+.welcome-moment-chips strong { font-family: "Alegreya", Georgia, serif; font-size: 1.02rem; font-weight: 600; }
+.welcome-moment-chips small { display: inline-flex; align-items: center; gap: 3px; color: #e8c463; font-size: 0.78rem; font-weight: 700; }
+@media (min-width: 900px) and (min-height: 540px) {
+  .experience-table .vale-welcome .welcome-header { padding-top: 12px; padding-bottom: 12px; }
+  .experience-table .vale-welcome .welcome-layout { height: calc(100dvh - 86px); min-height: 520px; }
+  .experience-table .vale-welcome .welcome-landscape { min-height: 0; }
+  .experience-table .vale-welcome .welcome-landscape-copy { bottom: 34px; left: 36px; }
+  .experience-table .vale-welcome .welcome-landscape h1 { font-size: clamp(38px, min(4.4vw, 7.4vh), 64px); margin: 12px 0 12px; }
+  .experience-table .vale-welcome .welcome-landscape-copy > p:last-of-type { font-size: clamp(16px, 2.3vh, 20px); margin: 0; }
+  .experience-table .vale-welcome .welcome-setup { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; padding-top: clamp(18px, 3.4vh, 34px); padding-bottom: 0; }
+  .experience-table .vale-welcome .welcome-setup h2 { margin-top: 4px; margin-bottom: 6px; }
+  .experience-table .vale-welcome .welcome-intro { margin-bottom: 18px; }
+  .experience-table .vale-welcome .welcome-guided { margin: 0 0 16px; }
+  .experience-table .vale-welcome .welcome-start { position: sticky; bottom: 0; z-index: 2; margin-top: auto; padding: 12px 0 16px; background: var(--vale-paper, #f3efe2); box-shadow: 0 -10px 14px -10px rgba(38, 34, 27, 0.25); }
+}
+.table-stage-coach .table-coach.is-tour { width: 100%; }

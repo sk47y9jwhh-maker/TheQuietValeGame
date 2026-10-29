@@ -111,7 +111,7 @@ export const tourSteps: TourStep[] = [
   {
     id: "welcome",
     title: "A guided tour",
-    text: () => "Press Next and the game plays itself, one step at a time. Each card says what is about to happen and lights up where it happens. Back steps backwards, and you can take over whenever you like.",
+    text: () => "Press Next and the game plays itself, one step at a time. Each card says what is about to happen and lights up where it happens. Back steps backwards.",
     verb: "Start the tour"
   },
   {
@@ -370,7 +370,7 @@ const seasonTour: TourStep[] = [
   {
     id: "season-intro",
     title: "The turning of the Season",
-    text: (state) => `Round ${state.round} is over, and with it Season II. Before Round ${state.round + 1}, Season III begins. This walkthrough plays the change for you.`,
+    text: () => "Round 8 is over, and with it Season II. Before Round 9, Season III begins. This walkthrough plays the change for you.",
     verb: "Start the walkthrough"
   },
   {
