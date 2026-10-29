@@ -309,7 +309,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
     onPointerCancel={(event) => { pointers.current.delete(event.pointerId); gesture.current = null; }}
     onWheel={onWheel}
   >
-    <svg className={`board-svg detail-${detail}`} viewBox={viewBox} role="group" aria-label="The Quiet Vale map. Use the arrow keys to move between spaces and Enter to choose one.">
+    <svg className={`board-svg detail-${detail}${choiceMarks && choiceMarks.size > 36 ? " has-many-choices" : ""}`} viewBox={viewBox} role="group" aria-label="The Quiet Vale map. Use the arrow keys to move between spaces and Enter to choose one.">
       <MapArtworkImage kind="underlay" />
       <g className="board-hexes">
         {boardCells.map(({ cell, x, y }) => {

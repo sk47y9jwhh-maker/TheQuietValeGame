@@ -1029,3 +1029,6 @@ button.table-score { border: 0; font: inherit; cursor: pointer; }
 .table-setup-actions .primary-action:disabled { opacity: 0.5; cursor: default; }
 .table-setup-actions .secondary-action { border: 2px solid var(--bt-green); background: transparent; color: var(--bt-green) !important; }
 .table-setup-actions small { color: var(--bt-ink-soft); }
+/* Many choices (a Golden Tile, Ranger reach): a calmer mark so the board stays readable. */
+.has-many-choices .board-hex.is-choice .board-hex-choice { stroke-width: 1.6; stroke-dasharray: 3 3; stroke-opacity: 0.75; fill: rgba(232, 196, 99, 0.1); animation: none; }
+.has-many-choices .board-hex.is-choice:hover .board-hex-choice { stroke-width: 2.6; stroke-opacity: 1; fill: rgba(232, 196, 99, 0.3); }

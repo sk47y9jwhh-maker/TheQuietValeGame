@@ -43,6 +43,8 @@ export function TableGoldenStart({ state, onConfirm, onSkip }: { state: GameStat
   useBoardChoices("golden_start", legal.map((hexId) => ({ key: hexId, hexIds: [hexId], label: `Place ${tile?.name ?? "the Golden Tile"} here`, selected: hexId === selected, badge: hexId === selected ? "★" : undefined, onTap: () => setSelected(hexId) })));
   return <section className="table-setup-step" aria-label="Place the Golden Tile">
     <p className="table-setup-lead">One optional Golden Tile for the whole settlement. It costs no action and no resources. Tap a highlighted space on the board.</p>
+    {tile?.scoringText && <p className="table-setup-note"><strong>Scores:</strong> {tile.scoringText}</p>}
+    {tile?.layoutIncentive && <p className="table-setup-note"><strong>Plan for it:</strong> {tile.layoutIncentive}</p>}
     {tile?.placement?.text && <p className="table-setup-note"><strong>Where it can go:</strong> {tile.placement.text}</p>}
     <div className="table-setup-choice" aria-live="polite"><span>Golden Tile space</span><strong>{legal.length === 0 ? "No legal space this game" : selected ? placeName(selected) : "Choose a space"}</strong></div>
     <div className="table-setup-actions">
