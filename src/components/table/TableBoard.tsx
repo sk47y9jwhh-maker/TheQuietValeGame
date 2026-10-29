@@ -66,6 +66,20 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
   const [popoverHeight, setPopoverHeight] = useState(0);
   const frameRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
+  // Tiles that have just arrived on the board settle in with a short animation.
+  const knownTiles = useRef<Set<string> | null>(null);
+  const [arrivingIds, setArrivingIds] = useState<ReadonlySet<string>>(new Set());
+  useEffect(() => {
+    const ids = new Set(state.map.placedTiles.map((tile) => tile.instanceId));
+    const previous = knownTiles.current;
+    knownTiles.current = ids;
+    if (!previous) return undefined;
+    const added = [...ids].filter((id) => !previous.has(id));
+    if (!added.length) return undefined;
+    setArrivingIds(new Set(added));
+    const timer = setTimeout(() => setArrivingIds(new Set()), 700);
+    return () => clearTimeout(timer);
+  }, [state.map.placedTiles]);
   const [view, setView] = useState<View | null>(null);
   const [cursorHexId, setCursorHexId] = useState<string>(() => state.players.find((player) => player.id === state.currentPlayerId)?.stewardHexId ?? "A1");
   const pointers = useRef(new Map<number, { x: number; y: number }>());
@@ -337,7 +351,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
           >
             <polygon className="board-hex-hit" points={hexPoints(x, y)} />
             {glow && <polygon className="board-hex-glow" points={hexPoints(x, y, hexRadius + 1)} />}
-            {placed && <TileToken state={state} tile={placed} hexId={cell.id} x={x} y={y} />}
+            {placed && <TileToken state={state} tile={placed} hexId={cell.id} x={x} y={y} arriving={arrivingIds.has(placed.instanceId)} />}
             {(legal || inFootprint) && <polygon className="board-hex-legal" points={hexPoints(x, y, hexRadius - 2.5)} />}
             {selected && <polygon className="board-hex-selected" points={hexPoints(x, y, hexRadius - 1)} />}
             {choice && <polygon className="board-hex-choice" points={hexPoints(x, y, hexRadius - 2)} />}
@@ -390,7 +404,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
   </div>;
 });
 
-function TileToken({ state, tile, hexId, x, y }: { state: GameState; tile: PlacedTile; hexId: string; x: number; y: number }) {
+function TileToken({ state, tile, hexId, x, y, arriving = false }: { state: GameState; tile: PlacedTile; hexId: string; x: number; y: number; arriving?: boolean }) {
   const category = getTileCategory(tile);
   const name = selectTileName(tile);
   const anchor = tile.hexIds[0] === hexId;
@@ -401,7 +415,7 @@ function TileToken({ state, tile, hexId, x, y }: { state: GameState; tile: Place
   const lines = anchor ? tokenLines(name) : [];
   const nameY = y + (lines.length > 1 ? -1 : 2.5);
   void state;
-  return <g className={`tile-token tile-${category}${overstrained ? " is-overstrained" : ""}${tile.side === "upgraded" ? " is-upgraded" : ""}`} aria-hidden="true">
+  return <g className={`tile-token tile-${category}${overstrained ? " is-overstrained" : ""}${tile.side === "upgraded" ? " is-upgraded" : ""}${arriving ? " is-arriving" : ""}`} style={arriving ? { transformOrigin: `${x}px ${y}px` } : undefined} aria-hidden="true">
     <polygon className="tile-token-edge" points={hexPoints(x, y, hexRadius - 1.5)} fill={edge} />
     <polygon className="tile-token-face" points={hexPoints(x, y, hexRadius - 4.5)} />
     <g className="tile-token-icon" transform={`translate(${x - 5.5} ${y - (lines.length ? 19 : 6)}) scale(0.46)`}>

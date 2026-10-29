@@ -359,6 +359,17 @@ function placingAnchorHint(state: GameState): string {
 function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo, onReset, compact }: { state: GameState; forecast?: ActionForecast; score: number; canUndo: boolean; canRedo: boolean; onUndo: () => void; onRedo: () => void; onReset: () => void; compact: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const deltas = new Map<ResourceType, number>((forecast?.resources ?? []).map((change) => [change.resource, change.after]));
+  // Briefly mark resources whose count just changed.
+  const lastWarehouse = useRef(state.warehouse);
+  const [bumped, setBumped] = useState<ReadonlySet<ResourceType>>(new Set());
+  useEffect(() => {
+    const changed = resources.filter((resource) => lastWarehouse.current[resource] !== state.warehouse[resource]);
+    lastWarehouse.current = state.warehouse;
+    if (!changed.length) return undefined;
+    setBumped(new Set(changed));
+    const timer = setTimeout(() => setBumped(new Set()), 900);
+    return () => clearTimeout(timer);
+  }, [state.warehouse]);
   const seasonNames = ["", "Foundations", "Growth", "Maturity"];
   return <header className="table-topbar">
     <div className="table-brand">The Quiet Vale</div>
@@ -373,7 +384,7 @@ function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo,
       {resources.map((resource) => {
         const after = deltas.get(resource);
         const changed = after !== undefined && after !== state.warehouse[resource];
-        return <li key={resource} className={`res-${resource}${changed ? " is-changing" : ""}${state.warehouse[resource] === 0 ? " is-empty" : ""}${state.warehouse[resource] >= warehouseCap ? " is-full" : ""}`}>
+        return <li key={resource} className={`res-${resource}${changed ? " is-changing" : ""}${state.warehouse[resource] === 0 ? " is-empty" : ""}${state.warehouse[resource] >= warehouseCap ? " is-full" : ""}${bumped.has(resource) ? " is-bumped" : ""}`}>
           <span className="res-swatch" aria-hidden="true" />
           <span className="res-label">{resourceLabels[resource]}</span>
           <strong>{state.warehouse[resource]}</strong>

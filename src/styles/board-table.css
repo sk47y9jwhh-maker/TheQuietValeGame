@@ -1045,3 +1045,17 @@ button.table-score { border: 0; font: inherit; cursor: pointer; }
 .term-panel small { color: #c9c3ac; font-size: 0.76rem; }
 
 :is(.table-rail, .board-popover, .table-sheet, .table-resolution, .rail-overlay, .score-popover) .term-word { min-height: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none !important; font: inherit !important; color: inherit !important; width: auto !important; display: inline !important; }
+
+/* Motion: arrivals and changes, all off with reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .rail-card.is-new { animation: bt-card-in 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both; transform-origin: left center; }
+  .strip-card.is-new { animation: bt-card-in 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+  .tile-token.is-arriving { animation: bt-tile-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+  .table-warehouse li.is-bumped strong { animation: bt-bump 0.9s ease-out; }
+  .table-resolution { animation: bt-panel-in 0.25s ease-out both; }
+}
+@keyframes bt-card-in { from { opacity: 0; transform: perspective(600px) rotateY(-70deg) translateX(18px); } to { opacity: 1; transform: none; } }
+@keyframes bt-tile-in { from { opacity: 0; transform: scale(0.55); } to { opacity: 1; transform: scale(1); } }
+@keyframes bt-bump { 0% { color: var(--bt-brass-light); transform: scale(1.25); } 100% { transform: scale(1); } }
+@keyframes bt-panel-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+.table-warehouse li strong { display: inline-block; }
