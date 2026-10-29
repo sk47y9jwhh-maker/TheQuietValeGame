@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Compass, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Compass, Play, X } from "lucide-react";
+import { tourSteps } from "./tourScript";
 import { stewardById } from "../../data/stewards";
 import { getStorageKey } from "../../app/experience";
 import { getActivatableTileIds } from "../../engine/gameActions";
@@ -141,7 +142,93 @@ function writeDismissed(ids: string[]) {
   try { window.localStorage.setItem(getStorageKey("quietVale.guide.v1"), JSON.stringify(ids)); } catch { /* the guide still works for this visit */ }
 }
 
-export function TableCoach({ state, onTarget }: { state: GameState; onTarget?: (target: CoachTarget | null) => void }) {
+/** How the tour drives the table: commit a played step, or undo one. */
+export interface TourControls {
+  commit: (next: GameState) => void;
+  undo: () => void;
+}
+
+interface TourPlace { index: number; history: { from: number; played: boolean }[]; mode: "tour" | "play"; }
+let memoryPlace: TourPlace | null = null;
+const tourKey = () => getStorageKey("quietVale.tour.v1");
+function readPlace(): TourPlace {
+  try { const saved = window.localStorage.getItem(tourKey()); if (saved) return JSON.parse(saved) as TourPlace; } catch { /* fall back to this visit */ }
+  return memoryPlace ?? { index: 0, history: [], mode: "tour" };
+}
+function writePlace(place: TourPlace) {
+  memoryPlace = place;
+  try { window.localStorage.setItem(tourKey(), JSON.stringify(place)); } catch { /* kept in memory for this visit */ }
+}
+
+export function TableCoach(props: { state: GameState; onTarget?: (target: CoachTarget | null) => void; tour?: TourControls; resolving?: boolean }) {
+  const [place, setPlace] = useState<TourPlace>(() => {
+    const saved = readPlace();
+    // A restarted demo is back at its first moment: so is the tour.
+    return props.state.phase === "seeding" && props.state.round === 1 && !props.state.map.placedTiles.length && saved.index > 1 ? { index: 0, history: [], mode: saved.mode } : saved;
+  });
+  const update = (next: TourPlace) => { setPlace(next); writePlace(next); };
+  if (props.tour && place.mode === "tour") return <TableTour state={props.state} tour={props.tour} place={place} onPlace={update} onTarget={props.onTarget} />;
+  if (props.resolving) return null;
+  return <GuideCoach state={props.state} onTarget={props.onTarget} />;
+}
+
+/** Next, next, next: the opening plays itself, explained one step at a time. */
+function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState; tour: TourControls; place: TourPlace; onPlace: (place: TourPlace) => void; onTarget?: (target: CoachTarget | null) => void }) {
+  const [stuck, setStuck] = useState(false);
+  const step = tourSteps[Math.min(place.index, tourSteps.length - 1)];
+  const target = step.target?.(state) ?? null;
+  const targetKey = JSON.stringify(target);
+  useEffect(() => { onTarget?.(target); }, [targetKey]);
+  useEffect(() => () => onTarget?.(null), []);
+  useEffect(() => { setStuck(false); }, [place.index]);
+  const shown = tourSteps;
+  const position = Math.max(0, shown.indexOf(step));
+  const last = place.index >= tourSteps.length - 1;
+
+  function following(from: number, after: GameState): number {
+    let index = from + 1;
+    while (index < tourSteps.length - 1 && tourSteps[index].skip?.(after)) index++;
+    return index;
+  }
+  function next() {
+    if (!step.play) { onPlace({ ...place, index: following(place.index, state), history: [...place.history, { from: place.index, played: false }] }); return; }
+    const played = step.play(state);
+    if (!played) { setStuck(true); return; }
+    if (played !== state) tour.commit(played);
+    onPlace({ ...place, index: following(place.index, played), history: [...place.history, { from: place.index, played: played !== state }] });
+  }
+  function back() {
+    const previous = place.history[place.history.length - 1];
+    if (!previous) return;
+    if (previous.played) tour.undo();
+    onPlace({ ...place, index: previous.from, history: place.history.slice(0, -1) });
+  }
+  const takeOver = () => onPlace({ ...place, mode: "play" });
+
+  return <aside className="table-coach is-tour" aria-label="Guided tour" aria-live="polite" key={step.id}>
+    <div className="coach-head">
+      <span className="coach-emblem" aria-hidden="true"><Play size={16} /></span>
+      <ol className="coach-progress" aria-label={`Step ${position + 1} of ${shown.length}`}>{shown.map((candidate, index) => <li key={candidate.id} className={index < position ? "is-done" : index === position ? "is-now" : ""} />)}</ol>
+      <span className="tour-count" aria-hidden="true">{position + 1}/{shown.length}</span>
+    </div>
+    <p className="tour-eyebrow">Guided tour · press Next</p>
+    <h3>{step.title}</h3>
+    <p className="coach-why">{step.text(state)}</p>
+    {stuck && <p className="coach-do">The table has moved on from this step. Take over from here.</p>}
+    {last ? <nav className="coach-links" aria-label="Where next">
+      <button type="button" className="tour-back" onClick={back} aria-label="Back"><ArrowLeft size={16} aria-hidden="true" /></button>
+      <button type="button" className="coach-ok" onClick={takeOver}>Take over and play</button>
+      <a href="?experience=table&scenario=showcase-late">A thriving settlement</a>
+      <a href="?experience=table&scenario=showcase-chain">The Strain spreads</a>
+    </nav> : <footer className="tour-controls">
+      <button type="button" className="tour-back" onClick={back} disabled={!place.history.length} aria-label="Back"><ArrowLeft size={16} aria-hidden="true" /></button>
+      <button type="button" className="coach-ok tour-next" onClick={stuck ? takeOver : next}>{stuck ? "Take over" : step.verb ?? "Next"}<ArrowRight size={16} aria-hidden="true" /></button>
+      {!stuck && <button type="button" className="coach-off" onClick={takeOver}>{place.index === 0 ? "Play it myself instead" : "Take over"}</button>}
+    </footer>}
+  </aside>;
+}
+
+function GuideCoach({ state, onTarget }: { state: GameState; onTarget?: (target: CoachTarget | null) => void }) {
   const [dismissed, setDismissed] = useState<string[]>(readDismissed);
   const [collapsed, setCollapsed] = useState(false);
   const step = dismissed.includes("off") ? undefined : steps.find((candidate) => !dismissed.includes(candidate.id) && !candidate.done?.(state) && candidate.when(state));

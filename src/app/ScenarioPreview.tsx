@@ -31,15 +31,18 @@ export default function ScenarioPreview({ experience, scenarioId }: { experience
   }
   if (experience === "table") {
     // The playable demo: a way home, what this moment is, and a restart.
-    return <div className="scenario-preview scenario-preview-table">
-      <aside className="scenario-review-bar" aria-label="Demo controls">
+    return <div className="scenario-preview scenario-preview-table is-demo" data-demo={scenarioId}>
+      <aside className="scenario-review-bar demo-ribbon" aria-label="Demo controls">
         <a href="?experience=table" aria-label="Back to the start page"><ArrowLeft size={17} aria-hidden="true" />The Quiet Vale</a>
-        <details><summary><span>{scenario.name}</span></summary><div><p>{scenario.description}</p><strong>Things to try</strong><ol>{scenario.tasks.map((task) => <li key={task}>{task}</li>)}</ol><p>Your moves here are saved for this moment only. Restart to begin it again.</p></div></details>
+        <span className="demo-badge">{scenarioId === "guided" ? "Guided tour" : "Demo"}</span>
+        <details><summary><span>{scenario.name}</span><small className="demo-ribbon-line">{scenario.description}</small></summary><div><p>{scenario.description}</p><strong>Things to try</strong><ol>{scenario.tasks.map((task) => <li key={task}>{task}</li>)}</ol><p>Your moves here are saved for this moment only. Restart to begin it again.</p></div></details>
         <button type="button" onClick={restart}><RotateCcw size={16} aria-hidden="true" />Restart</button>
+        <a className="demo-play" href="?experience=table">Play a real game</a>
         <span className="scenario-status" role="status">{!restartFailed && message}</span>
       </aside>
       {restartFailed && <p className="scenario-restart-error" role="alert">{message}</p>}
       <div className={`experience-app ${experienceClassName(experience)}`}><App key={revision} initialPreview={scenarioSnapshots[scenarioId]} simulateSaveFailure={false} /></div>
+      <p className="demo-frame-tag" aria-hidden="true">{scenarioId === "guided" ? "Guided tour · a scripted opening" : "Demo moment · a prepared game"}</p>
     </div>;
   }
   return <div className="scenario-preview">
