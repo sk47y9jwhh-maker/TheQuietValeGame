@@ -15,6 +15,7 @@ import { TableRail } from "./TableRail";
 import { categoryColors, categoryNames } from "./boardGeometry";
 import { useBoardChoiceHost } from "./boardChoices";
 import { TableCoach } from "./TableCoach";
+import { Term } from "./Term";
 import {
   describeHexOptions,
   describeTileActions,
@@ -223,7 +224,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
         hexId: mode.hexId,
         content: <div className="action-card">
           <header>
-            <div><h3>{tileActions.name}</h3><p><span className="category-dot" style={{ background: categoryColors[tileActions.category] }} />{mode.hexId} · {categoryNames[tileActions.category]}{tile.side === "upgraded" ? " · upgraded" : ""}{tile.strain ? ` · ${tile.strain} Strain` : ""}{tile.support.passive || tile.support.singleUse ? " · Supported" : ""}</p></div>
+            <div><h3>{tileActions.name}</h3><p><span className="category-dot" style={{ background: categoryColors[tileActions.category] }} />{mode.hexId} · {categoryNames[tileActions.category]}{tile.side === "upgraded" ? " · upgraded" : ""}{tile.strain ? <> · {tile.strain} <Term id={tile.strain >= 3 ? "overstrained" : "strain"}>{tile.strain >= 3 ? "Strain · Overstrained" : "Strain"}</Term></> : null}{tile.support.passive || tile.support.singleUse ? <> · <Term id="supported" /></> : null}</p></div>
             <button type="button" className="icon-button" aria-label="Close" onClick={() => setMode({ kind: "idle" })}><X size={18} /></button>
           </header>
           {tileActions.options.map((option, index) => <button key={option.kind} type="button" className={index === 0 || !tileActions.options[0].available ? "action-primary" : "action-secondary"} disabled={!option.available} onClick={() => {
@@ -234,6 +235,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
             {option.available && <span className="action-yield">{option.kind === "upgrade" && option.forecast && !option.forecast.paymentChoice && !option.forecast.resources.some((change) => change.delta < 0) ? "Free" : summariseForecast(option.forecast)}</span>}
           </button>)}
           {tileActions.options.length === 0 && <p className="action-card-hint">{tileActions.effectText || "No action to take with this tile."}</p>}
+          {tileActions.linkedTileIds.length > 0 && tileActions.options.some((option) => option.kind === "activate" && option.available) && <p className="action-card-note"><Term id="linked" />: {tileActions.linkedTileIds.length} matching {tileActions.linkedTileIds.length === 1 ? "tile" : "tiles"} beside it produce too, lit on the board.</p>}
           {tileActions.options.some((option) => option.available) && <p className="action-card-note">Each uses 1 action. {stewardName(state)} moves here.</p>}
           <button type="button" className="action-link" onClick={() => handlers.inspectPlaced(tile.instanceId)}><Eye size={16} aria-hidden="true" />Read the full tile</button>
         </div>
@@ -244,7 +246,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
         hexId: mode.hexId,
         content: <div className="action-card">
           <header><div><h3>Build here</h3><p>{mode.hexId} · {hexOptions.terrain}</p></div><button type="button" className="icon-button" aria-label="Close" onClick={() => setMode({ kind: "idle" })}><X size={18} /></button></header>
-          {hexOptions.placeable.length === 0 && <p className="action-card-hint">{hexOptions.blocked.length ? "Nothing you can afford fits here yet." : "No tile can go here right now. Spaces must be reachable from your Steward, and some tiles need a particular terrain or neighbour."}</p>}
+          {hexOptions.placeable.length === 0 && <p className="action-card-hint">{hexOptions.blocked.length ? "Nothing you can afford fits here yet." : <>No tile can go here right now. Spaces must be within <Term id="reach">reach</Term> of your Steward, and some tiles need a particular terrain or neighbour.</>}</p>}
           {hexOptions.placeable.length > 0 && <ul className="place-list">
             {hexOptions.placeable.slice(0, compact ? 8 : 9).map((option) => <li key={option.choice.id}><button type="button" onClick={() => choosePlacement(option, mode.hexId)}>
               <span className="category-dot" style={{ background: categoryColors[option.choice.category] }} aria-hidden="true" />
@@ -412,7 +414,7 @@ function ScoreNow({ state, score }: { state: GameState; score: number }) {
     <button type="button" className="table-score" aria-expanded={open} aria-controls="score-breakdown" title="The shared score if the game ended now" onClick={() => setOpen((value) => !value)}>Score now <strong>{score}</strong></button>
     {open && <div className="score-popover" id="score-breakdown" role="dialog" aria-label="How the score adds up">
       <header><strong>If the game ended now</strong><button type="button" className="icon-button" aria-label="Close" onClick={() => setOpen(false)}><X size={16} /></button></header>
-      <dl>{rows.map(([label, value, note]) => <div key={label} className={value < 0 ? "is-loss" : ""}><dt>{label}{note && <small>{note}</small>}</dt><dd>{value > 0 ? "+" : ""}{value}</dd></div>)}</dl>
+      <dl>{rows.map(([label, value, note]) => <div key={label} className={value < 0 ? "is-loss" : ""}><dt>{label === "Population" ? <Term id="population" /> : label === "Renown from tiles" ? <><Term id="renown" /> from tiles</> : label === "Strain" ? <Term id="strain" /> : label === "Active Burdens" ? <>Active <Term id="burden">Burdens</Term></> : label}{note && <small>{note}</small>}</dt><dd>{value > 0 ? "+" : ""}{value}</dd></div>)}</dl>
       <p><span>Score</span><strong>{score}</strong></p>
     </div>}
   </div>;

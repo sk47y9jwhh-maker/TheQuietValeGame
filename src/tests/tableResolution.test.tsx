@@ -128,3 +128,13 @@ describe("payments that start affordable", () => {
     expect(screen.getByRole("button", { name: /Confirm Payment/ })).toBeEnabled();
   });
 });
+
+describe("rules definitions", () => {
+  it("opens a game term's definition with its rulebook page", () => {
+    open("showcase-late");
+    fireEvent.click(screen.getAllByRole("button", { name: "Arrival" })[0]);
+    const note = screen.getByRole("note");
+    expect(note).toHaveTextContent("Newcomers asking to join");
+    expect(note).toHaveTextContent("Rulebook p. 14–16");
+  });
+});

@@ -1,3 +1,4 @@
+import { Term } from "./Term";
 import { useEffect, useState } from "react";
 import { arrivalRequirementRules, getBurdenResolutionCost } from "../../data/contentRules";
 import { encounterById } from "../../data/encounters";
@@ -66,7 +67,7 @@ export function TableRail(props: TableRailProps) {
       </div>
       {steward && <div className={`rail-power${power.ok ? " is-ready" : ""}`}>
         <div>
-          <strong>{steward.name} power{powerUsed ? " · used this Season" : power.ok ? " · ready" : ""}</strong>
+          <strong>{steward.name} <Term id="stewardPower">power</Term>{powerUsed ? " · used this Season" : power.ok ? " · ready" : ""}</strong>
           <p>{steward.powerText}</p>
         </div>
         {power.ok && <button type="button" aria-label="Use Steward Power" onClick={props.onUseStewardPower}>Use</button>}
@@ -101,7 +102,7 @@ export function TableRail(props: TableRailProps) {
         return <article key={arrival.cardId} className={`rail-card rail-arrival${arrival.timerTokens === 1 ? " is-urgent" : ""}${props.newCardIds.has(arrival.cardId) ? " is-new" : ""}`}>
           <CardArt src={arrivalFrame} />
           <div className="rail-card-body">
-            <p className="rail-card-kind"><span>Arrival{props.newCardIds.has(arrival.cardId) ? " · new" : ""}</span><Timers count={arrival.timerTokens} /></p>
+            <p className="rail-card-kind"><span><Term id="arrival" />{props.newCardIds.has(arrival.cardId) ? " · new" : ""}</span><Timers count={arrival.timerTokens} /></p>
             <h3>{card.name}</h3>
             {cost && <ul className="rail-needs" aria-label="Requirement">
               {costEntries(cost).map(({ resource, amount }) => {
@@ -126,7 +127,7 @@ export function TableRail(props: TableRailProps) {
         return <article key={cardId} className={`rail-card rail-burden${props.newCardIds.has(cardId) ? " is-new" : ""}`}>
           <CardArt src={burdenFrame} />
           <div className="rail-card-body">
-            <p className="rail-card-kind"><span>Burden · {["", "I", "II", "III"][state.season]}{props.newCardIds.has(cardId) ? " · new" : ""}</span><span>{state.ignoredBurdenIdsThisRound.includes(cardId) ? "Ignored this round" : state.season < 3 ? "Returns next Season" : "Active"}</span></p>
+            <p className="rail-card-kind"><span><Term id="burden" /> · {["", "I", "II", "III"][state.season]}{props.newCardIds.has(cardId) ? " · new" : ""}</span><span>{state.ignoredBurdenIdsThisRound.includes(cardId) ? "Ignored this round" : state.season < 3 ? "Returns next Season" : "Active"}</span></p>
             <h3>{card.name}</h3>
             <p className="rail-card-text">{card.effects[seasonKey(state.season)]}</p>
             <p className="rail-card-note">To resolve: {resolution.replace(/,? discard\.?$/i, "")}{cost ? "" : ""}</p>
@@ -144,7 +145,7 @@ export function TableRail(props: TableRailProps) {
         return <article key={boon.cardId} className={`rail-card rail-boon${usable ? "" : " is-muted"}${props.newCardIds.has(boon.cardId) ? " is-new" : ""}`}>
           <CardArt src={card.type === "goldenBoon" ? goldenFrame : boonFrame} />
           <div className="rail-card-body">
-            <p className="rail-card-kind"><span>{card.type === "goldenBoon" ? "Golden Boon" : "Boon"}{props.newCardIds.has(boon.cardId) ? " · new" : ""}</span><span>{card.type === "goldenBoon" ? (boon.lastUsedRound === state.round ? "Used this round" : "Once per round") : `${boon.remainingUses} use${boon.remainingUses === 1 ? "" : "s"} left`}</span></p>
+            <p className="rail-card-kind"><span>{card.type === "goldenBoon" ? "Golden Boon" : <Term id="boon" />}{props.newCardIds.has(boon.cardId) ? " · new" : ""}</span><span>{card.type === "goldenBoon" ? (boon.lastUsedRound === state.round ? "Used this round" : "Once per round") : `${boon.remainingUses} use${boon.remainingUses === 1 ? "" : "s"} left`}</span></p>
             <h3>{card.name}</h3>
             <p className="rail-card-text">{text}</p>
             {state.phase === "turns" && usable && <button type="button" onClick={() => props.onUseBoon(boon.cardId)}>Use · free</button>}
