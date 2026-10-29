@@ -7,6 +7,7 @@ import { LegacySetupOptions } from "./LegacySetupOptions";
 import { supportedPlayerCounts } from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
 import { isBoardTableExperience } from "../../app/experience";
+import { comparisonScenarios } from "../../app/scenarioCatalog";
 import { RulesGuide } from "../panels/RulesGuide";
 import type { SetupPanelProps } from "./SetupPanel";
 import mapArtwork from "../../assets/quiet_vale_map_v02.webp";
@@ -49,6 +50,10 @@ export function TabletopWelcome(props: SetupPanelProps) {
           <p className="studio-kicker">{isBoardTableExperience() ? "Playable demo" : "The Living Table"}</p>
           <h2 id="welcome-setup-heading" ref={heading} tabIndex={-1}>Gather your Stewards.</h2>
           <p className="welcome-intro">Play solo or share this device with friends. Everyone helps the same settlement thrive.</p>
+          {isBoardTableExperience() && <a className="welcome-guided" href="?experience=table&scenario=guided">
+            <span><strong>New to the Vale? Play a guided first game.</strong><small>Solo, about 15 minutes. A guide beside the board teaches you as you play.</small></span>
+            <ArrowRight size={20} aria-hidden="true" />
+          </a>}
           <fieldset className="welcome-player-count">
             <legend><Users size={16} aria-hidden="true" />Who’s at the table?</legend>
             <div>{supportedPlayerCounts.map((count) => <button key={count} type="button" aria-label={`${count} player${count === 1 ? "" : "s"}`} aria-pressed={count === playerCount} onClick={() => onPlayerCountChange(count)}>{count === 1 ? "Solo" : count}</button>)}</div>
@@ -78,6 +83,15 @@ export function TabletopWelcome(props: SetupPanelProps) {
         </section>
       </div>
 
+      {isBoardTableExperience() && <section className="welcome-moments" aria-labelledby="welcome-moments-heading">
+        <h2 id="welcome-moments-heading">Or jump into a moment</h2>
+        <p>Each one is taken from a real game, so you can see the Vale at its busiest without playing up to it.</p>
+        <div>{(["showcase-late", "showcase-chain", "showcase-season"] as const).map((id) => <a key={id} href={`?experience=table&scenario=${id}`}>
+          <strong>{comparisonScenarios[id].name}</strong>
+          <span>{comparisonScenarios[id].description}</span>
+          <small>Open <ArrowRight size={14} aria-hidden="true" /></small>
+        </a>)}</div>
+      </section>}
       <section className="welcome-beginning" aria-label="The journey ahead">
         <div><span>01</span><h3>Find your place</h3><p>Choose a starting place that suits your Steward.</p></div>
         <div><span>02</span><h3>Shape the season</h3><p>Seed encounters to influence what lies ahead.</p></div>
