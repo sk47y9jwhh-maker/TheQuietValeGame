@@ -1011,3 +1011,5 @@ button.table-score { border: 0; font: inherit; cursor: pointer; }
 .physical-game-note h2 { margin: 0; font-family: "Alegreya", Georgia, serif; font-size: 1.35rem; color: #f6f0dc !important; }
 .physical-game-note p { margin: 0; line-height: 1.45; }
 .physical-game-note a { color: var(--bt-brass-light) !important; font-weight: 700; }
+.cost-covering-note { margin: 10px 0; padding: 10px 12px; border-radius: 10px; background: #e7efd9; color: #2f4429; font-size: 0.92rem; line-height: 1.4; }
+.rail-card-help { margin: 4px 0 0; padding: 6px 8px; border-radius: 8px; background: #e7efd9; color: #2f4429; font-size: 0.82rem; line-height: 1.35; }

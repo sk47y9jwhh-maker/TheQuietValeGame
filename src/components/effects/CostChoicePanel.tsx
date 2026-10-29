@@ -1,4 +1,4 @@
-import { isPlayerExperience } from "../../app/experience";
+import { isBoardTableExperience, isPlayerExperience } from "../../app/experience";
 import { PaymentConsequences } from "./PaymentConsequences";
 import { Check, X } from "lucide-react";
 import { resourceLabels, resources } from "../../data/resources";
@@ -62,21 +62,24 @@ export function CostChoicePanel({
       .filter((option) => option.kind === "surcharge" && option.resourceChoices?.length)
       .map((option) => [option.id, option.resourceChoices?.[0] ?? "wood"])
   ) as Record<string, ResourceType>;
+  const requiredIds = pending.options.filter((option) => option.required).map((option) => option.id);
+  // On the board-first table, when the cost can only be met with one particular
+  // Merchant exchange, start with that exchange chosen. The player can still
+  // change it or turn it off before confirming.
+  const covering = isBoardTableExperience() ? findCoveringExchange(state, pending, requiredIds, defaultMarketChoices, defaultDiscountChoices, defaultSurchargeChoices) : null;
   const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>(
-    pending.options.filter((option) => option.required).map((option) => option.id)
+    covering ? [...requiredIds, covering.optionId] : requiredIds
   );
   const [marketResourceByOptionId, setMarketResourceByOptionId] =
-    useState<Record<string, ResourceType>>(defaultMarketChoices);
+    useState<Record<string, ResourceType>>(covering ? { ...defaultMarketChoices, [covering.optionId]: covering.resource } : defaultMarketChoices);
   const [discountResourceByOptionId, setDiscountResourceByOptionId] =
     useState<Record<string, ResourceType>>(defaultDiscountChoices);
   const [surchargeResourceByOptionId, setSurchargeResourceByOptionId] =
     useState<Record<string, ResourceType>>(defaultSurchargeChoices);
 
   useEffect(() => {
-    setSelectedOptionIds(
-      pending.options.filter((option) => option.required).map((option) => option.id)
-    );
-    setMarketResourceByOptionId(defaultMarketChoices);
+    setSelectedOptionIds(covering ? [...requiredIds, covering.optionId] : requiredIds);
+    setMarketResourceByOptionId(covering ? { ...defaultMarketChoices, [covering.optionId]: covering.resource } : defaultMarketChoices);
     setDiscountResourceByOptionId(defaultDiscountChoices);
     setSurchargeResourceByOptionId(defaultSurchargeChoices);
   }, [pending.id]);
@@ -321,6 +324,7 @@ export function CostChoicePanel({
         })}
       </div>
 
+      {covering && selectedOptionIds.includes(covering.optionId) && marketResourceByOptionId[covering.optionId] === covering.resource && <p className="cost-covering-note" role="status">The {covering.sourceName} exchange is chosen to cover the missing {resourceLabels[covering.resource]}: 1 Goods is spent as 1 {resourceLabels[covering.resource]}. Change it above if you prefer.</p>}
       {!canConfirm && (enhanced ? <div className="failure-note" role="status">
         {!validateCostChoiceSelection(pending.options, selection) && <p>Choose a valid combination of payment effects.</p>}
         {state.actionsRemaining < adjustedActionCost && <p>Not enough actions. Review any effect that can waive the action cost, or cancel.</p>}
@@ -379,4 +383,27 @@ function getOptionLabel(option: PendingCostChoiceState["options"][number]): stri
       : "Trade 1 Goods for 1 resource";
   }
   return `-${option.amount ?? 0} resources`;
+}
+
+/** The single Merchant exchange that makes an otherwise unaffordable cost payable, if there is exactly one. */
+function findCoveringExchange(
+  state: GameState,
+  pending: PendingCostChoiceState,
+  requiredIds: string[],
+  market: Record<string, ResourceType>,
+  discount: Record<string, ResourceType>,
+  surcharge: Record<string, ResourceType>
+): { optionId: string; resource: ResourceType; sourceName: string } | null {
+  const base = { selectedOptionIds: requiredIds, marketResourceByOptionId: market, discountResourceByOptionId: discount, ...(Object.keys(surcharge).length ? { surchargeResourceByOptionId: surcharge } : {}) };
+  if (canAfford(state.warehouse, applyCostChoice(state, pending.baseCost, pending.options, base))) return null;
+  const found: { optionId: string; resource: ResourceType; sourceName: string }[] = [];
+  for (const option of pending.options.filter((candidate) => candidate.kind === "market")) {
+    for (const resource of option.resourceChoices ?? []) {
+      const selection = { ...base, selectedOptionIds: [...requiredIds, option.id], marketResourceByOptionId: { ...market, [option.id]: resource } };
+      if (validateCostChoiceSelection(pending.options, selection) && canAfford(state.warehouse, applyCostChoice(state, pending.baseCost, pending.options, selection))) {
+        found.push({ optionId: option.id, resource, sourceName: option.sourceName });
+      }
+    }
+  }
+  return found.length === 1 ? found[0] : null;
 }
