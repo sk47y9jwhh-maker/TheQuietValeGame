@@ -42,6 +42,7 @@ function specialNumber(tileId: string): string {
 
 export function TableRail(props: TableRailProps) {
   const [openCard, setOpenCard] = useState<string | null>(null);
+  const [powerOpen, setPowerOpen] = useState(false);
   const { state } = props;
   const playerIndex = state.players.findIndex((player) => player.id === state.currentPlayerId);
   const player = state.players[playerIndex];
@@ -67,10 +68,12 @@ export function TableRail(props: TableRailProps) {
         </div>
         {nextPlayer && <p className="rail-next">Next<br /><strong>{stewardById[nextPlayer.stewardId]?.name ?? nextPlayer.name}</strong></p>}
       </div>
+      {state.actionsRemaining > 0 && <p className="rail-how">{player && !player.hasPlacedFirstTile ? `Start by building on your Steward’s space at ${player.stewardHexId}.` : "Tap a tile on the board to use it, or an empty space to build."}</p>}
       {steward && <div className={`rail-power${power.ok ? " is-ready" : ""}`}>
         <div>
           <strong>{steward.name} <Term id="stewardPower">power</Term>{powerUsed ? " · used this Season" : power.ok ? " · ready" : ""}</strong>
-          <p>{steward.powerText}</p>
+          <p className={powerOpen ? "" : "is-clamped"} id="rail-power-text">{steward.powerText}</p>
+          <button type="button" className="rail-power-more" aria-expanded={powerOpen} aria-controls="rail-power-text" onClick={() => setPowerOpen((open) => !open)}>{powerOpen ? "Show less" : "Read the full power"}</button>
         </div>
         {power.ok && <button type="button" aria-label="Use Steward Power" onClick={props.onUseStewardPower}>Use</button>}
       </div>}

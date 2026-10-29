@@ -292,9 +292,6 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
   const currentPlayer = state.players.find((player) => player.id === state.currentPlayerId);
   const firstPlacementHex = isTurn && currentPlayer && !currentPlayer.hasPlacedFirstTile ? currentPlayer.stewardHexId : null;
   const legal = resolving ? undefined : placing ? placingLegal : firstPlacementHex && mode.kind === "idle" ? new Set([firstPlacementHex]) : undefined;
-  const hint = firstPlacementHex
-    ? `Start by building on your Steward’s space at ${firstPlacementHex}. Tap it to see what fits.`
-    : "Tap a tile to use it, or an empty space to build.";
   const sheetOpen = compact && (Boolean(card) || resolving);
   const resolutionPanel = resolution ? <aside className="table-resolution" aria-labelledby="table-resolution-title" key={resolution.key}>
     <header><p className="eyebrow">{resolution.eyebrow}{resolution.link && chainTrail.length ? ` · link ${chainTrail.length + 1}` : ""}{resolution.steps > 1 ? ` · ${resolution.steps - 1} more to follow` : ""}</p><h2 id="table-resolution-title">{resolution.title}</h2>{(resolution.hint ?? choices.hint) && <p className="table-resolution-hint">{resolution.hint ?? choices.hint}</p>}
@@ -317,7 +314,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           choiceMarks={resolving ? choices.marks : undefined}
           links={boardLinks}
           hiddenPawnIds={state.phase === "setup" ? new Set(state.players.slice(state.players.findIndex((player) => player.id === state.currentPlayerId)).map((player) => player.id)) : undefined}
-          coveredBottom={sideSheet ? 0 : resolving && compact ? (sheetLow ? 150 : Math.round(window.innerHeight * 0.55)) : sheetOpen ? 330 : compact ? 196 : 0}
+          coveredBottom={sideSheet ? 0 : resolving && compact ? (sheetLow ? 150 : Math.round(window.innerHeight * 0.55)) : sheetOpen ? 330 : compact ? 196 : resolving ? 0 : 62}
           onHexTap={handleHexTap}
           onEmptyTap={() => setMode({ kind: "idle" })}
           popover={!compact && card ? { hexId: card.hexId, content: card.content, width: 340 } : null}
@@ -330,8 +327,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
         {coach && !resolving && !compact && <TableCoach state={state} />}
         {notice && <div className="table-notice" role="status"><p>{notice}</p><button type="button" aria-label="Dismiss" onClick={onDismissNotice}><X size={16} /></button></div>}
         {!compact && !resolving && <div className="table-tray">{tray}</div>}
-        {resolving && !compact && (resolution?.hint ?? choices.hint) && !notice && <p className="board-hint">{resolution?.hint ?? choices.hint}</p>}
-        {isTurn && !resolving && !card && !notice && !compact && state.actionsRemaining > 0 && <p className="board-hint">{hint}</p>}
+
       </section>
       {!compact && resolutionPanel}
       {!compact && !resolving && <TableRail state={state} newCardIds={newCardIds} onCompleteArrival={handlers.completeArrival} onResolveBurden={handlers.resolveBurden} onUseBoon={handlers.useBoon} onUseStewardPower={handlers.useStewardPower} onPlaceSpecial={(tileId) => setMode({ kind: "placing", tileId, orientation: 3 })} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} />}

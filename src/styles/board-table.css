@@ -1090,3 +1090,66 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .effect-source-face { grid-column: 1; grid-row: 1 / span 6; width: 96px; }
 .effect-source-face .encounter-card-shell { width: 96px; }
 .place-face { flex: none; width: 44px; height: 38px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)); }
+
+/* Desktop: the board as a physical board on a table */
+.table-board { background: radial-gradient(ellipse at 50% 40%, #3b4233 0%, #2b3026 58%, #22261e 100%); }
+.board-shadow rect { fill: #000; }
+
+.rail-how { margin: 2px 0 0; color: var(--bt-ink-soft); font-size: 0.9rem; line-height: 1.4; }
+
+/* Demo moments: one slim bar above the table, in the table's colours */
+.scenario-preview-table .scenario-review-bar { height: 38px; padding: 0 10px; gap: 10px; background: #1c1a15; border-bottom: 1px solid #3a3528; font-size: 12.5px; }
+.scenario-preview-table .scenario-review-bar > a, .scenario-preview-table .scenario-review-bar > button, .scenario-preview-table .scenario-review-bar summary { min-height: 34px; padding: 4px 10px; }
+.scenario-preview-table .scenario-review-bar summary span { color: var(--bt-brass-light, #e8c463); }
+
+/* Steward power: still the full rule, but compact */
+.rail-power p { font-size: 0.86rem; line-height: 1.38; }
+
+/* Large screens: a wider rail with larger card fronts */
+@media (min-width: 1600px) {
+  .table-main { grid-template-columns: minmax(0, 1fr) 420px; }
+  .table-main:has(> .table-resolution) { grid-template-columns: minmax(0, 1fr) 500px; }
+  .rail-card-face, .rail-card-face .encounter-card-shell { width: 132px; }
+  .table-warehouse li { padding-inline: 12px; }
+  .table-warehouse li strong { font-size: 1.05rem; }
+}
+
+/* Seeding with the real cards (board-first table) */
+.table-seed-hand-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 22px 18px; align-items: start; }
+.table-seed-physical { display: grid; gap: 10px; justify-items: center; min-width: 0; }
+.table-seed-face { position: relative; display: block; width: 100%; max-width: 300px; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.table-seed-face .encounter-card-shell { width: 100%; }
+.table-seed-face:hover .physical-encounter-card, .table-seed-face:focus-visible .physical-encounter-card { transform: translateY(-3px); filter: drop-shadow(0 10px 14px rgba(20, 19, 15, 0.35)); }
+.table-seed-face .physical-encounter-card { transition: transform 0.15s ease; }
+.table-seed-physical.is-assigned .physical-encounter-card { outline: 3px solid #4e684d; outline-offset: 3px; border-radius: 4px; }
+.table-seed-badge { position: absolute; top: 8px; right: 8px; padding: 4px 10px; border-radius: 999px; background: #344531; color: #f6f0dc; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; }
+.table-seed-choose { display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; max-width: 300px; min-height: 44px; border: 2px solid #344531; border-radius: 10px; background: #fffdf5; color: #344531 !important; font: inherit; font-weight: 700; cursor: pointer; }
+.table-seed-choose[aria-pressed="true"] { background: #344531; color: #f6f0dc !important; }
+.table-seed-review-cards { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 18px; align-items: start; }
+.table-seed-review-cards .table-seed-confirm { grid-column: 1 / -1; }
+.table-seed-slot-label { margin: 0; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.8rem; color: #4e684d; }
+
+/* Seeding: guide and Season note side by side on wide screens */
+@media (min-width: 1100px) {
+  .table-stage:has(.table-stage-coach) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-content: start; column-gap: 18px; padding: 0 24px; }
+  .table-stage:has(.table-stage-coach) > .table-stage-coach, .table-stage:has(.table-stage-coach) > .season-banner { width: auto; max-width: none; margin: 18px 0 0; }
+  .table-stage:has(.table-stage-coach) > .table-seeding, .table-stage:has(.table-stage-coach) > :not(.table-stage-coach):not(.season-banner) { grid-column: 1 / -1; }
+}
+@media (min-width: 1100px) {
+  .table-stage:has(.table-stage-coach) > .table-stage-coach, .table-stage:has(.table-stage-coach) > .season-banner { align-self: start; }
+}
+.table-seed-hand-grid { grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); }
+.rail-power p.is-clamped { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.table-rail .rail-power-more { min-height: 0 !important; margin-top: 2px; padding: 0 !important; border: 0 !important; background: none !important; font-size: 0.84rem; font-weight: 700 !important; color: #6f5d2e !important; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+
+/* Choice rings that stand out on printed tile faces as well as on bare map */
+.board-hex-choice-under { fill: none; stroke: rgba(38, 30, 12, 0.75); stroke-width: 5.4; pointer-events: none; }
+.board-hex.is-choice .board-hex-choice { stroke: #f2c94c; stroke-width: 3; stroke-dasharray: 6 3.2; fill: rgba(242, 201, 76, 0.16); }
+.board-hex.is-chosen .board-hex-choice-under { stroke: rgba(255, 250, 235, 0.9); }
+.board-hex.is-chosen .board-hex-choice { stroke: var(--bt-rust); stroke-width: 3.2; fill: rgba(130, 80, 59, 0.2); }
+.has-many-choices .board-hex.is-choice .board-hex-choice-under { stroke-width: 3; stroke: rgba(38, 30, 12, 0.35); }
+
+/* Tile effects: the panel header already names the effect */
+.table-resolution-body .effect-source-summary:not(.has-card-face) > h3,
+.table-resolution-body .effect-source-summary:not(.has-card-face) > .eyebrow,
+.table-resolution-body .effect-source-summary:not(.has-card-face) > .effect-source-name { display: none; }

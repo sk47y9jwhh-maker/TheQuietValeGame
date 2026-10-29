@@ -101,8 +101,10 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
   }, []);
 
   const fitView = useCallback((width: number, height: number): View => {
-    const visibleHeight = Math.max(120, height - coveredBottom);
-    const upp = Math.max(boardBounds.width / width, boardBounds.height / visibleHeight);
+    // A little table shows around the board, like a physical board on a table.
+    const margin = width > 700 ? 22 : 0;
+    const visibleHeight = Math.max(120, height - coveredBottom - margin * 2);
+    const upp = Math.max(boardBounds.width / Math.max(120, width - margin * 2), boardBounds.height / visibleHeight);
     return { cx: boardBounds.x + boardBounds.width / 2, cy: boardBounds.y + boardBounds.height / 2 + (coveredBottom * upp) / 2, upp };
   }, [coveredBottom]);
 
@@ -325,6 +327,10 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
     onWheel={onWheel}
   >
     <svg className={`board-svg detail-${detail}${choiceMarks && choiceMarks.size > 36 ? " has-many-choices" : ""}`} viewBox={viewBox} role="group" aria-label="The Quiet Vale map. Use the arrow keys to move between spaces and Enter to choose one.">
+      {/* A soft, cheap shadow under the board: stacked translucent rectangles, no filters. */}
+      <g className="board-shadow" aria-hidden="true">
+        {[14, 10, 7, 4, 2].map((spread, index) => <rect key={spread} x={boardBounds.x - spread * 0.6} y={boardBounds.y - spread * 0.2 + 3} width={boardBounds.width + spread * 1.2} height={boardBounds.height + spread * 1.1} rx={4 + spread} opacity={0.05 + index * 0.035} />)}
+      </g>
       <MapArtworkImage kind="underlay" />
       <g className="board-hexes">
         {boardCells.map(({ cell, x, y }) => {
@@ -355,7 +361,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
             {placed && <TileToken state={state} tile={placed} hexId={cell.id} x={x} y={y} arriving={arrivingIds.has(placed.instanceId)} sharp={hexPx >= 120} />}
             {(legal || inFootprint) && <polygon className="board-hex-legal" points={hexPoints(x, y, hexRadius - 2.5)} />}
             {selected && <polygon className="board-hex-selected" points={hexPoints(x, y, hexRadius - 1)} />}
-            {choice && <polygon className="board-hex-choice" points={hexPoints(x, y, hexRadius - 2)} />}
+            {choice && <><polygon className="board-hex-choice-under" points={hexPoints(x, y, hexRadius - 2)} /><polygon className="board-hex-choice" points={hexPoints(x, y, hexRadius - 2)} /></>}
             {choice?.badge && <g className="board-choice-badge" transform={`translate(${x - 15} ${y - 17})`}><circle r={8.5} /><text y={3.4} textAnchor="middle">{choice.badge}</text></g>}
           </g>;
         })}
