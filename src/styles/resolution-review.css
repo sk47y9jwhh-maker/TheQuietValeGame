@@ -7,7 +7,7 @@
 .experience-app .resolution-step-help > p { font-size: 15px; line-height: 1.5; margin: 0; padding: 0 12px 12px; }
 .experience-app .effect-source-summary { padding: 12px 14px; border-left: 4px solid var(--qv-muted-green); background: #fffdf7; border-radius: 5px; }
 .experience-app .effect-source-summary .eyebrow { margin: 0 0 4px; font-size: 12px; color: #586451; }
-.experience-app .effect-source-summary h3 { margin: 0; font: 600 28px/1.15 "Alegreya", serif; color: var(--qv-ink); }
+.experience-app .effect-source-summary > h3 { margin: 0; font: 600 28px/1.15 "Alegreya", serif; color: var(--qv-ink); }
 .experience-app .effect-rule-text { margin: 10px 0 0; font-size: 17px; font-weight: 600; line-height: 1.45; }
 .experience-app .effect-source-detail, .experience-app .effect-source-name { margin: 6px 0 0; font-size: 14px; line-height: 1.4; color: #596052; }
 .experience-app .effect-source-card { margin-top: 4px; }
@@ -54,7 +54,7 @@
   .experience-app .resolution-focus-table .resolution-context-panel { grid-template-columns: 1fr; padding: 10px; }
   .experience-app .resolution-focus-table .resolution-context-panel summary { padding: 8px 2px; }
   .experience-app .effect-source-summary, .experience-app .target-draw-review { padding: 10px; }
-  .experience-app .effect-source-summary h3 { font-size: 25px; }
+  .experience-app .effect-source-summary > h3 { font-size: 25px; }
   .experience-app .target-draw-summary { grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; }
   .experience-app .target-draw-position { grid-column: 1; }
   .experience-app .target-draw-summary strong { grid-column: 1; grid-row: 2; }

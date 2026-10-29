@@ -37,6 +37,8 @@ interface EncounterCardProps
   outputMode?: "web" | "print";
   status?: ReactNode;
   supplementary?: ReactNode;
+  /** Timer tokens sitting on an Arrival's three printed circles. */
+  timers?: number;
 }
 
 function densityClass(length: number, medium: number, dense: number): string {
@@ -163,6 +165,7 @@ export function EncounterCard({
   outputMode = "web",
   status,
   supplementary,
+  timers,
   ...articleProps
 }: EncounterCardProps) {
   const webArtwork = responsiveEncounterArtwork[card.type];
@@ -199,6 +202,9 @@ export function EncounterCard({
           height={print ? (card.type === "arrival" || card.type === "burden" ? 3000 : 1500) : webArtwork.height}
         />
         <div className="physical-card-print-canvas">
+          {card.type === "arrival" && timers !== undefined && <span className="physical-card-timers" role="img" aria-label={`${timers} timer${timers === 1 ? "" : "s"} on the card`}>
+            {[0, 1, 2].map((index) => <span key={index} className={index < timers ? "is-on" : ""} />)}
+          </span>}
           <p className="physical-card-type">{getEncounterTypeLabel(card)}</p>
           <h3 className={`physical-card-title ${titleDensity}`}>{card.name}</h3>
           <p className={`physical-card-flavor ${flavorDensity}`}>{flavorText}</p>

@@ -16,6 +16,7 @@ import { categoryColors, categoryNames } from "./boardGeometry";
 import { useBoardChoiceHost } from "./boardChoices";
 import { isHostedDemo } from "../../app/experience";
 import { TableCoach } from "./TableCoach";
+import { tileArtworkUrl } from "../common/TileArtwork";
 import { Term } from "./Term";
 import {
   describeHexOptions,
@@ -274,7 +275,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           {hexOptions.placeable.length === 0 && <p className="action-card-hint">{hexOptions.blocked.length ? "Nothing you can afford fits here yet." : <>No tile can go here right now. Spaces must be within <Term id="reach">reach</Term> of your Steward, and some tiles need a particular terrain or neighbour.</>}</p>}
           {hexOptions.placeable.length > 0 && <ul className="place-list">
             {hexOptions.placeable.slice(0, compact ? 8 : 9).map((option) => <li key={option.choice.id}><button type="button" onClick={() => choosePlacement(option, mode.hexId)}>
-              <span className="category-dot" style={{ background: categoryColors[option.choice.category] }} aria-hidden="true" />
+              <img className="place-face" src={tileArtworkUrl(option.choice.id, "basic", { thumbnail: true })} alt="" aria-hidden="true" loading="lazy" decoding="async" style={{ borderColor: categoryColors[option.choice.category] }} />
               <span className="place-name"><strong>{option.choice.name}</strong><small>{option.choice.kind === "special" ? "Special · unlocked" : categoryNames[option.choice.category]}{option.needsOrientation ? " · choose direction" : option.needsSecondSpace ? " · two spaces" : ""}</small></span>
               <span className="place-cost">{option.choice.costLabel === "None" || option.choice.costLabel === "Free" ? "Free" : option.choice.costLabel}</span>
             </button></li>)}

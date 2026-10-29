@@ -5,6 +5,7 @@ import { getTileCategory } from "../../engine/placementRules";
 import { selectTileName } from "../../engine/selectors";
 import type { GameState, PlacedTile } from "../../engine/types";
 import { MapArtworkImage } from "../map/MapArtwork";
+import { tileArtworkUrl } from "../common/TileArtwork";
 import {
   boardBounds,
   boardCellById,
@@ -351,7 +352,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
           >
             <polygon className="board-hex-hit" points={hexPoints(x, y)} />
             {glow && <polygon className="board-hex-glow" points={hexPoints(x, y, hexRadius + 1)} />}
-            {placed && <TileToken state={state} tile={placed} hexId={cell.id} x={x} y={y} arriving={arrivingIds.has(placed.instanceId)} />}
+            {placed && <TileToken state={state} tile={placed} hexId={cell.id} x={x} y={y} arriving={arrivingIds.has(placed.instanceId)} sharp={hexPx >= 120} />}
             {(legal || inFootprint) && <polygon className="board-hex-legal" points={hexPoints(x, y, hexRadius - 2.5)} />}
             {selected && <polygon className="board-hex-selected" points={hexPoints(x, y, hexRadius - 1)} />}
             {choice && <polygon className="board-hex-choice" points={hexPoints(x, y, hexRadius - 2)} />}
@@ -404,35 +405,56 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
   </div>;
 });
 
-function TileToken({ state, tile, hexId, x, y, arriving = false }: { state: GameState; tile: PlacedTile; hexId: string; x: number; y: number; arriving?: boolean }) {
+/**
+ * A placed tile drawn with its printed artist face. The blank illustration
+ * window carries what a player needs at a glance: a large name, a category
+ * mark, Upgraded or Special, Strain and Supported. The printed text below the
+ * window stays untouched and is readable when zoomed in or inspected.
+ */
+function TileToken({ state, tile, hexId, x, y, arriving = false, sharp = false }: { state: GameState; tile: PlacedTile; hexId: string; x: number; y: number; arriving?: boolean; sharp?: boolean }) {
   const category = getTileCategory(tile);
   const name = selectTileName(tile);
   const anchor = tile.hexIds[0] === hexId;
   const overstrained = tile.strain >= 3;
   const supported = tile.support.passive || tile.support.singleUse;
   const golden = tile.tileId.startsWith("golden_tile_");
-  const edge = golden ? "#b8962e" : categoryColors[category];
-  const lines = anchor ? tokenLines(name) : [];
-  const nameY = y + (lines.length > 1 ? -1 : 2.5);
+  const accent = golden ? "#b8962e" : categoryColors[category];
+  const side = tile.side === "upgraded" ? "upgraded" : "basic";
+  // The small face is plenty at normal zoom; close up, the full-size print keeps its text crisp.
+  const face = tileArtworkUrl(tile.tileId, side, { thumbnail: !sharp, board: sharp, extension: tile.kind === "core" && !anchor });
+  const lines = anchor ? tokenLines(name, 12) : [];
+  const clipId = `face_${hexId}`;
+  const top = y - hexHeight / 2;
+  // The printed illustration window: between 19% and 49% of the face's height.
+  const windowTop = top + hexHeight * 0.2;
+  const windowBottom = top + hexHeight * 0.48;
+  // Fit the longest line inside the window (about 44 units wide).
+  const longest = Math.max(1, ...lines.map((line) => line.length));
+  const nameSize = Math.min(lines.length > 1 ? 5.6 : 6.6, 44 / (longest * 0.5));
+  const nameY = lines.length > 1 ? windowTop + 6.4 : windowTop + 8.6;
+  const mark = tile.kind === "special" ? "SPECIAL" : golden ? "GOLDEN" : tile.side === "upgraded" ? "UPGRADED" : "";
   void state;
   return <g className={`tile-token tile-${category}${overstrained ? " is-overstrained" : ""}${tile.side === "upgraded" ? " is-upgraded" : ""}${arriving ? " is-arriving" : ""}`} style={arriving ? { transformOrigin: `${x}px ${y}px` } : undefined} aria-hidden="true">
-    <polygon className="tile-token-edge" points={hexPoints(x, y, hexRadius - 1.5)} fill={edge} />
-    <polygon className="tile-token-face" points={hexPoints(x, y, hexRadius - 4.5)} />
-    <g className="tile-token-icon" transform={`translate(${x - 5.5} ${y - (lines.length ? 19 : 6)}) scale(0.46)`}>
-      <path d={iconPath(tileIcon(tile.tileId, category))} stroke={edge} />
-    </g>
-    {lines.length > 0 && <text className="tile-token-name" x={x} y={nameY} textAnchor="middle">
-      {lines.map((line, index) => <tspan key={line} x={x} dy={index === 0 ? 0 : 8.4}>{line}</tspan>)}
-    </text>}
-    {anchor && tile.side === "upgraded" && <text className="tile-token-upgraded" x={x} y={y + (lines.length > 1 ? 14.5 : 11)} textAnchor="middle">UPGRADED</text>}
-    {anchor && tile.kind === "special" && <text className="tile-token-upgraded" x={x} y={y + (lines.length > 1 ? 14.5 : 11)} textAnchor="middle">SPECIAL</text>}
-    {(tile.strain > 0 || overstrained) && <g className="tile-token-strain">
-      {[0, 1, 2].map((index) => <circle key={index} cx={x - 7 + index * 7} cy={y + 19} r={2.6} className={index < tile.strain ? "is-filled" : ""} />)}
+    <clipPath id={clipId}><polygon points={hexPoints(x, y, hexRadius - 0.6)} /></clipPath>
+    <polygon className="tile-token-shadow" points={hexPoints(x, y + 1.2, hexRadius - 0.6)} />
+    <image className="tile-token-art" href={face} x={x - hexRadius} y={top} width={hexRadius * 2} height={hexHeight} preserveAspectRatio="none" clipPath={`url(#${clipId})`} />
+    {overstrained && <polygon className="tile-token-overstrain" points={hexPoints(x, y, hexRadius - 0.6)} />}
+    <polygon className="tile-token-edge" points={hexPoints(x, y, hexRadius - 1.2)} stroke={accent} />
+    {anchor && <g className="tile-token-window">
+      {lines.length > 0 && <text className="tile-token-name" x={x} y={nameY} textAnchor="middle" fontSize={nameSize}>
+        {lines.map((line, index) => <tspan key={line} x={x} dy={index === 0 ? 0 : nameSize * 1.02}>{line}</tspan>)}
+      </text>}
+      <rect className="tile-token-category" x={x - 7} y={windowBottom - 4.6} width={14} height={1.3} rx={0.65} fill={accent} />
+      {mark && !overstrained && <text className="tile-token-mark" x={x} y={windowBottom - 0.9} textAnchor="middle">{mark}</text>}
+      {overstrained && <text className="tile-token-over" x={x} y={windowBottom - 0.9} textAnchor="middle">OVERSTRAINED</text>}
     </g>}
-    {overstrained && anchor && <text className="tile-token-over" x={x} y={y + 13} textAnchor="middle">OVERSTRAINED</text>}
-    {supported && <g className="tile-token-support" transform={`translate(${x - 19} ${y - 13})`}>
-      <circle r={5.5} />
-      <path d="M0 -3.2 L3 -2 L3 0.4 C3 2.4 1.5 3.4 0 3.8 C-1.5 3.4 -3 2.4 -3 0.4 L-3 -2 Z" />
+    {!anchor && <g className="tile-token-icon" transform={`translate(${x - 5.5} ${windowTop + 1}) scale(0.46)`}><path d={iconPath(tileIcon(tile.tileId, category))} stroke={accent} /></g>}
+    {(tile.strain > 0 || overstrained) && <g className="tile-token-strain">
+      {[0, 1, 2].map((index) => <circle key={index} cx={x - 7 + index * 7} cy={windowBottom + 2.6} r={2.5} className={index < tile.strain ? "is-filled" : ""} />)}
+    </g>}
+    {supported && <g className="tile-token-support" transform={`translate(${x - 20} ${windowTop + 4})`}>
+      <circle r={4.6} />
+      <path d="M0 -2.7 L2.5 -1.7 L2.5 0.35 C2.5 2 1.25 2.85 0 3.2 C-1.25 2.85 -2.5 2 -2.5 0.35 L-2.5 -1.7 Z" />
     </g>}
   </g>;
 }

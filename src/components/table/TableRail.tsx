@@ -1,5 +1,6 @@
 import { Term } from "./Term";
-import { useEffect, useState } from "react";
+import { EncounterCard } from "../common/EncounterCard";
+import { useEffect, useRef, useState } from "react";
 import { arrivalRequirementRules, getBurdenResolutionCost } from "../../data/contentRules";
 import { encounterById } from "../../data/encounters";
 import { resourceLabels, resources } from "../../data/resources";
@@ -13,7 +14,7 @@ import {
   getUsableFaceUpBoonIds
 } from "../../engine/gameActions";
 import type { GameState, ResourceCost, Season } from "../../engine/types";
-import { boonFrame, arrivalFrame, burdenFrame, goldenFrame } from "./cardArt";
+import type { EncounterData } from "../../engine/types";
 import { seatColors } from "./boardGeometry";
 
 interface TableRailProps {
@@ -40,6 +41,7 @@ function specialNumber(tileId: string): string {
 }
 
 export function TableRail(props: TableRailProps) {
+  const [openCard, setOpenCard] = useState<string | null>(null);
   const { state } = props;
   const playerIndex = state.players.findIndex((player) => player.id === state.currentPlayerId);
   const player = state.players[playerIndex];
@@ -100,7 +102,7 @@ export function TableRail(props: TableRailProps) {
         const rewards = card.rewardSpecialTileIds.map((tileId) => specialTileById[tileId]?.name).filter(Boolean);
         const uniqueRewards = [...new Set(rewards)];
         return <article key={arrival.cardId} className={`rail-card rail-arrival${arrival.timerTokens === 1 ? " is-urgent" : ""}${props.newCardIds.has(arrival.cardId) ? " is-new" : ""}`}>
-          <CardArt src={arrivalFrame} />
+          <CardFace card={card} timers={arrival.timerTokens} season={state.season} onOpen={setOpenCard} />
           <div className="rail-card-body">
             <p className="rail-card-kind"><span><Term id="arrival" />{props.newCardIds.has(arrival.cardId) ? " · new" : ""}</span><Timers count={arrival.timerTokens} /></p>
             <h3>{card.name}</h3>
@@ -125,7 +127,7 @@ export function TableRail(props: TableRailProps) {
         const cost = getBurdenResolutionCost(cardId, state.season);
         const resolution = card.resolutions?.[seasonKey(state.season)] ?? card.resolutionText ?? "";
         return <article key={cardId} className={`rail-card rail-burden${props.newCardIds.has(cardId) ? " is-new" : ""}`}>
-          <CardArt src={burdenFrame} />
+          <CardFace card={card} season={state.season} onOpen={setOpenCard} />
           <div className="rail-card-body">
             <p className="rail-card-kind"><span><Term id="burden" /> · {["", "I", "II", "III"][state.season]}{props.newCardIds.has(cardId) ? " · new" : ""}</span><span>{state.ignoredBurdenIdsThisRound.includes(cardId) ? "Ignored this round" : state.season < 3 ? "Returns next Season" : "Active"}</span></p>
             <h3>{card.name}</h3>
@@ -143,7 +145,7 @@ export function TableRail(props: TableRailProps) {
         const text = card.type === "boon" ? card.effects[seasonKey(state.season)] : card.effectText;
         const usable = usableBoons.has(boon.cardId);
         return <article key={boon.cardId} className={`rail-card rail-boon${usable ? "" : " is-muted"}${props.newCardIds.has(boon.cardId) ? " is-new" : ""}`}>
-          <CardArt src={card.type === "goldenBoon" ? goldenFrame : boonFrame} />
+          <CardFace card={card} season={state.season} onOpen={setOpenCard} />
           <div className="rail-card-body">
             <p className="rail-card-kind"><span>{card.type === "goldenBoon" ? "Golden Boon" : <Term id="boon" />}{props.newCardIds.has(boon.cardId) ? " · new" : ""}</span><span>{card.type === "goldenBoon" ? (boon.lastUsedRound === state.round ? "Used this round" : "Once per round") : `${boon.remainingUses} use${boon.remainingUses === 1 ? "" : "s"} left`}</span></p>
             <h3>{card.name}</h3>
@@ -162,11 +164,30 @@ export function TableRail(props: TableRailProps) {
     </section>}
 
     {state.phase === "turns" && <EndTurn state={state} onEndTurn={props.onEndTurn} />}
+    {openCard && <CardReader cardId={openCard} state={state} onClose={() => setOpenCard(null)} />}
   </aside>;
 }
 
-function CardArt({ src }: { src: string }) {
-  return <span className="rail-card-art" aria-hidden="true"><img src={src} alt="" loading="lazy" decoding="async" /></span>;
+/** The printed card, small, as it would sit on the table. Tap to read it full size. */
+function CardFace({ card, timers, season, onOpen }: { card: EncounterData; timers?: number; season: Season; onOpen: (cardId: string) => void }) {
+  return <button type="button" className="rail-card-face" aria-label={`Read the full card: ${card.name}`} onClick={() => onOpen(card.id)}>
+    <EncounterCard card={card} currentSeason={season} size="mini" timers={timers} aria-hidden="true" />
+  </button>;
+}
+
+/** The full-size printed card, over the table. */
+function CardReader({ cardId, state, onClose }: { cardId: string; state: GameState; onClose: () => void }) {
+  const card = encounterById[cardId];
+  const close = useRef<HTMLButtonElement>(null);
+  useEffect(() => { close.current?.focus(); }, []);
+  if (!card) return null;
+  const timers = state.encounters.activeArrivals.find((arrival) => arrival.cardId === cardId)?.timerTokens;
+  return <div className="card-reader" role="dialog" aria-modal="true" aria-label={card.name} onClick={onClose} onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
+    <div className="card-reader-body" onClick={(event) => event.stopPropagation()}>
+      <EncounterCard card={card} currentSeason={state.season} timers={timers} />
+      <button type="button" ref={close} className="card-reader-close" onClick={onClose}>Back to the table</button>
+    </div>
+  </div>;
 }
 
 function Timers({ count }: { count: number }) {
