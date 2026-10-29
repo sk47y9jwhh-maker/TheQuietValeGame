@@ -37,7 +37,8 @@ jobs:
         run: npm run test
 
       - name: Build
-        run: GITHUB_PAGES=true npm run build
+        # The published site opens straight into the board-first table.
+        run: GITHUB_PAGES=true VITE_DEFAULT_EXPERIENCE=table npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

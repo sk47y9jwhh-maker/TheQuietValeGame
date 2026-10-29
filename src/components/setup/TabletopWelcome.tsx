@@ -6,7 +6,7 @@ import { stewardById, stewards } from "../../data/stewards";
 import { LegacySetupOptions } from "./LegacySetupOptions";
 import { supportedPlayerCounts } from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
-import { isBoardTableExperience } from "../../app/experience";
+import { isBoardTableExperience, isHostedDemo } from "../../app/experience";
 import { comparisonScenarios } from "../../app/scenarioCatalog";
 import { RulesGuide } from "../panels/RulesGuide";
 import type { SetupPanelProps } from "./SetupPanel";
@@ -32,8 +32,8 @@ export function TabletopWelcome(props: SetupPanelProps) {
   return (
     <main className="vale-welcome">
       <header className="welcome-header">
-        <a href="?" className="welcome-brand" aria-label="The Quiet Vale experience studio"><BrandMark /><span>The Quiet Vale<small>Seasons of Settlement</small></span></a>
-        <a className="welcome-studio-link" href="?">Compare experiences <ArrowRight size={16} aria-hidden="true" /></a>
+        <a href={isHostedDemo ? "./" : "?"} className="welcome-brand" aria-label={isHostedDemo ? "The Quiet Vale" : "The Quiet Vale experience studio"}><BrandMark /><span>The Quiet Vale<small>Seasons of Settlement</small></span></a>
+        {!isHostedDemo && <a className="welcome-studio-link" href="?">Compare experiences <ArrowRight size={16} aria-hidden="true" /></a>}
       </header>
       <div className="welcome-layout">
         <section className="welcome-landscape">

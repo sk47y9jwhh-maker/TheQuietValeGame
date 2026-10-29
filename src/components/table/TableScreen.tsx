@@ -14,6 +14,7 @@ import { TableBoard, type TableBoardHandle } from "./TableBoard";
 import { TableRail } from "./TableRail";
 import { categoryColors, categoryNames } from "./boardGeometry";
 import { useBoardChoiceHost } from "./boardChoices";
+import { isHostedDemo } from "../../app/experience";
 import { TableCoach } from "./TableCoach";
 import { Term } from "./Term";
 import {
@@ -424,7 +425,7 @@ function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo,
       <button type="button" className="icon-button" aria-label="Menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg></button>
       {menuOpen && <div className="table-menu-panel" role="menu">
         <a role="menuitem" href="./">Back to the start page</a>
-        <a role="menuitem" href="?experience=tabletop">Open the Living Table layout</a>
+        {!isHostedDemo && <a role="menuitem" href="?experience=tabletop">Open the Living Table layout</a>}
       </div>}
     </div>
   </header>;
