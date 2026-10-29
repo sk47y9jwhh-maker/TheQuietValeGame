@@ -945,3 +945,7 @@
 .table-resolution-body .finale-record-column { grid-row: 1; }
 .table-resolution-body :is(.finale-score-card, .finale-ledger, .finale-objectives) { padding: 16px; }
 .table-resolution-body .completed-game-layout { padding: 0; overflow: visible; background: none; }
+
+.season-banner { display: grid; gap: 4px; max-width: 760px; margin: 18px auto 0; padding: 14px 18px; border-radius: 14px; background: #3a4934; color: #f6f0dc; box-sizing: border-box; width: calc(100% - 32px); }
+.season-banner .eyebrow { margin: 0; color: var(--bt-brass-light); font-size: 0.74rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.season-banner p:last-child { margin: 0; line-height: 1.45; }

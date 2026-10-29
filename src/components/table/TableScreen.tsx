@@ -316,10 +316,25 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
 /** The table's top bar around a full-screen stage, for steps away from the board such as seeding. */
 export function TableChrome({ state, canUndo, canRedo, onUndo, onRedo, onReset, children }: { state: GameState; canUndo: boolean; canRedo: boolean; onUndo: () => void; onRedo: () => void; onReset: () => void; children: ReactNode }) {
   const compact = useCompact();
+  const banner = state.phase === "seeding" ? seasonBanner(state) : null;
   return <div className={`table-screen${compact ? " is-compact" : ""}`}>
     <TableTopBar state={state} score={calculateFinalScore(state).finalScore} canUndo={canUndo} canRedo={canRedo} onUndo={onUndo} onRedo={onRedo} onReset={onReset} compact={compact} />
-    <div className="table-stage">{children}</div>
+    <div className="table-stage">{banner && <aside className="season-banner" aria-label="Season change"><p className="eyebrow">{banner.eyebrow}</p><p>{banner.text}</p></aside>}{children}</div>
   </div>;
+}
+
+const seasonTitles = ["", "Foundations", "Growth", "Maturity"];
+
+/** What a new Season means, in one or two sentences, shown above seeding. */
+function seasonBanner(state: GameState): { eyebrow: string; text: string } {
+  const numeral = ["", "I", "II", "III"][state.season];
+  const eyebrow = `Season ${numeral} · ${seasonTitles[state.season]}${state.season > 1 ? " begins" : ""}`;
+  if (state.season === 1) return { eyebrow, text: "Before the first round, each Steward secretly adds three cards from their hand to the Encounter Deck: one near the top, one in the middle and one near the bottom." };
+  const burdens = state.encounters.activeBurdens.length;
+  return {
+    eyebrow,
+    text: `${burdens ? `${burdens} Burden${burdens === 1 ? " is" : "s are"} still on the table and now use${burdens === 1 ? "s" : ""} the harsher Season ${numeral} text and cost. ` : "Burdens revealed from now on use their harsher Season " + numeral + " text and cost. "}Each Steward secretly seeds three more cards before Round ${state.round} is revealed.`
+  };
 }
 
 function stewardName(state: GameState): string {

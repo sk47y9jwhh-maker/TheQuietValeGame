@@ -1,4 +1,4 @@
-export const scenarioIds = ["welcome", "settlement", "choice", "handoff", "last-action", "finale", "returning", "golden-bell", "golden-scroll", "golden-signet", "golden-vial", "golden-traveller", "ranger-reach", "warden-response", "sentinel-upgrade", "season-three"] as const;
+export const scenarioIds = ["welcome", "settlement", "choice", "handoff", "last-action", "finale", "returning", "golden-bell", "golden-scroll", "golden-signet", "golden-vial", "golden-traveller", "ranger-reach", "warden-response", "sentinel-upgrade", "season-three", "showcase-late", "showcase-chain", "showcase-season"] as const;
 export type ScenarioId = (typeof scenarioIds)[number];
 export const scenarioStorageVersion = 1;
 
@@ -18,6 +18,9 @@ export const comparisonScenarios: Record<ScenarioId, { name: string; description
   "warden-response": { name: "A Warden’s response", description: "A Burden reveal is waiting. Warden may spend the Season power to prevent that reveal and help one tile. The Burden stays active.", tasks: ["Compare applying the reveal with using Warden", "Choose Strain removal or Supported", "Apply relief, then try Undo and reload"] },
   "sentinel-upgrade": { name: "An improvement after the last action", description: "Sentinel has used four actions. A basic Path beside an upgraded Mine can still benefit from the Season power.", tasks: ["Prepare a 0-action Core upgrade", "Review the resource cost and Supported bonus", "Upgrade the Path, then try Undo and reload"] },
   "season-three": { name: "The third Season's demands", description: "A real seven-tile game reaches Season III. Houses, Not Homes has a larger payment-or-Strain choice before the next seeding.", tasks: ["Compare three reveal outcomes", "Use a payment or mixed choice and inspect the next effect", "Continue into Season III and review Burden resolution costs"] },
+  "showcase-late": { name: "A thriving settlement", description: "Round 11 of a full two-player game: 25 tiles across the Vale, Arrivals waiting and the last Season under way.", tasks: ["Read the settlement at a glance", "Produce from a Linked group", "Check the score now and what is at risk"] },
+  "showcase-chain": { name: "The Strain spreads", description: "A card revealed this round has just Overstrained a Fine Cabin. Watch the chain spread across the settlement, one Target Card at a time.", tasks: ["Follow the chain on the board", "Watch the Target Card choose", "See the cost in the score"] },
+  "showcase-season": { name: "The turning of the Season", description: "The end of Round 8. Season III begins: Burdens grow harder, and each Steward seeds three hidden cards.", tasks: ["See what changes with the Season", "Seed your hidden cards", "Reveal the first round of Season III"] },
   returning: { name: "Return to a growing Ledger", description: "An example campaign with five completed entries and its first Golden unlock. All progress belongs to this demo.", tasks: ["Find the optional Golden choices", "Inspect the unlocked content", "Start a new settlement"] }
 };
 

@@ -1,78 +1,17 @@
 /** Rebuild the isolated comparison fixtures through the established game engine. */
 import { writeFileSync } from "node:fs";
 import { createNewGame } from "../src/engine/setup";
-import { canCancelPendingBurdenWithWarden, activateTile, commitSeasonSeeding, commitStewardPlacement, endCurrentTurn, placeTile, resolveEndRound, revealEncounters, useStewardPower, upgradeTile } from "../src/engine/gameActions";
-import { getAlternativeEffectRule, hasEffectAdjustment, preparePendingEffectQueueHead, resolvePendingEffect, skipPendingEffect } from "../src/engine/manualEffects";
-import { skipDeckReorder } from "../src/engine/deckReorder";
+import { canCancelPendingBurdenWithWarden, activateTile, endCurrentTurn, placeTile, resolveEndRound, revealEncounters, useStewardPower, upgradeTile } from "../src/engine/gameActions";
+import { hasEffectAdjustment } from "../src/engine/manualEffects";
 import { getLegalPlacementHexes } from "../src/engine/placementRules";
-import { trackLedgerTransition } from "../src/engine/ledger";
 import { createEmptyLedgerCampaign } from "../src/engine/ledgerCampaign";
-import { encounterById } from "../src/data/encounters";
-import { resources } from "../src/data/resources";
 import { ledgerEntries } from "../src/data/ledger";
-import type { EffectAdjustment, GameState } from "../src/engine/types";
 import type { PreviewSnapshot } from "../src/app/scenarioTypes";
 import type { ScenarioId } from "../src/app/scenarioCatalog";
-
-const seed = "QV-COMPARISON-1";
-function advance(state: GameState, action: (state: GameState) => GameState): GameState {
-  const next = action(state);
-  if (next === state) throw new Error(`Comparison action made no change in ${state.phase}, round ${state.round}.`);
-  return trackLedgerTransition(state, next);
-}
-
-function settle(input: GameState, stopForWarden = false, options: { preferPayments?: boolean; stopBeforeRuleId?: string } = {}): GameState {
-  let state = input;
-  for (let guard = 0; guard < 100; guard++) {
-    if (state.pendingDeckReorder) { state = advance(state, skipDeckReorder); continue; }
-    if (!state.pendingEffects.length) return state;
-    const prepared = preparePendingEffectQueueHead(state);
-    if (prepared !== state) state = trackLedgerTransition(state, prepared);
-    if (stopForWarden && canCancelPendingBurdenWithWarden(state).ok) return state;
-    const pending = state.pendingEffects[0];
-    if (pending.ruleId === options.stopBeforeRuleId) return state;
-    const alternative = options.preferPayments ? getAlternativeEffectRule(state, pending.ruleId) : undefined;
-    const choices: EffectAdjustment[] = alternative?.kind === "pay_or_strain" || alternative?.kind === "pay_or_timer"
-      ? alternative.resources.map((resource) => ({ resourceDeltas: { [resource]: -alternative.resourceStep * alternative.requiredChoices }, tileStrainDeltas: {}, arrivalTimerDeltas: {} })) : [];
-    choices.push({});
-    // Open Target Cards can require an explicit target. Try legal outcomes only;
-    // the engine rejects candidates that do not satisfy this particular effect.
-    for (const tile of state.map.placedTiles) for (const delta of [-1, 1, -2, 2, -3, 3]) choices.push({ tileStrainDeltas: { [tile.instanceId]: delta } });
-    for (const resource of resources) for (let amount = 1; amount <= 5; amount++) choices.push({ resourceDeltas: { [resource]: -amount } });
-    for (const first of state.map.placedTiles) for (const second of state.map.placedTiles) if (first !== second) choices.push({ tileStrainDeltas: { [first.instanceId]: 1, [second.instanceId]: 1 } });
-    for (const resource of resources) for (let amount = 1; amount <= 5; amount++) choices.push({ resourceDeltas: { [resource]: amount } });
-    let resolved: GameState | undefined;
-    for (const choice of choices) {
-      const candidate = resolvePendingEffect(state, choice);
-      if (!candidate.pendingEffects.some((effect) => effect.id === pending.id)) { resolved = candidate; break; }
-    }
-    if (!resolved && pending.canSkip) resolved = skipPendingEffect(state);
-    if (!resolved || resolved.pendingEffects.some((effect) => effect.id === pending.id)) throw new Error(`No legal scripted resolution for ${pending.ruleId}: ${JSON.stringify(pending)}`);
-    state = trackLedgerTransition(state, resolved);
-  }
-  throw new Error("Comparison effect queue exceeded its guard.");
-}
-
-function startStewards(input: GameState): GameState {
-  let state = input;
-  for (const player of state.players) state = advance(state, (current) => commitStewardPlacement(current, player.id, player.stewardHexId));
-  return state;
-}
-
-function seedSeason(input: GameState): GameState {
-  let state = input;
-  for (const player of state.players) {
-    const hand = state.encounters.handsByPlayerId[player.id];
-    const top = hand.find((id) => encounterById[id].type === "arrival") ?? hand[0];
-    const rest = hand.filter((id) => id !== top);
-    state = advance(state, (current) => commitSeasonSeeding(current, player.id, { top, middle: rest[0], bottom: rest[1] }));
-  }
-  return state;
-}
-
-function snapshot(state: GameState | null, stewards = ["vanguard", "knight"]): PreviewSnapshot {
-  return { setup: { playerCount: state?.playerCount ?? 2, stewardIds: state?.players.map((player) => player.stewardId) ?? stewards, encounterSeed: seed }, state, campaign: createEmptyLedgerCampaign() };
-}
+import { advance, seed, seedSeason, settle, snapshot, startStewards } from "./scenario-steps";
+import { playTurn } from "./showcase-bot";
+import { trackLedgerTransition } from "../src/engine/ledger";
+import type { GameState } from "../src/engine/types";
 
 // Fixed clocks apply only while generating checked-in fixtures, never in the game.
 const realNow = Date.now;
@@ -230,6 +169,32 @@ try {
   }
   if (late.season !== 3 || late.pendingEffects[0]?.ruleId !== lateRule) throw new Error("Late fixture did not reach its Season III choice.");
   result["season-three"] = snapshot(late);
+
+  // Showcase moments for first-time viewers. Each comes from a full game
+  // played by a simple lookahead bot through ordinary engine actions.
+  const chainRule = "system:overstrain-spread";
+  const playShowcase = (acceptStrain: boolean, stop: (state: GameState) => boolean) => {
+    const resolveWith = (state: GameState) => settle(state, false, acceptStrain ? {} : { preferPayments: true });
+    let game = startStewards(createNewGame(2, ["vanguard", "knight"], { encounterSeed: seed }));
+    let caught: GameState | null = null;
+    const watch = (state: GameState) => {
+      const paused = settle(state, false, { ...(acceptStrain ? {} : { preferPayments: true }), stopBeforeRuleId: chainRule });
+      if (!caught && stop(paused)) caught = paused;
+      return resolveWith(paused);
+    };
+    for (let guard = 0; !caught && game.phase !== "gameEnd" && guard < 400; guard++) {
+      if (game.phase === "seeding") game = seedSeason(game);
+      else if (game.phase === "reveal") game = advance(game, revealEncounters);
+      else if (game.phase === "endRound") game = advance(game, resolveEndRound);
+      else if (game.phase === "turns") game = playTurn(game, (state) => settle(state, false, { preferPayments: true }), trackLedgerTransition, watch);
+      if (!caught) game = watch(game);
+    }
+    if (!caught) throw new Error("Showcase game did not reach its moment.");
+    return caught as GameState;
+  };
+  result["showcase-late"] = snapshot(playShowcase(false, (state) => state.phase === "turns" && state.round === 11 && state.actionsRemaining === 4 && !state.pendingEffects.length));
+  result["showcase-chain"] = snapshot(playShowcase(true, (state) => state.pendingEffects[0]?.ruleId === chainRule));
+  result["showcase-season"] = snapshot(playShowcase(true, (state) => state.phase === "endRound" && state.round === 8 && !state.pendingEffects.length));
 
   result.returning = snapshot(null);
   for (const entry of ledgerEntries.slice(0, 5)) result.returning.campaign.completions[entry.id] = { entryId: entry.id, completedOnce: true, completedPlayerCounts: [], notes: "Example progress for the isolated comparison scenario." };
