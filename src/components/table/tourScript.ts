@@ -5,7 +5,7 @@
  * player took their own action, say) return null and the tour offers to hand
  * over instead.
  */
-import { activateTile, commitSeasonSeeding, completeArrival, canCompleteArrival, confirmCostChoice, endCurrentTurn, placeTile, resolveEndRound, revealEncounters } from "../../engine/gameActions";
+import { activateTile, canResolveBurden, resolveBurden, commitSeasonSeeding, completeArrival, canCompleteArrival, confirmCostChoice, endCurrentTurn, placeTile, resolveEndRound, revealEncounters } from "../../engine/gameActions";
 import { getAlternativeEffectRule, preparePendingEffectQueueHead, resolvePendingEffect, skipPendingEffect } from "../../engine/manualEffects";
 import { skipDeckReorder } from "../../engine/deckReorder";
 import { getLegalPlacementHexes } from "../../engine/placementRules";
@@ -151,7 +151,7 @@ export const tourSteps: TourStep[] = [
   {
     id: "arrival",
     title: "Welcome the Arrival",
-    text: (state) => `${firstArrival(state)?.name ?? "The Arrival"} ${costText(state)}. Paying with an Interact action completes it: it scores Renown and unlocks its Special tile. Its timer tokens show how long it will wait.`,
+    text: (state) => `${firstArrival(state)?.name ?? "The Arrival"} ${costText(state)}. Paying with an Interact action completes it and unlocks its Special tile, ready to build. Its timer tokens show how long it will wait.`,
     verb: "Pay and welcome them",
     target: () => ({ ui: "arrivals" }),
     play: (state) => {
@@ -208,6 +208,15 @@ export const tourSteps: TourStep[] = [
     verb: "Activate one",
     target: (state) => { const tiles = state.map.placedTiles.filter((tile) => tile.tileId === "c01_lumber_yard"); return tiles.length ? { hexIds: tiles.map((tile) => tile.hexIds[0]), label: "Produce together" } : null; },
     play: (state) => { const tile = tileAt(state, "c01_lumber_yard"); return tile && state.phase === "turns" ? step(state, (current) => activateTile(current, current.currentPlayerId, tile.instanceId)) : null; }
+  },
+  {
+    id: "resolve-burden",
+    title: "Set the Burden down",
+    skip: (state) => !state.encounters.activeBurdens.some((id) => canResolveBurden(state, id).ok),
+    text: (state) => { const id = state.encounters.activeBurdens[0]; return `${id ? encounterById[id]?.name ?? "The Burden" : "The Burden"} stays on the table after its first effect. It costs 10 points at the end and strikes again next Season. Resolving it takes an Interact action and its printed cost.`; },
+    verb: "Resolve it",
+    target: () => ({ ui: "encounters" }),
+    play: (state) => { const id = state.encounters.activeBurdens.find((candidate) => canResolveBurden(state, candidate).ok); return id && state.phase === "turns" ? step(state, (current) => resolveBurden(current, id)) : null; }
   },
   {
     id: "score",

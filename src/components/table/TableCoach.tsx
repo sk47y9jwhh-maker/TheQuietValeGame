@@ -98,7 +98,7 @@ const steps: Step[] = [
     when: (state) => state.phase === "turns" && state.encounters.activeArrivals.length > 0 && logged(state, /^Activated /),
     done: (state) => logged(state, /^Completed Arrival:/),
     title: "Welcome an Arrival",
-    why: () => "Pay what an Arrival asks before its timer tokens run out. It scores Renown and unlocks a Special tile.",
+    why: () => "Pay what an Arrival asks before its timer tokens run out. It unlocks a Special tile to build.",
     doThis: () => "Green ticks mean you have enough. Press Complete when you can.",
     target: () => ({ ui: "arrivals" })
   },
