@@ -1,6 +1,8 @@
 import { Term } from "./Term";
+import { readyEnhancers } from "./tableActions";
+import { Sparkles } from "lucide-react";
 import { EncounterCard } from "../common/EncounterCard";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { arrivalRequirementRules, getBurdenResolutionCost } from "../../data/contentRules";
 import { encounterById } from "../../data/encounters";
 import { resourceLabels, resources } from "../../data/resources";
@@ -44,6 +46,8 @@ export function TableRail(props: TableRailProps) {
   const [openCard, setOpenCard] = useState<string | null>(null);
   const [powerOpen, setPowerOpen] = useState(false);
   const { state } = props;
+  // Boons and powers that the action cards offer directly ("with …").
+  const foldable = useMemo(() => new Set(readyEnhancers(state).map((enhancer) => enhancer.kind === "power" ? "power" : enhancer.id)), [state]);
   const playerIndex = state.players.findIndex((player) => player.id === state.currentPlayerId);
   const player = state.players[playerIndex];
   const steward = player ? stewardById[player.stewardId] : undefined;
@@ -73,9 +77,10 @@ export function TableRail(props: TableRailProps) {
         <div>
           <strong>{steward.name} <Term id="stewardPower">power</Term>{powerUsed ? " · used this Season" : power.ok ? " · ready" : ""}</strong>
           <p className={powerOpen ? "" : "is-clamped"} id="rail-power-text">{steward.powerText}</p>
+          {power.ok && foldable.has("power") && <p className="rail-folded"><Sparkles size={13} aria-hidden="true" />Offered on matching actions. Tap a tile or a space and choose “with {steward.name}’s power”.</p>}
           <button type="button" className="rail-power-more" aria-expanded={powerOpen} aria-controls="rail-power-text" onClick={() => setPowerOpen((open) => !open)}>{powerOpen ? "Show less" : "Read the full power"}</button>
         </div>
-        {power.ok && <button type="button" aria-label="Use Steward Power" onClick={props.onUseStewardPower}>Use</button>}
+        {power.ok && !foldable.has("power") && <button type="button" aria-label="Use Steward Power" onClick={props.onUseStewardPower}>Use</button>}
       </div>}
       {state.boonModifiers.length > 0 && <ul className="rail-prepared" aria-label="Prepared effects">
         {state.boonModifiers.map((modifier) => <li key={modifier.id}><strong>{modifier.name}</strong> {modifier.effectText}</li>)}
@@ -153,7 +158,8 @@ export function TableRail(props: TableRailProps) {
             <p className="rail-card-kind"><span>{card.type === "goldenBoon" ? "Golden Boon" : <Term id="boon" />}{props.newCardIds.has(boon.cardId) ? " · new" : ""}</span><span>{card.type === "goldenBoon" ? (boon.lastUsedRound === state.round ? "Used this round" : "Once per round") : `${boon.remainingUses} use${boon.remainingUses === 1 ? "" : "s"} left`}</span></p>
             <h3>{card.name}</h3>
             <p className="rail-card-text">{text}</p>
-            {state.phase === "turns" && usable && <button type="button" onClick={() => props.onUseBoon(boon.cardId)}>Use · free</button>}
+            {state.phase === "turns" && usable && foldable.has(boon.cardId) && <p className="rail-folded"><Sparkles size={13} aria-hidden="true" />Offered on matching actions as you play.</p>}
+            {state.phase === "turns" && usable && !foldable.has(boon.cardId) && <button type="button" onClick={() => props.onUseBoon(boon.cardId)}>Use · free</button>}
           </div>
         </article>;
       })}

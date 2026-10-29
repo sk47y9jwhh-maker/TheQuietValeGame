@@ -4,6 +4,9 @@ import { canCancelPendingBurdenWithWarden } from "../../engine/gameActions";
 import { describeEffectControls } from "../../engine/effectControls";
 import {
   canResolvePendingEffectWithoutAdjustment,
+  preparePendingEffectQueueHead,
+  refreshPendingEffectForCurrentState,
+  resolvePendingEffect,
   getAlternativeEffectRule,
   getHelpStandsRule,
   getResourceGainChoiceRule,
@@ -94,4 +97,26 @@ export function revealedCardIds(before: GameState, after: GameState): { id: stri
   const fromPending = after.pendingEffects.map((effect) => effect.sourceId).filter((id): id is string => Boolean(id && encounterById[id]));
   const ids = [...new Set([...revealed, ...fromPending])].filter((id) => !seen.has(id));
   return ids.map((id) => ({ id, name: encounterById[id]?.name ?? id }));
+}
+
+/**
+ * Resolves every step at the head of the queue that has nothing to decide,
+ * exactly as the table does on its own. Returns null if a real choice is left,
+ * so a caller can tell whether a combined action is safe to offer.
+ */
+export function settleAutomaticSteps(input: GameState): GameState | null {
+  let state = input;
+  for (let guard = 0; guard < 12; guard++) {
+    if (state.pendingCostChoice || state.pendingDeckReorder || state.pendingGoldenEffect) return null;
+    const head = state.pendingEffects[0];
+    if (!head) return state;
+    const prepared = preparePendingEffectQueueHead(state);
+    if (prepared !== state) { state = prepared; continue; }
+    const effect = refreshPendingEffectForCurrentState(state, head);
+    if (!isAutomaticEffect(state, effect)) return null;
+    const next = resolvePendingEffect(state, {});
+    if (next.pendingEffects.some((candidate) => candidate.id === head.id)) return null;
+    state = next;
+  }
+  return null;
 }

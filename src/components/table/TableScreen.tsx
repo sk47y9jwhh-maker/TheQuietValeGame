@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ArrowLeft, Eye, Maximize2, Minus, Plus, Redo2, RotateCcw, RotateCw, Undo2, X } from "lucide-react";
+import { ArrowLeft, Eye, Maximize2, Minus, Plus, Redo2, RotateCcw, RotateCw, Undo2, X, Sparkles } from "lucide-react";
 import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { encounterById } from "../../data/encounters";
 import { stewardById } from "../../data/stewards";
@@ -26,13 +26,17 @@ import {
   legalSpacesFor,
   summariseForecast,
   tileName,
+  applyEnhancer,
+  type Enhancer,
+  type EnhancedOption,
   type HexPlaceOption
 } from "./tableActions";
 
 export interface TableGameHandlers {
-  activate: (placedTileId: string) => void;
-  upgrade: (placedTileId: string) => void;
-  place: (tileId: string, draft: TilePlacementDraft) => void;
+  /** Each action can fold in a Boon or the Steward's power, applied in the same step. */
+  activate: (placedTileId: string, enhancer?: Enhancer) => void;
+  upgrade: (placedTileId: string, enhancer?: Enhancer) => void;
+  place: (tileId: string, draft: TilePlacementDraft, enhancer?: Enhancer) => void;
   completeArrival: (cardId: string) => void;
   resolveBurden: (cardId: string) => void;
   useBoon: (cardId: string) => void;
@@ -78,7 +82,7 @@ export interface TableResolution {
 type Mode =
   | { kind: "idle" }
   | { kind: "selected"; hexId: string }
-  | { kind: "placing"; tileId: string; anchorHexId?: string; orientation: HexDirection; secondaryHexId?: string };
+  | { kind: "placing"; tileId: string; anchorHexId?: string; orientation: HexDirection; secondaryHexId?: string; enhancer?: Enhancer };
 
 /** A short, wide screen (a phone on its side, or a zoomed-in window): the sheet becomes a side column. */
 function useShortLandscape() {
@@ -164,18 +168,20 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
       : placingKind === "detached" ? { anchorHexId: placing.anchorHexId, secondaryHexIds: placing.secondaryHexId ? [placing.secondaryHexId] : [] }
       : { anchorHexId: placing.anchorHexId }
     : null;
+  // A placement started with a Boon or power is checked against the state with it applied.
+  const placingState = useMemo(() => placing?.enhancer ? applyEnhancer(state, placing.enhancer) ?? state : state, [placing?.enhancer, state]);
   const placingLegal = useMemo(() => {
     if (!placing) return undefined;
     if (placingKind === "detached") {
       return new Set(placing.anchorHexId
-        ? getLegalPlacementHexes(state, state.currentPlayerId, placing.tileId, { anchorHexId: placing.anchorHexId, secondaryHexIds: [] })
-        : getLegalPlacementHexes(state, state.currentPlayerId, placing.tileId, {}));
+        ? getLegalPlacementHexes(placingState, state.currentPlayerId, placing.tileId, { anchorHexId: placing.anchorHexId, secondaryHexIds: [] })
+        : getLegalPlacementHexes(placingState, state.currentPlayerId, placing.tileId, {}));
     }
-    return new Set(legalSpacesFor(state, placing.tileId, {}));
-  }, [placing, placingKind, state]);
+    return new Set(legalSpacesFor(placingState, placing.tileId, {}));
+  }, [placing, placingKind, placingState]);
   const placingFootprint = placing && placingDraft ? new Set(footprintFor(placing.tileId, placingDraft)) : undefined;
-  const placingReady = placing && placingDraft ? canStartPlaceTile(state, state.currentPlayerId, placing.tileId, placingDraft).ok : false;
-  const placingForecast = placing && placingDraft && placingReady ? previewTileAction(state, state.currentPlayerId, { type: "place", tileId: placing.tileId, draft: placingDraft }) : undefined;
+  const placingReady = placing && placingDraft ? canStartPlaceTile(placingState, state.currentPlayerId, placing.tileId, placingDraft).ok : false;
+  const placingForecast = placing && placingDraft && placingReady ? previewTileAction(placingState, state.currentPlayerId, { type: "place", tileId: placing.tileId, draft: placingDraft }) : undefined;
 
   const activeForecast: ActionForecast | undefined = placingForecast ?? tileActions?.options.find((option) => option.available)?.forecast;
   const glow = useMemo(() => resolution?.sourceTileId ? new Set([resolution.sourceTileId]) : tileActions && tileActions.linkedTileIds.length > 0 ? new Set([tileActions.tile.instanceId, ...tileActions.linkedTileIds]) : undefined, [resolution?.sourceTileId, tileActions]);
@@ -190,7 +196,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
         return;
       }
       if (placingLegal?.has(hexId)) {
-        const orientations = placingKind === "line" ? legalOrientations(state, placing.tileId, hexId) : [];
+        const orientations = placingKind === "line" ? legalOrientations(placingState, placing.tileId, hexId) : [];
         setMode({ ...placing, anchorHexId: hexId, orientation: orientations.includes(placing.orientation) ? placing.orientation : orientations[0] ?? placing.orientation });
         return;
       }
@@ -202,19 +208,20 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     if (compact) requestAnimationFrame(() => boardRef.current?.reveal(hexId));
   }
 
-  function choosePlacement(option: HexPlaceOption, hexId: string) {
+  function choosePlacement(option: HexPlaceOption, hexId: string, enhancer?: Enhancer) {
     if (option.needsSecondSpace) { setMode({ kind: "placing", tileId: option.choice.id, anchorHexId: hexId, orientation: 3 }); return; }
     if (option.needsOrientation) {
-      const orientations = legalOrientations(state, option.choice.id, hexId);
-      setMode({ kind: "placing", tileId: option.choice.id, anchorHexId: hexId, orientation: orientations[0] ?? 3 });
+      const orientations = legalOrientations(enhancer ? applyEnhancer(state, enhancer) ?? state : state, option.choice.id, hexId);
+      setMode({ kind: "placing", tileId: option.choice.id, anchorHexId: hexId, orientation: orientations[0] ?? 3, enhancer });
       return;
     }
-    if (option.draft) { handlers.place(option.choice.id, option.draft); setMode({ kind: "idle" }); }
+    const draft = enhancer ? option.enhanced?.draft : option.draft;
+    if (draft) { handlers.place(option.choice.id, draft, enhancer); setMode({ kind: "idle" }); }
   }
 
   function rotate(step: number) {
     if (!placing?.anchorHexId) return;
-    const orientations = legalOrientations(state, placing.tileId, placing.anchorHexId);
+    const orientations = legalOrientations(placingState, placing.tileId, placing.anchorHexId);
     if (orientations.length === 0) return;
     const index = orientations.indexOf(placing.orientation);
     setMode({ ...placing, orientation: orientations[(index + step + orientations.length) % orientations.length] });
@@ -225,17 +232,17 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     if (placing) {
       const name = tileName(placing.tileId);
       const ready = placingReady && placingDraft;
-      const orientations = placing.anchorHexId && placingKind === "line" ? legalOrientations(state, placing.tileId, placing.anchorHexId) : [];
+      const orientations = placing.anchorHexId && placingKind === "line" ? legalOrientations(placingState, placing.tileId, placing.anchorHexId) : [];
       const instruction = placingKind === "detached"
         ? !placing.anchorHexId ? "Tap a highlighted space for the first Stables." : !placing.secondaryHexId ? "Now tap a highlighted space for the second Stables." : ""
         : !placing.anchorHexId ? "Tap a highlighted space." : "";
       return {
         hexId: placing.anchorHexId ?? placingAnchorHint(state),
         content: <div className="action-card">
-          <header><div><h3>{name}</h3><p>{placing.anchorHexId ? `at ${placing.anchorHexId}` : "Choose where it goes"}</p></div><button type="button" className="icon-button" aria-label="Cancel placing" onClick={() => setMode({ kind: "idle" })}><X size={18} /></button></header>
+          <header><div><h3>{name}</h3><p>{placing.anchorHexId ? `at ${placing.anchorHexId}` : "Choose where it goes"}</p>{placing.enhancer && <p className="enhancer-tag"><Sparkles size={13} aria-hidden="true" />With {placing.enhancer.name}</p>}</div><button type="button" className="icon-button" aria-label="Cancel placing" onClick={() => setMode({ kind: "idle" })}><X size={18} /></button></header>
           {instruction && <p className="action-card-hint">{instruction}</p>}
           {orientations.length > 1 && <div className="rotate-row"><button type="button" onClick={() => rotate(-1)}><RotateCcw size={16} aria-hidden="true" />Turn</button><span>{orientations.length} directions fit</span><button type="button" onClick={() => rotate(1)}>Turn<RotateCw size={16} aria-hidden="true" /></button></div>}
-          {ready && <button type="button" className="action-primary" onClick={() => { handlers.place(placing.tileId, placingDraft); setMode({ kind: "idle" }); }}>
+          {ready && <button type="button" className="action-primary" onClick={() => { handlers.place(placing.tileId, placingDraft, placing.enhancer); setMode({ kind: "idle" }); }}>
             <span><strong>Place {name}</strong><small>{placingForecast?.paymentChoice ? "Choose payment next" : placingForecast?.actionCost === 0 ? "No action" : "1 action"}</small></span>
             <span className="action-yield">{summariseForecast(placingForecast) || "Free"}</span>
           </button>}
@@ -253,13 +260,19 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
             <div><h3>{tileActions.name}</h3><p><span className="category-dot" style={{ background: categoryColors[tileActions.category] }} />{mode.hexId} · {categoryNames[tileActions.category]}{tile.side === "upgraded" ? " · upgraded" : ""}{tile.strain ? <> · {tile.strain} <Term id={tile.strain >= 3 ? "overstrained" : "strain"}>{tile.strain >= 3 ? "Strain · Overstrained" : "Strain"}</Term></> : null}{tile.support.passive || tile.support.singleUse ? <> · <Term id="supported" /></> : null}</p></div>
             <button type="button" className="icon-button" aria-label="Close" onClick={() => setMode({ kind: "idle" })}><X size={18} /></button>
           </header>
-          {tileActions.options.map((option, index) => <button key={option.kind} type="button" className={index === 0 || !tileActions.options[0].available ? "action-primary" : "action-secondary"} disabled={!option.available} onClick={() => {
-            setMode({ kind: "idle" });
-            if (option.kind === "activate") handlers.activate(tile.instanceId); else handlers.upgrade(tile.instanceId);
-          }}>
-            <span><strong>{option.title}</strong><small>{option.available ? option.detail : option.reason}</small></span>
-            {option.available && <span className="action-yield">{option.kind === "upgrade" && option.forecast && !option.forecast.paymentChoice && !option.forecast.resources.some((change) => change.delta < 0) ? "Free" : summariseForecast(option.forecast)}</span>}
-          </button>)}
+          {tileActions.options.map((option, index) => <div key={option.kind} className="action-option">
+            <button type="button" className={index === 0 || !tileActions.options[0].available ? "action-primary" : "action-secondary"} disabled={!option.available} onClick={() => {
+              setMode({ kind: "idle" });
+              if (option.kind === "activate") handlers.activate(tile.instanceId); else handlers.upgrade(tile.instanceId);
+            }}>
+              <span><strong>{option.title}</strong><small>{option.available ? option.detail : option.reason}</small></span>
+              {option.available && <span className="action-yield">{option.kind === "upgrade" && option.forecast && !option.forecast.paymentChoice && !option.forecast.resources.some((change) => change.delta < 0) ? "Free" : summariseForecast(option.forecast)}</span>}
+            </button>
+            {option.enhanced && <EnhancedButton enhanced={option.enhanced} label={`${option.kind === "activate" ? "Activate" : "Upgrade"} with ${option.enhanced.enhancer.name}`} onClick={() => {
+              setMode({ kind: "idle" });
+              if (option.kind === "activate") handlers.activate(tile.instanceId, option.enhanced!.enhancer); else handlers.upgrade(tile.instanceId, option.enhanced!.enhancer);
+            }} />}
+          </div>)}
           {tileActions.options.length === 0 && <p className="action-card-hint">{tileActions.effectText || "No action to take with this tile."}</p>}
           {tileActions.linkedTileIds.length > 0 && tileActions.options.some((option) => option.kind === "activate" && option.available) && <p className="action-card-note"><Term id="linked" />: {tileActions.linkedTileIds.length} matching {tileActions.linkedTileIds.length === 1 ? "tile" : "tiles"} beside it produce too, lit on the board.</p>}
           {tileActions.options.some((option) => option.available) && <p className="action-card-note">Each uses 1 action. {stewardName(state)} moves here.</p>}
@@ -274,11 +287,11 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           <header><div><h3>Build here</h3><p>{mode.hexId} · {hexOptions.terrain}</p></div><button type="button" className="icon-button" aria-label="Close" onClick={() => setMode({ kind: "idle" })}><X size={18} /></button></header>
           {hexOptions.placeable.length === 0 && <p className="action-card-hint">{hexOptions.blocked.length ? "Nothing you can afford fits here yet." : <>No tile can go here right now. Spaces must be within <Term id="reach">reach</Term> of your Steward, and some tiles need a particular terrain or neighbour.</>}</p>}
           {hexOptions.placeable.length > 0 && <ul className="place-list">
-            {hexOptions.placeable.slice(0, compact ? 8 : 9).map((option) => <li key={option.choice.id}><button type="button" onClick={() => choosePlacement(option, mode.hexId)}>
+            {hexOptions.placeable.slice(0, compact ? 8 : 9).map((option) => <li key={option.choice.id} className={option.enhanced ? "has-enhancer" : ""}><button type="button" onClick={() => choosePlacement(option, mode.hexId, option.onlyEnhanced ? option.enhanced?.enhancer : undefined)}>
               <img className="place-face" src={tileArtworkUrl(option.choice.id, "basic", { thumbnail: true })} alt="" aria-hidden="true" loading="lazy" decoding="async" style={{ borderColor: categoryColors[option.choice.category] }} />
               <span className="place-name"><strong>{option.choice.name}</strong><small>{option.choice.kind === "special" ? "Special · unlocked" : categoryNames[option.choice.category]}{option.needsOrientation ? " · choose direction" : option.needsSecondSpace ? " · two spaces" : ""}</small></span>
-              <span className="place-cost">{option.choice.costLabel === "None" || option.choice.costLabel === "Free" ? "Free" : option.choice.costLabel}</span>
-            </button></li>)}
+              <span className="place-cost">{option.onlyEnhanced ? <span className="place-cost-enhanced"><Sparkles size={12} aria-hidden="true" />{option.enhanced?.benefit}<small>with {option.enhanced?.enhancer.name}</small></span> : option.choice.costLabel === "None" || option.choice.costLabel === "Free" ? "Free" : option.choice.costLabel}</span>
+            </button>{option.enhanced && !option.onlyEnhanced && <button type="button" className="place-enhancer" onClick={() => choosePlacement(option, mode.hexId, option.enhanced!.enhancer)}><Sparkles size={13} aria-hidden="true" /><span>{option.enhanced.benefit}</span><small>with {option.enhanced.enhancer.name}</small></button>}</li>)}
           </ul>}
           {hexOptions.placeable.length > (compact ? 8 : 9) && <p className="action-card-note">{hexOptions.placeable.length - (compact ? 8 : 9)} more in the tile supply.</p>}
           {hexOptions.blocked.length > 0 && <details className="blocked-list"><summary>{hexOptions.blocked.length} more fit but can’t be built now</summary><ul>{hexOptions.blocked.map((option) => <li key={option.choice.id}><strong>{option.choice.name}</strong> <small>{option.blocked}</small></li>)}</ul></details>}
@@ -366,6 +379,15 @@ function seasonBanner(state: GameState): { eyebrow: string; text: string } {
     eyebrow,
     text: `${burdens ? `${burdens} Burden${burdens === 1 ? " is" : "s are"} still on the table and now use${burdens === 1 ? "s" : ""} the harsher Season ${numeral} text and cost. ` : "Burdens revealed from now on use their harsher Season " + numeral + " text and cost. "}Each Steward secretly seeds three more cards before Round ${state.round} is revealed.`
   };
+}
+
+/** The same action with a Boon or the Steward's power folded in: one tap does both. */
+function EnhancedButton({ enhanced, label, onClick }: { enhanced: EnhancedOption; label: string; onClick: () => void }) {
+  return <button type="button" className="action-enhanced" onClick={onClick}>
+    <span className="action-enhanced-mark" aria-hidden="true"><Sparkles size={15} /></span>
+    <span><strong>{label}</strong><small>{enhanced.benefit}{enhanced.enhancer.kind === "power" ? " · uses this Season’s power" : " · uses the Boon"}</small></span>
+    <span className="action-yield">{summariseForecast(enhanced.forecast) || "Free"}</span>
+  </button>;
 }
 
 function stewardName(state: GameState): string {

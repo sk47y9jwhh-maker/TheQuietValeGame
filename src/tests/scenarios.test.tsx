@@ -165,8 +165,8 @@ describe("free actions after the normal allowance", () => {
   it.each(experienceIds)("keeps the Vanguard power and free placement accessible in %s", (experience) => {
     window.history.replaceState(null, "", `/?experience=${experience}&scenario=last-action`);
     render(<App initialPreview={scenarios["last-action"]} />);
-    fireEvent.click(screen.getByRole("button", { name: "Use Steward Power" }));
-    // The board-first table prepares the free placement as soon as the power is used.
+    // The board-first table offers the power on the action itself: no separate Use step.
+    if (experience !== "table") fireEvent.click(screen.getByRole("button", { name: "Use Steward Power" }));
     if (experience !== "table") fireEvent.click(screen.getByRole("button", { name: experience === "classic" ? "Prepare Free Travel Placement" : "Prepare 0-action Travel" }));
     if (experience === "table") {
       // The board-first table starts from the space: tap it, then choose the tile.

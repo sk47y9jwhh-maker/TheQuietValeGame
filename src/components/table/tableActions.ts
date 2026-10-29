@@ -24,6 +24,71 @@ import { selectTileName } from "../../engine/selectors";
 import type { GameState, HexDirection, PlacedTile, TileCategory, TilePlacementDraft, TileSideData } from "../../engine/types";
 import { previewTileAction, type ActionForecast } from "../actions/actionForecast";
 import { getPlaceTileChoices, type PlaceTileChoice } from "../actions/placeTileChoices";
+import { canUseStewardPower, getUsableFaceUpBoonIds, useFaceUpBoon, useStewardPower } from "../../engine/gameActions";
+import { encounterById } from "../../data/encounters";
+import { settleAutomaticSteps } from "./automaticSteps";
+
+/** A face-up Boon or the Steward's power, applied in the same tap as an action. */
+export interface Enhancer { kind: "boon" | "power"; id: string; name: string }
+
+export interface EnhancedOption {
+  enhancer: Enhancer;
+  forecast: ActionForecast;
+  /** What the Boon or power changes, e.g. "No action" or "+1 Wood". */
+  benefit: string;
+}
+
+/** Uses the Boon or power and settles any step it queues that has nothing to decide. */
+export function applyEnhancer(state: GameState, enhancer: Enhancer): GameState | null {
+  const used = enhancer.kind === "boon" ? useFaceUpBoon(state, enhancer.id) : useStewardPower(state, state.currentPlayerId);
+  if (used === state) return null;
+  return settleAutomaticSteps(used);
+}
+
+interface ReadyEnhancer extends Enhancer { state: GameState }
+
+/** Boons and powers that can be folded into the next action without a separate choice. */
+export function readyEnhancers(state: GameState): ReadyEnhancer[] {
+  if (state.phase !== "turns" || state.pendingEffects.length || state.pendingCostChoice) return [];
+  const list: Enhancer[] = getUsableFaceUpBoonIds(state).map((id) => ({ kind: "boon" as const, id, name: encounterById[id]?.name ?? "Boon" }));
+  const player = state.players.find((candidate) => candidate.id === state.currentPlayerId);
+  if (player && canUseStewardPower(state, player.id).ok) list.push({ kind: "power", id: player.stewardId, name: `${stewardById[player.stewardId]?.name ?? "Steward"}’s power` });
+  return list.flatMap((enhancer) => {
+    const applied = applyEnhancer(state, enhancer);
+    return applied ? [{ ...enhancer, state: applied }] : [];
+  });
+}
+
+function totalChange(forecast: ActionForecast | undefined): number {
+  return (forecast?.resources ?? []).reduce((total, change) => total + change.delta, 0);
+}
+
+/** How a forecast with the Boon or power beats the plain one, or null if it doesn't. */
+function enhancementBenefit(base: ActionForecast | undefined, next: ActionForecast): string | null {
+  if (!next.available) return null;
+  if (!base?.available) return next.actionCost === 0 ? "Possible with it, and no action" : "Possible with it";
+  const parts: string[] = [];
+  if (next.actionCost < base.actionCost) parts.push(next.actionCost === 0 ? "No action" : `${base.actionCost - next.actionCost} fewer actions`);
+  if (!base.paymentChoice && !next.paymentChoice) {
+    for (const change of next.resources) {
+      const before = base.resources.find((candidate) => candidate.resource === change.resource)?.delta ?? 0;
+      const gain = change.delta - before;
+      if (gain > 0) parts.push(before < 0 && change.delta <= 0 ? `${gain} less ${change.label}` : `+${gain} ${change.label}`);
+    }
+  }
+  if (!parts.length && totalChange(next) > totalChange(base)) parts.push("Costs less");
+  return parts.length ? parts.join(", ") : null;
+}
+
+function bestEnhancement(enhancers: ReadyEnhancer[], base: ActionForecast | undefined, forecastWith: (state: GameState) => ActionForecast | undefined): EnhancedOption | undefined {
+  for (const enhancer of enhancers) {
+    const forecast = forecastWith(enhancer.state);
+    if (!forecast) continue;
+    const benefit = enhancementBenefit(base, forecast);
+    if (benefit) return { enhancer: { kind: enhancer.kind, id: enhancer.id, name: enhancer.name }, forecast, benefit };
+  }
+  return undefined;
+}
 
 export interface TileActionOption {
   kind: "activate" | "upgrade";
@@ -32,6 +97,8 @@ export interface TileActionOption {
   detail: string;
   reason?: string;
   forecast?: ActionForecast;
+  /** The same action with a Boon or the Steward's power folded in. */
+  enhanced?: EnhancedOption;
 }
 
 export interface TileActions {
@@ -81,6 +148,7 @@ export function summariseForecast(forecast: ActionForecast | undefined): string 
 
 export function describeTileActions(state: GameState, tile: PlacedTile): TileActions {
   const playerId = state.currentPlayerId;
+  const enhancers = readyEnhancers(state);
   const name = selectTileName(tile);
   const category = getTileCategory(tile);
   const reachable = selectReachablePlacedTileIds(state, playerId).has(tile.instanceId);
@@ -106,7 +174,8 @@ export function describeTileActions(state: GameState, tile: PlacedTile): TileAct
       title: linkedTileIds.length > 0 ? `Activate · Linked harvest` : "Activate",
       detail: linkedTileIds.length > 0 ? `${linkedTileIds.length + 1} tiles produce together` : production ? "This tile produces" : currentEffectText(tile).replace(/^Activate(?:d Effect)?[^:]*:\s*/i, ""),
       reason,
-      forecast
+      forecast,
+      enhanced: isTurn ? bestEnhancement(enhancers, !reason ? forecast : undefined, (applied) => getActivatableTileIds(applied, playerId).includes(tile.instanceId) ? previewTileAction(applied, playerId, { type: "activate", placedTileId: tile.instanceId }) : undefined) : undefined
     });
   }
 
@@ -120,7 +189,8 @@ export function describeTileActions(state: GameState, tile: PlacedTile): TileAct
       title: `Upgrade to ${upgraded?.name ?? "its upgraded side"}`,
       detail: upgraded ? upgradedSummary(upgraded) : "",
       reason: validation.ok ? undefined : friendlyReason(validation.reasons[0]),
-      forecast
+      forecast,
+      enhanced: isTurn ? bestEnhancement(enhancers, validation.ok ? forecast : undefined, (applied) => canStartUpgradeTile(applied, playerId, tile.instanceId).ok ? previewTileAction(applied, playerId, { type: "upgrade", placedTileId: tile.instanceId }) : undefined) : undefined
     });
   }
 
@@ -154,6 +224,10 @@ export interface HexPlaceOption {
   blocked?: string;
   needsOrientation: boolean;
   needsSecondSpace: boolean;
+  /** The same placement with a Boon or the Steward's power folded in. */
+  enhanced?: EnhancedOption & { draft: TilePlacementDraft };
+  /** Only possible with the Boon or power. */
+  onlyEnhanced?: boolean;
 }
 
 export interface HexOptions {
@@ -208,6 +282,7 @@ export function describeHexOptions(state: GameState, hexId: string, orientation:
   const choices = getPlaceTileChoices(state, playerId, [hexId], orientation);
   const placeable: HexPlaceOption[] = [];
   const blocked: HexPlaceOption[] = [];
+  const enhancers = state.phase === "turns" ? readyEnhancers(state) : [];
   for (const choice of choices) {
     if (!choice.hasEnoughSupply) continue;
     const kind = getTileFootprintKind(choice.id);
@@ -228,10 +303,23 @@ export function describeHexOptions(state: GameState, hexId: string, orientation:
       needsSecondSpace: kind === "detached"
     };
     const payment = startable && choice.placeableNow && typeof startable === "object" ? placementPayment(state, playerId, choice.id, startable) : { ok: true };
+    const plainOk = Boolean(startable && choice.placeableNow && payment.ok);
+    // Detached tiles (Stables) choose a second space later, so they are offered plain only.
+    if (kind !== "detached" && enhancers.length) {
+      let enhancedDraft: TilePlacementDraft | undefined;
+      const best = bestEnhancement(enhancers, plainOk && typeof startable === "object" ? previewTileAction(state, playerId, { type: "place", tileId: choice.id, draft: startable }) : undefined, (applied) => {
+        enhancedDraft = drafts.find((draft) => canStartPlaceTile(applied, playerId, choice.id, draft).ok && placementPayment(applied, playerId, choice.id, draft).ok);
+        return enhancedDraft ? previewTileAction(applied, playerId, { type: "place", tileId: choice.id, draft: enhancedDraft }) : undefined;
+      });
+      if (best && enhancedDraft) option.enhanced = { ...best, draft: enhancedDraft };
+    }
+    if (!plainOk && option.enhanced) { placeable.push({ ...option, onlyEnhanced: true }); continue; }
     if (startable && choice.placeableNow && !payment.ok) { blocked.push({ ...option, blocked: payment.reason }); continue; }
-    if (startable && choice.placeableNow) placeable.push(option);
+    if (plainOk) placeable.push(option);
     else blocked.push({ ...option, blocked: shortfallText(choice.missingResources) ?? choice.blockedReasons.find((reason) => reason !== "No legal placement") ?? "Can’t be placed right now" });
   }
+  // Options a Boon or power improves come first, so the player sees them.
+  placeable.sort((a, b) => Number(Boolean(b.enhanced)) - Number(Boolean(a.enhanced)));
   return { hexId, terrain: cell ? terrainLabels[cell.terrain] : "", placeable, blocked };
 }
 

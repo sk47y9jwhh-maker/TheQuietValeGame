@@ -40,6 +40,7 @@ import { stewardById } from "../data/stewards";
 import { goldenTileById } from "../data/tiles";
 import { encounterById } from "../data/encounters";
 import { TableChrome, TableScreen } from "../components/table/TableScreen";
+import { applyEnhancer, type Enhancer } from "../components/table/tableActions";
 import { TableGoldenStart, TableStewardStart } from "../components/table/TableSetupSteps";
 import { getScenario } from "./scenarioCatalog";
 import { CompletedGameReview } from "../components/actions/CompletedGameReview";
@@ -114,6 +115,15 @@ function createSetupSeed(): string {
 }
 
 const undoHistoryLimit = 40;
+
+/** One step: use the Boon or Steward power, then the action. Nothing changes if either fails. */
+function withEnhancer(state: GameState, enhancer: Enhancer | undefined, action: (ready: GameState) => GameState): GameState {
+  if (!enhancer) return action(state);
+  const ready = applyEnhancer(state, enhancer);
+  if (!ready) return state;
+  const done = action(ready);
+  return done === ready ? state : done;
+}
 
 export function App({ initialPreview, simulateSaveFailure = false }: { initialPreview?: PreviewSnapshot; simulateSaveFailure?: boolean } = {}) {
   const [initialStorage] = useState(() => ({ game: readSavedGameResult(), setup: readSavedSetupResult(), campaign: readLedgerCampaignResult() }));
@@ -1031,9 +1041,9 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
           notice={tableNotice.length ? tableNotice.join(" ") : null}
           onDismissNotice={clearNotice}
           handlers={{
-            activate: (placedTileId) => { clearNotice(); commitGameState((current) => activateTile(current, current.currentPlayerId, placedTileId)); },
-            upgrade: (placedTileId) => { clearNotice(); commitGameState((current) => upgradeTile(current, current.currentPlayerId, placedTileId)); },
-            place: (tileId, draft) => { clearNotice(); commitGameState((current) => placeTile(current, current.currentPlayerId, tileId, draft)); },
+            activate: (placedTileId, enhancer) => { clearNotice(); commitGameState((current) => withEnhancer(current, enhancer, (ready) => activateTile(ready, ready.currentPlayerId, placedTileId))); },
+            upgrade: (placedTileId, enhancer) => { clearNotice(); commitGameState((current) => withEnhancer(current, enhancer, (ready) => upgradeTile(ready, ready.currentPlayerId, placedTileId))); },
+            place: (tileId, draft, enhancer) => { clearNotice(); commitGameState((current) => withEnhancer(current, enhancer, (ready) => placeTile(ready, ready.currentPlayerId, tileId, draft))); },
             completeArrival: (cardId) => { clearNotice(); commitGameState((current) => completeArrival(current, cardId)); },
             resolveBurden: (cardId) => { clearNotice(); handleResolveBurden(cardId); },
             useBoon: (cardId) => { clearNotice(); handleUseFaceUpBoon(cardId); },

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { App } from "../app/App";
 import { readSavedGame } from "../app/persistence";
@@ -136,5 +136,22 @@ describe("rules definitions", () => {
     const note = screen.getByRole("note");
     expect(note).toHaveTextContent("Newcomers asking to join");
     expect(note).toHaveTextContent("Rulebook p. 14–16");
+  });
+});
+
+describe("Boons and powers folded into actions", () => {
+  it("places a Path with the Vanguard's power in one tap, and one Undo reverts both", () => {
+    open("settlement");
+    expect(screen.queryByRole("button", { name: "Use Steward Power" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^E1, empty/ }));
+    const pathRow = screen.getAllByRole("listitem").find((item) => /^Path/.test(item.textContent ?? ""))!;
+    fireEvent.click(within(pathRow).getByRole("button", { name: /No action.*Vanguard/ }));
+    const after = readSavedGame()!.state;
+    expect(after.actionsRemaining).toBe(4);
+    expect(after.map.placedTiles.some((tile) => tile.hexIds.includes("E1"))).toBe(true);
+    expect(after.players[0].stewardPowerUsesBySeason[after.season]).toBe(1);
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    expect(readSavedGame()!.state.map.placedTiles.some((tile) => tile.hexIds.includes("E1"))).toBe(false);
+    expect(readSavedGame()!.state.players[0].stewardPowerUsesBySeason[after.season] ?? 0).toBe(0);
   });
 });
