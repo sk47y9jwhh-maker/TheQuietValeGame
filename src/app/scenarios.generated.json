@@ -1273,1853 +1273,6 @@
       "games": []
     }
   },
-  "finale": {
-    "setup": {
-      "playerCount": 2,
-      "stewardIds": [
-        "vanguard",
-        "knight"
-      ],
-      "encounterSeed": "QV-COMPARISON-1"
-    },
-    "state": {
-      "playerCount": 2,
-      "players": [
-        {
-          "id": "player_1",
-          "name": "Player 1",
-          "stewardId": "vanguard",
-          "stewardHexId": "G1",
-          "hasPlacedFirstTile": true,
-          "stewardPowerUsesBySeason": {
-            "1": 0,
-            "2": 0,
-            "3": 0
-          }
-        },
-        {
-          "id": "player_2",
-          "name": "Player 2",
-          "stewardId": "knight",
-          "stewardHexId": "A6",
-          "hasPlacedFirstTile": true,
-          "stewardPowerUsesBySeason": {
-            "1": 0,
-            "2": 0,
-            "3": 0
-          }
-        }
-      ],
-      "currentPlayerId": "player_1",
-      "season": 3,
-      "round": 12,
-      "phase": "gameEnd",
-      "actionsRemaining": 4,
-      "playersActedThisRound": [],
-      "seasonSeededPlayerIds": [],
-      "warehouse": {
-        "wood": 2,
-        "stone": 10,
-        "metal": 10,
-        "food": 0,
-        "herbs": 2,
-        "goods": 10
-      },
-      "map": {
-        "placedTiles": [
-          {
-            "instanceId": "tile_1_c01_lumber_yard",
-            "tileId": "c01_lumber_yard",
-            "kind": "core",
-            "side": "basic",
-            "hexIds": [
-              "G1"
-            ],
-            "strain": 3,
-            "support": {
-              "passive": false,
-              "singleUse": false,
-              "preventedThisRound": false
-            }
-          },
-          {
-            "instanceId": "tile_2_c05_cabin",
-            "tileId": "c05_cabin",
-            "kind": "core",
-            "side": "basic",
-            "hexIds": [
-              "H1"
-            ],
-            "strain": 3,
-            "support": {
-              "passive": false,
-              "singleUse": false,
-              "preventedThisRound": false
-            }
-          },
-          {
-            "instanceId": "tile_3_c15_path",
-            "tileId": "c15_path",
-            "kind": "core",
-            "side": "basic",
-            "hexIds": [
-              "F1"
-            ],
-            "strain": 3,
-            "support": {
-              "passive": false,
-              "singleUse": false,
-              "preventedThisRound": false
-            }
-          },
-          {
-            "instanceId": "tile_4_c04_farmstead",
-            "tileId": "c04_farmstead",
-            "kind": "core",
-            "side": "basic",
-            "hexIds": [
-              "A6"
-            ],
-            "strain": 1,
-            "support": {
-              "passive": false,
-              "singleUse": false,
-              "preventedThisRound": false
-            }
-          },
-          {
-            "instanceId": "tile_5_c05_cabin",
-            "tileId": "c05_cabin",
-            "kind": "core",
-            "side": "basic",
-            "hexIds": [
-              "A7"
-            ],
-            "strain": 2,
-            "support": {
-              "passive": false,
-              "singleUse": false,
-              "preventedThisRound": false
-            }
-          },
-          {
-            "instanceId": "tile_6_c15_path",
-            "tileId": "c15_path",
-            "kind": "core",
-            "side": "basic",
-            "hexIds": [
-              "B6"
-            ],
-            "strain": 2,
-            "support": {
-              "passive": false,
-              "singleUse": false,
-              "preventedThisRound": false
-            }
-          }
-        ]
-      },
-      "tileSupply": {
-        "core": {
-          "c01_lumber_yard": 3,
-          "c02_mine_tunnel": 4,
-          "c03_gathering_outpost": 4,
-          "c04_farmstead": 3,
-          "c05_cabin": 2,
-          "c06_cottage": 4,
-          "c08_inn": 2,
-          "c07_stedding": 2,
-          "c09_tavern": 2,
-          "c10_eatery": 2,
-          "c11_washhouse": 2,
-          "c12_apothecary": 2,
-          "c13_workshops": 2,
-          "c14_market_stalls": 2,
-          "c15_path": 6,
-          "c18_common_land": 2,
-          "c16_street": 6,
-          "c17_track": 4,
-          "c19_bridge": 4,
-          "c20_dig_site": 4,
-          "c21_the_vaults": 2
-        },
-        "special": {
-          "special_adventurers_guild": 0,
-          "special_alchemist_s_workshop": 0,
-          "special_alms_house": 0,
-          "special_atelier_workshop": 0,
-          "special_brewery_of_legends": 0,
-          "special_docks": 0,
-          "special_hearth_garden": 0,
-          "special_house_of_learning": 0,
-          "special_labourers_yard": 0,
-          "special_lantern_roadhouse": 0,
-          "special_reliquary": 0,
-          "special_shrine_of_ancestors": 0,
-          "special_shrine_of_ancients": 0,
-          "special_shrine_of_bounty": 0,
-          "special_shrine_of_depths": 0,
-          "special_shrine_of_renewal": 0,
-          "special_stables": 0,
-          "special_the_iron_roots_respite": 0,
-          "special_the_lorekeepers_respite": 0,
-          "special_the_reavers_respite": 0,
-          "special_the_resting_hall": 0,
-          "special_the_root_weavers_respite": 0,
-          "special_the_tamers_respite": 0,
-          "special_the_waystation": 0,
-          "special_theater": 0
-        }
-      },
-      "encounters": {
-        "handsByPlayerId": {
-          "player_1": [],
-          "player_2": []
-        },
-        "deck": [],
-        "discardPile": [
-          "arrival_no_soul_shall_go_without",
-          "arrival_from_blade_swingers_to_herb_stringers",
-          "boon_where_help_stands",
-          "arrival_the_hearthbound_circle",
-          "arrival_from_dark_decay_to_light_display",
-          "arrival_news_travels_faster_than_goods",
-          "boon_the_scent_of_herb_and_tonic",
-          "arrival_moving_mountains",
-          "boon_ledgers_flow",
-          "arrival_from_battle_to_cattle"
-        ],
-        "activeArrivals": [
-          {
-            "cardId": "arrival_from_songs_of_war_to_the_search_for_ore",
-            "timerTokens": 1
-          }
-        ],
-        "activeBurdens": [
-          "burden_ill_omen_of_discontent",
-          "burden_too_many_houses_too_little_homes",
-          "burden_river_breaks_its_banks",
-          "burden_promises_overstretched",
-          "burden_foundations_remember_war",
-          "burden_roads_too_far_from_home",
-          "burden_the_quiet_fractures",
-          "burden_welcome_wears_thin"
-        ],
-        "faceUpBoons": [
-          {
-            "cardId": "boon_shared_hands_lighter_loads",
-            "remainingUses": 1
-          }
-        ],
-        "completedArrivals": [],
-        "reserveBoonIds": [
-          "boon_the_settlement_of_plenty",
-          "boon_festival_of_trade",
-          "boon_the_break_holds",
-          "boon_old_foundations_still_remain",
-          "boon_what_is_written_in_the_stars_can_finally_be_heeded",
-          "boon_stores_made_ready",
-          "boon_a_little_more_time",
-          "boon_shelter_holds",
-          "boon_a_light_on_the_long_dark_lanterns_illuminated_the_way_to_a_safer_day",
-          "boon_a_wonderful_find",
-          "boon_clear_nights_make_for_clear_plans",
-          "boon_craft_fair",
-          "boon_from_the_brink",
-          "boon_carts_before_sunrise",
-          "boon_a_welcome_well_met",
-          "boon_answers_made_ready",
-          "boon_when_the_roads_filled_once_more",
-          "boon_hearths_soften_feuds",
-          "boon_many_hands_make_light_work",
-          "boon_change_of_watch",
-          "boon_raised_in_good_season",
-          "boon_the_ancient_ways_gradually_reemerge"
-        ],
-        "reserveArrivalIds": [
-          "arrival_the_dryads",
-          "arrival_lay_down_the_tools_of_destruction",
-          "arrival_spirit_lifting_spirit",
-          "arrival_hands_for_heavy_work",
-          "arrival_acorns_and_oak_trees",
-          "arrival_from_plunderer_to_lumber",
-          "arrival_the_burden_bearers",
-          "arrival_strong_foundations",
-          "arrival_remnants_of_the_cavalry",
-          "arrival_remnants_of_the_fleet",
-          "arrival_reablement_for_the_realm",
-          "arrival_what_came_before_the_last_age",
-          "arrival_the_transmutation_traveler",
-          "arrival_the_quiet_quest",
-          "arrival_blessed_harvest",
-          "arrival_lanterns_for_the_long_roads",
-          "arrival_lest_we_forget"
-        ],
-        "goldenEnabled": false
-      },
-      "goldenSetup": {
-        "tilePlaced": false,
-        "tileSkipped": false
-      },
-      "pendingGoldenEffect": null,
-      "bonusTurnsPending": false,
-      "bonusTurnsActive": false,
-      "boonModifiers": [],
-      "ignoredBurdenIdsThisRound": [],
-      "tileActivationRecords": {},
-      "pendingEffects": [],
-      "pendingDeckReorder": null,
-      "pendingCostChoice": null,
-      "targetCards": {
-        "seed": "QV-COMPARISON-1:2:targets",
-        "drawPile": [
-          7,
-          8,
-          26,
-          25,
-          23,
-          13,
-          18,
-          20,
-          15,
-          9,
-          10,
-          19,
-          4,
-          28,
-          22,
-          30,
-          1,
-          17,
-          29,
-          5,
-          24,
-          14,
-          16,
-          2,
-          6,
-          21,
-          3,
-          11,
-          12,
-          27
-        ],
-        "drawCount": 19,
-        "history": [
-          {
-            "id": "effect_32_1790467200000:draw:1",
-            "effectId": "effect_32_1790467200000",
-            "sourceId": "burden_too_many_houses_too_little_homes",
-            "role": "target",
-            "cardId": 19,
-            "originalEligibleCount": 2,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Core",
-                "applied": true,
-                "beforeCount": 2,
-                "afterCount": 2
-              },
-              {
-                "filter": "side",
-                "preference": "Upgraded",
-                "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
-              },
-              {
-                "filter": "adjacency",
-                "preference": "0–2",
-                "applied": true,
-                "beforeCount": 2,
-                "afterCount": 2
-              },
-              {
-                "filter": "strain",
-                "preference": "Already Strained",
-                "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
-              }
-            ],
-            "direction": "NE",
-            "directionRequired": true,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_2_c05_cabin",
-            "selectedHexIds": [
-              "H1"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_37_1790467200000:draw:2",
-            "effectId": "effect_37_1790467200000",
-            "sourceId": "arrival_no_soul_shall_go_without",
-            "role": "target",
-            "cardId": 4,
-            "originalEligibleCount": 6,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Core",
-                "applied": true,
-                "beforeCount": 6,
-                "afterCount": 6
-              },
-              {
-                "filter": "side",
-                "preference": "Basic",
-                "applied": true,
-                "beforeCount": 6,
-                "afterCount": 6
-              },
-              {
-                "filter": "adjacency",
-                "preference": "0–2",
-                "applied": true,
-                "beforeCount": 6,
-                "afterCount": 6
-              },
-              {
-                "filter": "strain",
-                "preference": "Unstrained",
-                "applied": true,
-                "beforeCount": 6,
-                "afterCount": 5
-              }
-            ],
-            "direction": "W",
-            "directionRequired": true,
-            "directionCandidateCount": 2,
-            "coordinateFallbackUsed": true,
-            "selectedTileId": "tile_4_c04_farmstead",
-            "selectedHexIds": [
-              "A6"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_40_1790467200000:draw:3",
-            "effectId": "effect_40_1790467200000",
-            "sourceId": "arrival_from_blade_swingers_to_herb_stringers",
-            "role": "target",
-            "cardId": 28,
-            "originalEligibleCount": 6,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 6,
-                "afterCount": 6
-              },
-              {
-                "filter": "side",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 6,
-                "afterCount": 6
-              },
-              {
-                "filter": "adjacency",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 6,
-                "afterCount": 6
-              },
-              {
-                "filter": "strain",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 6,
-                "afterCount": 6
-              }
-            ],
-            "directionRequired": false,
-            "directionCandidateCount": 6,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "",
-            "selectedHexIds": [],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "manualChoice": true
-          },
-          {
-            "id": "effect_49_1790467200000:draw:4",
-            "effectId": "effect_49_1790467200000",
-            "sourceId": "burden_too_many_houses_too_little_homes",
-            "role": "target",
-            "cardId": 22,
-            "originalEligibleCount": 2,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Special / Golden",
-                "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
-              },
-              {
-                "filter": "side",
-                "preference": "Either",
-                "applied": true,
-                "beforeCount": 2,
-                "afterCount": 2
-              },
-              {
-                "filter": "adjacency",
-                "preference": "3+",
-                "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
-              },
-              {
-                "filter": "strain",
-                "preference": "Unstrained",
-                "applied": true,
-                "beforeCount": 2,
-                "afterCount": 1
-              }
-            ],
-            "direction": "W",
-            "directionRequired": false,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_5_c05_cabin",
-            "selectedHexIds": [
-              "A7"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "plannedStrain": 1,
-            "strainApplied": false,
-            "actualStrainPlaced": 0,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_49_1790467200000:draw:5",
-            "effectId": "effect_49_1790467200000",
-            "sourceId": "burden_too_many_houses_too_little_homes",
-            "role": "target",
-            "cardId": 30,
-            "originalEligibleCount": 1,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "side",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "adjacency",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "strain",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              }
-            ],
-            "directionRequired": false,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "",
-            "selectedHexIds": [],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "manualChoice": true
-          },
-          {
-            "id": "effect_76_1790467200000:draw:6",
-            "effectId": "effect_76_1790467200000",
-            "sourceId": "arrival_the_hearthbound_circle",
-            "role": "target",
-            "cardId": 1,
-            "originalEligibleCount": 6,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Core",
-                "applied": true,
-                "beforeCount": 6,
-                "afterCount": 6
-              },
-              {
-                "filter": "side",
-                "preference": "Basic",
-                "applied": true,
-                "beforeCount": 6,
-                "afterCount": 6
-              },
-              {
-                "filter": "adjacency",
-                "preference": "3+",
-                "applied": false,
-                "beforeCount": 6,
-                "afterCount": 6
-              },
-              {
-                "filter": "strain",
-                "preference": "Already Strained",
-                "applied": true,
-                "beforeCount": 6,
-                "afterCount": 1
-              }
-            ],
-            "direction": "NE",
-            "directionRequired": false,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_2_c05_cabin",
-            "selectedHexIds": [
-              "H1"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_78_1790467200000:draw:7",
-            "effectId": "effect_78_1790467200000",
-            "sourceId": "arrival_from_dark_decay_to_light_display",
-            "role": "target",
-            "cardId": 17,
-            "originalEligibleCount": 6,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Core",
-                "applied": true,
-                "beforeCount": 6,
-                "afterCount": 6
-              },
-              {
-                "filter": "side",
-                "preference": "Upgraded",
-                "applied": false,
-                "beforeCount": 6,
-                "afterCount": 6
-              },
-              {
-                "filter": "adjacency",
-                "preference": "3+",
-                "applied": false,
-                "beforeCount": 6,
-                "afterCount": 6
-              },
-              {
-                "filter": "strain",
-                "preference": "Already Strained",
-                "applied": true,
-                "beforeCount": 6,
-                "afterCount": 1
-              }
-            ],
-            "direction": "NW",
-            "directionRequired": false,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_2_c05_cabin",
-            "selectedHexIds": [
-              "H1"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_80_1790467200000:draw:8",
-            "effectId": "effect_80_1790467200000",
-            "sourceId": "tile_2_c05_cabin",
-            "role": "target",
-            "cardId": 29,
-            "originalEligibleCount": 1,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "side",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "adjacency",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "strain",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              }
-            ],
-            "directionRequired": false,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "",
-            "selectedHexIds": [],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "manualChoice": true
-          },
-          {
-            "id": "effect_82_1790467200000:draw:9",
-            "effectId": "effect_82_1790467200000",
-            "sourceId": "burden_roads_too_far_from_home",
-            "role": "target",
-            "cardId": 5,
-            "originalEligibleCount": 1,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Core",
-                "applied": true,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "side",
-                "preference": "Upgraded",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "adjacency",
-                "preference": "3+",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "strain",
-                "preference": "Already Strained",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              }
-            ],
-            "direction": "SE",
-            "directionRequired": false,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_3_c15_path",
-            "selectedHexIds": [
-              "F1"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_81_1790467200000:draw:10",
-            "effectId": "effect_81_1790467200000",
-            "sourceId": "arrival_news_travels_faster_than_goods",
-            "role": "target",
-            "cardId": 24,
-            "originalEligibleCount": 5,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Special / Golden",
-                "applied": false,
-                "beforeCount": 5,
-                "afterCount": 5
-              },
-              {
-                "filter": "side",
-                "preference": "Either",
-                "applied": true,
-                "beforeCount": 5,
-                "afterCount": 5
-              },
-              {
-                "filter": "adjacency",
-                "preference": "0–2",
-                "applied": true,
-                "beforeCount": 5,
-                "afterCount": 5
-              },
-              {
-                "filter": "strain",
-                "preference": "Unstrained",
-                "applied": true,
-                "beforeCount": 5,
-                "afterCount": 3
-              }
-            ],
-            "direction": "NW",
-            "directionRequired": true,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_4_c04_farmstead",
-            "selectedHexIds": [
-              "A6"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_82_1790467200000:draw:11",
-            "effectId": "effect_82_1790467200000",
-            "sourceId": "burden_ill_omen_of_discontent",
-            "role": "target",
-            "cardId": 14,
-            "originalEligibleCount": 2,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Core",
-                "applied": true,
-                "beforeCount": 2,
-                "afterCount": 2
-              },
-              {
-                "filter": "side",
-                "preference": "Basic",
-                "applied": true,
-                "beforeCount": 2,
-                "afterCount": 2
-              },
-              {
-                "filter": "adjacency",
-                "preference": "3+",
-                "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
-              },
-              {
-                "filter": "strain",
-                "preference": "Unstrained",
-                "applied": true,
-                "beforeCount": 2,
-                "afterCount": 1
-              }
-            ],
-            "direction": "NE",
-            "directionRequired": false,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_6_c15_path",
-            "selectedHexIds": [
-              "B6"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": true,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_83_1790467200000:draw:12",
-            "effectId": "effect_83_1790467200000",
-            "sourceId": "burden_too_many_houses_too_little_homes",
-            "role": "target",
-            "cardId": 16,
-            "originalEligibleCount": 1,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Core",
-                "applied": true,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "side",
-                "preference": "Basic",
-                "applied": true,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "adjacency",
-                "preference": "0–2",
-                "applied": true,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "strain",
-                "preference": "Unstrained",
-                "applied": true,
-                "beforeCount": 1,
-                "afterCount": 1
-              }
-            ],
-            "direction": "E",
-            "directionRequired": false,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_5_c05_cabin",
-            "selectedHexIds": [
-              "A7"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_85_1790467200000:draw:13",
-            "effectId": "effect_85_1790467200000",
-            "sourceId": "burden_promises_overstretched",
-            "role": "target",
-            "cardId": 2,
-            "originalEligibleCount": 5,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Core",
-                "applied": true,
-                "beforeCount": 5,
-                "afterCount": 5
-              },
-              {
-                "filter": "side",
-                "preference": "Basic",
-                "applied": true,
-                "beforeCount": 5,
-                "afterCount": 5
-              },
-              {
-                "filter": "adjacency",
-                "preference": "3+",
-                "applied": false,
-                "beforeCount": 5,
-                "afterCount": 5
-              },
-              {
-                "filter": "strain",
-                "preference": "Unstrained",
-                "applied": false,
-                "beforeCount": 5,
-                "afterCount": 5
-              }
-            ],
-            "direction": "SW",
-            "directionRequired": true,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_5_c05_cabin",
-            "selectedHexIds": [
-              "A7"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": true,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_85_1790467200000:draw:14",
-            "effectId": "effect_85_1790467200000",
-            "sourceId": "burden_promises_overstretched",
-            "role": "target",
-            "cardId": 6,
-            "originalEligibleCount": 4,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Core",
-                "applied": true,
-                "beforeCount": 4,
-                "afterCount": 4
-              },
-              {
-                "filter": "side",
-                "preference": "Upgraded",
-                "applied": false,
-                "beforeCount": 4,
-                "afterCount": 4
-              },
-              {
-                "filter": "adjacency",
-                "preference": "3+",
-                "applied": false,
-                "beforeCount": 4,
-                "afterCount": 4
-              },
-              {
-                "filter": "strain",
-                "preference": "Unstrained",
-                "applied": false,
-                "beforeCount": 4,
-                "afterCount": 4
-              }
-            ],
-            "direction": "NW",
-            "directionRequired": true,
-            "directionCandidateCount": 2,
-            "coordinateFallbackUsed": true,
-            "selectedTileId": "tile_3_c15_path",
-            "selectedHexIds": [
-              "F1"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": true,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_87_1790467200000:draw:15",
-            "effectId": "effect_87_1790467200000",
-            "sourceId": "burden_roads_too_far_from_home",
-            "role": "target",
-            "cardId": 21,
-            "originalEligibleCount": 1,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Special / Golden",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "side",
-                "preference": "Either",
-                "applied": true,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "adjacency",
-                "preference": "3+",
-                "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "strain",
-                "preference": "Already Strained",
-                "applied": true,
-                "beforeCount": 1,
-                "afterCount": 1
-              }
-            ],
-            "direction": "E",
-            "directionRequired": false,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_3_c15_path",
-            "selectedHexIds": [
-              "F1"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_81_1790467200000:draw:16",
-            "effectId": "effect_81_1790467200000",
-            "sourceId": "tile_3_c15_path",
-            "role": "target",
-            "cardId": 3,
-            "originalEligibleCount": 1,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Core",
-                "applied": true,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "side",
-                "preference": "Basic",
-                "applied": true,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "adjacency",
-                "preference": "0–2",
-                "applied": true,
-                "beforeCount": 1,
-                "afterCount": 1
-              },
-              {
-                "filter": "strain",
-                "preference": "Already Strained",
-                "applied": true,
-                "beforeCount": 1,
-                "afterCount": 1
-              }
-            ],
-            "direction": "E",
-            "directionRequired": false,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_1_c01_lumber_yard",
-            "selectedHexIds": [
-              "G1"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_81_1790467200000:draw:17",
-            "effectId": "effect_81_1790467200000",
-            "sourceId": "burden_the_quiet_fractures",
-            "role": "primary",
-            "cardId": 11,
-            "originalEligibleCount": 2,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Special / Golden",
-                "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
-              },
-              {
-                "filter": "side",
-                "preference": "Either",
-                "applied": true,
-                "beforeCount": 2,
-                "afterCount": 2
-              },
-              {
-                "filter": "adjacency",
-                "preference": "0–2",
-                "applied": true,
-                "beforeCount": 2,
-                "afterCount": 2
-              },
-              {
-                "filter": "strain",
-                "preference": "Already Strained",
-                "applied": true,
-                "beforeCount": 2,
-                "afterCount": 2
-              }
-            ],
-            "direction": "NW",
-            "directionRequired": true,
-            "directionCandidateCount": 1,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_3_c15_path",
-            "selectedHexIds": [
-              "F1"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "plannedStrain": 0,
-            "linkedSecondaryAvailable": false,
-            "linkedSecondaryCompleted": false,
-            "alternatePrimaryWouldComplete": false,
-            "strainApplied": false,
-            "actualStrainPlaced": 0,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_81_1790467200000:draw:18",
-            "effectId": "effect_81_1790467200000",
-            "sourceId": "arrival_moving_mountains",
-            "role": "target",
-            "cardId": 12,
-            "originalEligibleCount": 4,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Special / Golden",
-                "applied": false,
-                "beforeCount": 4,
-                "afterCount": 4
-              },
-              {
-                "filter": "side",
-                "preference": "Either",
-                "applied": true,
-                "beforeCount": 4,
-                "afterCount": 4
-              },
-              {
-                "filter": "adjacency",
-                "preference": "0–2",
-                "applied": true,
-                "beforeCount": 4,
-                "afterCount": 4
-              },
-              {
-                "filter": "strain",
-                "preference": "Unstrained",
-                "applied": false,
-                "beforeCount": 4,
-                "afterCount": 4
-              }
-            ],
-            "direction": "SE",
-            "directionRequired": true,
-            "directionCandidateCount": 2,
-            "coordinateFallbackUsed": true,
-            "selectedTileId": "tile_6_c15_path",
-            "selectedHexIds": [
-              "B6"
-            ],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "plannedStrain": 1,
-            "strainApplied": true,
-            "actualStrainPlaced": 1,
-            "supportedPrevented": false,
-            "goldenGardenPrevented": false
-          },
-          {
-            "id": "effect_81_1790467200000:draw:19",
-            "effectId": "effect_81_1790467200000",
-            "sourceId": "arrival_from_battle_to_cattle",
-            "role": "target",
-            "cardId": 27,
-            "originalEligibleCount": 4,
-            "filters": [
-              {
-                "filter": "class",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 4,
-                "afterCount": 4
-              },
-              {
-                "filter": "side",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 4,
-                "afterCount": 4
-              },
-              {
-                "filter": "adjacency",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 4,
-                "afterCount": 4
-              },
-              {
-                "filter": "strain",
-                "preference": "Any",
-                "applied": false,
-                "beforeCount": 4,
-                "afterCount": 4
-              }
-            ],
-            "directionRequired": false,
-            "directionCandidateCount": 4,
-            "coordinateFallbackUsed": false,
-            "selectedTileId": "",
-            "selectedHexIds": [],
-            "supportedWillPrevent": false,
-            "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": false,
-            "manualChoice": true
-          }
-        ]
-      },
-      "ledgerRun": {
-        "gameId": "qv_game_muj1xxc0",
-        "recorded": false,
-        "arrivalsRevealed": 8,
-        "arrivalsCompleted": 0,
-        "arrivalsExpired": 4,
-        "burdensRevealed": 8,
-        "burdensResolved": 0,
-        "arrivalsCompletedBySeason": {
-          "1": 0,
-          "2": 0,
-          "3": 0
-        },
-        "burdensResolvedBySeason": {
-          "1": 0,
-          "2": 0,
-          "3": 0
-        },
-        "burdensRevealedBySeason": {
-          "1": 4,
-          "2": 2,
-          "3": 2
-        },
-        "arrivalCompletionEvents": [],
-        "burdenRevealEvents": [
-          {
-            "cardId": "burden_ill_omen_of_discontent",
-            "round": 2,
-            "season": 1
-          },
-          {
-            "cardId": "burden_too_many_houses_too_little_homes",
-            "round": 3,
-            "season": 1
-          },
-          {
-            "cardId": "burden_river_breaks_its_banks",
-            "round": 3,
-            "season": 1
-          },
-          {
-            "cardId": "burden_promises_overstretched",
-            "round": 4,
-            "season": 1
-          },
-          {
-            "cardId": "burden_foundations_remember_war",
-            "round": 6,
-            "season": 2
-          },
-          {
-            "cardId": "burden_roads_too_far_from_home",
-            "round": 8,
-            "season": 2
-          },
-          {
-            "cardId": "burden_the_quiet_fractures",
-            "round": 11,
-            "season": 3
-          },
-          {
-            "cardId": "burden_welcome_wears_thin",
-            "round": 12,
-            "season": 3
-          }
-        ],
-        "burdenResolutionEvents": [],
-        "strainPreventedBySupported": 0,
-        "strainRemovedByRoundCategory": {
-          "7": {
-            "resource": 2
-          }
-        },
-        "maxOverstrainedTiles": 3,
-        "rangerPowerTerrainTypes": [],
-        "upgradeActions": 0,
-        "warehousePeakByResource": {
-          "wood": 10,
-          "stone": 10,
-          "metal": 10,
-          "food": 10,
-          "herbs": 10,
-          "goods": 10
-        },
-        "seasonSnapshots": {
-          "1": {
-            "activeBurdens": 4,
-            "overstrainedTiles": 0,
-            "arrivalsCompleted": 0,
-            "burdensResolved": 0
-          },
-          "2": {
-            "activeBurdens": 6,
-            "overstrainedTiles": 1,
-            "arrivalsCompleted": 0,
-            "burdensResolved": 0
-          }
-        },
-        "violatedVowReasons": []
-      },
-      "log": [
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "Applied effect: Arrival expired: Battle to Cattle."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "Round 12 complete. Final scoring is ready."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "Arrival expired unresolved: Battle to Cattle. The Target Deck selects a tile to receive 1 Strain."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "All Stewards have acted. Ready for End of Round."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "Player 2's turn begins."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "Applied effect: Revealed Welcome Wears Thin."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "No effect this reveal: Ledgers Flow."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "Revealed Welcome Wears Thin."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "Revealed Ledgers Flow."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "Applied effect: Arrival expired: Moving Mountains."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "Round 12 begins."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "Target Card 12 used map-coordinate fallback after its SE tie direction remained tied."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 12,
-          "message": "Arrival expired unresolved: Moving Mountains. The Target Deck selects a tile to receive 1 Strain."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 11,
-          "message": "All Stewards have acted. Ready for End of Round."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 11,
-          "message": "Player 2's turn begins."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 11,
-          "message": "Acknowledged Arrival: Songs of War to Ore."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 11,
-          "message": "Applied effect: Revealed The Quiet Fractures."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 11,
-          "message": "Revealed Songs of War to Ore."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 11,
-          "message": "Revealed The Quiet Fractures."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 11,
-          "message": "Round 11 begins."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 10,
-          "message": "All Stewards have acted. Ready for End of Round."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 10,
-          "message": "Player 2's turn begins."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 10,
-          "message": "Acknowledged Arrival: Battle to Cattle."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 10,
-          "message": "Acknowledged Boon: Shared Hands."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 10,
-          "message": "Revealed Battle to Cattle."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 10,
-          "message": "Revealed Shared Hands."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 10,
-          "message": "Round 10 begins."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "All Stewards have acted. Ready for End of Round."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Player 2's turn begins."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Applied effect: Revealed Herb & Tonic."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Acknowledged Arrival: Moving Mountains."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Revealed Herb & Tonic."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Revealed Moving Mountains."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Season 3 seeding complete. Ready to reveal Encounters."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "player_1 seeded three hidden Encounter Cards."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Path spread 1 Strain after becoming Overstrained."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Applied effect: Season 3 Burden: Roads Too Far."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "No effect this Season start: Foundations Remember War."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Applied effect: Season 3 Burden: Promises Overstretched."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Target Card 6 used map-coordinate fallback after its NW tie direction remained tied."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Applied effect: Season 3 Burden: River Breaks Its Banks."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Applied effect: Season 3 Burden: Houses, Not Homes."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Applied effect: Season 3 Burden: Omen of Discontent."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Applied effect: Arrival expired: News Travels Faster."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Round 9 begins."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Arrival expired unresolved: News Travels Faster. The Target Deck selects a tile to receive 1 Strain."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 8,
-          "message": "All Stewards have acted. Ready for End of Round."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 8,
-          "message": "Player 2's turn begins."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 8,
-          "message": "Applied effect: Revealed Roads Too Far."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 8,
-          "message": "Acknowledged Boon: First Harvest Bounty."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 8,
-          "message": "Revealed Roads Too Far."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 8,
-          "message": "Revealed First Harvest Bounty."
-        },
-        {
-          "id": "log_80_1790467200000",
-          "round": 8,
-          "message": "Cabin spread 1 Strain after becoming Overstrained."
-        },
-        {
-          "id": "log_79_1790467200000",
-          "round": 8,
-          "message": "Applied effect: Arrival expired: Dark Decay to Light."
-        },
-        {
-          "id": "log_78_1790467200000",
-          "round": 8,
-          "message": "Applied effect: Arrival expired: Hearthbound Circle."
-        },
-        {
-          "id": "log_77_1790467200000",
-          "round": 8,
-          "message": "Round 8 begins."
-        },
-        {
-          "id": "log_76_1790467200000",
-          "round": 8,
-          "message": "Arrival expired unresolved: Dark Decay to Light. The Target Deck selects a tile to receive 1 Strain."
-        },
-        {
-          "id": "log_75_1790467200000",
-          "round": 8,
-          "message": "Arrival expired unresolved: Hearthbound Circle. The Target Deck selects a tile to receive 1 Strain."
-        },
-        {
-          "id": "log_74_1790467200000",
-          "round": 7,
-          "message": "All Stewards have acted. Ready for End of Round."
-        },
-        {
-          "id": "log_73_1790467200000",
-          "round": 7,
-          "message": "Player 2's turn begins."
-        },
-        {
-          "id": "log_72_1790467200000",
-          "round": 7,
-          "message": "Acknowledged Boon: Apprentice Steward."
-        },
-        {
-          "id": "log_71_1790467200000",
-          "round": 7,
-          "message": "Applied effect: Revealed Help Stands."
-        },
-        {
-          "id": "log_70_1790467200000",
-          "round": 7,
-          "message": "Revealed Apprentice Steward."
-        },
-        {
-          "id": "log_69_1790467200000",
-          "round": 7,
-          "message": "Revealed Help Stands."
-        },
-        {
-          "id": "log_68_1790467200000",
-          "round": 7,
-          "message": "Round 7 begins."
-        },
-        {
-          "id": "log_67_1790467200000",
-          "round": 6,
-          "message": "All Stewards have acted. Ready for End of Round."
-        },
-        {
-          "id": "log_66_1790467200000",
-          "round": 6,
-          "message": "Player 2's turn begins."
-        },
-        {
-          "id": "log_65_1790467200000",
-          "round": 6,
-          "message": "No effect this reveal: Foundations Remember War."
-        },
-        {
-          "id": "log_64_1790467200000",
-          "round": 6,
-          "message": "Acknowledged Arrival: News Travels Faster."
-        },
-        {
-          "id": "log_63_1790467200000",
-          "round": 6,
-          "message": "Revealed Foundations Remember War."
-        },
-        {
-          "id": "log_62_1790467200000",
-          "round": 6,
-          "message": "Revealed News Travels Faster."
-        },
-        {
-          "id": "log_61_1790467200000",
-          "round": 6,
-          "message": "Round 6 begins."
-        },
-        {
-          "id": "log_60_1790467200000",
-          "round": 5,
-          "message": "All Stewards have acted. Ready for End of Round."
-        },
-        {
-          "id": "log_59_1790467200000",
-          "round": 5,
-          "message": "Player 2's turn begins."
-        },
-        {
-          "id": "log_58_1790467200000",
-          "round": 5,
-          "message": "Acknowledged Arrival: Dark Decay to Light."
-        },
-        {
-          "id": "log_57_1790467200000",
-          "round": 5,
-          "message": "Acknowledged Arrival: Hearthbound Circle."
-        },
-        {
-          "id": "log_56_1790467200000",
-          "round": 5,
-          "message": "Revealed Dark Decay to Light."
-        },
-        {
-          "id": "log_55_1790467200000",
-          "round": 5,
-          "message": "Revealed Hearthbound Circle."
-        },
-        {
-          "id": "log_54_1790467200000",
-          "round": 5,
-          "message": "Season 2 seeding complete. Ready to reveal Encounters."
-        },
-        {
-          "id": "log_53_1790467200000",
-          "round": 5,
-          "message": "player_1 seeded three hidden Encounter Cards."
-        }
-      ]
-    },
-    "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
-      "games": []
-    }
-  },
   "choice": {
     "setup": {
       "playerCount": 1,
@@ -10986,6 +9139,1707 @@
           "id": "log_19_1790467200000",
           "round": 1,
           "message": "Activated Farmstead."
+        }
+      ]
+    },
+    "campaign": {
+      "version": 2,
+      "catalogueVersion": "v4.6",
+      "pacingVersion": 2,
+      "completions": {},
+      "games": []
+    }
+  },
+  "finale": {
+    "setup": {
+      "playerCount": 2,
+      "stewardIds": [
+        "vanguard",
+        "knight"
+      ],
+      "encounterSeed": "QV-COMPARISON-1"
+    },
+    "state": {
+      "playerCount": 2,
+      "players": [
+        {
+          "id": "player_1",
+          "name": "Player 1",
+          "stewardId": "vanguard",
+          "stewardHexId": "F4",
+          "hasPlacedFirstTile": true,
+          "stewardPowerUsesBySeason": {
+            "1": 0,
+            "2": 0,
+            "3": 0
+          }
+        },
+        {
+          "id": "player_2",
+          "name": "Player 2",
+          "stewardId": "knight",
+          "stewardHexId": "A1",
+          "hasPlacedFirstTile": true,
+          "stewardPowerUsesBySeason": {
+            "1": 0,
+            "2": 0,
+            "3": 0
+          }
+        }
+      ],
+      "currentPlayerId": "player_1",
+      "season": 3,
+      "round": 12,
+      "phase": "gameEnd",
+      "actionsRemaining": 4,
+      "playersActedThisRound": [],
+      "seasonSeededPlayerIds": [],
+      "warehouse": {
+        "wood": 9,
+        "stone": 6,
+        "metal": 0,
+        "food": 11,
+        "herbs": 12,
+        "goods": 0
+      },
+      "map": {
+        "placedTiles": [
+          {
+            "instanceId": "tile_1_c18_common_land",
+            "tileId": "c18_common_land",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "G1"
+            ],
+            "strain": 1,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_2_c08_inn",
+            "tileId": "c08_inn",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "F1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": true,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_3_c14_market_stalls",
+            "tileId": "c14_market_stalls",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "H1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_4_c14_market_stalls",
+            "tileId": "c14_market_stalls",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "G2"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_5_c18_common_land",
+            "tileId": "c18_common_land",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A6"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_6_c04_farmstead",
+            "tileId": "c04_farmstead",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "B6"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_7_c05_cabin",
+            "tileId": "c05_cabin",
+            "kind": "core",
+            "side": "upgraded",
+            "hexIds": [
+              "E1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": true,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_8_c01_lumber_yard",
+            "tileId": "c01_lumber_yard",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "I1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_9_c05_cabin",
+            "tileId": "c05_cabin",
+            "kind": "core",
+            "side": "upgraded",
+            "hexIds": [
+              "E2"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_10_special_alms_house",
+            "tileId": "special_alms_house",
+            "kind": "special",
+            "side": "special",
+            "hexIds": [
+              "A5"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_11_c05_cabin",
+            "tileId": "c05_cabin",
+            "kind": "core",
+            "side": "upgraded",
+            "hexIds": [
+              "F2"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_12_c05_cabin",
+            "tileId": "c05_cabin",
+            "kind": "core",
+            "side": "upgraded",
+            "hexIds": [
+              "G3"
+            ],
+            "strain": 1,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_13_c04_farmstead",
+            "tileId": "c04_farmstead",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A7"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_14_c03_gathering_outpost",
+            "tileId": "c03_gathering_outpost",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A4"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_15_special_hearth_garden",
+            "tileId": "special_hearth_garden",
+            "kind": "special",
+            "side": "special",
+            "hexIds": [
+              "H2"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_16_c15_path",
+            "tileId": "c15_path",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "I2"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_17_c19_bridge",
+            "tileId": "c19_bridge",
+            "kind": "core",
+            "side": "upgraded",
+            "hexIds": [
+              "D1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": true,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_18_c02_mine_tunnel",
+            "tileId": "c02_mine_tunnel",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "C1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_19_c03_gathering_outpost",
+            "tileId": "c03_gathering_outpost",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A3"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_20_c03_gathering_outpost",
+            "tileId": "c03_gathering_outpost",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "B3"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_21_c15_path",
+            "tileId": "c15_path",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "B4"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_22_c15_path",
+            "tileId": "c15_path",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A2"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_23_c02_mine_tunnel",
+            "tileId": "c02_mine_tunnel",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_24_c19_bridge",
+            "tileId": "c19_bridge",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "F3"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_25_special_the_lorekeepers_respite",
+            "tileId": "special_the_lorekeepers_respite",
+            "kind": "special",
+            "side": "special",
+            "hexIds": [
+              "F4"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          }
+        ]
+      },
+      "tileSupply": {
+        "core": {
+          "c01_lumber_yard": 3,
+          "c02_mine_tunnel": 2,
+          "c03_gathering_outpost": 1,
+          "c04_farmstead": 2,
+          "c05_cabin": 0,
+          "c06_cottage": 4,
+          "c08_inn": 1,
+          "c07_stedding": 2,
+          "c09_tavern": 2,
+          "c10_eatery": 2,
+          "c11_washhouse": 2,
+          "c12_apothecary": 2,
+          "c13_workshops": 2,
+          "c14_market_stalls": 0,
+          "c15_path": 5,
+          "c18_common_land": 0,
+          "c16_street": 6,
+          "c17_track": 4,
+          "c19_bridge": 2,
+          "c20_dig_site": 4,
+          "c21_the_vaults": 2
+        },
+        "special": {
+          "special_adventurers_guild": 0,
+          "special_alchemist_s_workshop": 0,
+          "special_alms_house": 0,
+          "special_atelier_workshop": 0,
+          "special_brewery_of_legends": 0,
+          "special_docks": 0,
+          "special_hearth_garden": 0,
+          "special_house_of_learning": 0,
+          "special_labourers_yard": 0,
+          "special_lantern_roadhouse": 0,
+          "special_reliquary": 0,
+          "special_shrine_of_ancestors": 0,
+          "special_shrine_of_ancients": 0,
+          "special_shrine_of_bounty": 0,
+          "special_shrine_of_depths": 0,
+          "special_shrine_of_renewal": 0,
+          "special_stables": 0,
+          "special_the_iron_roots_respite": 0,
+          "special_the_lorekeepers_respite": 0,
+          "special_the_reavers_respite": 0,
+          "special_the_resting_hall": 0,
+          "special_the_root_weavers_respite": 0,
+          "special_the_tamers_respite": 0,
+          "special_the_waystation": 0,
+          "special_theater": 0
+        }
+      },
+      "encounters": {
+        "handsByPlayerId": {
+          "player_1": [],
+          "player_2": []
+        },
+        "deck": [],
+        "discardPile": [
+          "burden_ill_omen_of_discontent",
+          "burden_too_many_houses_too_little_homes",
+          "burden_river_breaks_its_banks",
+          "arrival_from_blade_swingers_to_herb_stringers",
+          "burden_promises_overstretched",
+          "burden_foundations_remember_war",
+          "boon_where_help_stands",
+          "burden_roads_too_far_from_home",
+          "boon_the_scent_of_herb_and_tonic",
+          "arrival_news_travels_faster_than_goods",
+          "arrival_moving_mountains",
+          "boon_ledgers_flow",
+          "burden_welcome_wears_thin",
+          "arrival_from_battle_to_cattle"
+        ],
+        "activeArrivals": [
+          {
+            "cardId": "arrival_from_songs_of_war_to_the_search_for_ore",
+            "timerTokens": 1
+          }
+        ],
+        "activeBurdens": [
+          "burden_the_quiet_fractures"
+        ],
+        "faceUpBoons": [
+          {
+            "cardId": "boon_shared_hands_lighter_loads",
+            "remainingUses": 1
+          }
+        ],
+        "completedArrivals": [
+          {
+            "cardId": "arrival_no_soul_shall_go_without",
+            "specialTileIds": [
+              "special_alms_house"
+            ]
+          },
+          {
+            "cardId": "arrival_from_dark_decay_to_light_display",
+            "specialTileIds": [
+              "special_the_lorekeepers_respite"
+            ]
+          },
+          {
+            "cardId": "arrival_the_hearthbound_circle",
+            "specialTileIds": [
+              "special_hearth_garden"
+            ]
+          }
+        ],
+        "reserveBoonIds": [
+          "boon_the_settlement_of_plenty",
+          "boon_festival_of_trade",
+          "boon_the_break_holds",
+          "boon_old_foundations_still_remain",
+          "boon_what_is_written_in_the_stars_can_finally_be_heeded",
+          "boon_stores_made_ready",
+          "boon_a_little_more_time",
+          "boon_shelter_holds",
+          "boon_a_light_on_the_long_dark_lanterns_illuminated_the_way_to_a_safer_day",
+          "boon_a_wonderful_find",
+          "boon_clear_nights_make_for_clear_plans",
+          "boon_craft_fair",
+          "boon_from_the_brink",
+          "boon_carts_before_sunrise",
+          "boon_a_welcome_well_met",
+          "boon_answers_made_ready",
+          "boon_when_the_roads_filled_once_more",
+          "boon_hearths_soften_feuds",
+          "boon_many_hands_make_light_work",
+          "boon_change_of_watch",
+          "boon_raised_in_good_season",
+          "boon_the_ancient_ways_gradually_reemerge"
+        ],
+        "reserveArrivalIds": [
+          "arrival_the_dryads",
+          "arrival_lay_down_the_tools_of_destruction",
+          "arrival_spirit_lifting_spirit",
+          "arrival_hands_for_heavy_work",
+          "arrival_acorns_and_oak_trees",
+          "arrival_from_plunderer_to_lumber",
+          "arrival_the_burden_bearers",
+          "arrival_strong_foundations",
+          "arrival_remnants_of_the_cavalry",
+          "arrival_remnants_of_the_fleet",
+          "arrival_reablement_for_the_realm",
+          "arrival_what_came_before_the_last_age",
+          "arrival_the_transmutation_traveler",
+          "arrival_the_quiet_quest",
+          "arrival_blessed_harvest",
+          "arrival_lanterns_for_the_long_roads",
+          "arrival_lest_we_forget"
+        ],
+        "goldenEnabled": false
+      },
+      "goldenSetup": {
+        "tilePlaced": false,
+        "tileSkipped": false
+      },
+      "pendingGoldenEffect": null,
+      "bonusTurnsPending": false,
+      "bonusTurnsActive": false,
+      "boonModifiers": [],
+      "ignoredBurdenIdsThisRound": [],
+      "tileActivationRecords": {
+        "tile_15_special_hearth_garden": {
+          "round": 7
+        },
+        "tile_6_c04_farmstead": {
+          "linkedProductionRound": 12
+        },
+        "tile_13_c04_farmstead": {
+          "linkedProductionRound": 12
+        },
+        "tile_14_c03_gathering_outpost": {
+          "linkedProductionRound": 12
+        },
+        "tile_19_c03_gathering_outpost": {
+          "linkedProductionRound": 12
+        },
+        "tile_20_c03_gathering_outpost": {
+          "linkedProductionRound": 12
+        }
+      },
+      "pendingEffects": [],
+      "pendingDeckReorder": null,
+      "pendingCostChoice": null,
+      "targetCards": {
+        "seed": "QV-COMPARISON-1:2:targets",
+        "drawPile": [
+          24,
+          14,
+          16,
+          2,
+          6,
+          21,
+          3,
+          11,
+          12,
+          27,
+          7,
+          8,
+          26,
+          25,
+          23,
+          13,
+          18,
+          20,
+          15,
+          9,
+          10,
+          19,
+          4,
+          28,
+          22,
+          30,
+          1,
+          17,
+          29,
+          5
+        ],
+        "drawCount": 9,
+        "history": [
+          {
+            "id": "effect_45_1790467200000:draw:1",
+            "effectId": "effect_45_1790467200000",
+            "sourceId": "burden_too_many_houses_too_little_homes",
+            "role": "target",
+            "cardId": 19,
+            "originalEligibleCount": 2,
+            "filters": [
+              {
+                "filter": "class",
+                "preference": "Core",
+                "applied": true,
+                "beforeCount": 2,
+                "afterCount": 2
+              },
+              {
+                "filter": "side",
+                "preference": "Upgraded",
+                "applied": false,
+                "beforeCount": 2,
+                "afterCount": 2
+              },
+              {
+                "filter": "adjacency",
+                "preference": "0–2",
+                "applied": true,
+                "beforeCount": 2,
+                "afterCount": 1
+              },
+              {
+                "filter": "strain",
+                "preference": "Already Strained",
+                "applied": false,
+                "beforeCount": 1,
+                "afterCount": 1
+              }
+            ],
+            "direction": "NE",
+            "directionRequired": false,
+            "directionCandidateCount": 1,
+            "coordinateFallbackUsed": false,
+            "selectedTileId": "tile_7_c05_cabin",
+            "selectedHexIds": [
+              "E1"
+            ],
+            "supportedWillPrevent": false,
+            "goldenGardenWillPrevent": false,
+            "printedFallbackUsed": false,
+            "plannedStrain": 1,
+            "strainApplied": false,
+            "actualStrainPlaced": 0,
+            "supportedPrevented": false,
+            "goldenGardenPrevented": false
+          },
+          {
+            "id": "effect_46_1790467200000:draw:2",
+            "effectId": "effect_46_1790467200000",
+            "sourceId": "burden_river_breaks_its_banks",
+            "role": "target",
+            "cardId": 4,
+            "originalEligibleCount": 1,
+            "filters": [
+              {
+                "filter": "class",
+                "preference": "Core",
+                "applied": true,
+                "beforeCount": 1,
+                "afterCount": 1
+              },
+              {
+                "filter": "side",
+                "preference": "Basic",
+                "applied": true,
+                "beforeCount": 1,
+                "afterCount": 1
+              },
+              {
+                "filter": "adjacency",
+                "preference": "0–2",
+                "applied": true,
+                "beforeCount": 1,
+                "afterCount": 1
+              },
+              {
+                "filter": "strain",
+                "preference": "Unstrained",
+                "applied": true,
+                "beforeCount": 1,
+                "afterCount": 1
+              }
+            ],
+            "direction": "W",
+            "directionRequired": false,
+            "directionCandidateCount": 1,
+            "coordinateFallbackUsed": false,
+            "selectedTileId": "tile_7_c05_cabin",
+            "selectedHexIds": [
+              "E1"
+            ],
+            "supportedWillPrevent": false,
+            "goldenGardenWillPrevent": false,
+            "printedFallbackUsed": false,
+            "plannedStrain": 1,
+            "strainApplied": true,
+            "actualStrainPlaced": 1,
+            "supportedPrevented": false,
+            "goldenGardenPrevented": false
+          },
+          {
+            "id": "effect_63_1790467200000:draw:3",
+            "effectId": "effect_63_1790467200000",
+            "sourceId": "arrival_from_blade_swingers_to_herb_stringers",
+            "role": "target",
+            "cardId": 28,
+            "originalEligibleCount": 10,
+            "filters": [
+              {
+                "filter": "class",
+                "preference": "Any",
+                "applied": false,
+                "beforeCount": 10,
+                "afterCount": 10
+              },
+              {
+                "filter": "side",
+                "preference": "Any",
+                "applied": false,
+                "beforeCount": 10,
+                "afterCount": 10
+              },
+              {
+                "filter": "adjacency",
+                "preference": "Any",
+                "applied": false,
+                "beforeCount": 10,
+                "afterCount": 10
+              },
+              {
+                "filter": "strain",
+                "preference": "Any",
+                "applied": false,
+                "beforeCount": 10,
+                "afterCount": 10
+              }
+            ],
+            "directionRequired": false,
+            "directionCandidateCount": 10,
+            "coordinateFallbackUsed": false,
+            "selectedTileId": "",
+            "selectedHexIds": [],
+            "supportedWillPrevent": false,
+            "goldenGardenWillPrevent": false,
+            "printedFallbackUsed": false,
+            "manualChoice": true
+          },
+          {
+            "id": "effect_82_1790467200000:draw:4",
+            "effectId": "effect_82_1790467200000",
+            "sourceId": "burden_foundations_remember_war",
+            "role": "primary",
+            "cardId": 22,
+            "originalEligibleCount": 1,
+            "filters": [
+              {
+                "filter": "class",
+                "preference": "Special / Golden",
+                "applied": false,
+                "beforeCount": 1,
+                "afterCount": 1
+              },
+              {
+                "filter": "side",
+                "preference": "Either",
+                "applied": true,
+                "beforeCount": 1,
+                "afterCount": 1
+              },
+              {
+                "filter": "adjacency",
+                "preference": "3+",
+                "applied": false,
+                "beforeCount": 1,
+                "afterCount": 1
+              },
+              {
+                "filter": "strain",
+                "preference": "Unstrained",
+                "applied": false,
+                "beforeCount": 1,
+                "afterCount": 1
+              }
+            ],
+            "direction": "W",
+            "directionRequired": false,
+            "directionCandidateCount": 1,
+            "coordinateFallbackUsed": false,
+            "selectedTileId": "tile_7_c05_cabin",
+            "selectedHexIds": [
+              "E1"
+            ],
+            "supportedWillPrevent": true,
+            "goldenGardenWillPrevent": false,
+            "printedFallbackUsed": false,
+            "plannedStrain": 1,
+            "linkedSecondaryAvailable": true,
+            "linkedSecondaryCompleted": true,
+            "alternatePrimaryWouldComplete": false,
+            "strainApplied": true,
+            "actualStrainPlaced": 0,
+            "supportedPrevented": true,
+            "goldenGardenPrevented": false
+          },
+          {
+            "id": "effect_82_1790467200000:draw:5",
+            "effectId": "effect_82_1790467200000",
+            "sourceId": "burden_foundations_remember_war",
+            "role": "spread",
+            "cardId": 30,
+            "originalEligibleCount": 2,
+            "filters": [
+              {
+                "filter": "class",
+                "preference": "Any",
+                "applied": false,
+                "beforeCount": 2,
+                "afterCount": 2
+              },
+              {
+                "filter": "side",
+                "preference": "Any",
+                "applied": false,
+                "beforeCount": 2,
+                "afterCount": 2
+              },
+              {
+                "filter": "adjacency",
+                "preference": "Any",
+                "applied": false,
+                "beforeCount": 2,
+                "afterCount": 2
+              },
+              {
+                "filter": "strain",
+                "preference": "Any",
+                "applied": false,
+                "beforeCount": 2,
+                "afterCount": 2
+              }
+            ],
+            "directionRequired": false,
+            "directionCandidateCount": 2,
+            "coordinateFallbackUsed": false,
+            "selectedTileId": "",
+            "selectedHexIds": [],
+            "supportedWillPrevent": false,
+            "goldenGardenWillPrevent": false,
+            "printedFallbackUsed": false,
+            "manualChoice": true
+          },
+          {
+            "id": "effect_82_1790467200000:draw:6",
+            "effectId": "effect_82_1790467200000",
+            "sourceId": "burden_roads_too_far_from_home",
+            "role": "target",
+            "cardId": 1,
+            "originalEligibleCount": 1,
+            "filters": [
+              {
+                "filter": "class",
+                "preference": "Core",
+                "applied": true,
+                "beforeCount": 1,
+                "afterCount": 1
+              },
+              {
+                "filter": "side",
+                "preference": "Basic",
+                "applied": true,
+                "beforeCount": 1,
+                "afterCount": 1
+              },
+              {
+                "filter": "adjacency",
+                "preference": "3+",
+                "applied": true,
+                "beforeCount": 1,
+                "afterCount": 1
+              },
+              {
+                "filter": "strain",
+                "preference": "Already Strained",
+                "applied": false,
+                "beforeCount": 1,
+                "afterCount": 1
+              }
+            ],
+            "direction": "NE",
+            "directionRequired": false,
+            "directionCandidateCount": 1,
+            "coordinateFallbackUsed": false,
+            "selectedTileId": "tile_5_c18_common_land",
+            "selectedHexIds": [
+              "A6"
+            ],
+            "supportedWillPrevent": true,
+            "goldenGardenWillPrevent": false,
+            "printedFallbackUsed": false,
+            "plannedStrain": 1,
+            "strainApplied": true,
+            "actualStrainPlaced": 0,
+            "supportedPrevented": true,
+            "goldenGardenPrevented": false
+          },
+          {
+            "id": "effect_81_1790467200000:draw:7",
+            "effectId": "effect_81_1790467200000",
+            "sourceId": "arrival_news_travels_faster_than_goods",
+            "role": "target",
+            "cardId": 17,
+            "originalEligibleCount": 21,
+            "filters": [
+              {
+                "filter": "class",
+                "preference": "Core",
+                "applied": true,
+                "beforeCount": 21,
+                "afterCount": 19
+              },
+              {
+                "filter": "side",
+                "preference": "Upgraded",
+                "applied": true,
+                "beforeCount": 19,
+                "afterCount": 3
+              },
+              {
+                "filter": "adjacency",
+                "preference": "3+",
+                "applied": true,
+                "beforeCount": 3,
+                "afterCount": 3
+              },
+              {
+                "filter": "strain",
+                "preference": "Already Strained",
+                "applied": false,
+                "beforeCount": 3,
+                "afterCount": 3
+              }
+            ],
+            "direction": "NW",
+            "directionRequired": true,
+            "directionCandidateCount": 2,
+            "coordinateFallbackUsed": true,
+            "selectedTileId": "tile_17_c19_bridge",
+            "selectedHexIds": [
+              "D1"
+            ],
+            "supportedWillPrevent": true,
+            "goldenGardenWillPrevent": false,
+            "printedFallbackUsed": false,
+            "plannedStrain": 1,
+            "strainApplied": true,
+            "actualStrainPlaced": 0,
+            "supportedPrevented": true,
+            "goldenGardenPrevented": false
+          },
+          {
+            "id": "effect_81_1790467200000:draw:8",
+            "effectId": "effect_81_1790467200000",
+            "sourceId": "arrival_moving_mountains",
+            "role": "target",
+            "cardId": 29,
+            "originalEligibleCount": 23,
+            "filters": [
+              {
+                "filter": "class",
+                "preference": "Any",
+                "applied": false,
+                "beforeCount": 23,
+                "afterCount": 23
+              },
+              {
+                "filter": "side",
+                "preference": "Any",
+                "applied": false,
+                "beforeCount": 23,
+                "afterCount": 23
+              },
+              {
+                "filter": "adjacency",
+                "preference": "Any",
+                "applied": false,
+                "beforeCount": 23,
+                "afterCount": 23
+              },
+              {
+                "filter": "strain",
+                "preference": "Any",
+                "applied": false,
+                "beforeCount": 23,
+                "afterCount": 23
+              }
+            ],
+            "directionRequired": false,
+            "directionCandidateCount": 23,
+            "coordinateFallbackUsed": false,
+            "selectedTileId": "",
+            "selectedHexIds": [],
+            "supportedWillPrevent": false,
+            "goldenGardenWillPrevent": false,
+            "printedFallbackUsed": false,
+            "manualChoice": true
+          },
+          {
+            "id": "effect_81_1790467200000:draw:9",
+            "effectId": "effect_81_1790467200000",
+            "sourceId": "arrival_from_battle_to_cattle",
+            "role": "target",
+            "cardId": 5,
+            "originalEligibleCount": 25,
+            "filters": [
+              {
+                "filter": "class",
+                "preference": "Core",
+                "applied": true,
+                "beforeCount": 25,
+                "afterCount": 22
+              },
+              {
+                "filter": "side",
+                "preference": "Upgraded",
+                "applied": true,
+                "beforeCount": 22,
+                "afterCount": 5
+              },
+              {
+                "filter": "adjacency",
+                "preference": "3+",
+                "applied": true,
+                "beforeCount": 5,
+                "afterCount": 5
+              },
+              {
+                "filter": "strain",
+                "preference": "Already Strained",
+                "applied": false,
+                "beforeCount": 5,
+                "afterCount": 5
+              }
+            ],
+            "direction": "SE",
+            "directionRequired": true,
+            "directionCandidateCount": 1,
+            "coordinateFallbackUsed": false,
+            "selectedTileId": "tile_12_c05_cabin",
+            "selectedHexIds": [
+              "G3"
+            ],
+            "supportedWillPrevent": false,
+            "goldenGardenWillPrevent": false,
+            "printedFallbackUsed": false,
+            "plannedStrain": 1,
+            "strainApplied": true,
+            "actualStrainPlaced": 1,
+            "supportedPrevented": false,
+            "goldenGardenPrevented": false
+          }
+        ]
+      },
+      "ledgerRun": {
+        "gameId": "qv_game_muj1xxc0",
+        "recorded": false,
+        "arrivalsRevealed": 8,
+        "arrivalsCompleted": 3,
+        "arrivalsExpired": 1,
+        "burdensRevealed": 8,
+        "burdensResolved": 7,
+        "arrivalsCompletedBySeason": {
+          "1": 1,
+          "2": 2,
+          "3": 0
+        },
+        "burdensResolvedBySeason": {
+          "1": 4,
+          "2": 2,
+          "3": 1
+        },
+        "burdensRevealedBySeason": {
+          "1": 4,
+          "2": 2,
+          "3": 2
+        },
+        "arrivalCompletionEvents": [
+          {
+            "cardId": "arrival_no_soul_shall_go_without",
+            "round": 3,
+            "season": 1,
+            "specialTileIds": [
+              "special_alms_house"
+            ],
+            "timerTokens": 1
+          },
+          {
+            "cardId": "arrival_from_dark_decay_to_light_display",
+            "round": 7,
+            "season": 2,
+            "specialTileIds": [
+              "special_the_lorekeepers_respite"
+            ],
+            "timerTokens": 1
+          },
+          {
+            "cardId": "arrival_the_hearthbound_circle",
+            "round": 7,
+            "season": 2,
+            "specialTileIds": [
+              "special_hearth_garden"
+            ],
+            "timerTokens": 1
+          }
+        ],
+        "burdenRevealEvents": [
+          {
+            "cardId": "burden_ill_omen_of_discontent",
+            "round": 2,
+            "season": 1
+          },
+          {
+            "cardId": "burden_too_many_houses_too_little_homes",
+            "round": 3,
+            "season": 1
+          },
+          {
+            "cardId": "burden_river_breaks_its_banks",
+            "round": 3,
+            "season": 1
+          },
+          {
+            "cardId": "burden_promises_overstretched",
+            "round": 4,
+            "season": 1
+          },
+          {
+            "cardId": "burden_foundations_remember_war",
+            "round": 6,
+            "season": 2
+          },
+          {
+            "cardId": "burden_roads_too_far_from_home",
+            "round": 8,
+            "season": 2
+          },
+          {
+            "cardId": "burden_the_quiet_fractures",
+            "round": 11,
+            "season": 3
+          },
+          {
+            "cardId": "burden_welcome_wears_thin",
+            "round": 12,
+            "season": 3
+          }
+        ],
+        "burdenResolutionEvents": [
+          {
+            "cardId": "burden_ill_omen_of_discontent",
+            "round": 2,
+            "season": 1
+          },
+          {
+            "cardId": "burden_too_many_houses_too_little_homes",
+            "round": 3,
+            "season": 1
+          },
+          {
+            "cardId": "burden_river_breaks_its_banks",
+            "round": 3,
+            "season": 1
+          },
+          {
+            "cardId": "burden_promises_overstretched",
+            "round": 4,
+            "season": 1
+          },
+          {
+            "cardId": "burden_foundations_remember_war",
+            "round": 6,
+            "season": 2
+          },
+          {
+            "cardId": "burden_roads_too_far_from_home",
+            "round": 8,
+            "season": 2
+          },
+          {
+            "cardId": "burden_welcome_wears_thin",
+            "round": 12,
+            "season": 3
+          }
+        ],
+        "strainPreventedBySupported": 4,
+        "strainRemovedByRoundCategory": {
+          "7": {
+            "housing": 1
+          },
+          "9": {
+            "travel": 1
+          }
+        },
+        "maxOverstrainedTiles": 0,
+        "rangerPowerTerrainTypes": [],
+        "upgradeActions": 5,
+        "warehousePeakByResource": {
+          "wood": 15,
+          "stone": 10,
+          "metal": 10,
+          "food": 13,
+          "herbs": 12,
+          "goods": 10
+        },
+        "seasonSnapshots": {
+          "1": {
+            "activeBurdens": 0,
+            "overstrainedTiles": 0,
+            "arrivalsCompleted": 1,
+            "burdensResolved": 4
+          },
+          "2": {
+            "activeBurdens": 0,
+            "overstrainedTiles": 0,
+            "arrivalsCompleted": 2,
+            "burdensResolved": 2
+          }
+        },
+        "violatedVowReasons": []
+      },
+      "log": [
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Applied effect: Arrival expired: Battle to Cattle."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Round 12 complete. Final scoring is ready."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Arrival expired unresolved: Battle to Cattle. The Target Deck selects a tile to receive 1 Strain."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "All Stewards have acted. Ready for End of Round."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Mine Tunnel produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Activated Mine Tunnel."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Linked production already fired for this group in Round 12; only Gathering Outpost produced."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Gathering Outpost produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Activated Gathering Outpost."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Farmstead produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Linked production activated Farmstead."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Farmstead produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Activated Farmstead."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Gathering Outpost produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Linked production activated Gathering Outpost."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Gathering Outpost produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Linked production activated Gathering Outpost."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Gathering Outpost produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Activated Gathering Outpost."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Player 2's turn begins."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Player 1 placed The Lorekeepers' Respite at F4."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Player 1 placed Bridge at F3."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Upgraded Cabin to Fine Cabin."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Resolved Burden: Welcome Wears Thin."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Applied effect: Revealed Welcome Wears Thin."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "No effect this reveal: Ledgers Flow."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Revealed Welcome Wears Thin."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Revealed Ledgers Flow."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Applied effect: Arrival expired: Moving Mountains."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Round 12 begins."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 12,
+          "message": "Arrival expired unresolved: Moving Mountains. The Target Deck selects a tile to receive 1 Strain."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "All Stewards have acted. Ready for End of Round."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Mine Tunnel produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Activated Mine Tunnel."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Player 2 placed Mine Tunnel at A1."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Player 2 placed Path at A2."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Farmstead produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Linked production activated Farmstead."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Farmstead produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Activated Farmstead."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Player 2's turn begins."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Mine Tunnel produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Activated Mine Tunnel."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Upgraded Cabin to Fine Cabin."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Mine Tunnel produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Activated Mine Tunnel."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Lumber Yard produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Activated Lumber Yard."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Acknowledged Arrival: Songs of War to Ore."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "No effect this reveal: The Quiet Fractures."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Revealed Songs of War to Ore."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Revealed The Quiet Fractures."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Applied effect: Arrival expired: News Travels Faster."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Round 11 begins."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Target Card 17 used map-coordinate fallback after its NW tie direction remained tied."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 11,
+          "message": "Arrival expired unresolved: News Travels Faster. The Target Deck selects a tile to receive 1 Strain."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "All Stewards have acted. Ready for End of Round."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Player 2 placed Path at B4."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Player 2 placed Gathering Outpost at B3."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Linked production already fired for this group in Round 10; only Farmstead produced."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Farmstead produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Activated Farmstead."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Farmstead produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Linked production activated Farmstead."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Farmstead produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Activated Farmstead."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Player 2's turn begins."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Mine Tunnel produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Activated Mine Tunnel."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Upgraded Bridge to Stone Bridge."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Mine Tunnel produced resources."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Activated Mine Tunnel."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Upgraded Cabin to Fine Cabin."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Acknowledged Arrival: Battle to Cattle."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Acknowledged Boon: Shared Hands."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Revealed Battle to Cattle."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Revealed Shared Hands."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 10,
+          "message": "Round 10 begins."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 9,
+          "message": "All Stewards have acted. Ready for End of Round."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 9,
+          "message": "Player 2 placed Gathering Outpost at A3."
         }
       ]
     },

@@ -19,6 +19,13 @@ export function valueOf(state: GameState): number {
   return calculateFinalScore(state).finalScore + stock * 0.6 - scarce * 2 - arrivalPressure;
 }
 
+/** A steadier valuation for the finale: it keeps Arrivals and Strain in mind. */
+export function carefulValueOf(state: GameState): number {
+  const strain = state.map.placedTiles.reduce((total, tile) => total + tile.strain * tile.strain, 0);
+  const waiting = state.encounters.activeArrivals.reduce((total, arrival) => total + (arrival.timerTokens === 1 ? 6 : arrival.timerTokens === 2 ? 2 : 0), 0);
+  return valueOf(state) - waiting - strain * 2;
+}
+
 function candidates(state: GameState): ((state: GameState) => GameState)[] {
   const player = state.currentPlayerId;
   const list: ((state: GameState) => GameState)[] = [];
@@ -54,16 +61,16 @@ function apply(state: GameState, action: (state: GameState) => GameState, settle
  * ends it. The chosen action is replayed through `commit`, which may watch the
  * effect queue (for example to keep a snapshot just before an Overstrain link).
  */
-export function playTurn(input: GameState, settle: Settle, track: (before: GameState, after: GameState) => GameState, commit: Settle = settle): GameState {
+export function playTurn(input: GameState, settle: Settle, track: (before: GameState, after: GameState) => GameState, commit: Settle = settle, value: (state: GameState) => number = valueOf): GameState {
   let state = input;
   for (let guard = 0; guard < 8 && state.phase === "turns" && state.actionsRemaining > 0; guard++) {
-    const base = valueOf(state);
+    const base = value(state);
     let best: { action: (state: GameState) => GameState; value: number } | null = null;
     for (const action of candidates(state)) {
       const next = apply(state, action, settle);
       if (!next || next.phase === "gameEnd" && state.round < 12) continue;
-      const value = valueOf(next);
-      if (!best || value > best.value) best = { action, value };
+      const score = value(next);
+      if (!best || score > best.value) best = { action, value: score };
     }
     if (!best || best.value < base - 1) break;
     const committed = apply(state, best.action, commit);

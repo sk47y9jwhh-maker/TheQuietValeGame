@@ -9,7 +9,7 @@ import { ledgerEntries } from "../src/data/ledger";
 import type { PreviewSnapshot } from "../src/app/scenarioTypes";
 import type { ScenarioId } from "../src/app/scenarioCatalog";
 import { advance, seed, seedSeason, settle, snapshot, startStewards } from "./scenario-steps";
-import { playTurn } from "./showcase-bot";
+import { carefulValueOf, playTurn } from "./showcase-bot";
 import { trackLedgerTransition } from "../src/engine/ledger";
 import type { GameState } from "../src/engine/types";
 
@@ -32,18 +32,6 @@ try {
   state = settle(advance(state, resolveEndRound));
   state = settle(advance(state, revealEncounters));
   result.settlement = snapshot(state);
-  // Finish this actual scripted game. Passing unused actions is intentional;
-  // this is a coverage fixture, not a claim of strong or optimal play.
-  for (let guard = 0; state.phase !== "gameEnd" && guard < 100; guard++) {
-    if (state.phase === "turns") state = advance(state, endCurrentTurn);
-    else if (state.phase === "endRound") state = advance(state, resolveEndRound);
-    else if (state.phase === "seeding") state = seedSeason(state);
-    else if (state.phase === "reveal") state = advance(state, revealEncounters);
-    else throw new Error(`Unexpected comparison phase ${state.phase}`);
-    state = settle(state);
-  }
-  if (state.phase !== "gameEnd") throw new Error("Comparison game did not finish.");
-  result.finale = snapshot(state);
 
   let quartermaster = startStewards(createNewGame(1, ["quartermaster"], { encounterSeed: seed }));
   quartermaster = settle(advance(seedSeason(quartermaster), revealEncounters));
@@ -173,7 +161,7 @@ try {
   // Showcase moments for first-time viewers. Each comes from a full game
   // played by a simple lookahead bot through ordinary engine actions.
   const chainRule = "system:overstrain-spread";
-  const playShowcase = (acceptStrain: boolean, stop: (state: GameState) => boolean) => {
+  const playShowcase = (acceptStrain: boolean, stop: (state: GameState) => boolean, value?: (state: GameState) => number) => {
     const resolveWith = (state: GameState) => settle(state, false, acceptStrain ? {} : { preferPayments: true });
     let game = startStewards(createNewGame(2, ["vanguard", "knight"], { encounterSeed: seed }));
     let caught: GameState | null = null;
@@ -186,12 +174,17 @@ try {
       if (game.phase === "seeding") game = seedSeason(game);
       else if (game.phase === "reveal") game = advance(game, revealEncounters);
       else if (game.phase === "endRound") game = advance(game, resolveEndRound);
-      else if (game.phase === "turns") game = playTurn(game, (state) => settle(state, false, { preferPayments: true }), trackLedgerTransition, watch);
+      else if (game.phase === "turns") game = playTurn(game, (state) => settle(state, false, { preferPayments: true }), trackLedgerTransition, watch, value);
       if (!caught) game = watch(game);
     }
     if (!caught) throw new Error("Showcase game did not reach its moment.");
     return caught as GameState;
   };
+  // The finale is the same played game carried through to its final scoring,
+  // so the end screen shows a settlement that was actually built.
+  const finished = playShowcase(false, (state) => state.phase === "gameEnd", carefulValueOf);
+  if (finished.phase !== "gameEnd") throw new Error("Finale game did not finish.");
+  result.finale = snapshot(finished);
   result["showcase-late"] = snapshot(playShowcase(false, (state) => state.phase === "turns" && state.round === 11 && state.actionsRemaining === 4 && !state.pendingEffects.length));
   result["showcase-chain"] = snapshot(playShowcase(true, (state) => state.pendingEffects[0]?.ruleId === chainRule));
   result["showcase-season"] = snapshot(playShowcase(true, (state) => state.phase === "endRound" && state.round === 8 && !state.pendingEffects.length));
