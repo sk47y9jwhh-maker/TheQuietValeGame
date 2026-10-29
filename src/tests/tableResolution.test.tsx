@@ -98,3 +98,17 @@ describe("setup on the board", () => {
     expect(readSavedGame()?.state.phase).toBe("seeding");
   });
 });
+
+describe("Golden Boons on the table", () => {
+  it("keeps the board in view for the Golden Bell", () => {
+    open("golden-bell");
+    expect(screen.getByRole("group", { name: /The Quiet Vale map/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Place this Arrival/ })).toBeInTheDocument();
+  });
+
+  it("selects Golden Signet tiles by tapping them on the board", () => {
+    open("golden-signet");
+    fireEvent.click(screen.getByRole("button", { name: /^F1, Path.*Choice: Select to move/ }));
+    expect(screen.getByText(/1 of 5 selected/)).toBeInTheDocument();
+  });
+});

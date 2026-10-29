@@ -281,7 +281,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
       <section className="table-board" aria-label="The settlement">
         <TableBoard
           ref={boardRef}
-          state={state}
+          state={resolving && choices.preview ? choices.preview : state}
           selectedHexId={selectedHexId}
           legalHexIds={legal}
           glowTileIds={glow}

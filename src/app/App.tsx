@@ -38,6 +38,7 @@ import { TableSeeding } from "../components/seeding/TableSeeding";
 import { isBoardTableExperience, isPlayerExperience } from "./experience";
 import { stewardById } from "../data/stewards";
 import { goldenTileById } from "../data/tiles";
+import { encounterById } from "../data/encounters";
 import { TableChrome, TableScreen } from "../components/table/TableScreen";
 import { TableGoldenStart, TableStewardStart } from "../components/table/TableSetupSteps";
 import { getScenario } from "./scenarioCatalog";
@@ -707,7 +708,40 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
     commitGameState((current) => resolveBurden(current, burdenCardId));
   }
 
-  if (state.pendingGoldenEffect) {
+  // On the board-first table, payments, effects and Golden Boons during play
+  // are settled beside the board, so their choices can be made on the board.
+  const tableResolves = isBoardTableExperience() && (
+    state.phase === "turns" || state.phase === "reveal" || state.phase === "endRound" ||
+    (state.phase === "seeding" && Boolean(state.pendingEffects[0] || state.pendingCostChoice || state.pendingGoldenEffect || state.pendingDeckReorder))
+  );
+  const goldenPanel = state.pendingGoldenEffect ? (
+        <GoldenEffectPanel
+          state={state}
+          onResolveBell={(arrivalCardId) =>
+            commitGameState((current) => resolveGoldenBell(current, arrivalCardId))
+          }
+          onResolveScroll={(choices) =>
+            commitGameState((current) => resolveGoldenScroll(current, choices))
+          }
+          onResolveSignet={(placements) =>
+            commitGameState((current) => resolveGoldenSignet(current, placements))
+          }
+        />
+  ) : null;
+  const deckReorderPanel = state.pendingDeckReorder ? (
+        <DeckReorderPanel
+          pending={state.pendingDeckReorder}
+          season={state.season}
+          onConfirm={(orderedCardIds, bottomCardId) =>
+            commitGameState((current) =>
+              confirmDeckReorder(current, orderedCardIds, bottomCardId)
+            )
+          }
+          onSkip={() => commitGameState((current) => skipDeckReorder(current))}
+        />
+  ) : null;
+
+  if (state.pendingGoldenEffect && !tableResolves) {
     return withConfirmation(
       <ResolutionShell
         state={state}
@@ -721,23 +755,12 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
         onRedo={handleRedo}
         onReset={handleResetGame}
       >
-        <GoldenEffectPanel
-          state={state}
-          onResolveBell={(arrivalCardId) =>
-            commitGameState((current) => resolveGoldenBell(current, arrivalCardId))
-          }
-          onResolveScroll={(choices) =>
-            commitGameState((current) => resolveGoldenScroll(current, choices))
-          }
-          onResolveSignet={(placements) =>
-            commitGameState((current) => resolveGoldenSignet(current, placements))
-          }
-        />
+        {goldenPanel}
       </ResolutionShell>
     );
   }
 
-  if (state.pendingDeckReorder) {
+  if (state.pendingDeckReorder && !tableResolves) {
     return withConfirmation(
       <ResolutionShell
         state={state}
@@ -751,26 +774,12 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
         onRedo={handleRedo}
         onReset={handleResetGame}
       >
-        <DeckReorderPanel
-          pending={state.pendingDeckReorder}
-          season={state.season}
-          onConfirm={(orderedCardIds, bottomCardId) =>
-            commitGameState((current) =>
-              confirmDeckReorder(current, orderedCardIds, bottomCardId)
-            )
-          }
-          onSkip={() => commitGameState((current) => skipDeckReorder(current))}
-        />
+        {deckReorderPanel}
       </ResolutionShell>
     );
   }
 
-  // On the board-first table, payments and effects during play are settled
-  // beside the board, so their tile choices can be made on the board itself.
-  const tableResolves = isBoardTableExperience() && (
-    state.phase === "turns" || state.phase === "reveal" || state.phase === "endRound" ||
-    (state.phase === "seeding" && Boolean(state.pendingEffects[0] || state.pendingCostChoice))
-  );
+
   const costChoicePanel = state.pendingCostChoice ? (
         <CostChoicePanel
           state={state}
@@ -1065,6 +1074,18 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
                 <p>This demo plays the printed rules of The Quiet Vale: Seasons of Settlement, a co-operative game for 1–5 players on a hand-painted map, with tiles, Encounter Cards and Target Cards on the table.</p>
                 <p className="physical-game-moments">Want to see another side of it? <a href="?experience=table&scenario=showcase-chain">The Strain spreads</a> · <a href="?experience=table&scenario=showcase-late">A thriving settlement</a></p>
               </aside></div>
+          } : state.pendingGoldenEffect ? {
+            key: `golden_${state.pendingGoldenEffect.cardId}_${state.pendingGoldenEffect.kind}`,
+            eyebrow: "Golden Boon",
+            title: encounterById[state.pendingGoldenEffect.cardId]?.name ?? "Golden Boon",
+            steps: 1 + state.pendingEffects.length,
+            content: goldenPanel
+          } : state.pendingDeckReorder ? {
+            key: state.pendingDeckReorder.id,
+            eyebrow: "Encounter Deck",
+            title: state.pendingDeckReorder.title,
+            steps: 1 + state.pendingEffects.length,
+            content: deckReorderPanel
           } : state.pendingCostChoice ? {
             key: state.pendingCostChoice.id,
             eyebrow: "Payment",

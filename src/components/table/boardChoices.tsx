@@ -1,3 +1,4 @@
+import type { GameState } from "../../engine/types";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from "react";
 
 /**
@@ -21,6 +22,8 @@ export interface BoardChoice {
 
 interface BoardChoiceBridge {
   publish: (owner: string, choices: BoardChoice[] | null) => void;
+  /** A planned board to draw instead of the current one (for example a Golden Signet plan). */
+  preview: (state: GameState | null) => void;
 }
 
 const BoardChoiceContext = createContext<BoardChoiceBridge | null>(null);
@@ -32,16 +35,25 @@ export function useBoardChoices(owner: string, choices: BoardChoice[]) {
   useEffect(() => () => bridge?.publish(owner, null), [bridge, owner]);
 }
 
+/** Draws a planned board in place of the current one while mounted. */
+export function useBoardPreview(state: GameState | null) {
+  const bridge = useContext(BoardChoiceContext);
+  useEffect(() => { bridge?.preview(state); }, [bridge, state]);
+  useEffect(() => () => bridge?.preview(null), [bridge]);
+}
+
 export interface BoardChoiceView {
   marks: ReadonlyMap<string, { selected: boolean; badge?: string; label: string }>;
   tap: (hexId: string) => boolean;
   hint: string | null;
+  preview: GameState | null;
 }
 
 /** Collects the choices published by the screen below it, for the board above it. */
 export function useBoardChoiceHost(): [BoardChoiceView, (props: { children: ReactNode }) => ReactElement] {
   const latest = useRef(new Map<string, BoardChoice[]>());
   const [signature, setSignature] = useState("");
+  const [previewState, setPreviewState] = useState<GameState | null>(null);
 
   const publish = useCallback((owner: string, choices: BoardChoice[] | null) => {
     if (choices && choices.length) latest.current.set(owner, choices); else latest.current.delete(owner);
@@ -49,7 +61,7 @@ export function useBoardChoiceHost(): [BoardChoiceView, (props: { children: Reac
     setSignature((current) => current === next ? current : next);
   }, []);
 
-  const bridge = useMemo<BoardChoiceBridge>(() => ({ publish }), [publish]);
+  const bridge = useMemo<BoardChoiceBridge>(() => ({ publish, preview: setPreviewState }), [publish]);
   const Provider = useCallback(({ children }: { children: ReactNode }) => <BoardChoiceContext.Provider value={bridge}>{children}</BoardChoiceContext.Provider>, [bridge]);
 
   const view = useMemo<BoardChoiceView>(() => {
@@ -68,6 +80,7 @@ export function useBoardChoiceHost(): [BoardChoiceView, (props: { children: Reac
     }
     return {
       marks,
+      preview: previewState,
       hint: !all.length ? null
         : focused.length ? "The marked tiles are still in the running."
         : all.every((choice) => choice.fixed) ? "Marked tiles show what will happen."
@@ -84,7 +97,7 @@ export function useBoardChoiceHost(): [BoardChoiceView, (props: { children: Reac
         return true;
       }
     };
-  }, [signature]);
+  }, [signature, previewState]);
 
   return [view, Provider];
 }

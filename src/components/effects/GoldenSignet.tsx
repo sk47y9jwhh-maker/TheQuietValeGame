@@ -11,6 +11,8 @@ import { EncounterCard } from "../common/EncounterCard";
 import { TileArtwork } from "../common/TileArtwork";
 import { HexMap } from "../map/HexMap";
 import { TileInspectModal } from "../map/TileInspectModal";
+import { isBoardTableExperience } from "../../app/experience";
+import { useBoardChoices, useBoardPreview, type BoardChoice } from "../table/boardChoices";
 import { originalSignetDraft, setSignetSpace, signetLegalSpaces, signetPlanningState, type SignetDrafts } from "./signetPlanning";
 
 const supported = (tile: PlacedTile) => tile.support.passive || tile.support.singleUse ? "Supported" : "Unsupported";
@@ -47,6 +49,25 @@ export function GoldenSignet({ state, onResolve }: { state: GameState; onResolve
     heading.current?.focus({ preventScroll: true });
     heading.current?.scrollIntoView?.({ block: "nearest" });
   }, [step, index]);
+  // On the board-first table, the plan is made on the main board: it shows the
+  // planned settlement, marks legal destinations and takes taps.
+  const onBoard = isBoardTableExperience();
+  const planningWithoutTile = useMemo(() => tile ? { ...planning, map: { placedTiles: planning.map.placedTiles.filter((placed) => placed.instanceId !== tile.instanceId) } } : planning, [planning, tile]);
+  useBoardPreview(onBoard && pending?.kind === "signet" ? step === "arrange" ? planningWithoutTile : step === "review" ? preview : null : null);
+  const boardChoices: BoardChoice[] = !onBoard || pending?.kind !== "signet" ? []
+    : step === "choose" ? state.map.placedTiles.map((placed) => {
+      const order = selected.indexOf(placed.instanceId);
+      return { key: placed.instanceId, hexIds: placed.hexIds, label: order >= 0 ? `Selected to move (${order + 1})` : "Select to move", selected: order >= 0, badge: order >= 0 ? String(order + 1) : undefined, onTap: () => toggle(placed.instanceId) };
+    })
+    : step === "arrange" && tile ? [
+      ...(legalBySlot[slot] ?? []).map((hexId) => ({ key: `to_${hexId}`, hexIds: [hexId], label: `Move ${selectTileName(tile)} here`, selected: false, onTap: () => selectHex(hexId) })),
+      ...(currentValid ? [{ key: "planned", hexIds: getTilePlacementHexIds(tile.tileId, draft), label: `${selectTileName(tile)} goes here`, selected: true, badge: String(index + 1), onTap: () => update({}) }] : [])
+    ]
+    : step === "review" ? tiles.map((before, itemIndex) => {
+      const after = preview.map.placedTiles.find((item) => item.instanceId === before.instanceId);
+      return { key: `moved_${before.instanceId}`, hexIds: after?.hexIds ?? [], label: `${selectTileName(before)} moved here`, selected: true, fixed: true, badge: String(itemIndex + 1), onTap: () => {} };
+    }) : [];
+  useBoardChoices(`signet_${pending?.cardId ?? "none"}`, boardChoices);
   if (pending?.kind !== "signet") return null;
 
   function toggle(id: string) {
@@ -92,7 +113,7 @@ export function GoldenSignet({ state, onResolve }: { state: GameState; onResolve
       </div>
       {footprint === "detached" && <div className="signet-map-target" role="group" aria-label="Space chosen by the map">{Array.from({ length: size }, (_, choice) => <button type="button" key={choice} aria-pressed={slot === choice} onClick={() => setSlot(choice)}>Choose space {choice + 1} on map</button>)}</div>}
       <div className="signet-position-status" role="status"><strong>{currentValid ? `Planned: ${getTilePlacementHexIds(tile.tileId, draft).join(", ")}` : draft.anchorHexId ? "Complete a legal footprint before continuing." : "Choose a destination from the marked spaces or list."}</strong><span>{legalBySlot[slot]?.length ?? 0} legal {footprint === "line" ? "anchors in this orientation" : "spaces"}. {tile.strain} Strain and tile upgrades are retained. Support is recalculated on review.</span></div>
-      </div><div className="signet-map"><HexMap state={{ ...planning, map: { placedTiles: planning.map.placedTiles.filter((placed) => placed.instanceId !== tile.instanceId) } }} selectedTileId={tile.tileId} actionMode="signet" selectedHexIds={[draft.anchorHexId, ...(draft.secondaryHexIds ?? [])].filter((id): id is string => Boolean(id))} placementOrientation={draft.orientation ?? 0} legalHexIds={legalBySlot[slot]} mapHint="Preview only · Marked spaces are legal destinations. Arrows browse. Enter selects. Confirm the whole plan on review." onHexSelect={selectHex} onTileInspect={setInspected} /></div></div>
+      </div>{!onBoard && <div className="signet-map"><HexMap state={{ ...planning, map: { placedTiles: planning.map.placedTiles.filter((placed) => placed.instanceId !== tile.instanceId) } }} selectedTileId={tile.tileId} actionMode="signet" selectedHexIds={[draft.anchorHexId, ...(draft.secondaryHexIds ?? [])].filter((id): id is string => Boolean(id))} placementOrientation={draft.orientation ?? 0} legalHexIds={legalBySlot[slot]} mapHint="Preview only · Marked spaces are legal destinations. Arrows browse. Enter selects. Confirm the whole plan on review." onHexSelect={selectHex} onTileInspect={setInspected} /></div>}</div>
       <div className="signet-actions"><button type="button" onClick={() => update(originalSignetDraft(tile))}>Use original position</button><button type="button" onClick={() => update({})}>Clear this destination</button><button type="button" onClick={() => { setStep("choose"); setIndex(0); }}>Change selected tiles</button></div>
       <div className="signet-actions">{index < tiles.length - 1 && <button className="primary-action" type="button" disabled={!currentValid} onClick={() => edit(index + 1)}>Next tile</button>}<button className="primary-action" type="button" disabled={!validation.ok} onClick={() => setStep("review")}>Review settlement plan</button></div>
       {!validation.ok && <p className="signet-plan-note">Every selected tile needs a complete destination, with no overlapping tiles. Choose a tile above to edit its position.</p>}
@@ -102,7 +123,7 @@ export function GoldenSignet({ state, onResolve }: { state: GameState; onResolve
       <ul className="signet-review-list">{tiles.map((before, itemIndex) => { const after = preview.map.placedTiles.find((item) => item.instanceId === before.instanceId)!; return <li key={before.instanceId}><div><strong>{selectTileName(before)}</strong><span>{before.hexIds.join(", ")} → {after.hexIds.join(", ")}</span><small>{before.strain} Strain retained · {supported(before)} → {supported(after)}</small></div><button type="button" onClick={() => edit(itemIndex)}>Edit {selectTileName(before)} at {before.hexIds.join(", ")}</button></li>; })}</ul>
       {movedPlayers.length > 0 && <div className="signet-consequences"><h3>Stewards move with their tiles</h3><ul>{movedPlayers.map((player) => <li key={player.id}>{stewardById[player.stewardId]?.name ?? player.name}: {state.players.find((before) => before.id === player.id)?.stewardHexId} → {player.stewardHexId}</li>)}</ul></div>}
       {changes.some((tile) => !selected.includes(tile.instanceId)) && <div className="signet-consequences"><h3>Other support changes</h3><ul>{changes.filter((tile) => !selected.includes(tile.instanceId)).map((after) => <li key={after.instanceId}>{selectTileName(after)} at {after.hexIds.join(", ")}: {supported(after)}</li>)}</ul></div>}
-      <div className="signet-map"><HexMap state={preview} selectedTileId="" actionMode="inspect" selectedHexIds={reviewHex} placementOrientation={0} mapHint="Proposed settlement · Inspect any placed tile with I or Navigate. Apply below to confirm." onHexSelect={(id) => setReviewHex([id])} onTileInspect={setInspected} /></div>
+      {!onBoard && <div className="signet-map"><HexMap state={preview} selectedTileId="" actionMode="inspect" selectedHexIds={reviewHex} placementOrientation={0} mapHint="Proposed settlement · Inspect any placed tile with I or Navigate. Apply below to confirm." onHexSelect={(id) => setReviewHex([id])} onTileInspect={setInspected} /></div>}
       <div className="signet-actions"><button className="primary-action" type="button" disabled={!validation.ok} onClick={() => onResolve(placements)}>Apply settlement plan</button><button type="button" onClick={() => edit(0)}>Back to destinations</button></div>
       <p className="signet-plan-note">Then continue the remaining Encounter effects. You can Undo the confirmed move.</p>
     </>}
