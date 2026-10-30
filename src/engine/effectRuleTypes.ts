@@ -116,6 +116,9 @@ export interface ResourceGainChoiceDefinition {
   amount: number;
   alternativeToStrainRemoval?: boolean;
   upTo?: boolean;
+  /** The amount is a cap: the gain is 1 for each different tile category
+   * adjacent to the chosen target tile, up to it. With no target, nothing. */
+  perAdjacentCategoryOfTarget?: boolean;
 }
 
 export interface ModifierRule {

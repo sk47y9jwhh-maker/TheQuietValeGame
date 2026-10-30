@@ -124,6 +124,29 @@ describe("structured effect rules", () => {
     })).toBe(false);
   });
 
+  it("gives Trade Festival Goods only for the categories beside a Merchant", () => {
+    const seasonOne = cardEffectRuleId("boon_festival_of_trade", 1);
+    const seasonTwo = cardEffectRuleId("boon_festival_of_trade", 2);
+    expect(effectHasNoValidChoiceTargets(stateWith([placed("cabin", "c05_cabin", "G5")]), seasonOne)).toBe(true);
+    expect(getResourceGainChoiceRule(stateWith(), seasonOne)?.amount).toBe(0);
+
+    const [first, second, third] = getHexNeighbors("G5");
+    const lonely = stateWith([placed("market", "c14_market_stalls", "G5"), placed("cabin", "c05_cabin", first)]);
+    expect(getResourceGainChoiceRule(lonely, seasonOne)?.amount).toBe(1);
+    expect(isResourceGainChoiceAdjustmentValid(lonely, seasonOne, { resourceDeltas: { goods: 1 } })).toBe(true);
+    expect(isResourceGainChoiceAdjustmentValid(lonely, seasonOne, { resourceDeltas: { goods: 2 } })).toBe(false);
+
+    const busy = stateWith([
+      placed("market", "c14_market_stalls", "G5"),
+      placed("cabin", "c05_cabin", first),
+      placed("yard", "c01_lumber_yard", second),
+      placed("path", "c15_path", third)
+    ]);
+    expect(getResourceGainChoiceRule(busy, seasonOne)?.amount).toBe(2);
+    expect(getResourceGainChoiceRule(busy, seasonTwo)?.amount).toBe(3);
+    expect(effectHasNoValidChoiceTargets(busy, seasonOne)).toBe(false);
+  });
+
   it("uses a no-arrival fallback only in Season III", () => {
     const state = stateWith([placed("path", "c15_path", "G1")]);
     const early = cardEffectRuleId("burden_promises_overstretched", 1);

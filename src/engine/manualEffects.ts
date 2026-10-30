@@ -1006,7 +1006,21 @@ export function getResourceGainChoiceRule(
 ): ResourceGainChoiceRule | null {
   const help = getHelpStandsRule(state, ruleId);
   if (help) return { resources: [...resources], amount: help.resourceAmount };
-  return activeRule(state, ruleId, sourceTile).resourceGainChoice ?? null;
+  const rule = activeRule(state, ruleId, sourceTile);
+  const choice = rule.resourceGainChoice;
+  if (!choice) return null;
+  if (!choice.perAdjacentCategoryOfTarget) return choice;
+  // Trade Festival: 1 Goods for each different category beside the chosen
+  // Merchant, up to the card's cap. The best Merchant sets the most allowed.
+  const best = targetsForDefinition(state, rule.target, sourceTile).reduce((most, tile) => {
+    const categories = new Set(
+      state.map.placedTiles
+        .filter((other) => other.instanceId !== tile.instanceId && arePlacedTilesAdjacent(other, tile))
+        .map(getPlacedTileCategory)
+    );
+    return Math.max(most, categories.size);
+  }, 0);
+  return { ...choice, amount: Math.min(choice.amount, best) };
 }
 
 export function isResourceGainChoiceAdjustmentValid(
@@ -1190,6 +1204,8 @@ export function effectHasNoValidChoiceTargets(
   const alternative = getAlternativeEffectRule(state, ruleId, sourceTile);
   if (alternative) return !hasAnyAlternativeEffectOutcome(state, alternative);
   const resourceGain = getResourceGainChoiceRule(state, ruleId, sourceTile);
+  if (resourceGain?.perAdjacentCategoryOfTarget && resourceGain.amount === 0 &&
+      getEffectSupportTargets(state, ruleId, sourceTile).length === 0) return true;
   if (resourceGain && resourceGain.amount > 0 && !resourceGain.alternativeToStrainRemoval) return false;
   if (rule.resolveBurden && state.encounters.activeBurdens.length === 0) return true;
   if (

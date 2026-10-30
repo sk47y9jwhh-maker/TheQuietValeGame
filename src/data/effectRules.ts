@@ -174,7 +174,7 @@ seasonal("boon_festival_of_trade", [2, 4, 6].map((amount, index) => ({
   target: { categories: ["merchant"] },
   supportTarget: index === 0 ? undefined : "housingAdjacentToPrimary",
   tileAdjustment: index === 0 ? undefined : support(1),
-  resourceGainChoice: { resources: ["goods"], amount, upTo: true },
+  resourceGainChoice: { resources: ["goods"], amount, upTo: true, perAdjacentCategoryOfTarget: true },
   manualChoice: true
 })));
 seasonal("boon_hearths_soften_feuds", [
