@@ -1474,3 +1474,42 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 @keyframes bt-ring-draw { 0% { opacity: 1; stroke-dashoffset: 1; } 65% { opacity: 1; stroke-dashoffset: 0; } 100% { opacity: 0; stroke-dashoffset: 0; } }
 @keyframes bt-gain-rise { 0% { opacity: 0; transform: translateY(4px); } 15% { opacity: 1; } 75% { opacity: 1; transform: translateY(-9px); } 100% { opacity: 0; transform: translateY(-12px); } }
 @keyframes bt-gain-still { 0% { opacity: 0; } 10%, 85% { opacity: 1; } 100% { opacity: 0; } }
+
+/* Encounter cards leaving the table. The card is stamped with what happened,
+   then goes the way a card would: a welcomed Arrival lifts towards the board,
+   one that leaves greys and tips away, a resolved Burden is laid aside and a
+   spent Boon fades. Its space then closes up. */
+.rail-card.is-leaving { position: relative; overflow: hidden; pointer-events: none; transform-origin: center left; }
+.rail-stamp { position: absolute; top: 18px; left: 10px; z-index: 2; padding: 3px 12px; border: 2px solid currentColor; border-radius: 4px; background: rgba(251, 246, 232, 0.94); font-family: "Alegreya", Georgia, serif; font-size: 1.15rem; font-weight: 700; transform: rotate(-8deg); }
+.rail-card.is-welcomed .rail-stamp { color: #2f5a37; }
+.rail-card.is-left .rail-stamp { color: #8a3d22; }
+.rail-card.is-resolved .rail-stamp { color: #3f4f6a; }
+.rail-card.is-used .rail-stamp { color: #7a5c14; }
+@media (prefers-reduced-motion: no-preference) {
+  .rail-card.is-leaving .rail-stamp { animation: bt-stamp 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+  .rail-card.is-welcomed { animation: bt-leave-welcomed 1.2s ease-in both; }
+  .rail-card.is-left { animation: bt-leave-left 1.2s ease-in both; }
+  .rail-card.is-resolved { animation: bt-leave-resolved 1.2s ease-in both; }
+  .rail-card.is-used { animation: bt-leave-used 1.2s ease-in both; }
+}
+@keyframes bt-stamp { 0% { opacity: 0; transform: rotate(-8deg) scale(1.7); } 100% { opacity: 1; transform: rotate(-8deg) scale(1); } }
+@keyframes bt-leave-welcomed {
+  0%, 45% { max-height: 340px; opacity: 1; transform: none; }
+  80% { max-height: 340px; opacity: 0; transform: translate(-60px, -18px) rotate(-3deg) scale(0.9); }
+  100% { max-height: 0; opacity: 0; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; border-width: 0; transform: translate(-60px, -18px) scale(0.9); }
+}
+@keyframes bt-leave-left {
+  0%, 40% { max-height: 340px; opacity: 1; filter: none; transform: none; }
+  80% { max-height: 340px; opacity: 0; filter: grayscale(1); transform: translateY(24px) rotate(5deg); }
+  100% { max-height: 0; opacity: 0; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; border-width: 0; filter: grayscale(1); }
+}
+@keyframes bt-leave-resolved {
+  0%, 45% { max-height: 340px; opacity: 1; transform: none; }
+  80% { max-height: 340px; opacity: 0; transform: translateX(80px) rotate(2deg); }
+  100% { max-height: 0; opacity: 0; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; border-width: 0; transform: translateX(80px); }
+}
+@keyframes bt-leave-used {
+  0%, 45% { max-height: 340px; opacity: 1; }
+  80% { max-height: 340px; opacity: 0; }
+  100% { max-height: 0; opacity: 0; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; border-width: 0; }
+}

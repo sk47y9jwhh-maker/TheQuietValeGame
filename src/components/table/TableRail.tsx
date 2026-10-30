@@ -1,7 +1,7 @@
 import { Term } from "./Term";
 import { readyEnhancers } from "./tableActions";
 import { EncounterCard } from "../common/EncounterCard";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { arrivalRequirementRules, getBurdenResolutionCost } from "../../data/contentRules";
 import { encounterById } from "../../data/encounters";
 import { resourceLabels, resources } from "../../data/resources";
@@ -46,6 +46,13 @@ export function TableRail(props: TableRailProps) {
   const [openCard, setOpenCard] = useState<string | null>(null);
   const [powerOpen, setPowerOpen] = useState(false);
   const { state } = props;
+  // Cards leaving the table play a short exit in the place they held.
+  const leaving = useLeavingCards(state);
+  const withLeaving = (kind: LeavingCard["kind"], cards: ReactNode[]): ReactNode[] => {
+    const list = [...cards];
+    for (const card of leaving.filter((entry) => entry.kind === kind).sort((a, b) => a.index - b.index)) list.splice(Math.min(card.index, list.length), 0, <LeavingCardView key={`leaving-${card.id}`} card={card} season={state.season} />);
+    return list;
+  };
   // Boons and powers that the action cards offer directly ("with …").
   const foldable = useMemo(() => new Set(readyEnhancers(state).map((enhancer) => enhancer.kind === "power" ? "power" : enhancer.id)), [state]);
   const playerIndex = state.players.findIndex((player) => player.id === state.currentPlayerId);
@@ -102,7 +109,7 @@ export function TableRail(props: TableRailProps) {
 
     <div className="rail-heading"><h2>On the table</h2><span>{encounterCount === 0 ? "No encounters" : `${encounterCount} encounter${encounterCount === 1 ? "" : "s"}`}</span></div>
     <div className="rail-cards">
-      {state.encounters.activeArrivals.map((arrival) => {
+      {withLeaving("arrival", state.encounters.activeArrivals.map((arrival) => {
         const card = encounterById[arrival.cardId];
         if (!card || card.type !== "arrival") return null;
         const validation = canCompleteArrival(state, arrival.cardId);
@@ -127,8 +134,8 @@ export function TableRail(props: TableRailProps) {
             </button>}
           </div>
         </article>;
-      })}
-      {state.encounters.activeBurdens.map((cardId) => {
+      }))}
+      {withLeaving("burden", state.encounters.activeBurdens.map((cardId) => {
         const card = encounterById[cardId];
         if (!card || card.type !== "burden") return null;
         const validation = canResolveBurden(state, cardId);
@@ -146,8 +153,8 @@ export function TableRail(props: TableRailProps) {
             </button>}
           </div>
         </article>;
-      })}
-      {state.encounters.faceUpBoons.map((boon) => {
+      }))}
+      {withLeaving("boon", state.encounters.faceUpBoons.map((boon) => {
         const card = encounterById[boon.cardId];
         if (!card || (card.type !== "boon" && card.type !== "goldenBoon")) return null;
         const text = card.type === "boon" ? card.effects[seasonKey(state.season)] : card.effectText;
@@ -162,7 +169,7 @@ export function TableRail(props: TableRailProps) {
             {state.phase === "turns" && usable && !foldable.has(boon.cardId) && <button type="button" onClick={() => props.onUseBoon(boon.cardId)}>Use · free</button>}
           </div>
         </article>;
-      })}
+      }))}
     </div>
 
     {readySpecials.length > 0 && <section className="rail-ready" aria-label="Unlocked Special Tiles">
@@ -172,6 +179,50 @@ export function TableRail(props: TableRailProps) {
     {state.phase === "turns" && <EndTurn state={state} onEndTurn={props.onEndTurn} />}
     {openCard && <CardReader cardId={openCard} state={state} onClose={() => setOpenCard(null)} />}
   </aside>;
+}
+
+interface LeavingCard { id: string; kind: "arrival" | "burden" | "boon"; outcome: "welcomed" | "left" | "resolved" | "used"; timers?: number; index: number }
+const stampText: Record<LeavingCard["outcome"], string> = { welcomed: "Welcomed", left: "Left the Vale", resolved: "Set down", used: "Used" };
+
+/** Notices when an Arrival, Burden or Boon leaves the table, and why. */
+// The cards the side panel last showed. It is kept outside the component because
+// the panel steps aside while an effect is settled, and the exit should play
+// when it comes back, which is when the player is looking at it.
+let lastShown: { arrivals: GameState["encounters"]["activeArrivals"]; burdens: string[]; boons: string[] } | null = null;
+
+function useLeavingCards(state: GameState): LeavingCard[] {
+  const previous = { get current() { return lastShown; }, set current(value) { lastShown = value; } };
+  const [leaving, setLeaving] = useState<LeavingCard[]>([]);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => {
+    const now = { arrivals: state.encounters.activeArrivals, burdens: state.encounters.activeBurdens, boons: state.encounters.faceUpBoons.map((boon) => boon.cardId) };
+    const before = previous.current;
+    previous.current = now;
+    if (!before || (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+    const welcomed = new Set(state.encounters.completedArrivals.map((arrival) => arrival.cardId));
+    const gone: LeavingCard[] = [
+      ...before.arrivals.flatMap((arrival, index) => now.arrivals.some((still) => still.cardId === arrival.cardId) ? [] : [{ id: arrival.cardId, kind: "arrival" as const, outcome: welcomed.has(arrival.cardId) ? "welcomed" as const : "left" as const, timers: arrival.timerTokens, index }]),
+      ...before.burdens.flatMap((id, index) => now.burdens.includes(id) ? [] : [{ id, kind: "burden" as const, outcome: "resolved" as const, index }]),
+      ...before.boons.flatMap((id, index) => now.boons.includes(id) ? [] : [{ id, kind: "boon" as const, outcome: "used" as const, index }])
+    ];
+    if (!gone.length) return;
+    setLeaving(gone);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setLeaving([]), 1250);
+  }, [state.encounters]);
+  return leaving;
+}
+
+/** The card as it leaves: stamped with what happened, then gone. */
+function LeavingCardView({ card, season }: { card: LeavingCard; season: Season }) {
+  const data = encounterById[card.id];
+  if (!data) return null;
+  return <article className={`rail-card rail-${card.kind} is-leaving is-${card.outcome}`} aria-hidden="true">
+    <div className="rail-card-face"><EncounterCard card={data} currentSeason={season} size="mini" timers={card.timers} aria-hidden="true" /></div>
+    <div className="rail-card-body"><h3>{data.name}</h3></div>
+    <span className="rail-stamp">{stampText[card.outcome]}</span>
+  </article>;
 }
 
 /** An unlocked Special tile: what it is, where it may go and what it does, ready to place. */
