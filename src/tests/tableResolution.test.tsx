@@ -159,6 +159,20 @@ describe("demo scene navigation", () => {
   });
 });
 
+describe("unlocked Special tiles", () => {
+  it("shows where the tile goes and what it does beside the board", () => {
+    open("decide-arrival");
+    // Welcome the Arrival through the walkthrough, which unlocks its Special tile.
+    const tour = () => screen.getByRole("complementary", { name: "Guided tour" });
+    const next = () => fireEvent.click(within(tour()).getAllByRole("button").find((button) => button.classList.contains("tour-next"))!);
+    next(); next();
+    const ready = screen.getByRole("article", { name: /^Ready to build: / });
+    expect(ready).toHaveTextContent("Where it goes");
+    expect(ready).toHaveTextContent("What it does");
+    expect(ready).toHaveTextContent("prevent 1 Strain");
+  });
+});
+
 describe("score breakdown", () => {
   it("explains Score now line by line", () => {
     open("showcase-late");

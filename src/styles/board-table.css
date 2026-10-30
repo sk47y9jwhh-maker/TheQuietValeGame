@@ -675,18 +675,21 @@
 .rail-ready { display: grid; gap: 6px; }
 
 .rail-ready-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: grid;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 12px;
   border-radius: 10px;
   background: var(--bt-ink);
   color: #f0ead8;
 }
 
-.rail-ready-item div { display: grid; gap: 1px; }
-.rail-ready-item span { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: #d8cfae; }
+.rail-ready-item header { display: flex; align-items: center; gap: 10px; }
+.rail-ready-item header > div { display: grid; flex: 1; gap: 1px; min-width: 0; }
+.rail-ready-face { flex: none; width: 52px; height: 46px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4)); }
+.rail-ready-item span { font-size: 0.8rem; color: #d8cfae; }
+.rail-ready-item dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; margin: 0; padding-top: 8px; border-top: 1px solid rgba(240, 234, 216, 0.18); font-size: 0.86rem; line-height: 1.4; }
+.rail-ready-item dt { color: #d8cfae; font-weight: 600; white-space: nowrap; }
+.rail-ready-item dd { margin: 0; color: #f0ead8; }
 .rail-ready-item strong { font-family: "Alegreya", Georgia, serif; font-size: 1rem; }
 .rail-ready-item small { color: #d8cfae; }
 .table-rail .rail-ready-item button { border: 0; background: var(--bt-brass); color: var(--bt-ink); }

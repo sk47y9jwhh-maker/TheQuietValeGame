@@ -16,7 +16,7 @@ import {
 } from "../../engine/gameActions";
 import type { GameState, ResourceCost, Season } from "../../engine/types";
 import type { EncounterData } from "../../engine/types";
-import { seatColors } from "./boardGeometry";
+import { categoryNames, seatColors } from "./boardGeometry";
 
 interface TableRailProps {
   state: GameState;
@@ -165,15 +165,30 @@ export function TableRail(props: TableRailProps) {
     </div>
 
     {readySpecials.length > 0 && <section className="rail-ready" aria-label="Unlocked Special Tiles">
-      {readySpecials.map((tileId) => <div key={tileId} className="rail-ready-item">
-        <div><span>Ready to build</span><strong>{specialTileById[tileId].name} · {specialNumber(tileId)}</strong><small>1 action, no resources</small></div>
-        {state.phase === "turns" && <button type="button" onClick={() => props.onPlaceSpecial(tileId)}>Place</button>}
-      </div>)}
+      {readySpecials.map((tileId) => <ReadySpecial key={tileId} tileId={tileId} canPlace={state.phase === "turns"} onPlace={() => props.onPlaceSpecial(tileId)} />)}
     </section>}
 
     {state.phase === "turns" && <EndTurn state={state} onEndTurn={props.onEndTurn} />}
     {openCard && <CardReader cardId={openCard} state={state} onClose={() => setOpenCard(null)} />}
   </aside>;
+}
+
+/** An unlocked Special tile: what it is, where it may go and what it does, ready to place. */
+function ReadySpecial({ tileId, canPlace, onPlace }: { tileId: string; canPlace: boolean; onPlace: () => void }) {
+  const tile = specialTileById[tileId];
+  if (!tile) return null;
+  const scores = [tile.population ? `${tile.population} Population` : "", tile.renown ? `${tile.renown} Renown` : ""].filter(Boolean).join(" and ");
+  return <article className="rail-ready-item" aria-label={`Ready to build: ${tile.name}`}>
+    <header>
+      <div><span>Ready to build, tile {specialNumber(tileId)}</span><strong>{tile.name}</strong><small>{categoryNames[tile.category]}, placed for 1 action and no resources</small></div>
+      {canPlace && <button type="button" onClick={onPlace}>Place</button>}
+    </header>
+    <dl>
+      <dt>Where it goes</dt><dd>{tile.placement?.text ?? "Any empty space in reach."}</dd>
+      <dt>What it does</dt><dd>{tile.effectText}</dd>
+      {scores && <><dt>Scores</dt><dd>{scores}</dd></>}
+    </dl>
+  </article>;
 }
 
 /** The printed card, small, as it would sit on the table. Tap to read it full size. */
