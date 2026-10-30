@@ -110,7 +110,7 @@ describe("decision walkthroughs", () => {
     const next = () => fireEvent.click(within(tour()).getAllByRole("button").find((button) => button.classList.contains("tour-next"))!);
     next();
     const options = within(tour()).getByRole("list", { name: "The options" });
-    expect(options).toHaveTextContent("The choice");
+    expect(options).toHaveTextContent("Chosen");
     expect(options).toHaveTextContent("After the round");
     expect(options).toHaveTextContent("The Arrival leaves");
     next();
