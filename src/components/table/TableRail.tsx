@@ -136,7 +136,7 @@ export function TableRail(props: TableRailProps) {
         return <article key={cardId} className={`rail-card rail-burden${props.newCardIds.has(cardId) ? " is-new" : ""}`}>
           <CardFace card={card} season={state.season} onOpen={setOpenCard} />
           <div className="rail-card-body">
-            <p className="rail-card-kind"><span><Term id="burden" />, Season {["", "I", "II", "III"][state.season]}{props.newCardIds.has(cardId) && <em className="rail-new">new</em>}</span><span>{state.ignoredBurdenIdsThisRound.includes(cardId) ? "Ignored this round" : state.season < 3 ? "Returns next Season" : "Active"}</span></p>
+            <p className="rail-card-kind"><span><Term id="burden" />{props.newCardIds.has(cardId) && <em className="rail-new">new</em>}</span><span>{state.ignoredBurdenIdsThisRound.includes(cardId) ? "Ignored this round" : state.season < 3 ? "Returns next Season" : "Active"}</span></p>
             <h3>{card.name}</h3>
             <p className="rail-card-text">{card.effects[seasonKey(state.season)]}</p>
             <p className="rail-card-note">To resolve: {resolution.replace(/,? discard\.?$/i, "")}{cost ? "" : ""}</p>
