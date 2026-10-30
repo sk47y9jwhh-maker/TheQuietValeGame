@@ -458,7 +458,7 @@ function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo,
   return <header className="table-topbar">
     {asHeading ? <h1 className="table-brand">The Quiet Vale</h1> : <div className="table-brand">The Quiet Vale</div>}
     <div className="table-season">
-      <span>Season {["", "I", "II", "III"][state.season]}{compact ? "" : `: ${seasonNames[state.season]}`}, round {state.round}{compact ? "" : " of 12"}</span>
+      <span>Season {["", "I", "II", "III"][state.season]}{compact ? "" : <span className="season-name">: {seasonNames[state.season]}</span>}, round {state.round}{compact ? "" : " of 12"}</span>
       {!compact && <span className="round-track" aria-hidden="true">{[0, 1, 2].map((season) => <span key={season}>{[1, 2, 3, 4].map((step) => {
         const round = season * 4 + step;
         return <span key={round} className={round < state.round ? "is-done" : round === state.round ? "is-now" : ""} />;
@@ -468,7 +468,7 @@ function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo,
       {resources.map((resource) => {
         const after = deltas.get(resource);
         const changed = after !== undefined && after !== state.warehouse[resource];
-        return <li key={resource} className={`res-${resource}${changed ? " is-changing" : ""}${state.warehouse[resource] === 0 ? " is-empty" : ""}${state.warehouse[resource] >= warehouseCap ? " is-full" : ""}${bumped.has(resource) ? " is-bumped" : ""}`}>
+        return <li key={resource} title={resourceLabels[resource]} className={`res-${resource}${changed ? " is-changing" : ""}${state.warehouse[resource] === 0 ? " is-empty" : ""}${state.warehouse[resource] >= warehouseCap ? " is-full" : ""}${bumped.has(resource) ? " is-bumped" : ""}`}>
           <GameIcon name={resource} className="res-icon" />
           <span className="res-label">{resourceLabels[resource]}</span>
           <strong>{state.warehouse[resource]}</strong>

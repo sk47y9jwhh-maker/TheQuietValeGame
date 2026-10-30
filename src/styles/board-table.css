@@ -1595,3 +1595,21 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .target-draw-none { margin: 10px 0 0; font-size: 0.9rem; color: var(--bt-ink-soft, #5d5541); }
 /* Golden Signet names may take two lines rather than being cut short. */
 .signet-tile-choices strong { white-space: normal; overflow: visible; font-size: 16px; line-height: 1.15; }
+
+/* Laptop widths: the Warehouse shows its icons and numbers, the names stay for screen readers. */
+@media (max-width: 1400px) and (min-width: 861px) {
+  .table-warehouse .res-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; display: inline; }
+  .table-warehouse li { gap: 6px; padding-inline: 8px; }
+}
+@media (max-width: 1180px) and (min-width: 861px) {
+  .table-topbar { gap: 10px; }
+  .table-brand { font-size: 1.15rem; }
+  .table-season .season-name { display: none; }
+}
+@media (max-width: 1000px) and (min-width: 861px) {
+  .table-topbar .table-brand { display: none; }
+}
+@media (max-width: 1180px) and (min-width: 861px) {
+  .round-track { gap: 5px; }
+  .round-track > span > span { width: 8px; }
+}
