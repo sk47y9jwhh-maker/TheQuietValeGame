@@ -19,6 +19,7 @@ import { isHostedDemo } from "../../app/experience";
 import { TableCoach, type CoachTarget, type TourControls } from "./TableCoach";
 import { tileArtworkUrl } from "../common/TileArtwork";
 import { Term } from "./Term";
+import { GameIcon, categoryIcon } from "../common/GameIcon";
 import { EncounterCard } from "../common/EncounterCard";
 import {
   describeHexOptions,
@@ -289,13 +290,13 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
       return {
         hexId: mode.hexId,
         content: <div className="action-card">
-          <header><div><h3>Build here</h3><p>{mode.hexId} · {hexOptions.terrain}</p></div><button type="button" className="icon-button" aria-label="Close" onClick={() => setMode({ kind: "idle" })}><X size={18} /></button></header>
+          <header><div><h3>Build here</h3><p>{mode.hexId}, {hexOptions.terrain}</p></div><button type="button" className="icon-button" aria-label="Close" onClick={() => setMode({ kind: "idle" })}><X size={18} /></button></header>
           {hexOptions.placeable.length === 0 && <p className="action-card-hint">{hexOptions.blocked.length ? "Nothing you can afford fits here yet." : <>No tile can go here right now. Spaces must be within <Term id="reach">reach</Term> of your Steward, and some tiles need a particular terrain or neighbour.</>}</p>}
           {hexOptions.placeable.length > 0 && <ul className="place-list">
             {hexOptions.placeable.slice(0, compact ? 8 : 9).map((option) => <li key={option.choice.id} className={option.enhanced ? "has-enhancer" : ""}><button type="button" onClick={() => choosePlacement(option, mode.hexId, option.onlyEnhanced ? option.enhanced?.enhancer : undefined)}>
               <img className="place-face" src={tileArtworkUrl(option.choice.id, "basic", { thumbnail: true })} alt="" aria-hidden="true" loading="lazy" decoding="async" style={{ borderColor: categoryColors[option.choice.category] }} />
-              <span className="place-name"><strong>{option.choice.name}</strong><small>{option.choice.kind === "special" ? "Special, unlocked" : categoryNames[option.choice.category]}{option.needsOrientation ? ", choose a direction" : option.needsSecondSpace ? ", two spaces" : ""}</small></span>
-              <span className="place-cost">{option.onlyEnhanced ? <span className="place-cost-enhanced"><EnhancerTag kind={option.enhanced?.enhancer.kind} />{option.enhanced?.benefit}<small>with {option.enhanced?.enhancer.name}</small></span> : option.choice.costLabel === "None" || option.choice.costLabel === "Free" ? "Free" : option.choice.costLabel}</span>
+              <span className="place-name"><strong>{option.choice.name}</strong><small>{categoryIcon(option.choice.category) && <GameIcon name={categoryIcon(option.choice.category)!} />}{option.choice.kind === "special" ? "Special, unlocked" : categoryNames[option.choice.category]}{option.needsOrientation ? ", choose a direction" : option.needsSecondSpace ? ", two spaces" : ""}</small></span>
+              <span className="place-cost">{option.onlyEnhanced ? <span className="place-cost-enhanced"><EnhancerTag kind={option.enhanced?.enhancer.kind} />{option.enhanced?.benefit}<small>with {option.enhanced?.enhancer.name}</small></span> : option.choice.costLabel === "None" || option.choice.costLabel === "Free" ? "Free" : <CostIcons cost={option.choice.actualCost} label={option.choice.costLabel} />}</span>
             </button>{option.enhanced && !option.onlyEnhanced && <button type="button" className="place-enhancer" onClick={() => choosePlacement(option, mode.hexId, option.enhanced!.enhancer)}><EnhancerTag kind={option.enhanced.enhancer.kind} /><span>{option.enhanced.benefit}</span><small>with {option.enhanced.enhancer.name}</small></button>}</li>)}
           </ul>}
           {hexOptions.placeable.length > (compact ? 8 : 9) && <p className="action-card-note">{hexOptions.placeable.length - (compact ? 8 : 9)} more in the tile supply.</p>}
@@ -399,6 +400,13 @@ function walkthroughFocus(state: GameState, target: CoachTarget | null): string[
   return [...new Set([...(target?.hexIds ?? []), ...local, ...(home ? [home] : [])])];
 }
 
+/** A cost drawn with the game's resource symbols. The words stay for screen readers. */
+function CostIcons({ cost, label }: { cost: Partial<Record<ResourceType, number>>; label: string }) {
+  const entries = resources.filter((resource) => (cost[resource] ?? 0) > 0);
+  if (!entries.length) return <>{label}</>;
+  return <span className="cost-icons" aria-label={label}>{entries.map((resource) => <span key={resource} aria-hidden="true"><GameIcon name={resource} />{cost[resource]}</span>)}</span>;
+}
+
 /** Names what an option spends: a Boon card or the Steward's power. */
 function EnhancerTag({ kind }: { kind?: "boon" | "power" }) {
   return <span className={`enhancer-tag is-${kind ?? "boon"}`} aria-hidden="true">{kind === "power" ? "Power" : "Boon"}</span>;
@@ -452,7 +460,7 @@ function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo,
         const after = deltas.get(resource);
         const changed = after !== undefined && after !== state.warehouse[resource];
         return <li key={resource} className={`res-${resource}${changed ? " is-changing" : ""}${state.warehouse[resource] === 0 ? " is-empty" : ""}${state.warehouse[resource] >= warehouseCap ? " is-full" : ""}${bumped.has(resource) ? " is-bumped" : ""}`}>
-          <span className="res-swatch" aria-hidden="true" />
+          <GameIcon name={resource} className="res-icon" />
           <span className="res-label">{resourceLabels[resource]}</span>
           <strong>{state.warehouse[resource]}</strong>
           {changed && <span className="res-after" aria-label={`becomes ${after}`}>→ {after}</span>}
@@ -489,10 +497,10 @@ function ScoreNow({ state, score }: { state: GameState; score: number }) {
     ["Strain", -detail.strainPenalty, `${strainTokens} × −10${overstrained ? ` · ${overstrained} Overstrained tile${overstrained === 1 ? " scores" : "s score"} nothing` : ""}`]
   ];
   return <div className="table-score-wrap" onKeyDown={(event) => { if (event.key === "Escape") setOpen(false); }}>
-    <button type="button" className="table-score" aria-expanded={open} aria-controls="score-breakdown" title="The shared score if the game ended now" onClick={() => setOpen((value) => !value)}>Score now <strong>{score}</strong></button>
+    <button type="button" className="table-score" aria-expanded={open} aria-controls="score-breakdown" title="The shared score if the game ended now" onClick={() => setOpen((value) => !value)}>Score now <strong>{score < 0 ? `−${Math.abs(score)}` : score}</strong></button>
     {open && <div className="score-popover" id="score-breakdown" role="dialog" aria-label="How the score adds up">
       <header><strong>If the game ended now</strong><button type="button" className="icon-button" aria-label="Close" onClick={() => setOpen(false)}><X size={16} /></button></header>
-      <dl>{rows.map(([label, value, note]) => <div key={label} className={value < 0 ? "is-loss" : ""}><dt>{label === "Population" ? <Term id="population" /> : label === "Renown from tiles" ? <><Term id="renown" /> from tiles</> : label === "Strain" ? <Term id="strain" /> : label === "Active Burdens" ? <>Active <Term id="burden">Burdens</Term></> : label}{note && <small>{note}</small>}</dt><dd>{value > 0 ? "+" : ""}{value}</dd></div>)}</dl>
+      <dl>{rows.map(([label, value, note]) => <div key={label} className={value < 0 ? "is-loss" : ""}><dt>{label === "Population" ? <><GameIcon name="population" /><Term id="population" /></> : label === "Renown from tiles" ? <><GameIcon name="renown" /><Term id="renown" /> from tiles</> : label === "Strain" ? <Term id="strain" /> : label === "Active Burdens" ? <>Active <Term id="burden">Burdens</Term></> : label}{note && <small>{note}</small>}</dt><dd>{value > 0 ? "+" : value < 0 ? "−" : ""}{Math.abs(value)}</dd></div>)}</dl>
       <p><span>Score</span><strong>{score}</strong></p>
     </div>}
   </div>;

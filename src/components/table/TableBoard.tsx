@@ -3,10 +3,11 @@ import { mapLayout, terrainLabels } from "../../data/map";
 import { stewardById } from "../../data/stewards";
 import { getTileCategory } from "../../engine/placementRules";
 import { selectTileName } from "../../engine/selectors";
-import type { GameState, PlacedTile } from "../../engine/types";
+import type { GameState, PlacedTile, ResourceType } from "../../engine/types";
 import { MapArtworkImage } from "../map/MapArtwork";
 import { tileArtworkUrl } from "../common/TileArtwork";
 import { resourceLabels, resources } from "../../data/resources";
+import { categoryIcon, gameIconUrl } from "../common/GameIcon";
 import {
   boardBounds,
   boardCellById,
@@ -77,7 +78,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
   // floats its gain up off the tiles that produced.
   const known = useRef<{ tiles: Map<string, PlacedTile>; warehouse: GameState["warehouse"]; records: GameState["tileActivationRecords"]; logIds: string[] } | null>(null);
   const [motions, setMotions] = useState<ReadonlyMap<string, readonly TileMotion[]>>(new Map());
-  const [gain, setGain] = useState<{ hexIds: string[]; text: string; key: number } | null>(null);
+  const [gain, setGain] = useState<{ hexIds: string[]; items: { resource: ResourceType; amount: number }[]; key: number } | null>(null);
   const motionTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const gainTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => { clearTimeout(motionTimer.current); clearTimeout(gainTimer.current); }, []);
@@ -115,9 +116,9 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
       return nearest ? [nearest] : [];
     });
     const producers = linked.length ? linked : named;
-    const gains = resources.filter((resource) => state.warehouse[resource] > before.warehouse[resource]).map((resource) => `+${state.warehouse[resource] - before.warehouse[resource]} ${resourceLabels[resource]}`);
+    const gains = resources.filter((resource) => state.warehouse[resource] > before.warehouse[resource]).map((resource) => ({ resource, amount: state.warehouse[resource] - before.warehouse[resource] }));
     if (producers.length && gains.length) {
-      setGain({ hexIds: producers.map((tile) => tile.hexIds[0]), text: gains.join("   "), key: Date.now() });
+      setGain({ hexIds: producers.map((tile) => tile.hexIds[0]), items: gains, key: Date.now() });
       clearTimeout(gainTimer.current);
       gainTimer.current = setTimeout(() => setGain(null), 1400);
     }
@@ -470,7 +471,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
           </g>;
         })}
       </g>
-      {gain && <ProductionGain key={gain.key} hexIds={gain.hexIds} text={gain.text} />}
+      {gain && <ProductionGain key={gain.key} hexIds={gain.hexIds} items={gain.items} />}
     </svg>
     {popover && popoverStyle && <div
       ref={popoverRef}
@@ -492,13 +493,22 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
 type TileMotion = "arriving" | "flipping" | "straining" | "supported";
 const distance = (tile: PlacedTile, from: { x: number; y: number }) => { const cell = boardCellById.get(tile.hexIds[0]); return cell ? Math.hypot(cell.x - from.x, cell.y - from.y) : Infinity; };
 
-/** "+4 Wood" rising off the middle of the tiles that just produced. */
-function ProductionGain({ hexIds, text }: { hexIds: string[]; text: string }) {
+/** "+4" and the resource's own symbol, rising off the middle of the tiles that just produced. */
+function ProductionGain({ hexIds, items }: { hexIds: string[]; items: { resource: ResourceType; amount: number }[] }) {
   const cells = hexIds.map((hexId) => boardCellById.get(hexId)).filter((cell): cell is NonNullable<typeof cell> => Boolean(cell));
   if (!cells.length) return null;
   const x = cells.reduce((sum, cell) => sum + cell.x, 0) / cells.length;
   const y = cells.reduce((sum, cell) => sum + cell.y, 0) / cells.length + (cells.length > 1 ? 0 : hexRadius * 0.15);
-  return <g className="board-gain" aria-hidden="true"><text x={x} y={y} textAnchor="middle">{text}</text></g>;
+  const step = 30;
+  const start = x - ((items.length - 1) * step) / 2;
+  return <g className="board-gain" aria-hidden="true">{items.map((item, index) => {
+    const cx = start + index * step;
+    return <g key={item.resource} className="board-gain-item">
+      <text x={cx + 1} y={y + 3.2} textAnchor="end">+{item.amount}</text>
+      <image href={gameIconUrl(item.resource)} x={cx + 2} y={y - 7} width={13} height={13} preserveAspectRatio="xMidYMid meet" />
+      <title>{`+${item.amount} ${resourceLabels[item.resource]}`}</title>
+    </g>;
+  })}</g>;
 }
 
 function TileToken({ state, tile, hexId, x, y, motion, sharp = false }: { state: GameState; tile: PlacedTile; hexId: string; x: number; y: number; motion?: readonly TileMotion[]; sharp?: boolean }) {
@@ -551,7 +561,9 @@ function TileToken({ state, tile, hexId, x, y, motion, sharp = false }: { state:
       {mark && !overstrained && lines.length < 2 && <text className="tile-token-mark" x={x} y={windowBottom - 0.9} textAnchor="middle">{mark}</text>}
       {overstrained && <text className="tile-token-over" x={x} y={windowBottom - 0.9} textAnchor="middle">OVERSTRAINED</text>}
     </g>}
-    {!anchor && <g className="tile-token-icon" transform={`translate(${x - 5.5} ${windowTop + 1}) scale(0.46)`}><path d={iconPath(tileIcon(tile.tileId, category))} stroke={accent} /></g>}
+    {!anchor && (categoryIcon(category)
+      ? <image className="tile-token-type" href={gameIconUrl(categoryIcon(category)!)} x={x - 7} y={windowTop - 1} width={14} height={14} preserveAspectRatio="xMidYMid meet" />
+      : <g className="tile-token-icon" transform={`translate(${x - 5.5} ${windowTop + 1}) scale(0.46)`}><path d={iconPath(tileIcon(tile.tileId, category))} stroke={accent} /></g>)}
     {(tile.strain > 0 || overstrained) && <g className="tile-token-strain">
       {[0, 1, 2].map((index) => <circle key={index} cx={x - 7 + index * 7} cy={windowBottom + 2.6} r={2.5} className={`${index < tile.strain ? "is-filled" : ""}${straining && index === tile.strain - 1 ? " is-latest" : ""}`} style={straining && index === tile.strain - 1 ? { transformOrigin: `${x - 7 + index * 7}px ${windowBottom + 2.6}px` } : undefined} />)}
     </g>}

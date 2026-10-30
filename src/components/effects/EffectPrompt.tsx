@@ -1,4 +1,5 @@
 import { AlternativeChoices } from "./AlternativeChoices";
+import { GameIcon } from "../common/GameIcon";
 import { EffectSourceSummary } from "./EffectSourceSummary";
 import { TargetCardResolution } from "./TargetCardResolution";
 import { isBoardTableExperience, isPlayerExperience } from "../../app/experience";
@@ -1188,8 +1189,9 @@ function StandardEffectPrompt({
         <div className="effect-grid">
           {resourceRows.map((resource) => (
             <div className="effect-row" key={resource}>
-              <span>
-                {resourceLabels[resource]} {state.warehouse[resource]}
+              <span className="effect-resource">
+                <GameIcon name={resource} />
+                <span>{resourceLabels[resource]} {state.warehouse[resource]}</span>
               </span>
               <div className="stepper">
                 <button

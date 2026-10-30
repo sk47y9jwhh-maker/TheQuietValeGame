@@ -1435,7 +1435,9 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
    lands. Supported: a ring draws round it. Production: the gain rises off. */
 .tile-token-land { fill: none; stroke: rgba(255, 246, 220, 0.9); stroke-width: 1.6; opacity: 0; pointer-events: none; }
 .tile-token-ring { fill: none; stroke: var(--bt-brass-light, #e8c463); stroke-width: 2.2; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; pointer-events: none; }
-.board-gain text { fill: #fff6d6; stroke: #2a2416; stroke-width: 2.6; stroke-linejoin: round; paint-order: stroke; font: 700 9px "Alegreya Sans", system-ui, sans-serif; opacity: 0; pointer-events: none; }
+.board-gain text { fill: #fff6d6; stroke: #2a2416; stroke-width: 2.6; stroke-linejoin: round; paint-order: stroke; font: 700 10px "Alegreya Sans", system-ui, sans-serif; pointer-events: none; }
+.board-gain-item { opacity: 0; pointer-events: none; }
+.board-gain-item image { filter: drop-shadow(0 0 1.2px #fff6d6) drop-shadow(0 0.6px 0.6px rgba(0, 0, 0, 0.5)); }
 @media (prefers-reduced-motion: no-preference) {
   .tile-token.is-arriving .tile-token-shadow { animation: bt-shadow-land 0.6s ease-out both; }
   .tile-token-land { animation: bt-land-dust 0.75s ease-out 0.28s both; }
@@ -1444,10 +1446,10 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
   .tile-token.is-straining { animation: bt-knock 0.45s ease-in-out; }
   .tile-token-strain circle.is-latest { animation: bt-dot-land 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4) 0.1s both; }
   .tile-token-ring { animation: bt-ring-draw 0.9s ease-out both; }
-  .board-gain text { animation: bt-gain-rise 1.4s ease-out both; }
+  .board-gain-item { animation: bt-gain-rise 1.4s ease-out both; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .board-gain text { animation: bt-gain-still 1.4s linear both; }
+  .board-gain-item { animation: bt-gain-still 1.4s linear both; }
 }
 @keyframes bt-tile-drop {
   0% { opacity: 0; transform: translateY(-16px) scale(1.16); }
@@ -1519,3 +1521,36 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .table-resolution .cost-choice-screen .seeding-header { margin: 0 0 10px; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; color: var(--bt-ink); }
 .table-resolution .cost-choice-screen .seeding-header :is(.eyebrow, h1) { display: none; }
 .table-resolution .cost-choice-screen .seeding-header p { margin: 0; color: #4a4434; font-size: 0.95rem; }
+
+/* The game's own symbols beside words: resources, Population, Renown and tile
+   types, drawn by the tile artist. */
+.game-icon { display: inline-block; flex: none; width: 1.2em; height: 1.2em; margin-right: 0.3em; object-fit: contain; vertical-align: -0.25em; }
+.table-warehouse .res-icon { width: 24px; height: 24px; margin: 0 2px 0 0; padding: 2px; box-sizing: border-box; border-radius: 50%; background: #efe4c6; vertical-align: middle; }
+.table-warehouse li { display: inline-flex; align-items: center; gap: 4px; }
+.rail-needs li { display: inline-flex; align-items: center; gap: 2px; }
+.rail-needs li .game-icon { width: 17px; height: 17px; margin-right: 3px; }
+.rail-resolve span { display: inline-flex; align-items: center; margin-left: 4px; font-weight: 600; }
+.rail-resolve span .game-icon { width: 17px; height: 17px; margin-right: 3px; }
+.rail-resolve span.is-short { color: #8a3d22; }
+.rail-ready-type { display: inline-flex; align-items: center; flex-wrap: wrap; }
+.rail-ready-type .game-icon, .rail-ready-scores .game-icon { width: 18px; height: 18px; filter: invert(0.92) sepia(0.2); }
+.rail-ready-scores { display: flex; gap: 14px; flex-wrap: wrap; }
+.rail-ready-scores span { display: inline-flex; align-items: center; }
+.place-name small { display: inline-flex; align-items: center; }
+.place-name small .game-icon { width: 16px; height: 16px; margin-right: 4px; }
+.score-popover dt .game-icon { width: 18px; height: 18px; }
+.tile-token-type { opacity: 0.9; pointer-events: none; }
+
+/* Choosing resources for an encounter: one slim row each, the resource's
+   symbol, what the Warehouse holds and a small stepper. */
+.table-resolution .effect-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.table-resolution .effect-row { min-height: 0; padding: 6px 8px 6px 10px; gap: 8px; border-radius: 8px; }
+.table-resolution .effect-resource { display: inline-flex; align-items: center; gap: 8px; min-width: 0; font-size: 0.92rem; }
+.table-resolution .effect-resource .game-icon { width: 24px; height: 24px; margin: 0; }
+.table-resolution .effect-row .stepper { gap: 4px; }
+.table-resolution .effect-row .stepper button { width: 28px; height: 28px; min-width: 28px; min-height: 28px; padding: 0; border-radius: 6px; }
+.table-resolution .effect-row .stepper strong { min-width: 1.6em; font-size: 0.95rem; text-align: center; }
+.table-resolution .effect-control-heading h3 { font-size: 0.95rem; }
+.cost-icons { display: inline-flex; gap: 8px; align-items: center; }
+.cost-icons > span { display: inline-flex; align-items: center; font-weight: 700; }
+.cost-icons .game-icon { width: 18px; height: 18px; margin-right: 2px; }

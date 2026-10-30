@@ -43,6 +43,8 @@ export interface PlaceTileChoice {
   kind: "core" | "special";
   actionCost: number;
   costLabel: string;
+  /** The cost actually payable here, after any Boon or Burden adjustment. */
+  actualCost: ResourceCost;
   affordable: boolean;
   blockedReasons: string[];
   copiesAvailable: number;
@@ -364,6 +366,7 @@ export function getPlaceTileChoices(
         ...tile,
         actionCost: actionPreview.actionCost,
         costLabel: formatCost(actionPreview.cost),
+        actualCost: actionPreview.cost,
         affordable,
         blockedReasons,
         copiesAvailable,

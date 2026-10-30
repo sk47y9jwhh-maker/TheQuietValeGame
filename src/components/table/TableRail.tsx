@@ -18,6 +18,7 @@ import type { GameState, ResourceCost, Season } from "../../engine/types";
 import type { EncounterData } from "../../engine/types";
 import { categoryNames, seatColors } from "./boardGeometry";
 import { tileArtworkUrl } from "../common/TileArtwork";
+import { GameIcon, categoryIcon } from "../common/GameIcon";
 
 interface TableRailProps {
   state: GameState;
@@ -124,7 +125,7 @@ export function TableRail(props: TableRailProps) {
             {cost && <ul className="rail-needs" aria-label="Requirement">
               {costEntries(cost).map(({ resource, amount }) => {
                 const have = state.warehouse[resource];
-                return <li key={resource} className={have >= amount ? "is-met" : "is-short"}>{amount} {resourceLabels[resource]}{have >= amount ? " ✓" : `, have ${have}`}</li>;
+                return <li key={resource} className={have >= amount ? "is-met" : "is-short"}><GameIcon name={resource} />{amount} {resourceLabels[resource]}{have >= amount ? " ✓" : `, have ${have}`}</li>;
               })}
             </ul>}
             {validation.ok && cost && costEntries(cost).some(({ resource, amount }) => state.warehouse[resource] < amount) && <p className="rail-card-help">A payment effect, such as a Merchant exchange, covers the shortfall. You choose it on the next step.</p>}
@@ -147,7 +148,7 @@ export function TableRail(props: TableRailProps) {
             <p className="rail-card-kind"><span><Term id="burden" />{props.newCardIds.has(cardId) && <em className="rail-new">new</em>}</span><span>{state.ignoredBurdenIdsThisRound.includes(cardId) ? "Ignored this round" : state.season < 3 ? "Returns next Season" : "Active"}</span></p>
             <h3>{card.name}</h3>
             <p className="rail-card-text">{card.effects[seasonKey(state.season)]}</p>
-            <p className="rail-card-note">To resolve: {resolution.replace(/,? discard\.?$/i, "")}{cost ? "" : ""}</p>
+            {cost ? <p className="rail-card-note rail-resolve">To resolve: 1 action and {costEntries(cost).map(({ resource, amount }) => <span key={resource} className={state.warehouse[resource] >= amount ? "is-met" : "is-short"}><GameIcon name={resource} />{amount} {resourceLabels[resource]}</span>)}</p> : <p className="rail-card-note">To resolve: {resolution.replace(/,? discard\.?$/i, "")}</p>}
             {state.phase === "turns" && <button type="button" disabled={!validation.ok} onClick={() => props.onResolveBurden(cardId)} title={validation.ok ? undefined : validation.reasons.join(" ")}>
               {validation.ok ? "Resolve for 1 action" : "Can’t resolve yet"}
             </button>}
@@ -229,17 +230,17 @@ function LeavingCardView({ card, season }: { card: LeavingCard; season: Season }
 function ReadySpecial({ tileId, canPlace, onPlace }: { tileId: string; canPlace: boolean; onPlace: () => void }) {
   const tile = specialTileById[tileId];
   if (!tile) return null;
-  const scores = [tile.population ? `${tile.population} Population` : "", tile.renown ? `${tile.renown} Renown` : ""].filter(Boolean).join(" and ");
+  const scores = tile.population || tile.renown;
   return <article className="rail-ready-item" aria-label={`Ready to build: ${tile.name}`}>
     <img className="rail-ready-face" src={tileArtworkUrl(tileId, "basic", { thumbnail: true })} alt={`The ${tile.name} tile`} loading="lazy" decoding="async" />
     <header>
-      <div><span>Ready to build, tile {specialNumber(tileId)}</span><strong>{tile.name}</strong><small>{categoryNames[tile.category]}, placed for 1 action and no resources</small></div>
+      <div><span>Ready to build, tile {specialNumber(tileId)}</span><strong>{tile.name}</strong><small className="rail-ready-type">{categoryIcon(tile.category) && <GameIcon name={categoryIcon(tile.category)!} />}{categoryNames[tile.category]}, placed for 1 action and no resources</small></div>
       {canPlace && <button type="button" onClick={onPlace}>Place</button>}
     </header>
     <dl>
       <dt>Where it goes</dt><dd>{tile.placement?.text ?? "Any empty space in reach."}</dd>
       <dt>What it does</dt><dd>{tile.effectText}</dd>
-      {scores && <><dt>Scores</dt><dd>{scores}</dd></>}
+      {scores ? <><dt>Scores</dt><dd className="rail-ready-scores">{tile.population ? <span><GameIcon name="population" />{tile.population} Population</span> : null}{tile.renown ? <span><GameIcon name="renown" />{tile.renown} Renown</span> : null}</dd></> : null}
     </dl>
   </article>;
 }
