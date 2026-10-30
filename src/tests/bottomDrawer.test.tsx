@@ -86,7 +86,7 @@ describe("bottom drawer", () => {
 
     expect(screen.getByRole("heading", { name: "Rules" })).toBeInTheDocument();
     expect(screen.getByText("Playtester guide")).toBeInTheDocument();
-    expect(screen.getByText("Round 1/12")).toBeInTheDocument();
+    expect(screen.getByText("Round 1 of 12")).toBeInTheDocument();
     expect(screen.getByText("3 actions left")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "How to play" })).toHaveAttribute(
       "aria-selected",
