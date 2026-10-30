@@ -17,6 +17,7 @@ import {
 import type { GameState, ResourceCost, Season } from "../../engine/types";
 import type { EncounterData } from "../../engine/types";
 import { categoryNames, seatColors } from "./boardGeometry";
+import { tileArtworkUrl } from "../common/TileArtwork";
 
 interface TableRailProps {
   state: GameState;
@@ -179,6 +180,7 @@ function ReadySpecial({ tileId, canPlace, onPlace }: { tileId: string; canPlace:
   if (!tile) return null;
   const scores = [tile.population ? `${tile.population} Population` : "", tile.renown ? `${tile.renown} Renown` : ""].filter(Boolean).join(" and ");
   return <article className="rail-ready-item" aria-label={`Ready to build: ${tile.name}`}>
+    <img className="rail-ready-face" src={tileArtworkUrl(tileId, "basic", { thumbnail: true })} alt={`The ${tile.name} tile`} loading="lazy" decoding="async" />
     <header>
       <div><span>Ready to build, tile {specialNumber(tileId)}</span><strong>{tile.name}</strong><small>{categoryNames[tile.category]}, placed for 1 action and no resources</small></div>
       {canPlace && <button type="button" onClick={onPlace}>Place</button>}

@@ -1426,3 +1426,5 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .demo-picker-button small { color: #5a4820; font-size: 12px; font-weight: 600; }
 .rail-new { margin-left: 6px; color: #8a5a2b; font-style: italic; font-weight: 600; }
 .place-list li .place-enhancer, .place-enhancer { border-radius: 6px !important; }
+/* The printed Special tile, large enough to read, above its details. */
+.rail-ready-item .rail-ready-face { justify-self: center; width: min(100%, 240px); height: auto; aspect-ratio: 360 / 312; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.45)); }
