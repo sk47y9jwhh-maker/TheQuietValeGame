@@ -57,12 +57,13 @@ function effect(t){let text=t.effectText,heading='PASSIVE';if(text.startsWith('A
 window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind,face,t}=item;const type=kind==='core'?(face==='basic'?'Core Basic':'Core Upgrade'):kind==='special'?'Special':kind==='golden'?'Golden':kind==='extension'?'Travel Extension':'Special back';const bg=await img('Quiet Valley Tile '+type+'-managed.png');
  // Clip only the outside-canvas background to the delivered artwork silhouette.
  ctx.save();ctx.beginPath();ctx.moveTo(390,10);ctx.lineTo(1170,10);ctx.lineTo(1560,685);ctx.lineTo(1170,1360);ctx.lineTo(390,1360);ctx.lineTo(0,685);ctx.closePath();ctx.clip();ctx.drawImage(bg,0,0);ctx.restore();
- // Tile-type edge line (decided 30 Oct 2026): a thin line in the tile type's
- // colour, set about 1.4 mm inside the cut so a slightly-off cut changes only
- // the parchment outside it. Core faces and Travel extensions only.
+ // Tile-type edge wash (decided 30 Oct 2026, option A): the parchment margin
+ // outside the frame is lightly tinted in the tile type's colour (multiply,
+ // 45%). It runs out through the bleed, so the cut position does not matter.
+ // Core faces and Travel extensions only.
  const edgeColour={resource:'#4e6748',housing:'#9a5b3c',travel:'#7a6f58',merchant:'#8a6d2b',crafting:'#4f6b7a',social:'#7a4f6b',wellbeing:'#3f7a6e'};
  const edgeCategory=kind==='core'?t.category:kind==='extension'?'travel':null;
- if(edgeCategory&&edgeColour[edgeCategory]){const mm=600/25.4,inset=1.4*mm,R=709-inset/Math.cos(Math.PI/6);ctx.save();ctx.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.lineTo(780+R*Math.cos(a),685+R*Math.sin(a))}ctx.closePath();ctx.lineJoin='miter';ctx.lineWidth=0.8*mm;ctx.strokeStyle=edgeColour[edgeCategory];ctx.stroke();ctx.restore();audit.push({field:'Edge line',text:edgeCategory,colour:edgeColour[edgeCategory],insetMm:1.4,widthMm:0.8})}
+ if(edgeCategory&&edgeColour[edgeCategory]){const ring=(R)=>{for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx[k?'lineTo':'moveTo'](780+R*Math.cos(a),685+R*Math.sin(a))}ctx.closePath()};const c30=Math.cos(Math.PI/6);ctx.save();ctx.beginPath();ctx.moveTo(390,10);ctx.lineTo(1170,10);ctx.lineTo(1560,685);ctx.lineTo(1170,1360);ctx.lineTo(390,1360);ctx.lineTo(0,685);ctx.closePath();ctx.clip();ctx.beginPath();ring(709+90/c30);ring(709-62/c30);ctx.filter='blur(3px)';ctx.globalCompositeOperation='multiply';ctx.globalAlpha=0.45;ctx.fillStyle=edgeColour[edgeCategory];ctx.fill('evenodd');ctx.restore();audit.push({field:'Edge wash',text:edgeCategory,colour:edgeColour[edgeCategory],strength:0.45})}
  // The Golden back is the Special back artwork with no number.
  if(kind==='golden-back')return audit;
  if(kind==='back'){block(String(item.number),{x:780,y:445,width:700,height:500,size:580,min:480,label:'Back number',colour:'#d8caaa'});return audit}

@@ -32,9 +32,10 @@ installed runtime locations used on the production workstation.
 - Activated Special tiles retain timing restrictions in their effect text.
 - Stables has two detached full fronts per physical copy; no Travel extension.
 - Empty illustration windows are intentional and match the approved sample set.
-- Tile-type edge line (30 Oct 2026): Core faces and Travel extensions carry a
-  0.8 mm line in their category colour, 1.4 mm inside the cut. Special, Golden
-  and back faces are unchanged. Colours match the online board.
+- Tile-type edge wash (30 Oct 2026): Core faces and Travel extensions have the
+  parchment margin outside the frame lightly tinted in their category colour
+  (multiply, 45%), running out through the bleed. Special, Golden and back
+  faces are unchanged. Colours match the online board.
 
 ## Original layer treatment
 
