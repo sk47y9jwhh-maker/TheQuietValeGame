@@ -347,7 +347,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
         {coach && <TableCoach state={state} onTarget={setCoachTarget} tour={tour} />}
         {!compact && <RevealCeremony state={state} newCardIds={newCardIds} />}
         {notice && <div className="table-notice" role="status"><p>{notice}</p><button type="button" aria-label="Dismiss" onClick={onDismissNotice}><X size={16} /></button></div>}
-        {!compact && !resolving && <div className="table-tray">{tray}</div>}
+        {!compact && !resolving && !tour && <div className="table-tray">{tray}</div>}
 
       </section>
       {!compact && resolutionPanel}

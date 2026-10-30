@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { App } from "../app/App";
 import { readSavedGame } from "../app/persistence";
@@ -125,6 +125,37 @@ describe("decision walkthroughs", () => {
     const cabin = readSavedGame()!.state.map.placedTiles.find((tile) => tile.hexIds.includes("H1"))!;
     expect(cabin.strain).toBe(2);
     expect(readSavedGame()!.state.log[0].message).toBe("Supported prevented 1 Strain on the Cabin.");
+  });
+});
+
+describe("demo scene navigation", () => {
+  it("numbers the scene, lists every scene and links the next one", async () => {
+    const { default: ScenarioPreview } = await import("../app/ScenarioPreview");
+    const { demoOrder } = await import("../app/demoCatalog");
+    window.history.replaceState(null, "", "/?experience=table&scenario=decide-guild");
+    render(<ScenarioPreview experience="table" scenarioId="decide-guild" />);
+    const position = demoOrder.indexOf("decide-guild") + 1;
+    const picker = screen.getByRole("button", { name: new RegExp(`Scene ${position} of ${demoOrder.length}`) });
+    expect(screen.getByRole("link", { name: /^Next scene: A Warden/ })).toHaveAttribute("href", "?experience=table&scenario=decide-warden");
+    fireEvent.click(picker);
+    const gallery = screen.getByRole("dialog", { name: "All demo scenes" });
+    expect(within(gallery).getAllByRole("link")).toHaveLength(demoOrder.length);
+    expect(within(gallery).getByRole("link", { current: "page" })).toHaveTextContent("Set down the right Burden");
+  });
+
+  it("plays each new decision scene to its end", () => {
+    for (const id of ["decide-time", "decide-guild", "decide-warden"] as const) {
+      open(id);
+      const tour = () => screen.getAllByRole("complementary", { name: "Guided tour" })[0];
+      let guard = 0;
+      while (!within(tour()).queryByRole("heading", { name: "Your turn next" }) && guard++ < 12) {
+        expect(within(tour()).queryByText(/no longer matches the table/)).not.toBeInTheDocument();
+        fireEvent.click(within(tour()).getAllByRole("button").find((button) => button.classList.contains("tour-next"))!);
+      }
+      expect(within(tour()).getByRole("heading", { name: "Your turn next" })).toBeInTheDocument();
+      cleanup();
+      window.localStorage.clear();
+    }
   });
 });
 

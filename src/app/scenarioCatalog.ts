@@ -1,4 +1,4 @@
-export const scenarioIds = ["welcome", "settlement", "choice", "handoff", "last-action", "finale", "returning", "golden-bell", "golden-scroll", "golden-signet", "golden-vial", "golden-traveller", "ranger-reach", "warden-response", "sentinel-upgrade", "season-three", "showcase-late", "showcase-chain", "showcase-season", "guided", "decide-arrival", "decide-protect", "decide-boon", "decide-special"] as const;
+export const scenarioIds = ["welcome", "settlement", "choice", "handoff", "last-action", "finale", "returning", "golden-bell", "golden-scroll", "golden-signet", "golden-vial", "golden-traveller", "ranger-reach", "warden-response", "sentinel-upgrade", "season-three", "showcase-late", "showcase-chain", "showcase-season", "guided", "decide-arrival", "decide-protect", "decide-boon", "decide-special", "decide-time", "decide-guild", "decide-warden"] as const;
 export type ScenarioId = (typeof scenarioIds)[number];
 export const scenarioStorageVersion = 1;
 
@@ -26,6 +26,9 @@ export const comparisonScenarios: Record<ScenarioId, { name: string; description
   "decide-protect": { name: "Protect the vulnerable", description: "A Cabin is one Strain from Overstrain and a Burden will strike Housing again. Clean it, shield it, or leave it?", tasks: ["Compare cleaning, shielding and waiting", "See why Supported wins here", "Watch the shield take the hit"] },
   "decide-boon": { name: "Make the Boon count", description: "A Boon adds Wood, but the Warehouse is nearly full. Use it now, or build first?", tasks: ["Compare using the Boon now with building first", "See what the Warehouse cap costs", "Watch the Boon pay in full"] },
   "decide-special": { name: "A Special tile’s power", description: "The Atelier Workshop can wipe all Strain from one tile. Which tile is it worth spending on?", tasks: ["Compare the two strained tiles", "See the score each would recover", "Watch the Fine Cabin restored"] },
+  "decide-time": { name: "Buy a little time", description: "An Arrival is on its last timer and the Warehouse is short of Metal. A Boon can keep them waiting one more round.", tasks: ["Compare using A Little Time with letting them go", "See the Arrival survive the round", "Pay them next round"] },
+  "decide-guild": { name: "Set down the right Burden", description: "The Adventurers' Guild clears one Burden a Season. Two are on the table, and they cost different resources to resolve.", tasks: ["Compare the two Burdens", "See which one the Warehouse can pay", "Watch the Guild clear the other"] },
+  "decide-warden": { name: "A Warden's response", description: "Two Burdens are revealed together in a real game. The Warden can cancel one and protect a tile, but which tile?", tasks: ["Compare letting both apply with the Warden's power", "See where the second Burden will strike", "Watch Supported take the hit"] },
   returning: { name: "Return to a growing Ledger", description: "An example campaign with five completed entries and its first Golden unlock. All progress belongs to this demo.", tasks: ["Find the optional Golden choices", "Inspect the unlocked content", "Start a new settlement"] }
 };
 

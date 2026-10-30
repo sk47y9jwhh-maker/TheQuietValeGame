@@ -78,3 +78,31 @@ export function specialScene(settlement: GameState): GameState {
   note(state, "Demo scene: the Atelier Workshop and two strained tiles.");
   return state;
 }
+
+/** Vanguard's last action, an Arrival short of Metal on its last timer, and "A Little Time". */
+export function timeScene(settlement: GameState): GameState {
+  const state = structuredClone(settlement);
+  clean(state);
+  state.round = 3;
+  state.actionsRemaining = 1;
+  state.playersActedThisRound = state.players.filter((player) => player.id !== state.currentPlayerId).map((player) => player.id);
+  state.warehouse = { wood: 6, stone: 4, metal: 0, food: 6, herbs: 4, goods: 4 };
+  state.encounters.activeArrivals = [{ cardId: "arrival_from_blade_swingers_to_herb_stringers", timerTokens: 1 }];
+  state.encounters.faceUpBoons = [{ cardId: "boon_a_little_more_time", remainingUses: 1 }];
+  put(state, "c20_dig_site", "G2");
+  note(state, "Demo scene: an Arrival the Warehouse cannot pay yet.");
+  return state;
+}
+
+/** The Adventurers' Guild, and two Burdens that cost different resources to resolve. */
+export function guildScene(settlement: GameState): GameState {
+  const state = structuredClone(settlement);
+  clean(state);
+  state.season = 2;
+  state.round = 6;
+  state.warehouse = { wood: 9, stone: 6, metal: 6, food: 6, herbs: 6, goods: 0 };
+  put(state, "special_adventurers_guild", "G2");
+  state.encounters.activeBurdens = ["burden_smoke_over_hearths", "burden_forest_s_grudge"];
+  note(state, "Demo scene: the Adventurers' Guild and two Burdens.");
+  return state;
+}

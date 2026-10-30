@@ -10,7 +10,7 @@ import type { PreviewSnapshot } from "../src/app/scenarioTypes";
 import type { ScenarioId } from "../src/app/scenarioCatalog";
 import { advance, seed, seedSeason, settle, snapshot, startStewards } from "./scenario-steps";
 import { carefulValueOf, playTurn } from "./showcase-bot";
-import { arrivalScene, boonScene, protectScene, specialScene } from "./decision-scenes";
+import { arrivalScene, boonScene, guildScene, protectScene, specialScene, timeScene } from "./decision-scenes";
 import { trackLedgerTransition } from "../src/engine/ledger";
 import type { GameState } from "../src/engine/types";
 
@@ -38,6 +38,8 @@ try {
   result["decide-protect"] = snapshot(protectScene(state));
   result["decide-boon"] = snapshot(boonScene(state));
   result["decide-special"] = snapshot(specialScene(state));
+  result["decide-time"] = snapshot(timeScene(state));
+  result["decide-guild"] = snapshot(guildScene(state));
 
   let quartermaster = startStewards(createNewGame(1, ["quartermaster"], { encounterSeed: seed }));
   quartermaster = settle(advance(seedSeason(quartermaster), revealEncounters));
@@ -126,6 +128,8 @@ try {
     if (!result["ranger-reach"] && stewardGame.phase === "turns" && stewardGame.round >= 2 && stewardGame.currentPlayerId === "player_1") result["ranger-reach"] = snapshot(stewardGame);
   }
   if (!result["ranger-reach"] || !result["warden-response"]) throw new Error("Steward fixtures did not reach both decisions.");
+  // The Warden's decision scene is this real position, walked through.
+  result["decide-warden"] = result["warden-response"];
 
   // Sentinel has spent four ordinary actions and can still improve the Path.
   // Its upgraded Mine neighbour makes the conditional Supported bonus visible.

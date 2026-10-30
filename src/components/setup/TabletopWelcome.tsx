@@ -7,7 +7,7 @@ import { LegacySetupOptions } from "./LegacySetupOptions";
 import { supportedPlayerCounts } from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
 import { isBoardTableExperience, isHostedDemo } from "../../app/experience";
-import { comparisonScenarios } from "../../app/scenarioCatalog";
+import { demoGroups, demoHref, demoOrder } from "../../app/demoCatalog";
 import { RulesGuide } from "../panels/RulesGuide";
 import type { SetupPanelProps } from "./SetupPanel";
 import mapArtwork from "../../assets/quiet_vale_map_v02.webp";
@@ -43,8 +43,11 @@ export function TabletopWelcome(props: SetupPanelProps) {
             <h1>A new season<br />in the Vale.</h1>
             <p>Lay down roots. Welcome new arrivals.<br />Build a place to call home, together.</p>
             {isBoardTableExperience() && <nav className="welcome-moment-chips" aria-labelledby="welcome-moments-heading">
-              <h2 id="welcome-moments-heading">Or watch a decision play out</h2>
-              <div>{(["decide-arrival", "decide-protect", "decide-boon", "decide-special", "showcase-chain"] as const).map((id) => <a key={id} href={`?experience=table&scenario=${id}`}><strong>{comparisonScenarios[id].name}</strong><small>Watch <ArrowRight size={13} aria-hidden="true" /></small></a>)}</div>
+              <h2 id="welcome-moments-heading">Or watch the game being played</h2>
+              <div>
+                {demoGroups.filter((group) => group.ids.length > 1).map((group) => <a key={group.title} href={demoHref(group.ids[0])}><strong>{group.title}</strong><small>{group.ids.length} scenes <ArrowRight size={13} aria-hidden="true" /></small></a>)}
+                <a className="welcome-all-scenes" href={demoHref(demoOrder[0], "&scenes=open")}><strong>All {demoOrder.length} scenes</strong><small>Browse <ArrowRight size={13} aria-hidden="true" /></small></a>
+              </div>
             </nav>}
           </div>
           <span className="welcome-art-credit">Map by Giovanni Spadaro & Daniele Nicotra</span>

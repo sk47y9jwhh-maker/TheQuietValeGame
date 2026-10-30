@@ -5,7 +5,7 @@
  * player took their own action, say) return null and the tour offers to hand
  * over instead.
  */
-import { useFaceUpBoon, activateTile, canResolveBurden, resolveBurden, commitSeasonSeeding, completeArrival, canCompleteArrival, confirmCostChoice, endCurrentTurn, placeTile, resolveEndRound, revealEncounters } from "../../engine/gameActions";
+import { cancelPendingBurdenWithWarden, useFaceUpBoon, activateTile, canResolveBurden, resolveBurden, commitSeasonSeeding, completeArrival, canCompleteArrival, confirmCostChoice, endCurrentTurn, placeTile, resolveEndRound, revealEncounters } from "../../engine/gameActions";
 import { getAlternativeEffectRule, preparePendingEffectQueueHead, resolvePendingEffect, skipPendingEffect } from "../../engine/manualEffects";
 import { skipDeckReorder } from "../../engine/deckReorder";
 import { getLegalPlacementHexes } from "../../engine/placementRules";
@@ -14,6 +14,8 @@ import { trackLedgerTransition } from "../../engine/ledger";
 import { applyStrainToState } from "../../engine/strainRules";
 import { calculateFinalScore } from "../../engine/scoring";
 import { encounterById } from "../../data/encounters";
+import { getBurdenResolutionCost } from "../../data/contentRules";
+import { resourceLabels } from "../../data/resources";
 import { stewardById } from "../../data/stewards";
 import { coreTileById, specialTileById } from "../../data/tiles";
 import { getActivatableTileIds } from "../../engine/gameActions";
@@ -344,7 +346,7 @@ const lateTour: TourStep[] = [
     text: (state) => `If the game ended now: ${scoreLine(state)}. Two rounds remain to welcome Arrivals, set down Burdens and keep Strain off the tiles.`,
     target: () => ({ ui: "score" })
   },
-  handover("That is the end of this walkthrough. Start a real game of your own, or watch another moment.")
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another scene.")
 ];
 
 const chainTour: TourStep[] = [
@@ -391,7 +393,7 @@ const chainTour: TourStep[] = [
       return next;
     }
   },
-  handover("That is the end of this walkthrough. Start a real game of your own, or watch another moment.")
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another scene.")
 ];
 
 const seasonTour: TourStep[] = [
@@ -441,7 +443,7 @@ const seasonTour: TourStep[] = [
     target: () => ({ ui: "encounters" }),
     play: (state) => state.phase === "reveal" ? step(state, revealEncounters, true) : state
   },
-  handover("That is the end of this walkthrough. Start a real game of your own, or watch another moment.")
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another scene.")
 ];
 
 /** One effect at the head of the queue, settled the way the tour settles everything. */
@@ -530,7 +532,7 @@ const arrivalTour: TourStep[] = [
     text: () => "Every Arrival unlocks a Special tile. This one is ready to build beside the board: once a round it can pay 2 Herbs to stop 1 Strain from landing.",
     target: () => ({ ui: "arrivals" })
   },
-  handover("That is the end of this walkthrough. Start a real game of your own, or watch another moment.")
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another scene.")
 ];
 
 // Protect the vulnerable
@@ -594,7 +596,7 @@ const protectTour: TourStep[] = [
       return { ...hit.state, log: [{ id: `log_tour_${state.log.length + 1}`, round: state.round, message }, ...hit.state.log] };
     }
   },
-  handover("That is the end of this walkthrough. Start a real game of your own, or watch another moment.")
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another scene.")
 ];
 
 // Make the Boon count
@@ -622,7 +624,7 @@ const boonTour: TourStep[] = [
   {
     id: "boon-intro",
     title: "A Boon, ready to use",
-    text: (state) => `${boonId(state) ? encounterById[boonId(state)!]?.name : "A Boon"} adds 2 Wood to the next Lumber production. Using a Boon costs no action, so the only question is when.`,
+    text: (state) => `${boonId(state) ? encounterById[boonId(state)!]?.name : "A Boon"} has one use left: it adds 2 Wood to a Lumber production. Using a Boon costs no action, so the only question is when.`,
     verb: "Next",
     target: () => ({ ui: "encounters" })
   },
@@ -652,7 +654,7 @@ const boonTour: TourStep[] = [
     text: (state) => `The Cabin is built, both Lumber Yards produced together, and the Boon added its Wood in full. The Warehouse holds ${state.warehouse.wood} Wood with nothing wasted.`,
     target: (state) => { const hexIds = state.map.placedTiles.filter((tile) => tile.tileId === "c01_lumber_yard").map((tile) => tile.hexIds[0]); return hexIds.length ? { hexIds, label: "Produced" } : null; }
   },
-  handover("That is the end of this walkthrough. Start a real game of your own, or watch another moment.")
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another scene.")
 ];
 
 // A Special tile's power
@@ -682,13 +684,13 @@ const specialTour: TourStep[] = [
   {
     id: "special-damage",
     title: "Two tiles need help",
-    text: () => "The Fine Cabin is Overstrained at 3: it scores nothing and costs 30. The Path carries 1 Strain. The power works once this round.",
+    text: () => "The Fine Cabin is Overstrained with 3 Strain: it scores nothing, and its Strain costs 30 points at the end. The Path carries 1 Strain. The power works once a round.",
     target: (state) => { const hexIds = state.map.placedTiles.filter((tile) => tile.strain > 0).map((tile) => tile.hexIds[0]); return hexIds.length ? { hexIds, label: "Strain" } : null; }
   },
   {
     id: "special-decide",
     title: "Which tile is it worth?",
-    text: () => "Clearing the Path recovers 10. Clearing the Fine Cabin recovers its 30 Strain and brings its Population back into the score, and Supported shields it from the next hit. The walkthrough restores the Cabin.",
+    text: () => "Clearing the Path removes its 1 Strain, worth 10 points. Clearing the Fine Cabin removes all 3 of its Strain, worth 30 points, brings its Population back into the score, and Supported shields it from the next hit. The walkthrough restores the Cabin.",
     verb: "Restore the Fine Cabin",
     decision: (state) => {
       const now = score(state);
@@ -707,10 +709,202 @@ const specialTour: TourStep[] = [
     text: (state) => `The Fine Cabin is clear of Strain and Supported. The score is now ${score(state)}.`,
     target: (state) => { const cabin = hexTile(state, "H1"); return cabin ? { hexIds: [cabin.hexIds[0]], label: "Restored" } : null; }
   },
-  handover("That is the end of this walkthrough. Start a real game of your own, or watch another moment.")
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another scene.")
+];
+
+// Buy a little time
+const timeArrival = (state: GameState) => state.encounters.activeArrivals[0];
+const camp = (state: GameState) => tileAt(state, "c20_dig_site");
+function buyTime(state: GameState): GameState | null {
+  const boon = boonId(state);
+  const arrival = timeArrival(state);
+  const salvage = camp(state);
+  if (!boon || !arrival || !salvage) return null;
+  const used = useFaceUpBoon(state, boon);
+  if (used === state) return null;
+  const ready = preparePendingEffectQueueHead(used);
+  const head = ready.pendingEffects[0];
+  const kept = head ? resolvePendingEffect(ready, { arrivalTimerDeltas: { [arrival.cardId]: 1 } }) : ready;
+  if (head && kept.pendingEffects.some((effect) => effect.id === head.id)) return null;
+  const settled = settleForTour(kept);
+  return settled ? step(trackLedgerTransition(state, settled), (current) => activateTile(current, current.currentPlayerId, salvage.instanceId)) : null;
+}
+const letGo = (state: GameState) => { const salvage = camp(state); return salvage ? step(state, (current) => activateTile(current, current.currentPlayerId, salvage.instanceId)) : null; };
+const timeTour: TourStep[] = [
+  {
+    id: "time-intro",
+    title: "Buy a little time",
+    text: (state) => { const arrival = timeArrival(state); const card = arrival ? encounterById[arrival.cardId] : undefined; return `${card?.name ?? "An Arrival"} is on their last timer and ${costText(state)}. The Warehouse has no Metal, and the Vanguard has one action left this round.`; },
+    verb: "Next",
+    target: () => ({ ui: "arrivals" })
+  },
+  {
+    id: "time-decide",
+    title: "Let them go, or keep them waiting?",
+    text: () => "A Boon costs no action. Spending A Little Time now keeps the Arrival for one more round, and the last action produces the Metal they need. The walkthrough uses the Boon.",
+    verb: "Use the Boon, then produce",
+    decision: (state) => {
+      const kept = buyTime(state);
+      const gone = letGo(state);
+      const keptEnd = kept && finishRound(kept);
+      const goneEnd = gone && finishRound(gone);
+      const name = timeArrival(state) ? encounterById[timeArrival(state)!.cardId]?.name ?? "The Arrival" : "The Arrival";
+      return [
+        { id: "keep", label: "Use A Little Time, then produce Metal", chosen: true, lines: [`After the round ${keptEnd ? score(keptEnd) : "?"}`, `${name} stays, with Metal ready to pay`] },
+        { id: "go", label: "Produce Metal and let them go", lines: [`After the round ${goneEnd ? score(goneEnd) : "?"}`, `${name} leaves: −10 and 1 Strain`] }
+      ];
+    },
+    play: (state) => buyTime(state)
+  },
+  {
+    id: "time-round",
+    title: "Through the end of the round",
+    text: (state) => { const arrival = timeArrival(state); return `The Arrival now has ${arrival?.timerTokens ?? 2} timers and the Warehouse holds ${state.warehouse.metal} Metal. When the round ends they lose a timer, but they stay, ready to be welcomed next round.`; },
+    verb: "End the round",
+    target: () => ({ ui: "arrivals" }),
+    play: (state) => finishRound(state)
+  },
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another scene.")
+];
+
+// Set down the right Burden
+const guild = (state: GameState) => tileAt(state, "special_adventurers_guild");
+const burdenCost = (state: GameState, id: string) => {
+  const cost = getBurdenResolutionCost(id, state.season);
+  const entry = cost && Object.entries(cost).find(([, amount]) => amount > 0);
+  return entry ? { resource: entry[0] as keyof typeof resourceLabels, amount: entry[1] as number } : undefined;
+};
+const burdenLine = (state: GameState, id: string) => { const cost = burdenCost(state, id); return cost ? `${cost.amount} ${resourceLabels[cost.resource]} to resolve · the Warehouse has ${state.warehouse[cost.resource]}` : "Its cost to resolve is printed on the card"; };
+const affordable = (state: GameState, id: string) => { const cost = burdenCost(state, id); return !!cost && state.warehouse[cost.resource] >= cost.amount; };
+function useGuild(state: GameState, burdenId: string): GameState | null {
+  const tile = guild(state);
+  if (!tile) return null;
+  const started = activateTile(state, state.currentPlayerId, tile.instanceId);
+  if (started === state) return null;
+  const ready = preparePendingEffectQueueHead(started);
+  const head = ready.pendingEffects[0];
+  if (!head) return null;
+  const done = resolvePendingEffect(ready, { resolvedBurdenIds: [burdenId] });
+  if (done.pendingEffects.some((effect) => effect.id === head.id)) return null;
+  const settled = settleForTour(done);
+  return settled ? trackLedgerTransition(state, settled) : null;
+}
+const guildChoice = (state: GameState) => {
+  const [first, second] = state.encounters.activeBurdens;
+  // Clear the one the Warehouse cannot pay, and pay the other.
+  return first && second && affordable(state, first) && !affordable(state, second) ? { clear: second, pay: first } : { clear: first, pay: second };
+};
+const guildTour: TourStep[] = [
+  {
+    id: "guild-intro",
+    title: "Set down the right Burden",
+    text: () => "The Adventurers' Guild is a Special tile. Once per Season, activating it resolves one active Burden without paying the resources it asks for.",
+    verb: "Next",
+    target: (state) => { const tile = guild(state); return tile ? { hexIds: [tile.hexIds[0]], label: "Guild" } : null; }
+  },
+  {
+    id: "guild-burdens",
+    title: "Two Burdens on the table",
+    text: (state) => `Each active Burden costs 10 points at the end, and strikes again when a new Season begins. ${state.encounters.activeBurdens.map((id) => `${encounterById[id]?.name ?? "A Burden"} needs ${burdenCost(state, id) ? `${burdenCost(state, id)!.amount} ${resourceLabels[burdenCost(state, id)!.resource]}` : "its cost"}`).join(", and ")} to resolve.`,
+    target: () => ({ ui: "encounters" })
+  },
+  {
+    id: "guild-decide",
+    title: "Which one should the Guild take?",
+    text: (state) => { const { clear, pay } = guildChoice(state); return `Both are worth the same 10 points. The difference is what is left behind. The Warehouse can pay for ${encounterById[pay ?? ""]?.name ?? "one"}, but not for ${encounterById[clear ?? ""]?.name ?? "the other"}. So the Guild takes the one the Warehouse cannot pay.`; },
+    verb: "Activate the Guild",
+    decision: (state) => {
+      const { clear, pay } = guildChoice(state);
+      if (!clear || !pay) return [];
+      const name = (id: string) => encounterById[id]?.name ?? "A Burden";
+      return [
+        { id: "clear", label: `Guild clears ${name(clear)}`, chosen: true, lines: [`Left: ${name(pay)}`, burdenLine(state, pay), "Both can be gone this turn"] },
+        { id: "other", label: `Guild clears ${name(pay)}`, lines: [`Left: ${name(clear)}`, burdenLine(state, clear), "It stays, costing 10 at the end"] }
+      ];
+    },
+    play: (state) => { const { clear } = guildChoice(state); return clear ? useGuild(state, clear) : null; }
+  },
+  {
+    id: "guild-pay",
+    title: "Pay for the other",
+    text: (state) => { const id = state.encounters.activeBurdens[0]; return `${id ? encounterById[id]?.name ?? "The other Burden" : "The other Burden"} is resolved the ordinary way: an Interact action and its cost, paid from the Warehouse.`; },
+    verb: "Resolve it",
+    target: () => ({ ui: "encounters" }),
+    play: (state) => { const id = state.encounters.activeBurdens.find((candidate) => canResolveBurden(state, candidate).ok); return id ? step(state, (current) => resolveBurden(current, id)) : null; }
+  },
+  {
+    id: "guild-done",
+    title: "Both Burdens set down",
+    text: (state) => `Neither Burden will cost points at the end, or strike again next Season. The score is now ${score(state)}.`,
+    target: () => ({ ui: "score" })
+  },
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another scene.")
+];
+
+// A Warden's response
+function wardenShield(state: GameState, instanceId: string): GameState | null {
+  const cancelled = cancelPendingBurdenWithWarden(state);
+  if (cancelled === state) return null;
+  const ready = preparePendingEffectQueueHead(cancelled);
+  const head = ready.pendingEffects[0];
+  if (!head) return null;
+  const done = resolvePendingEffect(ready, { supportTileIds: [instanceId] });
+  if (done.pendingEffects.some((effect) => effect.id === head.id)) return null;
+  const settled = settleForTour(done);
+  return settled ? trackLedgerTransition(state, settled) : null;
+}
+/** The tile the second Burden would strain if both apply as they are. */
+function riverTarget(state: GameState) {
+  const applied = settleForTour(state);
+  if (!applied) return undefined;
+  return state.map.placedTiles.find((tile) => (applied.map.placedTiles.find((after) => after.instanceId === tile.instanceId)?.strain ?? 0) > tile.strain);
+}
+const wardenTour: TourStep[] = [
+  {
+    id: "warden-intro",
+    title: "A Warden’s response",
+    text: (state) => `This is a real game. Round ${state.round} reveals two Burdens at once: ${state.pendingEffects.map((effect) => effect.sourceName).filter(Boolean).join(", then ")}. Once per Season, the Warden can cancel a Burden as it is revealed, then remove 1 Strain or place Supported on any tile.`,
+    verb: "Next",
+    target: () => ({ ui: "encounters" })
+  },
+  {
+    id: "warden-river",
+    title: "See where the second one strikes",
+    text: (state) => { const tile = riverTarget(state); return `The second Burden puts 1 Strain on a tile beside the river. The Target Card has picked ${tile ? tileName(state, tile.instanceId) : "a riverside tile"}.`; },
+    target: (state) => { const tile = riverTarget(state); return tile ? { hexIds: [tile.hexIds[0]], label: "Strain lands here" } : null; }
+  },
+  {
+    id: "warden-decide",
+    title: "Use the power, and where?",
+    text: () => "The Warden cancels the first Burden either way. The real choice is where Supported goes. Put it where the next Strain will land, and it stops that Strain too. The walkthrough shields the riverside tile.",
+    verb: "Use the Warden’s power",
+    decision: (state) => {
+      const target = riverTarget(state);
+      const other = state.map.placedTiles.find((tile) => tile.instanceId !== target?.instanceId && tile.tileId.includes("cabin"));
+      const both = settleForTour(state);
+      const shielded = target ? wardenShield(state, target.instanceId) : null;
+      const elsewhere = other ? wardenShield(state, other.instanceId) : null;
+      return [
+        { id: "both", label: "Let both Burdens apply", lines: [`Score ${both ? score(both) : "?"}`, "The first is paid, and the river strains the tile"] },
+        { id: "shield", label: `Warden · Supported on ${target ? tileName(state, target.instanceId) : "the riverside tile"}`, chosen: true, lines: [`Score ${shielded ? score(shielded) : "?"}`, "The first is cancelled, and Supported blocks the river"] },
+        { id: "elsewhere", label: `Warden · Supported on ${other ? tileName(state, other.instanceId) : "another tile"}`, lines: [`Score ${elsewhere ? score(elsewhere) : "?"}`, "The first is cancelled, but the river still strains its tile"] }
+      ];
+    },
+    play: (state) => { const target = riverTarget(state); return target ? wardenShield(state, target.instanceId) : null; }
+  },
+  {
+    id: "warden-done",
+    title: "One power, two Burdens answered",
+    text: (state) => `The first Burden never applied, and the river's Strain was stopped by Supported. The score is ${score(state)}.`,
+    target: () => ({ ui: "score" })
+  },
+  handover("That is the end of this walkthrough. Start a real game of your own, or watch another scene.")
 ];
 
 export const momentTours: Record<string, TourStep[]> = {
+  "decide-time": timeTour,
+  "decide-guild": guildTour,
+  "decide-warden": wardenTour,
   "decide-arrival": arrivalTour,
   "decide-protect": protectTour,
   "decide-boon": boonTour,

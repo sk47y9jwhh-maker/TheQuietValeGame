@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Play, RotateCcw } from "lucide-react";
 import type { TourStep } from "./tourScript";
 import type { GameState } from "../../engine/types";
+import { getScenario, comparisonScenarios } from "../../app/scenarioCatalog";
+import { demoHref, demoNeighbours } from "../../app/demoCatalog";
 
 /**
  * Demo walkthroughs. A demo is always a walkthrough: one card with Next and
@@ -52,14 +54,6 @@ export function TableCoach({ state, onTarget, tour }: { state: GameState; onTarg
   return <TableTour state={state} tour={tour} place={place} onPlace={update} onTarget={onTarget} />;
 }
 
-const demos = [
-  { id: "welcome", href: "?experience=table&scenario=guided", name: "Your first game" },
-  { id: "arrival-intro", href: "?experience=table&scenario=decide-arrival", name: "Welcome them, or build?" },
-  { id: "protect-intro", href: "?experience=table&scenario=decide-protect", name: "Protect the vulnerable" },
-  { id: "boon-intro", href: "?experience=table&scenario=decide-boon", name: "Make the Boon count" },
-  { id: "special-intro", href: "?experience=table&scenario=decide-special", name: "A Special tile’s power" },
-  { id: "chain-intro", href: "?experience=table&scenario=showcase-chain", name: "The Strain spreads" }
-];
 
 /** Next, next, next: the table plays itself, explained one step at a time. */
 function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState; tour: TourControls; place: TourPlace; onPlace: (place: TourPlace) => void; onTarget?: (target: CoachTarget | null) => void }) {
@@ -76,6 +70,8 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
   const options = useMemo(() => step.decision?.(state) ?? [], [step, state]);
   const last = place.index >= tourSteps.length - 1;
   const atStart = tour.isAtStart(state);
+  const scenario = getScenario();
+  const nextScene = scenario ? demoNeighbours(scenario).next : undefined;
 
   function following(from: number, after: GameState): number {
     let index = from + 1;
@@ -122,10 +118,14 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
     {last ? <>
       <footer className="tour-controls">
         <button type="button" className="tour-back" onClick={back} disabled={!place.history.length} aria-label="Back"><ArrowLeft size={16} aria-hidden="true" /></button>
-        <a className="coach-ok tour-next tour-real" href="?experience=table">Play a real game<ArrowRight size={16} aria-hidden="true" /></a>
-        <button type="button" className="coach-off" onClick={begin}><RotateCcw size={14} aria-hidden="true" /> Watch again</button>
+        {nextScene
+          ? <a className="coach-ok tour-next tour-real" href={demoHref(nextScene)}><span className="tour-next-word">Next scene</span><small>{comparisonScenarios[nextScene].name}</small><ArrowRight size={16} aria-hidden="true" /></a>
+          : <a className="coach-ok tour-next tour-real" href="?experience=table">Play a real game<ArrowRight size={16} aria-hidden="true" /></a>}
       </footer>
-      <nav className="coach-links" aria-label="Other demos">{demos.filter((demo) => demo.id !== tourSteps[0].id).slice(0, 3).map((demo) => <a key={demo.href} href={demo.href}>{demo.name}</a>)}</nav>
+      <nav className="coach-links tour-after" aria-label="Or">
+        {nextScene && <a href="?experience=table">Play a real game</a>}
+        <button type="button" onClick={begin}><RotateCcw size={14} aria-hidden="true" /> Watch again</button>
+      </nav>
     </> : <footer className="tour-controls">
       <button type="button" className="tour-back" onClick={back} disabled={!place.history.length} aria-label="Back"><ArrowLeft size={16} aria-hidden="true" /></button>
       {stuck
