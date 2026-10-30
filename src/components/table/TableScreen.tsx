@@ -121,6 +121,18 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
   const sideSheet = useShortLandscape() && compact;
   const boardSection = useRef<HTMLElement>(null);
   const [sideTop, setSideTop] = useState(0);
+  // The phone sheet's real height, so the board frames what is above it.
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const [sheetHeight, setSheetHeight] = useState(0);
+  useEffect(() => {
+    const sheet = sheetRef.current;
+    if (!compact || !sheet) { setSheetHeight(0); return undefined; }
+    const measure = () => setSheetHeight(Math.round(sheet.getBoundingClientRect().height));
+    measure();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    observer?.observe(sheet);
+    return () => observer?.disconnect();
+  }, [compact]);
   useEffect(() => {
     if (!sideSheet) return undefined;
     const measure = () => setSideTop(Math.round(boardSection.current?.getBoundingClientRect().top ?? 0));
@@ -318,9 +330,9 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     <div className="table-resolution-body"><ChoiceHost>{resolution.content}</ChoiceHost></div>
   </aside> : null;
 
-  return <div className={`table-screen${compact ? " is-compact" : ""}${sideSheet ? " is-side-sheet" : ""}${tour ? " is-demo-locked" : ""}`} data-coach={coach && (!resolving || tour) && coachTarget?.ui ? coachTarget.ui : undefined}>
+  return <div style={compact && !sideSheet && sheetHeight ? { ["--sheet-h" as string]: `${sheetHeight}px` } : undefined} className={`table-screen${compact ? " is-compact" : ""}${sideSheet ? " is-side-sheet" : ""}${tour ? " is-demo-locked" : ""}`} data-coach={coach && (!resolving || tour) && coachTarget?.ui ? coachTarget.ui : undefined}>
     <TableTopBar state={state} forecast={activeForecast} score={score} canUndo={canUndo} canRedo={canRedo} onUndo={handlers.undo} onRedo={handlers.redo} onReset={handlers.reset} compact={compact} asHeading={state.phase !== "gameEnd"} />
-    {compact && state.phase !== "setup" && state.phase !== "goldenSetup" && <EncounterStrip state={state} newCardIds={newCardIds} onOpen={() => setRailOpen(true)} />}
+    {compact && state.phase !== "setup" && state.phase !== "goldenSetup" && state.phase !== "gameEnd" && <EncounterStrip state={state} newCardIds={newCardIds} onOpen={() => setRailOpen(true)} />}
     <main className="table-main">
       <section className="table-board" aria-label="The settlement" ref={boardSection}>
         <TableBoard
@@ -332,10 +344,10 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           footprintHexIds={placingFootprint}
           choiceMarks={resolving ? choices.marks : undefined}
           links={boardLinks}
-          focus={tour && !compact ? { hexIds: walkthroughFocus(state, coachTarget), left: 500 } : null}
+          focus={tour ? { hexIds: walkthroughFocus(state, coachTarget), left: compact ? 0 : 500 } : null}
           beacon={coach && (!resolving || tour) && !card && coachTarget?.hexIds ? { hexIds: coachTarget.hexIds, label: coachTarget.label } : null}
           hiddenPawnIds={state.phase === "setup" ? new Set(state.players.slice(state.players.findIndex((player) => player.id === state.currentPlayerId)).map((player) => player.id)) : undefined}
-          coveredBottom={sideSheet ? 0 : resolving && compact ? (sheetLow ? 150 : Math.round(window.innerHeight * 0.55)) : sheetOpen ? 330 : compact ? 196 : resolving ? 0 : 62}
+          coveredBottom={sideSheet ? 0 : compact ? (sheetHeight || (resolving ? Math.round(window.innerHeight * 0.55) : 196)) : resolving ? 0 : 62}
           onHexTap={handleHexTap}
           onEmptyTap={() => setMode({ kind: "idle" })}
           popover={!compact && card ? { hexId: card.hexId, content: card.content, width: 340 } : null}
@@ -345,7 +357,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           <button type="button" aria-label="Zoom out" onClick={() => boardRef.current?.zoomBy(1 / 1.3)}><Minus size={18} /></button>
           <button type="button" aria-label="Show the whole board" onClick={() => boardRef.current?.fit()}><Maximize2 size={16} /></button>
         </div>
-        {coach && <TableCoach state={state} onTarget={setCoachTarget} tour={tour} />}
+        {coach && !compact && <TableCoach state={state} onTarget={setCoachTarget} tour={tour} />}
         {!compact && <RevealCeremony state={state} newCardIds={newCardIds} />}
         {notice && <div className="table-notice" role="status"><p>{notice}</p><button type="button" aria-label="Dismiss" onClick={onDismissNotice}><X size={16} /></button></div>}
         {!compact && !resolving && !tour && <div className="table-tray" onPointerDownCapture={() => { if (mode.kind === "selected") setMode({ kind: "idle" }); }}>{tray}</div>}
@@ -354,9 +366,10 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
       {!compact && resolutionPanel}
       {!compact && !resolving && <TableRail state={state} newCardIds={newCardIds} onCompleteArrival={handlers.completeArrival} onResolveBurden={handlers.resolveBurden} onUseBoon={handlers.useBoon} onUseStewardPower={handlers.useStewardPower} onPlaceSpecial={(tileId) => setMode({ kind: "placing", tileId, orientation: 3 })} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} />}
     </main>
-    {compact && <div style={sideSheet && sideTop ? { top: sideTop } : undefined} className={`table-sheet${sheetOpen ? " is-raised" : ""}${resolving ? " is-resolving" : ""}${resolving && sheetLow ? " is-low" : ""}`}>
+    {compact && <div ref={sheetRef} style={sideSheet && sideTop ? { top: sideTop } : undefined} className={`table-sheet${sheetOpen && !tour ? " is-raised" : ""}${resolving && !tour ? " is-resolving" : ""}${resolving && sheetLow && !tour ? " is-low" : ""}${tour ? " is-tour" : ""}`}>
       <span className="sheet-handle" aria-hidden="true" />
-      {resolutionPanel ?? (card ? card.content : <><CompactTurn state={state} onOpenRail={() => setRailOpen(true)} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} /></>)}
+      {/* On a phone a walkthrough has the sheet to itself: the table is locked, so its card is the only thing to act on. */}
+      {tour && coach ? <div className="sheet-coach"><TableCoach state={state} onTarget={setCoachTarget} tour={tour} /></div> : resolutionPanel ?? (card ? card.content : <><CompactTurn state={state} onOpenRail={() => setRailOpen(true)} onEndTurn={handlers.endTurn} onReveal={handlers.reveal} onEndRound={handlers.endRound} /></>)}
     </div>}
     {compact && railOpen && <div className="rail-overlay" role="dialog" aria-modal="true" aria-label="Turn and encounters">
       <div className="rail-overlay-head"><button type="button" onClick={() => setRailOpen(false)}><ArrowLeft size={18} aria-hidden="true" />Back to the board</button></div>
@@ -506,6 +519,7 @@ function ScoreNow({ state, score }: { state: GameState; score: number }) {
     ["Strain", -detail.strainPenalty, `${strainTokens} × −10${overstrained ? `, and ${overstrained} Overstrained tile${overstrained === 1 ? " scores" : "s score"} nothing` : ""}`]
   ];
   const wrap = useRef<HTMLDivElement>(null);
+  const [top, setTop] = useState(56);
   useEffect(() => {
     if (!open) return undefined;
     const away = (event: PointerEvent) => { if (!wrap.current?.contains(event.target as Node)) setOpen(false); };
@@ -513,8 +527,8 @@ function ScoreNow({ state, score }: { state: GameState; score: number }) {
     return () => document.removeEventListener("pointerdown", away);
   }, [open]);
   return <div className="table-score-wrap" ref={wrap} onKeyDown={(event) => { if (event.key === "Escape") setOpen(false); }}>
-    <button type="button" className="table-score" aria-expanded={open} aria-controls="score-breakdown" title="The shared score if the game ended now" onClick={() => setOpen((value) => !value)}>Score now <strong>{score < 0 ? `−${Math.abs(score)}` : score}</strong></button>
-    {open && <div className="score-popover" id="score-breakdown" role="dialog" aria-label="How the score adds up">
+    <button type="button" className="table-score" aria-expanded={open} aria-controls="score-breakdown" title="The shared score if the game ended now" onClick={(event) => { setTop(Math.round(event.currentTarget.getBoundingClientRect().bottom + 8)); setOpen((value) => !value); }}>Score now <strong>{score < 0 ? `−${Math.abs(score)}` : score}</strong></button>
+    {open && <div className="score-popover" id="score-breakdown" role="dialog" aria-label="How the score adds up" style={{ ["--score-top" as string]: `${top}px` }}>
       <header><strong>If the game ended now</strong><button type="button" className="icon-button" aria-label="Close" onClick={() => setOpen(false)}><X size={16} /></button></header>
       <dl>{rows.map(([label, value, note]) => <div key={label} className={value < 0 ? "is-loss" : ""}><dt><span className="score-label">{label === "Population" ? <><GameIcon name="population" /><Term id="population" /></> : label === "Renown from tiles" ? <><GameIcon name="renown" /><span><Term id="renown" /> from tiles</span></> : label === "Strain" ? <Term id="strain" /> : label === "Active Burdens" ? <span>Active <Term id="burden">Burdens</Term></span> : label}</span>{note && <small>{note}</small>}</dt><dd>{value > 0 ? "+" : value < 0 ? "−" : ""}{Math.abs(value)}</dd></div>)}</dl>
       <p className="score-total"><span>Score</span><strong>{score < 0 ? `−${Math.abs(score)}` : score}</strong></p>
@@ -578,10 +592,10 @@ function CompactTurn({ state, onOpenRail, onEndTurn, onReveal, onEndRound }: { s
   useEffect(() => setConfirming(false), [state.currentPlayerId, state.round, state.actionsRemaining]);
   return <div className="compact-turn">
     <ul className="compact-warehouse" aria-label="Warehouse">
-      {resources.map((resource) => <li key={resource} className={`res-${resource}${state.warehouse[resource] === 0 ? " is-empty" : ""}`}><span>{resourceLabels[resource]}</span><strong>{state.warehouse[resource]}</strong></li>)}
+      {resources.map((resource) => <li key={resource} className={`res-${resource}${state.warehouse[resource] === 0 ? " is-empty" : ""}`}><GameIcon name={resource} className="compact-res-icon" /><span className="compact-res-label">{resourceLabels[resource]}</span><strong>{state.warehouse[resource]}</strong></li>)}
     </ul>
     {state.phase === "turns" ? <div className="compact-turn-row">
-      <div><strong>{state.players.length > 1 ? `${steward?.name}’s turn` : "Your turn"}</strong><small>{player && !player.hasPlacedFirstTile ? `First, build on your Steward’s space at ${player.stewardHexId}` : null}{player && !player.hasPlacedFirstTile ? <br /> : null}{state.actionsRemaining} of 4 actions left. Tap a tile or a space.</small></div>
+      <div><strong>{state.players.length > 1 ? `${steward?.name}’s turn` : "Your turn"}</strong><small>{player && !player.hasPlacedFirstTile ? `First, build on your Steward’s space at ${player.stewardHexId}` : null}{player && !player.hasPlacedFirstTile ? <br /> : null}{state.actionsRemaining > 0 ? `${state.actionsRemaining} of 4 actions left. Tap a tile or a space.` : "No actions left. End the turn when you are ready."}</small></div>
       {confirming
         ? <span className="compact-confirm"><button type="button" className="rail-primary" onClick={onEndTurn}>End</button><button type="button" onClick={() => setConfirming(false)}>Keep</button></span>
         : <button type="button" className="rail-secondary" onClick={() => state.actionsRemaining > 0 ? setConfirming(true) : onEndTurn()}>End turn</button>}

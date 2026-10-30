@@ -32,8 +32,7 @@ function SidePanel({ title, side, current, tileId, face }: SidePanelProps) {
       </div>
       <TileArtwork tileId={tileId} side={face} name={title} />
       <p>
-        Cost {side.alternateCostText ?? formatCost(side.cost)} | Pop {side.population} |
-        Renown {side.renown}
+        {(side.alternateCostText ?? formatCost(side.cost)) === "Free" ? "Free to build" : `Costs ${side.alternateCostText ?? formatCost(side.cost)}`}, {side.population} Population, {side.renown} Renown
       </p>
       <p>{side.effectText}</p>
     </article>
@@ -138,17 +137,17 @@ export function TileInspectModal({
           <X size={18} />
         </button>
         <div className="tile-inspect-header">
-          <p className="eyebrow">Tile Inspector</p>
+          <p className="eyebrow">Tile</p>
           <h2 id="tile-inspect-title">{tileName}</h2>
           <span>{category ? formatCategory(category) : "Tile"}</span>
         </div>
         <div className="tile-inspect-meta">
           {placedTile ? (
             <>
-              <span>Hex {placedTile.hexIds.join(", ")}</span>
+              <span>{placedTile.hexIds.join(", ")}</span>
               <span>{terrainNames.join(", ") || "Terrain unknown"}</span>
-              <span>Strain {placedTile.strain}/3</span>
-              <span>{supported ? "Supported" : "Not Supported"}</span>
+              <span>{placedTile.strain} of 3 Strain</span>
+              {supported && <span>Supported</span>}
             </>
           ) : (
             <>
@@ -194,8 +193,7 @@ export function TileInspectModal({
               </div>
               <TileArtwork tileId={specialTile.id} name={specialTile.name} />
               <p>
-                Unlocked by {specialTile.unlockSource} | Pop {specialTile.population} |
-                Renown {specialTile.renown}
+                Unlocked by {specialTile.unlockSource}, {specialTile.population} Population, {specialTile.renown} Renown
               </p>
               <p>{specialTile.effectText}</p>
               {goldenTile && <p><strong>Scoring:</strong> {goldenTile.scoringText}</p>}

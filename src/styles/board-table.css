@@ -1623,3 +1623,83 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 @media (max-width: 1180px) and (min-width: 861px) {
   .table-rail article button { max-width: 100%; white-space: normal; font-size: 0.95rem; line-height: 1.2; }
 }
+
+/* ---------- Phone ---------- */
+/* The board always has the last row, whether or not the encounter strip is there. */
+.table-screen.is-compact > .table-topbar { grid-row: 1; }
+.table-screen.is-compact > .encounter-strip { grid-row: 2; }
+.table-screen.is-compact > .table-main { grid-row: 3; }
+/* Zoom buttons sit just above the sheet, whatever its height. */
+.table-screen.is-compact .board-tools { bottom: calc(var(--sheet-h, 200px) + 10px); }
+/* A walkthrough on a phone: the card is the sheet. */
+.table-sheet.is-tour { max-height: min(56dvh, 480px); padding-top: 6px; }
+.table-sheet.is-tour { background: #f6efdc; }
+.table-sheet.is-tour .sheet-coach .table-coach.is-tour { width: 100%; border: 0; padding: 2px 2px 0; background: none; box-shadow: none; }
+.table-sheet.is-tour .table-coach.is-tour h3 { font-size: 1.2rem; }
+.table-sheet.is-tour .table-coach.is-tour .coach-why { font-size: 0.92rem; line-height: 1.45; }
+.table-sheet.is-tour .tour-options > li { padding: 7px 10px; }
+.table-sheet.is-tour .tour-controls { position: sticky; bottom: 0; padding-top: 6px; background: #f6efdc; }
+/* Phone demo ribbon: back, badge, the scene (with the list), previous and next, restart as an icon. */
+@media (max-width: 640px) {
+  .scenario-preview-table .demo-ribbon { gap: 6px; padding: 0 6px; overflow: hidden; }
+  .scenario-preview-table .demo-ribbon > * { flex: none; }
+  .scenario-preview-table .demo-ribbon .demo-badge { padding: 3px 8px; font-size: 10px; letter-spacing: 0.04em; }
+  .scenario-preview-table .demo-ribbon .demo-picker { flex: 1 1 auto; min-width: 0; }
+  .demo-picker-button { width: 100%; max-width: none; min-height: 34px; padding: 3px 8px; gap: 4px; justify-content: space-between; }
+  .demo-picker-button strong { font-size: 14px; min-width: 0; }
+  .demo-steps { gap: 0; }
+  .demo-steps a, .demo-steps .is-off { min-height: 34px; padding: 0 6px; }
+  .scenario-preview-table .demo-ribbon .demo-spacer, .scenario-preview-table .demo-ribbon > a.demo-play, .scenario-preview-table .demo-ribbon .demo-build { display: none; }
+  .scenario-preview-table .demo-ribbon > button { width: 34px; min-height: 34px; padding: 0; justify-content: center; font-size: 0; gap: 0; }
+  .demo-gallery { position: fixed; top: 52px; left: 8px; right: 8px; width: auto; max-height: calc(100dvh - 64px); padding: 14px; }
+}
+/* Phone home page: the map above, the words below it in the flow, never over the top edge. */
+@media (max-width: 700px) {
+  .experience-table .vale-welcome .welcome-landscape { min-height: 0; padding-top: 130px; }
+  .experience-table .vale-welcome .welcome-landscape > img { top: 0; left: 0; }
+  .experience-table .vale-welcome .welcome-landscape h1 + p, .experience-table .vale-welcome .welcome-landscape-copy > p:last-of-type { line-height: 1.45; }
+  .experience-table .vale-welcome .welcome-landscape-copy { position: relative; left: auto; right: auto; bottom: auto; padding: 0 20px 22px; }
+  .experience-table .vale-welcome .welcome-landscape h1 { font-size: 38px; margin: 10px 0; }
+  .experience-table .vale-welcome .welcome-landscape-copy > p:last-of-type { font-size: 16px; }
+  .welcome-moment-chips { gap: 8px; }
+  .welcome-moment-chips a { min-height: 40px; padding: 6px 14px; font-size: 0.95rem; }
+  .experience-table .vale-welcome .welcome-header { padding: 12px 16px; }
+}
+
+/* Phone popovers: the score breakdown and menu fit the window and scroll if they must. */
+@media (max-width: 640px) {
+  .table-screen.is-compact .score-popover { top: var(--score-top, 56px); left: 8px; right: 8px; width: auto; max-height: calc(100dvh - var(--score-top, 56px) - 12px); overflow-y: auto; padding: 10px 14px; }
+  .table-screen.is-compact .score-popover dl > div { padding: 5px 0; }
+  .table-screen.is-compact .score-popover .score-label { font-size: 0.92rem; }
+}
+/* Phone effect controls: one resource per row, steppers big enough for a thumb. */
+@media (max-width: 640px) {
+  .table-resolution .effect-grid { grid-template-columns: minmax(0, 1fr); }
+  .table-resolution .effect-row { padding: 6px 8px 6px 12px; }
+  .table-resolution .effect-row .stepper button { width: 38px; height: 38px; min-width: 38px; min-height: 38px; }
+  .table-resolution .effect-resource { font-size: 1rem; }
+  .table-sheet.is-resolving .effect-command-bar { margin: 8px -4px 0; }
+}
+/* Phone Warehouse: the artist's symbols with the count beside them. */
+.compact-warehouse li { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 5px 0; }
+.compact-warehouse .compact-res-icon { width: 22px; height: 22px; }
+.compact-warehouse .compact-res-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.compact-warehouse strong { font-size: 1.02rem; }
+/* Golden Signet on a phone: one tile per row. */
+@media (max-width: 640px) { .signet-tile-choices { grid-template-columns: minmax(0, 1fr) !important; } }
+@media (max-width: 700px) {
+  .experience-table .vale-welcome .welcome-landscape::after { background: linear-gradient(0deg, rgba(19, 37, 28, 0.98), rgba(23, 42, 31, 0.86) 62%, rgba(29, 44, 29, 0.05) 100%); }
+  .experience-table .vale-welcome .welcome-landscape { padding-top: 160px; }
+}
+@media (max-width: 640px) {
+  .table-sheet .effect-source-face .encounter-card-shell { width: 64px; }
+  .table-sheet .effect-source-summary h2, .table-sheet .effect-source-summary h3 { font-size: 1.4rem; }
+  .table-sheet .effect-source-summary .effect-rule-text { font-size: 1rem; }
+  .table-sheet .sheet-toggle { min-height: 36px; padding: 4px 14px; font-size: 0.92rem; }
+  .table-sheet .final-score-total { width: 100%; box-sizing: border-box; }
+}
+/* Phone drawer: the tray panel gets more of the screen, and tile pictures are smaller. */
+@media (max-width: 640px) {
+  .rail-overlay-tray .tray-panel { max-height: 72dvh; }
+  .rail-overlay-tray .tile-mini-card .tile-artwork { max-width: 220px; margin: 0 auto; display: block; }
+}
