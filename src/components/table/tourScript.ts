@@ -45,6 +45,8 @@ export interface DecisionOption {
   chosen?: boolean;
 }
 
+/** A score as it would be printed: a true minus sign, not a hyphen. */
+const points = (value: number) => value < 0 ? `−${Math.abs(value)}` : `${value}`;
 const stewardName = (id: string) => stewardById[id]?.name ?? "A Steward";
 const me = (state: GameState) => state.players.find((player) => player.id === state.currentPlayerId) ?? state.players[0];
 const tileAt = (state: GameState, tileId: string, nth = 0) => state.map.placedTiles.filter((tile) => tile.tileId === tileId)[nth];
@@ -148,10 +150,10 @@ export const tourSteps: TourStep[] = [
       if (!plan) return [];
       const name = (id: string) => encounterById[id]?.name ?? "A card";
       return [
-        { id: "top", label: `Top · ${name(plan.top)}`, chosen: true, lines: ["An Arrival comes out first, while the Warehouse still holds 15 of everything, so it can be paid at once and unlocks a Special tile early."] },
-        { id: "middle", label: `Middle · ${name(plan.middle)}`, chosen: true, lines: ["A Boon for Lumber Yards is worth more once some are built, so it goes in the middle."] },
-        { id: "bottom", label: `Bottom · ${name(plan.bottom)}`, chosen: true, lines: ["A Burden near the bottom strikes late, when the settlement can absorb it."] },
-        { id: "not-top", label: `Not on top · ${name(plan.bottom)}`, lines: ["On top it would strike in Round 1, making the very first tiles cost more."] }
+        { id: "top", label: `On top: ${name(plan.top)}`, chosen: true, lines: ["An Arrival comes out first, while the Warehouse still holds 15 of everything, so it can be paid at once and unlocks a Special tile early."] },
+        { id: "middle", label: `In the middle: ${name(plan.middle)}`, chosen: true, lines: ["A Boon for Lumber Yards is worth more once some are built, so it goes in the middle."] },
+        { id: "bottom", label: `At the bottom: ${name(plan.bottom)}`, chosen: true, lines: ["A Burden near the bottom strikes late, when the settlement can absorb it."] },
+        { id: "not-top", label: `Not on top: ${name(plan.bottom)}`, lines: ["On top it would strike in Round 1, making the very first tiles cost more."] }
       ];
     },
     play: (state) => {
@@ -261,7 +263,7 @@ export const tourSteps: TourStep[] = [
       const score = calculateFinalScore(state);
       const renown = score.printedRenown + score.passiveRenown + score.stewardObjectiveRenown + score.goldenRenown;
       const penalties = score.burdenPenalty + score.failedArrivalPenalty + score.strainPenalty;
-      return `The score at the top is the result if the game ended this moment. Right now that is ${score.population} Population + ${renown} Renown − ${penalties} in penalties = ${score.finalScore}.${score.burdenPenalty ? " A Burden still on the table costs 10 until it is resolved." : ""} Twelve rounds make a game.`;
+      return `The score at the top is the result if the game ended this moment. Right now that is ${score.population} Population + ${renown} Renown − ${penalties} in penalties = ${points(score.finalScore)}.${score.burdenPenalty ? " A Burden still on the table costs 10 until it is resolved." : ""} Twelve rounds make a game.`;
     },
     target: () => ({ ui: "score" })
   },
@@ -288,7 +290,7 @@ const scoreLine = (state: GameState) => {
   const score = calculateFinalScore(state);
   const renown = score.printedRenown + score.passiveRenown + score.stewardObjectiveRenown + score.goldenRenown;
   const penalties = score.burdenPenalty + score.failedArrivalPenalty + score.strainPenalty;
-  return `${score.population} Population + ${renown} Renown − ${penalties} in penalties = ${score.finalScore}`;
+  return `${score.population} Population + ${renown} Renown − ${penalties} in penalties = ${points(score.finalScore)}`;
 };
 /** Production tiles that come three or more to a kind: the Linked groups. */
 const groups = (state: GameState) => {
@@ -459,7 +461,7 @@ function settleOne(state: GameState): GameState | null {
 // Decision scenes: staged positions where one choice matters. The options are
 // worked out by the engine each time the card is shown.
 
-const score = (state: GameState) => calculateFinalScore(state).finalScore;
+const score = (state: GameState) => points(calculateFinalScore(state).finalScore);
 const hexTile = (state: GameState, hexId: string) => state.map.placedTiles.find((tile) => tile.hexIds.includes(hexId));
 
 /** Ends every remaining turn and the round itself, settling what it sets off. */
@@ -550,8 +552,8 @@ const protectLines = (state: GameState, option: GameState | null) => {
   const cabin = cabinOf(state);
   if (!option || !cabin) return ["Not possible here"];
   const hit = strainLands(option, cabin.instanceId);
-  const effect = hit.result === "blocked" ? "Supported blocks it" : hit.result === "overstrained" ? "Overstrained, and it spreads" : "the Cabin holds";
-  return [`Score now ${score(option)}`, `If Strain lands on the Cabin ${score(hit.state)} · ${effect}`];
+  const effect = hit.result === "blocked" ? "Supported blocks it" : hit.result === "overstrained" ? "it is Overstrained and spreads" : "the Cabin holds";
+  return [`Score now ${score(option)}`, `If Strain then lands on the Cabin: ${score(hit.state)}, ${effect}`];
 };
 const protectTour: TourStep[] = [
   {
@@ -575,9 +577,9 @@ const protectTour: TourStep[] = [
     decision: (state) => {
       const { clean, shield, wait } = protectOptions(state);
       return [
-        { id: "clean", label: "Clean it · activate the Tavern", lines: protectLines(state, clean) },
-        { id: "shield", label: "Shield it · build a Common Land beside it", chosen: true, lines: protectLines(state, shield) },
-        { id: "wait", label: "Leave it · produce Wood instead", lines: protectLines(state, wait) }
+        { id: "clean", label: "Clean it with the Tavern", lines: protectLines(state, clean) },
+        { id: "shield", label: "Shield it with a Common Land beside it", chosen: true, lines: protectLines(state, shield) },
+        { id: "wait", label: "Leave it and produce Wood instead", lines: protectLines(state, wait) }
       ];
     },
     play: (state) => protectOptions(state).shield
@@ -618,7 +620,7 @@ const woodLine = (state: GameState, option: GameState | null, spent: number) => 
   const uncapped = produceWithBoon({ ...state, warehouse: { ...state.warehouse, wood: 0 } });
   const gained = uncapped ? uncapped.warehouse.wood : 0;
   const lost = Math.max(0, state.warehouse.wood - spent + gained - option.warehouse.wood);
-  return [`Wood ${state.warehouse.wood}${spent ? ` → ${state.warehouse.wood - spent} after building` : ""} → ${option.warehouse.wood}`, lost ? `${lost} Wood lost to the cap of 15` : "Nothing lost to the cap"];
+  return [`Wood ${state.warehouse.wood}${spent ? `, ${state.warehouse.wood - spent} after building` : ""}, then ${option.warehouse.wood}`, lost ? `${lost} Wood lost to the cap of 15` : "Nothing lost to the cap"];
 };
 const boonTour: TourStep[] = [
   {
@@ -697,8 +699,8 @@ const specialTour: TourStep[] = [
       const cabin = useAtelier(state, "H1");
       const path = useAtelier(state, "F1");
       return [
-        { id: "cabin", label: "The Overstrained Fine Cabin", chosen: true, lines: [`Score ${now} → ${cabin ? score(cabin) : "?"}`, "It counts again, and gains Supported"] },
-        { id: "path", label: "The Path with 1 Strain", lines: [`Score ${now} → ${path ? score(path) : "?"}`, "The Cabin stays Overstrained"] }
+        { id: "cabin", label: "The Overstrained Fine Cabin", chosen: true, lines: [`Score ${now}, then ${cabin ? score(cabin) : "?"}`, "It counts again, and gains Supported"] },
+        { id: "path", label: "The Path with 1 Strain", lines: [`Score ${now}, then ${path ? score(path) : "?"}`, "The Cabin stays Overstrained"] }
       ];
     },
     play: (state) => useAtelier(state, "H1")
@@ -774,7 +776,7 @@ const burdenCost = (state: GameState, id: string) => {
   const entry = cost && Object.entries(cost).find(([, amount]) => amount > 0);
   return entry ? { resource: entry[0] as keyof typeof resourceLabels, amount: entry[1] as number } : undefined;
 };
-const burdenLine = (state: GameState, id: string) => { const cost = burdenCost(state, id); return cost ? `${cost.amount} ${resourceLabels[cost.resource]} to resolve · the Warehouse has ${state.warehouse[cost.resource]}` : "Its cost to resolve is printed on the card"; };
+const burdenLine = (state: GameState, id: string) => { const cost = burdenCost(state, id); return cost ? `${cost.amount} ${resourceLabels[cost.resource]} to resolve, and the Warehouse has ${state.warehouse[cost.resource]}` : "Its cost to resolve is printed on the card"; };
 const affordable = (state: GameState, id: string) => { const cost = burdenCost(state, id); return !!cost && state.warehouse[cost.resource] >= cost.amount; };
 function useGuild(state: GameState, burdenId: string): GameState | null {
   const tile = guild(state);
@@ -886,8 +888,8 @@ const wardenTour: TourStep[] = [
       const elsewhere = other ? wardenShield(state, other.instanceId) : null;
       return [
         { id: "both", label: "Let both Burdens apply", lines: [`Score ${both ? score(both) : "?"}`, "The first is paid, and the river strains the tile"] },
-        { id: "shield", label: `Warden · Supported on ${target ? tileName(state, target.instanceId) : "the riverside tile"}`, chosen: true, lines: [`Score ${shielded ? score(shielded) : "?"}`, "The first is cancelled, and Supported blocks the river"] },
-        { id: "elsewhere", label: `Warden · Supported on ${other ? tileName(state, other.instanceId) : "another tile"}`, lines: [`Score ${elsewhere ? score(elsewhere) : "?"}`, "The first is cancelled, but the river still strains its tile"] }
+        { id: "shield", label: `Warden, with Supported on ${target ? tileName(state, target.instanceId) : "the riverside tile"}`, chosen: true, lines: [`Score ${shielded ? score(shielded) : "?"}`, "The first is cancelled, and Supported blocks the river"] },
+        { id: "elsewhere", label: `Warden, with Supported on ${other ? tileName(state, other.instanceId) : "another tile"}`, lines: [`Score ${elsewhere ? score(elsewhere) : "?"}`, "The first is cancelled, but the river still strains its tile"] }
       ];
     },
     play: (state) => { const target = riverTarget(state); return target ? wardenShield(state, target.instanceId) : null; }

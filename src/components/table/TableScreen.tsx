@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ArrowLeft, Eye, Maximize2, Minus, Plus, Redo2, RotateCcw, RotateCw, Undo2, X, Sparkles } from "lucide-react";
+import { ArrowLeft, Eye, Maximize2, Minus, Plus, Redo2, RotateCcw, RotateCw, Undo2, X } from "lucide-react";
 import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { encounterById } from "../../data/encounters";
 import { stewardById } from "../../data/stewards";
@@ -244,7 +244,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
       return {
         hexId: placing.anchorHexId ?? placingAnchorHint(state),
         content: <div className="action-card">
-          <header><div><h3>{name}</h3><p>{placing.anchorHexId ? `at ${placing.anchorHexId}` : "Choose where it goes"}</p>{placing.enhancer && <p className="enhancer-tag"><Sparkles size={13} aria-hidden="true" />With {placing.enhancer.name}</p>}</div><button type="button" className="icon-button" aria-label="Cancel placing" onClick={() => setMode({ kind: "idle" })}><X size={18} /></button></header>
+          <header><div><h3>{name}</h3><p>{placing.anchorHexId ? `at ${placing.anchorHexId}` : "Choose where it goes"}</p>{placing.enhancer && <p className="placing-with">With {placing.enhancer.name}</p>}</div><button type="button" className="icon-button" aria-label="Cancel placing" onClick={() => setMode({ kind: "idle" })}><X size={18} /></button></header>
           {instruction && <p className="action-card-hint">{instruction}</p>}
           {orientations.length > 1 && <div className="rotate-row"><button type="button" onClick={() => rotate(-1)}><RotateCcw size={16} aria-hidden="true" />Turn</button><span>{orientations.length} directions fit</span><button type="button" onClick={() => rotate(1)}>Turn<RotateCw size={16} aria-hidden="true" /></button></div>}
           {ready && <button type="button" className="action-primary" onClick={() => { handlers.place(placing.tileId, placingDraft, placing.enhancer); setMode({ kind: "idle" }); }}>
@@ -294,9 +294,9 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           {hexOptions.placeable.length > 0 && <ul className="place-list">
             {hexOptions.placeable.slice(0, compact ? 8 : 9).map((option) => <li key={option.choice.id} className={option.enhanced ? "has-enhancer" : ""}><button type="button" onClick={() => choosePlacement(option, mode.hexId, option.onlyEnhanced ? option.enhanced?.enhancer : undefined)}>
               <img className="place-face" src={tileArtworkUrl(option.choice.id, "basic", { thumbnail: true })} alt="" aria-hidden="true" loading="lazy" decoding="async" style={{ borderColor: categoryColors[option.choice.category] }} />
-              <span className="place-name"><strong>{option.choice.name}</strong><small>{option.choice.kind === "special" ? "Special · unlocked" : categoryNames[option.choice.category]}{option.needsOrientation ? " · choose direction" : option.needsSecondSpace ? " · two spaces" : ""}</small></span>
-              <span className="place-cost">{option.onlyEnhanced ? <span className="place-cost-enhanced"><Sparkles size={12} aria-hidden="true" />{option.enhanced?.benefit}<small>with {option.enhanced?.enhancer.name}</small></span> : option.choice.costLabel === "None" || option.choice.costLabel === "Free" ? "Free" : option.choice.costLabel}</span>
-            </button>{option.enhanced && !option.onlyEnhanced && <button type="button" className="place-enhancer" onClick={() => choosePlacement(option, mode.hexId, option.enhanced!.enhancer)}><Sparkles size={13} aria-hidden="true" /><span>{option.enhanced.benefit}</span><small>with {option.enhanced.enhancer.name}</small></button>}</li>)}
+              <span className="place-name"><strong>{option.choice.name}</strong><small>{option.choice.kind === "special" ? "Special, unlocked" : categoryNames[option.choice.category]}{option.needsOrientation ? ", choose a direction" : option.needsSecondSpace ? ", two spaces" : ""}</small></span>
+              <span className="place-cost">{option.onlyEnhanced ? <span className="place-cost-enhanced"><EnhancerTag kind={option.enhanced?.enhancer.kind} />{option.enhanced?.benefit}<small>with {option.enhanced?.enhancer.name}</small></span> : option.choice.costLabel === "None" || option.choice.costLabel === "Free" ? "Free" : option.choice.costLabel}</span>
+            </button>{option.enhanced && !option.onlyEnhanced && <button type="button" className="place-enhancer" onClick={() => choosePlacement(option, mode.hexId, option.enhanced!.enhancer)}><EnhancerTag kind={option.enhanced.enhancer.kind} /><span>{option.enhanced.benefit}</span><small>with {option.enhanced.enhancer.name}</small></button>}</li>)}
           </ul>}
           {hexOptions.placeable.length > (compact ? 8 : 9) && <p className="action-card-note">{hexOptions.placeable.length - (compact ? 8 : 9)} more in the tile supply.</p>}
           {hexOptions.blocked.length > 0 && <details className="blocked-list"><summary>{hexOptions.blocked.length} more fit but can’t be built now</summary><ul>{hexOptions.blocked.map((option) => <li key={option.choice.id}><strong>{option.choice.name}</strong> <small>{option.blocked}</small></li>)}</ul></details>}
@@ -312,7 +312,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
   const legal = resolving ? undefined : placing ? placingLegal : firstPlacementHex && mode.kind === "idle" ? new Set([firstPlacementHex]) : undefined;
   const sheetOpen = compact && (Boolean(card) || resolving);
   const resolutionPanel = resolution ? <aside className="table-resolution" aria-labelledby="table-resolution-title" key={resolution.key}>
-    <header><p className="eyebrow">{resolution.eyebrow}{resolution.link && chainTrail.length ? ` · link ${chainTrail.length + 1}` : ""}{resolution.steps > 1 ? ` · ${resolution.steps - 1} more to follow` : ""}</p><h2 id="table-resolution-title">{resolution.title}</h2>{(resolution.hint ?? choices.hint) && <p className="table-resolution-hint">{resolution.hint ?? choices.hint}</p>}
+    <header><p className="eyebrow">{resolution.eyebrow}{resolution.link && chainTrail.length ? `, link ${chainTrail.length + 1}` : ""}{resolution.steps > 1 ? `, ${resolution.steps - 1} more to follow` : ""}</p><h2 id="table-resolution-title">{resolution.title}</h2>{(resolution.hint ?? choices.hint) && <p className="table-resolution-hint">{resolution.hint ?? choices.hint}</p>}
       {compact && hasChoices && <button type="button" className="sheet-toggle" aria-expanded={!sheetLow} onClick={() => setSheetLow((low) => !low)}>{sheetLow ? "Show details" : "Show the board"}</button>}</header>
     <div className="table-resolution-body"><ChoiceHost>{resolution.content}</ChoiceHost></div>
   </aside> : null;
@@ -381,7 +381,7 @@ const seasonTitles = ["", "Foundations", "Growth", "Maturity"];
 /** What a new Season means, in one or two sentences, shown above seeding. */
 function seasonBanner(state: GameState): { eyebrow: string; text: string } {
   const numeral = ["", "I", "II", "III"][state.season];
-  const eyebrow = `Season ${numeral} · ${seasonTitles[state.season]}${state.season > 1 ? " begins" : ""}`;
+  const eyebrow = `Season ${numeral}: ${seasonTitles[state.season]}${state.season > 1 ? " begins" : ""}`;
   if (state.season === 1) return { eyebrow, text: "Before the first round, each Steward secretly adds three cards from their hand to the Encounter Deck: one near the top, one in the middle and one near the bottom." };
   const burdens = state.encounters.activeBurdens.length;
   return {
@@ -399,11 +399,16 @@ function walkthroughFocus(state: GameState, target: CoachTarget | null): string[
   return [...new Set([...(target?.hexIds ?? []), ...local, ...(home ? [home] : [])])];
 }
 
+/** Names what an option spends: a Boon card or the Steward's power. */
+function EnhancerTag({ kind }: { kind?: "boon" | "power" }) {
+  return <span className={`enhancer-tag is-${kind ?? "boon"}`} aria-hidden="true">{kind === "power" ? "Power" : "Boon"}</span>;
+}
+
 /** The same action with a Boon or the Steward's power folded in: one tap does both. */
 function EnhancedButton({ enhanced, label, onClick }: { enhanced: EnhancedOption; label: string; onClick: () => void }) {
   return <button type="button" className="action-enhanced" onClick={onClick}>
-    <span className="action-enhanced-mark" aria-hidden="true"><Sparkles size={15} /></span>
-    <span><strong>{label}</strong><small>{enhanced.benefit}{enhanced.enhancer.kind === "power" ? " · uses this Season’s power" : " · uses the Boon"}</small></span>
+    <EnhancerTag kind={enhanced.enhancer.kind} />
+    <span><strong>{label}</strong><small>{enhanced.benefit}, {enhanced.enhancer.kind === "power" ? "using this Season’s power" : "using the Boon"}</small></span>
     <span className="action-yield">{summariseForecast(enhanced.forecast) || "Free"}</span>
   </button>;
 }
@@ -436,7 +441,7 @@ function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo,
   return <header className="table-topbar">
     {asHeading ? <h1 className="table-brand">The Quiet Vale</h1> : <div className="table-brand">The Quiet Vale</div>}
     <div className="table-season">
-      <span>Season {["", "I", "II", "III"][state.season]}{compact ? "" : ` · ${seasonNames[state.season]}`} · Round {state.round}{compact ? "" : " of 12"}</span>
+      <span>Season {["", "I", "II", "III"][state.season]}{compact ? "" : `: ${seasonNames[state.season]}`}, round {state.round}{compact ? "" : " of 12"}</span>
       {!compact && <span className="round-track" aria-hidden="true">{[0, 1, 2].map((season) => <span key={season}>{[1, 2, 3, 4].map((step) => {
         const round = season * 4 + step;
         return <span key={round} className={round < state.round ? "is-done" : round === state.round ? "is-now" : ""} />;

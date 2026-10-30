@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Play, RotateCcw } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import type { TourStep } from "./tourScript";
 import type { GameState } from "../../engine/types";
 import { getScenario, comparisonScenarios } from "../../app/scenarioCatalog";
@@ -103,14 +103,12 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
 
   return <aside className={`table-coach is-tour${options.length ? " has-decision" : ""}`} aria-label="Guided tour" aria-live="polite" key={step.id}>
     <div className="coach-head">
-      <span className="coach-emblem" aria-hidden="true"><Play size={16} /></span>
       <ol className="coach-progress" aria-label={`Step ${position + 1} of ${tourSteps.length}`}>{tourSteps.map((candidate, index) => <li key={candidate.id} className={index < position ? "is-done" : index === position ? "is-now" : ""} />)}</ol>
       <span className="tour-count" aria-hidden="true">{position + 1}/{tourSteps.length}</span>
     </div>
-    <p className="tour-eyebrow">{tour.kind} · press Next</p>
     <h3>{step.title}</h3>
     {options.length > 0 && <ol className="tour-options" aria-label="The options">{options.map((option) => <li key={option.id} className={option.chosen ? "is-chosen" : ""}>
-      <p className="tour-option-label">{option.chosen && <Check size={15} aria-hidden="true" />}<strong>{option.label}</strong>{option.chosen && <span className="tour-chosen">The choice</span>}</p>
+      <p className="tour-option-label">{option.chosen && <Check size={15} aria-hidden="true" />}<strong>{option.label}</strong>{option.chosen && <span className="tour-chosen">Chosen</span>}</p>
       <ul>{option.lines.map((line) => <li key={line}>{line}</li>)}</ul>
     </li>)}</ol>}
     <p className="coach-why">{options.length > 0 && <strong className="tour-why">Why: </strong>}{step.text(state)}</p>
@@ -119,18 +117,18 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
       <footer className="tour-controls">
         <button type="button" className="tour-back" onClick={back} disabled={!place.history.length} aria-label="Back"><ArrowLeft size={16} aria-hidden="true" /></button>
         {nextScene
-          ? <a className="coach-ok tour-next tour-real" href={demoHref(nextScene)}><span className="tour-next-word">Next scene</span><small>{comparisonScenarios[nextScene].name}</small><ArrowRight size={16} aria-hidden="true" /></a>
-          : <a className="coach-ok tour-next tour-real" href="?experience=table">Play a real game<ArrowRight size={16} aria-hidden="true" /></a>}
+          ? <a className="coach-ok tour-next tour-real" href={demoHref(nextScene)}><span className="tour-next-word">Next scene</span><small>{comparisonScenarios[nextScene].name}</small></a>
+          : <a className="coach-ok tour-next tour-real" href="?experience=table">Play a real game</a>}
       </footer>
       <nav className="coach-links tour-after" aria-label="Or">
         {nextScene && <a href="?experience=table">Play a real game</a>}
-        <button type="button" onClick={begin}><RotateCcw size={14} aria-hidden="true" /> Watch again</button>
+        <button type="button" onClick={begin}>Watch again</button>
       </nav>
     </> : <footer className="tour-controls">
       <button type="button" className="tour-back" onClick={back} disabled={!place.history.length} aria-label="Back"><ArrowLeft size={16} aria-hidden="true" /></button>
       {stuck
-        ? <button type="button" className="coach-ok tour-next" onClick={begin}>Start again<ArrowRight size={16} aria-hidden="true" /></button>
-        : <button type="button" className="coach-ok tour-next" onClick={next} aria-label={`Next: ${step.verb ?? "continue"}`}><span className="tour-next-word">Next</span>{step.verb && <small>{step.verb}</small>}<ArrowRight size={16} aria-hidden="true" /></button>}
+        ? <button type="button" className="coach-ok tour-next" onClick={begin}>Start again</button>
+        : <button type="button" className="coach-ok tour-next" onClick={next} aria-label={`Next: ${step.verb ?? "continue"}`}><span className="tour-next-word">Next</span>{step.verb && step.verb !== "Next" && <small>{step.verb}</small>}</button>}
     </footer>}
   </aside>;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ArrowRight, BookOpen, ChevronDown, Compass, Leaf, Users } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronDown, Users } from "lucide-react";
 import { getStartingWarehouseAmount } from "../../engine/setup";
 import { terrainLabels } from "../../data/map";
 import { stewardById, stewards } from "../../data/stewards";
@@ -39,14 +39,14 @@ export function TabletopWelcome(props: SetupPanelProps) {
         <section className="welcome-landscape">
           <img src={mapArtwork} alt="Woodlands, rivers and ancient ruins waiting to become your settlement" />
           <div className="welcome-landscape-copy">
-            <p className="studio-kicker"><Leaf size={16} aria-hidden="true" /> A cooperative game for 1–5 players</p>
+            <p className="studio-kicker">A cooperative board game for 1 to 5 players</p>
             <h1>A new season<br />in the Vale.</h1>
-            <p>Lay down roots. Welcome new arrivals.<br />Build a place to call home, together.</p>
+            <p>Build one settlement together across three Seasons. Welcome the people who arrive, carry the Burdens that follow, and keep the land from breaking under the Strain.</p>
             {isBoardTableExperience() && <nav className="welcome-moment-chips" aria-labelledby="welcome-moments-heading">
-              <h2 id="welcome-moments-heading">Or watch the game being played</h2>
+              <h2 id="welcome-moments-heading">Or watch it played</h2>
               <div>
-                {demoGroups.filter((group) => group.ids.length > 1).map((group) => <a key={group.title} href={demoHref(group.ids[0])}><strong>{group.title}</strong><small>{group.ids.length} scenes <ArrowRight size={13} aria-hidden="true" /></small></a>)}
-                <a className="welcome-all-scenes" href={demoHref(demoOrder[0], "&scenes=open")}><strong>All {demoOrder.length} scenes</strong><small>Browse <ArrowRight size={13} aria-hidden="true" /></small></a>
+                {demoGroups.filter((group) => group.ids.length > 1).map((group) => <a key={group.title} href={demoHref(group.ids[0])}><strong>{group.title}</strong><small>{group.ids.length} scenes</small></a>)}
+                <a className="welcome-all-scenes" href={demoHref(demoOrder[0], "&scenes=open")}><strong>All {demoOrder.length} scenes</strong><small>the full list</small></a>
               </div>
             </nav>}
           </div>
@@ -54,12 +54,11 @@ export function TabletopWelcome(props: SetupPanelProps) {
         </section>
 
         <section className="welcome-setup" aria-labelledby="welcome-setup-heading">
-          <p className="studio-kicker">{isBoardTableExperience() ? "Playable demo" : "The Living Table"}</p>
+          {!isBoardTableExperience() && <p className="studio-kicker">The Living Table</p>}
           <h2 id="welcome-setup-heading" ref={heading} tabIndex={-1}>Gather your Stewards.</h2>
           <p className="welcome-intro">Play solo or share this device with friends. Everyone helps the same settlement thrive.</p>
           {isBoardTableExperience() && <a className="welcome-guided" href="?experience=table&scenario=guided">
-            <span><strong>New to the Vale? Watch a guided first game.</strong><small>About 5 minutes. Press Next and the opening plays itself, explained step by step.</small></span>
-            <ArrowRight size={20} aria-hidden="true" />
+            <span><strong>New to the Vale? Watch a guided first game.</strong><small>About 5 minutes. The opening rounds play out one step at a time, with each move explained.</small></span>
           </a>}
           <fieldset className="welcome-player-count">
             <legend><Users size={16} aria-hidden="true" />Who’s at the table?</legend>
@@ -70,7 +69,7 @@ export function TabletopWelcome(props: SetupPanelProps) {
             {selectedStewards.map((steward, index) => <article className="welcome-steward" key={index}>
               <div className="welcome-steward-heading">
                 <span className="welcome-steward-emblem" aria-hidden="true">{index + 1}</span>
-                <label>Player {index + 1} · Steward
+                <label>Player {index + 1}’s Steward
                   <select aria-label={`Player ${index + 1} steward`} value={steward.id} onChange={(event) => onStewardChange(index, event.target.value)}>
                     {stewards.map((option) => <option key={option.id} value={option.id} disabled={stewardIds.includes(option.id) && option.id !== steward.id}>{option.name}</option>)}
                   </select>
@@ -83,20 +82,20 @@ export function TabletopWelcome(props: SetupPanelProps) {
 
           <LegacySetupOptions {...props} />
           <div className="welcome-start">
-            <p><Compass size={17} aria-hidden="true" />{startingResources} of each resource · 3 seasons · 12 rounds</p>
-            <button className="studio-primary" type="button" onClick={onStart}>Begin your settlement <ArrowRight size={19} aria-hidden="true" /></button>
+            <p>The Warehouse starts with {startingResources} of each resource. A game is 12 rounds over 3 Seasons.</p>
+            <button className="studio-primary" type="button" onClick={onStart}>Begin your settlement</button>
             <small>Next: choose a starting place on the map.</small>
           </div>
         </section>
       </div>
 
       <section className="welcome-beginning" aria-label="The journey ahead">
-        <div><span>01</span><h3>Find your place</h3><p>Choose a starting place that suits your Steward.</p></div>
-        <div><span>02</span><h3>Shape the season</h3><p>Seed encounters to influence what lies ahead.</p></div>
-        <div><span>03</span><h3>Build together</h3><p>Grow the settlement, care for its people and earn Renown.</p></div>
+        <div><h3>Find your place</h3><p>Choose a starting place that suits your Steward.</p></div>
+        <div><h3>Shape the season</h3><p>Seed encounters to influence what lies ahead.</p></div>
+        <div><h3>Build together</h3><p>Grow the settlement, care for its people and earn Renown.</p></div>
       </section>
       <details className="welcome-rules"><summary><BookOpen size={20} aria-hidden="true" /><span>New to the Vale?<small>Learn the essentials or browse the full rules.</small></span><ChevronDown size={20} aria-hidden="true" /></summary><div><RulesGuide /></div></details>
-      <footer className="welcome-footer">The Quiet Vale: Seasons of Settlement · © 2026 Robert Little</footer>
+      <footer className="welcome-footer">The Quiet Vale: Seasons of Settlement. © 2026 Robert Little</footer>
     </main>
   );
 }

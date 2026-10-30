@@ -1370,3 +1370,56 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .table-coach .tour-after a:hover, .table-coach .tour-after button:hover { color: #fff9e9 !important; }
 /* In a demo the rail shows the turn and the cards. The walkthrough explains any power. */
 .table-screen.is-demo-locked .rail-power { display: none; }
+
+/* ------------------------------------------------------------------------
+   House style (30 Oct). The game's own material carries the look: the
+   artist's map and tiles, the printed cards, brass and forest green.
+   Interface text is sentence case at normal spacing (the printed cards and
+   tiles keep their lettering), labels are quiet captions, and nothing pulses
+   except the one marker that points at the board.
+   ------------------------------------------------------------------------ */
+.experience-table :not(svg, svg *, .physical-encounter-card, .physical-encounter-card *, .encounter-card-shell, .encounter-card-shell *),
+.scenario-preview-table .demo-ribbon, .scenario-preview-table .demo-ribbon * { text-transform: none !important; letter-spacing: normal !important; }
+.experience-table :is(.eyebrow, .studio-kicker, .rail-heading h2, .table-seed-slot-label, .welcome-moment-chips h2, .demo-gallery h3) { font-size: 0.86rem !important; font-weight: 600 !important; }
+.welcome-moment-chips h2 { color: #f0dfae; font-size: 0.95rem !important; }
+
+/* The walkthrough card: a printed rules card on the table. */
+.table-coach.is-tour { gap: 8px; padding: 16px 18px 14px; border: 1px solid #3c3322; border-radius: 6px; background: #f6efdc; color: #2b261b; box-shadow: inset 0 0 0 4px #f6efdc, inset 0 0 0 5px #b89a52, 0 10px 24px rgba(0, 0, 0, 0.35); backdrop-filter: none; }
+.table-coach.is-tour h3 { color: #22301f; font-size: 1.3rem; }
+.table-coach.is-tour .coach-why { color: #3b3528; font-size: 0.95rem; line-height: 1.5; }
+.table-coach.is-tour .coach-do { color: #5a3a1c; background: #efe0bb; border-radius: 4px; }
+.table-coach.is-tour .coach-head { gap: 10px; }
+.table-coach.is-tour .coach-progress li { background: #d9ccaa; }
+.table-coach.is-tour .coach-progress li.is-done { background: #8d7a4a; }
+.table-coach.is-tour .coach-progress li.is-now { background: #2f4a33; }
+.table-coach.is-tour .tour-count { color: #6b6250; font-size: 0.82rem; }
+.table-coach.is-tour .tour-next { animation: none; border-radius: 6px; background: #2f4a33; color: #f6efdc !important; box-shadow: none; }
+.table-coach.is-tour .tour-next:hover { background: #253c29; }
+.table-coach.is-tour .tour-next small { border-left-color: rgba(246, 239, 220, 0.35); color: #e3dcc2; opacity: 1; }
+.table-coach.is-tour a.tour-real, .table-coach.is-tour a.tour-real .tour-next-word { color: #f6efdc !important; }
+.table-coach.is-tour .tour-back { border-radius: 6px; border-color: #b8aa86; color: #3b3528; }
+.table-coach.is-tour .tour-after a, .table-coach.is-tour .tour-after button { color: #3b3528 !important; }
+.table-coach.is-tour .tour-after a:hover, .table-coach.is-tour .tour-after button:hover { color: #1b2a1d !important; }
+.table-coach.is-tour .tour-why { color: #2f4a33; }
+.tour-options > li { border-color: #d6c7a0; border-radius: 4px; background: #fbf6e8; }
+.tour-options > li.is-chosen { border-color: #2f4a33; background: #e8eedf; box-shadow: inset 4px 0 0 #2f4a33; }
+.tour-option-label { color: #22301f; }
+.tour-option-label svg { color: #2f4a33; }
+.tour-chosen { padding: 0; border-radius: 0; background: none; color: #2f4a33; font-size: 0.82rem; font-weight: 700; }
+.tour-options ul { color: #4a4434; }
+.tour-options li:not(.is-chosen) ul { opacity: 1; }
+
+/* What an option spends: a small tag in the game's colours, not an icon. */
+.enhancer-tag { display: inline-block; flex: none; margin: 0 !important; padding: 1px 6px; border-radius: 3px; background: #e9d9a6; color: #4e3c10 !important; font-size: 0.72rem !important; font-weight: 700; line-height: 1.5; }
+.enhancer-tag.is-power { background: #d5e0cc; color: #24391f !important; }
+.placing-with { margin: 2px 0 0; color: #5f4a14; font-size: 0.82rem; font-weight: 600; }
+
+/* Glows answer the walkthrough without pulsing. */
+.table-screen[data-coach] :is(.rail-arrival, .rail-end > button, .table-score, .rail-heading, .table-seed-slots) { animation: none !important; }
+.board-beacon-label { animation: none !important; }
+
+/* Demo ribbon labels as plain words. */
+.demo-badge { font-size: 12px; font-weight: 700; }
+.demo-picker-button small { color: #5a4820; font-size: 12px; font-weight: 600; }
+.rail-new { margin-left: 6px; color: #8a5a2b; font-style: italic; font-weight: 600; }
+.place-list li .place-enhancer, .place-enhancer { border-radius: 6px !important; }

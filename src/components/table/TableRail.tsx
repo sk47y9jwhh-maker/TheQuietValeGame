@@ -1,6 +1,5 @@
 import { Term } from "./Term";
 import { readyEnhancers } from "./tableActions";
-import { Sparkles } from "lucide-react";
 import { EncounterCard } from "../common/EncounterCard";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { arrivalRequirementRules, getBurdenResolutionCost } from "../../data/contentRules";
@@ -64,7 +63,7 @@ export function TableRail(props: TableRailProps) {
       <div className="rail-turn-head">
         <span className="rail-avatar" style={{ background: seatColors[playerIndex % seatColors.length] }} aria-hidden="true">{steward?.name.slice(0, 1)}</span>
         <div>
-          <h2>{state.players.length > 1 ? `${steward?.name ?? player.name}’s turn` : "Your turn"}{state.bonusTurnsActive ? " · bonus" : ""}</h2>
+          <h2>{state.players.length > 1 ? `${steward?.name ?? player.name}’s turn` : "Your turn"}{state.bonusTurnsActive ? " (bonus turn)" : ""}</h2>
           <p className="rail-actions" aria-label={`${state.actionsRemaining} of 4 actions left`}>
             {[0, 1, 2, 3].map((index) => <span key={index} className={index < state.actionsRemaining ? "is-left" : ""} />)}
             <span>{state.actionsRemaining} {state.actionsRemaining === 1 ? "action" : "actions"} left</span>
@@ -75,9 +74,9 @@ export function TableRail(props: TableRailProps) {
       {state.actionsRemaining > 0 && <p className="rail-how">{player && !player.hasPlacedFirstTile ? `Start by building on your Steward’s space at ${player.stewardHexId}.` : "Tap a tile on the board to use it, or an empty space to build."}</p>}
       {steward && <div className={`rail-power${power.ok ? " is-ready" : ""}`}>
         <div>
-          <strong>{steward.name} <Term id="stewardPower">power</Term>{powerUsed ? " · used this Season" : power.ok ? " · ready" : ""}</strong>
+          <strong>{steward.name} <Term id="stewardPower">power</Term>{powerUsed ? ", used this Season" : power.ok ? ", ready" : ""}</strong>
           <p className={powerOpen ? "" : "is-clamped"} id="rail-power-text">{steward.powerText}</p>
-          {power.ok && foldable.has("power") && <p className="rail-folded"><Sparkles size={13} aria-hidden="true" />Offered on matching actions. Tap a tile or a space and choose “with {steward.name}’s power”.</p>}
+          {power.ok && foldable.has("power") && <p className="rail-folded">Offered on matching actions. Tap a tile or a space and choose “with {steward.name}’s power”.</p>}
           <button type="button" className="rail-power-more" aria-expanded={powerOpen} aria-controls="rail-power-text" onClick={() => setPowerOpen((open) => !open)}>{powerOpen ? "Show less" : "Read the full power"}</button>
         </div>
         {power.ok && !foldable.has("power") && <button type="button" aria-label="Use Steward Power" onClick={props.onUseStewardPower}>Use</button>}
@@ -112,18 +111,18 @@ export function TableRail(props: TableRailProps) {
         return <article key={arrival.cardId} className={`rail-card rail-arrival${arrival.timerTokens === 1 ? " is-urgent" : ""}${props.newCardIds.has(arrival.cardId) ? " is-new" : ""}`}>
           <CardFace card={card} timers={arrival.timerTokens} season={state.season} onOpen={setOpenCard} />
           <div className="rail-card-body">
-            <p className="rail-card-kind"><span><Term id="arrival" />{props.newCardIds.has(arrival.cardId) ? " · new" : ""}</span><Timers count={arrival.timerTokens} /></p>
+            <p className="rail-card-kind"><span><Term id="arrival" />{props.newCardIds.has(arrival.cardId) && <em className="rail-new">new</em>}</span><Timers count={arrival.timerTokens} /></p>
             <h3>{card.name}</h3>
             {cost && <ul className="rail-needs" aria-label="Requirement">
               {costEntries(cost).map(({ resource, amount }) => {
                 const have = state.warehouse[resource];
-                return <li key={resource} className={have >= amount ? "is-met" : "is-short"}>{amount} {resourceLabels[resource]}{have >= amount ? " ✓" : ` · have ${have}`}</li>;
+                return <li key={resource} className={have >= amount ? "is-met" : "is-short"}>{amount} {resourceLabels[resource]}{have >= amount ? " ✓" : `, have ${have}`}</li>;
               })}
             </ul>}
             {validation.ok && cost && costEntries(cost).some(({ resource, amount }) => state.warehouse[resource] < amount) && <p className="rail-card-help">A payment effect, such as a Merchant exchange, covers the shortfall. You choose it on the next step.</p>}
-            <p className="rail-card-note">Unlocks {uniqueRewards.join(" & ")}{card.rewardSpecialTileIds.length ? ` · ${specialNumber(card.rewardSpecialTileIds[0])}` : ""}</p>
+            <p className="rail-card-note">Unlocks {uniqueRewards.join(" & ")}{card.rewardSpecialTileIds.length ? ` (tile ${specialNumber(card.rewardSpecialTileIds[0])})` : ""}</p>
             {state.phase === "turns" && <button type="button" disabled={!validation.ok} onClick={() => props.onCompleteArrival(arrival.cardId)} title={validation.ok ? undefined : validation.reasons.join(" ")}>
-              {validation.ok ? "Complete · 1 action" : arrival.timerTokens === 1 ? "Leaves at round end" : "Not yet"}
+              {validation.ok ? "Complete for 1 action" : arrival.timerTokens === 1 ? "Leaves at round end" : "Not yet"}
             </button>}
           </div>
         </article>;
@@ -137,12 +136,12 @@ export function TableRail(props: TableRailProps) {
         return <article key={cardId} className={`rail-card rail-burden${props.newCardIds.has(cardId) ? " is-new" : ""}`}>
           <CardFace card={card} season={state.season} onOpen={setOpenCard} />
           <div className="rail-card-body">
-            <p className="rail-card-kind"><span><Term id="burden" /> · {["", "I", "II", "III"][state.season]}{props.newCardIds.has(cardId) ? " · new" : ""}</span><span>{state.ignoredBurdenIdsThisRound.includes(cardId) ? "Ignored this round" : state.season < 3 ? "Returns next Season" : "Active"}</span></p>
+            <p className="rail-card-kind"><span><Term id="burden" />, Season {["", "I", "II", "III"][state.season]}{props.newCardIds.has(cardId) && <em className="rail-new">new</em>}</span><span>{state.ignoredBurdenIdsThisRound.includes(cardId) ? "Ignored this round" : state.season < 3 ? "Returns next Season" : "Active"}</span></p>
             <h3>{card.name}</h3>
             <p className="rail-card-text">{card.effects[seasonKey(state.season)]}</p>
             <p className="rail-card-note">To resolve: {resolution.replace(/,? discard\.?$/i, "")}{cost ? "" : ""}</p>
             {state.phase === "turns" && <button type="button" disabled={!validation.ok} onClick={() => props.onResolveBurden(cardId)} title={validation.ok ? undefined : validation.reasons.join(" ")}>
-              {validation.ok ? "Resolve · 1 action" : "Can’t resolve yet"}
+              {validation.ok ? "Resolve for 1 action" : "Can’t resolve yet"}
             </button>}
           </div>
         </article>;
@@ -155,10 +154,10 @@ export function TableRail(props: TableRailProps) {
         return <article key={boon.cardId} className={`rail-card rail-boon${usable ? "" : " is-muted"}${props.newCardIds.has(boon.cardId) ? " is-new" : ""}`}>
           <CardFace card={card} season={state.season} onOpen={setOpenCard} />
           <div className="rail-card-body">
-            <p className="rail-card-kind"><span>{card.type === "goldenBoon" ? "Golden Boon" : <Term id="boon" />}{props.newCardIds.has(boon.cardId) ? " · new" : ""}</span><span>{card.type === "goldenBoon" ? (boon.lastUsedRound === state.round ? "Used this round" : "Once per round") : `${boon.remainingUses} use${boon.remainingUses === 1 ? "" : "s"} left`}</span></p>
+            <p className="rail-card-kind"><span>{card.type === "goldenBoon" ? "Golden Boon" : <Term id="boon" />}{props.newCardIds.has(boon.cardId) && <em className="rail-new">new</em>}</span><span>{card.type === "goldenBoon" ? (boon.lastUsedRound === state.round ? "Used this round" : "Once per round") : `${boon.remainingUses} use${boon.remainingUses === 1 ? "" : "s"} left`}</span></p>
             <h3>{card.name}</h3>
             <p className="rail-card-text">{text}</p>
-            {state.phase === "turns" && usable && foldable.has(boon.cardId) && <p className="rail-folded"><Sparkles size={13} aria-hidden="true" />Offered on matching actions as you play.</p>}
+            {state.phase === "turns" && usable && foldable.has(boon.cardId) && <p className="rail-folded">Offered on matching actions as you play.</p>}
             {state.phase === "turns" && usable && !foldable.has(boon.cardId) && <button type="button" onClick={() => props.onUseBoon(boon.cardId)}>Use · free</button>}
           </div>
         </article>;
@@ -238,7 +237,7 @@ function EndTurn({ state, onEndTurn }: { state: GameState; onEndTurn: () => void
   return <div className="rail-end">
     {consequence && <p>{consequence}</p>}
     <button type="button" className={state.actionsRemaining === 0 ? "rail-primary" : "rail-secondary"} onClick={() => state.actionsRemaining > 0 ? setConfirming(true) : onEndTurn()}>
-      {state.actionsRemaining === 0 ? "End turn" : `End turn · ${state.actionsRemaining} unused`}
+      {state.actionsRemaining === 0 ? "End turn" : `End turn with ${state.actionsRemaining} action${state.actionsRemaining === 1 ? "" : "s"} unused`}
     </button>
   </div>;
 }
