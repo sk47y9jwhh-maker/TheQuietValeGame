@@ -17,7 +17,7 @@ export function LedgerHistory({ campaign }: { campaign: LedgerCampaign }) {
         <h3>Past settlements</h3>
         <p>{games.length} recorded {games.length === 1 ? "settlement" : "settlements"}. Results stay here when you begin a new game in this browser. Past boards are not saved.</p>
       </header>
-      {games.length === 0 ? <p className="settlement-history-empty">No completed settlements yet. Finish a game, then record it from Final Scoring.</p> : <ol className="settlement-history-list">
+      {games.length === 0 ? <p className="settlement-history-empty">No completed settlements yet. Finish a game, then record it from final scoring.</p> : <ol className="settlement-history-list">
         {games.slice(0, visibleCount).map((game) => {
           const timestamp = Date.parse(game.completedAt);
           const date = Number.isFinite(timestamp) ? dateFormatter.format(timestamp) : "Date unavailable";

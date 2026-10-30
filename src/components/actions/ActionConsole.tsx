@@ -341,7 +341,7 @@ export function ActionConsole({
     return (
       <aside className="action-console">
         <p className="eyebrow">Game End</p>
-        <h2>Final Scoring</h2>
+        <h2>Final scoring</h2>
         <div className="score-block">
           <span>Population {finalScore.population}</span>
           <span>Passive Population {finalScore.passivePopulation}</span>
@@ -387,7 +387,7 @@ export function ActionConsole({
               onClick={onRecordLedgerGame}
               type="button"
             >
-              {gameRecorded ? "Recorded in Ledger" : "Record Completed Game"}
+              {gameRecorded ? "Recorded in Ledger" : "Record this game"}
             </button>
           </section>
         )}

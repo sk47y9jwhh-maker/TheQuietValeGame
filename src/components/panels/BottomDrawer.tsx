@@ -381,7 +381,7 @@ export function BottomDrawer({
                     {recordedGame
                       ? "This game has been recorded in the campaign Ledger."
                       : state.phase === "gameEnd"
-                        ? "Review and record this game from the Final Scoring panel."
+                        ? "Review and record this game from the final scoring panel."
                         : "Progress is tracked automatically. Entries are awarded when the completed game is recorded."}
                   </p>
                 </div>
