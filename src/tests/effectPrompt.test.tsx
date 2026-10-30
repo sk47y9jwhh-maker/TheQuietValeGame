@@ -214,7 +214,7 @@ describe("effect prompt controls", () => {
       />
     );
 
-    expect(screen.getByText("No eligible tile — continue")).toBeInTheDocument();
+    expect(screen.getByText("No eligible tile, so continue")).toBeInTheDocument();
     const continueButton = screen.getByRole("button", { name: "Continue" });
     expect(continueButton).toBeEnabled();
     fireEvent.click(continueButton);
