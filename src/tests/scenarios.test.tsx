@@ -137,12 +137,12 @@ describe("comparison controls", () => {
     window.history.replaceState(null, "", "/?experience=tabletop&scenario=choice");
     render(<ScenarioPreview experience="tabletop" scenarioId="choice" />);
     fireEvent.click(screen.getByRole("button", { name: "Decrease Wood adjustment" }));
-    expect(screen.getByRole("button", { name: "Use Quartermaster Power" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Use the Quartermaster’s power" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "Decrease Wood adjustment" }));
     fireEvent.click(screen.getByRole("button", { name: "Increase Food adjustment" }));
-    expect(screen.getByRole("button", { name: "Use Quartermaster Power" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Use the Quartermaster’s power" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "Increase Food adjustment" }));
-    fireEvent.click(screen.getByRole("button", { name: "Use Quartermaster Power" }));
+    fireEvent.click(screen.getByRole("button", { name: "Use the Quartermaster’s power" }));
     expect(readSavedGame()?.state.pendingEffects).toHaveLength(0);
     expect(readSavedGame()?.state.warehouse.wood).toBe(11);
     expect(readSavedGame()?.state.warehouse.food).toBe(12);

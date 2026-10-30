@@ -265,7 +265,7 @@ describe("effect prompt controls", () => {
     render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
 
     expect(
-      screen.getByRole("button", { name: "Use Quartermaster Power" })
+      screen.getByRole("button", { name: "Use the Quartermaster’s power" })
     ).toBeEnabled();
   });
 
@@ -289,9 +289,9 @@ describe("effect prompt controls", () => {
     };
     render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
     fireEvent.click(screen.getByRole("button", { name: "Decrease Wood adjustment" }));
-    expect(screen.getByRole("button", { name: "Use Quartermaster Power" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Use the Quartermaster’s power" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "Increase Food adjustment" }));
-    expect(screen.getByRole("button", { name: "Use Quartermaster Power" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Use the Quartermaster’s power" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "Remove timer adjustment from Blade to Herb" }));
     expect(screen.getByRole("button", { name: "Add timer adjustment to Blade to Herb" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Decrease Wood adjustment" })).toBeVisible();

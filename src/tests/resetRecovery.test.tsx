@@ -74,7 +74,7 @@ describe("deliberate local reset and recovery", () => {
     fireEvent.click(screen.getByRole("button", { name: "Keep playing" }));
     expect(readSavedGame()).toEqual(before);
     fireEvent.click(screen.getByRole("button", { name: "Increase Food adjustment" }));
-    fireEvent.click(screen.getByRole("button", { name: "Use Quartermaster Power" }));
+    fireEvent.click(screen.getByRole("button", { name: "Use the Quartermaster’s power" }));
     expect(readSavedGame()?.state.pendingEffects).toHaveLength(0);
     expect(readSavedGame()?.state.warehouse.wood).toBe(12);
     expect(readSavedGame()?.state.warehouse.food).toBe(11);
