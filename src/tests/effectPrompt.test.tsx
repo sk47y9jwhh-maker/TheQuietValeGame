@@ -517,9 +517,9 @@ describe("effect prompt controls", () => {
       />
     );
 
-    expect(screen.getByText(/Cabin H1 \| Strain 2/)).toBeInTheDocument();
-    expect(screen.queryByText(/Workshops F1 \| Strain 3/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Tavern J1 \| Strain 0/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Cabin H1, 2 Strain/)).toBeInTheDocument();
+    expect(screen.queryByText(/Workshops F1, 3 Strain/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Tavern J1, 0 Strain/)).not.toBeInTheDocument();
     const apply = screen.getByRole("button", { name: "Spread Strain" });
     expect(apply).toBeDisabled();
     fireEvent.click(screen.getByRole("button", {

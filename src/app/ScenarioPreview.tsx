@@ -34,19 +34,22 @@ export default function ScenarioPreview({ experience, scenarioId }: { experience
     // The demo ribbon: home, which scene this is (with the full list), the
     // previous and next scene, a restart and the way into a real game.
     const { index, previous, next } = demoNeighbours(scenarioId);
-    return <div className="scenario-preview scenario-preview-table is-demo" data-demo={scenarioId}>
+    // A position that is not one of the walkthrough scenes is a practice
+    // table: it plays as a real game, so it says so rather than "Demo".
+    const practice = index < 0;
+    return <div className={`scenario-preview scenario-preview-table ${practice ? "is-practice" : "is-demo"}`} data-demo={scenarioId}>
       <aside className="scenario-review-bar demo-ribbon" aria-label="Demo controls">
         <a className="demo-home" href="?experience=table" aria-label="Back to the start page"><ArrowLeft size={17} aria-hidden="true" />The Quiet Vale</a>
-        <span className="demo-badge">Demo</span>
+        <span className="demo-badge">{practice ? "Practice" : "Demo"}</span>
         <ScenePicker current={scenarioId} label={scenario.name} index={index} />
-        <nav className="demo-steps" aria-label="Scenes">
+        {practice ? <span className="demo-ribbon-line">A staged position. You play on from here.</span> : <nav className="demo-steps" aria-label="Scenes">
           {previous ? <a href={demoHref(previous)} aria-label={`Previous scene: ${comparisonScenarios[previous].name}`}><ChevronLeft size={18} aria-hidden="true" /></a> : <span className="is-off" aria-hidden="true"><ChevronLeft size={18} /></span>}
           {next ? <a className="demo-next" href={demoHref(next)} aria-label={`Next scene: ${comparisonScenarios[next].name}`}>Next scene<ChevronRight size={18} aria-hidden="true" /></a> : <span className="is-off demo-next" aria-hidden="true">Next scene<ChevronRight size={18} /></span>}
-        </nav>
+        </nav>}
         <span className="demo-spacer" />
         <button type="button" onClick={restart}><RotateCcw size={16} aria-hidden="true" />Restart</button>
         <a className="demo-play" href="?experience=table">Play a real game</a>
-        <span className="demo-build" title="Demo version">v30 Oct · 9</span>
+        <span className="demo-build" title="Demo version">v30 Oct · 10</span>
         <span className="scenario-status" role="status">{!restartFailed && message}</span>
       </aside>
       {restartFailed && <p className="scenario-restart-error" role="alert">{message}</p>}

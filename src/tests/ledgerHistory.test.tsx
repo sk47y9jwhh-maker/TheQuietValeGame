@@ -21,15 +21,15 @@ describe("recorded settlement history", () => {
     render(<BottomDrawer state={fresh} ledgerCampaign={readLedgerCampaign()} onTileInspect={() => {}} />);
     fireEvent.click(screen.getByRole("tab", { name: /^Ledger/ }));
     const tabs = screen.getByRole("tablist", { name: "Ledger sections" });
-    fireEvent.keyDown(within(tabs).getByRole("tab", { name: "This Game" }), { key: "ArrowRight" });
+    fireEvent.keyDown(within(tabs).getByRole("tab", { name: "This game" }), { key: "ArrowRight" });
     expect(within(tabs).getByRole("tab", { name: "Settlements" })).toHaveFocus();
     expect(screen.getByRole("tabpanel", { name: "Settlements" })).toHaveTextContent("1 recorded settlement");
     expect(screen.getByLabelText("Final score 92")).toBeVisible();
     expect(screen.getByRole("region", { name: "Past settlements" })).toHaveTextContent("Vanguard · Knight");
     expect(within(tabs).getAllByRole("tab").filter((tab) => tab.tabIndex === 0)).toHaveLength(1);
     fireEvent.keyDown(within(tabs).getByRole("tab", { name: "Settlements" }), { key: "End" });
-    expect(within(tabs).getByRole("tab", { name: "Game Log" })).toHaveFocus();
-    expect(screen.getByRole("tabpanel", { name: "Game Log" })).toHaveTextContent("Game created");
+    expect(within(tabs).getByRole("tab", { name: "Game log" })).toHaveFocus();
+    expect(screen.getByRole("tabpanel", { name: "Game log" })).toHaveTextContent("Game created");
   });
 
   it("presents chronological immutable records and admits missing legacy detail", () => {

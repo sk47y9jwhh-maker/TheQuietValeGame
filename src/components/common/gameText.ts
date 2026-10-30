@@ -83,3 +83,28 @@ export function getArrivalRewardText(card: Extract<EncounterData, { type: "arriv
   // The two Stables copies have separate backs (17 and 18), not a tile numbered 2.
   return reward.replace(/^Unlock\s+(?:2\s+(?=Stables\b))?/, `Unlock Special ${numbers.length > 1 ? "Tiles" : "Tile"} ${numbers.join(" & ")} `);
 }
+
+const numeral = (season: string) => ["I", "II", "III"][Number(season) - 1] ?? season;
+
+/** An effect's title as the table shows it: plain sentence case, Seasons in numerals. */
+export function displayEffectTitle(title: string): string {
+  return title
+    .replace(/^Steward Power: (.+)$/, "$1’s power")
+    .replace(/^Season (\d) Burden: (.+)$/, (_, season: string, name: string) => `${name}, again in Season ${numeral(season)}`)
+    .replace(/^End of Season (\d): /, (_, season: string) => `End of Season ${numeral(season)}: `)
+    .replace(/^Passive effect: /, "Passive effect, ")
+    .replace(/^Use Boon: /, "Use the Boon ");
+}
+
+const buttonWords: Record<string, string> = {
+  "Use Quartermaster Power": "Use the Quartermaster’s power",
+  "Apply Warden Relief": "Apply the Warden’s relief",
+  "Gain Production Bonus": "Gain the production bonus",
+  "Apply Follow-up": "Apply the follow-up",
+  "Set Reach": "Set reach",
+  "Skip Burden Resolve": "Leave the Burdens"
+};
+/** An effect's button label in sentence case. Game terms keep their capitals. */
+export function displayEffectLabel(label: string): string {
+  return buttonWords[label] ?? label;
+}

@@ -16,7 +16,7 @@ export function GoldenBell({ state, onResolve }: GoldenBellProps) {
   return (
     <section className="golden-decision golden-bell-experience" aria-label="Golden Bell arrival">
       <header>
-        <p className="eyebrow">The Golden Bell · A new Arrival</p>
+        <p className="eyebrow">The Golden Bell, a new Arrival</p>
         <h2>Welcome the revealed Arrival.</h2>
         <p>Add it to the Stewards Board with three timer tokens. This costs no actions or resources.</p>
       </header>
@@ -29,7 +29,7 @@ export function GoldenBell({ state, onResolve }: GoldenBellProps) {
         if (!arrival || arrival.type !== "arrival") return null;
         return (
           <article className="golden-bell-arrival" key={id} aria-label={`Revealed Arrival: ${arrival.name}`}>
-            <p className="golden-arrival-timer">3 timer tokens · Add now for free</p>
+            <p className="golden-arrival-timer">3 timer tokens, added for free</p>
             <h3>{arrival.name}</h3>
             <dl>
               <div><dt>To complete later</dt><dd>{arrival.requirementText}</dd></div>

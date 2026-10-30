@@ -43,9 +43,9 @@ describe("focused resolution review", () => {
     expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Cabin (A7): +1 Strain");
     expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Cabin (A5): +1 Strain");
     fireEvent.click(screen.getByRole("button", { name: /^Pay 3 Goods/ }));
-    toggle("Read full card — Houses, Not Homes");
+    toggle("Read the full card");
     expect(printedCard).toBeVisible();
-    toggle("Card 16 · Explain"); expect(targetCard).toBeVisible();
+    toggle("Why card 16"); expect(targetCard).toBeVisible();
     expect(within(targetCard.closest(".target-draw-explanation")!).getAllByText("Unless specified")).toHaveLength(4);
     toggle("Table references"); toggle(/^View resolution order/); toggle("Review active encounters");
     expect(screen.getByRole("heading", { name: "Encounters" })).toBeVisible();
@@ -54,7 +54,7 @@ describe("focused resolution review", () => {
     expect(screen.getByLabelText("Effect preview")).not.toHaveTextContent("Strain");
     expect(screen.getAllByText("Draw suggests +1 Strain")).toHaveLength(3);
     expect(screen.getByText(/Payments or prevention can change the outcome/)).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Apply Effect" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply effect" }));
     expect(saved().warehouse.goods).toBe(before.warehouse.goods - 3);
     expect(saved().map).toEqual(before.map);
     expect(saved().pendingEffects[0].sourceId).toBe("burden_river_breaks_its_banks");
@@ -81,7 +81,7 @@ describe("focused resolution review", () => {
     expect(screen.getByLabelText("Effect preview")).not.toHaveTextContent("Cabin (A7)");
     expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Cabin (H1): +1 Strain");
     expect(saved()).toEqual(before);
-    fireEvent.click(screen.getByRole("button", { name: "Apply Effect" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply effect" }));
     expect(saved().warehouse.goods).toBe(before.warehouse.goods - 1);
     for (const hex of ["A7", "H1", "A5"]) {
       const oldTile = before.map.placedTiles.find(tile => tile.hexIds.includes(hex))!;
@@ -99,14 +99,14 @@ describe("focused resolution review", () => {
     expect(screen.getByText(/An Open card needs your choice from the eligible tiles/)).toBeVisible();
     expect(screen.queryByText(/The draw selected these targets/)).not.toBeInTheDocument();
     expect(screen.getByText("Card 25")).not.toBeVisible();
-    expect(screen.getByRole("button", { name: "Apply Effect" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Apply effect" })).toBeDisabled();
     expect(screen.getAllByRole("button", { name: /^Increase Strain adjustment for Path at / })).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: "Increase Strain adjustment for Path at A1" }));
-    toggle("Card 25 · Explain");
+    toggle("Why card 25");
     expect(screen.getByText("Card 25")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Apply Effect" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Apply effect" })).toBeEnabled();
     expect(state).toEqual(original);
-    fireEvent.click(screen.getByRole("button", { name: "Apply Effect" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply effect" }));
     const next = resolvePendingEffect(state, onApply.mock.calls[0][0]);
     expect(next.map.placedTiles[0].strain).toBe(1);
     expect(next.map.placedTiles[1].strain).toBe(0);
@@ -135,10 +135,8 @@ describe("focused resolution review", () => {
   it("explains an empty pool without inventing a drawn card or a target", () => {
     const state = expiry(3, []);
     render(<TargetCardResolution state={state} effect={state.pendingEffects[0]} />);
-    expect(screen.getByText("0 cards drawn")).toBeVisible();
-    expect(screen.getByText(/No eligible Strain target was available/)).toBeVisible();
+    expect(screen.getByText("No tile can take Strain from this, so no Target Card is drawn.")).toBeVisible();
     expect(screen.queryByText(/Draw suggests/)).not.toBeInTheDocument();
-    toggle("How Target Cards work");
-    expect(screen.getByText(/prevented Strain is not redirected/i)).toBeVisible();
+    expect(screen.queryByText(/cards? drawn/)).not.toBeInTheDocument();
   });
 });

@@ -263,7 +263,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
         hexId: mode.hexId,
         content: <div className="action-card">
           <header>
-            <div><h3>{tileActions.name}</h3><p><span className="category-dot" style={{ background: categoryColors[tileActions.category] }} />{mode.hexId} · {categoryNames[tileActions.category]}{tile.side === "upgraded" ? " · upgraded" : ""}{tile.strain ? <> · {tile.strain} <Term id={tile.strain >= 3 ? "overstrained" : "strain"}>{tile.strain >= 3 ? "Strain · Overstrained" : "Strain"}</Term></> : null}{tile.support.passive || tile.support.singleUse ? <> · <Term id="supported" /></> : null}</p></div>
+            <div><h3>{tileActions.name}</h3><p><span className="category-dot" style={{ background: categoryColors[tileActions.category] }} />{mode.hexId}, {categoryNames[tileActions.category]}{tile.side === "upgraded" ? ", upgraded" : ""}{tile.strain ? <>, {tile.strain} <Term id={tile.strain >= 3 ? "overstrained" : "strain"}>{tile.strain >= 3 ? "Strain, Overstrained" : "Strain"}</Term></> : null}{tile.support.passive || tile.support.singleUse ? <>, <Term id="supported" /></> : null}</p></div>
             <button type="button" className="icon-button" aria-label="Close" onClick={() => setMode({ kind: "idle" })}><X size={18} /></button>
           </header>
           {tileActions.options.map((option, index) => <div key={option.kind} className="action-option">
@@ -297,7 +297,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
               <img className="place-face" src={tileArtworkUrl(option.choice.id, "basic", { thumbnail: true })} alt="" aria-hidden="true" loading="lazy" decoding="async" style={{ borderColor: categoryColors[option.choice.category] }} />
               <span className="place-name"><strong>{option.choice.name}</strong><small>{categoryIcon(option.choice.category) && <GameIcon name={categoryIcon(option.choice.category)!} />}{option.choice.kind === "special" ? "Special, unlocked" : categoryNames[option.choice.category]}{option.needsOrientation ? ", choose a direction" : option.needsSecondSpace ? ", two spaces" : ""}</small></span>
               <span className="place-cost">{option.onlyEnhanced ? <span className="place-cost-enhanced"><EnhancerTag kind={option.enhanced?.enhancer.kind} />{option.enhanced?.benefit}<small>with {option.enhanced?.enhancer.name}</small></span> : option.choice.costLabel === "None" || option.choice.costLabel === "Free" ? "Free" : <CostIcons cost={option.choice.actualCost} label={option.choice.costLabel} />}</span>
-            </button>{option.enhanced && !option.onlyEnhanced && <button type="button" className="place-enhancer" onClick={() => choosePlacement(option, mode.hexId, option.enhanced!.enhancer)}><EnhancerTag kind={option.enhanced.enhancer.kind} /><span>{option.enhanced.benefit}</span><small>with {option.enhanced.enhancer.name}</small></button>}</li>)}
+            </button>{option.enhanced && !option.onlyEnhanced && <button type="button" className="place-enhancer" onClick={() => choosePlacement(option, mode.hexId, option.enhanced!.enhancer)}><EnhancerTag kind={option.enhanced.enhancer.kind} /><span>{option.enhanced.benefit}</span>{option.enhanced.enhancer.kind !== "power" && <small>with {option.enhanced.enhancer.name}</small>}</button>}</li>)}
           </ul>}
           {hexOptions.placeable.length > (compact ? 8 : 9) && <p className="action-card-note">{hexOptions.placeable.length - (compact ? 8 : 9)} more in the tile supply.</p>}
           {hexOptions.blocked.length > 0 && <details className="blocked-list"><summary>{hexOptions.blocked.length} more fit but can’t be built now</summary><ul>{hexOptions.blocked.map((option) => <li key={option.choice.id}><strong>{option.choice.name}</strong> <small>{option.blocked}</small></li>)}</ul></details>}
@@ -348,7 +348,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
         {coach && <TableCoach state={state} onTarget={setCoachTarget} tour={tour} />}
         {!compact && <RevealCeremony state={state} newCardIds={newCardIds} />}
         {notice && <div className="table-notice" role="status"><p>{notice}</p><button type="button" aria-label="Dismiss" onClick={onDismissNotice}><X size={16} /></button></div>}
-        {!compact && !resolving && !tour && <div className="table-tray">{tray}</div>}
+        {!compact && !resolving && !tour && <div className="table-tray" onPointerDownCapture={() => { if (mode.kind === "selected") setMode({ kind: "idle" }); }}>{tray}</div>}
 
       </section>
       {!compact && resolutionPanel}
@@ -433,6 +433,15 @@ function placingAnchorHint(state: GameState): string {
 
 function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo, onReset, compact, asHeading = false }: { state: GameState; forecast?: ActionForecast; score: number; canUndo: boolean; canRedo: boolean; onUndo: () => void; onRedo: () => void; onReset: () => void; compact: boolean; asHeading?: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const away = (event: PointerEvent) => { if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false); };
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") setMenuOpen(false); };
+    document.addEventListener("pointerdown", away);
+    document.addEventListener("keydown", escape);
+    return () => { document.removeEventListener("pointerdown", away); document.removeEventListener("keydown", escape); };
+  }, [menuOpen]);
   const deltas = new Map<ResourceType, number>((forecast?.resources ?? []).map((change) => [change.resource, change.after]));
   // Briefly mark resources whose count just changed.
   const lastWarehouse = useRef(state.warehouse);
@@ -471,7 +480,7 @@ function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo,
     <button type="button" className="icon-button" aria-label="Undo" disabled={!canUndo} onClick={onUndo}><Undo2 size={19} /></button>
     {!compact && <button type="button" className="icon-button" aria-label="Redo" disabled={!canRedo} onClick={onRedo}><Redo2 size={19} /></button>}
     <button type="button" className="icon-button" aria-label="Reset game" title="Start this settlement over" onClick={(event) => { event.currentTarget.focus({ preventScroll: true }); onReset(); }}><RotateCcw size={18} /></button>
-    <div className="table-menu">
+    <div className="table-menu" ref={menuRef}>
       <button type="button" className="icon-button" aria-label="Menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg></button>
       {menuOpen && <div className="table-menu-panel" role="menu">
         <a role="menuitem" href="./">Back to the start page</a>
@@ -494,14 +503,21 @@ function ScoreNow({ state, score }: { state: GameState; score: number }) {
     ...(detail.goldenRenown ? [["Golden tiles", detail.goldenRenown] as [string, number]] : []),
     ["Active Burdens", -detail.burdenPenalty, `${state.encounters.activeBurdens.length} × −10`],
     ["Arrivals that left unmet", -detail.failedArrivalPenalty, `${detail.failedArrivals} × −10`],
-    ["Strain", -detail.strainPenalty, `${strainTokens} × −10${overstrained ? ` · ${overstrained} Overstrained tile${overstrained === 1 ? " scores" : "s score"} nothing` : ""}`]
+    ["Strain", -detail.strainPenalty, `${strainTokens} × −10${overstrained ? `, and ${overstrained} Overstrained tile${overstrained === 1 ? " scores" : "s score"} nothing` : ""}`]
   ];
-  return <div className="table-score-wrap" onKeyDown={(event) => { if (event.key === "Escape") setOpen(false); }}>
+  const wrap = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const away = (event: PointerEvent) => { if (!wrap.current?.contains(event.target as Node)) setOpen(false); };
+    document.addEventListener("pointerdown", away);
+    return () => document.removeEventListener("pointerdown", away);
+  }, [open]);
+  return <div className="table-score-wrap" ref={wrap} onKeyDown={(event) => { if (event.key === "Escape") setOpen(false); }}>
     <button type="button" className="table-score" aria-expanded={open} aria-controls="score-breakdown" title="The shared score if the game ended now" onClick={() => setOpen((value) => !value)}>Score now <strong>{score < 0 ? `−${Math.abs(score)}` : score}</strong></button>
     {open && <div className="score-popover" id="score-breakdown" role="dialog" aria-label="How the score adds up">
       <header><strong>If the game ended now</strong><button type="button" className="icon-button" aria-label="Close" onClick={() => setOpen(false)}><X size={16} /></button></header>
-      <dl>{rows.map(([label, value, note]) => <div key={label} className={value < 0 ? "is-loss" : ""}><dt>{label === "Population" ? <><GameIcon name="population" /><Term id="population" /></> : label === "Renown from tiles" ? <><GameIcon name="renown" /><Term id="renown" /> from tiles</> : label === "Strain" ? <Term id="strain" /> : label === "Active Burdens" ? <>Active <Term id="burden">Burdens</Term></> : label}{note && <small>{note}</small>}</dt><dd>{value > 0 ? "+" : value < 0 ? "−" : ""}{Math.abs(value)}</dd></div>)}</dl>
-      <p><span>Score</span><strong>{score}</strong></p>
+      <dl>{rows.map(([label, value, note]) => <div key={label} className={value < 0 ? "is-loss" : ""}><dt><span className="score-label">{label === "Population" ? <><GameIcon name="population" /><Term id="population" /></> : label === "Renown from tiles" ? <><GameIcon name="renown" /><span><Term id="renown" /> from tiles</span></> : label === "Strain" ? <Term id="strain" /> : label === "Active Burdens" ? <span>Active <Term id="burden">Burdens</Term></span> : label}</span>{note && <small>{note}</small>}</dt><dd>{value > 0 ? "+" : value < 0 ? "−" : ""}{Math.abs(value)}</dd></div>)}</dl>
+      <p className="score-total"><span>Score</span><strong>{score < 0 ? `−${Math.abs(score)}` : score}</strong></p>
     </div>}
   </div>;
 }
@@ -543,7 +559,7 @@ function EncounterStrip({ state, newCardIds, onOpen }: { state: GameState; newCa
   return <nav className="encounter-strip" aria-label="Encounters on the table">
     {items.length === 0 && <span className="strip-empty">No encounters on the table</span>}
     {items.map((item) => <button key={item.id} type="button" className={`strip-card${item.urgent ? " is-urgent" : ""}${newCardIds.has(item.id) ? " is-new" : ""}`} onClick={onOpen}>
-      <span>{item.kind} · {item.note}</span><strong>{encounterName(item.id)}</strong>
+      <span>{item.kind}, {item.note}</span><strong>{encounterName(item.id)}</strong>
     </button>)}
   </nav>;
 }
@@ -565,14 +581,14 @@ function CompactTurn({ state, onOpenRail, onEndTurn, onReveal, onEndRound }: { s
       {resources.map((resource) => <li key={resource} className={`res-${resource}${state.warehouse[resource] === 0 ? " is-empty" : ""}`}><span>{resourceLabels[resource]}</span><strong>{state.warehouse[resource]}</strong></li>)}
     </ul>
     {state.phase === "turns" ? <div className="compact-turn-row">
-      <div><strong>{state.players.length > 1 ? `${steward?.name}’s turn` : "Your turn"}</strong><small>{player && !player.hasPlacedFirstTile ? `First, build on your Steward’s space at ${player.stewardHexId}` : null}{player && !player.hasPlacedFirstTile ? <br /> : null}{state.actionsRemaining} of 4 actions left · tap a tile or a space</small></div>
+      <div><strong>{state.players.length > 1 ? `${steward?.name}’s turn` : "Your turn"}</strong><small>{player && !player.hasPlacedFirstTile ? `First, build on your Steward’s space at ${player.stewardHexId}` : null}{player && !player.hasPlacedFirstTile ? <br /> : null}{state.actionsRemaining} of 4 actions left. Tap a tile or a space.</small></div>
       {confirming
         ? <span className="compact-confirm"><button type="button" className="rail-primary" onClick={onEndTurn}>End</button><button type="button" onClick={() => setConfirming(false)}>Keep</button></span>
         : <button type="button" className="rail-secondary" onClick={() => state.actionsRemaining > 0 ? setConfirming(true) : onEndTurn()}>End turn</button>}
     </div> : state.phase === "reveal" ? <button type="button" className="rail-primary" onClick={onReveal}>Reveal encounters</button>
       : state.phase === "endRound" ? <button type="button" className="rail-primary" onClick={onEndRound}>Continue</button> : null}
     <div className="compact-links">
-      <button type="button" onClick={onOpenRail}>Encounters · {encounterCount}</button>
+      <button type="button" onClick={onOpenRail}>Encounters ({encounterCount})</button>
       <button type="button" onClick={onOpenRail}>Power, tiles & rules</button>
     </div>
   </div>;

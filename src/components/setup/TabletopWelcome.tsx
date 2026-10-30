@@ -76,7 +76,7 @@ export function TabletopWelcome(props: SetupPanelProps) {
                 </label>
               </div>
               <p className="welcome-steward-role">{stewardRoles[steward.id]}</p>
-              <details className="welcome-steward-details"><summary>Power & objective <ChevronDown size={15} aria-hidden="true" /></summary><div><p><strong>Starts on </strong>{steward.startingTerrains.map((terrain) => terrainLabels[terrain]).join(" or ")}.</p><p>{steward.powerText}</p><p>{steward.objectiveText}</p></div></details>
+              <details className="welcome-steward-details"><summary>Power and objective <ChevronDown size={15} aria-hidden="true" /></summary><div><p><strong>Starts on </strong>{steward.startingTerrains.map((terrain) => terrainLabels[terrain]).join(" or ")}.</p><p>{steward.powerText}</p><p>{steward.objectiveText}</p></div></details>
             </article>)}
           </div>
 

@@ -43,6 +43,7 @@ import { TableChrome, TableScreen } from "../components/table/TableScreen";
 import { applyEnhancer, type Enhancer } from "../components/table/tableActions";
 import { TableGoldenStart, TableStewardStart } from "../components/table/TableSetupSteps";
 import { getScenario } from "./scenarioCatalog";
+import { displayEffectTitle } from "../components/common/gameText";
 import { momentTours } from "../components/table/tourScript";
 import { CompletedGameReview } from "../components/actions/CompletedGameReview";
 import { completedReviewLedger } from "../components/actions/ledgerSummary";
@@ -355,7 +356,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
       commitKnownGameState(before, after, { undoable: false });
       const ids = revealedCardIds(before, after);
       setNewCards({ round: after.round, ids: new Set(ids.map((entry) => entry.id)) });
-      setTableNotice([`Round ${after.round}${after.round % 4 === 1 ? ` · Season ${["", "I", "II", "III"][after.season]} begins` : ""}. ${ids.length ? `Revealed ${ids.map((entry) => entry.name).join(", ")}.` : "No new encounters."}`]);
+      setTableNotice([`Round ${after.round}${after.round % 4 === 1 ? `: Season ${["", "I", "II", "III"][after.season]} begins` : ""}. ${ids.length ? `Revealed ${ids.map((entry) => entry.name).join(", ")}.` : "No new encounters."}`]);
     }
   }, [commitGameState, commitKnownGameState, state]);
 
@@ -1085,21 +1086,21 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
           tour={tourControls}
           resolution={state.phase === "setup" ? {
             key: `setup_${state.currentPlayerId}`,
-            eyebrow: "Setup · choose your starting place",
+            eyebrow: "Setup: choose your starting place",
             title: `Place your ${stewardById[selectCurrentPlayer(state).stewardId]?.name ?? "Steward"}`,
             steps: 1,
             hint: "Highlighted spaces match your Steward’s starting terrain. Tap one to choose it.",
             content: <TableStewardStart state={state} onConfirm={(hexId) => commitGameState((current) => commitStewardPlacement(current, current.currentPlayerId, hexId))} />
           } : state.phase === "goldenSetup" ? {
             key: "golden-setup",
-            eyebrow: "Setup · Golden Legacy",
+            eyebrow: "Setup: Golden Legacy",
             title: `Place ${state.goldenSetup.selectedTileId ? goldenTileById[state.goldenSetup.selectedTileId]?.name ?? "the Golden Tile" : "the Golden Tile"}`,
             steps: 1,
             hint: "Highlighted spaces are where the Golden Tile may go. Tap one to choose it.",
             content: <TableGoldenStart state={state} onConfirm={(hexId) => commitGameState((current) => placeGoldenTileForSetup(current, hexId))} onSkip={() => commitGameState((current) => skipGoldenTileForSetup(current))} />
           } : state.phase === "gameEnd" ? {
             key: "game-end",
-            eyebrow: `Season ${["", "I", "II", "III"][state.season]} · Round ${state.round} of 12`,
+            eyebrow: `Season ${["", "I", "II", "III"][state.season]}, round ${state.round} of 12`,
             title: "Your settlement is complete",
             steps: 1,
             content: <div className="completed-game-layout"><CompletedGameReview state={state} onRecord={handleRecordLedgerGame} onNewGame={resetGame} ledger={completedReviewLedger(state, ledgerCampaign)} />
@@ -1107,7 +1108,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
                 <p className="eyebrow">At the table</p>
                 <h2>The Quiet Vale is a board game</h2>
                 <p>This demo plays the printed rules of The Quiet Vale: Seasons of Settlement, a co-operative game for 1–5 players on a hand-painted map, with tiles, Encounter Cards and Target Cards on the table.</p>
-                <p className="physical-game-moments">Want to see another side of it? <a href="?experience=table&scenario=showcase-chain">The Strain spreads</a> · <a href="?experience=table&scenario=showcase-late">A thriving settlement</a></p>
+                <p className="physical-game-moments">Want to see another side of it? <a href="?experience=table&scenario=showcase-chain">The Strain spreads</a> or <a href="?experience=table&scenario=showcase-late">A thriving settlement</a></p>
               </aside></div>
           } : state.pendingGoldenEffect ? {
             key: `golden_${state.pendingGoldenEffect.cardId}_${state.pendingGoldenEffect.kind}`,
@@ -1130,7 +1131,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
           } : headEffect ? {
             key: headEffect.id,
             eyebrow: headEffect.ruleId === "system:overstrain-spread" ? "Overstrain chain" : headEffect.sourceType === "card" ? "Encounter" : headEffect.sourceType === "tile" ? "Tile effect" : "Resolution",
-            title: headEffect.title,
+            title: displayEffectTitle(headEffect.title),
             steps: state.pendingEffects.length,
             content: effectPanel,
             sourceTileId: headEffect.sourceType === "tile" ? headEffect.sourceId : undefined,

@@ -179,7 +179,7 @@ describe("Golden resolution boundaries", () => {
     const id = state.pendingGoldenEffect.arrivalCardIds[0];
     const arrival = encounterById[id];
     render(<App initialPreview={bell} />);
-    expect(screen.getByRole("article", { name: `Revealed Arrival: ${arrival.name}` })).toHaveTextContent("3 timer tokens · Add now for free");
+    expect(screen.getByRole("article", { name: `Revealed Arrival: ${arrival.name}` })).toHaveTextContent("3 timer tokens, added for free");
     expect(screen.getByText("To complete later")).toBeVisible();
     expect(readSavedGame()?.state.encounters.activeArrivals.some((card) => card.cardId === id)).toBe(false);
     fireEvent.click(screen.getByRole("button", { name: "Place this Arrival" }));

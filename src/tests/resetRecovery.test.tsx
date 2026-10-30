@@ -112,11 +112,11 @@ describe("deliberate local reset and recovery", () => {
     expect(readSavedGame()?.state.map).toEqual(recorded.state.map);
     expect(readSavedGame()?.state.ledgerRun?.recorded).toBe(false);
     fireEvent.click(screen.getByRole("button", { name: "Close reference tray" }));
-    expect(screen.getByRole("button", { name: "Record Completed Game" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Record this game" })).toBeEnabled();
     view.unmount();
     render(<App initialPreview={preview} />);
     expect(readLedgerCampaign().games).toHaveLength(0);
-    fireEvent.click(screen.getByRole("button", { name: "Record Completed Game" }));
+    fireEvent.click(screen.getByRole("button", { name: "Record this game" }));
     expect(readLedgerCampaign().games).toHaveLength(1);
     expect(readLedgerCampaign().games[0].id).toBe(recorded.campaign.games[0].id);
     expect(readLedgerCampaign().games[0].finalScore).toBe(recorded.campaign.games[0].finalScore);

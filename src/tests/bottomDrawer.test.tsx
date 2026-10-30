@@ -50,7 +50,7 @@ describe("bottom drawer", () => {
       ".tile-reference-grid .tile-mini-card .tile-mini-card-heading strong"
     );
     expect(firstTileName).toHaveTextContent("Shrine of Renewal");
-    expect(screen.getByText("Unlocked Special | Resource")).toBeInTheDocument();
+    expect(screen.getByText("Resource, unlocked")).toBeInTheDocument();
     expect(
       screen.getByText("Place on Woodland terrain.")
     ).toBeInTheDocument();
@@ -85,7 +85,7 @@ describe("bottom drawer", () => {
     fireEvent.click(screen.getByRole("tab", { name: /rules/i }));
 
     expect(screen.getByRole("heading", { name: "Rules" })).toBeInTheDocument();
-    expect(screen.getByText("Playtester Guide")).toBeInTheDocument();
+    expect(screen.getByText("Playtester guide")).toBeInTheDocument();
     expect(screen.getByText("Round 1/12")).toBeInTheDocument();
     expect(screen.getByText("3 actions left")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "How to play" })).toHaveAttribute(

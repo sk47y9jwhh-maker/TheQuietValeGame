@@ -20,7 +20,7 @@ import {
   neighbourlySupportEffectRuleId
 } from "../../data/effectRules";
 import { resourceLabels, resources } from "../../data/resources";
-import { getBurdenResolutionCurrentText } from "../common/gameText";
+import { displayEffectLabel, displayEffectTitle, getBurdenResolutionCurrentText } from "../common/gameText";
 import { EncounterCard } from "../common/EncounterCard";
 import {
   getEffectSupportTargets,
@@ -1042,8 +1042,8 @@ function StandardEffectPrompt({
           size="compact"
           status={
             <>
-              <span className="eyebrow">Pending Effect</span>
-              <strong>{effect.title}</strong>
+              <span className="eyebrow">Pending effect</span>
+              <strong>{displayEffectTitle(effect.title)}</strong>
             </>
           }
           supplementary={
@@ -1056,8 +1056,8 @@ function StandardEffectPrompt({
       ) : (
         <>
           <div className="effect-heading">
-            <p className="eyebrow">Pending Effect</p>
-            <h2>{effect.title}</h2>
+            <p className="eyebrow">Pending effect</p>
+            <h2>{displayEffectTitle(effect.title)}</h2>
             <p className="muted">{effect.sourceName}</p>
           </div>
 
@@ -1105,11 +1105,11 @@ function StandardEffectPrompt({
 
       {canCancelWithWarden && onCancelWithWarden && (isPlayerExperience() ? (
         <aside className="warden-prevention" aria-label="Warden's response">
-          <p className="eyebrow">Warden · once this Season</p>
+          <p className="eyebrow">Warden, once this Season</p>
           <h3>Prevent the reveal effect?</h3>
-          <p>The Burden stays active and can still be resolved later. Using the power spends the Warden’s Season {state.season} use.</p>
+          <p>The Burden stays active and can still be resolved later. Using the power spends the Warden’s use for Season {["I", "II", "III"][state.season - 1]}.</p>
           <p>{hasWardenReliefTarget(state) ? "Then choose a tile to remove 1 Strain or give Supported." : "There is no eligible tile for the follow-up relief."}</p>
-          <button className="secondary-action" onClick={onCancelWithWarden} type="button"><ShieldOff size={18} aria-hidden="true" />Use Warden Power: prevent this effect</button>
+          <button className="secondary-action" onClick={onCancelWithWarden} type="button"><ShieldOff size={18} aria-hidden="true" />Use the Warden’s power</button>
         </aside>
       ) : (
         <button
@@ -1118,7 +1118,7 @@ function StandardEffectPrompt({
           type="button"
         >
           <ShieldOff size={18} />
-          Use Warden Power: prevent this effect
+          Use the Warden’s power
         </button>
       ))}
 
@@ -1128,9 +1128,9 @@ function StandardEffectPrompt({
       <div className="effect-command-bar">
         <span className={cannotApply ? "effect-choice-waiting" : "effect-choice-ready"}>
           {cannotApply
-            ? "Complete a valid choice"
+            ? "Make a choice above"
             : wardenReliefHasNoTarget
-              ? "No eligible tile — continue"
+              ? "No eligible tile, so continue"
             : previewItems.length > 0
               ? "Will apply"
               : "Ready to continue"}
@@ -1148,7 +1148,7 @@ function StandardEffectPrompt({
           {effect.canSkip && onSkip && (
             <button className="secondary-action" onClick={onSkip} type="button">
               <X size={18} />
-              {effect.skipLabel ?? "Skip"}
+              {displayEffectLabel(effect.skipLabel ?? "Skip")}
             </button>
           )}
           <button
@@ -1160,7 +1160,7 @@ function StandardEffectPrompt({
             <Check size={18} />
             {wardenReliefHasNoTarget
               ? "Continue"
-              : effect.confirmLabel ?? "Apply Effect"}
+              : displayEffectLabel(effect.confirmLabel ?? "Apply effect")}
           </button>
         </div>
       </div>
@@ -1232,7 +1232,7 @@ function StandardEffectPrompt({
 
       {showTimerControls && !isPreparedPreview && (
         <section className="effect-control-group">
-          <h3>Arrival Timers</h3>
+          <h3>Arrival timers</h3>
           <div className="effect-list">
             {state.encounters.activeArrivals.map((arrival) => (
               <div className="effect-row" key={arrival.cardId}>
@@ -1289,7 +1289,7 @@ function StandardEffectPrompt({
                   type="button"
                 >
                   <span>
-                    {selectTileName(tile)} {tile.hexIds.join(", ")} | Strain {tile.strain}
+                    {selectTileName(tile)} {tile.hexIds.join(", ")}, {tile.strain} Strain
                     <small>
                       {strainCascadeRule.anchorStrain > 0
                         ? `Receives ${strainCascadeRule.anchorStrain} Strain before the cascade`
@@ -1322,7 +1322,7 @@ function StandardEffectPrompt({
                     type="button"
                   >
                     <span>
-                      {selectTileName(tile)} {tile.hexIds.join(", ")} | Strain {tile.strain}
+                      {selectTileName(tile)} {tile.hexIds.join(", ")}, {tile.strain} Strain
                     </span>
                     {selected ? <Check size={16} /> : <Plus size={16} />}
                   </button>
@@ -1355,7 +1355,7 @@ function StandardEffectPrompt({
             {tileControlTargets.map((tile) => (
               <div className="effect-row tile-effect-row" key={tile.instanceId}>
                 <span>
-                  {selectTileName(tile)} {tile.hexIds.join(", ")} | Strain {tile.strain}
+                  {selectTileName(tile)} {tile.hexIds.join(", ")}, {tile.strain} Strain
                   {(tile.support.passive || tile.support.singleUse) && (
                     <small>Already Supported</small>
                   )}
@@ -1546,12 +1546,6 @@ function StandardEffectPrompt({
         </section>
       )}
 
-      {effect.requiresManualChoice &&
-        !hasChanges &&
-        !wardenReliefHasNoTarget &&
-        !isNeighbourlySupport && (
-        <p className="failure-note">A choice is required before this effect can resolve.</p>
-      )}
       {isNeighbourlySupport && tileAdjustmentInvalid && (
         <p className="failure-note">
           Choose the required number of different Housing Tiles in every labelled
@@ -1578,10 +1572,10 @@ function StandardEffectPrompt({
         </p>
       )}
       {isPlayerExperience() && <TargetCardResolution key={`draw_${effect.id}`} state={state} effect={effect} />}
-      <p className="muted effect-footer">
+      {state.pendingEffects[1] && <p className="muted effect-footer">
         <TimerReset size={15} />
-        Next effect: {state.pendingEffects[1]?.title ?? "None"}
-      </p>
+        Then: {displayEffectTitle(state.pendingEffects[1].title)}
+      </p>}
     </section>
   );
 }

@@ -114,7 +114,7 @@ describe("Warden player experience", () => {
     const view = render(<StrictMode><App initialPreview={warden} /></StrictMode>);
     expect(screen.getByRole("complementary", { name: "Warden's response" })).toHaveTextContent("Burden stays active");
     const burdens = saved().encounters.activeBurdens;
-    fireEvent.click(screen.getByRole("button", { name: "Use Warden Power: prevent this effect" }));
+    fireEvent.click(screen.getByRole("button", { name: "Use the Warden’s power" }));
     expect(saved().players[1].stewardPowerUsesBySeason[1]).toBe(1);
     expect(saved().encounters.activeBurdens).toEqual(burdens);
     expect(screen.getByRole("button", { name: "Apply Warden relief" })).toBeDisabled();

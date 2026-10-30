@@ -18,7 +18,7 @@ export function LegacySetupOptions({
 
   return (
     <details className="welcome-optional">
-            <summary><Shield size={17} aria-hidden="true" /><span>Ledger & Golden Legacy<small>Optional · {completedLedgerCount}/50 Ledger entries</small></span><ChevronDown size={16} aria-hidden="true" /></summary>
+            <summary><Shield size={17} aria-hidden="true" /><span>Ledger and Golden Legacy<small>Optional. {completedLedgerCount} of 50 Ledger entries complete</small></span><ChevronDown size={16} aria-hidden="true" /></summary>
             <div className="welcome-optional-fields">
               <label>Steward’s Ledger Vow
                 <select value={declaredVowId} onChange={(event) => onDeclaredVowChange(event.target.value)} aria-label="Steward's Ledger Vow">

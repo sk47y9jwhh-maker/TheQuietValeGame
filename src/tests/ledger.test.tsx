@@ -154,7 +154,7 @@ describe("Steward's Ledger", () => {
     fireEvent.click(screen.getByRole("button", { name: "Reset Ledger Progress" }));
     expect(onResetLedgerCampaign).toHaveBeenCalledOnce();
 
-    fireEvent.click(screen.getByRole("tab", { name: "Game Log" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Game log" }));
     expect(screen.getByText(/Game created/)).toBeInTheDocument();
   });
 });

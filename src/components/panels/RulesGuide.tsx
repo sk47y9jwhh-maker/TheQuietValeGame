@@ -478,14 +478,14 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
         <div>
           <p className="eyebrow">
             {rulesView === "gameRules"
-              ? "Rules Reference"
+              ? "Rules reference"
               : gameStatus
-                ? "Playtester Guide"
+                ? "Playtester guide"
                 : "Learn to Play"}
           </p>
           <strong>
             {rulesView === "gameRules"
-              ? "Main Rulebook v6.5 · choose one of 18 chapters."
+              ? "Main Rulebook v6.5. Choose one of 18 chapters."
               : "Build one shared settlement across three Seasons."}
           </strong>
         </div>
@@ -495,8 +495,8 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
         >
           {gameStatus ? (
             <>
-              <span>Season {gameStatus.season}</span>
-              <span>Round {gameStatus.round}/12</span>
+              <span>Season {["I", "II", "III"][gameStatus.season - 1]}</span>
+              <span>Round {gameStatus.round} of 12</span>
               <span>{gameStatus.actionsRemaining} actions left</span>
               <span>Rules v6.5</span>
             </>
@@ -617,7 +617,7 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
             <article className="mini-card how-to-card">
               <span className="how-to-step-number">6</span>
               <div>
-                <strong>Continue—or score</strong>
+                <strong>Continue, or score</strong>
                 <p>
                   After rounds 4 and 8, begin the next Season. After round 12, total Population and
                   Renown, then lose 10 Renown for each active Burden, failed Arrival, and Strain

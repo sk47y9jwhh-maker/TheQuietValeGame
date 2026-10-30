@@ -40,11 +40,11 @@ import { RulesGuide } from "./RulesGuide";
 type DrawerSection = "tiles" | "hand" | "specials" | "ledger" | "rules";
 type LedgerView = "game" | "history" | "chronicles" | "unlocks" | "log";
 const ledgerViews = [
-  { id: "game", label: "This Game", Icon: Target },
+  { id: "game", label: "This game", Icon: Target },
   { id: "history", label: "Settlements", Icon: History },
   { id: "chronicles", label: "Chronicles", Icon: BookMarked },
   { id: "unlocks", label: "Unlocks", Icon: Trophy },
-  { id: "log", label: "Game Log", Icon: History }
+  { id: "log", label: "Game log", Icon: History }
 ] as const;
 
 interface BottomDrawerProps {
@@ -89,7 +89,7 @@ function TileReferenceCard({
           />
         </div>
       </div>
-      <TileArtwork tileId={tileId} name={name} />
+      <TileArtwork tileId={tileId} name={name} board />
       <p className="tile-mini-card-meta">{meta}</p>
       <p className="tile-mini-card-placement">
         <strong>Placement:</strong>
@@ -178,7 +178,7 @@ export function BottomDrawer({
           <div className="tray-panel-header">
             <div>
               <p className="eyebrow">
-                {activeSection === "ledger" ? "Campaign Record" : "Reference"}
+                {activeSection === "ledger" ? "Campaign record" : "Reference"}
               </p>
               <h2>{activeItem.label}</h2>
             </div>
@@ -201,7 +201,7 @@ export function BottomDrawer({
                     className="available unlocked-special-card"
                     effect={tile.effectText}
                     key={tile.id}
-                    meta={`Unlocked Special | ${formatCategory(tile.category)}`}
+                    meta={`${formatCategory(tile.category)}, unlocked`}
                     name={tile.name}
                     onInspect={() => onTileInspect(tile.id)}
                     placement={tile.placement?.text ?? "No placement restriction."}
@@ -217,7 +217,7 @@ export function BottomDrawer({
                     className={remaining > 0 ? "available" : "locked"}
                     effect={tile.basic.effectText}
                     key={tile.id}
-                    meta={`${formatCategory(tile.category)} | Cost ${formatCost(tile.basic.cost)}`}
+                    meta={`${formatCategory(tile.category)}, ${formatCost(tile.basic.cost) === "Free" ? "free to build" : `costs ${formatCost(tile.basic.cost)}`}`}
                     name={tile.basic.name}
                     onInspect={() => onTileInspect(tile.id)}
                     placement={tile.placement?.text ?? "No placement restriction."}
@@ -256,7 +256,7 @@ export function BottomDrawer({
                     className={remaining > 0 ? "available" : "locked"}
                     effect={tile.effectText}
                     key={tile.id}
-                    meta={`${formatCategory(tile.category)} | ${tile.unlockSource}`}
+                    meta={`${formatCategory(tile.category)}, from ${tile.unlockSource}`}
                     name={tile.name}
                     onInspect={() => onTileInspect(tile.id)}
                     placement={tile.placement?.text ?? "No placement restriction."}
@@ -334,7 +334,7 @@ export function BottomDrawer({
 
                   <div className="ledger-section-heading">
                     <div>
-                      <p className="eyebrow">Current Game</p>
+                      <p className="eyebrow">Current game</p>
                       <h3>Steward objectives</h3>
                     </div>
                     <span>{stewardObjectives.filter((objective) => objective.met).length}/{stewardObjectives.length} {state.phase === "gameEnd" ? "met at the end" : "on track"}</span>
@@ -436,7 +436,7 @@ export function BottomDrawer({
                         >
                           <header>
                             <div>
-                              <span>{entry.id} · {entry.entryType}</span>
+                              <span>{entry.id}, {entry.entryType}</span>
                               <strong>{entry.name}</strong>
                             </div>
                             <span className="ledger-status-chip">

@@ -24,7 +24,7 @@ function PrivateHandView({ player, children }: { player: GameState["players"][nu
   if (!visible) return (
     <section className="private-hand-gate" aria-label="Private hand handoff">
       <Hand size={32} aria-hidden="true" />
-      <p className="eyebrow">Shared device · private hand</p>
+      <p className="eyebrow">Shared device, private hand</p>
       <h2 ref={headingRef} tabIndex={-1}>Pass to {player.name}.</h2>
       <p>Only <strong>{steward.name}</strong> should look at these cards. Let the other Stewards look away, then reveal your hand.</p>
       <button type="button" className="primary-action" onClick={() => setVisible(true)}><Eye size={18} aria-hidden="true" />Reveal {steward.name}’s hand</button>
@@ -33,7 +33,7 @@ function PrivateHandView({ player, children }: { player: GameState["players"][nu
   );
   return (
     <div className="private-hand-content">
-      <div className="private-hand-bar" ref={contentRef} tabIndex={-1} role="group" aria-label={`${steward.name}’s private hand`}><span><Eye size={16} aria-hidden="true" />{player.name} · {steward.name}’s private hand</span><button type="button" onClick={() => setVisible(false)}><EyeOff size={17} aria-hidden="true" />Hide hand</button></div>
+      <div className="private-hand-bar" ref={contentRef} tabIndex={-1} role="group" aria-label={`${steward.name}’s private hand`}><span><Eye size={16} aria-hidden="true" />{steward.name}’s private hand <small>{player.name}</small></span><button type="button" onClick={() => setVisible(false)}><EyeOff size={17} aria-hidden="true" />Hide hand</button></div>
       {children}
     </div>
   );

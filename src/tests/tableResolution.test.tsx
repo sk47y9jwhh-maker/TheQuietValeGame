@@ -22,10 +22,10 @@ describe("board-first table resolutions", () => {
     // The board stays in play: the suggested tile is marked on it.
     const cabin = screen.getByRole("button", { name: /^A2, Cabin.*Chosen: \+1 Strain/ });
     fireEvent.click(cabin);
-    expect(screen.getByText("Complete a valid choice")).toBeInTheDocument();
+    expect(screen.getByText("Make a choice above")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^A2, Cabin/ }));
     expect(screen.getByText("Will apply")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Apply Effect" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply effect" }));
     const cabinAfter = readSavedGame()?.state.map.placedTiles.find((tile) => tile.hexIds.includes("A2"));
     expect(cabinAfter?.strain).toBe(1);
   });
@@ -57,9 +57,9 @@ describe("board-first table finale", () => {
   it("shows the final scoring beside the finished board", () => {
     open("finale");
     expect(screen.getByRole("heading", { name: "Your settlement is complete" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Final Scoring" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Final scoring" })).toBeInTheDocument();
     expect(screen.getByRole("group", { name: /The Quiet Vale map/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Record Completed Game" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Record this game" })).toBeInTheDocument();
   });
 });
 

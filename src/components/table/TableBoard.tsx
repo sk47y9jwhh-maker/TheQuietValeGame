@@ -172,7 +172,9 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
     if (view || !size.width || !size.height) return;
     const fitted = fitView(size.width, size.height);
     const hexPx = (hexRadius * 2) / fitted.upp;
-    if (hexPx >= 56) { setView(fitted); return; }
+    // A laptop sees the whole board even when the hexes are small: only a
+    // phone-sized frame starts close in.
+    if (hexPx >= 56 || (size.width >= 700 && hexPx >= 34)) { setView(fitted); return; }
     const steward = state.players.find((player) => player.id === state.currentPlayerId)?.stewardHexId;
     const anchor = (steward ? boardCellById.get(steward) : undefined) ?? boardCellById.get("G5");
     const upp = (hexRadius * 2) / 72;

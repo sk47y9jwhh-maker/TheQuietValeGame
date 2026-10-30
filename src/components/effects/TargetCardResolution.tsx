@@ -66,6 +66,8 @@ export function TargetCardResolution({ state, effect }: { state: GameState; effe
   if (!effect.targetCardPrepared) return null;
   const enhanced = isPlayerExperience();
   const diagnostics = effect.targetCardDiagnostics ?? [];
+  // Nothing was drawn: one quiet line instead of a whole panel.
+  if (enhanced && !diagnostics.length) return <p className="target-draw-none">No tile can take Strain from this, so no Target Card is drawn.</p>;
   return (
     <section className={`target-card-resolution ${enhanced ? "target-draw-review" : ""}`} aria-label="Target Card resolution">
       <div className="target-card-resolution-heading">
@@ -86,9 +88,9 @@ export function TargetCardResolution({ state, effect }: { state: GameState; effe
                   <summary>
                     <span className="target-draw-summary">
                       <span className="target-draw-position">{targetLabel(diagnostic, index)}</span>
-                      <strong>{diagnostic.manualChoice ? "Open — choose a tile" : `${tile ? selectTileName(tile) : diagnostic.selectedTileId} · ${diagnostic.selectedHexIds.join(", ")}`}</strong>
+                      <strong>{diagnostic.manualChoice ? "Open: choose a tile" : `${tile ? selectTileName(tile) : diagnostic.selectedTileId}, ${diagnostic.selectedHexIds.join(", ")}`}</strong>
                       {diagnostic.plannedStrain !== undefined && diagnostic.plannedStrain > 0 && <span className="target-draw-strain">Draw suggests +{diagnostic.plannedStrain} Strain</span>}
-                      <span className="target-draw-explain">Card {String(diagnostic.cardId).padStart(2, "0")} · Explain</span>
+                      <span className="target-draw-explain">Why card {String(diagnostic.cardId).padStart(2, "0")}</span>
                     </span>
                   </summary>
                   <div className="target-draw-explanation"><TargetTrace state={state} diagnostic={diagnostic} index={index} enhanced /></div>

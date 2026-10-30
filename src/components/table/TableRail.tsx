@@ -85,7 +85,7 @@ export function TableRail(props: TableRailProps) {
         <div>
           <strong>{steward.name} <Term id="stewardPower">power</Term>{powerUsed ? ", used this Season" : power.ok ? ", ready" : ""}</strong>
           <p className={powerOpen ? "" : "is-clamped"} id="rail-power-text">{steward.powerText}</p>
-          {power.ok && foldable.has("power") && <p className="rail-folded">Offered on matching actions. Tap a tile or a space and choose “with {steward.name}’s power”.</p>}
+          {power.ok && foldable.has("power") && <p className="rail-folded">Offered on matching actions. Tap a tile or a space and look for the option marked Power.</p>}
           <button type="button" className="rail-power-more" aria-expanded={powerOpen} aria-controls="rail-power-text" onClick={() => setPowerOpen((open) => !open)}>{powerOpen ? "Show less" : "Read the full power"}</button>
         </div>
         {power.ok && !foldable.has("power") && <button type="button" aria-label="Use Steward Power" onClick={props.onUseStewardPower}>Use</button>}
@@ -167,7 +167,7 @@ export function TableRail(props: TableRailProps) {
             <h3>{card.name}</h3>
             <p className="rail-card-text">{text}</p>
             {state.phase === "turns" && usable && foldable.has(boon.cardId) && <p className="rail-folded">Offered on matching actions as you play.</p>}
-            {state.phase === "turns" && usable && !foldable.has(boon.cardId) && <button type="button" onClick={() => props.onUseBoon(boon.cardId)}>Use · free</button>}
+            {state.phase === "turns" && usable && !foldable.has(boon.cardId) && <button type="button" onClick={() => props.onUseBoon(boon.cardId)}>Use for free</button>}
           </div>
         </article>;
       }))}

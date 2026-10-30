@@ -20,7 +20,7 @@ const core = (id: string, hex: string, strain = 0): PlacedTile => ({ instanceId:
 function effect(sourceId: string, season: Season, suggestedAdjustment: EffectAdjustment = {}): PendingEffectState {
   return { id: "choice", sourceType: "card", sourceId, ruleId: cardEffectRuleId(sourceId, season), sourceName: "Choice", title: "Choose an outcome", effectText: "Pay resources or choose Strain or timer loss.", requiresManualChoice: true, suggestedAdjustment };
 }
-function applyButton() { return screen.getByRole("button", { name: "Apply Effect" }); }
+function applyButton() { return screen.getByRole("button", { name: "Apply effect" }); }
 
 describe("payment alternative shortcuts", () => {
   it.each(["tabletop"])("replaces prepared Strain with payment, commits once and supports Undo and reload in %s", (experience) => {

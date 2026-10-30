@@ -30,8 +30,8 @@ export function CompletedGameReview({ state, ledger, onRecord, onNewGame }: Prop
   const overstrained = state.map.placedTiles.filter((tile) => tile.strain >= 3).length;
   return <article className="completed-game-review" aria-label="Completed settlement review">
     <header className="finale-heading">
-      <div><p className="eyebrow">The story of your settlement</p><h1 ref={heading} tabIndex={-1}>Final Scoring</h1><p>{state.round} rounds · {state.playerCount} Steward{state.playerCount === 1 ? "" : "s"} · One shared Vale</p></div>
-      <div className="final-score-total"><Trophy size={26} aria-hidden="true" /><span>Final Score</span><strong>{score.finalScore}</strong></div>
+      <div><p className="eyebrow">The story of your settlement</p><h1 ref={heading} tabIndex={-1}>Final scoring</h1><p>{state.round} rounds, {state.playerCount} Steward{state.playerCount === 1 ? "" : "s"}, one shared Vale</p></div>
+      <div className="final-score-total"><Trophy size={26} aria-hidden="true" /><span>Final score</span><strong>{score.finalScore}</strong></div>
     </header>
     <p className="final-score-equation">{score.population} Population + {renown} Renown − {penalties} penalties = <strong>{score.finalScore}</strong></p>
     <div className="finale-columns">
@@ -56,9 +56,9 @@ export function CompletedGameReview({ state, ledger, onRecord, onNewGame }: Prop
           {ledger ? <>
             <p className="finale-ledger-status" role="status">{ledger.recorded ? "Game recorded" : "Ready to record this game"}</p>
             {ledger.recordedScore !== undefined && ledger.recordedScore !== score.finalScore && <p className="recorded-score-note">The Ledger keeps the recorded score of {ledger.recordedScore}. This board has changed since recording. It does not replace that result.</p>}
-            <p>{ledger.eligibleCount} eligible {ledger.eligibleCount === 1 ? "entry" : "entries"} completed · {ledger.newEntries.length} new {ledger.newEntries.length === 1 ? "record" : "records"}</p>
+            <p>{ledger.eligibleCount} eligible {ledger.eligibleCount === 1 ? "entry" : "entries"} completed, {ledger.newEntries.length} new {ledger.newEntries.length === 1 ? "record" : "records"}</p>
             {ledger.newEntries.length > 0 && <ul>{ledger.newEntries.map((entry) => <li key={entry.id}><span>{entry.id}</span><strong>{entry.name}</strong></li>)}</ul>}
-            <button className="primary-action" type="button" disabled={ledger.recorded} onClick={onRecord}>{ledger.recorded ? "Recorded in Ledger" : "Record Completed Game"}</button>
+            <button className="primary-action" type="button" disabled={ledger.recorded} onClick={onRecord}>{ledger.recorded ? "Recorded in Ledger" : "Record this game"}</button>
             <p className="finale-scoring-note">{ledger.recorded ? "Your result and earned entries are recorded. Open the Ledger tab below to review your progress." : "Record your result before starting another settlement. Ledger progress is stored in this browser."}</p>
           </> : <p>The final score is ready to review.</p>}
           {onNewGame && <button className="finale-new-game" type="button" onClick={(event) => { event.currentTarget.focus({ preventScroll: true }); setConfirmNewGame(true); }}>Start another settlement</button>}
@@ -66,7 +66,7 @@ export function CompletedGameReview({ state, ledger, onRecord, onNewGame }: Prop
         <section className="finale-objectives" aria-labelledby="final-objectives-title">
           <h2 id="final-objectives-title"><Flag size={20} aria-hidden="true" />Steward objectives</h2>
           {objectives.map((objective) => <article key={objective.playerId}>
-            <header><div><strong>{objective.stewardName}</strong><small>{objective.playerName}</small></div><span>{objective.met ? `Met · +${objective.reward}` : "Not met · 0"}</span></header>
+            <header><div><strong>{objective.stewardName}</strong><small>{objective.playerName}</small></div><span>{objective.met ? `Met, +${objective.reward}` : "Not met"}</span></header>
             <p>{objective.objectiveText}</p>
           </article>)}
         </section>

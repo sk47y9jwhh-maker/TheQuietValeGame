@@ -108,7 +108,7 @@ describe("saving without losing the current session", () => {
   it("stores the Ledger before a board can claim its new result is recorded", () => {
     render(<App initialPreview={finale} />);
     const failure = failWrite(ledgerKey);
-    fireEvent.click(screen.getByRole("button", { name: "Record Completed Game" }));
+    fireEvent.click(screen.getByRole("button", { name: "Record this game" }));
     expect(readLedgerCampaign().games).toHaveLength(0);
     expect(readSavedGame()?.state.ledgerRun?.recorded).toBe(false);
     expect(screen.getByRole("alert", { name: "Local save status" })).toBeVisible();
@@ -132,9 +132,9 @@ describe("saving without losing the current session", () => {
     view.unmount();
     failure.mockRestore();
     render(<App initialPreview={preview} />);
-    expect(screen.getByRole("button", { name: "Record Completed Game" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Record this game" })).toBeEnabled();
     expect(readSavedGame()?.state.ledgerRun?.recorded).toBe(false);
-    fireEvent.click(screen.getByRole("button", { name: "Record Completed Game" }));
+    fireEvent.click(screen.getByRole("button", { name: "Record this game" }));
     expect(readLedgerCampaign().games).toHaveLength(1);
   });
 });

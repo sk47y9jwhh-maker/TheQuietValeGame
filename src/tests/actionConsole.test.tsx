@@ -172,7 +172,7 @@ describe("action console", () => {
 
     expect(screen.getByRole("heading", { name: "Ledger review" })).toBeInTheDocument();
     expect(screen.getByText(/eligible Ledger Entr(?:y|ies) completed/i)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Record Completed Game" }));
+    fireEvent.click(screen.getByRole("button", { name: "Record this game" }));
     expect(onRecordLedgerGame).toHaveBeenCalledOnce();
   });
 

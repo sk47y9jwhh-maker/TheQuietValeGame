@@ -6,6 +6,6 @@ export function tileArtworkUrl(tileId: string, side: "basic" | "upgraded" = "bas
   return `${import.meta.env.BASE_URL}tiles/${face}${options.thumbnail ? "-map" : options.board ? "-board" : ""}.webp`;
 }
 
-export function TileArtwork({ tileId, side = "basic", name, thumbnail = false }: { tileId: string; side?: "basic" | "upgraded"; name: string; thumbnail?: boolean }) {
-  return <img className={`tile-artwork${thumbnail ? " tile-artwork-thumbnail" : ""}`} src={tileArtworkUrl(tileId, side, { thumbnail })} alt={thumbnail ? "" : `${name} tile face`} width={1418} height={1228} loading="lazy" decoding="async" />;
+export function TileArtwork({ tileId, side = "basic", name, thumbnail = false, board = false }: { tileId: string; side?: "basic" | "upgraded"; name: string; thumbnail?: boolean; board?: boolean }) {
+  return <img className={`tile-artwork${thumbnail ? " tile-artwork-thumbnail" : ""}`} src={tileArtworkUrl(tileId, side, { thumbnail, board })} alt={thumbnail ? "" : `${name} tile face`} width={1418} height={1228} loading="lazy" decoding="async" />;
 }

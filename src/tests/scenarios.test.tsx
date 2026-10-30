@@ -152,8 +152,8 @@ describe("comparison controls", () => {
   it("records the final score only in the demo Ledger", () => {
     window.history.replaceState(null, "", "/?experience=tabletop&scenario=finale");
     render(<ScenarioPreview experience="tabletop" scenarioId="finale" />);
-    expect(screen.getByRole("heading", { name: "Final Scoring" })).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Record Completed Game" }));
+    expect(screen.getByRole("heading", { name: "Final scoring" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Record this game" }));
     expect(readLedgerCampaign().games).toHaveLength(1);
     expect(screen.getByRole("button", { name: "Recorded in Ledger" })).toBeDisabled();
     expect(window.localStorage.getItem("quietVale.stewardsLedger.v1")).toBeNull();

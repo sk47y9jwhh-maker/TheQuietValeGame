@@ -9,7 +9,7 @@ import { selectCurrentPlayer } from "../../engine/selectors";
 import type { GameState } from "../../engine/types";
 import { useBoardChoices } from "./boardChoices";
 
-const placeName = (hexId: string) => `${hexId} · ${mapById[hexId] ? terrainLabels[mapById[hexId].terrain] : "Unknown space"}`;
+const placeName = (hexId: string) => `${hexId}, ${mapById[hexId] ? terrainLabels[mapById[hexId].terrain] : "Unknown space"}`;
 
 /** Choosing a Steward's starting space, on the main board. */
 export function TableStewardStart({ state, onConfirm }: { state: GameState; onConfirm: (hexId: string) => void }) {

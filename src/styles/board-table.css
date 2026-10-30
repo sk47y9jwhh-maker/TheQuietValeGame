@@ -1018,7 +1018,7 @@ button.table-score { border: 0; font: inherit; cursor: pointer; }
 /* Many choices (a Golden Tile, Ranger reach): a calmer mark so the board stays readable. */
 .has-many-choices .board-hex.is-choice .board-hex-choice { stroke-width: 1.6; stroke-dasharray: 3 3; stroke-opacity: 0.75; fill: rgba(232, 196, 99, 0.1); animation: none; }
 .has-many-choices .board-hex.is-choice:hover .board-hex-choice { stroke-width: 2.6; stroke-opacity: 1; fill: rgba(232, 196, 99, 0.3); }
-.table-resolution-body .signet-tile-choices { grid-template-columns: minmax(0, 1fr) !important; }
+
 .table-resolution-body .signet-arrangement { display: block; }
 .table-resolution-body .signet-controls { width: auto; max-width: none; }
 
@@ -1554,3 +1554,44 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .cost-icons { display: inline-flex; gap: 8px; align-items: center; }
 .cost-icons > span { display: inline-flex; align-items: center; font-weight: 700; }
 .cost-icons .game-icon { width: 18px; height: 18px; margin-right: 2px; }
+
+/* Score breakdown: icon and label on one line, the note beneath, the total set apart. */
+.score-popover dt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.score-popover .score-label { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; font-size: 0.98rem; }
+.score-popover .score-label .game-icon { width: 20px; height: 20px; flex: none; }
+.score-popover dl > div { align-items: baseline; }
+.score-popover dd { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.score-popover .score-total { margin-top: 10px; padding-top: 8px; border-top: 2px solid #d9cba3; font-weight: 700; }
+.score-popover .score-total strong { font-size: 1.25rem; }
+
+/* Golden Signet: a compact grid of tiles to lift. */
+.signet-tile-choices { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important; gap: 8px !important; }
+.signet-tile-choices label { gap: 10px; padding: 8px 10px; min-width: 0; }
+.signet-tile-choices label.is-selected { padding: 7px 9px; }
+.signet-tile-choices label > span { min-width: 0; }
+.signet-tile-choices strong { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.signet-tile-choices label > span > span { margin-top: 1px; font-size: 13px; color: var(--bt-ink-soft, #5d5541); }
+.signet-tile-choices .tile-artwork { width: 46px; height: 40px; }
+.signet-tile-choices input { width: 18px; height: 18px; accent-color: #2f4a33; }
+
+/* The effect's command bar: buttons never wrap their words, the status sits quietly to the left. */
+.table-resolution-body .effect-command-bar .effect-actions button { white-space: nowrap; }
+.table-resolution-body .effect-command-bar > span { font-size: 0.86rem; color: var(--bt-ink-soft, #5d5541); }
+@media (max-width: 1500px) {
+  .table-resolution-body .effect-command-bar { grid-template-columns: minmax(0, 1fr); }
+  .table-resolution-body .effect-command-bar .effect-preview-list { grid-row: auto; }
+  .table-resolution-body .effect-command-bar .effect-actions { justify-content: stretch; }
+  .table-resolution-body .effect-command-bar .effect-actions button { flex: 1 1 auto; justify-content: center; }
+}
+
+/* A practice position plays as a real game: a plain brass bar, not the striped demo ribbon. */
+.scenario-preview-table.is-practice .demo-ribbon { background: #dcb862; }
+.scenario-preview-table.is-practice .demo-badge { background: #4a3b1c; }
+
+/* Home: the start bar keeps a hairline, not a shadow that reads as a white band. */
+@media (min-width: 900px) and (min-height: 540px) {
+  .experience-table .vale-welcome .welcome-start { box-shadow: none; border-top: 1px solid rgba(38, 34, 27, 0.12); }
+}
+.target-draw-none { margin: 10px 0 0; font-size: 0.9rem; color: var(--bt-ink-soft, #5d5541); }
+/* Golden Signet names may take two lines rather than being cut short. */
+.signet-tile-choices strong { white-space: normal; overflow: visible; font-size: 16px; line-height: 1.15; }
