@@ -1613,3 +1613,6 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
   .round-track { gap: 5px; }
   .round-track > span > span { width: 8px; }
 }
+@media (max-width: 1180px) and (min-width: 861px) {
+  .table-rail article button { max-width: 100%; white-space: normal; font-size: 0.95rem; line-height: 1.2; }
+}

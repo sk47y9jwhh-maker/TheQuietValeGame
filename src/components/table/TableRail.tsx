@@ -129,7 +129,7 @@ export function TableRail(props: TableRailProps) {
               })}
             </ul>}
             {validation.ok && cost && costEntries(cost).some(({ resource, amount }) => state.warehouse[resource] < amount) && <p className="rail-card-help">A payment effect, such as a Merchant exchange, covers the shortfall. You choose it on the next step.</p>}
-            <p className="rail-card-note">Unlocks {uniqueRewards.join(" & ")}{card.rewardSpecialTileIds.length ? ` (tile ${specialNumber(card.rewardSpecialTileIds[0])})` : ""}</p>
+            <p className="rail-card-note">Unlocks {uniqueRewards.join(" and ")}{card.rewardSpecialTileIds.length ? ` (tile ${specialNumber(card.rewardSpecialTileIds[0])})` : ""}</p>
             {state.phase === "turns" && <button type="button" disabled={!validation.ok} onClick={() => props.onCompleteArrival(arrival.cardId)} title={validation.ok ? undefined : validation.reasons.join(" ")}>
               {validation.ok ? "Complete for 1 action" : arrival.timerTokens === 1 ? "Leaves at round end" : "Not yet"}
             </button>}
