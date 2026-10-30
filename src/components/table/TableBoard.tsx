@@ -598,7 +598,8 @@ function TileToken({ state, tile, hexId, x, y, motion, sharp = false }: { state:
     <polygon className="tile-token-shadow" points={hexPoints(x, y + 1.2, hexRadius - 0.6)} />
     <image className="tile-token-art" href={face} x={x - hexRadius} y={top} width={hexRadius * 2} height={hexHeight} preserveAspectRatio="none" clipPath={`url(#${clipId})`} />
     {overstrained && <polygon className="tile-token-overstrain" points={hexPoints(x, y, hexRadius - 0.6)} />}
-    <polygon className="tile-token-edge" points={hexPoints(x, y, hexRadius - 1.2)} stroke={accent} />
+    {/* The type colour is printed in the tile's own margin; the board adds only a quiet edge (gold for Golden tiles, which have no tint). */}
+    <polygon className="tile-token-edge" points={hexPoints(x, y, hexRadius - 1.2)} stroke={golden ? accent : "rgba(42, 36, 24, 0.45)"} />
     {anchor && <g className="tile-token-window">
       {lines.length > 0 && <text className="tile-token-name" x={x} y={nameY} textAnchor="middle" fontSize={nameSize}>
         {lines.map((line, index) => <tspan key={line} x={x} dy={index === 0 ? 0 : nameSize * 1.02}>{line}</tspan>)}

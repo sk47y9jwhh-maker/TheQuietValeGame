@@ -254,7 +254,7 @@
 
 .tile-token { pointer-events: none; }
 .tile-token-shadow { fill: rgba(30, 24, 16, 0.38); }
-.tile-token-edge { fill: none; stroke-width: 1.4; stroke-opacity: 0.85; }
+.tile-token-edge { fill: none; stroke-width: 0.8; stroke-opacity: 1; }
 .tile-token-name { fill: #2a2418; font-family: "Alegreya", Georgia, serif; font-weight: 700; letter-spacing: 0.01em; }
 .tile-token-mark { fill: #6f5d2e; font-family: "Alegreya Sans", system-ui, sans-serif; font-size: 3.4px; font-weight: 700; letter-spacing: 0.12em; }
 .tile-token-icon path { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }

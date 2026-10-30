@@ -594,6 +594,14 @@
       "websiteFile": "travel-extension-upgraded.webp"
     },
     {
+      "id": "golden-back",
+      "name": "Golden back",
+      "kind": "golden-back",
+      "face": null,
+      "tileId": null,
+      "websiteFile": "golden-back.webp"
+    },
+    {
       "id": "special-back-1",
       "name": "Special back 1",
       "kind": "back",

@@ -17,6 +17,7 @@ def export(record):
  im.save(out/'tiles-web'/f'{name}.png',dpi=(600,600))
  im.save(public/f'{name}.webp',lossless=True,method=4)
  thumb=im.copy();thumb.thumbnail((360,312));thumb.save(public/f'{name}-map.webp',quality=90,method=4)
+ board=im.copy();board.thumbnail((720,624));board.save(public/f'{name}-board.webp',quality=88,method=4)
  return {'id':name,'name':record['name'],'kind':record['kind'],'face':record.get('face'),'quantity':record['quantity'],'tileId':record.get('t',{}).get('id',record.get('pairedTileId')),'backNumber':record.get('number'),'sourceCopy':record.get('sourceCopy'),'printFile':f'tiles-print/{name}.png','webFile':f'tiles-web/{name}.png','websiteFile':f'{name}.webp','sourceEffect':record.get('t',{}).get(record.get('face'),record.get('t',{})).get('effectText'),'fit':record['fit']}
 with ThreadPoolExecutor(max_workers=4) as pool:faces=list(pool.map(export,records))
 manifest={'version':'2026-09-12','printPixels':[1560,1370],'dpi':600,'bleedMm':3,'webPixels':[1418,1228],'uniqueFaces':len(faces),'printedHexFacesAtStockQuantity':sum(f['quantity'] for f in faces),'faces':faces}
