@@ -64,3 +64,26 @@ Web faces remove 71 px per edge and use a transparent finished hex boundary,
 1418 × 1228 px. Full WebP images are lossless. Website rules stay available as live
 text below the illustrated inspector faces, including Golden scoring and the
 full Linked Production explanation.
+
+## Tile-type edge colour — approved and locked, 30 October 2026
+
+Approved by Robert on 30 October 2026. Do not change these values without a
+new, recorded approval.
+
+| Faces | Treatment |
+| --- | --- |
+| Core Basic and Upgraded, Travel extensions | Parchment margin tinted in the tile type colour: multiply at 45% |
+| Special fronts | Black margin replaced by the Core parchment margin, then tinted: multiply at 80% |
+| Golden fronts, Special backs, Golden back | Unchanged |
+
+- The tint runs from the outer bleed to 52 px (2.2 mm) inside the cut, stopping
+  just outside the fine border line (which starts 55 px, 2.3 mm, inside the
+  cut on both backgrounds). Edge feather: 2 px blur.
+- Because the tint reaches through the bleed, the cut position does not change
+  how it looks.
+- Colours (the online board's category colours): Resource #4e6748,
+  Housing #9a5b3c, Travel #7a6f58, Merchant #8a6d2b, Crafting #4f6b7a,
+  Social #7a4f6b, Wellbeing #3f7a6e.
+- Options tried and not chosen: a thin line at or inside the cut (cut
+  tolerance made it uneven), and a stronger wash on Core tiles.
+- Locked renderer: `renderer.html` SHA-256 `2726245b4510e158ceed779d22e9914f13329280f80faf4dde9e4fc335105633`.
