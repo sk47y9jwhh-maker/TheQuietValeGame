@@ -1036,7 +1036,7 @@ button.table-score { border: 0; font: inherit; cursor: pointer; }
 @media (prefers-reduced-motion: no-preference) {
   .rail-card.is-new { animation: bt-card-in 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both; transform-origin: left center; }
   .strip-card.is-new { animation: bt-card-in 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
-  .tile-token.is-arriving { animation: bt-tile-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+  .tile-token.is-arriving { animation: bt-tile-drop 0.6s cubic-bezier(0.25, 0.9, 0.3, 1) both; }
   .table-warehouse li.is-bumped strong { animation: bt-bump 0.9s ease-out; }
   .table-resolution { animation: bt-panel-in 0.25s ease-out both; }
 }
@@ -1428,3 +1428,49 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .place-list li .place-enhancer, .place-enhancer { border-radius: 6px !important; }
 /* The printed Special tile, large enough to read, above its details. */
 .rail-ready-item .rail-ready-face { justify-self: center; width: min(100%, 240px); height: auto; aspect-ratio: 360 / 312; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.45)); }
+
+/* Handling the tiles. Every one answers a move and is off with reduced motion.
+   Laying: the tile drops onto the table and settles, with a puff of dust.
+   Upgrading: it lifts and flips over. Strain: it is knocked, and the new dot
+   lands. Supported: a ring draws round it. Production: the gain rises off. */
+.tile-token-land { fill: none; stroke: rgba(255, 246, 220, 0.9); stroke-width: 1.6; opacity: 0; pointer-events: none; }
+.tile-token-ring { fill: none; stroke: var(--bt-brass-light, #e8c463); stroke-width: 2.2; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; pointer-events: none; }
+.board-gain text { fill: #fff6d6; stroke: #2a2416; stroke-width: 2.6; stroke-linejoin: round; paint-order: stroke; font: 700 9px "Alegreya Sans", system-ui, sans-serif; opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .tile-token.is-arriving .tile-token-shadow { animation: bt-shadow-land 0.6s ease-out both; }
+  .tile-token-land { animation: bt-land-dust 0.75s ease-out 0.28s both; }
+  .tile-token.is-flipping { animation: bt-flip 0.6s cubic-bezier(0.45, 0, 0.55, 1); }
+  .tile-token.is-flipping .tile-token-window, .tile-token.is-flipping .tile-token-strain, .tile-token.is-flipping .tile-token-support { animation: bt-flip-details 0.6s both; }
+  .tile-token.is-straining { animation: bt-knock 0.45s ease-in-out; }
+  .tile-token-strain circle.is-latest { animation: bt-dot-land 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4) 0.1s both; }
+  .tile-token-ring { animation: bt-ring-draw 0.9s ease-out both; }
+  .board-gain text { animation: bt-gain-rise 1.4s ease-out both; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .board-gain text { animation: bt-gain-still 1.4s linear both; }
+}
+@keyframes bt-tile-drop {
+  0% { opacity: 0; transform: translateY(-16px) scale(1.16); }
+  55% { opacity: 1; transform: translateY(0) scale(0.975); }
+  78% { transform: scale(1.012); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes bt-shadow-land { 0% { opacity: 0; } 55% { opacity: 1; } }
+@keyframes bt-land-dust { 0% { opacity: 0.85; transform: scale(0.96); } 100% { opacity: 0; transform: scale(1.22); } }
+@keyframes bt-flip {
+  0% { transform: none; }
+  46% { transform: translateY(-3px) scaleX(0.03); }
+  54% { transform: translateY(-3px) scaleX(0.03); }
+  100% { transform: none; }
+}
+@keyframes bt-flip-details { 0%, 52% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes bt-knock {
+  0%, 100% { transform: none; }
+  20% { transform: translateX(-1.6px) rotate(-2.2deg); }
+  45% { transform: translateX(1.4px) rotate(1.8deg); }
+  70% { transform: translateX(-0.8px) rotate(-0.8deg); }
+}
+@keyframes bt-dot-land { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+@keyframes bt-ring-draw { 0% { opacity: 1; stroke-dashoffset: 1; } 65% { opacity: 1; stroke-dashoffset: 0; } 100% { opacity: 0; stroke-dashoffset: 0; } }
+@keyframes bt-gain-rise { 0% { opacity: 0; transform: translateY(4px); } 15% { opacity: 1; } 75% { opacity: 1; transform: translateY(-9px); } 100% { opacity: 0; transform: translateY(-12px); } }
+@keyframes bt-gain-still { 0% { opacity: 0; } 10%, 85% { opacity: 1; } 100% { opacity: 0; } }

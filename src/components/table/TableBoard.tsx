@@ -6,6 +6,7 @@ import { selectTileName } from "../../engine/selectors";
 import type { GameState, PlacedTile } from "../../engine/types";
 import { MapArtworkImage } from "../map/MapArtwork";
 import { tileArtworkUrl } from "../common/TileArtwork";
+import { resourceLabels, resources } from "../../data/resources";
 import {
   boardBounds,
   boardCellById,
@@ -71,20 +72,56 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
   const [popoverHeight, setPopoverHeight] = useState(0);
   const frameRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
-  // Tiles that have just arrived on the board settle in with a short animation.
-  const knownTiles = useRef<Set<string> | null>(null);
-  const [arrivingIds, setArrivingIds] = useState<ReadonlySet<string>>(new Set());
+  // What just happened to each tile, so it can move the way a real tile would:
+  // laid down, flipped over, knocked by Strain or ringed by Supported. Production
+  // floats its gain up off the tiles that produced.
+  const known = useRef<{ tiles: Map<string, PlacedTile>; warehouse: GameState["warehouse"]; records: GameState["tileActivationRecords"]; logIds: string[] } | null>(null);
+  const [motions, setMotions] = useState<ReadonlyMap<string, readonly TileMotion[]>>(new Map());
+  const [gain, setGain] = useState<{ hexIds: string[]; text: string; key: number } | null>(null);
+  const motionTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const gainTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => { clearTimeout(motionTimer.current); clearTimeout(gainTimer.current); }, []);
   useEffect(() => {
-    const ids = new Set(state.map.placedTiles.map((tile) => tile.instanceId));
-    const previous = knownTiles.current;
-    knownTiles.current = ids;
-    if (!previous) return undefined;
-    const added = [...ids].filter((id) => !previous.has(id));
-    if (!added.length) return undefined;
-    setArrivingIds(new Set(added));
-    const timer = setTimeout(() => setArrivingIds(new Set()), 700);
-    return () => clearTimeout(timer);
-  }, [state.map.placedTiles]);
+    const tiles = new Map(state.map.placedTiles.map((tile) => [tile.instanceId, tile]));
+    const before = known.current;
+    known.current = { tiles, warehouse: state.warehouse, records: state.tileActivationRecords, logIds: state.log.map((entry) => entry.id) };
+    if (!before) return;
+    const shielded = (tile: PlacedTile) => tile.support.passive || tile.support.singleUse;
+    const next = new Map<string, TileMotion[]>();
+    for (const [id, tile] of tiles) {
+      const old = before.tiles.get(id);
+      const list: TileMotion[] = [];
+      if (!old) list.push("arriving");
+      else {
+        if (old.side !== tile.side) list.push("flipping");
+        if (tile.strain > old.strain) list.push("straining");
+        if (shielded(tile) && !shielded(old)) list.push("supported");
+      }
+      if (list.length) next.set(id, list);
+    }
+    if (next.size) {
+      setMotions(next);
+      clearTimeout(motionTimer.current);
+      motionTimer.current = setTimeout(() => setMotions(new Map()), 900);
+    }
+    // Which tiles produced: a Linked group records itself, and the log names the tile activated.
+    const linked = state.map.placedTiles.filter((tile) => state.tileActivationRecords[tile.instanceId]?.linkedProductionRound === state.round && before.records[tile.instanceId]?.linkedProductionRound !== state.round);
+    const seen = new Set(before.logIds);
+    const activated = state.log.filter((entry) => !seen.has(entry.id)).map((entry) => /^Activated (.+)\.$/.exec(entry.message)?.[1]).filter((name): name is string => Boolean(name));
+    const home = boardCellById.get(state.players.find((player) => player.id === state.currentPlayerId)?.stewardHexId ?? "");
+    const named = activated.flatMap((name) => {
+      const matches = state.map.placedTiles.filter((tile) => selectTileName(tile) === name);
+      const nearest = home ? [...matches].sort((a, b) => distance(a, home) - distance(b, home))[0] : matches[0];
+      return nearest ? [nearest] : [];
+    });
+    const producers = linked.length ? linked : named;
+    const gains = resources.filter((resource) => state.warehouse[resource] > before.warehouse[resource]).map((resource) => `+${state.warehouse[resource] - before.warehouse[resource]} ${resourceLabels[resource]}`);
+    if (producers.length && gains.length) {
+      setGain({ hexIds: producers.map((tile) => tile.hexIds[0]), text: gains.join("   "), key: Date.now() });
+      clearTimeout(gainTimer.current);
+      gainTimer.current = setTimeout(() => setGain(null), 1400);
+    }
+  }, [state.map.placedTiles, state.warehouse, state.tileActivationRecords, state.round, state.log]);
   const [view, setView] = useState<View | null>(null);
   const [cursorHexId, setCursorHexId] = useState<string>(() => state.players.find((player) => player.id === state.currentPlayerId)?.stewardHexId ?? "A1");
   const pointers = useRef(new Map<number, { x: number; y: number }>());
@@ -381,7 +418,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
           >
             <polygon className="board-hex-hit" points={hexPoints(x, y)} />
             {glow && <polygon className="board-hex-glow" points={hexPoints(x, y, hexRadius + 1)} />}
-            {placed && <TileToken state={state} tile={placed} hexId={cell.id} x={x} y={y} arriving={arrivingIds.has(placed.instanceId)} sharp={hexPx >= 120} />}
+            {placed && <TileToken state={state} tile={placed} hexId={cell.id} x={x} y={y} motion={motions.get(placed.instanceId)} sharp={hexPx >= 120} />}
             {(legal || inFootprint) && <polygon className="board-hex-legal" points={hexPoints(x, y, hexRadius - 2.5)} />}
             {selected && <polygon className="board-hex-selected" points={hexPoints(x, y, hexRadius - 1)} />}
             {choice && <><polygon className="board-hex-choice-under" points={hexPoints(x, y, hexRadius - 2)} /><polygon className="board-hex-choice" points={hexPoints(x, y, hexRadius - 2)} /></>}
@@ -433,6 +470,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
           </g>;
         })}
       </g>
+      {gain && <ProductionGain key={gain.key} hexIds={gain.hexIds} text={gain.text} />}
     </svg>
     {popover && popoverStyle && <div
       ref={popoverRef}
@@ -451,7 +489,31 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
  * mark, Upgraded or Special, Strain and Supported. The printed text below the
  * window stays untouched and is readable when zoomed in or inspected.
  */
-function TileToken({ state, tile, hexId, x, y, arriving = false, sharp = false }: { state: GameState; tile: PlacedTile; hexId: string; x: number; y: number; arriving?: boolean; sharp?: boolean }) {
+type TileMotion = "arriving" | "flipping" | "straining" | "supported";
+const distance = (tile: PlacedTile, from: { x: number; y: number }) => { const cell = boardCellById.get(tile.hexIds[0]); return cell ? Math.hypot(cell.x - from.x, cell.y - from.y) : Infinity; };
+
+/** "+4 Wood" rising off the middle of the tiles that just produced. */
+function ProductionGain({ hexIds, text }: { hexIds: string[]; text: string }) {
+  const cells = hexIds.map((hexId) => boardCellById.get(hexId)).filter((cell): cell is NonNullable<typeof cell> => Boolean(cell));
+  if (!cells.length) return null;
+  const x = cells.reduce((sum, cell) => sum + cell.x, 0) / cells.length;
+  const y = cells.reduce((sum, cell) => sum + cell.y, 0) / cells.length + (cells.length > 1 ? 0 : hexRadius * 0.15);
+  return <g className="board-gain" aria-hidden="true"><text x={x} y={y} textAnchor="middle">{text}</text></g>;
+}
+
+function TileToken({ state, tile, hexId, x, y, motion, sharp = false }: { state: GameState; tile: PlacedTile; hexId: string; x: number; y: number; motion?: readonly TileMotion[]; sharp?: boolean }) {
+  const arriving = !!motion?.includes("arriving");
+  const flipping = !!motion?.includes("flipping");
+  const straining = !!motion?.includes("straining");
+  const gainedSupport = !!motion?.includes("supported");
+  // A flip shows the side it is leaving until the tile is edge-on, then the new side.
+  const [showLeaving, setShowLeaving] = useState(false);
+  useEffect(() => {
+    if (!flipping || (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) { setShowLeaving(false); return undefined; }
+    setShowLeaving(true);
+    const timer = setTimeout(() => setShowLeaving(false), 290);
+    return () => clearTimeout(timer);
+  }, [flipping]);
   const category = getTileCategory(tile);
   const name = selectTileName(tile);
   const anchor = tile.hexIds[0] === hexId;
@@ -459,7 +521,8 @@ function TileToken({ state, tile, hexId, x, y, arriving = false, sharp = false }
   const supported = tile.support.passive || tile.support.singleUse;
   const golden = tile.tileId.startsWith("golden_tile_");
   const accent = golden ? "#b8962e" : categoryColors[category];
-  const side = tile.side === "upgraded" ? "upgraded" : "basic";
+  const current = tile.side === "upgraded" ? "upgraded" : "basic";
+  const side = showLeaving ? (current === "upgraded" ? "basic" : "upgraded") : current;
   // The small face is plenty at normal zoom; close up, the full-size print keeps its text crisp.
   const face = tileArtworkUrl(tile.tileId, side, { thumbnail: !sharp, board: sharp, extension: tile.kind === "core" && !anchor });
   const lines = anchor ? tokenLines(name, 12) : [];
@@ -474,7 +537,8 @@ function TileToken({ state, tile, hexId, x, y, arriving = false, sharp = false }
   const nameY = lines.length > 1 ? windowTop + 6.4 : windowTop + 8.6;
   const mark = tile.kind === "special" ? "SPECIAL" : golden ? "GOLDEN" : tile.side === "upgraded" ? "UPGRADED" : "";
   void state;
-  return <g className={`tile-token tile-${category}${overstrained ? " is-overstrained" : ""}${tile.side === "upgraded" ? " is-upgraded" : ""}${arriving ? " is-arriving" : ""}`} style={arriving ? { transformOrigin: `${x}px ${y}px` } : undefined} aria-hidden="true">
+  const moving = arriving || flipping || straining;
+  return <g className={`tile-token tile-${category}${overstrained ? " is-overstrained" : ""}${tile.side === "upgraded" ? " is-upgraded" : ""}${arriving ? " is-arriving" : ""}${flipping ? " is-flipping" : ""}${straining ? " is-straining" : ""}`} style={moving ? { transformOrigin: `${x}px ${y}px` } : undefined} aria-hidden="true">
     <clipPath id={clipId}><polygon points={hexPoints(x, y, hexRadius - 0.6)} /></clipPath>
     <polygon className="tile-token-shadow" points={hexPoints(x, y + 1.2, hexRadius - 0.6)} />
     <image className="tile-token-art" href={face} x={x - hexRadius} y={top} width={hexRadius * 2} height={hexHeight} preserveAspectRatio="none" clipPath={`url(#${clipId})`} />
@@ -484,13 +548,15 @@ function TileToken({ state, tile, hexId, x, y, arriving = false, sharp = false }
       {lines.length > 0 && <text className="tile-token-name" x={x} y={nameY} textAnchor="middle" fontSize={nameSize}>
         {lines.map((line, index) => <tspan key={line} x={x} dy={index === 0 ? 0 : nameSize * 1.02}>{line}</tspan>)}
       </text>}
-      {mark && !overstrained && <text className="tile-token-mark" x={x} y={windowBottom - 0.9} textAnchor="middle">{mark}</text>}
+      {mark && !overstrained && lines.length < 2 && <text className="tile-token-mark" x={x} y={windowBottom - 0.9} textAnchor="middle">{mark}</text>}
       {overstrained && <text className="tile-token-over" x={x} y={windowBottom - 0.9} textAnchor="middle">OVERSTRAINED</text>}
     </g>}
     {!anchor && <g className="tile-token-icon" transform={`translate(${x - 5.5} ${windowTop + 1}) scale(0.46)`}><path d={iconPath(tileIcon(tile.tileId, category))} stroke={accent} /></g>}
     {(tile.strain > 0 || overstrained) && <g className="tile-token-strain">
-      {[0, 1, 2].map((index) => <circle key={index} cx={x - 7 + index * 7} cy={windowBottom + 2.6} r={2.5} className={index < tile.strain ? "is-filled" : ""} />)}
+      {[0, 1, 2].map((index) => <circle key={index} cx={x - 7 + index * 7} cy={windowBottom + 2.6} r={2.5} className={`${index < tile.strain ? "is-filled" : ""}${straining && index === tile.strain - 1 ? " is-latest" : ""}`} style={straining && index === tile.strain - 1 ? { transformOrigin: `${x - 7 + index * 7}px ${windowBottom + 2.6}px` } : undefined} />)}
     </g>}
+    {arriving && <polygon className="tile-token-land" points={hexPoints(x, y, hexRadius - 0.6)} style={{ transformOrigin: `${x}px ${y}px` }} />}
+    {gainedSupport && anchor && <polygon className="tile-token-ring" points={hexPoints(x, y, hexRadius - 1.6)} pathLength={1} />}
     {supported && <g className="tile-token-support" transform={`translate(${x - 20} ${windowTop + 4})`}>
       <circle r={4.6} />
       <path d="M0 -2.7 L2.5 -1.7 L2.5 0.35 C2.5 2 1.25 2.85 0 3.2 C-1.25 2.85 -2.5 2 -2.5 0.35 L-2.5 -1.7 Z" />
