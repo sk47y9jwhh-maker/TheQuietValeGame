@@ -449,7 +449,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
         })}
       </g>
       {links && links.length > 0 && <g className="board-links" aria-hidden="true">
-        <defs><marker id="board-link-head" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" /></marker></defs>
+        <defs><radialGradient id="strain-token-face" cx="38%" cy="32%" r="75%"><stop offset="0" stopColor="#d8774a" /><stop offset="0.55" stopColor="#a8431f" /><stop offset="1" stopColor="#6d2811" /></radialGradient><marker id="board-link-head" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" /></marker></defs>
         {links.map((link, index) => {
           const from = boardCellById.get(link.from);
           const to = boardCellById.get(link.to);
@@ -511,6 +511,29 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
  * mark, Upgraded or Special, Strain and Supported. The printed text below the
  * window stays untouched and is readable when zoomed in or inspected.
  */
+/**
+ * Strain as the tokens a player sets on the tile: small rust discs with a rim,
+ * a highlight and a shadow, set down a little unevenly as by hand. Empty
+ * places show how far the tile is from Overstrained (3).
+ */
+function StrainTokens({ x, y, count, latest }: { x: number; y: number; count: number; latest: boolean }) {
+  const places = [{ dx: -9.4, dy: 0.4, turn: -12 }, { dx: 0, dy: -0.3, turn: 8 }, { dx: 9.4, dy: 0.3, turn: -4 }];
+  return <g className={`tile-token-strain${count >= 3 ? " is-full" : ""}`}>
+    <rect className="strain-tray" x={x - 15} y={y - 5.4} width={30} height={10.8} rx={5.4} />
+    {places.map((place, index) => {
+      const cx = x + place.dx, cy = y + place.dy;
+      if (index >= count) return <circle key={index} className="strain-slot" cx={cx} cy={cy} r={3.4} />;
+      const newest = latest && index === count - 1;
+      return <g key={index} className={`strain-token${newest ? " is-latest" : ""}`} style={newest ? { transformOrigin: `${cx}px ${cy}px` } : undefined}>
+        <ellipse className="strain-token-shadow" cx={cx + 0.6} cy={cy + 1.1} rx={4.3} ry={3.9} />
+        <circle className="strain-token-body" cx={cx} cy={cy} r={4.2} fill="url(#strain-token-face)" />
+        <circle className="strain-token-rim" cx={cx} cy={cy} r={3} transform={`rotate(${place.turn} ${cx} ${cy})`} />
+        <ellipse className="strain-token-shine" cx={cx - 1.5} cy={cy - 1.6} rx={1.5} ry={0.8} transform={`rotate(-30 ${cx - 1.5} ${cy - 1.6})`} />
+      </g>;
+    })}
+  </g>;
+}
+
 type TileMotion = "arriving" | "flipping" | "straining" | "supported";
 const distance = (tile: PlacedTile, from: { x: number; y: number }) => { const cell = boardCellById.get(tile.hexIds[0]); return cell ? Math.hypot(cell.x - from.x, cell.y - from.y) : Infinity; };
 
@@ -580,14 +603,12 @@ function TileToken({ state, tile, hexId, x, y, motion, sharp = false }: { state:
         {lines.map((line, index) => <tspan key={line} x={x} dy={index === 0 ? 0 : nameSize * 1.02}>{line}</tspan>)}
       </text>}
       {mark && !overstrained && lines.length < 2 && <text className="tile-token-mark" x={x} y={windowBottom - 0.9} textAnchor="middle">{mark}</text>}
-      {overstrained && <text className="tile-token-over" x={x} y={windowBottom - 0.9} textAnchor="middle">OVERSTRAINED</text>}
+      {overstrained && <text className="tile-token-over" x={x} y={windowBottom - 3} textAnchor="middle">OVERSTRAINED</text>}
     </g>}
     {!anchor && (categoryIcon(category)
       ? <image className="tile-token-type" href={gameIconUrl(categoryIcon(category)!)} x={x - 7} y={windowTop - 1} width={14} height={14} preserveAspectRatio="xMidYMid meet" />
       : <g className="tile-token-icon" transform={`translate(${x - 5.5} ${windowTop + 1}) scale(0.46)`}><path d={iconPath(tileIcon(tile.tileId, category))} stroke={accent} /></g>)}
-    {(tile.strain > 0 || overstrained) && <g className="tile-token-strain">
-      {[0, 1, 2].map((index) => <circle key={index} cx={x - 7 + index * 7} cy={windowBottom + 2.6} r={2.5} className={`${index < tile.strain ? "is-filled" : ""}${straining && index === tile.strain - 1 ? " is-latest" : ""}`} style={straining && index === tile.strain - 1 ? { transformOrigin: `${x - 7 + index * 7}px ${windowBottom + 2.6}px` } : undefined} />)}
-    </g>}
+    {(tile.strain > 0 || overstrained) && <StrainTokens x={x} y={windowBottom + 3.6} count={Math.min(3, tile.strain)} latest={straining} />}
     {arriving && <polygon className="tile-token-land" points={hexPoints(x, y, hexRadius - 0.6)} style={{ transformOrigin: `${x}px ${y}px` }} />}
     {gainedSupport && anchor && <polygon className="tile-token-ring" points={hexPoints(x, y, hexRadius - 1.6)} pathLength={1} />}
     {supported && <g className="tile-token-support" transform={`translate(${x - 20} ${windowTop + 4})`}>

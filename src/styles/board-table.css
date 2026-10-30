@@ -258,8 +258,13 @@
 .tile-token-name { fill: #2a2418; font-family: "Alegreya", Georgia, serif; font-weight: 700; letter-spacing: 0.01em; }
 .tile-token-mark { fill: #6f5d2e; font-family: "Alegreya Sans", system-ui, sans-serif; font-size: 3.4px; font-weight: 700; letter-spacing: 0.12em; }
 .tile-token-icon path { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-.tile-token-strain circle { fill: #f6f0dc; stroke: #2a2418; stroke-width: 0.9; }
-.tile-token-strain circle.is-filled { fill: #2a2418; }
+.tile-token-strain .strain-tray { fill: rgba(246, 240, 220, 0.88); stroke: rgba(42, 36, 24, 0.35); stroke-width: 0.5; }
+.tile-token-strain.is-full .strain-tray { fill: rgba(42, 24, 16, 0.75); stroke: #c0522f; stroke-width: 0.7; }
+.tile-token-strain .strain-slot { fill: none; stroke: rgba(109, 40, 17, 0.55); stroke-width: 0.6; stroke-dasharray: 1.1 0.9; }
+.strain-token-shadow { fill: rgba(30, 18, 10, 0.45); }
+.strain-token-body { stroke: #4e1c0b; stroke-width: 0.55; }
+.strain-token-rim { fill: none; stroke: rgba(255, 214, 180, 0.45); stroke-width: 0.45; stroke-dasharray: 2.4 1.1; }
+.strain-token-shine { fill: rgba(255, 240, 225, 0.7); }
 .tile-token-overstrain { fill: rgba(34, 26, 20, 0.58); }
 .tile-token.is-overstrained .tile-token-name { fill: #fbf3df; }
 .tile-token.is-overstrained .tile-token-edge { stroke: #c0522f; stroke-width: 2; stroke-opacity: 1; }
@@ -1444,7 +1449,7 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
   .tile-token.is-flipping { animation: bt-flip 0.6s cubic-bezier(0.45, 0, 0.55, 1); }
   .tile-token.is-flipping .tile-token-window, .tile-token.is-flipping .tile-token-strain, .tile-token.is-flipping .tile-token-support { animation: bt-flip-details 0.6s both; }
   .tile-token.is-straining { animation: bt-knock 0.45s ease-in-out; }
-  .tile-token-strain circle.is-latest { animation: bt-dot-land 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4) 0.1s both; }
+  .tile-token-strain .strain-token.is-latest { animation: bt-token-drop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3) 0.1s both; }
   .tile-token-ring { animation: bt-ring-draw 0.9s ease-out both; }
   .board-gain-item { animation: bt-gain-rise 1.4s ease-out both; }
 }
@@ -1473,6 +1478,7 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
   70% { transform: translateX(-0.8px) rotate(-0.8deg); }
 }
 @keyframes bt-dot-land { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+@keyframes bt-token-drop { 0% { opacity: 0; transform: translateY(-7px) scale(1.5); } 60% { opacity: 1; transform: translateY(0) scale(0.92); } 100% { transform: translateY(0) scale(1); } }
 @keyframes bt-ring-draw { 0% { opacity: 1; stroke-dashoffset: 1; } 65% { opacity: 1; stroke-dashoffset: 0; } 100% { opacity: 0; stroke-dashoffset: 0; } }
 @keyframes bt-gain-rise { 0% { opacity: 0; transform: translateY(4px); } 15% { opacity: 1; } 75% { opacity: 1; transform: translateY(-9px); } 100% { opacity: 0; transform: translateY(-12px); } }
 @keyframes bt-gain-still { 0% { opacity: 0; } 10%, 85% { opacity: 1; } 100% { opacity: 0; } }
