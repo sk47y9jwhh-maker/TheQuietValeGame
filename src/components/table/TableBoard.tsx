@@ -449,7 +449,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
         })}
       </g>
       {links && links.length > 0 && <g className="board-links" aria-hidden="true">
-        <defs><radialGradient id="strain-token-face" cx="38%" cy="32%" r="75%"><stop offset="0" stopColor="#d8774a" /><stop offset="0.55" stopColor="#a8431f" /><stop offset="1" stopColor="#6d2811" /></radialGradient><marker id="board-link-head" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" /></marker></defs>
+        <defs><radialGradient id="strain-token-face" cx="36%" cy="30%" r="78%"><stop offset="0" stopColor="#57504a" /><stop offset="0.45" stopColor="#2a2623" /><stop offset="1" stopColor="#0e0c0b" /></radialGradient><marker id="board-link-head" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" /></marker></defs>
         {links.map((link, index) => {
           const from = boardCellById.get(link.from);
           const to = boardCellById.get(link.to);
@@ -512,8 +512,8 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
  * window stays untouched and is readable when zoomed in or inspected.
  */
 /**
- * Strain as the tokens a player sets on the tile: small rust discs with a rim,
- * a highlight and a shadow, set down a little unevenly as by hand. Empty
+ * Strain as the black wooden tokens a player sets on the tile: a disc with a
+ * soft sheen, a hint of grain and a shadow, set down a little unevenly as by hand. Empty
  * places show how far the tile is from Overstrained (3).
  */
 function StrainTokens({ x, y, count, latest }: { x: number; y: number; count: number; latest: boolean }) {
@@ -527,7 +527,8 @@ function StrainTokens({ x, y, count, latest }: { x: number; y: number; count: nu
       return <g key={index} className={`strain-token${newest ? " is-latest" : ""}`} style={newest ? { transformOrigin: `${cx}px ${cy}px` } : undefined}>
         <ellipse className="strain-token-shadow" cx={cx + 0.6} cy={cy + 1.1} rx={4.3} ry={3.9} />
         <circle className="strain-token-body" cx={cx} cy={cy} r={4.2} fill="url(#strain-token-face)" />
-        <circle className="strain-token-rim" cx={cx} cy={cy} r={3} transform={`rotate(${place.turn} ${cx} ${cy})`} />
+        <path className="strain-token-grain" d={`M${cx - 3} ${cy + 0.6} q3 -1.4 6 0 M${cx - 2.6} ${cy + 2} q2.6 -1 5.2 0`} transform={`rotate(${place.turn} ${cx} ${cy})`} />
+        <circle className="strain-token-rim" cx={cx} cy={cy} r={3.9} />
         <ellipse className="strain-token-shine" cx={cx - 1.5} cy={cy - 1.6} rx={1.5} ry={0.8} transform={`rotate(-30 ${cx - 1.5} ${cy - 1.6})`} />
       </g>;
     })}

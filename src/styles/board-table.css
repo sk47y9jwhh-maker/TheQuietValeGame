@@ -259,12 +259,13 @@
 .tile-token-mark { fill: #6f5d2e; font-family: "Alegreya Sans", system-ui, sans-serif; font-size: 3.4px; font-weight: 700; letter-spacing: 0.12em; }
 .tile-token-icon path { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .tile-token-strain .strain-tray { fill: rgba(246, 240, 220, 0.88); stroke: rgba(42, 36, 24, 0.35); stroke-width: 0.5; }
-.tile-token-strain.is-full .strain-tray { fill: rgba(42, 24, 16, 0.75); stroke: #c0522f; stroke-width: 0.7; }
-.tile-token-strain .strain-slot { fill: none; stroke: rgba(109, 40, 17, 0.55); stroke-width: 0.6; stroke-dasharray: 1.1 0.9; }
-.strain-token-shadow { fill: rgba(30, 18, 10, 0.45); }
-.strain-token-body { stroke: #4e1c0b; stroke-width: 0.55; }
-.strain-token-rim { fill: none; stroke: rgba(255, 214, 180, 0.45); stroke-width: 0.45; stroke-dasharray: 2.4 1.1; }
-.strain-token-shine { fill: rgba(255, 240, 225, 0.7); }
+.tile-token-strain.is-full .strain-tray { fill: rgba(246, 232, 220, 0.92); stroke: #c0522f; stroke-width: 0.8; }
+.tile-token-strain .strain-slot { fill: rgba(42, 36, 24, 0.06); stroke: rgba(42, 36, 24, 0.5); stroke-width: 0.6; stroke-dasharray: 1.1 0.9; }
+.strain-token-shadow { fill: rgba(20, 16, 10, 0.4); }
+.strain-token-body { stroke: #050404; stroke-width: 0.5; }
+.strain-token-rim { fill: none; stroke: rgba(255, 250, 240, 0.16); stroke-width: 0.4; }
+.strain-token-grain { fill: none; stroke: rgba(255, 245, 230, 0.09); stroke-width: 0.35; stroke-linecap: round; }
+.strain-token-shine { fill: rgba(255, 252, 245, 0.42); }
 .tile-token-overstrain { fill: rgba(34, 26, 20, 0.58); }
 .tile-token.is-overstrained .tile-token-name { fill: #fbf3df; }
 .tile-token.is-overstrained .tile-token-edge { stroke: #c0522f; stroke-width: 2; stroke-opacity: 1; }
