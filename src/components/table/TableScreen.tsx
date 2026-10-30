@@ -4,6 +4,7 @@ import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { encounterById } from "../../data/encounters";
 import { stewardById } from "../../data/stewards";
 import { getPlacedTileAtHex } from "../../engine/reachability";
+import { getHexNeighbors } from "../../engine/hex";
 import { getTileFootprintKind, getLegalPlacementHexes } from "../../engine/placementRules";
 import { canStartPlaceTile } from "../../engine/gameActions";
 import { calculateFinalScore } from "../../engine/scoring";
@@ -330,6 +331,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           footprintHexIds={placingFootprint}
           choiceMarks={resolving ? choices.marks : undefined}
           links={boardLinks}
+          focus={tour && !compact ? { hexIds: walkthroughFocus(state, coachTarget), left: 500 } : null}
           beacon={coach && (!resolving || tour) && !card && coachTarget?.hexIds ? { hexIds: coachTarget.hexIds, label: coachTarget.label } : null}
           hiddenPawnIds={state.phase === "setup" ? new Set(state.players.slice(state.players.findIndex((player) => player.id === state.currentPlayerId)).map((player) => player.id)) : undefined}
           coveredBottom={sideSheet ? 0 : resolving && compact ? (sheetLow ? 150 : Math.round(window.innerHeight * 0.55)) : sheetOpen ? 330 : compact ? 196 : resolving ? 0 : 62}
@@ -386,6 +388,15 @@ function seasonBanner(state: GameState): { eyebrow: string; text: string } {
     eyebrow,
     text: `${burdens ? `${burdens} Burden${burdens === 1 ? " is" : "s are"} still on the table and now use${burdens === 1 ? "s" : ""} the harsher Season ${numeral} text and cost. ` : "Burdens revealed from now on use their harsher Season " + numeral + " text and cost. "}Each Steward secretly seeds three more cards before Round ${state.round} is revealed.`
   };
+}
+
+/** What a walkthrough frames: the spaces it highlights, or the current Steward's neighbourhood. */
+function walkthroughFocus(state: GameState, target: CoachTarget | null): string[] {
+  const home = state.players.find((player) => player.id === state.currentPlayerId)?.stewardHexId;
+  const near = new Set<string>(home ? [home] : []);
+  for (let ring = 0; ring < 2; ring++) for (const hexId of [...near]) for (const next of getHexNeighbors(hexId)) near.add(next);
+  const local = state.map.placedTiles.flatMap((tile) => tile.hexIds).filter((hexId) => near.has(hexId));
+  return [...new Set([...(target?.hexIds ?? []), ...local, ...(home ? [home] : [])])];
 }
 
 /** The same action with a Boon or the Steward's power folded in: one tap does both. */

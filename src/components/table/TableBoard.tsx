@@ -44,6 +44,8 @@ interface TableBoardProps {
   beacon?: { hexIds: string[]; label?: string } | null;
   /** Pixels at the bottom of the board hidden behind a sheet on small screens. */
   coveredBottom?: number;
+  /** Frame these spaces in the part of the board a walkthrough card leaves clear (its width from the left). */
+  focus?: { hexIds: string[]; left: number } | null;
   onHexTap: (hexId: string) => void;
   onEmptyTap?: () => void;
   /** A card shown beside a hex, kept next to it as the board pans and zooms. */
@@ -62,7 +64,7 @@ function tileAt(state: GameState): Map<string, PlacedTile> {
 }
 
 export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function TableBoard(
-  { state, selectedHexId, legalHexIds, glowTileIds, footprintHexIds, choiceMarks, links, hiddenPawnIds, beacon, coveredBottom = 0, onHexTap, onEmptyTap, popover },
+  { state, selectedHexId, legalHexIds, glowTileIds, footprintHexIds, choiceMarks, links, hiddenPawnIds, beacon, coveredBottom = 0, focus, onHexTap, onEmptyTap, popover },
   handle
 ) {
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -138,6 +140,25 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
     const upp = (hexRadius * 2) / 72;
     setView(clampView({ cx: anchor?.x ?? 340, cy: (anchor?.y ?? 260) + (coveredBottom * upp) / 2, upp }));
   }, [clampView, coveredBottom, fitView, size.height, size.width, state.currentPlayerId, state.players, view]);
+
+  // A walkthrough frames what it is talking about beside its card.
+  const focusKey = focus ? `${focus.left}:${[...focus.hexIds].sort().join(",")}` : "";
+  useEffect(() => {
+    if (!focus || !focus.hexIds.length || !size.width || !size.height) return;
+    const cells = focus.hexIds.map((hexId) => boardCellById.get(hexId)).filter((cell): cell is NonNullable<typeof cell> => Boolean(cell));
+    if (!cells.length) return;
+    const pad = hexRadius * 1.6;
+    const minX = Math.min(...cells.map((cell) => cell.x)) - pad, maxX = Math.max(...cells.map((cell) => cell.x)) + pad;
+    const minY = Math.min(...cells.map((cell) => cell.y)) - pad, maxY = Math.max(...cells.map((cell) => cell.y)) + pad;
+    const right = 76; // the zoom buttons
+    const availableWidth = Math.max(220, size.width - focus.left - right - 12);
+    const availableHeight = Math.max(220, size.height - coveredBottom - 24);
+    const closest = (hexRadius * 2) / 132;
+    const upp = Math.min(fitView(size.width, size.height).upp, Math.max(closest, (maxX - minX) / availableWidth, (maxY - minY) / availableHeight));
+    const framed = { upp, cx: (minX + maxX) / 2 - ((focus.left - right) * upp) / 2, cy: (minY + maxY) / 2 + (coveredBottom * upp) / 2 };
+    // Keep the map filling the window top to bottom. Sideways it may slide under the card.
+    setView({ ...framed, cy: clampView(framed).cy });
+  }, [focusKey, size.width, size.height]);
 
   const current = view ?? (size.width ? fitView(size.width, size.height) : { cx: 340, cy: 260, upp: 1 });
   const viewBox = `${current.cx - (size.width * current.upp) / 2} ${current.cy - (size.height * current.upp) / 2} ${Math.max(1, size.width * current.upp)} ${Math.max(1, size.height * current.upp)}`;
