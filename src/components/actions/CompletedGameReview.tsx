@@ -18,6 +18,9 @@ function ScoreRow({ label, value, detail }: { label: string; value: number; deta
   </div>;
 }
 
+/** A score with a true minus sign. */
+const signed = (value: number) => value < 0 ? `−${Math.abs(value)}` : String(value);
+
 export function CompletedGameReview({ state, ledger, onRecord, onNewGame }: Props) {
   const heading = useRef<HTMLHeadingElement>(null);
   const [confirmNewGame, setConfirmNewGame] = useState(false);
@@ -31,9 +34,9 @@ export function CompletedGameReview({ state, ledger, onRecord, onNewGame }: Prop
   return <article className="completed-game-review" aria-label="Completed settlement review">
     <header className="finale-heading">
       <div><p className="eyebrow">The story of your settlement</p><h1 ref={heading} tabIndex={-1}>Final scoring</h1><p>{state.round} rounds, {state.playerCount} Steward{state.playerCount === 1 ? "" : "s"}, one shared Vale</p></div>
-      <div className="final-score-total"><Trophy size={26} aria-hidden="true" /><span>Final score</span><strong>{score.finalScore}</strong></div>
+      <div className="final-score-total"><Trophy size={26} aria-hidden="true" /><span>Final score</span><strong>{signed(score.finalScore)}</strong></div>
     </header>
-    <p className="final-score-equation">{score.population} Population + {renown} Renown − {penalties} penalties = <strong>{score.finalScore}</strong></p>
+    <p className="final-score-equation">{score.population} Population + {renown} Renown − {penalties} penalties = <strong>{signed(score.finalScore)}</strong></p>
     <div className="finale-columns">
       <section className="finale-score-card" aria-labelledby="final-score-breakdown">
         <h2 id="final-score-breakdown">How your score adds up</h2>
@@ -55,7 +58,7 @@ export function CompletedGameReview({ state, ledger, onRecord, onNewGame }: Prop
           <BookMarked size={24} aria-hidden="true" /><h2>Steward’s Ledger</h2>
           {ledger ? <>
             <p className="finale-ledger-status" role="status">{ledger.recorded ? "Game recorded" : "Ready to record this game"}</p>
-            {ledger.recordedScore !== undefined && ledger.recordedScore !== score.finalScore && <p className="recorded-score-note">The Ledger keeps the recorded score of {ledger.recordedScore}. This board has changed since recording. It does not replace that result.</p>}
+            {ledger.recordedScore !== undefined && ledger.recordedScore !== score.finalScore && <p className="recorded-score-note">The Ledger keeps the recorded score of {signed(ledger.recordedScore)}. This board has changed since recording. It does not replace that result.</p>}
             <p>{ledger.eligibleCount} eligible {ledger.eligibleCount === 1 ? "entry" : "entries"} completed, {ledger.newEntries.length} new {ledger.newEntries.length === 1 ? "record" : "records"}</p>
             {ledger.newEntries.length > 0 && <ul>{ledger.newEntries.map((entry) => <li key={entry.id}><span>{entry.id}</span><strong>{entry.name}</strong></li>)}</ul>}
             <button className="primary-action" type="button" disabled={ledger.recorded} onClick={onRecord}>{ledger.recorded ? "Recorded in Ledger" : "Record this game"}</button>
