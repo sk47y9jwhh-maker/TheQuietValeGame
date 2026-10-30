@@ -137,8 +137,12 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     if (!sideSheet) return undefined;
     const measure = () => setSideTop(Math.round(boardSection.current?.getBoundingClientRect().top ?? 0));
     measure();
+    // The strip above the board can change height (cards arrive or leave): follow it.
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    const strip = boardSection.current?.closest(".table-screen")?.querySelector(".encounter-strip");
+    if (strip) observer?.observe(strip);
     window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
+    return () => { observer?.disconnect(); window.removeEventListener("resize", measure); };
   }, [sideSheet]);
   const [choices, ChoiceHost] = useBoardChoiceHost();
   const resolving = Boolean(resolution);
@@ -330,7 +334,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
     <div className="table-resolution-body"><ChoiceHost>{resolution.content}</ChoiceHost></div>
   </aside> : null;
 
-  return <div style={compact && !sideSheet && sheetHeight ? { ["--sheet-h" as string]: `${sheetHeight}px` } : undefined} className={`table-screen${compact ? " is-compact" : ""}${sideSheet ? " is-side-sheet" : ""}${tour ? " is-demo-locked" : ""}`} data-coach={coach && (!resolving || tour) && coachTarget?.ui ? coachTarget.ui : undefined}>
+  return <div style={compact && !sideSheet && sheetHeight ? { ["--sheet-h" as string]: `${sheetHeight}px` } : undefined} className={`table-screen${compact ? " is-compact" : ""}${sideSheet ? " is-side-sheet" : ""}${tour ? " is-demo-locked" : ""}${compact && !sideSheet && sheetHeight > window.innerHeight * 0.5 ? " is-sheet-tall" : ""}`} data-coach={coach && (!resolving || tour) && coachTarget?.ui ? coachTarget.ui : undefined}>
     <TableTopBar state={state} forecast={activeForecast} score={score} canUndo={canUndo} canRedo={canRedo} onUndo={handlers.undo} onRedo={handlers.redo} onReset={handlers.reset} compact={compact} asHeading={state.phase !== "gameEnd"} />
     {compact && state.phase !== "setup" && state.phase !== "goldenSetup" && state.phase !== "gameEnd" && <EncounterStrip state={state} newCardIds={newCardIds} onOpen={() => setRailOpen(true)} />}
     <main className="table-main">
@@ -595,7 +599,7 @@ function CompactTurn({ state, onOpenRail, onEndTurn, onReveal, onEndRound }: { s
       {resources.map((resource) => <li key={resource} className={`res-${resource}${state.warehouse[resource] === 0 ? " is-empty" : ""}`}><GameIcon name={resource} className="compact-res-icon" /><span className="compact-res-label">{resourceLabels[resource]}</span><strong>{state.warehouse[resource]}</strong></li>)}
     </ul>
     {state.phase === "turns" ? <div className="compact-turn-row">
-      <div><strong>{state.players.length > 1 ? `${steward?.name}’s turn` : "Your turn"}</strong><small>{player && !player.hasPlacedFirstTile ? `First, build on your Steward’s space at ${player.stewardHexId}` : null}{player && !player.hasPlacedFirstTile ? <br /> : null}{state.actionsRemaining > 0 ? `${state.actionsRemaining} of 4 actions left. Tap a tile or a space.` : "No actions left. End the turn when you are ready."}</small></div>
+      <div><strong>{state.players.length > 1 ? `${steward?.name}’s turn` : "Your turn"}</strong><small>{player && !player.hasPlacedFirstTile ? `First, build on your Steward’s space, ${player.stewardHexId}. ${state.actionsRemaining} of 4 actions left.` : state.actionsRemaining > 0 ? `${state.actionsRemaining} of 4 actions left. Tap a tile or a space.` : "No actions left. End the turn when you are ready."}</small></div>
       {confirming
         ? <span className="compact-confirm"><button type="button" className="rail-primary" onClick={onEndTurn}>End</button><button type="button" onClick={() => setConfirming(false)}>Keep</button></span>
         : <button type="button" className="rail-secondary" onClick={() => state.actionsRemaining > 0 ? setConfirming(true) : onEndTurn()}>End turn</button>}

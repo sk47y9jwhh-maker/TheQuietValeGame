@@ -1759,3 +1759,72 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
   .table-seed-review-cards { gap: 8px !important; }
   .table-seed-review-cards .table-seed-choose { font-size: 0.8rem; }
 }
+/* Phone: a tall sheet leaves too little board for the zoom buttons; pinch still zooms. */
+.table-screen.is-sheet-tall .board-tools { display: none; }
+/* The walkthrough's Next bar covers the whole width and the sheet's bottom padding. */
+.table-sheet.is-tour .tour-controls { margin: 0 -14px calc(-12px - env(safe-area-inset-bottom)); padding: 8px 14px calc(12px + env(safe-area-inset-bottom)); }
+.table-sheet.is-tour .tour-controls:not(:last-child) { margin-bottom: 0; padding-bottom: 8px; position: static; }
+.table-sheet.is-tour .tour-controls:last-child { margin-bottom: calc(-12px - env(safe-area-inset-bottom)); padding-bottom: calc(12px + env(safe-area-inset-bottom)); box-shadow: 0 -8px 12px -6px rgba(38, 34, 27, 0.18); z-index: 2; }
+.table-sheet.is-tour .tour-after { padding-bottom: 4px; }
+
+/* A phone held sideways: the encounter panel's footer is slim so the choices show. */
+.table-screen.is-side-sheet .table-resolution-body .effect-command-bar { padding: 6px 10px; gap: 6px; }
+.table-screen.is-side-sheet .table-resolution-body .effect-command-bar > span { display: none; }
+.table-screen.is-side-sheet .table-resolution-body .effect-command-bar .primary-action { min-height: 40px; }
+.table-screen.is-side-sheet .table-resolution > header { padding: 8px 4px 6px; }
+.table-screen.is-side-sheet .table-resolution h2 { font-size: 1.1rem; }
+.table-screen.is-side-sheet .table-resolution-hint { font-size: 0.8rem; }
+
+/* Phone, round two. */
+@media (max-width: 640px) {
+  /* A catch-all rule tiles every grid in the panel at 150px. Resource and timer steppers need a full row each. */
+  .table-sheet .table-resolution-body .effect-prompt .effect-grid.effect-grid, .table-sheet .table-resolution-body .effect-prompt .effect-list.effect-list { grid-template-columns: minmax(0, 1fr) !important; }
+  .table-resolution-body .effect-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .table-resolution-body .effect-resource > span { white-space: nowrap; }
+  /* Final scoring is the end of the story: give it most of the screen. */
+  .table-sheet.is-resolving:has(.completed-game-layout) { max-height: 78dvh; }
+  .table-sheet .physical-game-note { padding: 16px; }
+  .table-sheet .table-resolution-body article.completed-game-review { padding: 0; }
+  .table-sheet .physical-game-note p { font-size: 0.98rem; line-height: 1.45; }
+  /* Reference tabs: one frame, not a box inside a box. */
+  .rail-overlay-tray { padding: 0; }
+  .rail-overlay-tray .bottom-drawer { border: 0; border-radius: 0; box-shadow: none; padding: 0; background: var(--bt-paper); }
+  .rail-overlay-tray .tray-panel { margin: 0; border: 0; border-radius: 0; box-shadow: none; padding: 12px 16px; }
+  .rail-overlay-tray .tray-panel-header { padding-bottom: 8px; margin-bottom: 10px; }
+  .rail-overlay-tray .tray-panel-header h2 { font-size: 1.5rem; }
+  .rail-overlay-tray .tray-tabs { border-radius: 0; margin: 0; border-left: 0; border-right: 0; border-bottom: 0; }
+  /* The private-hand gate inside a tab: compact. */
+  .rail-overlay-tray .private-hand-gate { min-height: 0; padding: 22px 18px; box-shadow: none; }
+  .rail-overlay-tray .private-hand-gate h2 { font-size: 1.6rem; }
+}
+@media (max-width: 640px) {
+  /* Pass the device: a compact card, the Reveal button in easy reach. */
+  .private-hand-gate { min-height: 0; margin: 16px auto; padding: 24px 18px; gap: 10px; }
+  .private-hand-gate h2 { font-size: 1.6rem; }
+  /* Away from the board (seeding), the walkthrough card sits at the top and the stage scrolls below. */
+  .table-stage-coach { margin-top: 10px; width: calc(100% - 20px); }
+  .table-stage-coach .table-coach.is-tour { padding: 12px 14px 12px; }
+  .table-stage .season-banner { width: calc(100% - 20px); }
+}
+@media (max-width: 860px) {
+  /* Round notices sit at the top of the board, full width, clear of the sheet and the zoom buttons. */
+  .table-screen.is-compact .table-notice { top: 8px; bottom: auto; left: 8px; right: 8px; transform: none; max-width: none; padding: 8px 8px 8px 12px; font-size: 0.9rem; z-index: 5; }
+  /* "First, build on…" and the action count share one tidy line each. */
+  .compact-turn-row small br { display: block; content: ""; margin-bottom: 2px; }
+}
+/* An empty encounter strip is a thin line, not a whole row. */
+.encounter-strip:has(> .strip-empty:only-child) { padding: 4px 12px; }
+.encounter-strip .strip-empty { font-size: 0.82rem; }
+/* A phone held sideways: a slimmer strip and top bar leave room for the board. */
+.table-screen.is-side-sheet .strip-card { padding: 3px 9px; }
+.table-screen.is-side-sheet .strip-card span { font-size: 0.62rem; }
+.table-screen.is-side-sheet .strip-card strong { font-size: 0.84rem; }
+.table-screen.is-side-sheet .table-topbar { min-height: 40px; }
+@media (max-height: 480px) and (max-width: 960px) {
+  .scenario-preview-table .demo-ribbon { height: 38px; }
+  .scenario-preview-table .rail-overlay { top: 38px; }
+}
+.table-screen.is-side-sheet .effect-source-summary h2, .table-screen.is-side-sheet .effect-source-summary h3 { font-size: 1.2rem; line-height: 1.15; }
+.table-screen.is-side-sheet .effect-source-face .encounter-card-shell { width: 56px; }
+.table-screen.is-side-sheet .effect-source-summary .effect-rule-text { font-size: 0.92rem; }
+.table-screen.is-side-sheet .table-resolution-body h2 { font-size: 1.15rem; }
