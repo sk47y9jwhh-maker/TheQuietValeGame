@@ -1703,3 +1703,59 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
   .rail-overlay-tray .tray-panel { max-height: 72dvh; }
   .rail-overlay-tray .tile-mini-card .tile-artwork { max-width: 220px; margin: 0 auto; display: block; }
 }
+
+/* Phone encounter panel: a compact heading with the board toggle beside the
+   title, and "Show the board" keeps Apply in reach, so a player can tap
+   tiles on the board and confirm without reopening the panel. */
+@media (max-width: 860px) {
+  .table-sheet.is-resolving .table-resolution > header { grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; row-gap: 2px; top: -6px; margin-top: -6px; padding: 10px 2px 8px; }
+  .table-sheet.is-resolving .table-resolution > header > * { grid-column: 1; }
+  .table-sheet.is-resolving .table-resolution > header .sheet-toggle { grid-column: 2; grid-row: 1 / span 2; align-self: center; margin: 0; min-height: 36px; padding: 4px 12px; font-size: 0.86rem; white-space: nowrap; }
+  .table-sheet.is-resolving .table-resolution h2 { font-size: 1.2rem; }
+  .table-sheet.is-resolving .table-resolution-hint { font-size: 0.84rem; line-height: 1.35; }
+  .table-sheet.is-resolving.is-low { max-height: min(42dvh, 300px); overflow-y: auto; }
+  .table-sheet.is-resolving.is-low .table-resolution-body:has(.effect-command-bar) { display: block; padding-top: 4px; }
+  .table-sheet.is-resolving.is-low .table-resolution-body .effect-prompt > :not(.effect-command-bar) { display: none; }
+  .table-sheet.is-resolving.is-low .effect-command-bar { position: static; margin: 0; box-shadow: none; }
+}
+/* Phone overlay: it starts below the demo ribbon, so "Back to the board" is never hidden. */
+.scenario-preview-table .rail-overlay { top: 46px; }
+/* A reference tab opened on a phone takes the whole overlay instead of a strip under the turn panel. */
+@media (max-width: 860px) {
+  .rail-overlay:has(.tray-panel) .table-rail { display: none; }
+  .rail-overlay:has(.tray-panel) .rail-overlay-tray { flex: 1; display: flex; flex-direction: column; min-height: 0; border-top: 0; }
+  .rail-overlay:has(.tray-panel) .rail-overlay-tray .bottom-drawer { flex: 1; display: grid; grid-template-rows: minmax(0, 1fr) auto; min-height: 0; }
+  .rail-overlay-tray .bottom-drawer .tray-panel, .rail-overlay-tray .bottom-drawer.rules-expanded .tray-panel, .rail-overlay-tray .bottom-drawer.ledger-expanded .tray-panel { max-height: none; height: 100%; overflow-y: auto; }
+  .rail-overlay-tray .tray-tabs button { min-height: 44px; }
+}
+/* Phone panels inside the sheet: smaller headings and less padding on the boxes within boxes. */
+@media (max-width: 640px) {
+  .table-sheet .table-resolution-body h2 { font-size: 1.3rem; line-height: 1.15; }
+  .table-sheet .table-resolution-body h3 { font-size: 1.08rem; }
+  .table-sheet .table-resolution-body :is(.golden-decision, .steward-choice, .cost-choice-panel, .deck-reorder-panel) { padding: 12px !important; }
+  .table-sheet .table-resolution-body header p { font-size: 0.92rem; }
+  .table-sheet .table-resolution-body article { padding: 12px; }
+}
+/* Phone home: the three journey steps read as heading then sentence, with a brass rule. */
+@media (max-width: 620px) {
+  .welcome-beginning > div { display: block; padding-left: 14px; border-left: 2px solid #8a6a26; }
+  .welcome-beginning h3 { margin: 0 0 2px; font-size: 19px; }
+}
+/* Phone seeding: Top, Middle and Bottom stay pinned while the cards scroll, and the cards sit two to a row. */
+@media (max-width: 640px) {
+  .table-seeding .table-seed-plan { position: sticky; top: 0; z-index: 3; margin: 0 -14px 14px; padding: 8px 12px 10px; border-width: 0 0 1px; border-radius: 0; box-shadow: 0 6px 14px -8px rgba(38, 34, 27, 0.35); }
+  .table-seeding .table-seed-plan h2, .table-seeding .table-seed-plan .table-seed-help { display: none; }
+  .table-seeding .table-seed-plan .eyebrow { font-size: 0.78rem !important; margin: 0; }
+  .table-seeding .table-seed-progress { margin: 0; font-size: 0.82rem; }
+  .table-seeding .table-seed-slots { margin: 6px 0 0; }
+  .table-seeding .table-seed-slots button { min-height: 0; padding: 7px 8px; }
+  .table-seeding .table-seed-slots strong { font-size: 13px; }
+  .table-seed-hand-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px 10px !important; }
+  .table-seed-face, .table-seed-choose { max-width: none !important; min-width: 0 !important; }
+  .table-seed-choose { min-height: 40px; font-size: 0.86rem; padding: 4px 6px; }
+  .table-seed-hand h1 { font-size: 24px; }
+  .table-seed-hand header p:not(.eyebrow) { font-size: 0.9rem; }
+  .table-stage .season-banner { margin-top: 10px; padding: 10px 14px; font-size: 0.92rem; }
+  .table-seed-review-cards { gap: 8px !important; }
+  .table-seed-review-cards .table-seed-choose { font-size: 0.8rem; }
+}
