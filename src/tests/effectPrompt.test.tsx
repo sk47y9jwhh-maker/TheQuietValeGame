@@ -176,14 +176,14 @@ describe("effect prompt controls", () => {
 
     render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
 
-    expect(screen.getByRole("button", { name: /apply warden relief/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /apply the warden’s relief/i })).toBeDisabled();
     fireEvent.click(
       screen.getByRole("button", { name: "Place Supported on Path at G1" })
     );
     expect(screen.getByLabelText("Effect preview")).toHaveTextContent(
       "Path (G1): gains Supported"
     );
-    expect(screen.getByRole("button", { name: /apply warden relief/i })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /apply the warden’s relief/i })).toBeEnabled();
   });
 
   it("allows an already-stuck Warden Relief prompt to continue when no target exists", () => {
