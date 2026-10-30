@@ -183,7 +183,12 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
 
   // A walkthrough frames what it is talking about beside its card.
   const focusKey = focus ? `${focus.left}:${[...focus.hexIds].sort().join(",")}` : "";
+  // A step with nothing to point at keeps the last framing, re-fitted if the
+  // window changes (the side panel narrows or widens between steps).
+  const lastFocus = useRef<typeof focus>(undefined);
+  if (focus?.hexIds.length) lastFocus.current = focus;
   useEffect(() => {
+    const focus = lastFocus.current;
     if (!focus || !focus.hexIds.length || !size.width || !size.height) return;
     const cells = focus.hexIds.map((hexId) => boardCellById.get(hexId)).filter((cell): cell is NonNullable<typeof cell> => Boolean(cell));
     if (!cells.length) return;
@@ -194,10 +199,24 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
     const availableWidth = Math.max(220, size.width - focus.left - right - 12);
     const availableHeight = Math.max(220, size.height - coveredBottom - 24);
     const closest = (hexRadius * 2) / 132;
-    const upp = Math.min(fitView(size.width, size.height).upp, Math.max(closest, (maxX - minX) / availableWidth, (maxY - minY) / availableHeight));
-    const framed = { upp, cx: (minX + maxX) / 2 - ((focus.left - right) * upp) / 2, cy: (minY + maxY) / 2 + (coveredBottom * upp) / 2 };
-    // Keep the map filling the window top to bottom. Sideways it may slide under the card.
-    setView({ ...framed, cy: clampView(framed).cy });
+    const fitUpp = fitView(size.width, size.height).upp;
+    // No bare table beside the board: its left edge stays under the card and
+    // its right edge at the window's edge. If that would push what the step
+    // is about under the card, step back until it is in view.
+    const place = (upp: number) => {
+      const half = (size.width * upp) / 2;
+      let cx = (minX + maxX) / 2 - ((focus.left - right) * upp) / 2;
+      cx = Math.min(cx, boardBounds.x + boardBounds.width - half);
+      cx = Math.max(cx, boardBounds.x - focus.left * upp + half);
+      const framed = { upp, cx, cy: (minY + maxY) / 2 + (coveredBottom * upp) / 2 };
+      const screenLeft = (minX + pad * 0.4 - (cx - half)) / upp;
+      const screenRight = (maxX - pad * 0.4 - (cx - half)) / upp;
+      return { view: { ...framed, cy: clampView(framed).cy }, fits: screenLeft >= focus.left - 8 && screenRight <= size.width - 8 };
+    };
+    let upp = Math.min(fitUpp, Math.max(closest, (maxX - minX) / availableWidth, (maxY - minY) / availableHeight));
+    let placed = place(upp);
+    while (!placed.fits && upp < fitUpp) { upp = Math.min(fitUpp, upp * 1.15); placed = place(upp); }
+    setView(placed.fits ? placed.view : fitView(size.width, size.height));
   }, [focusKey, size.width, size.height]);
 
   const current = view ?? (size.width ? fitView(size.width, size.height) : { cx: 340, cy: 260, upp: 1 });
