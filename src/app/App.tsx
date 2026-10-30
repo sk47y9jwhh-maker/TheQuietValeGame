@@ -118,6 +118,18 @@ function createSetupSeed(): string {
 const undoHistoryLimit = 40;
 
 /** One step: use the Boon or Steward power, then the action. Nothing changes if either fails. */
+/**
+ * On the board-first table, a payment with nothing to choose (one fixed cost,
+ * already shown on the card or tile) is paid at once rather than opening a
+ * separate review screen. Undo reverses it. A payment with real options still
+ * opens beside the board.
+ */
+function settleFixedPayment(state: GameState): GameState {
+  if (!state.pendingCostChoice || state.pendingCostChoice.options.length > 0) return state;
+  const paid = confirmCostChoice(state, { selectedOptionIds: [] });
+  return paid === state ? state : paid;
+}
+
 function withEnhancer(state: GameState, enhancer: Enhancer | undefined, action: (ready: GameState) => GameState): GameState {
   if (!enhancer) return action(state);
   const ready = applyEnhancer(state, enhancer);
@@ -1054,10 +1066,10 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
           onDismissNotice={clearNotice}
           handlers={{
             activate: (placedTileId, enhancer) => { clearNotice(); commitGameState((current) => withEnhancer(current, enhancer, (ready) => activateTile(ready, ready.currentPlayerId, placedTileId))); },
-            upgrade: (placedTileId, enhancer) => { clearNotice(); commitGameState((current) => withEnhancer(current, enhancer, (ready) => upgradeTile(ready, ready.currentPlayerId, placedTileId))); },
-            place: (tileId, draft, enhancer) => { clearNotice(); commitGameState((current) => withEnhancer(current, enhancer, (ready) => placeTile(ready, ready.currentPlayerId, tileId, draft))); },
-            completeArrival: (cardId) => { clearNotice(); commitGameState((current) => completeArrival(current, cardId)); },
-            resolveBurden: (cardId) => { clearNotice(); handleResolveBurden(cardId); },
+            upgrade: (placedTileId, enhancer) => { clearNotice(); commitGameState((current) => settleFixedPayment(withEnhancer(current, enhancer, (ready) => upgradeTile(ready, ready.currentPlayerId, placedTileId)))); },
+            place: (tileId, draft, enhancer) => { clearNotice(); commitGameState((current) => settleFixedPayment(withEnhancer(current, enhancer, (ready) => placeTile(ready, ready.currentPlayerId, tileId, draft)))); },
+            completeArrival: (cardId) => { clearNotice(); commitGameState((current) => settleFixedPayment(completeArrival(current, cardId))); },
+            resolveBurden: (cardId) => { clearNotice(); commitGameState((current) => settleFixedPayment(resolveBurden(current, cardId))); },
             useBoon: (cardId) => { clearNotice(); handleUseFaceUpBoon(cardId); },
             useStewardPower: () => { clearNotice(); handleUseStewardPower(); },
             endTurn: () => { clearNotice(); commitGameState((current) => endCurrentTurn(current)); },

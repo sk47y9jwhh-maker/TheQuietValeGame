@@ -1234,10 +1234,10 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 @keyframes bt-coach-glow { 50% { box-shadow: 0 0 0 3px rgba(242, 201, 76, 0.55), 0 0 10px rgba(242, 201, 76, 0.25); } }
 
 /* Reveal ceremony: new cards turn over large across the board, then settle into the rail. */
-.reveal-ceremony { position: absolute; inset: 0; z-index: 30; display: grid; place-content: center; justify-items: center; gap: 18px; pointer-events: none; background: radial-gradient(ellipse at center, rgba(18, 22, 16, 0.62), rgba(18, 22, 16, 0.18) 70%, transparent); animation: reveal-veil 2.6s ease forwards; }
-.reveal-title { margin: 0; color: #f6eccb; font-family: var(--bt-display, Georgia, serif); font-size: 1.5rem; letter-spacing: 0.02em; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6); animation: reveal-title 2.6s ease forwards; }
+.reveal-ceremony { position: absolute; inset: 0; z-index: 30; display: grid; place-content: center; justify-items: center; gap: 18px; pointer-events: none; background: radial-gradient(ellipse at center, rgba(18, 22, 16, 0.36), rgba(18, 22, 16, 0.08) 70%, transparent); animation: reveal-veil 2s ease forwards; }
+.reveal-title { margin: 0; color: #f6eccb; font-family: var(--bt-display, Georgia, serif); font-size: 1.5rem; letter-spacing: 0.02em; text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6); animation: reveal-title 2s ease forwards; }
 .reveal-cards { display: flex; gap: 22px; perspective: 1400px; }
-.reveal-card { width: clamp(170px, 15vw, 230px); transform-style: preserve-3d; animation: reveal-flip 2.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 140ms); filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.45)); }
+.reveal-card { width: clamp(170px, 15vw, 230px); transform-style: preserve-3d; animation: reveal-flip 2s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i) * 140ms); filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.45)); }
 .reveal-card > * { width: 100%; max-width: none; }
 @keyframes reveal-veil { 0% { opacity: 0; } 12% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes reveal-title { 0% { opacity: 0; transform: translateY(8px); } 15%, 78% { opacity: 1; transform: none; } 100% { opacity: 0; } }
@@ -1513,3 +1513,9 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
   80% { max-height: 340px; opacity: 0; }
   100% { max-height: 0; opacity: 0; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; border-width: 0; }
 }
+
+/* A payment that still needs a choice: the panel's own heading already names
+   it, so the big dark title block goes, leaving the one-line prompt. */
+.table-resolution .cost-choice-screen .seeding-header { margin: 0 0 10px; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; color: var(--bt-ink); }
+.table-resolution .cost-choice-screen .seeding-header :is(.eyebrow, h1) { display: none; }
+.table-resolution .cost-choice-screen .seeding-header p { margin: 0; color: #4a4434; font-size: 0.95rem; }

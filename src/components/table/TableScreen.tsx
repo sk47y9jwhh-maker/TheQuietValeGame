@@ -514,7 +514,7 @@ function RevealCeremony({ state, newCardIds }: { state: GameState; newCardIds: R
     seen.current.add(key);
     if (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
     setShown(key);
-    const timer = window.setTimeout(() => setShown(null), 2600);
+    const timer = window.setTimeout(() => setShown(null), 2000);
     return () => window.clearTimeout(timer);
   }, [key]);
   if (!shown || shown !== key || state.phase === "gameEnd") return null;
