@@ -1132,10 +1132,11 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 /* Seeding during a walkthrough: the card and the Season note in a left column,
    the seeding table beside them, so nothing falls below the window. */
 @media (min-width: 1000px) {
-  .table-stage:has(.table-stage-coach) { display: grid; grid-template-columns: 380px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); column-gap: 20px; padding: 16px 20px; overflow: hidden; box-sizing: border-box; }
+  .table-stage:has(.table-stage-coach) { display: grid; grid-template-columns: 400px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); column-gap: 20px; padding: 16px 20px; overflow-y: auto; box-sizing: border-box; }
   .table-stage:has(.table-stage-coach) > .table-stage-coach { grid-column: 1; grid-row: 1; width: auto; max-width: none; margin: 0; }
-  .table-stage:has(.table-stage-coach) > .season-banner { grid-column: 1; grid-row: 2; align-self: start; width: auto; max-width: none; margin: 14px 0 0; }
-  .table-stage:has(.table-stage-coach) > :not(.table-stage-coach):not(.season-banner) { grid-column: 2; grid-row: 1 / span 2; min-height: 0; overflow-y: auto; border-radius: 14px; }
+  .table-stage:has(.table-stage-coach) > .season-banner { display: none; }
+  .table-stage:has(.table-stage-coach) > :not(.table-stage-coach):not(.season-banner) { grid-column: 2; grid-row: 1; min-height: 0; overflow-y: auto; border-radius: 14px; }
+  .table-stage:has(.table-stage-coach) > .table-stage-coach { align-self: start; max-height: 100%; overflow-y: auto; border-radius: 16px; }
   .table-stage:has(.table-stage-coach) .table-seed-hand-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
 }
 /* Seeding cards are sized by the window's height as well as its width. */
@@ -1308,3 +1309,20 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
   .experience-table .vale-welcome .welcome-start { position: sticky; bottom: 0; z-index: 2; margin-top: auto; padding: 12px 0 16px; background: var(--vale-paper, #f3efe2); box-shadow: 0 -10px 14px -10px rgba(38, 34, 27, 0.25); }
 }
 .table-stage-coach .table-coach.is-tour { width: 100%; }
+
+/* Decisions in a walkthrough: the options side by side, the choice marked, then why. */
+.table-coach.is-tour.has-decision { width: min(470px, calc(100% - 28px)); }
+.tour-options { display: grid; gap: 8px; margin: 4px 0 2px; padding: 0; list-style: none; }
+.tour-options > li { padding: 9px 12px; border: 1px solid rgba(246, 236, 203, 0.18); border-radius: 10px; background: rgba(246, 236, 203, 0.05); }
+.tour-options > li.is-chosen { border-color: #e8c463; background: rgba(232, 196, 99, 0.14); box-shadow: inset 3px 0 0 #e8c463; }
+.tour-option-label { display: flex; align-items: center; gap: 6px; margin: 0 0 4px; color: #f6ecca; font-size: 0.92rem; }
+.tour-option-label svg { flex: none; color: #e8c463; }
+.tour-chosen { margin-left: auto; padding: 2px 8px; border-radius: 999px; background: #e8c463; color: #2a2112; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+.tour-options ul { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; padding: 0; list-style: none; color: rgba(246, 236, 203, 0.82); font-size: 0.82rem; line-height: 1.35; }
+.tour-options li:not(.is-chosen) ul { opacity: 0.85; }
+.tour-why { color: #e8c463; }
+.table-screen[data-coach="warehouse"] .table-warehouse { border-radius: 12px; box-shadow: 0 0 0 3px #f2c94c, 0 0 22px rgba(242, 201, 76, 0.55); }
+/* A walkthrough locks the table, but the rail and panels can still scroll. */
+.table-screen.is-demo-locked .table-rail, .table-screen.is-demo-locked .table-resolution, .table-screen.is-demo-locked .table-stage > :not(.table-stage-coach):not(.season-banner) { pointer-events: auto; }
+.table-screen.is-demo-locked .table-rail :is(button, a, input, select), .table-screen.is-demo-locked .table-resolution :is(button, a, input, select), .table-screen.is-demo-locked .table-stage :is(button, a, input, select):not(.table-coach *) { pointer-events: none; }
+.table-board > .table-coach.is-tour { max-height: calc(100% - 28px); overflow-y: auto; box-sizing: border-box; }

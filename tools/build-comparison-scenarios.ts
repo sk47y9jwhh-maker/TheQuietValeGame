@@ -10,6 +10,7 @@ import type { PreviewSnapshot } from "../src/app/scenarioTypes";
 import type { ScenarioId } from "../src/app/scenarioCatalog";
 import { advance, seed, seedSeason, settle, snapshot, startStewards } from "./scenario-steps";
 import { carefulValueOf, playTurn } from "./showcase-bot";
+import { arrivalScene, boonScene, protectScene, specialScene } from "./decision-scenes";
 import { trackLedgerTransition } from "../src/engine/ledger";
 import type { GameState } from "../src/engine/types";
 
@@ -32,6 +33,11 @@ try {
   state = settle(advance(state, resolveEndRound));
   state = settle(advance(state, revealEncounters));
   result.settlement = snapshot(state);
+  // Decision scenes, staged from this position for the walkthroughs.
+  result["decide-arrival"] = snapshot(arrivalScene(state));
+  result["decide-protect"] = snapshot(protectScene(state));
+  result["decide-boon"] = snapshot(boonScene(state));
+  result["decide-special"] = snapshot(specialScene(state));
 
   let quartermaster = startStewards(createNewGame(1, ["quartermaster"], { encounterSeed: seed }));
   quartermaster = settle(advance(seedSeason(quartermaster), revealEncounters));

@@ -103,6 +103,31 @@ describe("moment walkthroughs", () => {
   });
 });
 
+describe("decision walkthroughs", () => {
+  it("lays out the options with the engine's outcomes, marks the choice and plays it", () => {
+    open("decide-arrival");
+    const tour = () => screen.getByRole("complementary", { name: "Guided tour" });
+    const next = () => fireEvent.click(within(tour()).getAllByRole("button").find((button) => button.classList.contains("tour-next"))!);
+    next();
+    const options = within(tour()).getByRole("list", { name: "The options" });
+    expect(options).toHaveTextContent("The choice");
+    expect(options).toHaveTextContent("After the round");
+    expect(options).toHaveTextContent("The Arrival leaves");
+    next();
+    expect(readSavedGame()!.state.encounters.completedArrivals.some((arrival) => arrival.cardId === "arrival_from_blade_swingers_to_herb_stringers")).toBe(true);
+  });
+
+  it("shields the vulnerable Cabin, then shows Supported taking the hit", () => {
+    open("decide-protect");
+    const tour = () => screen.getByRole("complementary", { name: "Guided tour" });
+    const next = () => fireEvent.click(within(tour()).getAllByRole("button").find((button) => button.classList.contains("tour-next"))!);
+    next(); next(); next(); next();
+    const cabin = readSavedGame()!.state.map.placedTiles.find((tile) => tile.hexIds.includes("H1"))!;
+    expect(cabin.strain).toBe(2);
+    expect(readSavedGame()!.state.log[0].message).toBe("Supported prevented 1 Strain on the Cabin.");
+  });
+});
+
 describe("score breakdown", () => {
   it("explains Score now line by line", () => {
     open("showcase-late");

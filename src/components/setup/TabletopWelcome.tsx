@@ -43,8 +43,8 @@ export function TabletopWelcome(props: SetupPanelProps) {
             <h1>A new season<br />in the Vale.</h1>
             <p>Lay down roots. Welcome new arrivals.<br />Build a place to call home, together.</p>
             {isBoardTableExperience() && <nav className="welcome-moment-chips" aria-labelledby="welcome-moments-heading">
-              <h2 id="welcome-moments-heading">Or watch a moment from a real game</h2>
-              <div>{(["showcase-late", "showcase-chain", "showcase-season"] as const).map((id) => <a key={id} href={`?experience=table&scenario=${id}`}><strong>{comparisonScenarios[id].name}</strong><small>Watch <ArrowRight size={13} aria-hidden="true" /></small></a>)}</div>
+              <h2 id="welcome-moments-heading">Or watch a decision play out</h2>
+              <div>{(["decide-arrival", "decide-protect", "decide-boon", "decide-special", "showcase-chain"] as const).map((id) => <a key={id} href={`?experience=table&scenario=${id}`}><strong>{comparisonScenarios[id].name}</strong><small>Watch <ArrowRight size={13} aria-hidden="true" /></small></a>)}</div>
             </nav>}
           </div>
           <span className="welcome-art-credit">Map by Giovanni Spadaro & Daniele Nicotra</span>

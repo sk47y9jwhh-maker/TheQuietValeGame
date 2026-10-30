@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Play, RotateCcw } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, Play, RotateCcw } from "lucide-react";
 import type { TourStep } from "./tourScript";
 import type { GameState } from "../../engine/types";
 
@@ -15,7 +15,7 @@ export interface CoachTarget {
   /** A short label floating over the first lit space, e.g. "Build here". */
   label?: string;
   /** A part of the screen to glow. */
-  ui?: "arrivals" | "end-turn" | "score" | "encounters" | "seed";
+  ui?: "arrivals" | "end-turn" | "score" | "encounters" | "seed" | "warehouse";
 }
 
 /** How a walkthrough drives the table: its script, and a way to play, undo or restart a step. */
@@ -54,9 +54,11 @@ export function TableCoach({ state, onTarget, tour }: { state: GameState; onTarg
 
 const demos = [
   { id: "welcome", href: "?experience=table&scenario=guided", name: "Your first game" },
-  { id: "late-intro", href: "?experience=table&scenario=showcase-late", name: "A thriving settlement" },
-  { id: "chain-intro", href: "?experience=table&scenario=showcase-chain", name: "The Strain spreads" },
-  { id: "season-intro", href: "?experience=table&scenario=showcase-season", name: "The turning of the Season" }
+  { id: "arrival-intro", href: "?experience=table&scenario=decide-arrival", name: "Welcome them, or build?" },
+  { id: "protect-intro", href: "?experience=table&scenario=decide-protect", name: "Protect the vulnerable" },
+  { id: "boon-intro", href: "?experience=table&scenario=decide-boon", name: "Make the Boon count" },
+  { id: "special-intro", href: "?experience=table&scenario=decide-special", name: "A Special tile’s power" },
+  { id: "chain-intro", href: "?experience=table&scenario=showcase-chain", name: "The Strain spreads" }
 ];
 
 /** Next, next, next: the table plays itself, explained one step at a time. */
@@ -70,6 +72,8 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
   useEffect(() => () => onTarget?.(null), []);
   useEffect(() => { setStuck(false); }, [place.index]);
   const position = Math.max(0, tourSteps.indexOf(step));
+  // A decision's options, each played out by the engine behind the scenes.
+  const options = useMemo(() => step.decision?.(state) ?? [], [step, state]);
   const last = place.index >= tourSteps.length - 1;
   const atStart = tour.isAtStart(state);
 
@@ -101,7 +105,7 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
     if (previous.played) tour.undo();
   }
 
-  return <aside className="table-coach is-tour" aria-label="Guided tour" aria-live="polite" key={step.id}>
+  return <aside className={`table-coach is-tour${options.length ? " has-decision" : ""}`} aria-label="Guided tour" aria-live="polite" key={step.id}>
     <div className="coach-head">
       <span className="coach-emblem" aria-hidden="true"><Play size={16} /></span>
       <ol className="coach-progress" aria-label={`Step ${position + 1} of ${tourSteps.length}`}>{tourSteps.map((candidate, index) => <li key={candidate.id} className={index < position ? "is-done" : index === position ? "is-now" : ""} />)}</ol>
@@ -109,7 +113,11 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
     </div>
     <p className="tour-eyebrow">{tour.kind} · press Next</p>
     <h3>{step.title}</h3>
-    <p className="coach-why">{step.text(state)}</p>
+    {options.length > 0 && <ol className="tour-options" aria-label="The options">{options.map((option) => <li key={option.id} className={option.chosen ? "is-chosen" : ""}>
+      <p className="tour-option-label">{option.chosen && <Check size={15} aria-hidden="true" />}<strong>{option.label}</strong>{option.chosen && <span className="tour-chosen">The choice</span>}</p>
+      <ul>{option.lines.map((line) => <li key={line}>{line}</li>)}</ul>
+    </li>)}</ol>}
+    <p className="coach-why">{options.length > 0 && <strong className="tour-why">Why: </strong>}{step.text(state)}</p>
     {stuck && <p className="coach-do">This step no longer matches the table. Start again from the beginning.</p>}
     {last ? <>
       <footer className="tour-controls">
@@ -117,7 +125,7 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
         <a className="coach-ok tour-next tour-real" href="?experience=table">Play a real game<ArrowRight size={16} aria-hidden="true" /></a>
         <button type="button" className="coach-off" onClick={begin}><RotateCcw size={14} aria-hidden="true" /> Watch again</button>
       </footer>
-      <nav className="coach-links" aria-label="Other demos">{demos.filter((demo) => demo.id !== tourSteps[0].id).map((demo) => <a key={demo.href} href={demo.href}>{demo.name}</a>)}</nav>
+      <nav className="coach-links" aria-label="Other demos">{demos.filter((demo) => demo.id !== tourSteps[0].id).slice(0, 3).map((demo) => <a key={demo.href} href={demo.href}>{demo.name}</a>)}</nav>
     </> : <footer className="tour-controls">
       <button type="button" className="tour-back" onClick={back} disabled={!place.history.length} aria-label="Back"><ArrowLeft size={16} aria-hidden="true" /></button>
       {stuck

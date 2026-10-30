@@ -1,4 +1,4 @@
-export const scenarioIds = ["welcome", "settlement", "choice", "handoff", "last-action", "finale", "returning", "golden-bell", "golden-scroll", "golden-signet", "golden-vial", "golden-traveller", "ranger-reach", "warden-response", "sentinel-upgrade", "season-three", "showcase-late", "showcase-chain", "showcase-season", "guided"] as const;
+export const scenarioIds = ["welcome", "settlement", "choice", "handoff", "last-action", "finale", "returning", "golden-bell", "golden-scroll", "golden-signet", "golden-vial", "golden-traveller", "ranger-reach", "warden-response", "sentinel-upgrade", "season-three", "showcase-late", "showcase-chain", "showcase-season", "guided", "decide-arrival", "decide-protect", "decide-boon", "decide-special"] as const;
 export type ScenarioId = (typeof scenarioIds)[number];
 export const scenarioStorageVersion = 1;
 
@@ -22,6 +22,10 @@ export const comparisonScenarios: Record<ScenarioId, { name: string; description
   "showcase-chain": { name: "The Strain spreads", description: "A card revealed this round has just Overstrained a Fine Cabin. Watch the chain spread across the settlement, one Target Card at a time.", tasks: ["Follow the chain on the board", "Watch the Target Card choose", "See the cost in the score"] },
   "showcase-season": { name: "The turning of the Season", description: "The end of Round 8. Season III begins: Burdens grow harder, and each Steward seeds three hidden cards.", tasks: ["See what changes with the Season", "Seed your hidden cards", "Reveal the first round of Season III"] },
   guided: { name: "Your first game", description: "A guided tour of the opening. Press Next and the game plays itself, explained one step at a time.", tasks: ["Press Next to watch seeding, building and producing", "See an Arrival welcomed and a Burden paid", "Start a real game, or watch another moment"] },
+  "decide-arrival": { name: "Welcome them, or build?", description: "An Arrival has one timer left. Compare paying for it with building instead, and see which leaves you ahead once the round ends.", tasks: ["Compare the two options", "See why the walkthrough pays", "Meet the Special tile it unlocks"] },
+  "decide-protect": { name: "Protect the vulnerable", description: "A Cabin is one Strain from Overstrain and a Burden will strike Housing again. Clean it, shield it, or leave it?", tasks: ["Compare cleaning, shielding and waiting", "See why Supported wins here", "Watch the shield take the hit"] },
+  "decide-boon": { name: "Make the Boon count", description: "A Boon adds Wood, but the Warehouse is nearly full. Use it now, or build first?", tasks: ["Compare using the Boon now with building first", "See what the Warehouse cap costs", "Watch the Boon pay in full"] },
+  "decide-special": { name: "A Special tile’s power", description: "The Atelier Workshop can wipe all Strain from one tile. Which tile is it worth spending on?", tasks: ["Compare the two strained tiles", "See the score each would recover", "Watch the Fine Cabin restored"] },
   returning: { name: "Return to a growing Ledger", description: "An example campaign with five completed entries and its first Golden unlock. All progress belongs to this demo.", tasks: ["Find the optional Golden choices", "Inspect the unlocked content", "Start a new settlement"] }
 };
 

@@ -1273,6 +1273,2147 @@
       "games": []
     }
   },
+  "decide-arrival": {
+    "setup": {
+      "playerCount": 2,
+      "stewardIds": [
+        "vanguard",
+        "knight"
+      ],
+      "encounterSeed": "QV-COMPARISON-1"
+    },
+    "state": {
+      "playerCount": 2,
+      "players": [
+        {
+          "id": "player_1",
+          "name": "Player 1",
+          "stewardId": "vanguard",
+          "stewardHexId": "G1",
+          "hasPlacedFirstTile": true,
+          "stewardPowerUsesBySeason": {
+            "1": 0,
+            "2": 0,
+            "3": 0
+          }
+        },
+        {
+          "id": "player_2",
+          "name": "Player 2",
+          "stewardId": "knight",
+          "stewardHexId": "A6",
+          "hasPlacedFirstTile": true,
+          "stewardPowerUsesBySeason": {
+            "1": 0,
+            "2": 0,
+            "3": 0
+          }
+        }
+      ],
+      "currentPlayerId": "player_1",
+      "season": 1,
+      "round": 3,
+      "phase": "turns",
+      "actionsRemaining": 4,
+      "playersActedThisRound": [],
+      "seasonSeededPlayerIds": [],
+      "warehouse": {
+        "wood": 6,
+        "stone": 4,
+        "metal": 4,
+        "food": 6,
+        "herbs": 4,
+        "goods": 4
+      },
+      "map": {
+        "placedTiles": [
+          {
+            "instanceId": "tile_1_c01_lumber_yard",
+            "tileId": "c01_lumber_yard",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "G1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_2_c05_cabin",
+            "tileId": "c05_cabin",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "H1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_3_c15_path",
+            "tileId": "c15_path",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "F1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_4_c04_farmstead",
+            "tileId": "c04_farmstead",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A6"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_5_c05_cabin",
+            "tileId": "c05_cabin",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A7"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_6_c15_path",
+            "tileId": "c15_path",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "B6"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          }
+        ]
+      },
+      "tileSupply": {
+        "core": {
+          "c01_lumber_yard": 3,
+          "c02_mine_tunnel": 4,
+          "c03_gathering_outpost": 4,
+          "c04_farmstead": 3,
+          "c05_cabin": 2,
+          "c06_cottage": 4,
+          "c08_inn": 2,
+          "c07_stedding": 2,
+          "c09_tavern": 2,
+          "c10_eatery": 2,
+          "c11_washhouse": 2,
+          "c12_apothecary": 2,
+          "c13_workshops": 2,
+          "c14_market_stalls": 2,
+          "c15_path": 6,
+          "c18_common_land": 2,
+          "c16_street": 6,
+          "c17_track": 4,
+          "c19_bridge": 4,
+          "c20_dig_site": 4,
+          "c21_the_vaults": 2
+        },
+        "special": {
+          "special_adventurers_guild": 0,
+          "special_alchemist_s_workshop": 0,
+          "special_alms_house": 0,
+          "special_atelier_workshop": 0,
+          "special_brewery_of_legends": 0,
+          "special_docks": 0,
+          "special_hearth_garden": 0,
+          "special_house_of_learning": 0,
+          "special_labourers_yard": 0,
+          "special_lantern_roadhouse": 0,
+          "special_reliquary": 0,
+          "special_shrine_of_ancestors": 0,
+          "special_shrine_of_ancients": 0,
+          "special_shrine_of_bounty": 0,
+          "special_shrine_of_depths": 0,
+          "special_shrine_of_renewal": 0,
+          "special_stables": 0,
+          "special_the_iron_roots_respite": 0,
+          "special_the_lorekeepers_respite": 0,
+          "special_the_reavers_respite": 0,
+          "special_the_resting_hall": 0,
+          "special_the_root_weavers_respite": 0,
+          "special_the_tamers_respite": 0,
+          "special_the_waystation": 0,
+          "special_theater": 0
+        }
+      },
+      "encounters": {
+        "handsByPlayerId": {
+          "player_1": [
+            "burden_foundations_remember_war",
+            "burden_the_quiet_fractures",
+            "arrival_from_dark_decay_to_light_display",
+            "boon_the_scent_of_herb_and_tonic",
+            "boon_shared_hands_lighter_loads",
+            "boon_ledgers_flow"
+          ],
+          "player_2": [
+            "boon_where_help_stands",
+            "arrival_the_hearthbound_circle",
+            "arrival_from_songs_of_war_to_the_search_for_ore",
+            "arrival_moving_mountains",
+            "arrival_from_battle_to_cattle",
+            "burden_welcome_wears_thin"
+          ]
+        },
+        "deck": [
+          "burden_too_many_houses_too_little_homes",
+          "burden_river_breaks_its_banks",
+          "burden_promises_overstretched",
+          "boon_the_rains_that_we_sheltered_from_now_yield_the_bounty_of_nature",
+          "arrival_news_travels_faster_than_goods",
+          "boon_the_apprentice_steward",
+          "boon_bounty_of_the_first_harvest",
+          "burden_roads_too_far_from_home"
+        ],
+        "discardPile": [],
+        "activeArrivals": [
+          {
+            "cardId": "arrival_from_blade_swingers_to_herb_stringers",
+            "timerTokens": 1
+          }
+        ],
+        "activeBurdens": [],
+        "faceUpBoons": [],
+        "completedArrivals": [],
+        "reserveBoonIds": [
+          "boon_the_settlement_of_plenty",
+          "boon_festival_of_trade",
+          "boon_the_break_holds",
+          "boon_old_foundations_still_remain",
+          "boon_what_is_written_in_the_stars_can_finally_be_heeded",
+          "boon_stores_made_ready",
+          "boon_a_little_more_time",
+          "boon_shelter_holds",
+          "boon_a_light_on_the_long_dark_lanterns_illuminated_the_way_to_a_safer_day",
+          "boon_a_wonderful_find",
+          "boon_clear_nights_make_for_clear_plans",
+          "boon_craft_fair",
+          "boon_from_the_brink",
+          "boon_carts_before_sunrise",
+          "boon_a_welcome_well_met",
+          "boon_answers_made_ready",
+          "boon_when_the_roads_filled_once_more",
+          "boon_hearths_soften_feuds",
+          "boon_many_hands_make_light_work",
+          "boon_change_of_watch",
+          "boon_raised_in_good_season",
+          "boon_the_ancient_ways_gradually_reemerge"
+        ],
+        "reserveArrivalIds": [
+          "arrival_the_dryads",
+          "arrival_lay_down_the_tools_of_destruction",
+          "arrival_spirit_lifting_spirit",
+          "arrival_hands_for_heavy_work",
+          "arrival_acorns_and_oak_trees",
+          "arrival_from_plunderer_to_lumber",
+          "arrival_the_burden_bearers",
+          "arrival_strong_foundations",
+          "arrival_remnants_of_the_cavalry",
+          "arrival_remnants_of_the_fleet",
+          "arrival_reablement_for_the_realm",
+          "arrival_what_came_before_the_last_age",
+          "arrival_the_transmutation_traveler",
+          "arrival_the_quiet_quest",
+          "arrival_blessed_harvest",
+          "arrival_lanterns_for_the_long_roads",
+          "arrival_lest_we_forget"
+        ],
+        "goldenEnabled": false
+      },
+      "goldenSetup": {
+        "tilePlaced": false,
+        "tileSkipped": false
+      },
+      "pendingGoldenEffect": null,
+      "bonusTurnsPending": false,
+      "bonusTurnsActive": false,
+      "boonModifiers": [],
+      "ignoredBurdenIdsThisRound": [],
+      "tileActivationRecords": {},
+      "pendingEffects": [],
+      "pendingDeckReorder": null,
+      "pendingCostChoice": null,
+      "targetCards": {
+        "seed": "QV-COMPARISON-1:2:targets",
+        "drawPile": [
+          19,
+          4,
+          28,
+          22,
+          30,
+          1,
+          17,
+          29,
+          5,
+          24,
+          14,
+          16,
+          2,
+          6,
+          21,
+          3,
+          11,
+          12,
+          27,
+          7,
+          8,
+          26,
+          25,
+          23,
+          13,
+          18,
+          20,
+          15,
+          9,
+          10
+        ],
+        "drawCount": 0,
+        "history": []
+      },
+      "ledgerRun": {
+        "gameId": "qv_game_muj1xxc0",
+        "recorded": false,
+        "arrivalsRevealed": 2,
+        "arrivalsCompleted": 0,
+        "arrivalsExpired": 0,
+        "burdensRevealed": 1,
+        "burdensResolved": 0,
+        "arrivalsCompletedBySeason": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "burdensResolvedBySeason": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "burdensRevealedBySeason": {
+          "1": 1,
+          "2": 0,
+          "3": 0
+        },
+        "arrivalCompletionEvents": [],
+        "burdenRevealEvents": [
+          {
+            "cardId": "burden_ill_omen_of_discontent",
+            "round": 2,
+            "season": 1
+          }
+        ],
+        "burdenResolutionEvents": [],
+        "strainPreventedBySupported": 0,
+        "strainRemovedByRoundCategory": {},
+        "maxOverstrainedTiles": 0,
+        "rangerPowerTerrainTypes": [],
+        "upgradeActions": 0,
+        "warehousePeakByResource": {
+          "wood": 10,
+          "stone": 10,
+          "metal": 10,
+          "food": 10,
+          "herbs": 10,
+          "goods": 10
+        },
+        "seasonSnapshots": {},
+        "violatedVowReasons": []
+      },
+      "log": [
+        {
+          "id": "log_scene_900",
+          "round": 3,
+          "message": "Demo scene: an Arrival on its last timer."
+        },
+        {
+          "id": "log_26_1790467200000",
+          "round": 2,
+          "message": "No effect this reveal: Omen of Discontent."
+        },
+        {
+          "id": "log_25_1790467200000",
+          "round": 2,
+          "message": "Acknowledged Boon: Pickaxe Reveals Passage."
+        },
+        {
+          "id": "log_24_1790467200000",
+          "round": 2,
+          "message": "Revealed Omen of Discontent."
+        },
+        {
+          "id": "log_23_1790467200000",
+          "round": 2,
+          "message": "Revealed Pickaxe Reveals Passage."
+        },
+        {
+          "id": "log_22_1790467200000",
+          "round": 2,
+          "message": "Round 2 begins."
+        },
+        {
+          "id": "log_21_1790467200000",
+          "round": 1,
+          "message": "All Stewards have acted. Ready for End of Round."
+        },
+        {
+          "id": "log_20_1790467200000",
+          "round": 1,
+          "message": "Farmstead produced resources."
+        },
+        {
+          "id": "log_19_1790467200000",
+          "round": 1,
+          "message": "Activated Farmstead."
+        },
+        {
+          "id": "log_18_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Path at B6."
+        },
+        {
+          "id": "log_17_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Cabin at A7."
+        },
+        {
+          "id": "log_16_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Farmstead at A6."
+        },
+        {
+          "id": "log_15_1790467200000",
+          "round": 1,
+          "message": "Player 2's turn begins."
+        },
+        {
+          "id": "log_14_1790467200000",
+          "round": 1,
+          "message": "Lumber Yard produced resources."
+        },
+        {
+          "id": "log_13_1790467200000",
+          "round": 1,
+          "message": "Activated Lumber Yard."
+        },
+        {
+          "id": "log_12_1790467200000",
+          "round": 1,
+          "message": "Player 1 placed Path at F1."
+        },
+        {
+          "id": "log_11_1790467200000",
+          "round": 1,
+          "message": "Player 1 placed Cabin at H1."
+        },
+        {
+          "id": "log_10_1790467200000",
+          "round": 1,
+          "message": "Player 1 placed Lumber Yard at G1."
+        },
+        {
+          "id": "log_9_1790467200000",
+          "round": 1,
+          "message": "Acknowledged Arrival: Blade to Herb."
+        },
+        {
+          "id": "log_8_1790467200000",
+          "round": 1,
+          "message": "Acknowledged Arrival: No Soul Goes Unserved."
+        },
+        {
+          "id": "log_7_1790467200000",
+          "round": 1,
+          "message": "Revealed Blade to Herb."
+        },
+        {
+          "id": "log_6_1790467200000",
+          "round": 1,
+          "message": "Revealed No Soul Goes Unserved."
+        },
+        {
+          "id": "log_5_1790467200000",
+          "round": 1,
+          "message": "Season 1 seeding complete. Ready to reveal Encounters."
+        },
+        {
+          "id": "log_4_1790467200000",
+          "round": 1,
+          "message": "player_1 seeded three hidden Encounter Cards."
+        },
+        {
+          "id": "log_3_1790467200000",
+          "round": 1,
+          "message": "Knight starts at A6. Season I seeding begins."
+        },
+        {
+          "id": "log_2_1790467200000",
+          "round": 1,
+          "message": "Vanguard starts at G1. Player 2 chooses next."
+        },
+        {
+          "id": "log_setup",
+          "round": 1,
+          "message": "Game created. Choose each Steward's starting hex before Season I seeding."
+        }
+      ]
+    },
+    "campaign": {
+      "version": 2,
+      "catalogueVersion": "v4.6",
+      "pacingVersion": 2,
+      "completions": {},
+      "games": []
+    }
+  },
+  "decide-protect": {
+    "setup": {
+      "playerCount": 2,
+      "stewardIds": [
+        "vanguard",
+        "knight"
+      ],
+      "encounterSeed": "QV-COMPARISON-1"
+    },
+    "state": {
+      "playerCount": 2,
+      "players": [
+        {
+          "id": "player_1",
+          "name": "Player 1",
+          "stewardId": "vanguard",
+          "stewardHexId": "G1",
+          "hasPlacedFirstTile": true,
+          "stewardPowerUsesBySeason": {
+            "1": 0,
+            "2": 0,
+            "3": 0
+          }
+        },
+        {
+          "id": "player_2",
+          "name": "Player 2",
+          "stewardId": "knight",
+          "stewardHexId": "A6",
+          "hasPlacedFirstTile": true,
+          "stewardPowerUsesBySeason": {
+            "1": 0,
+            "2": 0,
+            "3": 0
+          }
+        }
+      ],
+      "currentPlayerId": "player_1",
+      "season": 1,
+      "round": 4,
+      "phase": "turns",
+      "actionsRemaining": 4,
+      "playersActedThisRound": [],
+      "seasonSeededPlayerIds": [],
+      "warehouse": {
+        "wood": 8,
+        "stone": 8,
+        "metal": 8,
+        "food": 8,
+        "herbs": 8,
+        "goods": 6
+      },
+      "map": {
+        "placedTiles": [
+          {
+            "instanceId": "tile_1_c01_lumber_yard",
+            "tileId": "c01_lumber_yard",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "G1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_2_c05_cabin",
+            "tileId": "c05_cabin",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "H1"
+            ],
+            "strain": 2,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_3_c15_path",
+            "tileId": "c15_path",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "F1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_4_c04_farmstead",
+            "tileId": "c04_farmstead",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A6"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_5_c05_cabin",
+            "tileId": "c05_cabin",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A7"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_6_c15_path",
+            "tileId": "c15_path",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "B6"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_901_c09_tavern",
+            "tileId": "c09_tavern",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "H2"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          }
+        ]
+      },
+      "tileSupply": {
+        "core": {
+          "c01_lumber_yard": 3,
+          "c02_mine_tunnel": 4,
+          "c03_gathering_outpost": 4,
+          "c04_farmstead": 3,
+          "c05_cabin": 2,
+          "c06_cottage": 4,
+          "c08_inn": 2,
+          "c07_stedding": 2,
+          "c09_tavern": 1,
+          "c10_eatery": 2,
+          "c11_washhouse": 2,
+          "c12_apothecary": 2,
+          "c13_workshops": 2,
+          "c14_market_stalls": 2,
+          "c15_path": 6,
+          "c18_common_land": 2,
+          "c16_street": 6,
+          "c17_track": 4,
+          "c19_bridge": 4,
+          "c20_dig_site": 4,
+          "c21_the_vaults": 2
+        },
+        "special": {
+          "special_adventurers_guild": 0,
+          "special_alchemist_s_workshop": 0,
+          "special_alms_house": 0,
+          "special_atelier_workshop": 0,
+          "special_brewery_of_legends": 0,
+          "special_docks": 0,
+          "special_hearth_garden": 0,
+          "special_house_of_learning": 0,
+          "special_labourers_yard": 0,
+          "special_lantern_roadhouse": 0,
+          "special_reliquary": 0,
+          "special_shrine_of_ancestors": 0,
+          "special_shrine_of_ancients": 0,
+          "special_shrine_of_bounty": 0,
+          "special_shrine_of_depths": 0,
+          "special_shrine_of_renewal": 0,
+          "special_stables": 0,
+          "special_the_iron_roots_respite": 0,
+          "special_the_lorekeepers_respite": 0,
+          "special_the_reavers_respite": 0,
+          "special_the_resting_hall": 0,
+          "special_the_root_weavers_respite": 0,
+          "special_the_tamers_respite": 0,
+          "special_the_waystation": 0,
+          "special_theater": 0
+        }
+      },
+      "encounters": {
+        "handsByPlayerId": {
+          "player_1": [
+            "burden_foundations_remember_war",
+            "burden_the_quiet_fractures",
+            "arrival_from_dark_decay_to_light_display",
+            "boon_the_scent_of_herb_and_tonic",
+            "boon_shared_hands_lighter_loads",
+            "boon_ledgers_flow"
+          ],
+          "player_2": [
+            "boon_where_help_stands",
+            "arrival_the_hearthbound_circle",
+            "arrival_from_songs_of_war_to_the_search_for_ore",
+            "arrival_moving_mountains",
+            "arrival_from_battle_to_cattle",
+            "burden_welcome_wears_thin"
+          ]
+        },
+        "deck": [
+          "burden_too_many_houses_too_little_homes",
+          "burden_river_breaks_its_banks",
+          "burden_promises_overstretched",
+          "boon_the_rains_that_we_sheltered_from_now_yield_the_bounty_of_nature",
+          "arrival_news_travels_faster_than_goods",
+          "boon_the_apprentice_steward",
+          "boon_bounty_of_the_first_harvest",
+          "burden_roads_too_far_from_home"
+        ],
+        "discardPile": [],
+        "activeArrivals": [],
+        "activeBurdens": [
+          "burden_too_many_houses_too_little_homes"
+        ],
+        "faceUpBoons": [],
+        "completedArrivals": [],
+        "reserveBoonIds": [
+          "boon_the_settlement_of_plenty",
+          "boon_festival_of_trade",
+          "boon_the_break_holds",
+          "boon_old_foundations_still_remain",
+          "boon_what_is_written_in_the_stars_can_finally_be_heeded",
+          "boon_stores_made_ready",
+          "boon_a_little_more_time",
+          "boon_shelter_holds",
+          "boon_a_light_on_the_long_dark_lanterns_illuminated_the_way_to_a_safer_day",
+          "boon_a_wonderful_find",
+          "boon_clear_nights_make_for_clear_plans",
+          "boon_craft_fair",
+          "boon_from_the_brink",
+          "boon_carts_before_sunrise",
+          "boon_a_welcome_well_met",
+          "boon_answers_made_ready",
+          "boon_when_the_roads_filled_once_more",
+          "boon_hearths_soften_feuds",
+          "boon_many_hands_make_light_work",
+          "boon_change_of_watch",
+          "boon_raised_in_good_season",
+          "boon_the_ancient_ways_gradually_reemerge"
+        ],
+        "reserveArrivalIds": [
+          "arrival_the_dryads",
+          "arrival_lay_down_the_tools_of_destruction",
+          "arrival_spirit_lifting_spirit",
+          "arrival_hands_for_heavy_work",
+          "arrival_acorns_and_oak_trees",
+          "arrival_from_plunderer_to_lumber",
+          "arrival_the_burden_bearers",
+          "arrival_strong_foundations",
+          "arrival_remnants_of_the_cavalry",
+          "arrival_remnants_of_the_fleet",
+          "arrival_reablement_for_the_realm",
+          "arrival_what_came_before_the_last_age",
+          "arrival_the_transmutation_traveler",
+          "arrival_the_quiet_quest",
+          "arrival_blessed_harvest",
+          "arrival_lanterns_for_the_long_roads",
+          "arrival_lest_we_forget"
+        ],
+        "goldenEnabled": false
+      },
+      "goldenSetup": {
+        "tilePlaced": false,
+        "tileSkipped": false
+      },
+      "pendingGoldenEffect": null,
+      "bonusTurnsPending": false,
+      "bonusTurnsActive": false,
+      "boonModifiers": [],
+      "ignoredBurdenIdsThisRound": [],
+      "tileActivationRecords": {},
+      "pendingEffects": [],
+      "pendingDeckReorder": null,
+      "pendingCostChoice": null,
+      "targetCards": {
+        "seed": "QV-COMPARISON-1:2:targets",
+        "drawPile": [
+          19,
+          4,
+          28,
+          22,
+          30,
+          1,
+          17,
+          29,
+          5,
+          24,
+          14,
+          16,
+          2,
+          6,
+          21,
+          3,
+          11,
+          12,
+          27,
+          7,
+          8,
+          26,
+          25,
+          23,
+          13,
+          18,
+          20,
+          15,
+          9,
+          10
+        ],
+        "drawCount": 0,
+        "history": []
+      },
+      "ledgerRun": {
+        "gameId": "qv_game_muj1xxc0",
+        "recorded": false,
+        "arrivalsRevealed": 2,
+        "arrivalsCompleted": 0,
+        "arrivalsExpired": 0,
+        "burdensRevealed": 1,
+        "burdensResolved": 0,
+        "arrivalsCompletedBySeason": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "burdensResolvedBySeason": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "burdensRevealedBySeason": {
+          "1": 1,
+          "2": 0,
+          "3": 0
+        },
+        "arrivalCompletionEvents": [],
+        "burdenRevealEvents": [
+          {
+            "cardId": "burden_ill_omen_of_discontent",
+            "round": 2,
+            "season": 1
+          }
+        ],
+        "burdenResolutionEvents": [],
+        "strainPreventedBySupported": 0,
+        "strainRemovedByRoundCategory": {},
+        "maxOverstrainedTiles": 0,
+        "rangerPowerTerrainTypes": [],
+        "upgradeActions": 0,
+        "warehousePeakByResource": {
+          "wood": 10,
+          "stone": 10,
+          "metal": 10,
+          "food": 10,
+          "herbs": 10,
+          "goods": 10
+        },
+        "seasonSnapshots": {},
+        "violatedVowReasons": []
+      },
+      "log": [
+        {
+          "id": "log_scene_902",
+          "round": 4,
+          "message": "Demo scene: a Cabin under Strain."
+        },
+        {
+          "id": "log_26_1790467200000",
+          "round": 2,
+          "message": "No effect this reveal: Omen of Discontent."
+        },
+        {
+          "id": "log_25_1790467200000",
+          "round": 2,
+          "message": "Acknowledged Boon: Pickaxe Reveals Passage."
+        },
+        {
+          "id": "log_24_1790467200000",
+          "round": 2,
+          "message": "Revealed Omen of Discontent."
+        },
+        {
+          "id": "log_23_1790467200000",
+          "round": 2,
+          "message": "Revealed Pickaxe Reveals Passage."
+        },
+        {
+          "id": "log_22_1790467200000",
+          "round": 2,
+          "message": "Round 2 begins."
+        },
+        {
+          "id": "log_21_1790467200000",
+          "round": 1,
+          "message": "All Stewards have acted. Ready for End of Round."
+        },
+        {
+          "id": "log_20_1790467200000",
+          "round": 1,
+          "message": "Farmstead produced resources."
+        },
+        {
+          "id": "log_19_1790467200000",
+          "round": 1,
+          "message": "Activated Farmstead."
+        },
+        {
+          "id": "log_18_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Path at B6."
+        },
+        {
+          "id": "log_17_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Cabin at A7."
+        },
+        {
+          "id": "log_16_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Farmstead at A6."
+        },
+        {
+          "id": "log_15_1790467200000",
+          "round": 1,
+          "message": "Player 2's turn begins."
+        },
+        {
+          "id": "log_14_1790467200000",
+          "round": 1,
+          "message": "Lumber Yard produced resources."
+        },
+        {
+          "id": "log_13_1790467200000",
+          "round": 1,
+          "message": "Activated Lumber Yard."
+        },
+        {
+          "id": "log_12_1790467200000",
+          "round": 1,
+          "message": "Player 1 placed Path at F1."
+        },
+        {
+          "id": "log_11_1790467200000",
+          "round": 1,
+          "message": "Player 1 placed Cabin at H1."
+        },
+        {
+          "id": "log_10_1790467200000",
+          "round": 1,
+          "message": "Player 1 placed Lumber Yard at G1."
+        },
+        {
+          "id": "log_9_1790467200000",
+          "round": 1,
+          "message": "Acknowledged Arrival: Blade to Herb."
+        },
+        {
+          "id": "log_8_1790467200000",
+          "round": 1,
+          "message": "Acknowledged Arrival: No Soul Goes Unserved."
+        },
+        {
+          "id": "log_7_1790467200000",
+          "round": 1,
+          "message": "Revealed Blade to Herb."
+        },
+        {
+          "id": "log_6_1790467200000",
+          "round": 1,
+          "message": "Revealed No Soul Goes Unserved."
+        },
+        {
+          "id": "log_5_1790467200000",
+          "round": 1,
+          "message": "Season 1 seeding complete. Ready to reveal Encounters."
+        },
+        {
+          "id": "log_4_1790467200000",
+          "round": 1,
+          "message": "player_1 seeded three hidden Encounter Cards."
+        },
+        {
+          "id": "log_3_1790467200000",
+          "round": 1,
+          "message": "Knight starts at A6. Season I seeding begins."
+        },
+        {
+          "id": "log_2_1790467200000",
+          "round": 1,
+          "message": "Vanguard starts at G1. Player 2 chooses next."
+        },
+        {
+          "id": "log_setup",
+          "round": 1,
+          "message": "Game created. Choose each Steward's starting hex before Season I seeding."
+        }
+      ]
+    },
+    "campaign": {
+      "version": 2,
+      "catalogueVersion": "v4.6",
+      "pacingVersion": 2,
+      "completions": {},
+      "games": []
+    }
+  },
+  "decide-boon": {
+    "setup": {
+      "playerCount": 2,
+      "stewardIds": [
+        "vanguard",
+        "knight"
+      ],
+      "encounterSeed": "QV-COMPARISON-1"
+    },
+    "state": {
+      "playerCount": 2,
+      "players": [
+        {
+          "id": "player_1",
+          "name": "Player 1",
+          "stewardId": "vanguard",
+          "stewardHexId": "G1",
+          "hasPlacedFirstTile": true,
+          "stewardPowerUsesBySeason": {
+            "1": 0,
+            "2": 0,
+            "3": 0
+          }
+        },
+        {
+          "id": "player_2",
+          "name": "Player 2",
+          "stewardId": "knight",
+          "stewardHexId": "A6",
+          "hasPlacedFirstTile": true,
+          "stewardPowerUsesBySeason": {
+            "1": 0,
+            "2": 0,
+            "3": 0
+          }
+        }
+      ],
+      "currentPlayerId": "player_1",
+      "season": 2,
+      "round": 5,
+      "phase": "turns",
+      "actionsRemaining": 4,
+      "playersActedThisRound": [],
+      "seasonSeededPlayerIds": [],
+      "warehouse": {
+        "wood": 11,
+        "stone": 8,
+        "metal": 8,
+        "food": 8,
+        "herbs": 8,
+        "goods": 8
+      },
+      "map": {
+        "placedTiles": [
+          {
+            "instanceId": "tile_1_c01_lumber_yard",
+            "tileId": "c01_lumber_yard",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "G1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_2_c05_cabin",
+            "tileId": "c05_cabin",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "H1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_3_c15_path",
+            "tileId": "c15_path",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "F1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_4_c04_farmstead",
+            "tileId": "c04_farmstead",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A6"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_5_c05_cabin",
+            "tileId": "c05_cabin",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A7"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_6_c15_path",
+            "tileId": "c15_path",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "B6"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_903_c01_lumber_yard",
+            "tileId": "c01_lumber_yard",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "G2"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          }
+        ]
+      },
+      "tileSupply": {
+        "core": {
+          "c01_lumber_yard": 2,
+          "c02_mine_tunnel": 4,
+          "c03_gathering_outpost": 4,
+          "c04_farmstead": 3,
+          "c05_cabin": 2,
+          "c06_cottage": 4,
+          "c08_inn": 2,
+          "c07_stedding": 2,
+          "c09_tavern": 2,
+          "c10_eatery": 2,
+          "c11_washhouse": 2,
+          "c12_apothecary": 2,
+          "c13_workshops": 2,
+          "c14_market_stalls": 2,
+          "c15_path": 6,
+          "c18_common_land": 2,
+          "c16_street": 6,
+          "c17_track": 4,
+          "c19_bridge": 4,
+          "c20_dig_site": 4,
+          "c21_the_vaults": 2
+        },
+        "special": {
+          "special_adventurers_guild": 0,
+          "special_alchemist_s_workshop": 0,
+          "special_alms_house": 0,
+          "special_atelier_workshop": 0,
+          "special_brewery_of_legends": 0,
+          "special_docks": 0,
+          "special_hearth_garden": 0,
+          "special_house_of_learning": 0,
+          "special_labourers_yard": 0,
+          "special_lantern_roadhouse": 0,
+          "special_reliquary": 0,
+          "special_shrine_of_ancestors": 0,
+          "special_shrine_of_ancients": 0,
+          "special_shrine_of_bounty": 0,
+          "special_shrine_of_depths": 0,
+          "special_shrine_of_renewal": 0,
+          "special_stables": 0,
+          "special_the_iron_roots_respite": 0,
+          "special_the_lorekeepers_respite": 0,
+          "special_the_reavers_respite": 0,
+          "special_the_resting_hall": 0,
+          "special_the_root_weavers_respite": 0,
+          "special_the_tamers_respite": 0,
+          "special_the_waystation": 0,
+          "special_theater": 0
+        }
+      },
+      "encounters": {
+        "handsByPlayerId": {
+          "player_1": [
+            "burden_foundations_remember_war",
+            "burden_the_quiet_fractures",
+            "arrival_from_dark_decay_to_light_display",
+            "boon_the_scent_of_herb_and_tonic",
+            "boon_shared_hands_lighter_loads",
+            "boon_ledgers_flow"
+          ],
+          "player_2": [
+            "boon_where_help_stands",
+            "arrival_the_hearthbound_circle",
+            "arrival_from_songs_of_war_to_the_search_for_ore",
+            "arrival_moving_mountains",
+            "arrival_from_battle_to_cattle",
+            "burden_welcome_wears_thin"
+          ]
+        },
+        "deck": [
+          "burden_too_many_houses_too_little_homes",
+          "burden_river_breaks_its_banks",
+          "burden_promises_overstretched",
+          "boon_the_rains_that_we_sheltered_from_now_yield_the_bounty_of_nature",
+          "arrival_news_travels_faster_than_goods",
+          "boon_the_apprentice_steward",
+          "boon_bounty_of_the_first_harvest",
+          "burden_roads_too_far_from_home"
+        ],
+        "discardPile": [],
+        "activeArrivals": [],
+        "activeBurdens": [],
+        "faceUpBoons": [
+          {
+            "cardId": "boon_the_ancient_ways_gradually_reemerge",
+            "remainingUses": 1
+          }
+        ],
+        "completedArrivals": [],
+        "reserveBoonIds": [
+          "boon_the_settlement_of_plenty",
+          "boon_festival_of_trade",
+          "boon_the_break_holds",
+          "boon_old_foundations_still_remain",
+          "boon_what_is_written_in_the_stars_can_finally_be_heeded",
+          "boon_stores_made_ready",
+          "boon_a_little_more_time",
+          "boon_shelter_holds",
+          "boon_a_light_on_the_long_dark_lanterns_illuminated_the_way_to_a_safer_day",
+          "boon_a_wonderful_find",
+          "boon_clear_nights_make_for_clear_plans",
+          "boon_craft_fair",
+          "boon_from_the_brink",
+          "boon_carts_before_sunrise",
+          "boon_a_welcome_well_met",
+          "boon_answers_made_ready",
+          "boon_when_the_roads_filled_once_more",
+          "boon_hearths_soften_feuds",
+          "boon_many_hands_make_light_work",
+          "boon_change_of_watch",
+          "boon_raised_in_good_season",
+          "boon_the_ancient_ways_gradually_reemerge"
+        ],
+        "reserveArrivalIds": [
+          "arrival_the_dryads",
+          "arrival_lay_down_the_tools_of_destruction",
+          "arrival_spirit_lifting_spirit",
+          "arrival_hands_for_heavy_work",
+          "arrival_acorns_and_oak_trees",
+          "arrival_from_plunderer_to_lumber",
+          "arrival_the_burden_bearers",
+          "arrival_strong_foundations",
+          "arrival_remnants_of_the_cavalry",
+          "arrival_remnants_of_the_fleet",
+          "arrival_reablement_for_the_realm",
+          "arrival_what_came_before_the_last_age",
+          "arrival_the_transmutation_traveler",
+          "arrival_the_quiet_quest",
+          "arrival_blessed_harvest",
+          "arrival_lanterns_for_the_long_roads",
+          "arrival_lest_we_forget"
+        ],
+        "goldenEnabled": false
+      },
+      "goldenSetup": {
+        "tilePlaced": false,
+        "tileSkipped": false
+      },
+      "pendingGoldenEffect": null,
+      "bonusTurnsPending": false,
+      "bonusTurnsActive": false,
+      "boonModifiers": [],
+      "ignoredBurdenIdsThisRound": [],
+      "tileActivationRecords": {},
+      "pendingEffects": [],
+      "pendingDeckReorder": null,
+      "pendingCostChoice": null,
+      "targetCards": {
+        "seed": "QV-COMPARISON-1:2:targets",
+        "drawPile": [
+          19,
+          4,
+          28,
+          22,
+          30,
+          1,
+          17,
+          29,
+          5,
+          24,
+          14,
+          16,
+          2,
+          6,
+          21,
+          3,
+          11,
+          12,
+          27,
+          7,
+          8,
+          26,
+          25,
+          23,
+          13,
+          18,
+          20,
+          15,
+          9,
+          10
+        ],
+        "drawCount": 0,
+        "history": []
+      },
+      "ledgerRun": {
+        "gameId": "qv_game_muj1xxc0",
+        "recorded": false,
+        "arrivalsRevealed": 2,
+        "arrivalsCompleted": 0,
+        "arrivalsExpired": 0,
+        "burdensRevealed": 1,
+        "burdensResolved": 0,
+        "arrivalsCompletedBySeason": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "burdensResolvedBySeason": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "burdensRevealedBySeason": {
+          "1": 1,
+          "2": 0,
+          "3": 0
+        },
+        "arrivalCompletionEvents": [],
+        "burdenRevealEvents": [
+          {
+            "cardId": "burden_ill_omen_of_discontent",
+            "round": 2,
+            "season": 1
+          }
+        ],
+        "burdenResolutionEvents": [],
+        "strainPreventedBySupported": 0,
+        "strainRemovedByRoundCategory": {},
+        "maxOverstrainedTiles": 0,
+        "rangerPowerTerrainTypes": [],
+        "upgradeActions": 0,
+        "warehousePeakByResource": {
+          "wood": 10,
+          "stone": 10,
+          "metal": 10,
+          "food": 10,
+          "herbs": 10,
+          "goods": 10
+        },
+        "seasonSnapshots": {},
+        "violatedVowReasons": []
+      },
+      "log": [
+        {
+          "id": "log_scene_904",
+          "round": 5,
+          "message": "Demo scene: a Boon and a nearly full Warehouse."
+        },
+        {
+          "id": "log_26_1790467200000",
+          "round": 2,
+          "message": "No effect this reveal: Omen of Discontent."
+        },
+        {
+          "id": "log_25_1790467200000",
+          "round": 2,
+          "message": "Acknowledged Boon: Pickaxe Reveals Passage."
+        },
+        {
+          "id": "log_24_1790467200000",
+          "round": 2,
+          "message": "Revealed Omen of Discontent."
+        },
+        {
+          "id": "log_23_1790467200000",
+          "round": 2,
+          "message": "Revealed Pickaxe Reveals Passage."
+        },
+        {
+          "id": "log_22_1790467200000",
+          "round": 2,
+          "message": "Round 2 begins."
+        },
+        {
+          "id": "log_21_1790467200000",
+          "round": 1,
+          "message": "All Stewards have acted. Ready for End of Round."
+        },
+        {
+          "id": "log_20_1790467200000",
+          "round": 1,
+          "message": "Farmstead produced resources."
+        },
+        {
+          "id": "log_19_1790467200000",
+          "round": 1,
+          "message": "Activated Farmstead."
+        },
+        {
+          "id": "log_18_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Path at B6."
+        },
+        {
+          "id": "log_17_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Cabin at A7."
+        },
+        {
+          "id": "log_16_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Farmstead at A6."
+        },
+        {
+          "id": "log_15_1790467200000",
+          "round": 1,
+          "message": "Player 2's turn begins."
+        },
+        {
+          "id": "log_14_1790467200000",
+          "round": 1,
+          "message": "Lumber Yard produced resources."
+        },
+        {
+          "id": "log_13_1790467200000",
+          "round": 1,
+          "message": "Activated Lumber Yard."
+        },
+        {
+          "id": "log_12_1790467200000",
+          "round": 1,
+          "message": "Player 1 placed Path at F1."
+        },
+        {
+          "id": "log_11_1790467200000",
+          "round": 1,
+          "message": "Player 1 placed Cabin at H1."
+        },
+        {
+          "id": "log_10_1790467200000",
+          "round": 1,
+          "message": "Player 1 placed Lumber Yard at G1."
+        },
+        {
+          "id": "log_9_1790467200000",
+          "round": 1,
+          "message": "Acknowledged Arrival: Blade to Herb."
+        },
+        {
+          "id": "log_8_1790467200000",
+          "round": 1,
+          "message": "Acknowledged Arrival: No Soul Goes Unserved."
+        },
+        {
+          "id": "log_7_1790467200000",
+          "round": 1,
+          "message": "Revealed Blade to Herb."
+        },
+        {
+          "id": "log_6_1790467200000",
+          "round": 1,
+          "message": "Revealed No Soul Goes Unserved."
+        },
+        {
+          "id": "log_5_1790467200000",
+          "round": 1,
+          "message": "Season 1 seeding complete. Ready to reveal Encounters."
+        },
+        {
+          "id": "log_4_1790467200000",
+          "round": 1,
+          "message": "player_1 seeded three hidden Encounter Cards."
+        },
+        {
+          "id": "log_3_1790467200000",
+          "round": 1,
+          "message": "Knight starts at A6. Season I seeding begins."
+        },
+        {
+          "id": "log_2_1790467200000",
+          "round": 1,
+          "message": "Vanguard starts at G1. Player 2 chooses next."
+        },
+        {
+          "id": "log_setup",
+          "round": 1,
+          "message": "Game created. Choose each Steward's starting hex before Season I seeding."
+        }
+      ]
+    },
+    "campaign": {
+      "version": 2,
+      "catalogueVersion": "v4.6",
+      "pacingVersion": 2,
+      "completions": {},
+      "games": []
+    }
+  },
+  "decide-special": {
+    "setup": {
+      "playerCount": 2,
+      "stewardIds": [
+        "vanguard",
+        "knight"
+      ],
+      "encounterSeed": "QV-COMPARISON-1"
+    },
+    "state": {
+      "playerCount": 2,
+      "players": [
+        {
+          "id": "player_1",
+          "name": "Player 1",
+          "stewardId": "vanguard",
+          "stewardHexId": "G1",
+          "hasPlacedFirstTile": true,
+          "stewardPowerUsesBySeason": {
+            "1": 0,
+            "2": 0,
+            "3": 0
+          }
+        },
+        {
+          "id": "player_2",
+          "name": "Player 2",
+          "stewardId": "knight",
+          "stewardHexId": "A6",
+          "hasPlacedFirstTile": true,
+          "stewardPowerUsesBySeason": {
+            "1": 0,
+            "2": 0,
+            "3": 0
+          }
+        }
+      ],
+      "currentPlayerId": "player_1",
+      "season": 1,
+      "round": 3,
+      "phase": "turns",
+      "actionsRemaining": 4,
+      "playersActedThisRound": [],
+      "seasonSeededPlayerIds": [],
+      "warehouse": {
+        "wood": 6,
+        "stone": 6,
+        "metal": 6,
+        "food": 6,
+        "herbs": 6,
+        "goods": 6
+      },
+      "map": {
+        "placedTiles": [
+          {
+            "instanceId": "tile_1_c01_lumber_yard",
+            "tileId": "c01_lumber_yard",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "G1"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_2_c05_cabin",
+            "tileId": "c05_cabin",
+            "kind": "core",
+            "side": "upgraded",
+            "hexIds": [
+              "H1"
+            ],
+            "strain": 3,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_3_c15_path",
+            "tileId": "c15_path",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "F1"
+            ],
+            "strain": 1,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_4_c04_farmstead",
+            "tileId": "c04_farmstead",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A6"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_5_c05_cabin",
+            "tileId": "c05_cabin",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "A7"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_6_c15_path",
+            "tileId": "c15_path",
+            "kind": "core",
+            "side": "basic",
+            "hexIds": [
+              "B6"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          },
+          {
+            "instanceId": "tile_905_special_atelier_workshop",
+            "tileId": "special_atelier_workshop",
+            "kind": "special",
+            "side": "special",
+            "hexIds": [
+              "G2"
+            ],
+            "strain": 0,
+            "support": {
+              "passive": false,
+              "singleUse": false,
+              "preventedThisRound": false
+            }
+          }
+        ]
+      },
+      "tileSupply": {
+        "core": {
+          "c01_lumber_yard": 3,
+          "c02_mine_tunnel": 4,
+          "c03_gathering_outpost": 4,
+          "c04_farmstead": 3,
+          "c05_cabin": 2,
+          "c06_cottage": 4,
+          "c08_inn": 2,
+          "c07_stedding": 2,
+          "c09_tavern": 2,
+          "c10_eatery": 2,
+          "c11_washhouse": 2,
+          "c12_apothecary": 2,
+          "c13_workshops": 2,
+          "c14_market_stalls": 2,
+          "c15_path": 6,
+          "c18_common_land": 2,
+          "c16_street": 6,
+          "c17_track": 4,
+          "c19_bridge": 4,
+          "c20_dig_site": 4,
+          "c21_the_vaults": 2
+        },
+        "special": {
+          "special_adventurers_guild": 0,
+          "special_alchemist_s_workshop": 0,
+          "special_alms_house": 0,
+          "special_atelier_workshop": 0,
+          "special_brewery_of_legends": 0,
+          "special_docks": 0,
+          "special_hearth_garden": 0,
+          "special_house_of_learning": 0,
+          "special_labourers_yard": 0,
+          "special_lantern_roadhouse": 0,
+          "special_reliquary": 0,
+          "special_shrine_of_ancestors": 0,
+          "special_shrine_of_ancients": 0,
+          "special_shrine_of_bounty": 0,
+          "special_shrine_of_depths": 0,
+          "special_shrine_of_renewal": 0,
+          "special_stables": 0,
+          "special_the_iron_roots_respite": 0,
+          "special_the_lorekeepers_respite": 0,
+          "special_the_reavers_respite": 0,
+          "special_the_resting_hall": 0,
+          "special_the_root_weavers_respite": 0,
+          "special_the_tamers_respite": 0,
+          "special_the_waystation": 0,
+          "special_theater": 0
+        }
+      },
+      "encounters": {
+        "handsByPlayerId": {
+          "player_1": [
+            "burden_foundations_remember_war",
+            "burden_the_quiet_fractures",
+            "arrival_from_dark_decay_to_light_display",
+            "boon_the_scent_of_herb_and_tonic",
+            "boon_shared_hands_lighter_loads",
+            "boon_ledgers_flow"
+          ],
+          "player_2": [
+            "boon_where_help_stands",
+            "arrival_the_hearthbound_circle",
+            "arrival_from_songs_of_war_to_the_search_for_ore",
+            "arrival_moving_mountains",
+            "arrival_from_battle_to_cattle",
+            "burden_welcome_wears_thin"
+          ]
+        },
+        "deck": [
+          "burden_too_many_houses_too_little_homes",
+          "burden_river_breaks_its_banks",
+          "burden_promises_overstretched",
+          "boon_the_rains_that_we_sheltered_from_now_yield_the_bounty_of_nature",
+          "arrival_news_travels_faster_than_goods",
+          "boon_the_apprentice_steward",
+          "boon_bounty_of_the_first_harvest",
+          "burden_roads_too_far_from_home"
+        ],
+        "discardPile": [],
+        "activeArrivals": [],
+        "activeBurdens": [],
+        "faceUpBoons": [],
+        "completedArrivals": [],
+        "reserveBoonIds": [
+          "boon_the_settlement_of_plenty",
+          "boon_festival_of_trade",
+          "boon_the_break_holds",
+          "boon_old_foundations_still_remain",
+          "boon_what_is_written_in_the_stars_can_finally_be_heeded",
+          "boon_stores_made_ready",
+          "boon_a_little_more_time",
+          "boon_shelter_holds",
+          "boon_a_light_on_the_long_dark_lanterns_illuminated_the_way_to_a_safer_day",
+          "boon_a_wonderful_find",
+          "boon_clear_nights_make_for_clear_plans",
+          "boon_craft_fair",
+          "boon_from_the_brink",
+          "boon_carts_before_sunrise",
+          "boon_a_welcome_well_met",
+          "boon_answers_made_ready",
+          "boon_when_the_roads_filled_once_more",
+          "boon_hearths_soften_feuds",
+          "boon_many_hands_make_light_work",
+          "boon_change_of_watch",
+          "boon_raised_in_good_season",
+          "boon_the_ancient_ways_gradually_reemerge"
+        ],
+        "reserveArrivalIds": [
+          "arrival_the_dryads",
+          "arrival_lay_down_the_tools_of_destruction",
+          "arrival_spirit_lifting_spirit",
+          "arrival_hands_for_heavy_work",
+          "arrival_acorns_and_oak_trees",
+          "arrival_from_plunderer_to_lumber",
+          "arrival_the_burden_bearers",
+          "arrival_strong_foundations",
+          "arrival_remnants_of_the_cavalry",
+          "arrival_remnants_of_the_fleet",
+          "arrival_reablement_for_the_realm",
+          "arrival_what_came_before_the_last_age",
+          "arrival_the_transmutation_traveler",
+          "arrival_the_quiet_quest",
+          "arrival_blessed_harvest",
+          "arrival_lanterns_for_the_long_roads",
+          "arrival_lest_we_forget"
+        ],
+        "goldenEnabled": false
+      },
+      "goldenSetup": {
+        "tilePlaced": false,
+        "tileSkipped": false
+      },
+      "pendingGoldenEffect": null,
+      "bonusTurnsPending": false,
+      "bonusTurnsActive": false,
+      "boonModifiers": [],
+      "ignoredBurdenIdsThisRound": [],
+      "tileActivationRecords": {},
+      "pendingEffects": [],
+      "pendingDeckReorder": null,
+      "pendingCostChoice": null,
+      "targetCards": {
+        "seed": "QV-COMPARISON-1:2:targets",
+        "drawPile": [
+          19,
+          4,
+          28,
+          22,
+          30,
+          1,
+          17,
+          29,
+          5,
+          24,
+          14,
+          16,
+          2,
+          6,
+          21,
+          3,
+          11,
+          12,
+          27,
+          7,
+          8,
+          26,
+          25,
+          23,
+          13,
+          18,
+          20,
+          15,
+          9,
+          10
+        ],
+        "drawCount": 0,
+        "history": []
+      },
+      "ledgerRun": {
+        "gameId": "qv_game_muj1xxc0",
+        "recorded": false,
+        "arrivalsRevealed": 2,
+        "arrivalsCompleted": 0,
+        "arrivalsExpired": 0,
+        "burdensRevealed": 1,
+        "burdensResolved": 0,
+        "arrivalsCompletedBySeason": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "burdensResolvedBySeason": {
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "burdensRevealedBySeason": {
+          "1": 1,
+          "2": 0,
+          "3": 0
+        },
+        "arrivalCompletionEvents": [],
+        "burdenRevealEvents": [
+          {
+            "cardId": "burden_ill_omen_of_discontent",
+            "round": 2,
+            "season": 1
+          }
+        ],
+        "burdenResolutionEvents": [],
+        "strainPreventedBySupported": 0,
+        "strainRemovedByRoundCategory": {},
+        "maxOverstrainedTiles": 0,
+        "rangerPowerTerrainTypes": [],
+        "upgradeActions": 0,
+        "warehousePeakByResource": {
+          "wood": 10,
+          "stone": 10,
+          "metal": 10,
+          "food": 10,
+          "herbs": 10,
+          "goods": 10
+        },
+        "seasonSnapshots": {},
+        "violatedVowReasons": []
+      },
+      "log": [
+        {
+          "id": "log_scene_906",
+          "round": 3,
+          "message": "Demo scene: the Atelier Workshop and two strained tiles."
+        },
+        {
+          "id": "log_26_1790467200000",
+          "round": 2,
+          "message": "No effect this reveal: Omen of Discontent."
+        },
+        {
+          "id": "log_25_1790467200000",
+          "round": 2,
+          "message": "Acknowledged Boon: Pickaxe Reveals Passage."
+        },
+        {
+          "id": "log_24_1790467200000",
+          "round": 2,
+          "message": "Revealed Omen of Discontent."
+        },
+        {
+          "id": "log_23_1790467200000",
+          "round": 2,
+          "message": "Revealed Pickaxe Reveals Passage."
+        },
+        {
+          "id": "log_22_1790467200000",
+          "round": 2,
+          "message": "Round 2 begins."
+        },
+        {
+          "id": "log_21_1790467200000",
+          "round": 1,
+          "message": "All Stewards have acted. Ready for End of Round."
+        },
+        {
+          "id": "log_20_1790467200000",
+          "round": 1,
+          "message": "Farmstead produced resources."
+        },
+        {
+          "id": "log_19_1790467200000",
+          "round": 1,
+          "message": "Activated Farmstead."
+        },
+        {
+          "id": "log_18_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Path at B6."
+        },
+        {
+          "id": "log_17_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Cabin at A7."
+        },
+        {
+          "id": "log_16_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Farmstead at A6."
+        },
+        {
+          "id": "log_15_1790467200000",
+          "round": 1,
+          "message": "Player 2's turn begins."
+        },
+        {
+          "id": "log_14_1790467200000",
+          "round": 1,
+          "message": "Lumber Yard produced resources."
+        },
+        {
+          "id": "log_13_1790467200000",
+          "round": 1,
+          "message": "Activated Lumber Yard."
+        },
+        {
+          "id": "log_12_1790467200000",
+          "round": 1,
+          "message": "Player 1 placed Path at F1."
+        },
+        {
+          "id": "log_11_1790467200000",
+          "round": 1,
+          "message": "Player 1 placed Cabin at H1."
+        },
+        {
+          "id": "log_10_1790467200000",
+          "round": 1,
+          "message": "Player 1 placed Lumber Yard at G1."
+        },
+        {
+          "id": "log_9_1790467200000",
+          "round": 1,
+          "message": "Acknowledged Arrival: Blade to Herb."
+        },
+        {
+          "id": "log_8_1790467200000",
+          "round": 1,
+          "message": "Acknowledged Arrival: No Soul Goes Unserved."
+        },
+        {
+          "id": "log_7_1790467200000",
+          "round": 1,
+          "message": "Revealed Blade to Herb."
+        },
+        {
+          "id": "log_6_1790467200000",
+          "round": 1,
+          "message": "Revealed No Soul Goes Unserved."
+        },
+        {
+          "id": "log_5_1790467200000",
+          "round": 1,
+          "message": "Season 1 seeding complete. Ready to reveal Encounters."
+        },
+        {
+          "id": "log_4_1790467200000",
+          "round": 1,
+          "message": "player_1 seeded three hidden Encounter Cards."
+        },
+        {
+          "id": "log_3_1790467200000",
+          "round": 1,
+          "message": "Knight starts at A6. Season I seeding begins."
+        },
+        {
+          "id": "log_2_1790467200000",
+          "round": 1,
+          "message": "Vanguard starts at G1. Player 2 chooses next."
+        },
+        {
+          "id": "log_setup",
+          "round": 1,
+          "message": "Game created. Choose each Steward's starting hex before Season I seeding."
+        }
+      ]
+    },
+    "campaign": {
+      "version": 2,
+      "catalogueVersion": "v4.6",
+      "pacingVersion": 2,
+      "completions": {},
+      "games": []
+    }
+  },
   "choice": {
     "setup": {
       "playerCount": 1,
