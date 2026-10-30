@@ -57,6 +57,8 @@ function effect(t){let text=t.effectText,heading='PASSIVE';if(text.startsWith('A
 window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind,face,t}=item;const type=kind==='core'?(face==='basic'?'Core Basic':'Core Upgrade'):kind==='special'?'Special':kind==='golden'?'Golden':kind==='extension'?'Travel Extension':'Special back';const bg=await img('Quiet Valley Tile '+type+'-managed.png');
  // Clip only the outside-canvas background to the delivered artwork silhouette.
  ctx.save();ctx.beginPath();ctx.moveTo(390,10);ctx.lineTo(1170,10);ctx.lineTo(1560,685);ctx.lineTo(1170,1360);ctx.lineTo(390,1360);ctx.lineTo(0,685);ctx.closePath();ctx.clip();ctx.drawImage(bg,0,0);ctx.restore();
+ // The Golden back is the Special back artwork with no number.
+ if(kind==='golden-back')return audit;
  if(kind==='back'){block(String(item.number),{x:780,y:445,width:700,height:500,size:580,min:480,label:'Back number',colour:'#d8caaa'});return audit}
  if(kind==='extension'){block('Travel Extension',{y:151,width:650,height:147,size:83,style:'smallcaps',label:'Title'});for(const [a,b,y] of [['STREET','Use 1 travel extension hex',711],['TRACK','Use 2 travel extension hexes',794]]){block(a,{x:426,y,width:220,height:51,size:42,label:'Assembly label'});block(b,{x:894,y,width:620,height:51,size:46,label:'Assembly guide'})}return audit}
  const td=kind==='core'?{...t,...t[face]}:t;await heading(td,kind,face);if(kind!=='golden')await scores(td);

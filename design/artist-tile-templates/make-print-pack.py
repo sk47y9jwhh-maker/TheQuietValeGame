@@ -24,7 +24,7 @@ c.save()
 readme=f'''# The Quiet Vale — approved artist tile set
 
 {len(faces)} unique faces, covering 42 Core faces, 25 Special fronts, 5 Golden fronts,
-2 Travel extension faces and 26 numbered Special backs.
+2 Travel extension faces, 26 numbered Special backs and 1 unnumbered Golden back.
 Stock quantities require {manifest['printedHexFacesAtStockQuantity']} printed hex sides.
 The current game data supplies all quantities; do not use counts from older SVG packs.
 
@@ -39,7 +39,8 @@ Core basic/upgraded faces pair by tile ID. Street uses one main face plus one ge
 Travel extension per side; Track uses one main face plus two extensions per side.
 Stables uses two detached copies of its front for each component; repeat back 17 for
 both hexes of copy 1 and back 18 for both hexes of copy 2. Other Special backs pair
-by the tile ID and source-copy fields in the CSV. Golden fronts have no supplied back.
+by the tile ID and source-copy fields in the CSV. Every Golden front takes the unnumbered Golden back (the Special back artwork with no
+number), so print it once per Golden tile.
 
 Finished online faces are 1418 × 1228 pixels (about 60 × 52 mm at 600 dpi), after
 removing 71 pixels per canvas edge and applying the finished hex boundary.

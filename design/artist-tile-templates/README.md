@@ -45,11 +45,13 @@ original treatment. Original PSD files are never overwritten.
 ## Print / web
 
 Print PNGs retain 3 mm bleed and 600 dpi metadata. The 9-page A4 PDF contains all
-100 unique faces at original size and labels each stock quantity; it is a face
+101 unique faces at original size and labels each stock quantity; it is a face
 proof, not duplex imposition. `print-quantities.csv` pairs Core faces by tile ID
-and Special backs by number/source copy. Current quantities require 229 printed
+and Special backs by number/source copy. Current quantities require 234 printed
 hex sides. Each Street adds one extension per side; Track adds two. Each of the
 two Stables copies uses two identical fronts and two matching numbered backs.
+Each Golden tile takes the unnumbered Golden back: the Special back artwork with
+no number (decided 30 October 2026).
 
 Web faces remove 71 px per edge and use a transparent finished hex boundary,
 1418 × 1228 px. Full WebP images are lossless. Website rules stay available as live
