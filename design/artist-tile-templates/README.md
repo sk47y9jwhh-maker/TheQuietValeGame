@@ -22,7 +22,8 @@ installed runtime locations used on the production workstation.
 
 ## Approved layout
 
-- Type subtitles and header divider removed, names enlarged; black Special borders.
+- Type subtitles and header divider removed, names enlarged. Special borders were
+  black until 30 Oct 2026 and now use the stronger type-colour wash.
 - River icons enlarged 30% and inset; Renown kept inside the trimmed border.
 - Resource/Travel category icons at 90%, Housing at 95%, centred.
 - Resource, Population and Renown symbols within effects; quantities kept with icons.
@@ -34,8 +35,10 @@ installed runtime locations used on the production workstation.
 - Empty illustration windows are intentional and match the approved sample set.
 - Tile-type edge wash (30 Oct 2026): Core faces and Travel extensions have the
   parchment margin outside the frame lightly tinted in their category colour
-  (multiply, 45%), running out through the bleed. Special, Golden and back
-  faces are unchanged. Colours match the online board.
+  (multiply, 45%), running out through the bleed. Special fronts swap their
+  black margin for the Core parchment margin with the stronger wash (80%) in
+  their type colour. Golden and back faces are unchanged. Colours match the
+  online board.
 
 ## Original layer treatment
 

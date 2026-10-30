@@ -62,8 +62,12 @@ window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind
  // 45%). It runs out through the bleed, so the cut position does not matter.
  // Core faces and Travel extensions only.
  const edgeColour={resource:'#4e6748',housing:'#9a5b3c',travel:'#7a6f58',merchant:'#8a6d2b',crafting:'#4f6b7a',social:'#7a4f6b',wellbeing:'#3f7a6e'};
- const edgeCategory=kind==='core'?t.category:kind==='extension'?'travel':null;
- if(edgeCategory&&edgeColour[edgeCategory]){const ring=(R)=>{for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx[k?'lineTo':'moveTo'](780+R*Math.cos(a),685+R*Math.sin(a))}ctx.closePath()};const c30=Math.cos(Math.PI/6);ctx.save();ctx.beginPath();ctx.moveTo(390,10);ctx.lineTo(1170,10);ctx.lineTo(1560,685);ctx.lineTo(1170,1360);ctx.lineTo(390,1360);ctx.lineTo(0,685);ctx.closePath();ctx.clip();ctx.beginPath();ring(709+90/c30);ring(709-62/c30);ctx.filter='blur(3px)';ctx.globalCompositeOperation='multiply';ctx.globalAlpha=0.45;ctx.fillStyle=edgeColour[edgeCategory];ctx.fill('evenodd');ctx.restore();audit.push({field:'Edge wash',text:edgeCategory,colour:edgeColour[edgeCategory],strength:0.45})}
+ const edgeCategory=kind==='core'||kind==='special'?t.category:kind==='extension'?'travel':null;
+ // Special tiles (30 Oct 2026): the black margin is replaced by the Core
+ // parchment margin, then given the stronger wash (option B, 80%).
+ const strong=kind==='special';
+ if(strong&&edgeColour[edgeCategory]){const parchment=await img('Quiet Valley Tile Core Basic-managed.png');const c30=Math.cos(Math.PI/6);ctx.save();ctx.beginPath();for(const R of [709+90/c30,709-80/c30])for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx[k?'lineTo':'moveTo'](780+R*Math.cos(a),685+R*Math.sin(a))}ctx.closePath();ctx.clip('evenodd');ctx.drawImage(parchment,0,0);ctx.restore()}
+ if(edgeCategory&&edgeColour[edgeCategory]){const ring=(R)=>{for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx[k?'lineTo':'moveTo'](780+R*Math.cos(a),685+R*Math.sin(a))}ctx.closePath()};const c30=Math.cos(Math.PI/6);ctx.save();ctx.beginPath();ctx.moveTo(390,10);ctx.lineTo(1170,10);ctx.lineTo(1560,685);ctx.lineTo(1170,1360);ctx.lineTo(390,1360);ctx.lineTo(0,685);ctx.closePath();ctx.clip();ctx.beginPath();ring(709+90/c30);ring(709-(strong?80:62)/c30);ctx.filter='blur(3px)';ctx.globalCompositeOperation='multiply';ctx.globalAlpha=strong?0.8:0.45;ctx.fillStyle=edgeColour[edgeCategory];ctx.fill('evenodd');ctx.restore();audit.push({field:'Edge wash',text:edgeCategory,colour:edgeColour[edgeCategory],strength:strong?0.8:0.45})}
  // The Golden back is the Special back artwork with no number.
  if(kind==='golden-back')return audit;
  if(kind==='back'){block(String(item.number),{x:780,y:445,width:700,height:500,size:580,min:480,label:'Back number',colour:'#d8caaa'});return audit}
