@@ -151,7 +151,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
   const [coachTarget, setCoachTarget] = useState<CoachTarget | null>(null);
   // The Quest Card panel sits low in the side rail: bring it into view when the coach points at it.
   useEffect(() => {
-    if (coachTarget?.ui === "quest") document.querySelector<HTMLElement>(".table-rail .rail-quest")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    if (coachTarget?.ui === "quest") document.querySelector<HTMLElement>(".table-rail .rail-quest")?.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
   }, [coachTarget?.ui]);
   const [sheetLow, setSheetLow] = useState(false);
   // Earlier links of the current Overstrain chain, so the board shows its path.
@@ -463,7 +463,7 @@ function QuestChip({ state }: { state: GameState }) {
   const show = () => {
     const panel = document.querySelector<HTMLElement>(".table-rail .rail-quest");
     if (!panel) return;
-    panel.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    panel.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
     panel.classList.remove("is-called");
     void panel.offsetWidth;
     panel.classList.add("is-called");
