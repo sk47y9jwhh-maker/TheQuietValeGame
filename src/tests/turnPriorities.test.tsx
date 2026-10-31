@@ -39,7 +39,7 @@ describe("Living Table priorities", () => {
     const view = render(<TurnPriorities state={state} {...callbacks} />); expand();
     expect(screen.getByRole("region", { name: "Vanguard objective" })).toBeVisible();
     expect(screen.queryByRole("region", { name: "Knight objective" })).not.toBeInTheDocument();
-    expect(screen.getAllByText("no actions remaining.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("No actions remaining.").length).toBeGreaterThan(0);
     const next = { ...state, currentPlayerId: "player_2", actionsRemaining: 4, warehouse: { ...state.warehouse, food: 0, herbs: 0, goods: 0 } };
     view.rerender(<TurnPriorities state={next} {...callbacks} />);
     expect(screen.getByRole("region", { name: "Knight objective" })).toHaveTextContent("final scoring");
