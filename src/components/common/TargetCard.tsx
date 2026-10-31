@@ -8,7 +8,7 @@ import type {
   TargetCardDirection
 } from "../../engine/types";
 
-const directions: TargetCardDirection[] = ["NE", "E", "SE", "SW", "W", "NW"];
+const directions: TargetCardDirection[] = ["N", "NE", "SE", "S", "SW", "NW"];
 
 interface TargetCardProps {
   card: TargetCardDefinition;

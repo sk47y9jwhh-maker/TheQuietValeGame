@@ -294,7 +294,7 @@ export type TargetCardTileClass = "core" | "specialOrGolden" | "any";
 export type TargetCardSidePreference = "basic" | "upgraded" | "either" | "any";
 export type TargetCardAdjacencyPreference = "threePlus" | "zeroToTwo" | "any";
 export type TargetCardStrainPreference = "strained" | "unstrained" | "any";
-export type TargetCardDirection = "NE" | "E" | "SE" | "SW" | "W" | "NW";
+export type TargetCardDirection = "N" | "NE" | "SE" | "S" | "SW" | "NW";
 export type TargetCardFilterName = "class" | "side" | "adjacency" | "strain";
 
 export interface TargetCardDefinition {

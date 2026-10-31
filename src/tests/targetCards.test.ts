@@ -91,28 +91,28 @@ function pendingBurden(
 describe("Target Cards", () => {
   it("contains the 30-card distribution with six Open cards", () => {
     expect(targetCards).toEqual([
-      { id: 1, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "strained", direction: "NE" },
-      { id: 2, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "unstrained", direction: "SW" },
-      { id: 3, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "strained", direction: "E" },
-      { id: 4, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "unstrained", direction: "W" },
+      { id: 1, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "strained", direction: "N" },
+      { id: 2, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "unstrained", direction: "S" },
+      { id: 3, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "strained", direction: "NE" },
+      { id: 4, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "unstrained", direction: "SW" },
       { id: 5, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "strained", direction: "SE" },
       { id: 6, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "unstrained", direction: "NW" },
-      { id: 7, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "strained", direction: "SW" },
-      { id: 8, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "unstrained", direction: "NE" },
-      { id: 9, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "strained", direction: "W" },
-      { id: 10, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "unstrained", direction: "E" },
+      { id: 7, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "strained", direction: "S" },
+      { id: 8, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "unstrained", direction: "N" },
+      { id: 9, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "strained", direction: "SW" },
+      { id: 10, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "unstrained", direction: "NE" },
       { id: 11, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "strained", direction: "NW" },
       { id: 12, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "unstrained", direction: "SE" },
-      { id: 13, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "strained", direction: "SW" },
-      { id: 14, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "unstrained", direction: "NE" },
-      { id: 15, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "strained", direction: "W" },
-      { id: 16, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "unstrained", direction: "E" },
+      { id: 13, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "strained", direction: "S" },
+      { id: 14, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "unstrained", direction: "N" },
+      { id: 15, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "strained", direction: "SW" },
+      { id: 16, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "unstrained", direction: "NE" },
       { id: 17, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "strained", direction: "NW" },
       { id: 18, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "unstrained", direction: "SE" },
-      { id: 19, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "strained", direction: "NE" },
-      { id: 20, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "unstrained", direction: "SW" },
-      { id: 21, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "strained", direction: "E" },
-      { id: 22, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "unstrained", direction: "W" },
+      { id: 19, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "strained", direction: "N" },
+      { id: 20, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "unstrained", direction: "S" },
+      { id: 21, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "strained", direction: "NE" },
+      { id: 22, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "unstrained", direction: "SW" },
       { id: 23, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "strained", direction: "SE" },
       { id: 24, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "unstrained", direction: "NW" },
       { id: 25, tileClass: "any", side: "any", adjacency: "any", strain: "any" },
@@ -136,7 +136,7 @@ describe("Target Cards", () => {
     expect(targetCards.filter((card) => card.strain === "strained")).toHaveLength(12);
     expect(targetCards.filter((card) => card.strain === "unstrained")).toHaveLength(12);
     expect(targetCards.filter((card) => card.strain === "any")).toHaveLength(6);
-    for (const direction of ["NE", "E", "SE", "SW", "W", "NW"] as const) {
+    for (const direction of ["N", "NE", "SE", "S", "SW", "NW"] as const) {
       const directionalCards = targetCards.filter(
         (card) => card.direction === direction
       );
@@ -146,11 +146,11 @@ describe("Target Cards", () => {
       );
     }
     const opposite = {
+      N: "S",
       NE: "SW",
-      E: "W",
       SE: "NW",
+      S: "N",
       SW: "NE",
-      W: "E",
       NW: "SE"
     } as const;
     for (let index = 0; index < 12; index += 1) {
@@ -313,7 +313,8 @@ describe("Target Cards", () => {
     expect(extentSelection?.diagnostic.directionRequired).toBe(true);
 
     const upper = placed("upper", "c15_path", "A1");
-    const lower = placed("lower", "c05_cabin", "A2");
+    // A1 and B2 lie on a line square to the south-west direction, so they tie.
+    const lower = placed("lower", "c05_cabin", "B2");
     const tied = selectTargetWithCard(
       targetCardState([upper, lower]),
       [upper, lower],
@@ -325,7 +326,7 @@ describe("Target Cards", () => {
     expect(tied?.tile.instanceId).toBe("upper");
   });
 
-  it("projects diagonal arrows onto six evenly spaced map directions", () => {
+  it("projects arrows onto the six flat-top hex directions", () => {
     const north = placed("north", "c15_path", "C1");
     const eastButLower = placed("east_lower", "c05_cabin", "E3");
     const selected = selectTargetWithCard(
@@ -335,7 +336,7 @@ describe("Target Cards", () => {
       { effectId: "diagonal_projection" }
     );
 
-    expect(selected?.diagnostic.direction).toBe("NE");
+    expect(selected?.diagnostic.direction).toBe("N");
     expect(selected?.tile.instanceId).toBe("north");
   });
 

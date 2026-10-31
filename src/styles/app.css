@@ -1995,34 +1995,36 @@ button:disabled {
   background: #97446a;
 }
 
-.physical-target-card-direction-hex.direction-ne {
+/* Flat-top neighbour ring (hex 5.5 x 4.8cqw): N and S above and below,
+   NE, SE, SW, NW on the diagonals, as on the map. */
+.physical-target-card-direction-hex.direction-n {
   top: 0;
   left: 5.75cqw;
 }
 
-.physical-target-card-direction-hex.direction-e {
+.physical-target-card-direction-hex.direction-ne {
   top: 2.4cqw;
-  left: 10.55cqw;
+  left: 9.875cqw;
 }
 
 .physical-target-card-direction-hex.direction-se {
   top: 7.2cqw;
-  left: 10.55cqw;
+  left: 9.875cqw;
 }
 
-.physical-target-card-direction-hex.direction-sw {
+.physical-target-card-direction-hex.direction-s {
   top: 9.6cqw;
   left: 5.75cqw;
 }
 
-.physical-target-card-direction-hex.direction-w {
+.physical-target-card-direction-hex.direction-sw {
   top: 7.2cqw;
-  left: 0.95cqw;
+  left: 1.625cqw;
 }
 
 .physical-target-card-direction-hex.direction-nw {
   top: 2.4cqw;
-  left: 0.95cqw;
+  left: 1.625cqw;
 }
 
 .physical-target-card-open-outcome {

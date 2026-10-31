@@ -203,15 +203,16 @@ function hexCentre(hexId: string): { x: number; y: number } {
   };
 }
 
-// The deck uses six evenly spaced compass axes centred on E/W. These are
-// projection vectors, independent of the flat-top orientation of the map SVG.
+// The six tie directions are the flat-top hex directions of the map: the
+// directions from a hex to its six neighbours. These are projection vectors:
+// a tie goes to the tile furthest across the whole map in that direction.
 const directionVectors: Record<TargetCardDirection, { x: number; y: number }> = {
-  NE: { x: 0.5, y: -Math.sqrt(3) / 2 },
-  E: { x: 1, y: 0 },
-  SE: { x: 0.5, y: Math.sqrt(3) / 2 },
-  SW: { x: -0.5, y: Math.sqrt(3) / 2 },
-  W: { x: -1, y: 0 },
-  NW: { x: -0.5, y: -Math.sqrt(3) / 2 }
+  N: { x: 0, y: -1 },
+  NE: { x: Math.sqrt(3) / 2, y: -0.5 },
+  SE: { x: Math.sqrt(3) / 2, y: 0.5 },
+  S: { x: 0, y: 1 },
+  SW: { x: -Math.sqrt(3) / 2, y: 0.5 },
+  NW: { x: -Math.sqrt(3) / 2, y: -0.5 }
 };
 
 function directionExtent(tile: PlacedTile, direction: TargetCardDirection): number {
