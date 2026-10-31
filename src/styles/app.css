@@ -7257,7 +7257,6 @@ input,
 
 .ledger-quest-card header {
   display: flex;
-  flex-wrap: wrap;
   align-items: baseline;
   gap: 4px 8px;
   margin-bottom: 4px;
@@ -7268,7 +7267,14 @@ input,
   font: 700 10px/1.2 var(--font-ui);
 }
 
+.ledger-quest-card header strong {
+  flex: 1;
+  min-width: 0;
+}
+
 .ledger-quest-card header .ledger-status-chip {
+  flex: none;
+  white-space: nowrap;
   margin-left: auto;
   display: inline-flex;
   align-items: center;

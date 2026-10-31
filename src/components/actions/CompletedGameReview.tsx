@@ -64,7 +64,7 @@ export function CompletedGameReview({ state, ledger, onRecord, onNewGame }: Prop
             <p className="finale-ledger-status" role="status">{ledger.recorded ? "Game recorded" : "Ready to record this game"}</p>
             {ledger.recordedScore !== undefined && ledger.recordedScore !== score.finalScore && <p className="recorded-score-note">The Ledger keeps the recorded score of {signed(ledger.recordedScore)}. This board has changed since recording. It does not replace that result.</p>}
             {ledger.quest ? <>
-              <p className="finale-quest-result"><strong>{ledger.quest.complete ? `Quest Card complete, +${questCompletionRenown} Renown` : "Quest Card not completed"}</strong>{" "}
+              <p className="finale-quest-result"><strong>{ledger.quest.complete ? `Quest Card complete, +${questCompletionRenown} Renown.` : "Quest Card not completed."}</strong>{" "}
                 {ledger.quest.complete
                   ? ledger.addsToLedger ? `It goes into the Steward’s Ledger (${ledger.ledgerCount} of 21).` : "It was already in the Steward’s Ledger."
                   : "It goes to the bottom of the Quest deck."}</p>
