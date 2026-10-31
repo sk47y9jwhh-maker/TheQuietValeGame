@@ -518,6 +518,17 @@ export interface LedgerBurdenEvent {
   season: Season;
 }
 
+/** The Chronicle Card drawn for this game and what has happened on it so far. */
+export interface ChronicleRunState {
+  cardNumber: number;
+  /** Moment quests met at some point ("1T", "8B"...). They stay met. */
+  moments: string[];
+  /** Vow quests broken at some point. */
+  broken: string[];
+  /** Most Overstrained tiles on the map at once (for The Vale Bent, Not Broke). */
+  peakOverstrained: number;
+}
+
 export interface LedgerRunState {
   gameId: string;
   declaredVowId?: string;
@@ -569,6 +580,7 @@ export interface GameState {
   pendingCostChoice: PendingCostChoiceState | null;
   targetCards: TargetCardDeckState;
   ledgerRun?: LedgerRunState;
+  chronicleRun?: ChronicleRunState;
   log: LogEntry[];
 }
 
