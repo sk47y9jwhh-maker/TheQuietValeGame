@@ -918,8 +918,8 @@
 }
 .table-resolution { overflow-x: hidden; }
 /* Panel content fits the column, but printed cards keep their own exact layout. */
-.table-resolution-body *:not(.physical-encounter-card, .physical-encounter-card *) { min-width: 0; max-width: 100%; box-sizing: border-box; }
-.table-resolution-body :is([class*="grid"], [class*="choices"], [class*="options"]):not(.physical-encounter-card *) { grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)) !important; }
+.table-resolution-body *:not(.physical-encounter-card, .physical-encounter-card *, .poker-card *) { min-width: 0; max-width: 100%; box-sizing: border-box; }
+.table-resolution-body :is([class*="grid"], [class*="choices"], [class*="options"]):not(.physical-encounter-card *, .poker-card *) { grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)) !important; }
 .table-sheet.is-resolving.is-low { max-height: 150px; overflow: hidden; }
 .table-sheet.is-resolving.is-low .table-resolution-body { display: none; }
 .sheet-toggle { justify-self: start; min-height: 40px; margin-top: 4px; padding: 6px 14px; border: 1px solid #c5bc9a; border-radius: 999px; background: #efe6c8; font: inherit; font-weight: 700; cursor: pointer; }
@@ -1718,7 +1718,7 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 }
 @media (max-width: 640px) {
   .table-sheet .effect-source-face .encounter-card-shell { width: 64px; }
-  .table-sheet .effect-source-summary h2, .table-sheet .effect-source-summary h3 { font-size: 1.4rem; }
+  .table-sheet .effect-source-summary :is(h2, h3):not(.physical-encounter-card *, .poker-card *) { font-size: 1.4rem; }
   .table-sheet .effect-source-summary .effect-rule-text { font-size: 1rem; }
   .table-sheet .sheet-toggle { min-height: 36px; padding: 4px 14px; font-size: 0.92rem; }
   .table-sheet .final-score-total { width: 100%; box-sizing: border-box; }
@@ -1755,11 +1755,12 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 }
 /* Phone panels inside the sheet: smaller headings and less padding on the boxes within boxes. */
 @media (max-width: 640px) {
-  .table-sheet .table-resolution-body h2 { font-size: 1.3rem; line-height: 1.15; }
-  .table-sheet .table-resolution-body h3 { font-size: 1.08rem; }
+  /* Printed cards (encounter, Quest and Target) keep their own exact layout. */
+  .table-sheet .table-resolution-body h2:not(.physical-encounter-card *, .poker-card *) { font-size: 1.3rem; line-height: 1.15; }
+  .table-sheet .table-resolution-body h3:not(.physical-encounter-card *, .poker-card *) { font-size: 1.08rem; }
   .table-sheet .table-resolution-body :is(.golden-decision, .steward-choice, .cost-choice-panel, .deck-reorder-panel) { padding: 12px !important; }
-  .table-sheet .table-resolution-body header p { font-size: 0.92rem; }
-  .table-sheet .table-resolution-body article { padding: 12px; }
+  .table-sheet .table-resolution-body header p:not(.physical-encounter-card *, .poker-card *) { font-size: 0.92rem; }
+  .table-sheet .table-resolution-body article:not(.encounter-card-shell, .poker-card, .physical-encounter-card *, .poker-card *) { padding: 12px; }
 }
 /* Phone home: the three journey steps read as heading then sentence, with a brass rule. */
 @media (max-width: 620px) {
