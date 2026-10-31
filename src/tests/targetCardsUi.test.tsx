@@ -44,15 +44,15 @@ describe("Target Card UI", () => {
     expect(screen.getByRole("button", { name: /start season i/i })).toBeEnabled();
   });
 
-  it("renders the locked card face with four qualifiers and the six-hex direction ring", () => {
-    const { container } = render(<TargetCard card={targetCardById[5]} />);
+  it("renders the printed card face: four preference rows and the tie arrow", () => {
+    render(<TargetCard card={targetCardById[5]} />);
 
     expect(screen.getByRole("heading", { name: /card 05/i })).toBeInTheDocument();
     expect(screen.getByText("3+ Neighbours")).toBeInTheDocument();
-    expect(screen.getAllByText(/unless specified/i)).toHaveLength(4);
+    expect(screen.getByText("Work down the rows. Skip any row no tile matches.")).toBeInTheDocument();
     expect(screen.getByText("SE")).toBeInTheDocument();
-    expect(container.querySelectorAll(".physical-target-card-direction-hex")).toHaveLength(6);
-    expect(container.querySelector(".direction-se.selected")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Arrow pointing south-east" })).toBeInTheDocument();
+    expect(screen.getByText("Take the tile the arrow points to")).toBeInTheDocument();
   });
 
   it("capitalises Neighbours in the zero-to-two adjacency answer", () => {
@@ -61,13 +61,13 @@ describe("Target Card UI", () => {
     expect(screen.getByText("0–2 Neighbours")).toBeInTheDocument();
   });
 
-  it("renders Open cards without a tie-direction ring", () => {
-    const { container } = render(<TargetCard card={targetCardById[25]} />);
+  it("renders Open cards without a tie arrow", () => {
+    render(<TargetCard card={targetCardById[25]} />);
 
     expect(screen.getByRole("heading", { name: /card 25/i })).toBeInTheDocument();
     expect(screen.getAllByText(/^any$/i)).toHaveLength(4);
     expect(screen.getByText(/choose any eligible tile/i)).toBeInTheDocument();
-    expect(container.querySelector(".physical-target-card-direction-ring")).not.toBeInTheDocument();
+    expect(screen.queryByRole("img", { name: /Arrow pointing/ })).not.toBeInTheDocument();
   });
 
   it("shows the card, every filter result, final target, and prevention timing", () => {

@@ -11,7 +11,7 @@ import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { stewardById, stewards } from "../../data/stewards";
 import { terrainLabels } from "../../data/map";
 import { questCardByNumber } from "../../data/questCards";
-import { QuestCardView } from "../common/QuestCardView";
+import { QuestDrawn } from "../cards/QuestDrawn";
 import {
   supportedPlayerCounts,
   type GoldenBoonData,
@@ -178,7 +178,7 @@ export function SetupPanel({
           {questCard && (
             <div className="setup-quest-card">
               <h2>This game’s Quest Card</h2>
-              <QuestCardView card={questCard} playerCount={playerCount} compact />
+              <QuestDrawn card={questCard} playerCount={playerCount} />
               <small>{completedLedgerCount} of 21 Quest Cards in the Steward’s Ledger.</small>
             </div>
           )}

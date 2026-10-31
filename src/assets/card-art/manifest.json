@@ -1,0 +1,86 @@
+{
+  "format": "Lossy WebP, quality 86",
+  "trim": "3 mm bleed removed: 1488 x 2078 px at 600 dpi",
+  "entries": {
+    "quest-back": {
+      "source": {
+        "path": "design/encounter-card-templates/card-back/print/card-back-poker-gold-printerstudio-600dpi.png",
+        "sha256": "af4b2bf4abd627db1a00f4ba84bc7ca810f4864f8d76ce984a38764d416f8a72"
+      },
+      "variants": [
+        {
+          "path": "src/assets/card-art/quest-back-420.webp",
+          "width": 420,
+          "height": 587,
+          "bytes": 59704
+        },
+        {
+          "path": "src/assets/card-art/quest-back-840.webp",
+          "width": 840,
+          "height": 1173,
+          "bytes": 174962
+        }
+      ]
+    },
+    "target-back": {
+      "source": {
+        "path": "design/encounter-card-templates/card-back/print/card-back-poker-silver-printerstudio-600dpi.png",
+        "sha256": "f5bc067628feba9b6acb1cdee6cfb475e14d8c5a0d60176336d38450537cc34a"
+      },
+      "variants": [
+        {
+          "path": "src/assets/card-art/target-back-420.webp",
+          "width": 420,
+          "height": 587,
+          "bytes": 51532
+        },
+        {
+          "path": "src/assets/card-art/target-back-840.webp",
+          "width": 840,
+          "height": 1173,
+          "bytes": 157908
+        }
+      ]
+    },
+    "quest-front": {
+      "source": {
+        "path": "design/quest-cards/quest-front-background-600dpi.png",
+        "sha256": "7e8b58c31ff7024a9131559ee80cc61f2d6244cafc54086733c053454916c27d"
+      },
+      "variants": [
+        {
+          "path": "src/assets/card-art/quest-front-420.webp",
+          "width": 420,
+          "height": 587,
+          "bytes": 26880
+        },
+        {
+          "path": "src/assets/card-art/quest-front-840.webp",
+          "width": 840,
+          "height": 1173,
+          "bytes": 86924
+        }
+      ]
+    },
+    "target-front": {
+      "source": {
+        "path": "design/target-cards/target-front-background-600dpi.png",
+        "sha256": "735168a43e7a1c8eea016642ce8047b5ee14e6c4b7c5be9a91b7b06d4985299c"
+      },
+      "variants": [
+        {
+          "path": "src/assets/card-art/target-front-420.webp",
+          "width": 420,
+          "height": 587,
+          "bytes": 24808
+        },
+        {
+          "path": "src/assets/card-art/target-front-840.webp",
+          "width": 840,
+          "height": 1173,
+          "bytes": 81718
+        }
+      ]
+    }
+  }
+}

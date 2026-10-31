@@ -66,6 +66,7 @@ describe("app smoke flow", () => {
     writeLedgerCampaign(campaign);
     render(<App />);
 
+    fireEvent.click(screen.getByRole("button", { name: `Show Quest Card ${campaign.deck[0]} full size` }));
     expect(screen.getByRole("article", { name: new RegExp(`^Quest Card ${campaign.deck[0]}:`) })).toBeInTheDocument();
     expect(screen.getByText("0 of 21 Quest Cards in the Steward’s Ledger.")).toBeInTheDocument();
     expect(screen.queryByLabelText("Steward's Ledger Vow")).not.toBeInTheDocument();

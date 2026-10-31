@@ -6,7 +6,6 @@ import {
   BookMarked,
   CheckCircle2,
   History,
-  LockKeyhole,
   Target,
   Trash2,
   Trophy,
@@ -20,6 +19,7 @@ import { ledgerMilestones } from "../../data/ledger";
 import { questCards } from "../../data/questCards";
 import { evaluateQuest } from "../../engine/quests";
 import { QuestCardView } from "../common/QuestCardView";
+import { QuestCardMini } from "../cards/QuestCardMini";
 import { coreTiles, goldenTileById, specialTiles } from "../../data/tiles";
 import {
   countCompletedLedgerEntries,
@@ -105,6 +105,7 @@ export function BottomDrawer({
 }: BottomDrawerProps) {
   const [activeSection, setActiveSection] = useState<DrawerSection | null>(null);
   const [ledgerView, setLedgerView] = useState<LedgerView>("game");
+  const [viewedCardNumber, setViewedCardNumber] = useState<number | null>(null);
   const [storedLedgerCampaign] = useState(readLedgerCampaign);
   const ledgerCampaign = providedLedgerCampaign ?? storedLedgerCampaign;
   const currentPlayer = selectCurrentPlayer(state);
@@ -116,6 +117,7 @@ export function BottomDrawer({
   const stewardObjectives = evaluateStewardObjectives(state);
   const completedLedgerCount = countCompletedLedgerEntries(ledgerCampaign);
   const ledgerBox = new Set(ledgerCampaign.box);
+  const viewedCard = viewedCardNumber ? questCards.find((card) => card.n === viewedCardNumber) : undefined;
   const hand = state.encounters.handsByPlayerId[currentPlayer.id] ?? [];
   const coreRemaining = coreTiles.reduce(
     (total, tile) => total + (state.tileSupply.core[tile.id] ?? 0),
@@ -367,25 +369,32 @@ export function BottomDrawer({
                     </div>
                     <span>{completedLedgerCount} in the Ledger · {ledgerCampaign.deck.length} in the deck</span>
                   </div>
-                  <div className="ledger-quest-list">
-                    {questCards.map((card) => {
-                      const inLedger = ledgerBox.has(card.n);
-                      const current = quest?.card.n === card.n;
-                      return (
-                        <article className={`ledger-quest-card ${inLedger ? "is-complete" : ""} ${current ? "is-current" : ""}`} key={card.n}>
-                          <header>
-                            <span>No. {card.n}</span>
-                            <strong>{card.theme}</strong>
-                            <span className="ledger-status-chip">
-                              {inLedger ? <><CheckCircle2 size={13} aria-hidden="true" /> In the Ledger</> : current ? "This game" : <><LockKeyhole size={13} aria-hidden="true" /> In the deck</>}
-                            </span>
-                          </header>
-                          <p><small>Top</small> {card.top.name}</p>
-                          <p><small>Bottom</small> {card.bottom.name}</p>
-                        </article>
-                      );
-                    })}
-                  </div>
+                  {viewedCard && <div className="ledger-card-viewer" role="group" aria-label={`Reading Quest Card ${viewedCard.n}`}>
+                    <QuestCardView card={viewedCard} playerCount={state.playerCount} result={quest?.card.n === viewedCard.n ? quest : undefined} ended={state.phase === "gameEnd"} sizes="320px" />
+                    <div>
+                      <p>{ledgerBox.has(viewedCard.n) ? "In the Steward’s Ledger. Replays count once." : quest?.card.n === viewedCard.n ? "This game’s Quest Card." : "Still in the Quest deck."}</p>
+                      <button type="button" className="ledger-card-close" onClick={() => setViewedCardNumber(null)}>Close the card</button>
+                    </div>
+                  </div>}
+                  {[
+                    { title: "In the Steward’s Ledger", empty: "No Quest Cards completed yet. Complete either half of this game’s card to add it.", cards: questCards.filter((card) => ledgerBox.has(card.n)) },
+                    { title: "In the Quest deck", empty: "Every card is in the Ledger. Completed cards now come round again.", cards: questCards.filter((card) => !ledgerBox.has(card.n)) }
+                  ].map((group) => <section className="ledger-card-group" key={group.title} aria-label={group.title}>
+                    <h4>{group.title} <span>{group.cards.length}</span></h4>
+                    {group.cards.length === 0 ? <p className="ledger-card-empty">{group.empty}</p> : <ul className="ledger-card-grid">
+                      {group.cards.map((card) => {
+                        const inLedger = ledgerBox.has(card.n);
+                        const current = quest?.card.n === card.n;
+                        return <li key={card.n} className={`ledger-quest-card${inLedger ? " is-complete" : ""}${current ? " is-current" : ""}`}>
+                          <button type="button" aria-pressed={viewedCardNumber === card.n} aria-label={`Quest Card ${card.n}, ${card.theme}. ${inLedger ? "In the Ledger" : current ? "This game" : "In the deck"}. Read the card`} onClick={() => setViewedCardNumber(viewedCardNumber === card.n ? null : card.n)}>
+                            <QuestCardMini card={card} faceDown={!inLedger && !current} />
+                            <span className="ledger-quest-caption"><small>No. {card.n}</small><strong>{card.theme}</strong></span>
+                            {(inLedger || current) && <span className="ledger-status-chip">{inLedger ? <><CheckCircle2 size={12} aria-hidden="true" /> In the Ledger</> : "This game"}</span>}
+                          </button>
+                        </li>;
+                      })}
+                    </ul>}
+                  </section>)}
                 </div>
               )}
 

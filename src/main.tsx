@@ -19,6 +19,7 @@ import "./styles/resolution-review.css";
 import "./styles/accessibility-review.css";
 import "./styles/board-table.css";
 import "./styles/private-hand.css";
+import "./styles/poker-cards.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

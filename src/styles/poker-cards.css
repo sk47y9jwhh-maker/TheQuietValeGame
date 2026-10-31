@@ -1,0 +1,322 @@
+/*
+ * Poker cards (Quest and Target), drawn as printed. A card is a size
+ * container; inside it, 1 --u is one 600 dpi pixel of the trimmed card
+ * (1488 x 2078), so print positions carry over less the 71 px bleed.
+ */
+.poker-card {
+  position: relative;
+  container-type: inline-size;
+  width: 100%;
+  aspect-ratio: 1488 / 2078;
+  overflow: hidden;
+  border-radius: 4.6% / 3.3%;
+  background: #1f1d19;
+  box-shadow: 0 1px 2px rgba(20, 16, 8, 0.35), 0 8px 22px rgba(20, 16, 8, 0.22);
+  isolation: isolate;
+}
+
+.poker-card-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  pointer-events: none;
+}
+
+.poker-card-layer {
+  --u: calc(100cqw / 1488);
+  position: absolute;
+  inset: 0;
+  color: #2f2a22;
+  font-family: var(--font-body);
+}
+
+.poker-card-layer p,
+.poker-card-layer h3,
+.poker-card-layer strong,
+.poker-card-layer small { margin: 0; }
+
+/* Turning a drawn card over */
+.poker-flip { perspective: 1400px; }
+.poker-flip-inner {
+  position: relative;
+  display: grid;
+  transform-style: preserve-3d;
+  transform: rotateY(180deg);
+  transition: transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.poker-flip.is-shown .poker-flip-inner { transform: rotateY(0deg); }
+.poker-flip-front,
+.poker-flip-back {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.poker-flip-back { transform: rotateY(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  .poker-flip-inner { transition: none; }
+}
+
+/* ---------------------------------------------------------------- Quest Card */
+.qface .poker-card-layer { color: #2f2a22; }
+
+.poker-card .qface-type {
+  position: absolute;
+  top: calc(519 * var(--u));
+  left: 0;
+  right: 0;
+  text-align: center;
+  font: 500 calc(46 * var(--u)) / 1 var(--font-ui);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #3a332a;
+}
+
+.poker-card .qface-title {
+  position: absolute;
+  top: calc(674 * var(--u));
+  left: calc(189 * var(--u));
+  right: calc(189 * var(--u));
+  height: calc(135 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font: 400 calc(104 * var(--u)) / 1 var(--font-display);
+  color: #2e2a24;
+  text-shadow: 0 calc(2 * var(--u)) 0 rgba(255, 248, 226, 0.75), 0 calc(-1 * var(--u)) 0 rgba(60, 45, 20, 0.35);
+}
+
+.poker-card .qface-half {
+  position: absolute;
+  left: calc(184 * var(--u));
+  right: calc(184 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+.poker-card .qface-half.is-top { top: calc(874 * var(--u)); height: calc(490 * var(--u)); }
+.poker-card .qface-half.is-bottom { top: calc(1391 * var(--u)); height: calc(540 * var(--u)); }
+
+.poker-card .qface-label {
+  flex: none;
+  height: calc(78 * var(--u));
+  display: flex;
+  align-items: center;
+  gap: calc(18 * var(--u));
+  font: 400 calc(52 * var(--u)) / 1 var(--font-display);
+  color: #3a2f1d;
+}
+.poker-card .qface-gem { font-size: calc(26 * var(--u)); color: #8a6a1e; }
+.poker-card .qface-pips { font-size: calc(22 * var(--u)); letter-spacing: calc(6 * var(--u)); color: #8a6a1e; margin-right: calc(8 * var(--u)); }
+
+.poker-card .qface-fit {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(14 * var(--u));
+  padding-top: calc(10 * var(--u));
+  transform-origin: top center;
+}
+.poker-card .qface-fit h3 { margin: 0; font: 700 calc(72 * var(--u)) / 1.05 var(--font-display); text-align: center; color: #2b2620; }
+.poker-card .qface-fit p { margin: 0; max-width: calc(1080 * var(--u)); font: 400 calc(60 * var(--u)) / 1.18 var(--font-body); text-align: center; text-wrap: balance; }
+
+.poker-card .qface-strip { border-collapse: collapse; margin-top: calc(6 * var(--u)); font-family: var(--font-ui); }
+.poker-card .qface-strip th { padding: calc(4 * var(--u)) calc(22 * var(--u)) calc(4 * var(--u)) 0; max-width: calc(470 * var(--u)); text-align: right; font: 500 calc(48 * var(--u)) / 1.1 var(--font-ui); color: #4a3f2e; }
+.poker-card .qface-strip td { width: calc(100 * var(--u)); text-align: center; border-left: calc(2 * var(--u)) solid rgba(138, 106, 30, 0.45); font: 700 calc(56 * var(--u)) / 1.1 var(--font-ui); color: #2b2620; }
+.poker-card .qface-players th,
+.poker-card .qface-players td { padding-bottom: calc(6 * var(--u)); font: 500 calc(44 * var(--u)) / 1 var(--font-ui); color: #7a6a4c; }
+.poker-card .qface-strip .is-keep th,
+.poker-card .qface-strip .is-keep td { color: #6b3d2a; }
+/* The column for this game's player count */
+.poker-card .qface-strip td.is-now { background: rgba(196, 150, 46, 0.24); color: #1f1a12; }
+.poker-card .qface-players td.is-now { font-weight: 700; color: #5b4615; }
+
+.poker-card .qface-foot {
+  position: absolute;
+  top: calc(1939 * var(--u));
+  left: 0;
+  right: 0;
+  text-align: center;
+  font: italic 400 calc(46 * var(--u)) / 1 var(--font-body);
+  color: #4a3f2e;
+}
+
+/* A half's live reading, stamped in its corner */
+.poker-card .qface-stamp {
+  position: absolute;
+  top: calc(8 * var(--u));
+  right: 0;
+  padding: calc(8 * var(--u)) calc(22 * var(--u));
+  border-radius: calc(40 * var(--u));
+  font: 700 calc(40 * var(--u)) / 1.1 var(--font-ui);
+  letter-spacing: 0.02em;
+  background: rgba(111, 93, 46, 0.16);
+  color: #4a3f2e;
+}
+.poker-card .qface-stamp.status-met { background: #4e6748; color: #f5f0de; }
+.poker-card .qface-stamp.status-on-track { background: rgba(196, 150, 46, 0.3); color: #5b4615; }
+.poker-card .qface-stamp.status-broken { background: #82503b; color: #f8e3d6; }
+.poker-card .qface-half.is-broken .qface-fit { opacity: 0.55; }
+.poker-card .qface-half.is-met::before {
+  content: "";
+  position: absolute;
+  inset: calc(70 * var(--u)) calc(-24 * var(--u)) 0;
+  border-radius: calc(24 * var(--u));
+  background: rgba(78, 103, 72, 0.1);
+  z-index: -1;
+}
+
+/* --------------------------------------------------------------- Target Card */
+.tface .poker-card-layer { color: #2b2f33; }
+
+.poker-card .tface-glow {
+  position: absolute;
+  top: calc(689 * var(--u));
+  left: calc(159 * var(--u));
+  right: calc(159 * var(--u));
+  height: calc(110 * var(--u));
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(120, 136, 150, 0.32), rgba(120, 136, 150, 0) 70%);
+}
+
+.poker-card .tface-type {
+  position: absolute;
+  top: calc(519 * var(--u));
+  left: 0;
+  right: 0;
+  text-align: center;
+  font: 500 calc(46 * var(--u)) / 1 var(--font-ui);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.poker-card .tface-title {
+  position: absolute;
+  top: calc(674 * var(--u));
+  left: calc(189 * var(--u));
+  right: calc(189 * var(--u));
+  height: calc(135 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 400 calc(104 * var(--u)) / 1 var(--font-display);
+  color: #26292c;
+  text-shadow: 0 calc(2 * var(--u)) 0 rgba(255, 252, 240, 0.8), 0 calc(-1 * var(--u)) 0 rgba(30, 35, 40, 0.3);
+}
+
+.poker-card .tface-rows {
+  position: absolute;
+  top: calc(877 * var(--u));
+  left: calc(179 * var(--u));
+  right: calc(179 * var(--u));
+  height: calc(690 * var(--u));
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+}
+.poker-card .tface-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(8 * var(--u));
+  border-bottom: calc(2 * var(--u)) solid rgba(43, 47, 51, 0.22);
+}
+.poker-card .tface-row:last-child { border-bottom: 0; }
+.poker-card .tface-label { font: 400 calc(50 * var(--u)) / 1 var(--font-display); color: #44494e; }
+.poker-card .tface-value { display: flex; align-items: center; gap: calc(26 * var(--u)); font: 700 calc(76 * var(--u)) / 1 var(--font-body); color: #1f2226; }
+.poker-card .tface-glyph svg { display: block; width: calc(80 * var(--u)); height: calc(80 * var(--u)); }
+
+.poker-card .tface-outcome {
+  position: absolute;
+  top: calc(1625 * var(--u));
+  left: calc(159 * var(--u));
+  right: calc(159 * var(--u));
+  height: calc(310 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(4 * var(--u));
+}
+.poker-card .tface-tie { display: flex; align-items: center; gap: calc(26 * var(--u)); }
+.poker-card .tface-diagram { flex: none; width: calc(330 * var(--u)); height: calc(229 * var(--u)); }
+.poker-card .tface-tie-words { max-width: calc(700 * var(--u)); display: grid; gap: calc(4 * var(--u)); }
+.poker-card .tface-big { font: 700 calc(72 * var(--u)) / 1.05 var(--font-body); color: #3e5566; text-align: center; }
+.poker-card .tface-small { font: italic 400 calc(46 * var(--u)) / 1.1 var(--font-body); color: #44494e; text-align: center; }
+.poker-card .tface-tie-words .tface-big,
+.poker-card .tface-tie-words .tface-small { text-align: left; }
+.poker-card .tface-direction { font-style: normal; font-weight: 700; }
+
+.poker-card .tface-foot {
+  position: absolute;
+  top: calc(1941 * var(--u));
+  left: 0;
+  right: 0;
+  text-align: center;
+  font: italic 400 calc(46 * var(--u)) / 1 var(--font-body);
+  color: #44494e;
+}
+
+/* Where a Target Card sits in a resolution panel */
+.tface { width: min(100%, 300px); justify-self: center; }
+
+/* Quest Cards in the interface */
+.quest-card-flip { width: min(100%, 300px); margin: 4px auto 0; }
+.ledger-quest-current .quest-card-view,
+.finale-ledger .quest-card-view { width: min(100%, 340px); margin: 8px auto 0; }
+
+/* The Steward's Ledger: completed cards face up, the deck face down */
+.qmini { width: 100%; border-radius: 6% / 4.3%; }
+.qmini .qface-type { top: calc(500 * var(--u)); font-size: calc(70 * var(--u)); }
+.qmini .qface-title { top: calc(640 * var(--u)); height: calc(260 * var(--u)); font-size: calc(170 * var(--u)); line-height: 0.95; }
+.qmini-number { position: absolute; top: calc(1300 * var(--u)); left: 0; right: 0; text-align: center; font: italic 400 calc(110 * var(--u)) / 1 var(--font-body); color: #4a3f2e; }
+
+.ledger-card-group { margin-top: 14px; }
+.ledger-card-group h4 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; font: 700 12px/1.2 var(--font-ui); letter-spacing: 0.08em; text-transform: uppercase; color: var(--qv-brass-dark); }
+.ledger-card-group h4 span { padding: 1px 7px; border-radius: 999px; background: rgba(111, 93, 46, 0.12); letter-spacing: 0; }
+.ledger-card-empty { margin: 0; padding: 10px 12px; border: 1px dashed rgba(111, 93, 46, 0.35); border-radius: 9px; font-size: 13px; }
+.ledger-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 14px 12px; margin: 0; padding: 0; list-style: none; }
+.ledger-quest-card button { display: grid; gap: 6px; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.ledger-quest-card .poker-card { transition: transform 0.18s ease, box-shadow 0.18s ease; }
+.ledger-quest-card button:hover .poker-card,
+.ledger-quest-card button:focus-visible .poker-card { transform: translateY(-3px); box-shadow: 0 2px 3px rgba(20, 16, 8, 0.35), 0 12px 26px rgba(20, 16, 8, 0.28); }
+.ledger-quest-card button[aria-pressed="true"] .poker-card { outline: 3px solid #c9a24a; outline-offset: 2px; }
+.ledger-quest-card.is-current .poker-card { outline: 2px solid rgba(201, 162, 74, 0.8); outline-offset: 2px; }
+.ledger-quest-caption { display: grid; gap: 1px; line-height: 1.2; }
+.ledger-quest-caption small { color: var(--qv-brass-dark); font: 700 10px/1.2 var(--font-ui); }
+.ledger-quest-caption strong { font-size: 13px; }
+.ledger-quest-card .ledger-status-chip { justify-self: start; display: inline-flex; align-items: center; gap: 4px; font-size: 11px; }
+@media (prefers-reduced-motion: reduce) { .ledger-quest-card .poker-card { transition: none; } }
+
+.ledger-card-viewer { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 14px 18px; margin: 10px 0 4px; padding: 14px; border: 1px solid rgba(111, 93, 46, 0.25); border-radius: 12px; background: rgba(240, 234, 216, 0.6); }
+.ledger-card-viewer .quest-card-view { width: min(100%, 320px); }
+.ledger-card-viewer > div { display: grid; gap: 10px; flex: 1 1 160px; }
+.ledger-card-viewer p { margin: 0; }
+
+/* The Quest Card drawn at setup */
+.quest-drawn { display: grid; gap: 12px; }
+.quest-drawn-row { display: flex; align-items: flex-start; gap: 14px; }
+.quest-drawn-card { flex: none; width: 96px; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 8px; }
+.quest-drawn-card:focus-visible { outline: 3px solid #c9a24a; outline-offset: 3px; }
+.quest-drawn-text { display: grid; gap: 6px; min-width: 0; }
+.quest-drawn-text .quest-drawn-reward { margin: 0; font-size: 12px; font-weight: 600; color: #7a5d1c; }
+.quest-drawn-text ul { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.quest-drawn-text li { display: grid; gap: 1px; line-height: 1.25; }
+.quest-drawn-which { font: 700 10px/1.2 var(--font-ui); letter-spacing: 0.06em; text-transform: uppercase; color: #8a6a1e; }
+.quest-drawn-text strong { font-size: 14px; }
+.quest-drawn-text li small { margin: 0; font-size: 12px; color: #5f5a48; }
+.quest-drawn-more { justify-self: start; min-height: 32px; padding: 3px 12px; border: 1px solid #c9ad62; border-radius: 8px; background: transparent; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
+.quest-drawn-face { width: min(100%, 300px); justify-self: center; }
+.ledger-card-viewer .ledger-card-close { justify-self: start; width: auto; min-height: 34px; padding: 4px 14px; border: 1px solid #c9ad62; border-radius: 8px; background: #fffaf0; color: #2f2a22; font: inherit; font-size: 13px; cursor: pointer; }
+
+/* Target Cards in a resolution panel */
+.target-card-flip { width: min(100%, 280px); justify-self: center; }
+.target-card-flip .tface { width: 100%; }
+.table-resolution .target-draw-explanation,
+.table-sheet .target-draw-explanation { grid-template-columns: minmax(0, 1fr) !important; }

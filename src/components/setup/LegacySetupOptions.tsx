@@ -1,6 +1,6 @@
 import { Shield, ChevronDown } from "lucide-react";
 import { questCardByNumber } from "../../data/questCards";
-import { QuestCardView } from "../common/QuestCardView";
+import { QuestDrawn } from "../cards/QuestDrawn";
 import type { SetupPanelProps } from "./SetupPanel";
 
 export function LegacySetupOptions({
@@ -18,7 +18,7 @@ export function LegacySetupOptions({
         <details className="welcome-optional welcome-quest" open>
           <summary><Shield size={17} aria-hidden="true" /><span>Quest Card No. {questCard.n}: {questCard.theme}<small>{completedLedgerCount} of 21 Quest Cards in the Steward’s Ledger</small></span><ChevronDown size={16} aria-hidden="true" /></summary>
           <div className="welcome-optional-fields">
-            <QuestCardView card={questCard} playerCount={playerCount} compact />
+            <QuestDrawn card={questCard} playerCount={playerCount} />
           </div>
         </details>
       )}

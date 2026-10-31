@@ -3,7 +3,9 @@ import { TargetCardStepper } from "../table/TargetCardStepper";
 import { targetCardById, targetCardFilterLabels, targetCardRulesText } from "../../data/targetCards";
 import { selectTileName } from "../../engine/selectors";
 import type { GameState, PendingEffectState, TargetCardSelectionDiagnostic } from "../../engine/types";
+import { useState } from "react";
 import { TargetCard } from "../common/TargetCard";
+import { FlipCard } from "../cards/PokerCard";
 
 type Diagnostic = TargetCardSelectionDiagnostic;
 
@@ -21,13 +23,15 @@ function TargetNotes({ diagnostic, conditional = false }: { diagnostic: Diagnost
   </>;
 }
 
-function TargetTrace({ state, diagnostic, index, enhanced }: {
-  state: GameState; diagnostic: Diagnostic; index: number; enhanced: boolean;
+function TargetTrace({ state, diagnostic, index, enhanced, revealKey }: {
+  state: GameState; diagnostic: Diagnostic; index: number; enhanced: boolean; revealKey?: number;
 }) {
   const card = targetCardById[diagnostic.cardId];
   const selectedTile = state.map.placedTiles.find(tile => tile.instanceId === diagnostic.selectedTileId);
   return <>
-    {card && <TargetCard card={card} />}
+    {card && (revealKey === undefined
+      ? <TargetCard card={card} />
+      : <FlipCard kind="target" revealKey={`${card.id}-${revealKey}`} className="target-card-flip" sizes="280px"><TargetCard card={card} sizes="280px" /></FlipCard>)}
     <div className="target-card-runtime">
       <div className="target-card-diagnostic-heading">
         <strong>{targetLabel(diagnostic, index)}</strong>
@@ -63,6 +67,8 @@ function TargetTrace({ state, diagnostic, index, enhanced }: {
 }
 
 export function TargetCardResolution({ state, effect }: { state: GameState; effect: PendingEffectState }) {
+  // Each opening of a draw's explanation turns its card over from the silver back.
+  const [openings, setOpenings] = useState<Record<string, number>>({});
   if (!effect.targetCardPrepared) return null;
   const enhanced = isPlayerExperience();
   const diagnostics = effect.targetCardDiagnostics ?? [];
@@ -84,7 +90,7 @@ export function TargetCardResolution({ state, effect }: { state: GameState; effe
             const tile = state.map.placedTiles.find(tile => tile.instanceId === diagnostic.selectedTileId);
             return (
               <article className="target-draw" key={diagnostic.id}>
-                <details>
+                <details onToggle={(event) => { if (event.currentTarget.open) setOpenings((count) => ({ ...count, [diagnostic.id]: (count[diagnostic.id] ?? 0) + 1 })); }}>
                   <summary>
                     <span className="target-draw-summary">
                       <span className="target-draw-position">{targetLabel(diagnostic, index)}</span>
@@ -93,7 +99,7 @@ export function TargetCardResolution({ state, effect }: { state: GameState; effe
                       <span className="target-draw-explain">Why card {String(diagnostic.cardId).padStart(2, "0")}</span>
                     </span>
                   </summary>
-                  <div className="target-draw-explanation"><TargetTrace state={state} diagnostic={diagnostic} index={index} enhanced /></div>
+                  <div className="target-draw-explanation"><TargetTrace state={state} diagnostic={diagnostic} index={index} enhanced revealKey={openings[diagnostic.id] ?? 0} /></div>
                 </details>
                 <div className="target-draw-notes"><TargetNotes diagnostic={diagnostic} conditional />{isBoardTableExperience() && <TargetCardStepper state={state} effect={effect} index={index} />}</div>
               </article>

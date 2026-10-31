@@ -41,7 +41,10 @@
 
 .table-screen {
   display: grid;
+  /* One column, never wider than the window: a crowded top bar must not push the board and side panel off screen. */
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
   flex: 1;
   min-height: 0;
   font-family: "Alegreya Sans", system-ui, sans-serif;
@@ -50,6 +53,7 @@
 
 /* Top bar */
 .table-topbar {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -1904,7 +1908,9 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .table-quest-chip.is-complete { border-color: #8fb07e; }
 .table-quest-chip.is-complete small { color: #b9d6a8; }
 .table-quest-chip:hover { background: rgba(255, 255, 255, 0.06); }
-@media (max-width: 1180px) { .table-quest-chip small { display: none; } }
-@media (max-width: 1040px) { .table-quest-chip { display: none; } }
+@media (max-width: 1400px) { .table-quest-chip small { display: none; } }
+@media (max-width: 1100px) { .table-quest-chip strong { display: none; } }
+@media (max-width: 900px) { .table-quest-chip { display: none; } }
 .rail-quest.is-called { animation: rail-quest-call 1.4s ease-out; }
 @keyframes rail-quest-call { 0%, 30% { box-shadow: 0 0 0 3px #f2c94c, 0 0 22px rgba(242, 201, 76, 0.55); } 100% { box-shadow: 0 0 0 0 rgba(242, 201, 76, 0); } }
+@media (max-width: 1100px) { .table-season .season-name { display: none; } }

@@ -5,10 +5,10 @@ import { selectTileName } from "../../engine/selectors";
 import { traceTargetSelection, type TargetSelectionTrace } from "../../engine/targetCards";
 import type { GameState, PendingEffectState, TargetCardSelectionDiagnostic } from "../../engine/types";
 import { useBoardChoices } from "./boardChoices";
+import { directionNames } from "../common/TargetCard";
 
 interface Step { caption: string; tileIds: string[]; final?: boolean }
 
-const directionNames: Record<string, string> = { NE: "north-east", E: "east", SE: "south-east", SW: "south-west", W: "west", NW: "north-west" };
 
 /**
  * Rebuilds the draw for one target from the effect's own pool and checks it
@@ -47,8 +47,8 @@ function stepsFor(state: GameState, trace: TargetSelectionTrace, diagnostic: Tar
   if (before > 1 && card?.direction) {
     steps.push({
       caption: trace.tied.length > 1
-        ? `Still ${before} tied. The furthest ${directionNames[card.direction] ?? card.direction} leaves ${trace.tied.length}, so map order decides.`
-        : `Still ${before} tied. The tile furthest ${directionNames[card.direction] ?? card.direction} wins.`,
+        ? `Still ${before} tied. The furthest ${directionNames[card.direction]} leaves ${trace.tied.length}, so map order decides.`
+        : `Still ${before} tied. The card’s arrow points ${directionNames[card.direction]}: the tile furthest that way wins.`,
       tileIds: trace.tied
     });
   }

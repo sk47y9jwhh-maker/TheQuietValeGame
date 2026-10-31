@@ -61,7 +61,7 @@
   .experience-app .target-draw-strain { grid-column: 1; grid-row: 3; }
   .experience-app .target-draw-explain { grid-column: 2; grid-row: 1 / span 3; max-width: 60px; }
   .experience-app .target-draw-explanation { grid-template-columns: minmax(0, 1fr); padding: 10px; }
-  .experience-app .target-draw-explanation .physical-target-card { justify-self: center; }
+  .experience-app .target-draw-explanation .tface { justify-self: center; }
 }
 
 .experience-app .resolution-focus-table .turn-summary h2 { font-size: 25px; }

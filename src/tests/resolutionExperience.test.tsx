@@ -46,7 +46,7 @@ describe("focused resolution review", () => {
     toggle("Read the full card");
     expect(printedCard).toBeVisible();
     toggle("Why card 16"); expect(targetCard).toBeVisible();
-    expect(within(targetCard.closest(".target-draw-explanation")!).getAllByText("Unless specified")).toHaveLength(4);
+    expect(within(targetCard.closest(".target-draw-explanation")!).getByText("Work down the rows. Skip any row no tile matches.")).toBeInTheDocument();
     toggle("Table references"); toggle(/^View resolution order/); toggle("Review active encounters");
     expect(screen.getByRole("heading", { name: "Encounters" })).toBeVisible();
     expect(saved()).toEqual(before);
