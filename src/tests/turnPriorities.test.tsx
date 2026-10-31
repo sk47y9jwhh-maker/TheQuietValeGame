@@ -44,7 +44,7 @@ describe("Living Table priorities", () => {
     view.rerender(<TurnPriorities state={next} {...callbacks} />);
     expect(screen.getByRole("region", { name: "Knight objective" })).toHaveTextContent("final scoring");
     expect(screen.queryByText("Can complete now")).not.toBeInTheDocument();
-    expect(screen.getAllByText(/missing/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Need \d+ more/).length).toBeGreaterThan(0);
   });
 
   it("removes a completed Arrival and restores it when the state is undone", () => {
