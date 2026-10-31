@@ -39,32 +39,29 @@
 
 This specification locks the design system. Generating all 30 cards, comparing them with the structured data/workbook, and running physical-size/vendor proofs remain separate production tasks.
 
-## Print files for the first live prototype (31 October 2026)
+## Prototype 1 print design (31 October 2026) — supersedes the face above for printing
 
-`print/target-NN.png` are the 30 fronts, 1630 × 2220 px at 600 dpi (63 × 88 mm
-trim, 3 mm bleed each side, sRGB), rendered by `render-target.mjs` from
-`src/data/targetCards.ts`, so print and online use the same deck data. The back
-is the shared card back in silver:
-`design/encounter-card-templates/card-back/print/card-back-poker-silver-printerstudio-600dpi.png`.
+Robert did not like the Vale Blue + Rose draft. The Target Cards now share the
+Chronicle Card family with a silver frame, and the tie directions follow the
+map's flat-top hexes.
 
-Changes from the locked face, for review after play-testing:
+- `target-cards.json`: the print deck. The same 30 preference profiles as
+  `src/data/targetCards.ts`, with tie directions rotated 30° to the six
+  flat-top hex directions: NE→N, E→NE, SE→SE, SW→S, W→SW, NW→NW. Cards 13–24
+  still repeat 1–12 with the opposite direction, and each direction appears on
+  4 cards.
+- `target-front-background-600dpi.png`: the Golden Boon front re-laid to poker
+  (as for the Chronicle Cards) with the frame and compass turned silver
+  (saturation −100, lightness +6, like the silver back) and the compass glow
+  recoloured to parchment.
+- `render-target.mjs`: renders the fronts. Rows: Tile class, Tile side,
+  Adjacency, Current Strain, each with a small glyph; then "If still tied" with
+  a flat-top hex whose arrow leaves the edge facing the card's direction and the
+  words "Furthest north" (and so on), "across the whole map"; Open cards say
+  "Choose any eligible tile". Footer: "Work down the rows. Skip any row no tile
+  matches." (replaces "Unless specified" on every row).
+- `print/target-NN.png`: 1630 × 2220 px at 600 dpi (63 × 88 mm with 3 mm
+  bleed), sRGB. Back: `card-back-poker-silver-printerstudio-600dpi.png`.
 
-- **Tie direction is a compass, not a neighbour ring.** The map's hexes are
-  flat-top, so their neighbours lie N, NE, SE, S, SW and NW, and there is no
-  east or west neighbour. The engine breaks a tie by the tile furthest across
-  the whole map along the card's bearing (`directionVectors` in
-  `src/engine/targetCards.ts`). A ring of neighbour hexes suggested adjacency,
-  so the card now shows six compass arms with the bearing in rose and the words
-  "Furthest east" (and so on) plus "across the whole map (E)".
-- **Small glyphs beside each value** to help scanning: a hex for Core, a hex
-  with a star for Special or Golden, a double hex for Upgraded, a centre hex with
-  3 or 2 filled neighbours for adjacency, a black Strain disc or a dashed empty
-  disc for Strain. The words still carry the meaning.
-- Values in sentence case ("3+ neighbours", "Already strained",
-  "Special or Golden"), matching the house style.
-- Open cards: "Open target", "Choose any eligible tile", "Keep to any limits
-  set by the effect."
-
-The face template here is upscaled from the 1260 × 1760 web template (508 dpi
-at trim). The original generator and template in `output/target-card-visual/`
-are not in the repo; if the higher-resolution template turns up, render from it.
+The online game uses the old E/W-centred directions until the branch
+`claude/target-flat-top-directions` is merged.
