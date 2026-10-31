@@ -341,6 +341,24 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
     }
   }, [commitGameState, commitKnownGameState, state]);
 
+  // A Quest Card half completing or a Vow breaking is news at the table. Undo
+  // shrinks these lists, which is not news, so only growth is announced.
+  const questSeen = useRef<{ card?: number; moments: number; broken: number; logTop?: string }>({ moments: 0, broken: 0 });
+  useEffect(() => {
+    const run = state?.questRun;
+    const seen = questSeen.current;
+    const grew = run && run.cardNumber === seen.card && (run.moments.length > seen.moments || run.broken.length > seen.broken);
+    if (grew && isBoardTableExperience()) {
+      const fresh: string[] = [];
+      for (const entry of state!.log) {
+        if (entry.id === seen.logTop) break;
+        if (entry.message.startsWith("Quest Card:")) fresh.unshift(entry.message);
+      }
+      if (fresh.length) setTableNotice((lines) => [...lines, ...fresh].slice(-3));
+    }
+    questSeen.current = { card: run?.cardNumber, moments: run?.moments.length ?? 0, broken: run?.broken.length ?? 0, logTop: state?.log[0]?.id };
+  }, [state]);
+
   useEffect(() => {
     if (tableNotice.length === 0) return undefined;
     const timer = setTimeout(() => setTableNotice([]), 9000);

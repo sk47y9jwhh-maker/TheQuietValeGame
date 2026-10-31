@@ -12,27 +12,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        6,
-        9,
-        14,
-        20,
-        12,
-        17,
-        15,
-        10,
-        21,
-        18,
-        16,
-        5,
-        8,
         7,
-        2,
+        14,
+        18,
         1,
-        19,
         11,
-        3,
+        17,
+        21,
+        20,
+        8,
+        5,
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
         13,
-        4
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -320,6 +320,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_3_1790467200000",
@@ -341,27 +347,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        11,
-        4,
-        19,
-        6,
-        10,
-        14,
-        21,
-        16,
-        2,
-        17,
-        9,
-        5,
-        12,
         7,
-        3,
-        1,
-        20,
-        15,
+        14,
         18,
+        1,
+        11,
+        17,
+        21,
+        20,
+        8,
+        5,
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
         13,
-        8
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -702,6 +708,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_14_1790467200000",
@@ -778,27 +790,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        14,
-        4,
-        6,
         7,
-        17,
+        14,
         18,
+        1,
         11,
-        15,
-        2,
-        12,
-        8,
-        9,
-        5,
-        19,
-        16,
+        17,
         21,
-        10,
-        3,
         20,
+        8,
+        5,
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
         13,
-        1
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -1195,6 +1207,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_26_1790467200000",
@@ -1331,27 +1349,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        13,
-        17,
-        9,
-        6,
-        4,
-        15,
-        3,
-        12,
-        2,
-        14,
-        10,
-        16,
-        11,
-        18,
-        8,
-        20,
-        5,
-        21,
         7,
+        14,
+        18,
         1,
-        19
+        11,
+        17,
+        21,
+        20,
+        8,
+        5,
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -1737,6 +1755,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_scene_900",
@@ -1878,27 +1902,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        17,
-        10,
-        21,
-        6,
-        14,
         7,
-        8,
-        19,
-        4,
-        9,
+        14,
         18,
-        20,
-        16,
-        3,
-        15,
         1,
-        2,
-        13,
         11,
+        17,
+        21,
+        20,
+        8,
         5,
-        12
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -2296,6 +2320,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_scene_902",
@@ -2437,27 +2467,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        21,
-        4,
-        13,
-        19,
-        3,
-        10,
-        8,
-        16,
+        7,
+        14,
+        18,
+        1,
         11,
         17,
-        12,
+        21,
+        20,
+        8,
         5,
         2,
-        18,
-        6,
-        1,
-        7,
-        20,
-        15,
         9,
-        14
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -2858,6 +2888,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_scene_904",
@@ -2999,27 +3035,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        2,
-        3,
-        12,
-        18,
-        11,
-        8,
-        10,
-        13,
-        6,
-        19,
-        4,
-        20,
-        16,
-        9,
-        14,
-        1,
-        21,
         7,
+        14,
+        18,
+        1,
+        11,
         17,
+        21,
+        20,
+        8,
         5,
-        15
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -3415,6 +3451,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_scene_906",
@@ -3556,27 +3598,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        2,
-        4,
-        17,
-        11,
-        21,
         7,
+        14,
+        18,
+        1,
+        11,
+        17,
+        21,
+        20,
         8,
+        5,
+        2,
         9,
-        12,
         19,
-        10,
+        15,
+        12,
+        4,
+        13,
         16,
         6,
         3,
-        13,
-        1,
-        14,
-        20,
-        18,
-        5,
-        15
+        10
       ],
       "box": [],
       "games": []
@@ -3984,6 +4026,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_scene_908",
@@ -4125,27 +4173,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        11,
+        7,
+        14,
         18,
-        2,
-        15,
-        8,
-        10,
+        1,
+        11,
+        17,
+        21,
         20,
+        8,
+        5,
+        2,
+        9,
         19,
+        15,
+        12,
         4,
         13,
-        14,
-        5,
-        12,
-        7,
-        6,
-        1,
-        3,
-        9,
         16,
-        21,
-        17
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -4544,6 +4592,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_scene_910",
@@ -4686,26 +4740,26 @@
       "version": 3,
       "deck": [
         7,
-        4,
-        18,
-        8,
-        15,
-        13,
-        20,
-        9,
-        16,
-        12,
-        2,
         14,
-        3,
-        21,
-        6,
+        18,
         1,
-        19,
         11,
-        10,
         17,
-        5
+        21,
+        20,
+        8,
+        5,
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -5039,6 +5093,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_8_1790467200000",
@@ -5085,27 +5145,27 @@
     "campaign": {
       "version": 3,
       "deck": [
+        7,
         14,
+        18,
+        1,
         11,
-        2,
-        19,
+        17,
+        21,
+        20,
         8,
         5,
-        18,
-        10,
-        6,
-        12,
-        21,
-        16,
-        13,
-        3,
-        20,
-        1,
-        7,
-        17,
-        15,
+        2,
         9,
-        4
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -5499,6 +5559,12 @@
         },
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_53_1790467200000",
@@ -5770,29 +5836,29 @@
     "campaign": {
       "version": 3,
       "deck": [
-        15,
-        6,
-        10,
+        7,
         11,
-        16,
-        12,
-        20,
-        4,
-        14,
         17,
-        5,
-        19,
-        1,
-        13,
         21,
+        20,
         8,
+        5,
+        2,
         9,
-        7
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [
-        2,
-        3,
-        18
+        14,
+        18,
+        1
       ],
       "games": []
     }
@@ -6172,6 +6238,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_22_1790467200000",
@@ -6288,29 +6360,29 @@
     "campaign": {
       "version": 3,
       "deck": [
-        17,
-        10,
+        7,
         20,
-        16,
-        15,
+        8,
         5,
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
         6,
         3,
-        11,
-        18,
-        19,
-        21,
-        12,
-        9,
-        1
+        10
       ],
       "box": [
         14,
-        4,
-        7,
-        13,
-        2,
-        8
+        18,
+        1,
+        11,
+        17,
+        21
       ],
       "games": []
     }
@@ -6422,7 +6494,7 @@
             "hexIds": [
               "A6"
             ],
-            "strain": 1,
+            "strain": 0,
             "support": {
               "passive": false,
               "singleUse": false,
@@ -6437,7 +6509,7 @@
             "hexIds": [
               "A7"
             ],
-            "strain": 0,
+            "strain": 1,
             "support": {
               "passive": false,
               "singleUse": false,
@@ -6452,7 +6524,7 @@
             "hexIds": [
               "B6"
             ],
-            "strain": 0,
+            "strain": 1,
             "support": {
               "passive": false,
               "singleUse": false,
@@ -6641,7 +6713,7 @@
             "timerChoice": false,
             "tileChoice": false
           },
-          "id": "effect_62_1790467200000"
+          "id": "effect_60_1790467200000"
         },
         {
           "sourceType": "card",
@@ -6651,6 +6723,11 @@
           "title": "Revealed Help Stands",
           "effectText": "Each Steward-occupied Tile: −1 Strain. If it had none, gain 2 resources (max 4 total).",
           "detailText": "Resolve, then discard.",
+          "suggestedAdjustment": {
+            "tileStrainDeltas": {
+              "tile_6_c15_path": -1
+            }
+          },
           "requiresManualChoice": true,
           "canCancelWithWardenPower": false,
           "canSkip": true,
@@ -6670,7 +6747,7 @@
             "timerChoice": false,
             "tileChoice": true
           },
-          "id": "effect_63_1790467200000"
+          "id": "effect_61_1790467200000"
         }
       ],
       "pendingDeckReorder": null,
@@ -6748,10 +6825,10 @@
                 "afterCount": 6
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": true,
-            "directionCandidateCount": 2,
-            "coordinateFallbackUsed": true,
+            "directionCandidateCount": 1,
+            "coordinateFallbackUsed": false,
             "selectedTileId": "tile_1_c01_lumber_yard",
             "selectedHexIds": [
               "G1"
@@ -6766,8 +6843,8 @@
             "goldenGardenPrevented": false
           },
           {
-            "id": "effect_36_1790467200000:draw:2",
-            "effectId": "effect_36_1790467200000",
+            "id": "effect_35_1790467200000:draw:2",
+            "effectId": "effect_35_1790467200000",
             "sourceId": "arrival_from_blade_swingers_to_herb_stringers",
             "role": "target",
             "cardId": 4,
@@ -6802,13 +6879,13 @@
                 "afterCount": 5
               }
             ],
-            "direction": "W",
+            "direction": "SW",
             "directionRequired": true,
-            "directionCandidateCount": 2,
-            "coordinateFallbackUsed": true,
-            "selectedTileId": "tile_4_c04_farmstead",
+            "directionCandidateCount": 1,
+            "coordinateFallbackUsed": false,
+            "selectedTileId": "tile_5_c05_cabin",
             "selectedHexIds": [
-              "A6"
+              "A7"
             ],
             "supportedWillPrevent": false,
             "goldenGardenWillPrevent": false,
@@ -6820,8 +6897,8 @@
             "goldenGardenPrevented": false
           },
           {
-            "id": "effect_41_1790467200000:draw:3",
-            "effectId": "effect_41_1790467200000",
+            "id": "effect_39_1790467200000:draw:3",
+            "effectId": "effect_39_1790467200000",
             "sourceId": "burden_too_many_houses_too_little_homes",
             "role": "target",
             "cardId": 28,
@@ -6867,98 +6944,98 @@
             "manualChoice": true
           },
           {
-            "id": "effect_48_1790467200000:draw:4",
-            "effectId": "effect_48_1790467200000",
-            "sourceId": "burden_too_many_houses_too_little_homes",
+            "id": "effect_43_1790467200000:draw:4",
+            "effectId": "effect_43_1790467200000",
+            "sourceId": "burden_ill_omen_of_discontent",
             "role": "target",
             "cardId": 22,
-            "originalEligibleCount": 2,
+            "originalEligibleCount": 1,
             "filters": [
               {
                 "filter": "class",
                 "preference": "Special / Golden",
                 "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
+                "beforeCount": 1,
+                "afterCount": 1
               },
               {
                 "filter": "side",
                 "preference": "Either",
                 "applied": true,
-                "beforeCount": 2,
-                "afterCount": 2
+                "beforeCount": 1,
+                "afterCount": 1
               },
               {
                 "filter": "adjacency",
                 "preference": "3+",
                 "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
+                "beforeCount": 1,
+                "afterCount": 1
               },
               {
                 "filter": "strain",
                 "preference": "Unstrained",
                 "applied": true,
-                "beforeCount": 2,
+                "beforeCount": 1,
                 "afterCount": 1
               }
             ],
-            "direction": "W",
+            "direction": "SW",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_5_c05_cabin",
+            "selectedTileId": "tile_6_c15_path",
             "selectedHexIds": [
-              "A7"
+              "B6"
             ],
             "supportedWillPrevent": false,
             "goldenGardenWillPrevent": false,
             "printedFallbackUsed": false,
             "plannedStrain": 1,
-            "strainApplied": false,
-            "actualStrainPlaced": 0,
+            "strainApplied": true,
+            "actualStrainPlaced": 1,
             "supportedPrevented": false,
             "goldenGardenPrevented": false
           },
           {
-            "id": "effect_48_1790467200000:draw:5",
-            "effectId": "effect_48_1790467200000",
+            "id": "effect_46_1790467200000:draw:5",
+            "effectId": "effect_46_1790467200000",
             "sourceId": "burden_too_many_houses_too_little_homes",
             "role": "target",
             "cardId": 30,
-            "originalEligibleCount": 1,
+            "originalEligibleCount": 2,
             "filters": [
               {
                 "filter": "class",
                 "preference": "Any",
                 "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
+                "beforeCount": 2,
+                "afterCount": 2
               },
               {
                 "filter": "side",
                 "preference": "Any",
                 "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
+                "beforeCount": 2,
+                "afterCount": 2
               },
               {
                 "filter": "adjacency",
                 "preference": "Any",
                 "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
+                "beforeCount": 2,
+                "afterCount": 2
               },
               {
                 "filter": "strain",
                 "preference": "Any",
                 "applied": false,
-                "beforeCount": 1,
-                "afterCount": 1
+                "beforeCount": 2,
+                "afterCount": 2
               }
             ],
             "directionRequired": false,
-            "directionCandidateCount": 1,
+            "directionCandidateCount": 2,
             "coordinateFallbackUsed": false,
             "selectedTileId": "",
             "selectedHexIds": [],
@@ -7039,151 +7116,147 @@
         },
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
-          "id": "log_61_1790467200000",
+          "id": "log_59_1790467200000",
           "round": 6,
           "message": "Revealed Help Stands."
         },
         {
-          "id": "log_60_1790467200000",
+          "id": "log_58_1790467200000",
           "round": 6,
           "message": "Revealed The Golden Signet Ring."
         },
         {
-          "id": "log_59_1790467200000",
+          "id": "log_57_1790467200000",
           "round": 6,
           "message": "Revealed News Travels Faster."
         },
         {
-          "id": "log_58_1790467200000",
+          "id": "log_56_1790467200000",
           "round": 6,
           "message": "Round 6 begins."
         },
         {
-          "id": "log_57_1790467200000",
-          "round": 5,
-          "message": "All Stewards have acted. Ready for End of Round."
-        },
-        {
-          "id": "log_56_1790467200000",
-          "round": 5,
-          "message": "Player 2's turn begins."
-        },
-        {
           "id": "log_55_1790467200000",
           "round": 5,
-          "message": "Acknowledged Arrival: Dark Decay to Light."
+          "message": "All Stewards have acted. Ready for End of Round."
         },
         {
           "id": "log_54_1790467200000",
           "round": 5,
-          "message": "Acknowledged Arrival: Hearthbound Circle."
+          "message": "Player 2's turn begins."
         },
         {
           "id": "log_53_1790467200000",
           "round": 5,
-          "message": "Revealed Dark Decay to Light."
+          "message": "Acknowledged Arrival: Dark Decay to Light."
         },
         {
           "id": "log_52_1790467200000",
           "round": 5,
-          "message": "Revealed Hearthbound Circle."
+          "message": "Acknowledged Arrival: Hearthbound Circle."
         },
         {
           "id": "log_51_1790467200000",
           "round": 5,
-          "message": "Season 2 seeding complete. Ready to reveal Encounters."
+          "message": "Revealed Dark Decay to Light."
         },
         {
           "id": "log_50_1790467200000",
           "round": 5,
-          "message": "player_1 seeded three hidden Encounter Cards."
+          "message": "Revealed Hearthbound Circle."
         },
         {
           "id": "log_49_1790467200000",
           "round": 5,
-          "message": "Applied effect: Season 2 Burden: Houses, Not Homes."
+          "message": "Season 2 seeding complete. Ready to reveal Encounters."
         },
         {
           "id": "log_48_1790467200000",
           "round": 5,
-          "message": "Applied effect: Season 2 Burden: River Breaks Its Banks."
+          "message": "player_1 seeded three hidden Encounter Cards."
         },
         {
           "id": "log_47_1790467200000",
           "round": 5,
-          "message": "No effect this Season start: Promises Overstretched."
+          "message": "Applied effect: Season 2 Burden: Houses, Not Homes."
         },
         {
           "id": "log_46_1790467200000",
           "round": 5,
-          "message": "No effect this Season start: Omen of Discontent."
+          "message": "Applied effect: Season 2 Burden: River Breaks Its Banks."
         },
         {
           "id": "log_45_1790467200000",
           "round": 5,
-          "message": "Round 5 begins."
+          "message": "No effect this Season start: Promises Overstretched."
         },
         {
           "id": "log_44_1790467200000",
-          "round": 4,
-          "message": "All Stewards have acted. Ready for End of Round."
+          "round": 5,
+          "message": "Applied effect: Season 2 Burden: Omen of Discontent."
         },
         {
           "id": "log_43_1790467200000",
-          "round": 4,
-          "message": "Player 2's turn begins."
+          "round": 5,
+          "message": "Round 5 begins."
         },
         {
           "id": "log_42_1790467200000",
           "round": 4,
-          "message": "Acknowledged Boon: Pickaxe Reveals Passage."
+          "message": "All Stewards have acted. Ready for End of Round."
         },
         {
           "id": "log_41_1790467200000",
           "round": 4,
-          "message": "Applied effect: Revealed Houses, Not Homes."
+          "message": "Player 2's turn begins."
         },
         {
           "id": "log_40_1790467200000",
           "round": 4,
-          "message": "Revealed Pickaxe Reveals Passage."
+          "message": "Acknowledged Boon: Pickaxe Reveals Passage."
         },
         {
           "id": "log_39_1790467200000",
           "round": 4,
-          "message": "Revealed Houses, Not Homes."
+          "message": "Applied effect: Revealed Houses, Not Homes."
         },
         {
           "id": "log_38_1790467200000",
           "round": 4,
-          "message": "Applied effect: Arrival expired: Blade to Herb."
+          "message": "Revealed Pickaxe Reveals Passage."
         },
         {
           "id": "log_37_1790467200000",
           "round": 4,
-          "message": "Target Card 4 used map-coordinate fallback after its W tie direction remained tied."
+          "message": "Revealed Houses, Not Homes."
         },
         {
           "id": "log_36_1790467200000",
           "round": 4,
-          "message": "Applied effect: Arrival expired: No Soul Goes Unserved."
+          "message": "Applied effect: Arrival expired: Blade to Herb."
         },
         {
           "id": "log_35_1790467200000",
           "round": 4,
-          "message": "Round 4 begins."
+          "message": "Applied effect: Arrival expired: No Soul Goes Unserved."
         },
         {
           "id": "log_34_1790467200000",
           "round": 4,
-          "message": "Arrival expired unresolved: Blade to Herb. The Target Deck selects a tile to receive 1 Strain."
+          "message": "Round 4 begins."
         },
         {
           "id": "log_33_1790467200000",
           "round": 4,
-          "message": "Target Card 19 used map-coordinate fallback after its NE tie direction remained tied."
+          "message": "Arrival expired unresolved: Blade to Herb. The Target Deck selects a tile to receive 1 Strain."
         },
         {
           "id": "log_32_1790467200000",
@@ -7350,29 +7423,29 @@
     "campaign": {
       "version": 3,
       "deck": [
-        1,
-        2,
-        11,
+        7,
+        13,
+        16,
         6,
-        5,
-        13
+        3,
+        10
       ],
       "box": [
-        18,
-        12,
-        7,
-        21,
-        19,
-        8,
-        10,
-        16,
-        4,
         14,
-        15,
-        9,
+        18,
+        1,
+        11,
+        17,
+        21,
         20,
-        3,
-        17
+        8,
+        5,
+        2,
+        9,
+        19,
+        15,
+        12,
+        4
       ],
       "games": []
     }
@@ -7484,7 +7557,7 @@
             "hexIds": [
               "A6"
             ],
-            "strain": 1,
+            "strain": 0,
             "support": {
               "passive": false,
               "singleUse": false,
@@ -7499,7 +7572,7 @@
             "hexIds": [
               "A7"
             ],
-            "strain": 0,
+            "strain": 1,
             "support": {
               "passive": false,
               "singleUse": false,
@@ -7760,10 +7833,10 @@
                 "afterCount": 6
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": true,
-            "directionCandidateCount": 2,
-            "coordinateFallbackUsed": true,
+            "directionCandidateCount": 1,
+            "coordinateFallbackUsed": false,
             "selectedTileId": "tile_1_c01_lumber_yard",
             "selectedHexIds": [
               "G1"
@@ -7778,8 +7851,8 @@
             "goldenGardenPrevented": false
           },
           {
-            "id": "effect_36_1790467200000:draw:2",
-            "effectId": "effect_36_1790467200000",
+            "id": "effect_35_1790467200000:draw:2",
+            "effectId": "effect_35_1790467200000",
             "sourceId": "arrival_from_blade_swingers_to_herb_stringers",
             "role": "target",
             "cardId": 4,
@@ -7814,13 +7887,13 @@
                 "afterCount": 5
               }
             ],
-            "direction": "W",
+            "direction": "SW",
             "directionRequired": true,
-            "directionCandidateCount": 2,
-            "coordinateFallbackUsed": true,
-            "selectedTileId": "tile_4_c04_farmstead",
+            "directionCandidateCount": 1,
+            "coordinateFallbackUsed": false,
+            "selectedTileId": "tile_5_c05_cabin",
             "selectedHexIds": [
-              "A6"
+              "A7"
             ],
             "supportedWillPrevent": false,
             "goldenGardenWillPrevent": false,
@@ -7832,8 +7905,8 @@
             "goldenGardenPrevented": false
           },
           {
-            "id": "effect_42_1790467200000:draw:3",
-            "effectId": "effect_42_1790467200000",
+            "id": "effect_40_1790467200000:draw:3",
+            "effectId": "effect_40_1790467200000",
             "sourceId": "burden_too_many_houses_too_little_homes",
             "role": "target",
             "cardId": 28,
@@ -7943,61 +8016,57 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
-          "id": "log_43_1790467200000",
+          "id": "log_41_1790467200000",
           "round": 4,
           "message": "Acknowledged Boon: Pickaxe Reveals Passage."
         },
         {
-          "id": "log_42_1790467200000",
+          "id": "log_40_1790467200000",
           "round": 4,
           "message": "Applied effect: Revealed Houses, Not Homes."
         },
         {
-          "id": "log_41_1790467200000",
+          "id": "log_39_1790467200000",
           "round": 4,
           "message": "Revealed Pickaxe Reveals Passage."
         },
         {
-          "id": "log_40_1790467200000",
+          "id": "log_38_1790467200000",
           "round": 4,
           "message": "Revealed The Golden Vial."
         },
         {
-          "id": "log_39_1790467200000",
+          "id": "log_37_1790467200000",
           "round": 4,
           "message": "Revealed Houses, Not Homes."
         },
         {
-          "id": "log_38_1790467200000",
+          "id": "log_36_1790467200000",
           "round": 4,
           "message": "Applied effect: Arrival expired: Blade to Herb."
         },
         {
-          "id": "log_37_1790467200000",
-          "round": 4,
-          "message": "Target Card 4 used map-coordinate fallback after its W tie direction remained tied."
-        },
-        {
-          "id": "log_36_1790467200000",
+          "id": "log_35_1790467200000",
           "round": 4,
           "message": "Applied effect: Arrival expired: No Soul Goes Unserved."
         },
         {
-          "id": "log_35_1790467200000",
+          "id": "log_34_1790467200000",
           "round": 4,
           "message": "Round 4 begins."
         },
         {
-          "id": "log_34_1790467200000",
-          "round": 4,
-          "message": "Arrival expired unresolved: Blade to Herb. The Target Deck selects a tile to receive 1 Strain."
-        },
-        {
           "id": "log_33_1790467200000",
           "round": 4,
-          "message": "Target Card 19 used map-coordinate fallback after its NE tie direction remained tied."
+          "message": "Arrival expired unresolved: Blade to Herb. The Target Deck selects a tile to receive 1 Strain."
         },
         {
           "id": "log_32_1790467200000",
@@ -8164,29 +8233,29 @@
     "campaign": {
       "version": 3,
       "deck": [
-        11,
-        12,
-        20,
-        6,
-        19,
-        18,
-        1,
-        5,
-        3,
-        15,
+        7,
+        2,
         9,
-        13
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [
-        2,
+        14,
+        18,
+        1,
+        11,
         17,
         21,
-        7,
-        4,
-        10,
+        20,
         8,
-        16,
-        14
+        5
       ],
       "games": []
     }
@@ -8586,6 +8655,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_24_1790467200000",
@@ -8712,29 +8787,29 @@
     "campaign": {
       "version": 3,
       "deck": [
-        10,
-        5,
-        11,
-        1,
-        6,
-        15,
         7,
-        17,
-        4
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [
-        9,
+        14,
+        18,
+        1,
+        11,
+        17,
         21,
         20,
-        12,
         8,
-        3,
-        13,
-        18,
+        5,
         2,
-        19,
-        16,
-        14
+        9,
+        19
       ],
       "games": []
     }
@@ -9100,6 +9175,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_20_1790467200000",
@@ -9206,27 +9287,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        11,
-        12,
-        3,
-        6,
-        13,
-        8,
-        2,
-        19,
-        10,
-        17,
-        15,
-        5,
-        4,
-        21,
+        7,
+        14,
         18,
         1,
-        14,
-        7,
-        16,
+        11,
+        17,
+        21,
+        20,
+        8,
+        5,
+        2,
         9,
-        20
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -9582,7 +9663,7 @@
                   "afterCount": 2
                 }
               ],
-              "direction": "NE",
+              "direction": "N",
               "directionRequired": true,
               "directionCandidateCount": 1,
               "coordinateFallbackUsed": false,
@@ -9696,7 +9777,7 @@
                 "afterCount": 2
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": true,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -9768,6 +9849,12 @@
         },
         "seasonSnapshots": {},
         "violatedVowReasons": []
+      },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
       },
       "log": [
         {
@@ -9900,27 +9987,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        10,
-        14,
-        5,
         7,
-        12,
-        13,
+        14,
         18,
-        16,
-        2,
-        3,
+        1,
+        11,
+        17,
         21,
+        20,
+        8,
+        5,
+        2,
         9,
         19,
-        11,
-        6,
-        1,
-        4,
         15,
-        8,
-        17,
-        20
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -10276,7 +10363,7 @@
                   "afterCount": 2
                 }
               ],
-              "direction": "NE",
+              "direction": "N",
               "directionRequired": true,
               "directionCandidateCount": 1,
               "coordinateFallbackUsed": false,
@@ -10390,7 +10477,7 @@
                 "afterCount": 2
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": true,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -10462,6 +10549,12 @@
         },
         "seasonSnapshots": {},
         "violatedVowReasons": []
+      },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
       },
       "log": [
         {
@@ -10594,27 +10687,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        2,
-        12,
-        11,
-        20,
-        4,
-        8,
-        14,
-        16,
-        17,
-        15,
-        18,
-        5,
-        21,
-        13,
         7,
+        14,
+        18,
         1,
-        10,
-        19,
-        3,
+        11,
+        17,
+        21,
+        20,
+        8,
+        5,
+        2,
         9,
-        6
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -10940,6 +11033,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_14_1790467200000",
@@ -11016,27 +11115,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        6,
-        18,
-        19,
-        8,
-        15,
-        3,
-        12,
-        16,
-        11,
+        7,
         14,
+        18,
+        1,
+        11,
+        17,
         21,
         20,
+        8,
         5,
+        2,
         9,
+        19,
+        15,
+        12,
         4,
-        1,
-        7,
-        17,
-        10,
         13,
-        2
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -11134,7 +11233,7 @@
             "hexIds": [
               "F1"
             ],
-            "strain": 2,
+            "strain": 1,
             "support": {
               "passive": false,
               "singleUse": false,
@@ -11164,7 +11263,7 @@
             "hexIds": [
               "A7"
             ],
-            "strain": 0,
+            "strain": 1,
             "support": {
               "passive": false,
               "singleUse": false,
@@ -11179,7 +11278,7 @@
             "hexIds": [
               "B6"
             ],
-            "strain": 1,
+            "strain": 2,
             "support": {
               "passive": false,
               "singleUse": false,
@@ -11427,11 +11526,11 @@
                   "preference": "Unstrained",
                   "applied": true,
                   "beforeCount": 3,
-                  "afterCount": 2
+                  "afterCount": 1
                 }
               ],
-              "direction": "E",
-              "directionRequired": true,
+              "direction": "NE",
+              "directionRequired": false,
               "directionCandidateCount": 1,
               "coordinateFallbackUsed": false,
               "selectedTileId": "tile_2_c05_cabin",
@@ -11475,13 +11574,13 @@
                 {
                   "filter": "strain",
                   "preference": "Unstrained",
-                  "applied": true,
+                  "applied": false,
                   "beforeCount": 2,
-                  "afterCount": 1
+                  "afterCount": 2
                 }
               ],
-              "direction": "SW",
-              "directionRequired": false,
+              "direction": "S",
+              "directionRequired": true,
               "directionCandidateCount": 1,
               "coordinateFallbackUsed": false,
               "selectedTileId": "tile_5_c05_cabin",
@@ -11730,7 +11829,7 @@
                 "afterCount": 3
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": true,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -11784,13 +11883,13 @@
                 "afterCount": 6
               }
             ],
-            "direction": "W",
+            "direction": "SW",
             "directionRequired": true,
-            "directionCandidateCount": 2,
-            "coordinateFallbackUsed": true,
-            "selectedTileId": "tile_7_c05_cabin",
+            "directionCandidateCount": 1,
+            "coordinateFallbackUsed": false,
+            "selectedTileId": "tile_5_c05_cabin",
             "selectedHexIds": [
-              "A5"
+              "A7"
             ],
             "supportedWillPrevent": false,
             "goldenGardenWillPrevent": false,
@@ -11802,8 +11901,8 @@
             "goldenGardenPrevented": false
           },
           {
-            "id": "effect_47_1790467200000:draw:3",
-            "effectId": "effect_47_1790467200000",
+            "id": "effect_46_1790467200000:draw:3",
+            "effectId": "effect_46_1790467200000",
             "sourceId": "arrival_from_blade_swingers_to_herb_stringers",
             "role": "target",
             "cardId": 28,
@@ -11849,98 +11948,98 @@
             "manualChoice": true
           },
           {
-            "id": "effect_56_1790467200000:draw:4",
-            "effectId": "effect_56_1790467200000",
-            "sourceId": "burden_too_many_houses_too_little_homes",
+            "id": "effect_54_1790467200000:draw:4",
+            "effectId": "effect_54_1790467200000",
+            "sourceId": "burden_ill_omen_of_discontent",
             "role": "target",
             "cardId": 22,
-            "originalEligibleCount": 3,
+            "originalEligibleCount": 1,
             "filters": [
               {
                 "filter": "class",
                 "preference": "Special / Golden",
                 "applied": false,
-                "beforeCount": 3,
-                "afterCount": 3
+                "beforeCount": 1,
+                "afterCount": 1
               },
               {
                 "filter": "side",
                 "preference": "Either",
                 "applied": true,
-                "beforeCount": 3,
-                "afterCount": 3
+                "beforeCount": 1,
+                "afterCount": 1
               },
               {
                 "filter": "adjacency",
                 "preference": "3+",
                 "applied": false,
-                "beforeCount": 3,
-                "afterCount": 3
+                "beforeCount": 1,
+                "afterCount": 1
               },
               {
                 "filter": "strain",
                 "preference": "Unstrained",
                 "applied": true,
-                "beforeCount": 3,
-                "afterCount": 2
+                "beforeCount": 1,
+                "afterCount": 1
               }
             ],
-            "direction": "W",
-            "directionRequired": true,
+            "direction": "SW",
+            "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_5_c05_cabin",
+            "selectedTileId": "tile_6_c15_path",
             "selectedHexIds": [
-              "A7"
+              "B6"
             ],
             "supportedWillPrevent": false,
             "goldenGardenWillPrevent": false,
             "printedFallbackUsed": false,
             "plannedStrain": 1,
-            "strainApplied": false,
-            "actualStrainPlaced": 0,
+            "strainApplied": true,
+            "actualStrainPlaced": 1,
             "supportedPrevented": false,
             "goldenGardenPrevented": false
           },
           {
-            "id": "effect_56_1790467200000:draw:5",
-            "effectId": "effect_56_1790467200000",
+            "id": "effect_55_1790467200000:draw:5",
+            "effectId": "effect_55_1790467200000",
             "sourceId": "burden_too_many_houses_too_little_homes",
             "role": "target",
             "cardId": 30,
-            "originalEligibleCount": 2,
+            "originalEligibleCount": 3,
             "filters": [
               {
                 "filter": "class",
                 "preference": "Any",
                 "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
+                "beforeCount": 3,
+                "afterCount": 3
               },
               {
                 "filter": "side",
                 "preference": "Any",
                 "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
+                "beforeCount": 3,
+                "afterCount": 3
               },
               {
                 "filter": "adjacency",
                 "preference": "Any",
                 "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
+                "beforeCount": 3,
+                "afterCount": 3
               },
               {
                 "filter": "strain",
                 "preference": "Any",
                 "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
+                "beforeCount": 3,
+                "afterCount": 3
               }
             ],
             "directionRequired": false,
-            "directionCandidateCount": 2,
+            "directionCandidateCount": 3,
             "coordinateFallbackUsed": false,
             "selectedTileId": "",
             "selectedHexIds": [],
@@ -11986,7 +12085,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -12192,16 +12291,16 @@
                 "preference": "Unstrained",
                 "applied": true,
                 "beforeCount": 3,
-                "afterCount": 2
+                "afterCount": 1
               }
             ],
             "direction": "NW",
-            "directionRequired": true,
-            "directionCandidateCount": 2,
-            "coordinateFallbackUsed": true,
-            "selectedTileId": "tile_6_c15_path",
+            "directionRequired": false,
+            "directionCandidateCount": 1,
+            "coordinateFallbackUsed": false,
+            "selectedTileId": "tile_7_c05_cabin",
             "selectedHexIds": [
-              "B6"
+              "A5"
             ],
             "supportedWillPrevent": false,
             "goldenGardenWillPrevent": false,
@@ -12218,48 +12317,48 @@
             "sourceId": "burden_ill_omen_of_discontent",
             "role": "target",
             "cardId": 14,
-            "originalEligibleCount": 2,
+            "originalEligibleCount": 1,
             "filters": [
               {
                 "filter": "class",
                 "preference": "Core",
                 "applied": true,
-                "beforeCount": 2,
-                "afterCount": 2
+                "beforeCount": 1,
+                "afterCount": 1
               },
               {
                 "filter": "side",
                 "preference": "Basic",
                 "applied": true,
-                "beforeCount": 2,
-                "afterCount": 2
+                "beforeCount": 1,
+                "afterCount": 1
               },
               {
                 "filter": "adjacency",
                 "preference": "3+",
                 "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
+                "beforeCount": 1,
+                "afterCount": 1
               },
               {
                 "filter": "strain",
                 "preference": "Unstrained",
                 "applied": false,
-                "beforeCount": 2,
-                "afterCount": 2
+                "beforeCount": 1,
+                "afterCount": 1
               }
             ],
-            "direction": "NE",
-            "directionRequired": true,
+            "direction": "N",
+            "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
-            "selectedTileId": "tile_3_c15_path",
+            "selectedTileId": "tile_6_c15_path",
             "selectedHexIds": [
-              "F1"
+              "B6"
             ],
             "supportedWillPrevent": false,
             "goldenGardenWillPrevent": false,
-            "printedFallbackUsed": true,
+            "printedFallbackUsed": false,
             "plannedStrain": 1,
             "strainApplied": true,
             "actualStrainPlaced": 1,
@@ -12300,11 +12399,11 @@
                 "preference": "Unstrained",
                 "applied": true,
                 "beforeCount": 3,
-                "afterCount": 2
+                "afterCount": 1
               }
             ],
-            "direction": "E",
-            "directionRequired": true,
+            "direction": "NE",
+            "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
             "selectedTileId": "tile_2_c05_cabin",
@@ -12348,13 +12447,13 @@
               {
                 "filter": "strain",
                 "preference": "Unstrained",
-                "applied": true,
+                "applied": false,
                 "beforeCount": 2,
-                "afterCount": 1
+                "afterCount": 2
               }
             ],
-            "direction": "SW",
-            "directionRequired": false,
+            "direction": "S",
+            "directionRequired": true,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
             "selectedTileId": "tile_5_c05_cabin",
@@ -12423,7 +12522,7 @@
         "recorded": false,
         "arrivalsRevealed": 5,
         "arrivalsCompleted": 0,
-        "arrivalsExpired": 2,
+        "arrivalsExpired": 4,
         "burdensRevealed": 6,
         "burdensResolved": 0,
         "arrivalsCompletedBySeason": {
@@ -12508,6 +12607,12 @@
         },
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 1
+      },
       "log": [
         {
           "id": "log_81_1790467200000",
@@ -12518,11 +12623,6 @@
           "id": "log_81_1790467200000",
           "round": 9,
           "message": "Farmstead spread 1 Strain after becoming Overstrained."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 9,
-          "message": "Target Card 24 used map-coordinate fallback after its NW tie direction remained tied."
         },
         {
           "id": "log_81_1790467200000",
@@ -12595,194 +12695,189 @@
           "message": "Arrival expired unresolved: Hearthbound Circle. The Target Deck selects a tile to receive 1 Strain."
         },
         {
-          "id": "log_81_1790467200000",
-          "round": 7,
-          "message": "All Stewards have acted. Ready for End of Round."
-        },
-        {
           "id": "log_80_1790467200000",
           "round": 7,
-          "message": "Player 2's turn begins."
+          "message": "All Stewards have acted. Ready for End of Round."
         },
         {
           "id": "log_79_1790467200000",
           "round": 7,
-          "message": "Acknowledged Boon: Apprentice Steward."
+          "message": "Player 2's turn begins."
         },
         {
           "id": "log_78_1790467200000",
           "round": 7,
-          "message": "Applied effect: Revealed Help Stands."
+          "message": "Acknowledged Boon: Apprentice Steward."
         },
         {
           "id": "log_77_1790467200000",
           "round": 7,
-          "message": "Revealed Apprentice Steward."
+          "message": "Applied effect: Revealed Help Stands."
         },
         {
           "id": "log_76_1790467200000",
           "round": 7,
-          "message": "Revealed Help Stands."
+          "message": "Revealed Apprentice Steward."
         },
         {
           "id": "log_75_1790467200000",
           "round": 7,
-          "message": "Round 7 begins."
+          "message": "Revealed Help Stands."
         },
         {
           "id": "log_74_1790467200000",
-          "round": 6,
-          "message": "All Stewards have acted. Ready for End of Round."
+          "round": 7,
+          "message": "Round 7 begins."
         },
         {
           "id": "log_73_1790467200000",
           "round": 6,
-          "message": "Player 2's turn begins."
+          "message": "All Stewards have acted. Ready for End of Round."
         },
         {
           "id": "log_72_1790467200000",
           "round": 6,
-          "message": "No effect this reveal: Foundations Remember War."
+          "message": "Player 2's turn begins."
         },
         {
           "id": "log_71_1790467200000",
           "round": 6,
-          "message": "Acknowledged Arrival: News Travels Faster."
+          "message": "No effect this reveal: Foundations Remember War."
         },
         {
           "id": "log_70_1790467200000",
           "round": 6,
-          "message": "Revealed Foundations Remember War."
+          "message": "Acknowledged Arrival: News Travels Faster."
         },
         {
           "id": "log_69_1790467200000",
           "round": 6,
-          "message": "Revealed News Travels Faster."
+          "message": "Revealed Foundations Remember War."
         },
         {
           "id": "log_68_1790467200000",
           "round": 6,
-          "message": "Round 6 begins."
+          "message": "Revealed News Travels Faster."
         },
         {
           "id": "log_67_1790467200000",
-          "round": 5,
-          "message": "All Stewards have acted. Ready for End of Round."
+          "round": 6,
+          "message": "Round 6 begins."
         },
         {
           "id": "log_66_1790467200000",
           "round": 5,
-          "message": "Player 2's turn begins."
+          "message": "All Stewards have acted. Ready for End of Round."
         },
         {
           "id": "log_65_1790467200000",
           "round": 5,
-          "message": "Acknowledged Arrival: Dark Decay to Light."
+          "message": "Player 2's turn begins."
         },
         {
           "id": "log_64_1790467200000",
           "round": 5,
-          "message": "Acknowledged Arrival: Hearthbound Circle."
+          "message": "Acknowledged Arrival: Dark Decay to Light."
         },
         {
           "id": "log_63_1790467200000",
           "round": 5,
-          "message": "Revealed Dark Decay to Light."
+          "message": "Acknowledged Arrival: Hearthbound Circle."
         },
         {
           "id": "log_62_1790467200000",
           "round": 5,
-          "message": "Revealed Hearthbound Circle."
+          "message": "Revealed Dark Decay to Light."
         },
         {
           "id": "log_61_1790467200000",
           "round": 5,
-          "message": "Season 2 seeding complete. Ready to reveal Encounters."
+          "message": "Revealed Hearthbound Circle."
         },
         {
           "id": "log_60_1790467200000",
           "round": 5,
-          "message": "player_1 seeded three hidden Encounter Cards."
+          "message": "Season 2 seeding complete. Ready to reveal Encounters."
         },
         {
           "id": "log_59_1790467200000",
           "round": 5,
-          "message": "No effect this Season start: Promises Overstretched."
+          "message": "player_1 seeded three hidden Encounter Cards."
         },
         {
           "id": "log_58_1790467200000",
           "round": 5,
-          "message": "Applied effect: Season 2 Burden: River Breaks Its Banks."
+          "message": "No effect this Season start: Promises Overstretched."
         },
         {
           "id": "log_57_1790467200000",
           "round": 5,
-          "message": "Applied effect: Season 2 Burden: Houses, Not Homes."
+          "message": "Applied effect: Season 2 Burden: River Breaks Its Banks."
         },
         {
           "id": "log_56_1790467200000",
           "round": 5,
-          "message": "No effect this Season start: Omen of Discontent."
+          "message": "Applied effect: Season 2 Burden: Houses, Not Homes."
         },
         {
           "id": "log_55_1790467200000",
           "round": 5,
-          "message": "Round 5 begins."
+          "message": "Applied effect: Season 2 Burden: Omen of Discontent."
         },
         {
           "id": "log_54_1790467200000",
-          "round": 4,
-          "message": "All Stewards have acted. Ready for End of Round."
+          "round": 5,
+          "message": "Round 5 begins."
         },
         {
           "id": "log_53_1790467200000",
           "round": 4,
-          "message": "Player 2's turn begins."
+          "message": "All Stewards have acted. Ready for End of Round."
         },
         {
           "id": "log_52_1790467200000",
           "round": 4,
-          "message": "Acknowledged Boon: Rain Brings Bounty."
+          "message": "Player 2's turn begins."
         },
         {
           "id": "log_51_1790467200000",
           "round": 4,
-          "message": "No effect this reveal: Promises Overstretched."
+          "message": "Acknowledged Boon: Rain Brings Bounty."
         },
         {
           "id": "log_50_1790467200000",
           "round": 4,
-          "message": "Revealed Rain Brings Bounty."
+          "message": "No effect this reveal: Promises Overstretched."
         },
         {
           "id": "log_49_1790467200000",
           "round": 4,
-          "message": "Revealed Promises Overstretched."
+          "message": "Revealed Rain Brings Bounty."
         },
         {
           "id": "log_48_1790467200000",
           "round": 4,
-          "message": "Applied effect: Arrival expired: Blade to Herb."
+          "message": "Revealed Promises Overstretched."
         },
         {
           "id": "log_47_1790467200000",
           "round": 4,
-          "message": "Applied effect: Arrival expired: No Soul Goes Unserved."
+          "message": "Applied effect: Arrival expired: Blade to Herb."
         },
         {
           "id": "log_46_1790467200000",
           "round": 4,
-          "message": "Round 4 begins."
+          "message": "Applied effect: Arrival expired: No Soul Goes Unserved."
         },
         {
           "id": "log_45_1790467200000",
           "round": 4,
-          "message": "Arrival expired unresolved: Blade to Herb. The Target Deck selects a tile to receive 1 Strain."
+          "message": "Round 4 begins."
         },
         {
           "id": "log_44_1790467200000",
           "round": 4,
-          "message": "Target Card 4 used map-coordinate fallback after its W tie direction remained tied."
+          "message": "Arrival expired unresolved: Blade to Herb. The Target Deck selects a tile to receive 1 Strain."
         },
         {
           "id": "log_43_1790467200000",
@@ -12908,33 +13003,43 @@
           "id": "log_19_1790467200000",
           "round": 1,
           "message": "Activated Farmstead."
+        },
+        {
+          "id": "log_18_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Path at B6."
+        },
+        {
+          "id": "log_17_1790467200000",
+          "round": 1,
+          "message": "Player 2 placed Cabin at A7."
         }
       ]
     },
     "campaign": {
       "version": 3,
       "deck": [
-        21,
-        10,
-        15,
-        6,
-        19,
-        8,
-        2,
-        17,
-        20,
-        18,
-        3,
-        16,
-        14,
-        5,
-        4,
-        1,
-        12,
-        11,
         7,
+        14,
+        18,
+        1,
+        11,
+        17,
+        21,
+        20,
+        8,
+        5,
+        2,
         9,
-        13
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -13630,7 +13735,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -13684,7 +13789,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "W",
+            "direction": "SW",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -13785,7 +13890,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "W",
+            "direction": "SW",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -13889,7 +13994,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -13945,8 +14050,8 @@
             ],
             "direction": "NW",
             "directionRequired": true,
-            "directionCandidateCount": 2,
-            "coordinateFallbackUsed": true,
+            "directionCandidateCount": 1,
+            "coordinateFallbackUsed": false,
             "selectedTileId": "tile_17_c19_bridge",
             "selectedHexIds": [
               "D1"
@@ -14230,6 +14335,12 @@
         },
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_81_1790467200000",
@@ -14504,11 +14615,6 @@
         {
           "id": "log_81_1790467200000",
           "round": 11,
-          "message": "Target Card 17 used map-coordinate fallback after its NW tie direction remained tied."
-        },
-        {
-          "id": "log_81_1790467200000",
-          "round": 11,
           "message": "Arrival expired unresolved: News Travels Faster. The Target Deck selects a tile to receive 1 Strain."
         },
         {
@@ -14630,33 +14736,38 @@
           "id": "log_81_1790467200000",
           "round": 9,
           "message": "Player 2 placed Gathering Outpost at A3."
+        },
+        {
+          "id": "log_81_1790467200000",
+          "round": 9,
+          "message": "Gathering Outpost produced resources."
         }
       ]
     },
     "campaign": {
       "version": 3,
       "deck": [
-        20,
-        18,
-        6,
-        8,
         7,
-        5,
-        19,
-        15,
-        17,
-        12,
-        21,
         14,
-        4,
-        16,
-        10,
+        18,
         1,
         11,
-        13,
+        17,
+        21,
+        20,
+        8,
+        5,
         2,
         9,
-        3
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -15348,7 +15459,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -15402,7 +15513,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "W",
+            "direction": "SW",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -15503,7 +15614,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "W",
+            "direction": "SW",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -15607,7 +15718,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -15873,7 +15984,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -15927,7 +16038,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "E",
+            "direction": "NE",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -16077,6 +16188,12 @@
           }
         },
         "violatedVowReasons": []
+      },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 1
       },
       "log": [
         {
@@ -16484,27 +16601,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        2,
-        19,
-        4,
-        8,
-        20,
         7,
-        5,
-        11,
-        18,
         14,
-        10,
-        16,
-        12,
-        13,
-        3,
+        18,
         1,
-        9,
-        21,
-        6,
+        11,
         17,
-        15
+        21,
+        20,
+        8,
+        5,
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -17126,7 +17243,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -17180,7 +17297,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "W",
+            "direction": "SW",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -17281,7 +17398,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "W",
+            "direction": "SW",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -17385,7 +17502,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -17615,6 +17732,12 @@
           }
         },
         "violatedVowReasons": []
+      },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 1
       },
       "log": [
         {
@@ -18022,27 +18145,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        3,
-        15,
-        20,
-        6,
-        18,
-        8,
-        12,
-        19,
         7,
-        16,
-        2,
-        5,
         14,
-        11,
-        4,
+        18,
         1,
-        9,
-        13,
-        10,
+        11,
         17,
-        21
+        21,
+        20,
+        8,
+        5,
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -18599,7 +18722,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -18653,7 +18776,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "W",
+            "direction": "SW",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -18754,7 +18877,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "W",
+            "direction": "SW",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -18858,7 +18981,7 @@
                 "afterCount": 1
               }
             ],
-            "direction": "NE",
+            "direction": "N",
             "directionRequired": false,
             "directionCandidateCount": 1,
             "coordinateFallbackUsed": false,
@@ -19152,6 +19275,12 @@
           }
         },
         "violatedVowReasons": []
+      },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 1
       },
       "log": [
         {
@@ -19559,27 +19688,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        2,
-        6,
-        12,
-        20,
-        19,
-        18,
-        4,
-        16,
-        14,
         7,
-        17,
-        21,
-        8,
-        15,
-        5,
+        14,
+        18,
         1,
         11,
-        3,
-        10,
+        17,
+        21,
+        20,
+        8,
+        5,
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
         13,
-        9
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -19848,6 +19977,12 @@
         "seasonSnapshots": {},
         "violatedVowReasons": []
       },
+      "questRun": {
+        "cardNumber": 7,
+        "moments": [],
+        "broken": [],
+        "peakOverstrained": 0
+      },
       "log": [
         {
           "id": "log_2_1790467200000",
@@ -19864,27 +19999,27 @@
     "campaign": {
       "version": 3,
       "deck": [
-        15,
-        10,
-        2,
-        6,
-        12,
-        8,
-        11,
-        19,
-        4,
         7,
-        18,
-        20,
-        17,
-        13,
-        3,
-        1,
         14,
-        5,
-        16,
+        18,
+        1,
+        11,
+        17,
         21,
-        9
+        20,
+        8,
+        5,
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [],
       "games": []
@@ -19903,29 +20038,29 @@
     "campaign": {
       "version": 3,
       "deck": [
-        13,
-        15,
         7,
-        3,
-        10,
-        14,
-        9,
-        6,
-        5,
-        19,
-        16,
-        4,
+        11,
+        17,
+        21,
         20,
         8,
-        17,
-        18,
-        1,
-        11
+        5,
+        2,
+        9,
+        19,
+        15,
+        12,
+        4,
+        13,
+        16,
+        6,
+        3,
+        10
       ],
       "box": [
-        21,
-        12,
-        2
+        14,
+        18,
+        1
       ],
       "games": []
     }

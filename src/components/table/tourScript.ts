@@ -11,6 +11,7 @@ import { skipDeckReorder } from "../../engine/deckReorder";
 import { getLegalPlacementHexes } from "../../engine/placementRules";
 import { getHexNeighbors } from "../../engine/hex";
 import { trackLedgerTransition } from "../../engine/ledger";
+import { evaluateQuest } from "../../engine/quests";
 import { applyStrainToState } from "../../engine/strainRules";
 import { calculateFinalScore } from "../../engine/scoring";
 import { encounterById } from "../../data/encounters";
@@ -270,6 +271,17 @@ export const tourSteps: TourStep[] = [
     verb: "Resolve it",
     target: () => ({ ui: "encounters" }),
     play: (state) => { const id = state.encounters.activeBurdens.find((candidate) => canResolveBurden(state, candidate).ok); return id && state.phase === "turns" ? step(state, (current) => resolveBurden(current, id)) : null; }
+  },
+  {
+    id: "quest",
+    title: "The Quest Card",
+    skip: (state) => !state.questRun,
+    text: (state) => {
+      const quest = evaluateQuest(state);
+      if (!quest) return "";
+      return `Every game draws one Quest Card. This one is ${quest.card.theme}: an easier half, ${quest.card.top.name}, and a harder half, ${quest.card.bottom.name}. Complete either half for +20 Renown. A completed card goes into the Steward’s Ledger, and Golden Tiles and Boons unlock as the Ledger fills.`;
+    },
+    target: () => ({ ui: "quest" })
   },
   {
     id: "score",

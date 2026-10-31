@@ -789,6 +789,25 @@
 .compact-confirm { display: flex; gap: 6px; }
 .compact-confirm button:not(.rail-primary) { border: 1px solid #c5bc9a; background: #efe6c8; }
 
+.compact-quest {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid #c9ad62;
+  border-radius: 10px;
+  background: #f5ead0;
+  color: var(--bt-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.compact-quest span { flex: none; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #6f5d2e; }
+.compact-quest strong { flex: none; font-size: 0.9rem; }
+.compact-quest small { flex: 1; min-width: 0; overflow: hidden; color: var(--bt-ink-soft); font-size: 0.78rem; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.compact-quest.is-complete { border-color: #6f8a5f; background: #e4ecd9; }
 .compact-links { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .compact-links button { width: 100%; min-height: 40px; border: 0; border-radius: 999px; background: #e7dcbc; font: inherit; cursor: pointer; }
 .rail-overlay-tray { padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid #d9cdaa; }
@@ -1233,6 +1252,7 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .table-screen[data-coach="end-turn"] .rail-end > button,
 .table-screen[data-coach="score"] .table-score,
 .table-screen[data-coach="encounters"] .rail-heading,
+.table-screen[data-coach="quest"] .rail-quest,
 .table-screen[data-coach="seed"] .table-seed-slots { position: relative; z-index: 1; border-radius: 12px; box-shadow: 0 0 0 3px #f2c94c, 0 0 22px rgba(242, 201, 76, 0.55); }
 @media (prefers-reduced-motion: no-preference) {
   .table-screen[data-coach] :is(.rail-arrival, .rail-end > button, .table-score, .rail-heading, .table-seed-slots) { animation: bt-coach-glow 1.8s ease-in-out infinite; }
@@ -1828,3 +1848,34 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .table-screen.is-side-sheet .effect-source-face .encounter-card-shell { width: 56px; }
 .table-screen.is-side-sheet .effect-source-summary .effect-rule-text { font-size: 0.92rem; }
 .table-screen.is-side-sheet .table-resolution-body h2 { font-size: 1.15rem; }
+
+/* The game's Quest Card in the side panel */
+.rail-quest {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #c9ad62;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f7efd6, #efe3bd);
+}
+.rail-quest.is-complete { border-color: #6f8a5f; box-shadow: inset 4px 0 0 #6f8a5f; }
+.rail-quest header { display: flex; align-items: start; justify-content: space-between; gap: 10px; }
+.rail-quest header > div { display: grid; gap: 1px; min-width: 0; }
+.rail-quest header span { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6f5d2e; }
+.rail-quest h2 { margin: 0; font-family: "Alegreya", Georgia, serif; font-size: 1.15rem; line-height: 1.15; color: var(--bt-ink); }
+.rail-quest .rail-quest-reward { flex: none; padding: 2px 8px; border-radius: 999px; background: var(--bt-ink); color: var(--bt-brass-light); font-size: 0.75rem; letter-spacing: 0.02em; text-transform: none; }
+.rail-quest.is-complete .rail-quest-reward { background: #4e6748; color: #f0ead8; }
+.rail-quest ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.rail-quest-half { display: grid; gap: 4px; padding-top: 6px; border-top: 1px solid rgba(111, 93, 46, 0.22); }
+.rail-quest-line { display: flex; align-items: baseline; gap: 8px; }
+.rail-quest-line strong { flex: 1; min-width: 0; font-size: 0.9rem; line-height: 1.25; color: var(--bt-ink); }
+.rail-quest-which { flex: none; width: 3.9em; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #6f5d2e; }
+.rail-quest-status { flex: none; padding: 1px 7px; border-radius: 999px; background: rgba(111, 93, 46, 0.12); font-size: 0.72rem; font-weight: 700; color: var(--bt-ink-soft); white-space: nowrap; }
+.rail-quest-status.status-met { background: #dfe8d6; color: #3c5536; }
+.rail-quest-status.status-on-track { background: #f3e2a8; color: #6a531c; }
+.rail-quest-status.status-broken { background: var(--bt-rust-light); color: var(--bt-rust); }
+.rail-quest-half.is-broken strong { color: var(--bt-ink-soft); text-decoration: line-through; text-decoration-color: rgba(130, 80, 59, 0.6); }
+.rail-quest-half p { margin: 0 0 0 calc(3.9em * 0.68 / 0.9 + 8px); font-size: 0.84rem; line-height: 1.35; color: var(--bt-ink-soft); }
+.rail-quest-half .rail-quest-targets { font-size: 0.78rem; }
+.rail-quest-targets b { color: var(--bt-ink); }
+.table-rail .rail-quest-more { justify-self: start; min-height: 32px; padding: 3px 10px; background: transparent; border-color: #c9ad62; font-size: 0.8rem; }

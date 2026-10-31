@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { evaluateQuest } from "../../engine/quests";
+import { questHalfStatus } from "../common/QuestCardView";
 import { ArrowLeft, Eye, Maximize2, Minus, Plus, Redo2, RotateCcw, RotateCw, Undo2, X } from "lucide-react";
 import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { encounterById } from "../../data/encounters";
@@ -595,6 +597,7 @@ function CompactTurn({ state, onOpenRail, onEndTurn, onReveal, onEndRound }: { s
   const steward = player ? stewardById[player.stewardId] : undefined;
   const [confirming, setConfirming] = useState(false);
   useEffect(() => setConfirming(false), [state.currentPlayerId, state.round, state.actionsRemaining]);
+  const quest = evaluateQuest(state);
   return <div className="compact-turn">
     <ul className="compact-warehouse" aria-label="Warehouse">
       {resources.map((resource) => <li key={resource} className={`res-${resource}${state.warehouse[resource] === 0 ? " is-empty" : ""}`}><GameIcon name={resource} className="compact-res-icon" /><span className="compact-res-label">{resourceLabels[resource]}</span><strong>{state.warehouse[resource]}</strong></li>)}
@@ -606,9 +609,13 @@ function CompactTurn({ state, onOpenRail, onEndTurn, onReveal, onEndRound }: { s
         : <button type="button" className="rail-secondary" onClick={() => state.actionsRemaining > 0 ? setConfirming(true) : onEndTurn()}>End turn</button>}
     </div> : state.phase === "reveal" ? <button type="button" className="rail-primary" onClick={onReveal}>Reveal encounters</button>
       : state.phase === "endRound" ? <button type="button" className="rail-primary" onClick={onEndRound}>Continue</button> : null}
+    {quest && <button type="button" className={`compact-quest${quest.complete ? " is-complete" : ""}`} onClick={onOpenRail}>
+      <span>Quest</span><strong>{quest.card.theme}</strong>
+      <small>{quest.complete ? "Complete, +20" : `${questHalfStatus(quest.card.top, quest.top, false).label} · ${questHalfStatus(quest.card.bottom, quest.bottom, false).label}`}</small>
+    </button>}
     <div className="compact-links">
       <button type="button" onClick={onOpenRail}>Encounters ({encounterCount})</button>
-      <button type="button" onClick={onOpenRail}>Power, tiles & rules</button>
+      <button type="button" onClick={onOpenRail}>{quest ? "Quest, power & rules" : "Power, tiles & rules"}</button>
     </div>
   </div>;
 }

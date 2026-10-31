@@ -7155,6 +7155,11 @@ input,
   color: var(--qv-muted-green-dark);
 }
 
+.quest-half-status.status-on-track {
+  background: rgba(138, 106, 30, 0.16);
+  color: var(--qv-brass-dark);
+}
+
 .quest-half-status.status-broken {
   background: rgba(150, 70, 40, 0.14);
   color: var(--qv-danger-rust);

@@ -75,7 +75,14 @@ export function seedSeason(input: GameState): GameState {
   return state;
 }
 
+/** The Quest Card the demo games are played with: its easier half lands, its harder half does not. */
+export const demoQuestCard = 7;
+
 export function snapshot(state: GameState | null, stewards = ["vanguard", "knight"]): PreviewSnapshot {
-  return { setup: { playerCount: state?.playerCount ?? 2, stewardIds: state?.players.map((player) => player.stewardId) ?? stewards, encounterSeed: seed }, state, campaign: createEmptyLedgerCampaign() };
+  // A fixed Ledger, with the card in play (or the demo card) on top of the deck.
+  const campaign = createEmptyLedgerCampaign(`ledger-${seed}`);
+  const top = state ? state.questRun?.cardNumber : demoQuestCard;
+  if (top) campaign.deck = [top, ...campaign.deck.filter((n) => n !== top)];
+  return { setup: { playerCount: state?.playerCount ?? 2, stewardIds: state?.players.map((player) => player.stewardId) ?? stewards, encounterSeed: seed }, state, campaign };
 }
 

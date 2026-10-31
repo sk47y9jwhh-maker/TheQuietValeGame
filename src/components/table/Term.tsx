@@ -17,7 +17,8 @@ export const glossary = {
   targetCard: { term: "Target Card", page: "18–19", text: "Strain goes where the Target Card sends it. From the tiles the effect allows, the card prefers a tile class, side, number of neighbours and Strain level in turn, skipping any preference no tile meets, then breaks ties by direction." },
   stewardPower: { term: "Steward Power", page: "19–20", text: "Each Steward's once-per-Season ability, printed on its card. Every Steward also has an Objective worth +15 Renown if met at the end." },
   population: { term: "Population", page: "21", text: "The people your settlement houses: printed on tiles and added by some passive effects. Overstrained tiles add none." },
-  renown: { term: "Renown", page: "21", text: "Your settlement's standing: printed on tiles, added by arrangements, Steward Objectives (+15 each) and Golden Tiles (+5 each). Penalties are taken from it." },
+  renown: { term: "Renown", page: "21", text: "Your settlement's standing: printed on tiles, added by arrangements, Steward Objectives (+15 each), Golden Tiles (+5 each) and a completed Quest Card (+20). Penalties are taken from it." },
+  questCard: { term: "Quest Card", page: "22", text: "One is drawn each game. Complete either half, the easier top or the harder bottom, for +20 Renown once. A completed card goes into the Steward’s Ledger, and a failed card goes to the bottom of the deck. Golden Tiles and Boons unlock at 3, 6, 9, 12 and 15 cards." },
   warehouse: { term: "Warehouse", page: "10–11", text: "The six resources every Steward shares: Wood, Stone, Metal, Food, Herbs and Goods. Each is normally capped at 15, and anything over the cap is lost." },
   interact: { term: "Interact", page: "8–10", text: "The action used to complete an Arrival or resolve a Burden. Unlike Place, Upgrade and Activate, it does not move your Steward." }
 } as const;

@@ -71,7 +71,7 @@ describe("completed settlement review", () => {
     expect(screen.getByRole("heading", { name: "Final scoring" })).toHaveFocus();
     const review = screen.getByRole("article", { name: "Completed settlement review" });
     expect(review).toHaveTextContent(`Final score${score.finalScore}`);
-    expect(review).toHaveTextContent("77 Population + 85 Renown − 70 penalties");
+    expect(review).toHaveTextContent("77 Population + 105 Renown − 70 penalties");
     expect(within(review).queryByText("In progress")).not.toBeInTheDocument();
     expect(screen.queryByRole("list", { name: "Round progression" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Record this game" }));
@@ -94,7 +94,7 @@ describe("completed settlement review", () => {
     changed.map.placedTiles.find((tile) => tile.strain < 3)!.strain += 1;
     render(<App initialPreview={{ ...finale, state: changed, campaign: recorded.campaign }} />);
     expect(screen.getByRole("button", { name: "Recorded in Ledger" })).toBeDisabled();
-    expect(screen.getByText(/The Ledger keeps the recorded score of 92/)).toBeVisible();
+    expect(screen.getByText(/The Ledger keeps the recorded score of 112/)).toBeVisible();
     expect(readLedgerCampaign().games).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: "Start another settlement" }));
     expect(screen.getByRole("alertdialog")).not.toHaveTextContent("has not been recorded");

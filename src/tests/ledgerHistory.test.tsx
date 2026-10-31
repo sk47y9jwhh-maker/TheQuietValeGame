@@ -24,7 +24,7 @@ describe("recorded settlement history", () => {
     fireEvent.keyDown(within(tabs).getByRole("tab", { name: "This game" }), { key: "ArrowRight" });
     expect(within(tabs).getByRole("tab", { name: "Settlements" })).toHaveFocus();
     expect(screen.getByRole("tabpanel", { name: "Settlements" })).toHaveTextContent("1 recorded settlement");
-    expect(screen.getByLabelText("Final score 92")).toBeVisible();
+    expect(screen.getByLabelText("Final score 112")).toBeVisible();
     expect(screen.getByRole("region", { name: "Past settlements" })).toHaveTextContent("Vanguard · Knight");
     expect(within(tabs).getAllByRole("tab").filter((tab) => tab.tabIndex === 0)).toHaveLength(1);
     fireEvent.keyDown(within(tabs).getByRole("tab", { name: "Settlements" }), { key: "End" });

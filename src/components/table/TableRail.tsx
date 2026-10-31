@@ -1,4 +1,5 @@
 import { Term } from "./Term";
+import { RailQuest } from "./RailQuest";
 import { readyEnhancers } from "./tableActions";
 import { EncounterCard } from "../common/EncounterCard";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -176,6 +177,8 @@ export function TableRail(props: TableRailProps) {
     {readySpecials.length > 0 && <section className="rail-ready" aria-label="Unlocked Special Tiles">
       {readySpecials.map((tileId) => <ReadySpecial key={tileId} tileId={tileId} canPlace={state.phase === "turns"} onPlace={() => props.onPlaceSpecial(tileId)} />)}
     </section>}
+
+    <RailQuest state={state} />
 
     {state.phase === "turns" && <EndTurn state={state} onEndTurn={props.onEndTurn} />}
     {openCard && <CardReader cardId={openCard} state={state} onClose={() => setOpenCard(null)} />}

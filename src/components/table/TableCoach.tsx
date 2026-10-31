@@ -17,7 +17,7 @@ export interface CoachTarget {
   /** A short label floating over the first lit space, e.g. "Build here". */
   label?: string;
   /** A part of the screen to glow. */
-  ui?: "arrivals" | "end-turn" | "score" | "encounters" | "seed" | "warehouse";
+  ui?: "arrivals" | "end-turn" | "score" | "encounters" | "seed" | "warehouse" | "quest";
 }
 
 /** How a walkthrough drives the table: its script, and a way to play, undo or restart a step. */

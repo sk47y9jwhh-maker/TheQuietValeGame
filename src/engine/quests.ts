@@ -26,6 +26,11 @@ export interface QuestHalfResult {
   id: QuestId;
   half: QuestHalfKey;
   status: QuestHalfStatus;
+  /**
+   * During play, whether the half would be met if the game ended now: a Final
+   * goal's check, or a kept Vow's Keep it line. Moments are met or not.
+   */
+  onTrack: boolean;
 }
 
 export interface QuestResult {
@@ -343,6 +348,8 @@ export function createQuestRun(cardNumber: number): QuestRunState {
   return { cardNumber, moments: [], broken: [], peakOverstrained: 0 };
 }
 
+const halfOf = (card: QuestCard, id: string) => (id.endsWith("T") ? card.top : card.bottom);
+
 const questId = (card: QuestCard, half: QuestHalfKey) => `${card.n}${half === "top" ? "T" : "B"}` as QuestId;
 
 /** Updates the drawn card's Moments, Vows and peak Overstrain after a change. */
@@ -363,7 +370,16 @@ export function trackQuest(state: GameState): GameState {
   }
   const next = { ...withPeak.questRun, moments, broken };
   const same = next.peakOverstrained === run.peakOverstrained && moments.length === run.moments.length && broken.length === run.broken.length;
-  return same ? state : { ...state, questRun: next };
+  if (same) return state;
+  const news = [
+    ...moments.filter((id) => !run.moments.includes(id)).map((id) => run.moments.length
+      ? `Quest Card: ${halfOf(card, id).name} is complete as well. The card still scores +20 Renown once.`
+      : `Quest Card: ${halfOf(card, id).name} is complete. The card scores +20 Renown.`),
+    ...broken.filter((id) => !run.broken.includes(id)).map((id) => `Quest Card: the Vow ${halfOf(card, id).name} is broken. ${moments.length ? "The card is already complete." : "The other half can still complete the card."}`)
+  ];
+  const stamp = Date.now();
+  const log = news.reduce((entries, message, index) => [{ id: `log_${entries.length + 1}_${stamp}_quest${index}`, round: state.round, message }, ...entries], state.log).slice(0, 80);
+  return { ...state, questRun: next, log };
 }
 
 /**
@@ -381,15 +397,19 @@ export function evaluateQuest(state: GameState): QuestResult | null {
     const check = quests[id];
     const kind = card[half];
     let status: QuestHalfStatus = "open";
+    let onTrack = false;
     if (kind.kind === "Vow") {
+      onTrack = !run.broken.includes(id) && Boolean(check.keep?.(state, b, card));
       if (run.broken.includes(id)) status = "broken";
-      else if (ended && check.keep?.(state, b, card)) status = "met";
+      else if (ended && onTrack) status = "met";
     } else if (kind.check === "Moment") {
-      if (run.moments.includes(id)) status = "met";
-    } else if (ended && check.goal?.(state, b, card)) {
-      status = "met";
+      onTrack = run.moments.includes(id);
+      if (onTrack) status = "met";
+    } else {
+      onTrack = Boolean(check.goal?.(state, b, card));
+      if (ended && onTrack) status = "met";
     }
-    return { id, half, status };
+    return { id, half, status, onTrack };
   };
   const top = result("top");
   const bottom = result("bottom");

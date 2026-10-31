@@ -6,13 +6,14 @@ import { hasEffectAdjustment } from "../src/engine/manualEffects";
 import { getLegalPlacementHexes } from "../src/engine/placementRules";
 import { createEmptyLedgerCampaign, type LedgerCampaign } from "../src/engine/ledgerCampaign";
 
-/** Example progress for an isolated scenario: the first cards of the deck, completed. */
+/** Example progress for an isolated scenario: cards from the deck completed, the card in play kept on top. */
 function withQuestCards(campaign: LedgerCampaign, count: number): LedgerCampaign {
-  return { ...campaign, deck: campaign.deck.slice(count), box: campaign.deck.slice(0, count) };
+  const [top, ...rest] = campaign.deck;
+  return { ...campaign, deck: [top, ...rest.slice(count)], box: rest.slice(0, count) };
 }
 import type { PreviewSnapshot } from "../src/app/scenarioTypes";
 import type { ScenarioId } from "../src/app/scenarioCatalog";
-import { advance, seed, seedSeason, settle, snapshot, startStewards } from "./scenario-steps";
+import { advance, demoQuestCard, seed, seedSeason, settle, snapshot, startStewards } from "./scenario-steps";
 import { carefulValueOf, playTurn } from "./showcase-bot";
 import { arrivalScene, boonScene, guildScene, protectScene, specialScene, timeScene } from "./decision-scenes";
 import { trackLedgerTransition } from "../src/engine/ledger";
@@ -24,7 +25,7 @@ Date.now = () => Date.parse("2026-09-27T00:00:00.000Z");
 try {
   const result = {} as Record<ScenarioId, PreviewSnapshot>;
   result.welcome = snapshot(null);
-  let state = startStewards(createNewGame(2, ["vanguard", "knight"], { encounterSeed: seed }));
+  let state = startStewards(createNewGame(2, ["vanguard", "knight"], { encounterSeed: seed, questCardNumber: demoQuestCard }));
   result.handoff = snapshot(state);
   state = settle(advance(seedSeason(state), revealEncounters));
   for (const [tile, hex] of [["c01_lumber_yard", "G1"], ["c05_cabin", "H1"], ["c15_path", "F1"]]) state = advance(state, (current) => placeTile(current, current.currentPlayerId, tile, { anchorHexId: hex }));
@@ -45,7 +46,7 @@ try {
   result["decide-time"] = snapshot(timeScene(state));
   result["decide-guild"] = snapshot(guildScene(state));
 
-  let quartermaster = startStewards(createNewGame(1, ["quartermaster"], { encounterSeed: seed }));
+  let quartermaster = startStewards(createNewGame(1, ["quartermaster"], { encounterSeed: seed, questCardNumber: demoQuestCard }));
   quartermaster = settle(advance(seedSeason(quartermaster), revealEncounters));
   // Make room in the Warehouse so the exchange can produce a visible benefit.
   for (const [tile, hex] of [["c01_lumber_yard", "B8"], ["c05_cabin", "C8"]]) quartermaster = advance(quartermaster, (current) => placeTile(current, current.currentPlayerId, tile, { anchorHexId: hex }));
@@ -59,7 +60,7 @@ try {
     ["golden-scroll", "golden_boon_the_golden_scroll", "scroll"],
     ["golden-signet", "golden_boon_the_golden_signet_ring", "signet"]
   ] as const) {
-    let golden = startStewards(createNewGame(2, ["vanguard", "knight"], { encounterSeed: seed, selectedGoldenBoonId: boonId }));
+    let golden = startStewards(createNewGame(2, ["vanguard", "knight"], { encounterSeed: seed, questCardNumber: demoQuestCard, selectedGoldenBoonId: boonId }));
     for (let guard = 0; !golden.pendingGoldenEffect && guard < 100; guard++) {
       if (golden.phase === "seeding") golden = seedSeason(golden);
       else if (golden.phase === "reveal") golden = advance(golden, revealEncounters);
@@ -86,7 +87,7 @@ try {
     ["golden-vial", "golden_boon_the_golden_vial", 9],
     ["golden-traveller", "golden_boon_the_golden_eyed_traveler", 12]
   ] as const) {
-    let golden = startStewards(createNewGame(2, ["vanguard", "knight"], { encounterSeed: seed, selectedGoldenBoonId: boonId }));
+    let golden = startStewards(createNewGame(2, ["vanguard", "knight"], { encounterSeed: seed, questCardNumber: demoQuestCard, selectedGoldenBoonId: boonId }));
     const ready = () => id === "golden-vial" ? golden.encounters.faceUpBoons.some((boon) => boon.cardId === boonId) : golden.bonusTurnsPending;
     for (let guard = 0; !ready() && guard < 100; guard++) {
       if (golden.phase === "seeding") golden = seedSeason(golden);
@@ -110,7 +111,7 @@ try {
 
   // Two Stewards with disconnected starting settlements expose temporary reach
   // and an actual Burden response. Every action uses the ordinary rules engine.
-  let stewardGame = startStewards(createNewGame(2, ["ranger", "warden"], { encounterSeed: seed }));
+  let stewardGame = startStewards(createNewGame(2, ["ranger", "warden"], { encounterSeed: seed, questCardNumber: demoQuestCard }));
   for (let guard = 0; (!result["ranger-reach"] || !result["warden-response"]) && guard < 100; guard++) {
     if (stewardGame.phase === "seeding") stewardGame = seedSeason(stewardGame);
     else if (stewardGame.phase === "reveal") stewardGame = advance(stewardGame, revealEncounters);
@@ -137,7 +138,7 @@ try {
 
   // Sentinel has spent four ordinary actions and can still improve the Path.
   // Its upgraded Mine neighbour makes the conditional Supported bonus visible.
-  let sentinel = settle(advance(seedSeason(startStewards(createNewGame(2, ["sentinel", "knight"], { encounterSeed: seed }))), revealEncounters));
+  let sentinel = settle(advance(seedSeason(startStewards(createNewGame(2, ["sentinel", "knight"], { encounterSeed: seed, questCardNumber: demoQuestCard }))), revealEncounters));
   for (const tileId of ["c02_mine_tunnel", "c15_path"]) {
     const hexId = getLegalPlacementHexes(sentinel, sentinel.currentPlayerId, tileId)[0];
     if (!hexId) throw new Error(`No legal Sentinel fixture placement for ${tileId}.`);
@@ -177,7 +178,7 @@ try {
   const chainRule = "system:overstrain-spread";
   const playShowcase = (acceptStrain: boolean, stop: (state: GameState) => boolean, value?: (state: GameState) => number) => {
     const resolveWith = (state: GameState) => settle(state, false, acceptStrain ? {} : { preferPayments: true });
-    let game = startStewards(createNewGame(2, ["vanguard", "knight"], { encounterSeed: seed }));
+    let game = startStewards(createNewGame(2, ["vanguard", "knight"], { encounterSeed: seed, questCardNumber: demoQuestCard }));
     let caught: GameState | null = null;
     const watch = (state: GameState) => {
       const paused = settle(state, false, { ...(acceptStrain ? {} : { preferPayments: true }), stopBeforeRuleId: chainRule });
@@ -204,7 +205,7 @@ try {
   result["showcase-season"] = snapshot(playShowcase(true, (state) => state.phase === "endRound" && state.round === 8 && !state.pendingEffects.length));
 
   // The guided first game: solo Vanguard on the shared seed, ready to seed Season I.
-  result.guided = snapshot(startStewards(createNewGame(1, ["vanguard"], { encounterSeed: seed })));
+  result.guided = snapshot(startStewards(createNewGame(1, ["vanguard"], { encounterSeed: seed, questCardNumber: demoQuestCard })));
 
   result.returning = snapshot(null);
   result.returning.campaign = withQuestCards(result.returning.campaign, 3);
