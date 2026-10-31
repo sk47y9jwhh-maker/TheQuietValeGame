@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { ledgerEntries } from "../../data/ledger";
+import { questCardByNumber } from "../../data/questCards";
 import { stewardById } from "../../data/stewards";
 import type { LedgerCampaign } from "../../engine/ledgerCampaign";
 
-const entryNames = new Map(ledgerEntries.map((entry) => [entry.id, entry.name]));
 const dateFormatter = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" });
 const pageSize = 10;
 
@@ -31,15 +30,9 @@ export function LedgerHistory({ campaign }: { campaign: LedgerCampaign }) {
                 </div>
                 <div className="settlement-record-score"><span>Final score</span><strong aria-label={`Final score ${game.finalScore}`}>{game.finalScore}</strong></div>
               </header>
-              <p>{game.completedEntryIds.length} {game.completedEntryIds.length === 1 ? "entry" : "entries"} achieved · {game.newRecordEntryIds ? `${game.newRecordEntryIds.length} new ${game.newRecordEntryIds.length === 1 ? "record" : "records"}` : "New-record details unavailable"}</p>
-              <details>
-                <summary>Entries and objectives</summary>
-                <div className="settlement-record-details">
-                  <p><strong>Declared Vow:</strong> {game.declaredVowId ? entryNames.get(game.declaredVowId) ?? game.declaredVowId : "None"}</p>
-                  <p>{game.completedStewardObjectiveIds ? `${game.completedStewardObjectiveIds.length} Steward objectives met.` : "Objective details were not recorded for this game."}</p>
-                  {game.completedEntryIds.length ? <ul aria-label="Achieved entries">{game.completedEntryIds.map((id) => <li key={id}>{entryNames.get(id) ?? id}{game.newRecordEntryIds?.includes(id) ? " · New record" : ""}</li>)}</ul> : <p>No Ledger entries were achieved in this settlement.</p>}
-                </div>
-              </details>
+              <p>{questCardByNumber[game.questCardNumber]
+                ? `Quest Card No. ${game.questCardNumber}, ${questCardByNumber[game.questCardNumber].theme}: ${game.questCompleted ? "completed" : "not completed"}`
+                : "Played without a Quest Card"}</p>
             </article>
           </li>;
         })}

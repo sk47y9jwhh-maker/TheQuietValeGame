@@ -32,20 +32,18 @@ describe("recorded settlement history", () => {
     expect(screen.getByRole("tabpanel", { name: "Game log" })).toHaveTextContent("Game created");
   });
 
-  it("presents chronological immutable records and admits missing legacy detail", () => {
+  it("presents chronological immutable records with each Quest Card result", () => {
     const campaign = createEmptyLedgerCampaign();
     campaign.games = [
-      { id: "older", completedAt: "2026-09-01T12:00:00Z", playerCount: 1, stewardIds: ["vanguard"], finalScore: 0, completedEntryIds: [] },
-      { id: "newer", completedAt: "2026-09-20T12:00:00Z", playerCount: 2, stewardIds: ["knight", "warden"], finalScore: -10, completedEntryIds: ["unknown-legacy-entry"], newRecordEntryIds: ["unknown-legacy-entry"], completedStewardObjectiveIds: ["knight"] }
+      { id: "older", completedAt: "2026-09-01T12:00:00Z", playerCount: 1, stewardIds: ["vanguard"], finalScore: 0, questCardNumber: 0, questCompleted: false },
+      { id: "newer", completedAt: "2026-09-20T12:00:00Z", playerCount: 2, stewardIds: ["knight", "warden"], finalScore: -10, questCardNumber: 2, questCompleted: true }
     ];
     Object.freeze(campaign.games);
     render(<LedgerHistory campaign={campaign} />);
     const records = screen.getAllByRole("article");
     expect(records[0]).toHaveTextContent("20 September 2026");
-    expect(records[0]).toHaveTextContent("1 entry achieved · 1 new record");
-    expect(records[0]).toHaveTextContent("unknown-legacy-entry · New record");
-    expect(records[1]).toHaveTextContent("New-record details unavailable");
-    expect(records[1]).toHaveTextContent("Objective details were not recorded");
+    expect(records[0]).toHaveTextContent("Quest Card No. 2, The Hearth: completed");
+    expect(records[1]).toHaveTextContent("Played without a Quest Card");
     expect(campaign.games[0].id).toBe("older");
   });
 
@@ -53,7 +51,7 @@ describe("recorded settlement history", () => {
     const campaign = createEmptyLedgerCampaign();
     const view = render(<LedgerHistory campaign={campaign} />);
     expect(screen.getByText(/No completed settlements yet/)).toBeVisible();
-    campaign.games = Array.from({ length: 12 }, (_, index) => ({ id: String(index), completedAt: "invalid old date", playerCount: 1, stewardIds: [], finalScore: index, completedEntryIds: [] }));
+    campaign.games = Array.from({ length: 12 }, (_, index) => ({ id: String(index), completedAt: "invalid old date", playerCount: 1, stewardIds: [], finalScore: index, questCardNumber: 1, questCompleted: false }));
     view.rerender(<LedgerHistory campaign={campaign} />);
     expect(screen.getAllByRole("article")).toHaveLength(10);
     expect(screen.getAllByText("Date unavailable")).toHaveLength(10);

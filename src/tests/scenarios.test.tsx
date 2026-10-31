@@ -124,13 +124,13 @@ describe("comparison controls", () => {
   it("keeps sample campaign progress after reload and a deliberate Ledger reset", () => {
     window.history.replaceState(null, "", "/?experience=tabletop&scenario=returning");
     const first = render(<ScenarioPreview experience="tabletop" scenarioId="returning" />);
-    expect(Object.keys(readLedgerCampaign().completions)).toHaveLength(5);
+    expect(readLedgerCampaign().box).toHaveLength(3);
     first.unmount();
-    writeLedgerCampaign({ ...scenarios.returning.campaign, completions: {} });
+    writeLedgerCampaign({ ...scenarios.returning.campaign, deck: [...scenarios.returning.campaign.box, ...scenarios.returning.campaign.deck], box: [] });
     render(<ScenarioPreview experience="tabletop" scenarioId="returning" />);
-    expect(Object.keys(readLedgerCampaign().completions)).toHaveLength(0);
+    expect(readLedgerCampaign().box).toHaveLength(0);
     fireEvent.click(screen.getByRole("button", { name: "Restart demo" }));
-    expect(Object.keys(readLedgerCampaign().completions)).toHaveLength(5);
+    expect(readLedgerCampaign().box).toHaveLength(3);
   });
 
   it("keeps a partially chosen Quartermaster exchange editable until it balances", () => {

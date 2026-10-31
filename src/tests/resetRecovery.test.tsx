@@ -108,7 +108,7 @@ describe("deliberate local reset and recovery", () => {
     fireEvent.click(screen.getByRole("button", { name: "Reset Ledger Progress" }));
     fireEvent.click(screen.getByRole("button", { name: "Clear Ledger progress" }));
     expect(readLedgerCampaign().games).toHaveLength(0);
-    expect(readLedgerCampaign().completions).toEqual({});
+    expect(readLedgerCampaign().box).toEqual([]);
     expect(readSavedGame()?.state.map).toEqual(recorded.state.map);
     expect(readSavedGame()?.state.ledgerRun?.recorded).toBe(false);
     fireEvent.click(screen.getByRole("button", { name: "Close reference tray" }));

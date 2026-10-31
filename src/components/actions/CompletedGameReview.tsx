@@ -3,10 +3,13 @@ import { ConfirmationDialog } from "../common/ConfirmationDialog";
 import { BookMarked, Flag, Trophy } from "lucide-react";
 import { calculateFinalScore, evaluateStewardObjectives } from "../../engine/scoring";
 import type { GameState } from "../../engine/types";
+import { questCompletionRenown } from "../../data/questCards";
+import { QuestCardView } from "../common/QuestCardView";
+import type { LedgerReview } from "./ledgerSummary";
 
 interface Props {
   state: GameState;
-  ledger?: { recorded: boolean; recordedScore?: number; eligibleCount: number; newEntries: { id: string; name: string }[] };
+  ledger?: LedgerReview;
   onRecord?: () => void;
   onNewGame?: () => void;
 }
@@ -27,7 +30,7 @@ export function CompletedGameReview({ state, ledger, onRecord, onNewGame }: Prop
   useEffect(() => { heading.current?.focus(); }, []);
   const score = calculateFinalScore(state);
   const objectives = evaluateStewardObjectives(state);
-  const renown = score.printedRenown + score.passiveRenown + score.stewardObjectiveRenown + score.goldenRenown;
+  const renown = score.printedRenown + score.passiveRenown + score.stewardObjectiveRenown + score.goldenRenown + score.questRenown;
   const penalties = score.burdenPenalty + score.failedArrivalPenalty + score.strainPenalty;
   const strain = state.map.placedTiles.reduce((total, tile) => total + tile.strain, 0);
   const overstrained = state.map.placedTiles.filter((tile) => tile.strain >= 3).length;
@@ -46,6 +49,7 @@ export function CompletedGameReview({ state, ledger, onRecord, onNewGame }: Prop
           <ScoreRow label="Passive Renown" value={score.passiveRenown} detail="From tile arrangements and passive effects" />
           <ScoreRow label="Steward objectives" value={score.stewardObjectiveRenown} detail={`${objectives.filter((objective) => objective.met).length} of ${objectives.length} met at the end`} />
           <ScoreRow label="Golden Tile Renown" value={score.goldenRenown} detail="From completed Golden Tile conditions" />
+          {state.questRun && <ScoreRow label="Quest Card" value={score.questRenown} detail={score.questRenown ? "Completed, either half" : "Neither half completed"} />}
           <ScoreRow label="Active Burdens" value={-score.burdenPenalty} detail={`${state.encounters.activeBurdens.length} remaining at the end`} />
           <ScoreRow label="Failed Arrivals" value={-score.failedArrivalPenalty} detail={`${score.failedArrivals} expired during the game`} />
           <ScoreRow label="Strain" value={-score.strainPenalty} detail={`${strain} Strain token${strain === 1 ? "" : "s"} on the board`} />
@@ -59,10 +63,15 @@ export function CompletedGameReview({ state, ledger, onRecord, onNewGame }: Prop
           {ledger ? <>
             <p className="finale-ledger-status" role="status">{ledger.recorded ? "Game recorded" : "Ready to record this game"}</p>
             {ledger.recordedScore !== undefined && ledger.recordedScore !== score.finalScore && <p className="recorded-score-note">The Ledger keeps the recorded score of {signed(ledger.recordedScore)}. This board has changed since recording. It does not replace that result.</p>}
-            <p>{ledger.eligibleCount} eligible {ledger.eligibleCount === 1 ? "entry" : "entries"} completed, {ledger.newEntries.length} new {ledger.newEntries.length === 1 ? "record" : "records"}</p>
-            {ledger.newEntries.length > 0 && <ul>{ledger.newEntries.map((entry) => <li key={entry.id}><span>{entry.id}</span><strong>{entry.name}</strong></li>)}</ul>}
+            {ledger.quest ? <>
+              <p className="finale-quest-result"><strong>{ledger.quest.complete ? `Quest Card complete, +${questCompletionRenown} Renown` : "Quest Card not completed"}</strong>{" "}
+                {ledger.quest.complete
+                  ? ledger.addsToLedger ? `It goes into the Steward’s Ledger (${ledger.ledgerCount} of 21).` : "It was already in the Steward’s Ledger."
+                  : "It goes to the bottom of the Quest deck."}</p>
+              <QuestCardView card={ledger.quest.card} playerCount={state.playerCount} result={ledger.quest} ended compact />
+            </> : <p>This game was played without a Quest Card.</p>}
             <button className="primary-action" type="button" disabled={ledger.recorded} onClick={onRecord}>{ledger.recorded ? "Recorded in Ledger" : "Record this game"}</button>
-            <p className="finale-scoring-note">{ledger.recorded ? "Your result and earned entries are recorded. Open the Ledger tab below to review your progress." : "Record your result before starting another settlement. Ledger progress is stored in this browser."}</p>
+            <p className="finale-scoring-note">{ledger.recorded ? "Your result and Quest Card are recorded. Open the Ledger tab below to review your progress." : "Record your result before starting another settlement. Ledger progress is stored in this browser."}</p>
           </> : <p>The final score is ready to review.</p>}
           {onNewGame && <button className="finale-new-game" type="button" onClick={(event) => { event.currentTarget.focus({ preventScroll: true }); setConfirmNewGame(true); }}>Start another settlement</button>}
         </section>

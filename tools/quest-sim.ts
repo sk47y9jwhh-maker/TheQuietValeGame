@@ -1,9 +1,9 @@
 /**
- * Chronicle Card calibration. Plays whole games with the showcase bot through
- * ordinary engine actions and records, for every Chronicle quest, whether it
+ * Quest Card calibration. Plays whole games with the showcase bot through
+ * ordinary engine actions and records, for every Quest Card half, whether it
  * was met. Moments and Vows are watched after every step of the game.
  *
- * Usage: node chronicle-sim.js <playerCount> <games> <seedPrefix> [mode]
+ * Usage: node quest-sim.js <playerCount> <games> <seedPrefix> [mode]
  *   mode "natural" (default): the bot ignores the card.
  *   mode "vow:<id>": the bot refuses moves that break that Vow.
  * Prints one JSON line per game.

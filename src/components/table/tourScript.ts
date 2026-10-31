@@ -276,7 +276,7 @@ export const tourSteps: TourStep[] = [
     title: "Score now",
     text: (state) => {
       const score = calculateFinalScore(state);
-      const renown = score.printedRenown + score.passiveRenown + score.stewardObjectiveRenown + score.goldenRenown;
+      const renown = score.printedRenown + score.passiveRenown + score.stewardObjectiveRenown + score.goldenRenown + score.questRenown;
       const penalties = score.burdenPenalty + score.failedArrivalPenalty + score.strainPenalty;
       return `The score at the top is the result if the game ended this moment. Right now that is ${score.population} Population + ${renown} Renown − ${penalties} in penalties = ${points(score.finalScore)}.${score.burdenPenalty ? " A Burden still on the table costs 10 until it is resolved." : ""} Twelve rounds make a game.`;
     },
@@ -303,7 +303,7 @@ const tileLabel = (tileId: string) => tileId.replace(/^c\d+_|^special_/, "").spl
 const strained = (state: GameState) => state.map.placedTiles.filter((tile) => tile.strain > 0).sort((a, b) => b.strain - a.strain);
 const scoreLine = (state: GameState) => {
   const score = calculateFinalScore(state);
-  const renown = score.printedRenown + score.passiveRenown + score.stewardObjectiveRenown + score.goldenRenown;
+  const renown = score.printedRenown + score.passiveRenown + score.stewardObjectiveRenown + score.goldenRenown + score.questRenown;
   const penalties = score.burdenPenalty + score.failedArrivalPenalty + score.strainPenalty;
   return `${score.population} Population + ${renown} Renown − ${penalties} in penalties = ${points(score.finalScore)}`;
 };

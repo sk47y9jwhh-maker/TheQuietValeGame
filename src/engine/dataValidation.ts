@@ -1,11 +1,8 @@
 import { arrivals, boons, burdens, encounterById, goldenBoons } from "../data/encounters";
 import {
-  ledgerChronicles,
-  ledgerEntries,
-  ledgerEntryById,
-  ledgerMilestones,
-  ledgerUnlockGates
+  ledgerMilestones
 } from "../data/ledger";
+import { questCards } from "../data/questCards";
 import {
   mapArtworkLayers,
   mapById,
@@ -68,7 +65,6 @@ const allTileIds = new Set([
   ...goldenTiles.map((tile) => tile.id)
 ]);
 const goldenBoonIds = new Set(goldenBoons.map((boon) => boon.id));
-const stewardIds = new Set(stewards.map((steward) => steward.id));
 
 function isWholeNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value);
@@ -304,55 +300,16 @@ function validateEncounters(issues: string[]): void {
 }
 
 function validateLedger(issues: string[]): void {
-  validateUniqueIds("Ledger Entries", ledgerEntries, issues);
-  if (ledgerEntries.length !== 50) {
-    issues.push(`Ledger should contain 50 entries; found ${ledgerEntries.length}.`);
-  }
-
-  const ledgerChronicleSet = new Set<string>(ledgerChronicles);
-  const entryIds = new Set(ledgerEntries.map((entry) => entry.id));
-  for (let index = 1; index <= ledgerEntries.length; index += 1) {
-    const expectedId = `LE-${String(index).padStart(3, "0")}`;
-    if (!entryIds.has(expectedId)) issues.push(`Ledger is missing sequential entry ${expectedId}.`);
-  }
-
-  for (const entry of ledgerEntries) {
-    const label = `Ledger Entry ${entry.id}`;
-    if (ledgerEntryById[entry.id] !== entry) issues.push(`${label} is not correctly indexed.`);
-    if (!ledgerChronicleSet.has(entry.chronicle)) {
-      issues.push(`${label} references unknown chronicle: ${entry.chronicle}.`);
-    }
-    validateNonNegativeInteger(`${label} unlockAt`, entry.unlockAt, issues);
-    if (ledgerUnlockGates[entry.id] !== entry.unlockAt) {
-      issues.push(`${label} unlock gate does not match ledgerUnlockGates.`);
-    }
-    if (!entry.requirement.trim()) issues.push(`${label} has blank requirement text.`);
-    if (entry.unlockAt > 0 && !entry.requirement.includes("Available after")) {
-      issues.push(`${label} is gated but requirement text does not mention availability.`);
-    }
-    if (entry.declaredVow && !entry.requirement.includes("Declare before setup")) {
-      issues.push(`${label} is a Vow but does not tell players to declare before setup.`);
-    }
-    if (entry.requiredSteward && !stewardIds.has(entry.requiredSteward)) {
-      issues.push(`${label} references unknown Steward: ${entry.requiredSteward}.`);
-    }
-    if (entry.thresholdsByPlayerCount) {
-      for (const playerCount of supportedPlayerCounts) {
-        if (!Object.hasOwn(entry.thresholdsByPlayerCount, String(playerCount))) {
-          issues.push(`${label} is missing its ${playerCount}p threshold.`);
-        }
-      }
-      for (const [playerCount, threshold] of Object.entries(entry.thresholdsByPlayerCount)) {
-        if (!supportedPlayerCounts.map(String).includes(playerCount)) {
-          issues.push(`${label} has unknown player-count threshold key: ${playerCount}.`);
-        }
-        validateNonNegativeInteger(`${label} ${playerCount}p threshold`, threshold, issues);
+  validateUniqueIds("Quest Cards", questCards.map((card) => ({ id: String(card.n) })), issues);
+  if (questCards.length !== 21) issues.push(`The Quest deck should contain 21 cards; found ${questCards.length}.`);
+  for (const card of questCards) {
+    for (const half of [card.top, card.bottom]) {
+      const label = `Quest Card ${card.n} ${half.name}`;
+      if (!half.text.trim()) issues.push(`${label} has blank rule text.`);
+      for (const [name, values] of [...half.strips, ...(half.keep ? [half.keep] : [])]) {
+        if (values.length !== supportedPlayerCounts.length) issues.push(`${label} strip ${name} needs one value per player count.`);
       }
     }
-  }
-
-  for (const entryId of Object.keys(ledgerUnlockGates)) {
-    if (!entryIds.has(entryId)) issues.push(`ledgerUnlockGates references unknown entry: ${entryId}.`);
   }
 
   validateUniqueIds(

@@ -38,7 +38,7 @@ const rules: RuleReferenceCard[] = [
           "63 double-sided Core Tiles across 21 Tile types, plus 26 Special Tile pieces across 25 designs.",
           "90 Encounter Cards: 30 Boons, 30 Burdens, 25 Arrivals, and 5 Golden Boons.",
           "30 Target Cards, shuffled once during setup, select Tiles for incoming Strain.",
-          "6 Steward Aids with 6 matching Steward Tokens, and 1 Steward’s Ledger for campaign records."
+          "6 Steward Aids with 6 matching Steward Tokens, and the Quest deck for the Steward’s Ledger."
         ]
       },
       {
@@ -352,32 +352,32 @@ const rules: RuleReferenceCard[] = [
         ]
       }
     ],
-    note: "Record the shared final score and every newly completed Entry in the Steward’s Ledger. Unplaced Special Tiles do not score."
+    note: "Record the shared final score and the Quest Card result in the Steward’s Ledger. Unplaced Special Tiles do not score."
   },
   {
     category: "Campaign",
     page: "22",
-    title: "Steward’s Ledger",
-    summary: "The Ledger records achievements, scores, prestige marks, Vows, and Golden milestones across many games.",
+    title: "Quest Cards and the Steward’s Ledger",
+    summary: "Each game draws one Quest Card. Completed cards go into the Steward’s Ledger, which unlocks the Golden pairs across many games.",
     sections: [
       {
-        title: "Recording a group",
+        title: "The Quest Card",
         bullets: [
-          "Choose a group name and unused Roman numeral I–VI. Use that numeral for every Entry mark and the matching Game Record.",
-          "After final scoring, mark NAMED for each newly completed Entry and record the score and new Entries on the group’s Game Record.",
-          "Each NAMED mark counts once toward Golden milestones. Separate 1P–5P prestige marks are records only and do not advance milestones.",
-          "An AFTER gate is met only if the group begins the game with the shown number of Named Entries."
+          "At setup, draw the top card of the 21-card Quest deck. Only one card is in play, whatever the player count.",
+          "Both halves are live. The top half is easier; the bottom half is harder. Complete either half to complete the card.",
+          "A completed card scores +20 Renown, once. Completing both halves gives no extra Renown.",
+          "Read the target for your player count from the strip on each half. A Moment is met as soon as it happens; a Final is checked at final scoring; a Vow must hold all game and its Keep it line is checked at final scoring."
         ]
       },
       {
-        title: "Vows and milestones",
+        title: "The Steward’s Ledger",
         bullets: [
-          "Declare a Vow before setup and attempt no more than one Vow per game.",
-          "Golden milestones are reached at 5, 12, 18, 25, and 32 Named Entries. Each unlocks one Golden Tile and one Golden Boon permanently."
+          "After final scoring, a completed card goes into the Steward’s Ledger. A failed card goes to the bottom of the Quest deck.",
+          "Golden pairs unlock at 3, 6, 9, 12 and 15 cards in the Ledger. Each unlocks one Golden Tile and one Golden Boon permanently."
         ]
       }
     ],
-    note: "Open Ledger → Chronicles in the prototype to read every Entry requirement and see live progress."
+    note: "Quest Cards are a prototype being play-tested. Open Ledger → This game to see the card and live progress."
   },
   {
     category: "Campaign",

@@ -78,12 +78,12 @@ describe("completed settlement review", () => {
     expect(screen.getByRole("button", { name: "Recorded in Ledger" })).toBeDisabled();
     expect(readLedgerCampaign().games).toHaveLength(1);
     expect(readLedgerCampaign().games[0].finalScore).toBe(score.finalScore);
-    const entries = readLedgerCampaign().completions;
+    const entries = readLedgerCampaign().box;
     first.unmount();
     render(<App initialPreview={finale} />);
     expect(screen.getByRole("button", { name: "Recorded in Ledger" })).toBeDisabled();
     expect(readLedgerCampaign().games).toHaveLength(1);
-    expect(readLedgerCampaign().completions).toEqual(entries);
+    expect(readLedgerCampaign().box).toEqual(entries);
     expect(localStorage.getItem("quietVale.stewardsLedger.v1")).toBeNull();
   });
 

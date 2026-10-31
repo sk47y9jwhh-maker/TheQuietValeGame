@@ -10,10 +10,31 @@
     },
     "state": null,
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        6,
+        9,
+        14,
+        20,
+        12,
+        17,
+        15,
+        10,
+        21,
+        18,
+        16,
+        5,
+        8,
+        7,
+        2,
+        1,
+        19,
+        11,
+        3,
+        13,
+        4
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -318,10 +339,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        11,
+        4,
+        19,
+        6,
+        10,
+        14,
+        21,
+        16,
+        2,
+        17,
+        9,
+        5,
+        12,
+        7,
+        3,
+        1,
+        20,
+        15,
+        18,
+        13,
+        8
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -734,10 +776,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        14,
+        4,
+        6,
+        7,
+        17,
+        18,
+        11,
+        15,
+        2,
+        12,
+        8,
+        9,
+        5,
+        19,
+        16,
+        21,
+        10,
+        3,
+        20,
+        13,
+        1
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -1266,10 +1329,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        13,
+        17,
+        9,
+        6,
+        4,
+        15,
+        3,
+        12,
+        2,
+        14,
+        10,
+        16,
+        11,
+        18,
+        8,
+        20,
+        5,
+        21,
+        7,
+        1,
+        19
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -1792,10 +1876,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        17,
+        10,
+        21,
+        6,
+        14,
+        7,
+        8,
+        19,
+        4,
+        9,
+        18,
+        20,
+        16,
+        3,
+        15,
+        1,
+        2,
+        13,
+        11,
+        5,
+        12
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -2330,10 +2435,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        21,
+        4,
+        13,
+        19,
+        3,
+        10,
+        8,
+        16,
+        11,
+        17,
+        12,
+        5,
+        2,
+        18,
+        6,
+        1,
+        7,
+        20,
+        15,
+        9,
+        14
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -2871,10 +2997,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        2,
+        3,
+        12,
+        18,
+        11,
+        8,
+        10,
+        13,
+        6,
+        19,
+        4,
+        20,
+        16,
+        9,
+        14,
+        1,
+        21,
+        7,
+        17,
+        5,
+        15
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -3407,10 +3554,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        2,
+        4,
+        17,
+        11,
+        21,
+        7,
+        8,
+        9,
+        12,
+        19,
+        10,
+        16,
+        6,
+        3,
+        13,
+        1,
+        14,
+        20,
+        18,
+        5,
+        15
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -3955,10 +4123,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        11,
+        18,
+        2,
+        15,
+        8,
+        10,
+        20,
+        19,
+        4,
+        13,
+        14,
+        5,
+        12,
+        7,
+        6,
+        1,
+        3,
+        9,
+        16,
+        21,
+        17
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -4494,10 +4683,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        7,
+        4,
+        18,
+        8,
+        15,
+        13,
+        20,
+        9,
+        16,
+        12,
+        2,
+        14,
+        3,
+        21,
+        6,
+        1,
+        19,
+        11,
+        10,
+        17,
+        5
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -4873,10 +5083,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        14,
+        11,
+        2,
+        19,
+        8,
+        5,
+        18,
+        10,
+        6,
+        12,
+        21,
+        16,
+        13,
+        3,
+        20,
+        1,
+        7,
+        17,
+        15,
+        9,
+        4
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -5537,41 +5768,32 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {
-        "LE-001": {
-          "entryId": "LE-001",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-002": {
-          "entryId": "LE-002",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-003": {
-          "entryId": "LE-003",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-004": {
-          "entryId": "LE-004",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-005": {
-          "entryId": "LE-005",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        }
-      },
+      "version": 3,
+      "deck": [
+        15,
+        6,
+        10,
+        11,
+        16,
+        12,
+        20,
+        4,
+        14,
+        17,
+        5,
+        19,
+        1,
+        13,
+        21,
+        8,
+        9,
+        7
+      ],
+      "box": [
+        2,
+        3,
+        18
+      ],
       "games": []
     }
   },
@@ -6064,83 +6286,32 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {
-        "LE-001": {
-          "entryId": "LE-001",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-002": {
-          "entryId": "LE-002",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-003": {
-          "entryId": "LE-003",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-004": {
-          "entryId": "LE-004",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-005": {
-          "entryId": "LE-005",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-006": {
-          "entryId": "LE-006",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-007": {
-          "entryId": "LE-007",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-008": {
-          "entryId": "LE-008",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-009": {
-          "entryId": "LE-009",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-010": {
-          "entryId": "LE-010",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-011": {
-          "entryId": "LE-011",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-012": {
-          "entryId": "LE-012",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        }
-      },
+      "version": 3,
+      "deck": [
+        17,
+        10,
+        20,
+        16,
+        15,
+        5,
+        6,
+        3,
+        11,
+        18,
+        19,
+        21,
+        12,
+        9,
+        1
+      ],
+      "box": [
+        14,
+        4,
+        7,
+        13,
+        2,
+        8
+      ],
       "games": []
     }
   },
@@ -7177,203 +7348,32 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {
-        "LE-001": {
-          "entryId": "LE-001",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-002": {
-          "entryId": "LE-002",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-003": {
-          "entryId": "LE-003",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-004": {
-          "entryId": "LE-004",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-005": {
-          "entryId": "LE-005",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-006": {
-          "entryId": "LE-006",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-007": {
-          "entryId": "LE-007",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-008": {
-          "entryId": "LE-008",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-009": {
-          "entryId": "LE-009",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-010": {
-          "entryId": "LE-010",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-011": {
-          "entryId": "LE-011",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-012": {
-          "entryId": "LE-012",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-013": {
-          "entryId": "LE-013",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-014": {
-          "entryId": "LE-014",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-015": {
-          "entryId": "LE-015",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-016": {
-          "entryId": "LE-016",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-017": {
-          "entryId": "LE-017",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-018": {
-          "entryId": "LE-018",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-019": {
-          "entryId": "LE-019",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-020": {
-          "entryId": "LE-020",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-021": {
-          "entryId": "LE-021",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-022": {
-          "entryId": "LE-022",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-023": {
-          "entryId": "LE-023",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-024": {
-          "entryId": "LE-024",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-025": {
-          "entryId": "LE-025",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-026": {
-          "entryId": "LE-026",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-027": {
-          "entryId": "LE-027",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-028": {
-          "entryId": "LE-028",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-029": {
-          "entryId": "LE-029",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-030": {
-          "entryId": "LE-030",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-031": {
-          "entryId": "LE-031",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-032": {
-          "entryId": "LE-032",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        }
-      },
+      "version": 3,
+      "deck": [
+        1,
+        2,
+        11,
+        6,
+        5,
+        13
+      ],
+      "box": [
+        18,
+        12,
+        7,
+        21,
+        19,
+        8,
+        10,
+        16,
+        4,
+        14,
+        15,
+        9,
+        20,
+        3,
+        17
+      ],
       "games": []
     }
   },
@@ -8162,119 +8162,32 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {
-        "LE-001": {
-          "entryId": "LE-001",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-002": {
-          "entryId": "LE-002",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-003": {
-          "entryId": "LE-003",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-004": {
-          "entryId": "LE-004",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-005": {
-          "entryId": "LE-005",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-006": {
-          "entryId": "LE-006",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-007": {
-          "entryId": "LE-007",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-008": {
-          "entryId": "LE-008",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-009": {
-          "entryId": "LE-009",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-010": {
-          "entryId": "LE-010",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-011": {
-          "entryId": "LE-011",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-012": {
-          "entryId": "LE-012",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-013": {
-          "entryId": "LE-013",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-014": {
-          "entryId": "LE-014",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-015": {
-          "entryId": "LE-015",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-016": {
-          "entryId": "LE-016",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-017": {
-          "entryId": "LE-017",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-018": {
-          "entryId": "LE-018",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        }
-      },
+      "version": 3,
+      "deck": [
+        11,
+        12,
+        20,
+        6,
+        19,
+        18,
+        1,
+        5,
+        3,
+        15,
+        9,
+        13
+      ],
+      "box": [
+        2,
+        17,
+        21,
+        7,
+        4,
+        10,
+        8,
+        16,
+        14
+      ],
       "games": []
     }
   },
@@ -8797,161 +8710,32 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {
-        "LE-001": {
-          "entryId": "LE-001",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-002": {
-          "entryId": "LE-002",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-003": {
-          "entryId": "LE-003",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-004": {
-          "entryId": "LE-004",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-005": {
-          "entryId": "LE-005",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-006": {
-          "entryId": "LE-006",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-007": {
-          "entryId": "LE-007",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-008": {
-          "entryId": "LE-008",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-009": {
-          "entryId": "LE-009",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-010": {
-          "entryId": "LE-010",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-011": {
-          "entryId": "LE-011",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-012": {
-          "entryId": "LE-012",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-013": {
-          "entryId": "LE-013",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-014": {
-          "entryId": "LE-014",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-015": {
-          "entryId": "LE-015",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-016": {
-          "entryId": "LE-016",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-017": {
-          "entryId": "LE-017",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-018": {
-          "entryId": "LE-018",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-019": {
-          "entryId": "LE-019",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-020": {
-          "entryId": "LE-020",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-021": {
-          "entryId": "LE-021",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-022": {
-          "entryId": "LE-022",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-023": {
-          "entryId": "LE-023",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-024": {
-          "entryId": "LE-024",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-025": {
-          "entryId": "LE-025",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        }
-      },
+      "version": 3,
+      "deck": [
+        10,
+        5,
+        11,
+        1,
+        6,
+        15,
+        7,
+        17,
+        4
+      ],
+      "box": [
+        9,
+        21,
+        20,
+        12,
+        8,
+        3,
+        13,
+        18,
+        2,
+        19,
+        16,
+        14
+      ],
       "games": []
     }
   },
@@ -9420,10 +9204,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        11,
+        12,
+        3,
+        6,
+        13,
+        8,
+        2,
+        19,
+        10,
+        17,
+        15,
+        5,
+        4,
+        21,
+        18,
+        1,
+        14,
+        7,
+        16,
+        9,
+        20
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -10093,10 +9898,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        10,
+        14,
+        5,
+        7,
+        12,
+        13,
+        18,
+        16,
+        2,
+        3,
+        21,
+        9,
+        19,
+        11,
+        6,
+        1,
+        4,
+        15,
+        8,
+        17,
+        20
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -10766,10 +10592,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        2,
+        12,
+        11,
+        20,
+        4,
+        8,
+        14,
+        16,
+        17,
+        15,
+        18,
+        5,
+        21,
+        13,
+        7,
+        1,
+        10,
+        19,
+        3,
+        9,
+        6
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -11167,10 +11014,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        6,
+        18,
+        19,
+        8,
+        15,
+        3,
+        12,
+        16,
+        11,
+        14,
+        21,
+        20,
+        5,
+        9,
+        4,
+        1,
+        7,
+        17,
+        10,
+        13,
+        2
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -13044,10 +12912,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        21,
+        10,
+        15,
+        6,
+        19,
+        8,
+        2,
+        17,
+        20,
+        18,
+        3,
+        16,
+        14,
+        5,
+        4,
+        1,
+        12,
+        11,
+        7,
+        9,
+        13
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -14745,10 +14634,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        20,
+        18,
+        6,
+        8,
+        7,
+        5,
+        19,
+        15,
+        17,
+        12,
+        21,
+        14,
+        4,
+        16,
+        10,
+        1,
+        11,
+        13,
+        2,
+        9,
+        3
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -16572,10 +16482,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        2,
+        19,
+        4,
+        8,
+        20,
+        7,
+        5,
+        11,
+        18,
+        14,
+        10,
+        16,
+        12,
+        13,
+        3,
+        1,
+        9,
+        21,
+        6,
+        17,
+        15
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -18089,10 +18020,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        3,
+        15,
+        20,
+        6,
+        18,
+        8,
+        12,
+        19,
+        7,
+        16,
+        2,
+        5,
+        14,
+        11,
+        4,
+        1,
+        9,
+        13,
+        10,
+        17,
+        21
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -19605,10 +19557,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        2,
+        6,
+        12,
+        20,
+        19,
+        18,
+        4,
+        16,
+        14,
+        7,
+        17,
+        21,
+        8,
+        15,
+        5,
+        1,
+        11,
+        3,
+        10,
+        13,
+        9
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -19889,10 +19862,31 @@
       ]
     },
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {},
+      "version": 3,
+      "deck": [
+        15,
+        10,
+        2,
+        6,
+        12,
+        8,
+        11,
+        19,
+        4,
+        7,
+        18,
+        20,
+        17,
+        13,
+        3,
+        1,
+        14,
+        5,
+        16,
+        21,
+        9
+      ],
+      "box": [],
       "games": []
     }
   },
@@ -19907,41 +19901,32 @@
     },
     "state": null,
     "campaign": {
-      "version": 2,
-      "catalogueVersion": "v4.6",
-      "pacingVersion": 2,
-      "completions": {
-        "LE-001": {
-          "entryId": "LE-001",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-002": {
-          "entryId": "LE-002",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-003": {
-          "entryId": "LE-003",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-004": {
-          "entryId": "LE-004",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        },
-        "LE-005": {
-          "entryId": "LE-005",
-          "completedOnce": true,
-          "completedPlayerCounts": [],
-          "notes": "Example progress for the isolated comparison scenario."
-        }
-      },
+      "version": 3,
+      "deck": [
+        13,
+        15,
+        7,
+        3,
+        10,
+        14,
+        9,
+        6,
+        5,
+        19,
+        16,
+        4,
+        20,
+        8,
+        17,
+        18,
+        1,
+        11
+      ],
+      "box": [
+        21,
+        12,
+        2
+      ],
       "games": []
     }
   }

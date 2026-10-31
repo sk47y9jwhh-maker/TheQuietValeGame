@@ -11,6 +11,8 @@ import {
 } from "./placedTiles";
 import { hasConnectedBridgeCrossing } from "./reachability";
 import type { GameState, PlacedTile } from "./types";
+import { evaluateQuest } from "./quests";
+import { questCompletionRenown } from "../data/questCards";
 
 const activeBurdenPenalty = 10;
 const strainPenalty = 10;
@@ -291,6 +293,7 @@ export function calculateFinalScore(state: GameState) {
   );
   const stewardObjectiveRenown = scoreStewardObjectives(state);
   const goldenRenown = scoreGoldenTiles(state, eligibleTiles);
+  const questRenown = evaluateQuest(state)?.complete ? questCompletionRenown : 0;
   const burdenPenalty = state.encounters.activeBurdens.length * activeBurdenPenalty;
   const failedArrivals = countFailedArrivals(state);
   const failedArrivalPenaltyTotal = failedArrivals * failedArrivalPenalty;
@@ -300,7 +303,8 @@ export function calculateFinalScore(state: GameState) {
     printedRenown +
     passiveRenown +
     stewardObjectiveRenown +
-    goldenRenown -
+    goldenRenown +
+    questRenown -
     burdenPenalty -
     failedArrivalPenaltyTotal -
     strainPenaltyTotal;
@@ -313,6 +317,7 @@ export function calculateFinalScore(state: GameState) {
     passiveRenown,
     stewardObjectiveRenown,
     goldenRenown,
+    questRenown,
     burdenPenalty,
     failedArrivals,
     failedArrivalPenalty: failedArrivalPenaltyTotal,

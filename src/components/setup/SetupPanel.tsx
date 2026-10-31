@@ -10,10 +10,8 @@ import { getStartingWarehouseAmount } from "../../engine/setup";
 import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { stewardById, stewards } from "../../data/stewards";
 import { terrainLabels } from "../../data/map";
-import {
-  isVowAvailableForPlayerCount,
-  type LedgerEntry
-} from "../../data/ledger";
+import { questCardByNumber } from "../../data/questCards";
+import { QuestCardView } from "../common/QuestCardView";
 import {
   supportedPlayerCounts,
   type GoldenBoonData,
@@ -29,17 +27,14 @@ export interface SetupPanelProps {
   focusOnMount?: boolean;
   playerCount: PlayerCount;
   stewardIds: string[];
-  declaredVowId?: string;
+  questCardNumber?: number;
   selectedGoldenTileId?: string;
   selectedGoldenBoonId?: string;
   completedLedgerCount?: number;
-  availableVows?: LedgerEntry[];
-  lockedVows?: LedgerEntry[];
   availableGoldenTiles?: GoldenTileData[];
   availableGoldenBoons?: GoldenBoonData[];
   onPlayerCountChange: (playerCount: PlayerCount) => void;
   onStewardChange: (seatIndex: number, stewardId: string) => void;
-  onDeclaredVowChange?: (entryId: string) => void;
   onGoldenTileChange?: (tileId: string) => void;
   onGoldenBoonChange?: (boonId: string) => void;
   onStart: () => void;
@@ -54,17 +49,14 @@ export function SetupPanel({
   focusOnMount = false,
   playerCount,
   stewardIds,
-  declaredVowId = "",
+  questCardNumber,
   selectedGoldenTileId = "",
   selectedGoldenBoonId = "",
   completedLedgerCount = 0,
-  availableVows = [],
-  lockedVows = [],
   availableGoldenTiles = [],
   availableGoldenBoons = [],
   onPlayerCountChange,
   onStewardChange,
-  onDeclaredVowChange = () => {},
   onGoldenTileChange = () => {},
   onGoldenBoonChange = () => {},
   onStart
@@ -77,14 +69,7 @@ export function SetupPanel({
     .filter(Boolean);
   const startingResources = getStartingWarehouseAmount(playerCount);
   const playerLabel = `${playerCount} Player${playerCount === 1 ? "" : "s"}`;
-  const declaredVow = availableVows.find((entry) => entry.id === declaredVowId);
-  const nextVowUnlockAt = lockedVows
-    .filter((entry) => isVowAvailableForPlayerCount(entry.id, playerCount))
-    .reduce<number | undefined>(
-      (nextUnlock, entry) =>
-        nextUnlock === undefined ? entry.unlockAt : Math.min(nextUnlock, entry.unlockAt),
-      undefined
-    );
+  const questCard = questCardNumber ? questCardByNumber[questCardNumber] : undefined;
   const selectedGoldenTile = availableGoldenTiles.find(
     (tile) => tile.id === selectedGoldenTileId
   );
@@ -97,13 +82,6 @@ export function SetupPanel({
       Boolean(selectedGoldenTileId || selectedGoldenBoonId)
   );
   const [rulesOpen, setRulesOpen] = useState(false);
-  const vowCompatibilityWarning = declaredVowId === "LE-041" &&
-    (selectedStewards.some((steward) => steward.id === "vanguard") || selectedGoldenBoonId === "golden_boon_the_golden_vial")
-    ? "Vanguard’s Power and The Golden Vial can place Travel Tiles. Using either would break No Roads Raised."
-    : declaredVowId === "LE-042" && selectedStewards.some((steward) => steward.id === "sentinel")
-      ? "Sentinel’s Power upgrades a Core Tile. Using it would break No Fine Work."
-      : undefined;
-
   return (
     <div className="app-shell setup-shell">
       <header className="top-bar setup-top-bar">
@@ -197,47 +175,13 @@ export function SetupPanel({
             ))}
           </div>
 
-          <label className="setup-vow-select">
-            Steward’s Ledger Vow
-            <select
-              aria-label="Steward's Ledger Vow"
-              value={declaredVowId}
-              onChange={(event) => onDeclaredVowChange(event.target.value)}
-            >
-              <option value="">No Vow this game</option>
-              {availableVows.map((entry) => (
-                <option key={entry.id} value={entry.id}>
-                  {entry.name}
-                </option>
-              ))}
-              {lockedVows.map((entry) => {
-                const restrictions = [];
-                if (completedLedgerCount < entry.unlockAt) {
-                  restrictions.push(`unlocks at ${entry.unlockAt} entries`);
-                }
-                if (!isVowAvailableForPlayerCount(entry.id, playerCount)) {
-                  restrictions.push("3–5 players only");
-                }
-                return (
-                  <option disabled key={entry.id} value={entry.id}>
-                    {entry.name} — {restrictions.join(" · ")}
-                  </option>
-                );
-              })}
-            </select>
-            <small>
-              {declaredVow
-                ? declaredVow.requirement
-                : availableVows.length === 0 && nextVowUnlockAt !== undefined
-                  ? `No Vows unlocked yet · first Vow unlocks at ${nextVowUnlockAt} completed entries · ${completedLedgerCount}/50 entries complete`
-                  : `Optional · one Vow per game · ${completedLedgerCount}/50 entries complete`}
-            </small>
-            {vowCompatibilityWarning && (
-              <small className="setup-vow-warning" role="status">
-                {vowCompatibilityWarning}
-              </small>
-            )}
-          </label>
+          {questCard && (
+            <div className="setup-quest-card">
+              <h2>This game’s Quest Card</h2>
+              <QuestCardView card={questCard} playerCount={playerCount} compact />
+              <small>{completedLedgerCount} of 21 Quest Cards in the Steward’s Ledger.</small>
+            </div>
+          )}
 
           <details
             className="setup-golden-legacy"
@@ -270,7 +214,7 @@ export function SetupPanel({
                 <small>
                   {selectedGoldenTile
                     ? `${selectedGoldenTile.placement?.text} ${selectedGoldenTile.effectText}`
-                    : `${availableGoldenTiles.length} unlocked at ${completedLedgerCount}/50 entries`}
+                    : `${availableGoldenTiles.length} unlocked · ${completedLedgerCount}/21 Quest Cards in the Ledger`}
                 </small>
               </label>
               <label>
@@ -288,7 +232,7 @@ export function SetupPanel({
                 <small>
                   {selectedGoldenBoon
                     ? selectedGoldenBoon.effectText
-                    : `${availableGoldenBoons.length} unlocked at ${completedLedgerCount}/50 entries`}
+                    : `${availableGoldenBoons.length} unlocked · ${completedLedgerCount}/21 Quest Cards in the Ledger`}
                 </small>
               </label>
             </div>

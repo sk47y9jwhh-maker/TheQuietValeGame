@@ -11,7 +11,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const fonts = path.resolve(here, "../../src/assets/fonts");
 const [bgArg, outArg, ...only] = process.argv.slice(2);
 const bg = "data:image/png;base64," + fs.readFileSync(bgArg).toString("base64");
-const data = JSON.parse(fs.readFileSync(path.resolve(here, "../../src/data/chronicleCards.json"), "utf8"));
+const data = JSON.parse(fs.readFileSync(path.resolve(here, "../../src/data/questCards.json"), "utf8"));
 fs.mkdirSync(outArg, { recursive: true });
 
 const font = (file) => "data:font/woff2;base64," + fs.readFileSync(path.join(fonts, file)).toString("base64");

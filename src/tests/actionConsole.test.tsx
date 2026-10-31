@@ -160,8 +160,8 @@ describe("action console", () => {
     expect(screen.getByText("Strain Penalty -10")).toBeInTheDocument();
   });
 
-  it("reviews and records eligible Ledger entries at game end", () => {
-    const state = { ...createNewGame(1, ["warden"]), phase: "gameEnd" as const };
+  it("reviews the Quest Card and records the game at game end", () => {
+    const state = { ...createNewGame(1, ["warden"], { questCardNumber: 21 }), phase: "gameEnd" as const };
     const onRecordLedgerGame = vi.fn();
 
     renderActionConsole({
@@ -171,44 +171,31 @@ describe("action console", () => {
     });
 
     expect(screen.getByRole("heading", { name: "Ledger review" })).toBeInTheDocument();
-    expect(screen.getByText(/eligible Ledger Entr(?:y|ies) completed/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Quest Card No\. 21, .* (?:complete|not completed)\./)).toBeInTheDocument();
+    expect(screen.getByText(/^Quest Card Renown/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Record this game" }));
     expect(onRecordLedgerGame).toHaveBeenCalledOnce();
   });
 
-  it("keeps the recorded game award snapshot stable after new gates unlock", () => {
+  it("keeps the recorded result once the game is in the Ledger", () => {
     const state = { ...createNewGame(1, ["warden"]), phase: "gameEnd" as const };
     state.ledgerRun!.recorded = true;
     const campaign = createEmptyLedgerCampaign();
-    for (let index = 1; index <= 8; index += 1) {
-      const entryId = `test-${index}`;
-      campaign.completions[entryId] = {
-        entryId,
-        completedOnce: true,
-        completedPlayerCounts: []
-      };
-    }
-    campaign.completions["LE-026"] = {
-      entryId: "LE-026",
-      completedOnce: true,
-      completedPlayerCounts: [1]
-    };
     campaign.games = [{
       id: state.ledgerRun!.gameId,
       completedAt: "2026-07-06T12:00:00.000Z",
       playerCount: 1,
       stewardIds: ["warden"],
       finalScore: 0,
-      completedEntryIds: ["LE-026"],
-      newRecordEntryIds: ["LE-026"]
+      questCardNumber: 0,
+      questCompleted: false
     }];
 
     renderActionConsole({ state, ledgerCampaign: campaign });
 
-    expect(screen.getByText("1 new records")).toBeInTheDocument();
-    expect(screen.getByText("1 eligible Ledger Entry completed this game.")).toBeInTheDocument();
-    expect(screen.getByText("The Quiet Holds")).toBeInTheDocument();
-    expect(screen.queryByText("Remembered Across the Vale")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Game recorded" })).toBeInTheDocument();
+    expect(screen.getByText("This game was played without a Quest Card.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Recorded in Ledger" })).toBeDisabled();
   });
 
   it("keeps the current Steward Power status visible during the turn", () => {

@@ -16,33 +16,30 @@ import { useState } from "react";
 import { readLedgerCampaign } from "../../app/ledgerPersistence";
 import { InspectIconButton } from "../common/InspectIconButton";
 import { encounterById } from "../../data/encounters";
-import {
-  ledgerChronicles,
-  ledgerEntries,
-  ledgerMilestones,
-  type LedgerChronicle
-} from "../../data/ledger";
+import { ledgerMilestones } from "../../data/ledger";
+import { questCards } from "../../data/questCards";
+import { evaluateQuest } from "../../engine/quests";
+import { QuestCardView } from "../common/QuestCardView";
 import { coreTiles, goldenTileById, specialTiles } from "../../data/tiles";
-import { stewardById } from "../../data/stewards";
 import {
   countCompletedLedgerEntries,
   isGoldenMilestoneUnlocked,
   type LedgerCampaign
 } from "../../engine/ledgerCampaign";
 import { evaluateStewardObjectives } from "../../engine/scoring";
-import { evaluateLedgerEntries, getLedgerRun } from "../../engine/ledger";
+import { getLedgerRun } from "../../engine/ledger";
 import { selectCurrentPlayer } from "../../engine/selectors";
-import { supportedPlayerCounts, type GameState } from "../../engine/types";
+import type { GameState } from "../../engine/types";
 import { EncounterCard } from "../common/EncounterCard";
 import { formatCategory, formatCost } from "../common/gameText";
 import { RulesGuide } from "./RulesGuide";
 
 type DrawerSection = "tiles" | "hand" | "specials" | "ledger" | "rules";
-type LedgerView = "game" | "history" | "chronicles" | "unlocks" | "log";
+type LedgerView = "game" | "history" | "cards" | "unlocks" | "log";
 const ledgerViews = [
   { id: "game", label: "This game", Icon: Target },
   { id: "history", label: "Settlements", Icon: History },
-  { id: "chronicles", label: "Chronicles", Icon: BookMarked },
+  { id: "cards", label: "Quest Cards", Icon: BookMarked },
   { id: "unlocks", label: "Unlocks", Icon: Trophy },
   { id: "log", label: "Game log", Icon: History }
 ] as const;
@@ -108,9 +105,6 @@ export function BottomDrawer({
 }: BottomDrawerProps) {
   const [activeSection, setActiveSection] = useState<DrawerSection | null>(null);
   const [ledgerView, setLedgerView] = useState<LedgerView>("game");
-  const [ledgerChronicle, setLedgerChronicle] = useState<LedgerChronicle>(
-    ledgerChronicles[1]
-  );
   const [storedLedgerCampaign] = useState(readLedgerCampaign);
   const ledgerCampaign = providedLedgerCampaign ?? storedLedgerCampaign;
   const currentPlayer = selectCurrentPlayer(state);
@@ -118,19 +112,10 @@ export function BottomDrawer({
   const recordedGame = ledgerRun.recorded || ledgerCampaign.games.some((game) => game.id === ledgerRun.gameId);
   const visibleLedgerViews = ledgerViews.filter((view) => view.id !== "history" || isPlayerExperience());
   const ledgerPanel = { role: "tabpanel", id: "ledger-view-panel", "aria-labelledby": `ledger-view-${ledgerView}`, tabIndex: 0 };
-  const ledgerEvaluations = evaluateLedgerEntries(state, ledgerCampaign);
-  const ledgerEvaluationById = new Map(
-    ledgerEvaluations.map((evaluation) => [evaluation.entry.id, evaluation])
-  );
-  const declaredVow = ledgerRun.declaredVowId
-    ? ledgerEvaluationById.get(ledgerRun.declaredVowId)
-    : undefined;
+  const quest = evaluateQuest(state);
   const stewardObjectives = evaluateStewardObjectives(state);
   const completedLedgerCount = countCompletedLedgerEntries(ledgerCampaign);
-  const completedLedgerIds = new Set(Object.keys(ledgerCampaign.completions));
-  const visibleLedgerEntries = ledgerEntries.filter(
-    (entry) => entry.chronicle === ledgerChronicle
-  );
+  const ledgerBox = new Set(ledgerCampaign.box);
   const hand = state.encounters.handsByPlayerId[currentPlayer.id] ?? [];
   const coreRemaining = coreTiles.reduce(
     (total, tile) => total + (state.tileSupply.core[tile.id] ?? 0),
@@ -150,7 +135,7 @@ export function BottomDrawer({
     {
       id: "ledger",
       label: "Ledger",
-      detail: `${completedLedgerCount}/50 complete`
+      detail: `${completedLedgerCount}/21 Quest Cards`
     },
     { id: "rules", label: "Rules", detail: "guide & rules" }
   ] satisfies Array<{
@@ -297,39 +282,21 @@ export function BottomDrawer({
                   <section className="ledger-campaign-summary">
                     <div>
                       <p className="eyebrow">Steward’s Ledger</p>
-                      <strong>{completedLedgerCount} of 50 named entries completed</strong>
+                      <strong>{completedLedgerCount} of 21 Quest Cards completed</strong>
                       <span>
                         Campaign progress is stored separately from this active game.
                       </span>
                     </div>
-                    <div className="ledger-count-seal" aria-label={`${completedLedgerCount} entries complete`}>
+                    <div className="ledger-count-seal" aria-label={`${completedLedgerCount} Quest Cards complete`}>
                       <strong>{completedLedgerCount}</strong>
-                      <span>/ 50</span>
+                      <span>/ 21</span>
                     </div>
                   </section>
 
-                  <section className={`ledger-vow-summary ${declaredVow ? "has-vow" : "no-vow"}`}>
-                    <div>
-                      <p className="eyebrow">Declared Vow</p>
-                      <strong>{declaredVow?.entry.name ?? "No Vow declared"}</strong>
-                      <span>
-                        {declaredVow
-                          ? declaredVow.entry.requirement
-                          : "A Vow may only be chosen before setup begins."}
-                      </span>
-                    </div>
-                    {declaredVow && (
-                      <span className={`ledger-status-chip ${declaredVow.unavailableReason ? "is-failed" : ""}`}>
-                        {declaredVow.unavailableReason
-                          ? "Vow broken"
-                          : declaredVow.met
-                            ? "On track"
-                            : "In progress"}
-                      </span>
-                    )}
-                    {declaredVow && (
-                      <small>{declaredVow.unavailableReason ?? declaredVow.progressLabel}</small>
-                    )}
+                  <section className="ledger-quest-current" aria-label="This game's Quest Card">
+                    {quest
+                      ? <QuestCardView card={quest.card} playerCount={state.playerCount} result={quest} ended={state.phase === "gameEnd"} />
+                      : <p>This game was started without a Quest Card. The next new settlement draws one.</p>}
                   </section>
 
                   <div className="ledger-section-heading">
@@ -379,10 +346,10 @@ export function BottomDrawer({
 
                   <p className="ledger-foundation-note">
                     {recordedGame
-                      ? "This game has been recorded in the campaign Ledger."
+                      ? "This game has been recorded in the Steward’s Ledger."
                       : state.phase === "gameEnd"
                         ? "Review and record this game from the final scoring panel."
-                        : "Progress is tracked automatically. Entries are awarded when the completed game is recorded."}
+                        : "The Quest Card is tracked automatically. A completed card goes into the Ledger when the finished game is recorded; a failed card goes to the bottom of the deck."}
                   </p>
                 </div>
               )}
@@ -391,91 +358,30 @@ export function BottomDrawer({
                 <div {...ledgerPanel} className="ledger-scroll-region"><LedgerHistory campaign={ledgerCampaign} /></div>
               )}
 
-              {ledgerView === "chronicles" && (
-                <div {...ledgerPanel} className="ledger-chronicles-layout">
-                  <nav className="ledger-chronicle-nav" aria-label="Ledger Chronicles">
-                    {ledgerChronicles.map((chronicle) => {
-                      const complete = ledgerEntries.filter(
-                        (entry) =>
-                          entry.chronicle === chronicle && completedLedgerIds.has(entry.id)
-                      ).length;
-                      const total = ledgerEntries.filter(
-                        (entry) => entry.chronicle === chronicle
-                      ).length;
-                      return (
-                        <button
-                          aria-pressed={ledgerChronicle === chronicle}
-                          className={ledgerChronicle === chronicle ? "selected" : ""}
-                          key={chronicle}
-                          onClick={() => setLedgerChronicle(chronicle)}
-                          type="button"
-                        >
-                          <span>{chronicle}</span>
-                          <strong>{complete}/{total}</strong>
-                        </button>
-                      );
-                    })}
-                  </nav>
-
-                  <div className="ledger-entry-list ledger-scroll-region">
-                    <div className="ledger-section-heading">
-                      <div>
-                        <p className="eyebrow">Chronicle</p>
-                        <h3>{ledgerChronicle}</h3>
-                      </div>
-                      <span>{visibleLedgerEntries.length} entries</span>
+              {ledgerView === "cards" && (
+                <div {...ledgerPanel} className="ledger-scroll-region">
+                  <div className="ledger-section-heading">
+                    <div>
+                      <p className="eyebrow">Steward’s Ledger</p>
+                      <h3>Quest Cards</h3>
                     </div>
-                    {visibleLedgerEntries.map((entry) => {
-                      const completion = ledgerCampaign.completions[entry.id];
-                      const complete = completedLedgerIds.has(entry.id);
-                      const locked = completedLedgerCount < entry.unlockAt;
+                    <span>{completedLedgerCount} in the Ledger · {ledgerCampaign.deck.length} in the deck</span>
+                  </div>
+                  <div className="ledger-quest-list">
+                    {questCards.map((card) => {
+                      const inLedger = ledgerBox.has(card.n);
+                      const current = quest?.card.n === card.n;
                       return (
-                        <article
-                          className={`ledger-entry-card ${complete ? "is-complete" : ""} ${locked ? "is-locked" : ""}`}
-                          key={entry.id}
-                        >
+                        <article className={`ledger-quest-card ${inLedger ? "is-complete" : ""} ${current ? "is-current" : ""}`} key={card.n}>
                           <header>
-                            <div>
-                              <span>{entry.id}, {entry.entryType}</span>
-                              <strong>{entry.name}</strong>
-                            </div>
+                            <span>No. {card.n}</span>
+                            <strong>{card.theme}</strong>
                             <span className="ledger-status-chip">
-                              {complete ? (
-                                <><CheckCircle2 size={13} /> Complete</>
-                              ) : locked ? (
-                                <><LockKeyhole size={13} /> {entry.unlockAt} required</>
-                              ) : entry.declaredVow ? (
-                                "Declare as Vow"
-                              ) : (
-                                "Available"
-                              )}
+                              {inLedger ? <><CheckCircle2 size={13} aria-hidden="true" /> In the Ledger</> : current ? "This game" : <><LockKeyhole size={13} aria-hidden="true" /> In the deck</>}
                             </span>
                           </header>
-                          <p>{entry.requirement}</p>
-                          <small className="ledger-entry-progress">
-                            {ledgerEvaluationById.get(entry.id)?.unavailableReason ??
-                              ledgerEvaluationById.get(entry.id)?.progressLabel}
-                          </small>
-                          <footer>
-                            <span>{entry.scope}</span>
-                            <span>{entry.pacingBand}</span>
-                            {entry.requiredSteward && (
-                              <span>{stewardById[entry.requiredSteward]?.name ?? entry.requiredSteward}</span>
-                            )}
-                            {entry.declaredVow && <span>One Vow per game</span>}
-                          </footer>
-                          {entry.playerCountPrestige && (
-                            <div className="ledger-prestige-row" aria-label="Player count records">
-                              {supportedPlayerCounts.map((count) => (
-                                <span
-                                  className={completion?.completedPlayerCounts?.includes(count) ? "complete" : ""}
-                                  key={count}
-                                >
-                                  {count}P
-                                </span>
-                              ))}
-                            </div>
-                          )}
+                          <p><small>Top</small> {card.top.name}</p>
+                          <p><small>Bottom</small> {card.bottom.name}</p>
                         </article>
                       );
                     })}
@@ -488,8 +394,8 @@ export function BottomDrawer({
                   <section className="ledger-campaign-summary unlock-summary">
                     <div>
                       <p className="eyebrow">Golden Milestones</p>
-                      <strong>{completedLedgerCount} completed entries</strong>
-                      <span>Each named entry counts once. Additional player-count boxes are prestige records.</span>
+                      <strong>{completedLedgerCount} Quest Cards in the Ledger</strong>
+                      <span>Each Quest Card counts once, whichever half completed it.</span>
                     </div>
                     <Trophy size={30} />
                   </section>
@@ -508,7 +414,7 @@ export function BottomDrawer({
                           key={milestone.threshold}
                         >
                           <header>
-                            <span>{milestone.threshold} entries</span>
+                            <span>{milestone.threshold} Quest Cards</span>
                             <strong>{unlocked ? "Unlocked" : `${Math.max(0, milestone.threshold - completedLedgerCount)} to go`}</strong>
                           </header>
                           <div>
@@ -528,7 +434,7 @@ export function BottomDrawer({
                           <footer>
                             {unlocked
                               ? "Available in Golden Legacy setup. Choose up to one Tile and one Boon."
-                              : `Complete ${milestone.threshold} named Ledger entries to unlock.`}
+                              : `Complete ${milestone.threshold} Quest Cards to unlock.`}
                           </footer>
                         </article>
                       );
@@ -537,9 +443,9 @@ export function BottomDrawer({
                   {onResetLedgerCampaign && (
                     <section className="ledger-reset-panel">
                       <div>
-                        <strong>Reset campaign Ledger</strong>
+                        <strong>Reset the Steward’s Ledger</strong>
                         <span>
-                          Clears completed entries, prestige records, unlocks, and game history.
+                          Clears completed Quest Cards, unlocks and game history, and reshuffles the deck.
                           The active game is kept.
                         </span>
                       </div>

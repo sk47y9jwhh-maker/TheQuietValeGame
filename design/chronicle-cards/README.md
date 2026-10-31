@@ -5,7 +5,7 @@ print run. Design doc: https://claude.ai/artifact/3SBA7V5j9kWNV7gtnXKy1t
 
 | File | What it is |
 | --- | --- |
-| `src/data/chronicleCards.json` | The 21 cards (shared with the online game): theme, both halves, check type and player-count strips. The source of truth for the print. |
+| `src/data/questCards.json` | The 21 cards (shared with the online game): theme, both halves, check type and player-count strips. The source of truth for the print. |
 | `chronicle-front-background-600dpi.png` | Front background: the Golden Boon master re-laid to poker, text removed, gold glow bands and the master's own dividers redrawn for this layout. |
 | `render-chronicle.mjs` | Renders every front from `cards.json` onto the background in the game's fonts (Almendra, Alegreya, Alegreya Sans). |
 | `print/chronicle-NN.png` | Print fronts, 1630 × 2220 px at 600 dpi: 63 × 88 mm trim with 3 mm bleed each side, sRGB. |

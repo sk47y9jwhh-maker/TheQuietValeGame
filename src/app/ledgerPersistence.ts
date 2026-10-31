@@ -1,12 +1,10 @@
 import {
-  countCompletedLedgerEntries,
   createEmptyLedgerCampaign,
   ledgerCampaignVersion,
-  ledgerCatalogueVersion,
   type LedgerCampaign,
-  type LedgerCompletionRecord,
   type LedgerGameRecord
 } from "../engine/ledgerCampaign";
+import { questCards } from "../data/questCards";
 import { readStoredJsonResult, removeStoredItems, writeStoredJson, type StoredRead } from "./browserStorage";
 
 export {
@@ -14,30 +12,20 @@ export {
   createEmptyLedgerCampaign,
   isGoldenMilestoneUnlocked,
   ledgerCampaignVersion,
+  nextQuestCard,
   type LedgerCampaign,
-  type LedgerCompletionRecord,
   type LedgerGameRecord
 } from "../engine/ledgerCampaign";
 
 const ledgerCampaignKey = "quietVale.stewardsLedger.v1";
+const cardNumbers = new Set(questCards.map((card) => card.n));
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === "string");
-}
-
-function isLedgerCompletionRecord(value: unknown): value is LedgerCompletionRecord {
-  return (
-    isRecord(value) &&
-    typeof value.entryId === "string" &&
-    typeof value.completedOnce === "boolean" &&
-    Array.isArray(value.completedPlayerCounts) &&
-    value.completedPlayerCounts.every((count) => typeof count === "number")
-  );
-}
+const isNumberArray = (value: unknown): value is number[] =>
+  Array.isArray(value) && value.every((item) => typeof item === "number");
 
 function isLedgerGameRecord(value: unknown): value is LedgerGameRecord {
   return (
@@ -45,57 +33,48 @@ function isLedgerGameRecord(value: unknown): value is LedgerGameRecord {
     typeof value.id === "string" &&
     typeof value.completedAt === "string" &&
     typeof value.playerCount === "number" &&
-    isStringArray(value.stewardIds) &&
+    Array.isArray(value.stewardIds) &&
     typeof value.finalScore === "number" &&
-    isStringArray(value.completedEntryIds) &&
-    (value.completedStewardObjectiveIds === undefined ||
-      isStringArray(value.completedStewardObjectiveIds)) &&
-    (value.newRecordEntryIds === undefined || isStringArray(value.newRecordEntryIds))
+    typeof value.questCardNumber === "number" &&
+    typeof value.questCompleted === "boolean"
   );
 }
 
-function isLedgerCampaignShape(value: unknown): value is LedgerCampaign {
-  if (!isRecord(value) || !isRecord(value.completions) || !Array.isArray(value.games)) {
-    return false;
-  }
-  return (
-    typeof value.version === "number" &&
-    Object.values(value.completions).every(isLedgerCompletionRecord) &&
-    value.games.every(isLedgerGameRecord)
-  );
+function isQuestLedger(value: unknown): value is LedgerCampaign {
+  if (!isRecord(value) || value.version !== ledgerCampaignVersion) return false;
+  if (!isNumberArray(value.deck) || !isNumberArray(value.box) || !Array.isArray(value.games)) return false;
+  const all = [...value.deck, ...value.box];
+  return all.length === cardNumbers.size && new Set(all).size === all.length &&
+    all.every((n) => cardNumbers.has(n)) && value.games.every(isLedgerGameRecord);
+}
+
+/**
+ * The old 50-entry Ledger kept completions per entry. Its Golden unlocks carry
+ * over (by its own thresholds); its entries and history do not.
+ */
+function isOldLedger(value: unknown): value is { completions: Record<string, { completedOnce?: boolean; completedPlayerCounts?: number[] }>; pacingVersion?: number; grandfatheredGoldenMilestoneCount?: number } {
+  return isRecord(value) && isRecord(value.completions) && Array.isArray(value.games);
+}
+
+/** Any stored or preview Ledger, in the current shape. */
+export function normaliseLedgerCampaign(value: unknown): LedgerCampaign | null {
+  if (isQuestLedger(value)) return value;
+  if (!isOldLedger(value)) return null;
+  const completed = Object.values(value.completions).filter(
+    (entry) => entry?.completedOnce || (entry?.completedPlayerCounts?.length ?? 0) > 0
+  ).length;
+  const earned = [5, 12, 18, 25, 32].filter((threshold) => completed >= threshold).length;
+  const legacyEarned = value.pacingVersion === 2 ? 0 : [5, 10, 15, 20, 30].filter((threshold) => completed >= threshold).length;
+  const grandfathered = Math.max(value.grandfatheredGoldenMilestoneCount ?? 0, earned, legacyEarned);
+  return { ...createEmptyLedgerCampaign(), ...(grandfathered > 0 ? { grandfatheredGoldenMilestoneCount: grandfathered } : {}) };
 }
 
 export function readLedgerCampaignResult(): StoredRead<LedgerCampaign> {
   const result = readStoredJsonResult(ledgerCampaignKey);
   if (!result.ok) return result;
   if (result.value === null) return { ok: true, value: null };
-  const parsed = result.value;
-  if (!isLedgerCampaignShape(parsed)) return { ok: false, problem: "unreadable" };
-  if (
-    parsed.version === ledgerCampaignVersion &&
-    parsed.catalogueVersion === ledgerCatalogueVersion
-  ) return { ok: true, value: parsed };
-
-  // Entry IDs were reassigned in v4.6, so old ticks cannot be carried safely.
-  // Preserve the highest Golden unlock tier already earned, then begin the new
-  // catalogue with a clean achievement record.
-  const completed = countCompletedLedgerEntries(parsed);
-  const currentMilestones = [5, 12, 18, 25, 32];
-  const earnedMilestones = currentMilestones.filter(
-    (threshold) => completed >= threshold
-  ).length;
-  const legacyPacingMilestones = parsed.pacingVersion === 2
-    ? 0
-    : [5, 10, 15, 20, 30].filter((threshold) => completed >= threshold).length;
-  const grandfatheredGoldenMilestoneCount = Math.max(
-    parsed.grandfatheredGoldenMilestoneCount ?? 0,
-    earnedMilestones,
-    legacyPacingMilestones
-  );
-  return {
-    ok: true,
-    value: { ...createEmptyLedgerCampaign(), grandfatheredGoldenMilestoneCount }
-  };
+  const campaign = normaliseLedgerCampaign(result.value);
+  return campaign ? { ok: true, value: campaign } : { ok: false, problem: "unreadable" };
 }
 
 export function readLedgerCampaign(fallback?: LedgerCampaign): LedgerCampaign {

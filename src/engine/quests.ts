@@ -1,5 +1,5 @@
 /**
- * Chronicle Cards: checks the drawn card's two quests against the game.
+ * Quest Cards: checks the drawn card's two quests against the game.
  *
  * - Moment quests are met the instant the board shows them, and stay met.
  * - Vow quests are watched after every change; a broken Vow stays broken.
@@ -8,31 +8,30 @@
  * Shapes and counts use non-Overstrained tiles; Vow breaks look at every tile.
  */
 import {
-  chronicleCardByNumber,
+  questCardByNumber,
   keepValue,
   stripValue,
-  type ChronicleCard,
-  type ChronicleHalfKey
-} from "../data/chronicleCards";
+  type QuestCard,
+  type QuestHalfKey
+} from "../data/questCards";
 import { mapById, mapCells } from "../data/map";
 import { coreTileById, goldenTileById, specialTileById } from "../data/tiles";
 import { getHexNeighbors } from "./hex";
-import { getLedgerRun } from "./ledger";
-import type { ChronicleRunState, GameState, PlacedTile, TileCategory } from "./types";
+import type { QuestRunState, GameState, PlacedTile, TileCategory } from "./types";
 
-export type ChronicleQuestId = `${number}${"T" | "B"}`;
-export type ChronicleHalfStatus = "met" | "open" | "broken";
+export type QuestId = `${number}${"T" | "B"}`;
+export type QuestHalfStatus = "met" | "open" | "broken";
 
-export interface ChronicleHalfResult {
-  id: ChronicleQuestId;
-  half: ChronicleHalfKey;
-  status: ChronicleHalfStatus;
+export interface QuestHalfResult {
+  id: QuestId;
+  half: QuestHalfKey;
+  status: QuestHalfStatus;
 }
 
-export interface ChronicleResult {
-  card: ChronicleCard;
-  top: ChronicleHalfResult;
-  bottom: ChronicleHalfResult;
+export interface QuestResult {
+  card: QuestCard;
+  top: QuestHalfResult;
+  bottom: QuestHalfResult;
   complete: boolean;
 }
 
@@ -156,17 +155,17 @@ function rowSpan(text: string): [number, number] {
 
 interface QuestCheck {
   /** Moments: true when the board shows it now. Finals: true at the end. */
-  goal?: (s: GameState, b: Board, card: ChronicleCard) => boolean;
+  goal?: (s: GameState, b: Board, card: QuestCard) => boolean;
   /** Vows: true when this change breaks it. */
-  breaks?: (s: GameState, b: Board, card: ChronicleCard) => boolean;
+  breaks?: (s: GameState, b: Board, card: QuestCard) => boolean;
   /** Vows: the Keep it line, checked at the end. */
-  keep?: (s: GameState, b: Board, card: ChronicleCard) => boolean;
+  keep?: (s: GameState, b: Board, card: QuestCard) => boolean;
 }
 
 const p = (s: GameState) => s.playerCount;
-const T = (card: ChronicleCard, label: string, s: GameState) => Number(stripValue(card.top, label, p(s)));
-const B = (card: ChronicleCard, label: string, s: GameState) => stripValue(card.bottom, label, p(s));
-const K = (card: ChronicleCard, s: GameState) => keepValue(card.bottom, p(s));
+const T = (card: QuestCard, label: string, s: GameState) => Number(stripValue(card.top, label, p(s)));
+const B = (card: QuestCard, label: string, s: GameState) => stripValue(card.bottom, label, p(s));
+const K = (card: QuestCard, s: GameState) => keepValue(card.bottom, p(s));
 const atOnce = (tiles: PlacedTile[], test: (t: PlacedTile) => boolean, limit: number) => tiles.filter(test).length > limit;
 
 const quests: Record<string, QuestCheck> = {
@@ -243,14 +242,14 @@ const quests: Record<string, QuestCheck> = {
   },
   "11B": { goal: (s, b, c) => enclosedByTravel(b) >= Number(B(c, "Tiles inside", s)) },
   "12T": {
-    goal: (s, _b, c) => Object.values(getLedgerRun(s).strainRemovedByRoundCategory ?? {}).some((byCategory) => {
+    goal: (s, _b, c) => Object.values(s.ledgerRun?.strainRemovedByRoundCategory ?? {}).some((byCategory) => {
       const amounts = Object.values(byCategory).map((x) => x ?? 0);
       const total = amounts.reduce((sum, x) => sum + x, 0);
       return total >= T(c, "Strain removed", s) && (p(s) === 1 || amounts.filter((x) => x > 0).length >= 2);
     })
   },
   "12B": {
-    goal: (s, b, c) => (s.chronicleRun?.peakOverstrained ?? 0) >= Number(B(c, "Overstrained at once", s)) &&
+    goal: (s, b, c) => (s.questRun?.peakOverstrained ?? 0) >= Number(B(c, "Overstrained at once", s)) &&
       b.all.every((t) => !overstrained(t))
   },
   "13T": {
@@ -263,7 +262,7 @@ const quests: Record<string, QuestCheck> = {
     breaks: (s, b, c) => atOnce(b.all, overstrained, Number(B(c, "Limit", s))),
     keep: (s, b, c) => strainOnMap(b.all) <= K(c, s)
   },
-  "14T": { goal: (s, _b, c) => (getLedgerRun(s).upgradeActions ?? 0) >= T(c, "Upgrades", s) },
+  "14T": { goal: (s, _b, c) => (s.ledgerRun?.upgradeActions ?? 0) >= T(c, "Upgrades", s) },
   "14B": {
     breaks: (_s, b) => b.all.some((t) => t.kind === "core" && t.side === "upgraded"),
     keep: (s, b, c) => pairedHousing(b) >= K(c, s)
@@ -339,20 +338,20 @@ const quests: Record<string, QuestCheck> = {
 
 // ---------------------------------------------------------------- run tracking
 
-export function createChronicleRun(cardNumber: number): ChronicleRunState {
-  if (!chronicleCardByNumber[cardNumber]) throw new Error(`Unknown Chronicle Card ${cardNumber}.`);
+export function createQuestRun(cardNumber: number): QuestRunState {
+  if (!questCardByNumber[cardNumber]) throw new Error(`Unknown Quest Card ${cardNumber}.`);
   return { cardNumber, moments: [], broken: [], peakOverstrained: 0 };
 }
 
-const questId = (card: ChronicleCard, half: ChronicleHalfKey) => `${card.n}${half === "top" ? "T" : "B"}` as ChronicleQuestId;
+const questId = (card: QuestCard, half: QuestHalfKey) => `${card.n}${half === "top" ? "T" : "B"}` as QuestId;
 
 /** Updates the drawn card's Moments, Vows and peak Overstrain after a change. */
-export function trackChronicle(state: GameState): GameState {
-  const run = state.chronicleRun;
+export function trackQuest(state: GameState): GameState {
+  const run = state.questRun;
   if (!run) return state;
-  const card = chronicleCardByNumber[run.cardNumber];
+  const card = questCardByNumber[run.cardNumber];
   const b = board(state.map.placedTiles);
-  const withPeak = { ...state, chronicleRun: { ...run, peakOverstrained: Math.max(run.peakOverstrained, b.all.filter(overstrained).length) } };
+  const withPeak = { ...state, questRun: { ...run, peakOverstrained: Math.max(run.peakOverstrained, b.all.filter(overstrained).length) } };
   const moments = [...run.moments];
   const broken = [...run.broken];
   for (const half of ["top", "bottom"] as const) {
@@ -362,26 +361,26 @@ export function trackChronicle(state: GameState): GameState {
     if (kind.check === "Moment" && !moments.includes(id) && check.goal?.(withPeak, b, card)) moments.push(id);
     if (kind.kind === "Vow" && !broken.includes(id) && check.breaks?.(withPeak, b, card)) broken.push(id);
   }
-  const next = { ...withPeak.chronicleRun, moments, broken };
+  const next = { ...withPeak.questRun, moments, broken };
   const same = next.peakOverstrained === run.peakOverstrained && moments.length === run.moments.length && broken.length === run.broken.length;
-  return same ? state : { ...state, chronicleRun: next };
+  return same ? state : { ...state, questRun: next };
 }
 
 /**
  * Where each half stands now. Before the game ends, Final quests and Keep it
  * lines read "open"; at game end they are checked.
  */
-export function evaluateChronicle(state: GameState): ChronicleResult | null {
-  const run = state.chronicleRun;
+export function evaluateQuest(state: GameState): QuestResult | null {
+  const run = state.questRun;
   if (!run) return null;
-  const card = chronicleCardByNumber[run.cardNumber];
+  const card = questCardByNumber[run.cardNumber];
   const b = board(state.map.placedTiles);
   const ended = state.phase === "gameEnd";
-  const result = (half: ChronicleHalfKey): ChronicleHalfResult => {
+  const result = (half: QuestHalfKey): QuestHalfResult => {
     const id = questId(card, half);
     const check = quests[id];
     const kind = card[half];
-    let status: ChronicleHalfStatus = "open";
+    let status: QuestHalfStatus = "open";
     if (kind.kind === "Vow") {
       if (run.broken.includes(id)) status = "broken";
       else if (ended && check.keep?.(state, b, card)) status = "met";
@@ -398,6 +397,6 @@ export function evaluateChronicle(state: GameState): ChronicleResult | null {
 }
 
 /** Every quest id has a check; used by the data tests. */
-export function chronicleQuestIds(): string[] {
+export function questIds(): string[] {
   return Object.keys(quests);
 }

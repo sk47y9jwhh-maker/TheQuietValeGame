@@ -4,8 +4,12 @@ import { createNewGame } from "../src/engine/setup";
 import { canCancelPendingBurdenWithWarden, activateTile, endCurrentTurn, placeTile, resolveEndRound, revealEncounters, useStewardPower, upgradeTile } from "../src/engine/gameActions";
 import { hasEffectAdjustment } from "../src/engine/manualEffects";
 import { getLegalPlacementHexes } from "../src/engine/placementRules";
-import { createEmptyLedgerCampaign } from "../src/engine/ledgerCampaign";
-import { ledgerEntries } from "../src/data/ledger";
+import { createEmptyLedgerCampaign, type LedgerCampaign } from "../src/engine/ledgerCampaign";
+
+/** Example progress for an isolated scenario: the first cards of the deck, completed. */
+function withQuestCards(campaign: LedgerCampaign, count: number): LedgerCampaign {
+  return { ...campaign, deck: campaign.deck.slice(count), box: campaign.deck.slice(0, count) };
+}
 import type { PreviewSnapshot } from "../src/app/scenarioTypes";
 import type { ScenarioId } from "../src/app/scenarioCatalog";
 import { advance, seed, seedSeason, settle, snapshot, startStewards } from "./scenario-steps";
@@ -74,13 +78,13 @@ try {
     }
     if (golden.pendingGoldenEffect?.kind !== expected) throw new Error(`Golden fixture ${id} did not reach its choice.`);
     result[id] = snapshot(golden);
-    for (const entry of ledgerEntries.slice(0, expected === "bell" ? 5 : expected === "scroll" ? 12 : 32)) result[id].campaign.completions[entry.id] = { entryId: entry.id, completedOnce: true, completedPlayerCounts: [], notes: "Example progress for the isolated comparison scenario." };
+    result[id].campaign = withQuestCards(result[id].campaign, expected === "bell" ? 3 : expected === "scroll" ? 6 : 15);
   }
 
   // Ongoing/automatic Golden effects have no dedicated pending-choice state.
   for (const [id, boonId, threshold] of [
-    ["golden-vial", "golden_boon_the_golden_vial", 18],
-    ["golden-traveller", "golden_boon_the_golden_eyed_traveler", 25]
+    ["golden-vial", "golden_boon_the_golden_vial", 9],
+    ["golden-traveller", "golden_boon_the_golden_eyed_traveler", 12]
   ] as const) {
     let golden = startStewards(createNewGame(2, ["vanguard", "knight"], { encounterSeed: seed, selectedGoldenBoonId: boonId }));
     const ready = () => id === "golden-vial" ? golden.encounters.faceUpBoons.some((boon) => boon.cardId === boonId) : golden.bonusTurnsPending;
@@ -101,7 +105,7 @@ try {
     }
     if (!ready() || golden.phase !== "turns") throw new Error(`Golden fixture ${id} did not become ready.`);
     result[id] = snapshot(golden);
-    for (const entry of ledgerEntries.slice(0, threshold)) result[id].campaign.completions[entry.id] = { entryId: entry.id, completedOnce: true, completedPlayerCounts: [], notes: "Example progress for the isolated comparison scenario." };
+    result[id].campaign = withQuestCards(result[id].campaign, threshold);
   }
 
   // Two Stewards with disconnected starting settlements expose temporary reach
@@ -203,7 +207,7 @@ try {
   result.guided = snapshot(startStewards(createNewGame(1, ["vanguard"], { encounterSeed: seed })));
 
   result.returning = snapshot(null);
-  for (const entry of ledgerEntries.slice(0, 5)) result.returning.campaign.completions[entry.id] = { entryId: entry.id, completedOnce: true, completedPlayerCounts: [], notes: "Example progress for the isolated comparison scenario." };
+  result.returning.campaign = withQuestCards(result.returning.campaign, 3);
   writeFileSync(new URL("../src/app/scenarios.generated.json", import.meta.url), JSON.stringify(result, null, 2) + "\n");
   console.log(Object.entries(result).map(([id, value]) => ({ id, phase: value.state?.phase ?? "welcome", round: value.state?.round, tiles: value.state?.map.placedTiles.length, effects: value.state?.pendingEffects.length })));
 } finally {

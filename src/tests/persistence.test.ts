@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  createEmptyLedgerCampaign,
   readLedgerCampaign
 } from "../app/ledgerPersistence";
 import { readSavedGame, readSavedSetup, writeSavedGame } from "../app/persistence";
@@ -248,7 +247,10 @@ describe("browser persistence", () => {
       })
     );
 
-    expect(readLedgerCampaign()).toEqual(createEmptyLedgerCampaign());
+    const campaign = readLedgerCampaign();
+    expect(campaign.box).toEqual([]);
+    expect(campaign.games).toEqual([]);
+    expect(campaign.deck).toHaveLength(21);
   });
 
   it("rejects malformed nested Ledger records even when the campaign shell is valid", () => {
@@ -263,6 +265,9 @@ describe("browser persistence", () => {
       })
     );
 
-    expect(readLedgerCampaign()).toEqual(createEmptyLedgerCampaign());
+    const campaign = readLedgerCampaign();
+    expect(campaign.box).toEqual([]);
+    expect(campaign.games).toEqual([]);
+    expect(campaign.deck).toHaveLength(21);
   });
 });

@@ -4,6 +4,7 @@ import { stewards } from "../data/stewards";
 import { coreTiles, specialTiles } from "../data/tiles";
 import { getSeasonForRound } from "./season";
 import { createLedgerRunState } from "./ledger";
+import { createQuestRun } from "./quests";
 import { createTargetCardDeckState } from "./targetCards";
 import type {
   GameState,
@@ -28,8 +29,9 @@ interface EncounterSetupOptions {
 }
 
 interface NewGameOptions extends EncounterSetupOptions {
-  declaredVowId?: string;
   selectedGoldenTileId?: string;
+  /** The Quest Card for this game, drawn from the Steward's Ledger. */
+  questCardNumber?: number;
 }
 
 export function getStartingWarehouseAmount(playerCount: PlayerCount): number {
@@ -234,7 +236,8 @@ export function createNewGame(
     targetCards: createTargetCardDeckState(
       `${options.encounterSeed?.trim() || "QV-TARGET-CARDS"}:${playerCount}:targets`
     ),
-    ledgerRun: createLedgerRunState(startingWarehouse, options.declaredVowId, playerCount),
+    ledgerRun: createLedgerRunState(startingWarehouse, playerCount),
+    ...(options.questCardNumber ? { questRun: createQuestRun(options.questCardNumber) } : {}),
     log: [
       {
         id: "log_setup",

@@ -872,7 +872,7 @@ export const goldenBoons: GoldenBoonData[] = [
     type: "goldenBoon",
     name: "The Golden Bell",
     enabledInOnlinePrototype: true,
-    unlockAt: 5,
+    unlockAt: 3,
     lifecycle: "Resolve immediately for free, reveal a replacement Encounter Card, then discard.",
     effectText:
       "When revealed, reveal 3 unused Arrival Cards from the game box. Choose 1 and complete it immediately without paying its Requirement and without spending an Action. Unlock its Special Tile as normal. Return the other revealed Arrival Cards to the box. Then discard this card."
@@ -882,7 +882,7 @@ export const goldenBoons: GoldenBoonData[] = [
     type: "goldenBoon",
     name: "The Golden Scroll",
     enabledInOnlinePrototype: true,
-    unlockAt: 12,
+    unlockAt: 6,
     lifecycle: "Resolve immediately for free, reveal a replacement Encounter Card, then discard.",
     effectText:
       "When revealed, each player may choose 1 standard Encounter Card from their hand and return it to the game box. Each player who did draws 1 random standard Boon Card from the game box into their hand. Golden Boons cannot be drawn this way. If there are not enough standard Boon Cards in the box, draw as many as possible. Then discard this card."
@@ -892,7 +892,7 @@ export const goldenBoons: GoldenBoonData[] = [
     type: "goldenBoon",
     name: "The Golden Vial",
     enabledInOnlinePrototype: true,
-    unlockAt: 18,
+    unlockAt: 9,
     lifecycle: "Keep face-up for the rest of the game. Reveal a replacement Encounter Card.",
     effectText:
       "When revealed, keep this card face-up near the Stewards Board. For the rest of the game, once per round, the group may place 1 Path Tile without spending an Action. Pay its cost and follow normal placement rules. If no Path Tiles remain, this effect cannot be used."
@@ -902,7 +902,7 @@ export const goldenBoons: GoldenBoonData[] = [
     type: "goldenBoon",
     name: "The Golden-Eyed Traveller",
     enabledInOnlinePrototype: true,
-    unlockAt: 25,
+    unlockAt: 12,
     lifecycle: "Resolve immediately for free, reveal a replacement Encounter Card, then discard.",
     effectText:
       "When revealed, after the normal Player Turns phase this round, each player takes 1 bonus turn with the normal action allowance. Then continue to End of Round. Do not reveal additional Encounter Cards, remove Arrival timers, resolve End of Round effects, or advance the Round Timer before these bonus turns. Then discard this card."
@@ -912,7 +912,7 @@ export const goldenBoons: GoldenBoonData[] = [
     type: "goldenBoon",
     name: "The Golden Signet Ring",
     enabledInOnlinePrototype: true,
-    unlockAt: 32,
+    unlockAt: 15,
     lifecycle: "Resolve immediately for free, reveal a replacement Encounter Card, then discard.",
     effectText:
       "When revealed, choose up to 5 placed tiles. Remove those tiles, then place each chosen tile into a legal empty map space. Chosen tiles may use spaces vacated by other chosen tiles. Ignore adjacency and reachability restrictions, but all terrain restrictions still apply. Multi-hex tiles must cover only empty, legal hexes. Chosen tiles keep Strain, Supported, upgrade state, and all tokens. Recalculate connectivity and Overstrained effects immediately. Then discard this card."

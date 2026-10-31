@@ -61,22 +61,14 @@ describe("app smoke flow", () => {
     expect(saved.encounterSeed).toMatch(/^QV-[A-Z0-9]+$/);
   });
 
-  it("shows how locked Ledger Vows become available", () => {
+  it("shows the Quest Card drawn for the next game", () => {
+    const campaign = createEmptyLedgerCampaign("SEED");
+    writeLedgerCampaign(campaign);
     render(<App />);
 
-    expect(
-      screen.getByText(
-        "No Vows unlocked yet · first Vow unlocks at 25 completed entries · 0/50 entries complete"
-      )
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("option", { name: "No Roads Raised — unlocks at 25 entries" })
-    ).toBeDisabled();
-    expect(
-      screen.getByRole("option", {
-        name: "The Small Storehouse — unlocks at 34 entries · 3–5 players only"
-      })
-    ).toBeDisabled();
+    expect(screen.getByRole("article", { name: new RegExp(`^Quest Card ${campaign.deck[0]}:`) })).toBeInTheDocument();
+    expect(screen.getByText("0 of 21 Quest Cards in the Steward’s Ledger.")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Steward's Ledger Vow")).not.toBeInTheDocument();
   });
 
   it("configures a five-player game with five unique Stewards", () => {
@@ -89,30 +81,16 @@ describe("app smoke flow", () => {
     expect(screen.getByText("0 of each resource")).toBeInTheDocument();
   });
 
-  it("declares one available Ledger Vow before setup", () => {
-    const campaign = createEmptyLedgerCampaign();
-    for (let index = 1; index <= 40; index += 1) {
-      const entryId = `test-${index}`;
-      campaign.completions[entryId] = {
-        entryId,
-        completedOnce: true,
-        completedPlayerCounts: []
-      };
-    }
+  it("starts the game with the drawn Quest Card", () => {
+    const campaign = createEmptyLedgerCampaign("SEED");
     writeLedgerCampaign(campaign);
     render(<App />);
-
-    fireEvent.change(screen.getByLabelText("Steward's Ledger Vow"), {
-      target: { value: "LE-041" }
-    });
-    expect(screen.getByText(/Place no Travel Tiles/i)).toBeInTheDocument();
-    expect(screen.getByText(/Vanguard’s Power.*would break No Roads Raised/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /start season i/i }));
 
     const saved = JSON.parse(
       window.localStorage.getItem("quietVale.activeGame.v1") ?? "{}"
     );
-    expect(saved.state.ledgerRun.declaredVowId).toBe("LE-041");
+    expect(saved.state.questRun.cardNumber).toBe(campaign.deck[0]);
   });
 
   it("confirms the solo Steward start and shows the seeding screen", () => {

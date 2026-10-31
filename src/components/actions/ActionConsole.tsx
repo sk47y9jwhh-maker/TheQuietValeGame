@@ -45,7 +45,7 @@ import {
   getLegalPlacementHexes
 } from "../../engine/placementRules";
 import { calculateFinalScore } from "../../engine/scoring";
-import { summariseLedger } from "./ledgerSummary";
+import { completedReviewLedger, summariseLedger } from "./ledgerSummary";
 import type { LedgerCampaign } from "../../engine/ledgerCampaign";
 import {
   selectCurrentPlayer,
@@ -155,7 +155,7 @@ export function ActionConsole({
   const enhanced = isPlayerExperience();
   const tileChoiceListRef = useRef<HTMLDivElement>(null);
   const currentPlayer = selectCurrentPlayer(state);
-  const { recordedGame, gameRecorded, ledgerAchievements, newLedgerAchievements } = summariseLedger(state, ledgerCampaign);
+  const { gameRecorded, quest, addsToLedger, ledgerCount } = summariseLedger(state, ledgerCampaign);
   const placementDraft: TilePlacementDraft = {
     anchorHexId: selectedHexIds[0],
     orientation: placementOrientation,
@@ -332,12 +332,7 @@ export function ActionConsole({
   }
 
   if (state.phase === "gameEnd") {
-    if (enhanced) return <CompletedGameReview state={state} onRecord={onRecordLedgerGame} onNewGame={onNewGame} ledger={ledgerCampaign ? {
-      recorded: gameRecorded,
-      recordedScore: recordedGame?.finalScore,
-      eligibleCount: ledgerAchievements.length,
-      newEntries: newLedgerAchievements.map(({ entry }) => ({ id: entry.id, name: entry.name }))
-    } : undefined} />;
+    if (enhanced) return <CompletedGameReview state={state} onRecord={onRecordLedgerGame} onNewGame={onNewGame} ledger={completedReviewLedger(state, ledgerCampaign)} />;
     return (
       <aside className="action-console">
         <p className="eyebrow">Game End</p>
@@ -349,6 +344,7 @@ export function ActionConsole({
           <span>Passive Renown {finalScore.passiveRenown}</span>
           <span>Steward Objectives {finalScore.stewardObjectiveRenown}</span>
           <span>Golden Tile Renown {finalScore.goldenRenown}</span>
+          {state.questRun && <span>Quest Card Renown {finalScore.questRenown}</span>}
           <span>Burden Penalty -{finalScore.burdenPenalty}</span>
           <span>
             Failed Arrival Penalty -{finalScore.failedArrivalPenalty}
@@ -366,21 +362,15 @@ export function ActionConsole({
                 <p className="eyebrow">Steward’s Ledger</p>
                 <h3>{gameRecorded ? "Game recorded" : "Ledger review"}</h3>
               </div>
-              <strong>{newLedgerAchievements.length} new records</strong>
+              <strong>{ledgerCount} of 21 Quest Cards</strong>
             </div>
             <p>
-              {ledgerAchievements.length} eligible Ledger {ledgerAchievements.length === 1 ? "Entry" : "Entries"} completed this game.
+              {!quest
+                ? "This game was played without a Quest Card."
+                : quest.complete
+                  ? `Quest Card No. ${quest.card.n}, ${quest.card.theme}, complete. ${addsToLedger ? "It goes into the Ledger." : "It was already in the Ledger."}`
+                  : `Quest Card No. ${quest.card.n}, ${quest.card.theme}, not completed. It goes to the bottom of the deck.`}
             </p>
-            {newLedgerAchievements.length > 0 && (
-              <div className="ledger-end-entry-list">
-                {newLedgerAchievements.map((evaluation) => (
-                  <span key={evaluation.entry.id}>
-                    <small>{evaluation.entry.id}</small>
-                    <strong>{evaluation.entry.name}</strong>
-                  </span>
-                ))}
-              </div>
-            )}
             <button
               className="primary-action"
               disabled={gameRecorded}

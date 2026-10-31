@@ -518,6 +518,7 @@ function ScoreNow({ state, score }: { state: GameState; score: number }) {
     ["Renown from tiles", detail.printedRenown + detail.passiveRenown, detail.passiveRenown ? `${detail.printedRenown} printed + ${detail.passiveRenown} from arrangements` : undefined],
     ["Steward objectives", detail.stewardObjectiveRenown, "+15 each, if met at the end"],
     ...(detail.goldenRenown ? [["Golden tiles", detail.goldenRenown] as [string, number]] : []),
+    ...(state.questRun ? [["Quest Card", detail.questRenown, detail.questRenown ? "Completed, +20 once" : "Neither half completed"] as [string, number, string]] : []),
     ["Active Burdens", -detail.burdenPenalty, `${state.encounters.activeBurdens.length} × −10`],
     ["Arrivals that left unmet", -detail.failedArrivalPenalty, `${detail.failedArrivals} × −10`],
     ["Strain", -detail.strainPenalty, `${strainTokens} × −10${overstrained ? `, and ${overstrained} Overstrained tile${overstrained === 1 ? " scores" : "s score"} nothing` : ""}`]

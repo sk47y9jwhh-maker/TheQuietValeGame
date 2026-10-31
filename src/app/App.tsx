@@ -52,7 +52,7 @@ import { StewardPlacementPanel } from "../components/setup/StewardPlacementPanel
 import { GoldenTilePlacementPanel } from "../components/setup/GoldenTilePlacementPanel";
 import { stewards } from "../data/stewards";
 import { goldenBoons } from "../data/encounters";
-import { isVowAvailableForPlayerCount, ledgerEntries, ledgerMilestones } from "../data/ledger";
+import { ledgerMilestones } from "../data/ledger";
 import { coreTiles, goldenTiles } from "../data/tiles";
 import {
   activateTile,
@@ -88,7 +88,9 @@ import { createNewGame } from "../engine/setup";
 import { getLedgerRun, recordLedgerGame, trackLedgerTransition } from "../engine/ledger";
 import {
   countCompletedLedgerEntries,
-  createEmptyLedgerCampaign
+  createEmptyLedgerCampaign,
+  isGoldenMilestoneUnlocked,
+  nextQuestCard
 } from "../engine/ledgerCampaign";
 import {
   placeGoldenTileForSetup,
@@ -159,9 +161,6 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
   const [encounterSeed, setEncounterSeed] = useState(
     initialSavedGame?.encounterSeed ?? initialSavedSetup?.encounterSeed ?? initialPreview?.setup.encounterSeed ?? createSetupSeed
   );
-  const [declaredVowId, setDeclaredVowId] = useState(
-    initialSavedGame?.declaredVowId ?? initialSavedSetup?.declaredVowId ?? ""
-  );
   const [selectedGoldenTileId, setSelectedGoldenTileId] = useState(
     initialSavedGame?.selectedGoldenTileId ?? initialSavedSetup?.selectedGoldenTileId ?? ""
   );
@@ -217,31 +216,14 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
   const ledgerSetupOptions = useMemo(() => {
     const completedCount = countCompletedLedgerEntries(ledgerCampaign);
     const isMilestoneUnlocked = (index: number) =>
-      completedCount >= ledgerMilestones[index].threshold ||
-      (ledgerCampaign.grandfatheredGoldenMilestoneCount ?? 0) > index;
-    const vowEntries = ledgerEntries.filter((entry) => entry.declaredVow);
-    const isVowUnlocked = (entry: (typeof vowEntries)[number]) =>
-      completedCount >= entry.unlockAt &&
-      isVowAvailableForPlayerCount(entry.id, playerCount);
-
+      isGoldenMilestoneUnlocked(ledgerCampaign, index, ledgerMilestones[index].threshold);
     return {
       completedCount,
-      availableVows: vowEntries.filter(isVowUnlocked),
-      lockedVows: vowEntries.filter((entry) => !isVowUnlocked(entry)),
-      availableGoldenTiles: goldenTiles.filter((_tile, index) =>
-        isMilestoneUnlocked(index)
-      ),
-      availableGoldenBoons: goldenBoons.filter((_boon, index) =>
-        isMilestoneUnlocked(index)
-      )
+      questCardNumber: nextQuestCard(ledgerCampaign),
+      availableGoldenTiles: goldenTiles.filter((_tile, index) => isMilestoneUnlocked(index)),
+      availableGoldenBoons: goldenBoons.filter((_boon, index) => isMilestoneUnlocked(index))
     };
-  }, [ledgerCampaign, playerCount]);
-
-  useEffect(() => {
-    if (!isVowAvailableForPlayerCount(declaredVowId || undefined, playerCount)) {
-      setDeclaredVowId("");
-    }
-  }, [declaredVowId, playerCount]);
+  }, [ledgerCampaign]);
 
   useEffect(() => {
     stateRef.current = state;
@@ -271,12 +253,11 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
         playerCount,
         stewardIds: normalizedStewards,
         encounterSeed,
-        declaredVowId: state ? state.ledgerRun?.declaredVowId : declaredVowId || undefined,
         selectedGoldenTileId: state ? state.goldenSetup.selectedTileId : selectedGoldenTileId || undefined,
         selectedGoldenBoonId: state ? state.goldenSetup.selectedBoonId : selectedGoldenBoonId || undefined
       }
     }, simulateSaveFailure));
-  }, [declaredVowId, encounterSeed, normalizedStewards, playerCount, selectedGoldenBoonId, selectedGoldenTileId, state, ledgerCampaign, saveAttempt, simulateSaveFailure, loadProblem]);
+  }, [encounterSeed, normalizedStewards, playerCount, selectedGoldenBoonId, selectedGoldenTileId, state, ledgerCampaign, saveAttempt, simulateSaveFailure, loadProblem]);
 
   const pushUndoSnapshot = useCallback((previousState: GameState) => {
     const next = [previousState, ...undoStackRef.current].slice(0, undoHistoryLimit);
@@ -460,7 +441,6 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
     setPlayerCount(1);
     setStewardIds(stewards.slice(0, 1).map((steward) => steward.id));
     setEncounterSeed(createSetupSeed());
-    setDeclaredVowId("");
     setSelectedGoldenTileId("");
     setSelectedGoldenBoonId("");
     setSelectedHexIds([]);
@@ -634,7 +614,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
       onCancel={() => setPendingReset(null)}
       onConfirm={pendingReset === "ledger" ? resetLedgerCampaign : resetGame}
     >{pendingReset === "ledger" ? <>
-      <p>This clears {countCompletedLedgerEntries(ledgerCampaign)} completed Ledger entries, {ledgerCampaign.games.length} recorded settlement{ledgerCampaign.games.length === 1 ? "" : "s"}, prestige records and Golden unlocks.</p>
+      <p>This clears {countCompletedLedgerEntries(ledgerCampaign)} completed Quest Card{countCompletedLedgerEntries(ledgerCampaign) === 1 ? "" : "s"}, {ledgerCampaign.games.length} recorded settlement{ledgerCampaign.games.length === 1 ? "" : "s"} and Golden unlocks, and shuffles the Quest deck.</p>
       <p>The active game and its recent Undo/Redo steps are kept. {completed && "You can record this completed settlement again afterward."}</p>
       <p><strong>Cleared campaign progress cannot be restored with Undo.</strong></p>
     </> : <>
@@ -651,17 +631,14 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
         focusOnMount={focusSetupOnMount.current}
         playerCount={playerCount}
         stewardIds={normalizedStewards}
-        declaredVowId={declaredVowId}
+        questCardNumber={ledgerSetupOptions.questCardNumber}
         selectedGoldenTileId={selectedGoldenTileId}
         selectedGoldenBoonId={selectedGoldenBoonId}
         completedLedgerCount={ledgerSetupOptions.completedCount}
-        availableVows={ledgerSetupOptions.availableVows}
-        lockedVows={ledgerSetupOptions.lockedVows}
         availableGoldenTiles={ledgerSetupOptions.availableGoldenTiles}
         availableGoldenBoons={ledgerSetupOptions.availableGoldenBoons}
         onPlayerCountChange={handlePlayerCountChange}
         onStewardChange={handleStewardChange}
-        onDeclaredVowChange={setDeclaredVowId}
         onGoldenTileChange={setSelectedGoldenTileId}
         onGoldenBoonChange={setSelectedGoldenBoonId}
         onStart={() => {
@@ -678,7 +655,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
           setState(
             createNewGame(playerCount, normalizedStewards, {
               encounterSeed: nextSeed,
-              declaredVowId: declaredVowId || undefined,
+              questCardNumber: ledgerSetupOptions.questCardNumber,
               selectedGoldenTileId: selectedGoldenTileId || undefined,
               selectedGoldenBoonId: selectedGoldenBoonId || undefined
             })
