@@ -55,9 +55,13 @@ map's flat-top hexes.
   (saturation −100, lightness +6, like the silver back) and the compass glow
   recoloured to parchment.
 - `render-target.mjs`: renders the fronts. Rows: Tile class, Tile side,
-  Adjacency, Current Strain, each with a small glyph; then "If still tied" with
-  a flat-top hex whose arrow leaves the edge facing the card's direction and the
-  words "The tile closest to the North edge of the map" (and so on); Open cards say
+  Adjacency, Current Strain, each with a small glyph; then "If still tied": a
+  small dashed outline of the board (landscape, N marked, so the card is read the
+  same way up as the board) with one arrow in the card's direction pointing at a
+  filled tile, two empty tiles set back from it, and the words "Take the tile the
+  arrow points to, among the tied tiles". One arrow per card, from the six
+  flat-top directions; the diagram is the same on every card apart from the
+  arrow and the filled tile. Open cards say
   "Choose any eligible tile". Footer: "Work down the rows. Skip any row no tile
   matches." (replaces "Unless specified" on every row).
 - `print/target-NN.png`: 1630 × 2220 px at 600 dpi (63 × 88 mm with 3 mm

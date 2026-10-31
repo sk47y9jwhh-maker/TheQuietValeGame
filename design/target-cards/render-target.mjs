@@ -45,16 +45,32 @@ const values = {
 const names = { N: "north", NE: "north-east", SE: "south-east", S: "south", SW: "south-west", NW: "north-west" };
 const bearing = { N: -90, NE: -30, SE: 30, S: 90, SW: 150, NW: 210 };
 
-// A flat-top hex with an arm out of each edge, the card's direction picked out.
-function compass(direction) {
-  const arm = (d) => {
-    const on = d === direction;
-    return `<g transform="rotate(${bearing[d]} 120 120)">
-      <line x1="150" y1="120" x2="${on ? 196 : 206}" y2="120" stroke="${on ? steel : ink}" stroke-width="${on ? 14 : 5}" stroke-linecap="round" stroke-opacity="${on ? 1 : 0.4}"/>
-      ${on ? `<path d="M232 120 L196 99 L196 141 Z" fill="${steel}"/>` : ""}
-    </g>`;
-  };
-  return `<svg viewBox="0 0 240 240" class="compass">${hex(120, 120, 34, `fill="rgba(62,85,102,0.12)" stroke="${ink}" stroke-width="6"`)}${Object.keys(bearing).map(arm).join("")}</svg>`;
+// The tie, shown as an example: five scattered tiles, one arrow in the card's
+// direction, and the tile nearest the arrowhead filled in. The scatter is the
+// same on every card; only the arrow and the filled tile change.
+const vectors = { N: [0, -1], NE: [Math.sqrt(3) / 2, -0.5], SE: [Math.sqrt(3) / 2, 0.5], S: [0, 1], SW: [-Math.sqrt(3) / 2, 0.5], NW: [-Math.sqrt(3) / 2, -0.5] };
+// A small outline of the board (landscape, as on the table) with one arrow in
+// the card's direction pointing at the filled tile; two other tied tiles sit
+// back from it. The outline also shows which way up the card is read.
+function tieDiagram(direction) {
+  const [dx, dy] = vectors[direction];
+  const [px, py] = [-dy, dx];
+  const W = 320, H = 214, cx = W / 2, cy = H / 2 + 6, hw = 136, hh = 84, r = 21;
+  const reach = Math.min(dx ? hw / Math.abs(dx) : 1e9, dy ? hh / Math.abs(dy) : 1e9) - r - 10;
+  const win = [cx + dx * reach, cy + dy * reach];
+  const others = [
+    [cx - dx * reach * 0.25 + px * 58, cy - dy * reach * 0.25 + py * 58],
+    [cx + dx * reach * 0.2 - px * 60, cy + dy * reach * 0.2 - py * 60]
+  ].map(([x, y]) => [Math.max(cx - hw + r + 6, Math.min(cx + hw - r - 6, x)), Math.max(cy - hh + r + 6, Math.min(cy + hh - r - 6, y))]);
+  const tail = [cx - dx * reach * 0.92, cy - dy * reach * 0.92];
+  const tip = [win[0] - dx * (r + 12), win[1] - dy * (r + 12)];
+  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+  const board = `<rect x="${cx - hw}" y="${cy - hh}" width="${hw * 2}" height="${hh * 2}" rx="14" fill="rgba(62,85,102,0.07)" stroke="${ink}" stroke-width="3" stroke-opacity="0.45" stroke-dasharray="10 7"/>`;
+  const shaft = `<line x1="${tail[0]}" y1="${tail[1]}" x2="${tip[0] - dx * 20}" y2="${tip[1] - dy * 20}" stroke="${steel}" stroke-width="11" stroke-linecap="round"/>`;
+  const head = `<g transform="translate(${tip[0]} ${tip[1]}) rotate(${angle})"><path d="M8 0 L-30 -22 L-30 22 Z" fill="${steel}"/></g>`;
+  const tiles = others.map(([x, y]) => hex(x, y, r, `fill="#f6f0df" stroke="${ink}" stroke-width="4"`)).join("") + hex(win[0], win[1], r, `fill="${steel}" stroke="${ink}" stroke-width="4"`);
+  const north = `<text x="${cx}" y="16" text-anchor="middle" font-family="Alegreya Sans" font-weight="500" font-size="22" fill="${ink}" fill-opacity="0.6">N</text>`;
+  return `<svg viewBox="0 0 ${W} ${H + 8}" class="diagram">${north}${board}${tiles}${shaft}${head}</svg>`;
 }
 
 function row(label, [value, glyph]) {
@@ -65,7 +81,7 @@ function page(card) {
   const open = !card.direction;
   const outcome = open
     ? `<section class="outcome"><div class="label">Open target</div><div class="big">Choose any eligible tile</div><div class="small">Keep to any limits set by the effect.</div></section>`
-    : `<section class="outcome"><div class="label">If still tied</div><div class="tie">${compass(card.direction)}<div class="tie-words"><div class="small">The tile closest to the</div><div class="big">${names[card.direction][0].toUpperCase() + names[card.direction].slice(1)} edge</div><div class="small">of the map</div></div></div></section>`;
+    : `<section class="outcome tied"><div class="label">If still tied</div><div class="tie">${tieDiagram(card.direction)}<div class="tie-words"><div class="big">Take the tile the arrow points to</div><div class="small">among the tied tiles</div></div></div></section>`;
   return `<!doctype html><html><head><meta charset="utf-8"><style>
   @font-face { font-family: Almendra; font-weight: 400; src: url(${font("almendra-latin-regular.woff2")}); }
   @font-face { font-family: Almendra; font-weight: 700; src: url(${font("almendra-latin-bold.woff2")}); }
@@ -86,8 +102,10 @@ function page(card) {
   .value { display: flex; align-items: center; gap: 26px; font: 700 76px/1 Alegreya, serif; color: #1f2226; }
   .glyph svg { width: 80px; height: 80px; display: block; }
   .outcome { position: absolute; top: 1696px; left: 230px; right: 230px; height: 310px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
-  .tie { display: flex; align-items: center; gap: 30px; }
-  .compass { width: 236px; height: 236px; }
+  .tie { display: flex; align-items: center; gap: 26px; }
+  .tied { gap: 0; }
+  .diagram { width: 330px; height: 229px; flex: 0 0 auto; }
+  .tie-words { max-width: 700px; }
   .big { font: 700 72px/1.05 Alegreya, serif; color: ${steel}; text-align: center; }
   .small { font: italic 400 46px/1.1 Alegreya, serif; color: #44494e; text-align: center; }
   .tie-words .big, .tie-words .small { text-align: left; }
