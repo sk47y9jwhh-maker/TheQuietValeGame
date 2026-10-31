@@ -19,7 +19,7 @@ import { resourceLabels } from "../../data/resources";
 import { stewardById } from "../../data/stewards";
 import { coreTileById, specialTileById } from "../../data/tiles";
 import { getActivatableTileIds } from "../../engine/gameActions";
-import type { EffectAdjustment, GameState } from "../../engine/types";
+import type { EffectAdjustment, GameState, PlacedTile } from "../../engine/types";
 import type { CoachTarget } from "./TableCoach";
 
 export interface TourStep {
@@ -76,8 +76,8 @@ export function settleForTour(input: GameState, stopAtChoice = false): GameState
       ? alternative.resources.map((resource) => ({ resourceDeltas: { [resource]: -alternative.resourceStep * alternative.requiredChoices }, tileStrainDeltas: {}, arrivalTimerDeltas: {} }))
       : [];
     tries.push({});
-    // An open Target Card leaves the choice to the player: take the most strained eligible tile.
-    const eligible = [...(pending.targetCardTargetTileIds ?? [])].sort((a, b) => (state.map.placedTiles.find((tile) => tile.instanceId === b)?.strain ?? 0) - (state.map.placedTiles.find((tile) => tile.instanceId === a)?.strain ?? 0));
+    // An open Target Card leaves the choice to the player: choose as a careful player would.
+    const eligible = openTargetOrder(state, pending.targetCardTargetTileIds ?? []);
     for (const tileId of eligible) tries.push({ tileStrainDeltas: { [tileId]: 1 } });
     let next: GameState | null = null;
     for (const choice of tries) {
@@ -89,6 +89,21 @@ export function settleForTour(input: GameState, stopAtChoice = false): GameState
     state = next;
   }
   return null;
+}
+
+/** Whether a tile's Supported marker will stop the next Strain this round. */
+const shielded = (tile?: PlacedTile) => Boolean(tile && (tile.support.passive || tile.support.singleUse) && !tile.support.preventedThisRound);
+
+/**
+ * How a careful player picks from an open Target Card: a tile whose Supported
+ * marker stops the Strain first (nothing lands), then the least strained, so
+ * no tile is pushed towards Overstrain. Ties keep the card's order.
+ */
+function openTargetOrder(state: GameState, ids: string[]): string[] {
+  const tileOf = (id: string) => state.map.placedTiles.find((tile) => tile.instanceId === id);
+  return ids.map((id, index) => ({ id, index, tile: tileOf(id) }))
+    .sort((a, b) => Number(shielded(b.tile)) - Number(shielded(a.tile)) || (a.tile?.strain ?? 0) - (b.tile?.strain ?? 0) || a.index - b.index)
+    .map((entry) => entry.id);
 }
 
 /** One engine action, then everything it sets off. Null if it changed nothing. */
@@ -368,7 +383,13 @@ const chainTour: TourStep[] = [
   {
     id: "chain-spread",
     title: "The chain moves on",
-    text: (state) => { const ids = [...(state.pendingEffects[0]?.targetCardTargetTileIds ?? [])]; return `This card leaves the choice open, so a player picks. The walkthrough picks the most strained: ${ids.length ? tileName(state, ids.sort((a, b) => (state.map.placedTiles.find((tile) => tile.instanceId === b)?.strain ?? 0) - (state.map.placedTiles.find((tile) => tile.instanceId === a)?.strain ?? 0))[0]) : "a neighbour"}. If that tile reaches 3, the chain carries on.`; },
+    text: (state) => {
+      const ids = openTargetOrder(state, state.pendingEffects[0]?.targetCardTargetTileIds ?? []);
+      const pick = state.map.placedTiles.find((tile) => tile.instanceId === ids[0]);
+      if (!pick) return "This card leaves the choice open, so a player picks a neighbour.";
+      if (shielded(pick)) return `This card leaves the choice open, so a player picks. The ${tileName(state, pick.instanceId)} is Supported: its marker stops this Strain, so nothing lands and the chain ends here. That makes it the safe choice.`;
+      return `This card leaves the choice open, so a player picks. No neighbour is Supported, so the walkthrough picks the least strained: ${tileName(state, pick.instanceId)}, which stays furthest from Overstrain.`;
+    },
     verb: "Spread the Strain",
     skip: (state) => !state.pendingEffects.length,
     play: (state) => {
