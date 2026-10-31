@@ -1,5 +1,5 @@
 // Renders the 30 Target Card fronts (poker 69 x 94 mm with bleed, 600 dpi),
-// in the same family as the Chronicle Cards, with the silver frame.
+// in the same family as the Quest Cards, with the silver frame.
 // Usage: node render-target.mjs <background.png> <out-dir> [cardNumber...]
 // The deck comes from target-cards.json (flat-top tie directions).
 import fs from "node:fs";
@@ -9,7 +9,7 @@ import puppeteer from "puppeteer";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fonts = path.resolve(here, "../../src/assets/fonts");
-const art = path.resolve(here, "../chronicle-cards");
+const art = path.resolve(here, "../quest-cards");
 const [bgArg, outArg, ...only] = process.argv.slice(2);
 const uri = (file, type) => `data:${type};base64,` + fs.readFileSync(file).toString("base64");
 const bg = uri(bgArg, "image/png");

@@ -1,5 +1,5 @@
-// Renders the Chronicle Card fronts (poker 69 x 94 mm with bleed, 600 dpi).
-// Usage: node render-chronicle.mjs <background.png> <out-dir> [cardNumber...]
+// Renders the Quest Card fronts (poker 69 x 94 mm with bleed, 600 dpi).
+// Usage: node render-quest.mjs <background.png> <out-dir> [cardNumber...]
 // The background is the poker Golden Boon front (see README.md). Text is set
 // in the game's own fonts; each half shrinks slightly if its text is long.
 import fs from "node:fs";
@@ -67,7 +67,7 @@ function page(card) {
   .strip tr.keep td { color: #6b3d2a; }
   .foot { position: absolute; top: 2010px; left: 0; right: 0; text-align: center; font: italic 400 46px/1 Alegreya, serif; color: #4a3f2e; }
   </style></head><body>
-  <div class="type">Chronicle</div>
+  <div class="type">Quest</div>
   <div class="title">${esc(card.theme)}</div>
   ${half(card.top, 1, "top")}
   ${half(card.bottom, 2, "bottom")}
@@ -90,7 +90,7 @@ for (const card of data.cards) {
     while (box.scrollHeight * scale > room && scale > 0.7) { scale -= 0.02; box.style.transform = `scale(${scale})`; }
     return Math.round(scale * 100);
   }));
-  const file = path.join(outArg, `chronicle-${String(card.n).padStart(2, "0")}.png`);
+  const file = path.join(outArg, `quest-${String(card.n).padStart(2, "0")}.png`);
   await tab.screenshot({ path: file, type: "png" });
   report.push({ n: card.n, theme: card.theme, topScale: fit[0], bottomScale: fit[1] });
 }

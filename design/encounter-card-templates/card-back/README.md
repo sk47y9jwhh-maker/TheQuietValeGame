@@ -2,16 +2,16 @@
 
 The artist's shared back for every Encounter Card (Arrivals, Boons, Burdens,
 Golden Boons). Poker-size variants made from the same master serve the Target
-Cards (silver frame) and the Chronicle Cards (gold frame). It settles task
+Cards (silver frame) and the Quest Cards (gold frame). It settles task
 D-04 / EC-003 (card back system) subject to the notes below.
 
 | File | What it is |
 | --- | --- |
 | `card-back-master-v01.psd` | The artist's layered master, byte-for-byte as delivered (`Quiet_Valley_Card_Back_V01.psd`). Read-only. |
 | `print/card-back-tarot-printerstudio-600dpi.png` | Print derivative for PrinterStudio / MakePlayingCards tarot (2.75 × 4.75 in trim, 0.12 in bleed each side, 1794 × 2994 px at 600 dpi, sRGB). |
-| `card-back-poker-gold-v01.psd` | Layered poker template, gold frame, for the Chronicle Cards. Made in Photopea from the master. |
+| `card-back-poker-gold-v01.psd` | Layered poker template, gold frame, for the Quest Cards. Made in Photopea from the master. |
 | `card-back-poker-silver-v02.psd` | The same template with four silver adjustment layers, for the Target Cards. |
-| `print/card-back-poker-gold-printerstudio-600dpi.png` | Poker print file, gold (Chronicle Cards). 63 × 88 mm trim, 3 mm bleed each side, 1630 × 2220 px at 600 dpi, sRGB with ICC. |
+| `print/card-back-poker-gold-printerstudio-600dpi.png` | Poker print file, gold (Quest Cards). 63 × 88 mm trim, 3 mm bleed each side, 1630 × 2220 px at 600 dpi, sRGB with ICC. |
 | `print/card-back-poker-silver-printerstudio-600dpi.png` | Poker print file, silver (Target Cards). Same size. |
 | `build-poker-print.py` | Rebuilds both poker print files from the master. Reproduces them exactly. |
 
@@ -74,7 +74,7 @@ the cut.
 
 Decided by Robert: no artist commission. The poker backs are the master with
 both "The Quiet Vale" titles removed, re-laid to poker size. Gold frame for the
-Chronicle Cards, silver frame for the Target Cards. Only the metal changes
+Quest Cards, silver frame for the Target Cards. Only the metal changes
 colour (frame, corners, compass, hex pattern marks); the leather and the glow
 around the compass are identical on both.
 

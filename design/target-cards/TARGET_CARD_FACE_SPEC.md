@@ -42,7 +42,7 @@ This specification locks the design system. Generating all 30 cards, comparing t
 ## Prototype 1 print design (31 October 2026) — supersedes the face above for printing
 
 Robert did not like the Vale Blue + Rose draft. The Target Cards now share the
-Chronicle Card family with a silver frame, and the tie directions follow the
+Quest Card family with a silver frame, and the tie directions follow the
 map's flat-top hexes.
 
 - `target-cards.json`: the print deck. The same 30 preference profiles as
@@ -51,7 +51,7 @@ map's flat-top hexes.
   still repeat 1–12 with the opposite direction, and each direction appears on
   4 cards.
 - `target-front-background-600dpi.png`: the Golden Boon front re-laid to poker
-  (as for the Chronicle Cards) with the frame and compass turned silver
+  (as for the Quest Cards) with the frame and compass turned silver
   (saturation −100, lightness +6, like the silver back) and the compass glow
   recoloured to parchment.
 - `render-target.mjs`: renders the fronts. Rows: Tile class, Tile side,
