@@ -284,7 +284,7 @@ function getPlacementFailuresInternal(
 
   if (!player.hasPlacedFirstTile && !selectedHexIds.includes(player.stewardHexId)) {
     reasons.push(
-      "Cannot place here: your first action must include your Steward Token's starting hex."
+      "Cannot place here: your first action must include your Steward Token’s starting hex."
     );
   }
 
@@ -366,7 +366,7 @@ function getPlacementFailuresInternal(
 
     if (!anchorConnects) {
       reasons.push(
-        "Cannot place here: the first Stables tile must connect to the acting Steward's reachable settlement network."
+        "Cannot place here: the first Stables tile must connect to the acting Steward’s reachable settlement network."
       );
     }
   } else if (footprintKind === "detached") {
@@ -385,7 +385,7 @@ function getPlacementFailuresInternal(
       reasons.push(
         `Cannot place here: ${disconnectedHexIds.join(
           ", "
-        )} must connect to the acting Steward's reachable settlement network.`
+        )} must connect to the acting Steward’s reachable settlement network.`
       );
     }
   } else if (
@@ -400,7 +400,7 @@ function getPlacementFailuresInternal(
     )
   ) {
     reasons.push(
-      "Cannot place here: not connected to the acting Steward's reachable settlement network."
+      "Cannot place here: not connected to the acting Steward’s reachable settlement network."
     );
   }
 

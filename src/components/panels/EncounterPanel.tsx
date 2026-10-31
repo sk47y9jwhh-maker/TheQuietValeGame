@@ -1,4 +1,5 @@
 import { stewardById } from "../../data/stewards";
+import { readableReasons } from "../common/ruleReasons";
 import { isPlayerExperience } from "../../app/experience";
 import { GoldenVialNotice, goldenVialId } from "../actions/GoldenVialNotice";
 import { encounterById } from "../../data/encounters";
@@ -23,11 +24,7 @@ interface EncounterPanelProps {
 }
 
 function formatInteractBlockers(reasons: string[]): string {
-  return reasons
-    .map((reason) =>
-      reason.replace(/^Cannot (?:complete Arrival|resolve Burden):\s*/i, "")
-    )
-    .join(" ");
+  return readableReasons(reasons);
 }
 
 function getSpecialTileList(tileIds: string[]) {

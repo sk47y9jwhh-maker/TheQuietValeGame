@@ -975,7 +975,7 @@ export function validateSeedingSelection(
 
   for (const cardId of selectedCards) {
     if (!hand.includes(cardId)) {
-      reasons.push("Cannot seed a card that is not in this player's hidden hand.");
+      reasons.push("Cannot seed a card that is not in this player’s hidden hand.");
     }
     if (encounterById[cardId]?.type === "goldenBoon") {
       reasons.push("Golden Boons are not player-seeded.");
@@ -2032,7 +2032,7 @@ export function cancelPendingBurdenWithWarden(state: GameState): GameState {
   };
   const cancelledState = log(
     nextState,
-    `${warden.name} used Warden's Steward Power to cancel ${burdenName}'s reveal effect.`
+    `${warden.name} used Warden’s Steward Power to cancel ${burdenName}’s reveal effect.`
   );
 
   if (!hasWardenReliefTarget(cancelledState)) {
@@ -2123,7 +2123,7 @@ export function canUseStewardPower(
     reasons.push("Resolve the pending effect before using a Steward Power.");
   }
   if (state.currentPlayerId !== playerId) {
-    reasons.push("Cannot use Steward Power: it is not this Steward's turn.");
+    reasons.push("Cannot use Steward Power: it is not this Steward’s turn.");
   }
   if (!player) {
     reasons.push("Cannot use Steward Power: no acting Steward was found.");
@@ -2133,7 +2133,7 @@ export function canUseStewardPower(
   const uses = player.stewardPowerUsesBySeason[state.season] ?? 0;
   const limit = getStewardPowerUseLimit(state, player);
   if (uses >= limit) {
-    reasons.push("Cannot use Steward Power: this Season's uses are spent.");
+    reasons.push("Cannot use Steward Power: this Season’s uses are spent.");
   }
 
   if (player.stewardId === "warden") {
@@ -2692,7 +2692,7 @@ export function endCurrentTurn(state: GameState): GameState {
       playersActedThisRound: acted,
       actionsRemaining: 4
     },
-    `${nextPlayer.name}'s turn begins.`
+    `${nextPlayer.name}’s turn begins.`
   );
 }
 

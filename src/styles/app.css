@@ -5443,6 +5443,7 @@ button.effect-row {
   .app-shell {
     height: auto;
     min-height: 100dvh;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto auto;
     overflow: visible;
   }

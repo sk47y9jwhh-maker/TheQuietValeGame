@@ -243,7 +243,7 @@ export function createNewGame(
         id: "log_setup",
         round: 1,
         message:
-          "Game created. Choose each Steward's starting hex before Season I seeding."
+          "Game created. Choose each Steward’s starting hex before Season I seeding."
       }
     ]
   };

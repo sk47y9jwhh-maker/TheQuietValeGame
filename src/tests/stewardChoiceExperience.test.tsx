@@ -71,7 +71,7 @@ describe("Ranger player experience", () => {
     expect(saved().warehouse).toEqual(ranger.state!.warehouse);
     expect(saved().actionsRemaining).toBe(4);
 
-    expect(screen.getByRole("region", { name: "Ranger's temporary reach" })).toHaveTextContent("F4");
+    expect(screen.getByRole("region", { name: "Ranger’s temporary reach" })).toHaveTextContent("F4");
     fireEvent.click(screen.getByRole("button", { name: "Undo last game step" }));
     expect(screen.getByRole("region", { name: "Choose Ranger reach" })).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Undo last game step" }));
@@ -112,7 +112,7 @@ describe("Warden player experience", () => {
   it("explains the spent use and retained Burden, saves relief and supports Undo/Redo/reload", () => {
     window.history.replaceState(null, "", "/?experience=tabletop&scenario=warden-response");
     const view = render(<StrictMode><App initialPreview={warden} /></StrictMode>);
-    expect(screen.getByRole("complementary", { name: "Warden's response" })).toHaveTextContent("Burden stays active");
+    expect(screen.getByRole("complementary", { name: "Warden’s response" })).toHaveTextContent("Burden stays active");
     const burdens = saved().encounters.activeBurdens;
     fireEvent.click(screen.getByRole("button", { name: "Use the Warden’s power" }));
     expect(saved().players[1].stewardPowerUsesBySeason[1]).toBe(1);

@@ -1,4 +1,5 @@
 import { Term } from "./Term";
+import { readableReasons } from "../common/ruleReasons";
 import { RailQuest } from "./RailQuest";
 import { readyEnhancers } from "./tableActions";
 import { EncounterCard } from "../common/EncounterCard";
@@ -131,7 +132,7 @@ export function TableRail(props: TableRailProps) {
             </ul>}
             {validation.ok && cost && costEntries(cost).some(({ resource, amount }) => state.warehouse[resource] < amount) && <p className="rail-card-help">A payment effect, such as a Merchant exchange, covers the shortfall. You choose it on the next step.</p>}
             <p className="rail-card-note">Unlocks {uniqueRewards.join(" and ")}{card.rewardSpecialTileIds.length ? ` (tile ${specialNumber(card.rewardSpecialTileIds[0])})` : ""}</p>
-            {state.phase === "turns" && <button type="button" disabled={!validation.ok} onClick={() => props.onCompleteArrival(arrival.cardId)} title={validation.ok ? undefined : validation.reasons.join(" ")}>
+            {state.phase === "turns" && <button type="button" disabled={!validation.ok} onClick={() => props.onCompleteArrival(arrival.cardId)} title={validation.ok ? undefined : readableReasons(validation.reasons)}>
               {validation.ok ? "Complete for 1 action" : arrival.timerTokens === 1 ? "Leaves at round end" : "Not yet"}
             </button>}
           </div>
@@ -150,7 +151,7 @@ export function TableRail(props: TableRailProps) {
             <h3>{card.name}</h3>
             <p className="rail-card-text">{card.effects[seasonKey(state.season)]}</p>
             {cost ? <p className="rail-card-note rail-resolve">To resolve: 1 action and {costEntries(cost).map(({ resource, amount }) => <span key={resource} className={state.warehouse[resource] >= amount ? "is-met" : "is-short"}><GameIcon name={resource} />{amount} {resourceLabels[resource]}</span>)}</p> : <p className="rail-card-note">To resolve: {resolution.replace(/,? discard\.?$/i, "")}</p>}
-            {state.phase === "turns" && <button type="button" disabled={!validation.ok} onClick={() => props.onResolveBurden(cardId)} title={validation.ok ? undefined : validation.reasons.join(" ")}>
+            {state.phase === "turns" && <button type="button" disabled={!validation.ok} onClick={() => props.onResolveBurden(cardId)} title={validation.ok ? undefined : readableReasons(validation.reasons)}>
               {validation.ok ? "Resolve for 1 action" : "Can’t resolve yet"}
             </button>}
           </div>

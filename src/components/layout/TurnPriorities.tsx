@@ -1,4 +1,5 @@
 import { ArrowRight, Clock3, Flag, ShieldAlert } from "lucide-react";
+import { readableReasons } from "../common/ruleReasons";
 import { encounterById } from "../../data/encounters";
 import { canCompleteArrival } from "../../engine/gameActions";
 import { evaluateStewardObjectives } from "../../engine/scoring";
@@ -26,7 +27,7 @@ export function TurnPriorities({ state, onReviewArrival, onReviewBoard }: {
           return <li key={arrival.cardId}>
             <div><strong>{card.name}</strong><span className={arrival.timerTokens <= 1 ? "priority-urgent" : ""}>{arrival.timerTokens <= 1 ? "Expires this round if unresolved" : `${arrival.timerTokens} timers remaining`}</span></div>
             <p>{card.requirementText}</p>
-            <small className={validation.ok ? "priority-ready" : ""}>{validation.ok ? "Can complete now" : validation.reasons.map((reason) => reason.replace(/^Cannot complete Arrival:\s*/i, "")).join(" ")}</small>
+            <small className={validation.ok ? "priority-ready" : ""}>{validation.ok ? "Can complete now" : readableReasons(validation.reasons)}</small>
             <button type="button" onClick={() => onReviewArrival(arrival.cardId)} aria-label={`Review ${card.name}`}>Review Arrival <ArrowRight size={16} aria-hidden="true" /></button>
           </li>;
         })}</ul>

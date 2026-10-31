@@ -143,9 +143,9 @@ describe("prepared Sentinel player experience", () => {
     render(<UpgradeChoices state={state} selectedHexIds={[]} onUpgrade={vi.fn()} onInspect={vi.fn()} />);
     expect(screen.getByRole("heading", { name: "No upgrade available now" })).toBeVisible();
     fireEvent.click(screen.getByText("Unavailable upgrades (1)"));
-    expect(screen.getByText("this tile is Overstrained.")).toBeVisible();
-    expect(screen.getByText("missing 2 stone.")).toBeVisible();
-    expect(screen.queryByText("no actions remaining.")).not.toBeInTheDocument();
+    expect(screen.getByText("This tile is Overstrained.")).toBeVisible();
+    expect(screen.getByText("Need 2 more Stone.")).toBeVisible();
+    expect(screen.queryByText("No actions remaining.")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Upgrade Path" })).toBeDisabled();
   });
 
@@ -154,11 +154,11 @@ describe("prepared Sentinel player experience", () => {
     const view = render(<UpgradeChoices state={state} selectedHexIds={[]} onUpgrade={vi.fn()} onInspect={vi.fn()} />);
     expect(screen.queryByText(/still apply to a 0-action upgrade/)).not.toBeInTheDocument();
     fireEvent.click(screen.getByText("Unavailable upgrades (1)"));
-    expect(screen.getByText("no actions remaining.")).toBeVisible();
+    expect(screen.getByText("No actions remaining.")).toBeVisible();
     expect(screen.getByRole("button", { name: "Upgrade Path" })).toBeDisabled();
     view.rerender(<UpgradeChoices state={useStewardPower(state, "player_1")} selectedHexIds={[]} onUpgrade={vi.fn()} onInspect={vi.fn()} />);
     expect(screen.getByRole("button", { name: "Upgrade Path" })).toBeEnabled();
-    expect(screen.queryByText("no actions remaining.")).not.toBeInTheDocument();
+    expect(screen.queryByText("No actions remaining.")).not.toBeInTheDocument();
   });
 
   it("explains an unreachable tile and distinguishes a board with no basic Core Tiles", () => {
@@ -166,7 +166,7 @@ describe("prepared Sentinel player experience", () => {
     state.map.placedTiles[1].hexIds = ["N9"];
     const view = render(<UpgradeChoices state={state} selectedHexIds={[]} onUpgrade={vi.fn()} onInspect={vi.fn()} />);
     fireEvent.click(screen.getByText("Unavailable upgrades (1)"));
-    expect(screen.getByText("this tile is not reachable.")).toBeVisible();
+    expect(screen.getByText("This tile is not reachable.")).toBeVisible();
     state.map.placedTiles[1].side = "upgraded";
     view.rerender(<UpgradeChoices state={{ ...state }} selectedHexIds={[]} onUpgrade={vi.fn()} onInspect={vi.fn()} />);
     expect(screen.getByText(/Build a basic Core Tile first/)).toBeVisible();

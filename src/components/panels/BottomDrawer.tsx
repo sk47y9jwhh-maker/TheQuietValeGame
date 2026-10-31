@@ -295,7 +295,7 @@ export function BottomDrawer({
                     </div>
                   </section>
 
-                  <section className="ledger-quest-current" aria-label="This game's Quest Card">
+                  <section className="ledger-quest-current" aria-label="This game’s Quest Card">
                     {quest
                       ? <QuestCardView card={quest.card} playerCount={state.playerCount} result={quest} ended={state.phase === "gameEnd"} />
                       : <p>This game was started without a Quest Card. The next new settlement draws one.</p>}

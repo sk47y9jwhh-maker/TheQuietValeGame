@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { readableReason } from "../common/ruleReasons";
 import { coreTileById } from "../../data/tiles";
 import { canStartUpgradeTile, getLinkedProductionTileIds, hasUsedLinkedProductionThisRound } from "../../engine/gameActions";
 import { getPlacedTileEffectText } from "../../engine/placedTiles";
@@ -24,7 +25,7 @@ function TileActionRow({ state, id, mode, selectedHexIds, onAction, onInspect }:
     <p className="tile-action-effect">{mainEffect}</p>
     {linked.length > 0 && <p className="tile-action-linked">Also activates {linked.join(", ")}.</p>}
     {mode === "activate" && hasUsedLinkedProductionThisRound(state, id) && <p className="tile-action-linked">Linked group already produced this round. Chosen tile only.</p>}
-    {blockers.length > 0 ? <ul className="upgrade-blockers">{blockers.map((reason) => <li key={reason}>{reason.replace(/^Cannot upgrade:\s*/i, "")}</li>)}</ul> : <ActionConsequences forecast={forecast} />}
+    {blockers.length > 0 ? <ul className="upgrade-blockers">{blockers.map((reason) => <li key={reason}>{readableReason(reason)}</li>)}</ul> : <ActionConsequences forecast={forecast} />}
     <div className="tile-action-buttons"><button type="button" onClick={() => onInspect(id)}>Inspect {name}</button><button type="button" className="primary-action" disabled={!forecast.available} onClick={() => onAction(id)} aria-label={`${verb} ${name}`}>{forecast.paymentChoice ? "Choose payment" : `${verb} ${name}`}</button></div>
   </article>;
 }

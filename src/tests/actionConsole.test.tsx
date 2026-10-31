@@ -386,10 +386,10 @@ describe("action console", () => {
 
     expect(arrivalButton).toBeDisabled();
     expect(arrivalButton).toHaveTextContent("Requirement: Pay 4 Wood and 4 Metal.");
-    expect(arrivalButton).toHaveTextContent("missing 4 wood");
+    expect(arrivalButton).toHaveTextContent("Need 4 more Wood.");
     expect(burdenButton).toBeDisabled();
     expect(burdenButton).toHaveTextContent("Spend 1 Action, pay 2 Goods, discard.");
-    expect(burdenButton).toHaveTextContent("missing 2 goods");
+    expect(burdenButton).toHaveTextContent("Need 2 more Goods.");
   });
 
   it("resolves a valid Burden from the interact list", () => {

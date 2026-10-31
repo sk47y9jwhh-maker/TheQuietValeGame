@@ -24,7 +24,7 @@ function reachLabel(state: GameState, hexId: string) {
 export function ActiveRangerReach({ state }: { state: GameState }) {
   const hex = selectCurrentPlayer(state).temporaryReachHexId;
   if (!hex) return null;
-  return <section className="active-ranger-reach" aria-label="Ranger's temporary reach">
+  return <section className="active-ranger-reach" aria-label="Ranger’s temporary reach">
     <strong>Reach set: {reachLabel(state, hex)}</strong>
     <p>Until the end of your turn. Tile actions still use their normal costs and placement rules.</p>
   </section>;

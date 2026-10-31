@@ -1104,7 +1104,7 @@ function StandardEffectPrompt({
       )}
 
       {canCancelWithWarden && onCancelWithWarden && (isPlayerExperience() ? (
-        <aside className="warden-prevention" aria-label="Warden's response">
+        <aside className="warden-prevention" aria-label="Warden’s response">
           <p className="eyebrow">Warden, once this Season</p>
           <h3>Prevent the reveal effect?</h3>
           <p>The Burden stays active and can still be resolved later. Using the power spends the Warden’s use for Season {["I", "II", "III"][state.season - 1]}.</p>

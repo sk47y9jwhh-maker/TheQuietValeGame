@@ -833,7 +833,7 @@ const guildTour: TourStep[] = [
   {
     id: "guild-intro",
     title: "Set down the right Burden",
-    text: () => "The Adventurers' Guild is a Special tile. Once per Season, activating it resolves one active Burden without paying the resources it asks for.",
+    text: () => "The Adventurers’ Guild is a Special tile. Once per Season, activating it resolves one active Burden without paying the resources it asks for.",
     verb: "Next",
     target: (state) => { const tile = guild(state); return tile ? { hexIds: [tile.hexIds[0]], label: "Guild" } : null; }
   },
@@ -930,7 +930,7 @@ const wardenTour: TourStep[] = [
   {
     id: "warden-done",
     title: "One power, two Burdens answered",
-    text: (state) => `The first Burden never applied, and the river's Strain was stopped by Supported. The score is ${score(state)}.`,
+    text: (state) => `The first Burden never applied, and the river’s Strain was stopped by Supported. The score is ${score(state)}.`,
     target: () => ({ ui: "score" })
   },
   handover("That is the end of this walkthrough. Start a real game of your own, or watch another scene.")

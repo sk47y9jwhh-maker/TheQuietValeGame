@@ -1,4 +1,5 @@
 import { stewardPreparations, getPreparedStewardPower } from "./preparedActions";
+import { readableReasons } from "../common/ruleReasons";
 import { PreparedStewardNotice } from "./PreparedStewardNotice";
 import { UpgradeChoices } from "./UpgradeChoices";
 import { ActiveRangerReach } from "../effects/StewardChoices";
@@ -116,11 +117,7 @@ const stewardPowerButtonLabel: Record<string, string> = {
 };
 
 function formatInteractBlockers(reasons: string[]): string {
-  return reasons
-    .map((reason) =>
-      reason.replace(/^Cannot (?:complete Arrival|resolve Burden):\s*/i, "")
-    )
-    .join(" ");
+  return readableReasons(reasons);
 }
 
 export function ActionConsole({
