@@ -38,3 +38,33 @@
 - Representative Open card: `output/target-card-visual/target-card-25-open-vale-blue-rose-front.png`
 
 This specification locks the design system. Generating all 30 cards, comparing them with the structured data/workbook, and running physical-size/vendor proofs remain separate production tasks.
+
+## Print files for the first live prototype (31 October 2026)
+
+`print/target-NN.png` are the 30 fronts, 1630 × 2220 px at 600 dpi (63 × 88 mm
+trim, 3 mm bleed each side, sRGB), rendered by `render-target.mjs` from
+`src/data/targetCards.ts`, so print and online use the same deck data. The back
+is the shared card back in silver:
+`design/encounter-card-templates/card-back/print/card-back-poker-silver-printerstudio-600dpi.png`.
+
+Changes from the locked face, for review after play-testing:
+
+- **Tie direction is a compass, not a neighbour ring.** The map's hexes are
+  flat-top, so their neighbours lie N, NE, SE, S, SW and NW, and there is no
+  east or west neighbour. The engine breaks a tie by the tile furthest across
+  the whole map along the card's bearing (`directionVectors` in
+  `src/engine/targetCards.ts`). A ring of neighbour hexes suggested adjacency,
+  so the card now shows six compass arms with the bearing in rose and the words
+  "Furthest east" (and so on) plus "across the whole map (E)".
+- **Small glyphs beside each value** to help scanning: a hex for Core, a hex
+  with a star for Special or Golden, a double hex for Upgraded, a centre hex with
+  3 or 2 filled neighbours for adjacency, a black Strain disc or a dashed empty
+  disc for Strain. The words still carry the meaning.
+- Values in sentence case ("3+ neighbours", "Already strained",
+  "Special or Golden"), matching the house style.
+- Open cards: "Open target", "Choose any eligible tile", "Keep to any limits
+  set by the effect."
+
+The face template here is upscaled from the 1260 × 1760 web template (508 dpi
+at trim). The original generator and template in `output/target-card-visual/`
+are not in the repo; if the higher-resolution template turns up, render from it.
