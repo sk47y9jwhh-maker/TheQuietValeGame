@@ -138,7 +138,7 @@ function vowBreaks(s: GameState, b: Board): Record<string, boolean> {
     "3B": all.some((t) => t.hexIds.some(isEdge)),
     "4B": all.some((t) => !["housing", "travel"].includes(category(t)) && all.some((o) => o !== t && category(o) === category(t) && touches(t, o))),
     "13B": all.some((t) => t.strain >= 3),
-    "14B": (getLedgerRun(s).upgradeActions ?? 0) > 0,
+    "14B": all.some((t) => t.kind === "core" && t.side === "upgraded"),
     "15B": all.some((t) => t.strain >= 2),
     "16B": allTravel.length > 0,
     "19B": housingGroups > 1,
