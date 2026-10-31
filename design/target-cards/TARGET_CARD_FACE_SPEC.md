@@ -57,7 +57,7 @@ map's flat-top hexes.
 - `render-target.mjs`: renders the fronts. Rows: Tile class, Tile side,
   Adjacency, Current Strain, each with a small glyph; then "If still tied" with
   a flat-top hex whose arrow leaves the edge facing the card's direction and the
-  words "Furthest north" (and so on), "across the whole map"; Open cards say
+  words "The tile closest to the North edge of the map" (and so on); Open cards say
   "Choose any eligible tile". Footer: "Work down the rows. Skip any row no tile
   matches." (replaces "Unless specified" on every row).
 - `print/target-NN.png`: 1630 × 2220 px at 600 dpi (63 × 88 mm with 3 mm

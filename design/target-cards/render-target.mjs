@@ -65,7 +65,7 @@ function page(card) {
   const open = !card.direction;
   const outcome = open
     ? `<section class="outcome"><div class="label">Open target</div><div class="big">Choose any eligible tile</div><div class="small">Keep to any limits set by the effect.</div></section>`
-    : `<section class="outcome"><div class="label">If still tied</div><div class="tie">${compass(card.direction)}<div class="tie-words"><div class="big">Furthest ${names[card.direction]}</div><div class="small">across the whole map</div></div></div></section>`;
+    : `<section class="outcome"><div class="label">If still tied</div><div class="tie">${compass(card.direction)}<div class="tie-words"><div class="small">The tile closest to the</div><div class="big">${names[card.direction][0].toUpperCase() + names[card.direction].slice(1)} edge</div><div class="small">of the map</div></div></div></section>`;
   return `<!doctype html><html><head><meta charset="utf-8"><style>
   @font-face { font-family: Almendra; font-weight: 400; src: url(${font("almendra-latin-regular.woff2")}); }
   @font-face { font-family: Almendra; font-weight: 700; src: url(${font("almendra-latin-bold.woff2")}); }
@@ -91,6 +91,7 @@ function page(card) {
   .big { font: 700 72px/1.05 Alegreya, serif; color: ${steel}; text-align: center; }
   .small { font: italic 400 46px/1.1 Alegreya, serif; color: #44494e; text-align: center; }
   .tie-words .big, .tie-words .small { text-align: left; }
+  .tie-words .big { margin: 4px 0; }
   .foot { position: absolute; top: 2012px; left: 0; right: 0; text-align: center; font: italic 400 46px/1 Alegreya, serif; color: #44494e; }
   </style></head><body>
   <div class="glow" style="top:760px;height:110px"></div>
