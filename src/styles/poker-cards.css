@@ -123,8 +123,6 @@
 .poker-card .qface-strip td { width: calc(100 * var(--u)); text-align: center; border-left: calc(2 * var(--u)) solid rgba(138, 106, 30, 0.45); font: 700 calc(56 * var(--u)) / 1.1 var(--font-ui); color: #2b2620; }
 .poker-card .qface-players th,
 .poker-card .qface-players td { padding-bottom: calc(6 * var(--u)); font: 500 calc(44 * var(--u)) / 1 var(--font-ui); color: #7a6a4c; }
-.poker-card .qface-strip .is-keep th,
-.poker-card .qface-strip .is-keep td { color: #6b3d2a; }
 /* The column for this game's player count */
 .poker-card .qface-strip td.is-now { background: rgba(196, 150, 46, 0.24); color: #1f1a12; }
 .poker-card .qface-players td.is-now { font-weight: 700; color: #5b4615; }

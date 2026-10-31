@@ -17,8 +17,8 @@ export interface QuestHalf {
   kind: "Goal" | "Vow";
   check: QuestCheckKind;
   text: string;
+  /** Targets by player count. A Vow has one: what it must end the game with (or its cap). */
   strips: QuestStrip[];
-  keep?: QuestStrip;
 }
 
 export interface QuestCard {
@@ -45,9 +45,4 @@ export function stripValue(half: QuestHalf, label: string, playerCount: number):
   const strip = half.strips.find(([name]) => name === label);
   if (!strip) throw new Error(`Quest ${half.name} has no strip ${label}.`);
   return strip[1][playerCount - 1];
-}
-
-export function keepValue(half: QuestHalf, playerCount: number): number {
-  if (!half.keep) throw new Error(`Quest ${half.name} has no Keep it line.`);
-  return Number(half.keep[1][playerCount - 1]);
 }

@@ -21,7 +21,7 @@ export function QuestDrawn({ card, playerCount }: { card: QuestCard; playerCount
         <ul>
           {(["top", "bottom"] as const).map((which) => {
             const half = card[which];
-            const targets = [...half.strips, ...(half.keep ? [half.keep] : [])].map(([label, values]) => `${label} ${values[playerCount - 1]}`);
+            const targets = half.strips.map(([label, values]) => `${label} ${values[playerCount - 1]}`);
             return <li key={which}>
               <span className="quest-drawn-which">{which === "top" ? "Easier" : "Harder"} · {half.kind}</span>
               <strong>{half.name}</strong>

@@ -19,10 +19,9 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
 function strips(half) {
   const rows = [...(half.strips ?? [])];
-  if (half.keep) rows.push(half.keep);
   if (!rows.length) return "";
   const head = `<tr class="players"><th>Players</th>${[1, 2, 3, 4, 5].map((p) => `<td>${p}</td>`).join("")}</tr>`;
-  const body = rows.map(([label, values]) => `<tr class="${label.startsWith("Keep it") ? "keep" : ""}"><th>${esc(label)}</th>${values.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("");
+  const body = rows.map(([label, values]) => `<tr><th>${esc(label)}</th>${values.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("");
   return `<table class="strip">${head}${body}</table>`;
 }
 
@@ -63,8 +62,6 @@ function page(card) {
   .strip th { font: 500 48px/1.1 "Alegreya Sans", sans-serif; text-align: right; padding: 4px 22px 4px 0; color: #4a3f2e; max-width: 470px; }
   .strip td { width: 100px; text-align: center; font: 700 56px/1.1 "Alegreya Sans", sans-serif; color: #2b2620; border-left: 2px solid rgba(138, 106, 30, 0.45); }
   .strip tr.players td, .strip tr.players th { font: 500 44px/1 "Alegreya Sans", sans-serif; color: #7a6a4c; padding-bottom: 6px; }
-  .strip tr.keep th { font-style: normal; color: #6b3d2a; }
-  .strip tr.keep td { color: #6b3d2a; }
   .foot { position: absolute; top: 2010px; left: 0; right: 0; text-align: center; font: italic 400 46px/1 Alegreya, serif; color: #4a3f2e; }
   </style></head><body>
   <div class="type">Quest</div>

@@ -306,7 +306,7 @@ function validateLedger(issues: string[]): void {
     for (const half of [card.top, card.bottom]) {
       const label = `Quest Card ${card.n} ${half.name}`;
       if (!half.text.trim()) issues.push(`${label} has blank rule text.`);
-      for (const [name, values] of [...half.strips, ...(half.keep ? [half.keep] : [])]) {
+      for (const [name, values] of half.strips) {
         if (values.length !== supportedPlayerCounts.length) issues.push(`${label} strip ${name} needs one value per player count.`);
       }
     }

@@ -27,9 +27,12 @@ below 70%); in prototype 1 only card 5's bottom half shrinks, to 94%.
   +20 Renown once and puts the card in the Steward’s Ledger. A failed card goes to
   the bottom of the deck.
 - Golden pairs unlock at 3, 6, 9, 12 and 15 completed cards.
-- Strips give targets for 1, 2, 3, 4 and 5 players. "Limit" on a Vow is the
-  most tiles allowed Overstrained (or holding 2+ Strain) at any one time.
-  "Keep it" is checked at final scoring.
+- Strips give targets for 1, 2, 3, 4 and 5 players.
+- Vows (simplified 31 October): each is a rule that must hold all game, then
+  "End with ..." and one strip whose label matches that sentence, checked at
+  final scoring. The Overstrain Vows allow one Overstrained tile at a time at
+  4 to 5 players, printed as a clause, not a strip. The Unbroken Vale has no
+  end target: its strip is the cap on tiles holding 2+ Strain.
 - Targets were retuned by player count on 31 October. They are untested by
   people: prototype 1 is for live play-testing.
 

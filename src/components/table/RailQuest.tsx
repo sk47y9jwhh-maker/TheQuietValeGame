@@ -7,7 +7,7 @@ import { Term } from "./Term";
 
 function Half({ half, which, result, playerCount, open }: { half: QuestHalf; which: "top" | "bottom"; result: QuestHalfResult; playerCount: number; open: boolean }) {
   const status = questHalfStatus(half, result, false);
-  const targets = [...half.strips, ...(half.keep ? [half.keep] : [])];
+  const targets = half.strips;
   return <li className={`rail-quest-half is-${status.tone}`}>
     <div className="rail-quest-line">
       <span className="rail-quest-which">{which === "top" ? "Easier" : "Harder"}</span>

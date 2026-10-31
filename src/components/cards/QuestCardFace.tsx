@@ -6,11 +6,11 @@ import { CardFace, useFitScale } from "./PokerCard";
 const players = [1, 2, 3, 4, 5];
 
 function Strips({ half, playerCount }: { half: QuestHalf; playerCount?: number }) {
-  const rows = [...half.strips, ...(half.keep ? [half.keep] : [])];
+  const rows = half.strips;
   if (!rows.length) return null;
   return <table className="qface-strip">
     <thead><tr className="qface-players"><th scope="row">Players</th>{players.map((count) => <td key={count} className={count === playerCount ? "is-now" : undefined}>{count}</td>)}</tr></thead>
-    <tbody>{rows.map(([label, values]) => <tr key={label} className={label.startsWith("Keep it") ? "is-keep" : undefined}>
+    <tbody>{rows.map(([label, values]) => <tr key={label}>
       <th scope="row">{label}</th>
       {values.map((value, index) => <td key={index} className={index + 1 === playerCount ? "is-now" : undefined}>{String(value)}</td>)}
     </tr>)}</tbody>

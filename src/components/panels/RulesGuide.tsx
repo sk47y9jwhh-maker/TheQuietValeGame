@@ -366,7 +366,7 @@ const rules: RuleReferenceCard[] = [
           "At setup, draw the top card of the 21-card Quest deck. Only one card is in play, whatever the player count.",
           "Both halves are live. The top half is easier and the bottom half is harder. Complete either half to complete the card.",
           "A completed card scores +20 Renown, once. Completing both halves gives no extra Renown.",
-          "Read the target for your player count from the strip on each half. A Moment is met as soon as it happens. A Final is checked at final scoring. A Vow must hold all game, and its Keep it line is checked at final scoring."
+          "Read the target for your player count from the strip on each half. A Moment is met as soon as it happens. A Final is checked at final scoring. A Vow is a rule that must hold all game, and its “End with” target is checked at final scoring."
         ]
       },
       {

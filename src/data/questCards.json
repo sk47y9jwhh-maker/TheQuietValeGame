@@ -1,7 +1,7 @@
 {
  "version": "prototype-1",
  "date": "2026-10-31",
- "note": "First live-play prototype. Targets retuned by player count (fairness analysis, 31 Oct). Strips list values for 1, 2, 3, 4 and 5 players.",
+ "note": "First live-play prototype. Targets retuned by player count (fairness analysis, 31 Oct). Strips list values for 1, 2, 3, 4 and 5 players. Vows simplified 31 Oct: one rule, one 'End with...' target and one strip each; the Overstrain allowance is a fixed clause (one at a time at 4 to 5 players).",
  "cards": [
   {
    "n": 1,
@@ -28,27 +28,17 @@
     "name": "The River Kept Calm",
     "kind": "Vow",
     "check": "All game",
-    "text": "Tiles beside River/Water may not be Overstrained beyond the limit, at any time.",
+    "text": "No tile beside River/Water may ever be Overstrained (one at a time is allowed at 4 to 5 players). End with tiles on this many riverbank hexes.",
     "strips": [
      [
-      "Limit",
+      "Riverbank hexes",
       [
-       0,
-       0,
-       0,
-       1,
-       1
+       4,
+       6,
+       8,
+       10,
+       12
       ]
-     ]
-    ],
-    "keep": [
-     "Keep it: riverbank hexes",
-     [
-      4,
-      6,
-      8,
-      10,
-      12
      ]
     ]
    }
@@ -78,27 +68,17 @@
     "name": "No Cold Hearth",
     "kind": "Vow",
     "check": "All game",
-    "text": "Housing tiles may not be Overstrained beyond the limit, at any time.",
+    "text": "No Housing tile may ever be Overstrained (one at a time is allowed at 4 to 5 players). End with this many Housing tiles.",
     "strips": [
      [
-      "Limit",
+      "Housing",
       [
-       0,
-       0,
-       0,
-       1,
-       1
+       4,
+       5,
+       6,
+       7,
+       8
       ]
-     ]
-    ],
-    "keep": [
-     "Keep it: Housing",
-     [
-      4,
-      5,
-      6,
-      7,
-      8
      ]
     ]
    }
@@ -128,27 +108,17 @@
     "name": "The Borders Held",
     "kind": "Vow",
     "check": "All game",
-    "text": "Tiles on edge hexes may not be Overstrained beyond the limit, at any time.",
+    "text": "No tile on an edge hex may ever be Overstrained (one at a time is allowed at 4 to 5 players). End with tiles on this many edge hexes.",
     "strips": [
      [
-      "Limit",
+      "Edge hexes",
       [
-       0,
-       0,
-       0,
-       1,
-       1
+       4,
+       6,
+       8,
+       10,
+       12
       ]
-     ]
-    ],
-    "keep": [
-     "Keep it: edge hexes",
-     [
-      4,
-      6,
-      8,
-      10,
-      12
      ]
     ]
    }
@@ -178,16 +148,17 @@
     "name": "Patchwork",
     "kind": "Vow",
     "check": "All game",
-    "text": "Never place a tile beside another of its own category. Housing, Travel and Resource tiles are exempt.",
-    "strips": [],
-    "keep": [
-     "Keep it: categories",
+    "text": "Never place a tile beside another of its own category (Housing, Travel and Resource tiles are exempt). End with tiles in this many categories.",
+    "strips": [
      [
-      5,
-      6,
-      6,
-      7,
-      7
+      "Categories",
+      [
+       5,
+       6,
+       6,
+       7,
+       7
+      ]
      ]
     ]
    }
@@ -547,27 +518,17 @@
     "name": "Not One Lost",
     "kind": "Vow",
     "check": "All game",
-    "text": "Tiles may not be Overstrained beyond the limit, at any time.",
+    "text": "No tile may ever be Overstrained (one at a time is allowed at 4 to 5 players). End with no more than this much Strain on the map.",
     "strips": [
      [
-      "Limit",
+      "Strain at most",
       [
-       0,
-       0,
-       1,
-       1,
-       2
+       4,
+       8,
+       12,
+       16,
+       20
       ]
-     ]
-    ],
-    "keep": [
-     "Keep it: Strain at most",
-     [
-      4,
-      8,
-      12,
-      16,
-      20
      ]
     ]
    }
@@ -597,16 +558,17 @@
     "name": "No Fine Work",
     "kind": "Vow",
     "check": "All game",
-    "text": "Never upgrade a Core tile, by any means.",
-    "strips": [],
-    "keep": [
-     "Keep it: paired Housing",
+    "text": "Never upgrade a Core tile, by any means. End with this many Housing tiles, each beside another Housing tile.",
+    "strips": [
      [
-      4,
-      5,
-      6,
-      7,
-      8
+      "Housing",
+      [
+       4,
+       5,
+       6,
+       7,
+       8
+      ]
      ]
     ]
    }
@@ -625,10 +587,10 @@
     "name": "The Unbroken Vale",
     "kind": "Vow",
     "check": "All game",
-    "text": "Tiles holding 2 or more Strain may not exceed the limit, at any time.",
+    "text": "No more than this many tiles may hold 2 or more Strain at any one time.",
     "strips": [
      [
-      "Limit",
+      "Tiles with 2+ Strain",
       [
        0,
        1,
@@ -636,16 +598,6 @@
        3,
        4
       ]
-     ]
-    ],
-    "keep": [
-     "Keep it: categories",
-     [
-      5,
-      6,
-      6,
-      7,
-      7
      ]
     ]
    }
@@ -675,16 +627,17 @@
     "name": "No Roads Raised",
     "kind": "Vow",
     "check": "All game",
-    "text": "Never place a Travel tile, by any means. Common Land counts as Travel.",
-    "strips": [],
-    "keep": [
-     "Keep it: categories",
+    "text": "Never place a Travel tile, by any means (Common Land counts as Travel). End with tiles in this many categories.",
+    "strips": [
      [
-      4,
-      4,
-      5,
-      5,
-      5
+      "Categories",
+      [
+       4,
+       4,
+       5,
+       5,
+       5
+      ]
      ]
     ]
    }
@@ -783,16 +736,17 @@
     "name": "One Village",
     "kind": "Vow",
     "check": "All game",
-    "text": "Every Housing tile must join the one Housing cluster when it is placed.",
-    "strips": [],
-    "keep": [
-     "Keep it: cluster size",
+    "text": "Every Housing tile must join the one Housing cluster when it is placed. End with a cluster this big.",
+    "strips": [
      [
-      5,
-      5,
-      6,
-      7,
-      8
+      "Cluster size",
+      [
+       5,
+       5,
+       6,
+       7,
+       8
+      ]
      ]
     ]
    }
@@ -811,16 +765,17 @@
     "name": "No Road Through",
     "kind": "Vow",
     "check": "All game",
-    "text": "No Travel tile may ever be beside a Housing tile.",
-    "strips": [],
-    "keep": [
-     "Keep it: categories",
+    "text": "No Travel tile may ever be beside a Housing tile. End with tiles in this many categories.",
+    "strips": [
      [
-      5,
-      6,
-      6,
-      7,
-      7
+      "Categories",
+      [
+       5,
+       6,
+       6,
+       7,
+       7
+      ]
      ]
     ]
    }

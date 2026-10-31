@@ -3,13 +3,12 @@
  *
  * - Moment quests are met the instant the board shows them, and stay met.
  * - Vow quests are watched after every change; a broken Vow stays broken.
- *   Its "Keep it" line is checked at final scoring.
+ *   Its "End with..." target is checked at final scoring.
  * - Final quests are checked at final scoring.
  * Shapes and counts use non-Overstrained tiles; Vow breaks look at every tile.
  */
 import {
   questCardByNumber,
-  keepValue,
   stripValue,
   type QuestCard,
   type QuestHalfKey
@@ -28,7 +27,7 @@ export interface QuestHalfResult {
   status: QuestHalfStatus;
   /**
    * During play, whether the half would be met if the game ended now: a Final
-   * goal's check, or a kept Vow's Keep it line. Moments are met or not.
+   * goal's check, or a kept Vow's end-of-game target. Moments are met or not.
    */
   onTrack: boolean;
 }
@@ -163,37 +162,38 @@ interface QuestCheck {
   goal?: (s: GameState, b: Board, card: QuestCard) => boolean;
   /** Vows: true when this change breaks it. */
   breaks?: (s: GameState, b: Board, card: QuestCard) => boolean;
-  /** Vows: the Keep it line, checked at the end. */
+  /** Vows: the "End with..." target, checked at the end. */
   keep?: (s: GameState, b: Board, card: QuestCard) => boolean;
 }
 
 const p = (s: GameState) => s.playerCount;
 const T = (card: QuestCard, label: string, s: GameState) => Number(stripValue(card.top, label, p(s)));
 const B = (card: QuestCard, label: string, s: GameState) => stripValue(card.bottom, label, p(s));
-const K = (card: QuestCard, s: GameState) => keepValue(card.bottom, p(s));
+/** Overstrained tiles a Vow allows at once: one at 4 to 5 players, as printed on the cards. */
+const allowance = (s: GameState) => (p(s) >= 4 ? 1 : 0);
 const atOnce = (tiles: PlacedTile[], test: (t: PlacedTile) => boolean, limit: number) => tiles.filter(test).length > limit;
 
 const quests: Record<string, QuestCheck> = {
   "1T": { goal: (s, b, c) => crossings(b) >= T(c, "Crossings", s) },
   "1B": {
-    breaks: (s, b, c) => atOnce(b.all, (t) => overstrained(t) && besideWater(t), Number(B(c, "Limit", s))),
-    keep: (s, b, c) => new Set(b.ok.flatMap((t) => t.hexIds).filter((h) => !isWater(h) && getHexNeighbors(h).some(isWater))).size >= K(c, s)
+    breaks: (s, b) => atOnce(b.all, (t) => overstrained(t) && besideWater(t), allowance(s)),
+    keep: (s, b, c) => new Set(b.ok.flatMap((t) => t.hexIds).filter((h) => !isWater(h) && getHexNeighbors(h).some(isWater))).size >= Number(B(c, "Riverbank hexes", s))
   },
   "2T": { goal: (s, b, c) => pairedHousing(b) >= T(c, "Housing", s) },
   "2B": {
-    breaks: (s, b, c) => atOnce(b.all, (t) => overstrained(t) && category(t) === "housing", Number(B(c, "Limit", s))),
-    keep: (s, b, c) => ofCategory(b.ok, "housing").length >= K(c, s)
+    breaks: (s, b) => atOnce(b.all, (t) => overstrained(t) && category(t) === "housing", allowance(s)),
+    keep: (s, b, c) => ofCategory(b.ok, "housing").length >= Number(B(c, "Housing", s))
   },
   "3T": { goal: (s, b, c) => corners.filter((h) => b.byHex.has(h)).length >= T(c, "Corners", s) },
   "3B": {
-    breaks: (s, b, c) => atOnce(b.all, (t) => overstrained(t) && t.hexIds.some(isEdge), Number(B(c, "Limit", s))),
-    keep: (s, b, c) => new Set(b.ok.flatMap((t) => t.hexIds).filter(isEdge)).size >= K(c, s)
+    breaks: (s, b) => atOnce(b.all, (t) => overstrained(t) && t.hexIds.some(isEdge), allowance(s)),
+    keep: (s, b, c) => new Set(b.ok.flatMap((t) => t.hexIds).filter(isEdge)).size >= Number(B(c, "Edge hexes", s))
   },
   "4T": { goal: (s, b, c) => categoryCount(b) >= T(c, "Categories", s) },
   "4B": {
     breaks: (_s, b) => b.all.some((t) => !["housing", "travel", "resource"].includes(category(t)) &&
       b.all.some((o) => category(o) === category(t) && touches(t, o))),
-    keep: (s, b, c) => categoryCount(b) >= K(c, s)
+    keep: (s, b, c) => categoryCount(b) >= Number(B(c, "Categories", s))
   },
   "5T": { goal: (s, b, c) => terrainCount(b.ok) >= T(c, "Terrains", s) },
   "5B": {
@@ -264,21 +264,20 @@ const quests: Record<string, QuestCheck> = {
     }
   },
   "13B": {
-    breaks: (s, b, c) => atOnce(b.all, overstrained, Number(B(c, "Limit", s))),
-    keep: (s, b, c) => strainOnMap(b.all) <= K(c, s)
+    breaks: (s, b) => atOnce(b.all, overstrained, allowance(s)),
+    keep: (s, b, c) => strainOnMap(b.all) <= Number(B(c, "Strain at most", s))
   },
   "14T": { goal: (s, _b, c) => (s.ledgerRun?.upgradeActions ?? 0) >= T(c, "Upgrades", s) },
   "14B": {
     breaks: (_s, b) => b.all.some((t) => t.kind === "core" && t.side === "upgraded"),
-    keep: (s, b, c) => pairedHousing(b) >= K(c, s)
+    keep: (s, b, c) => pairedHousing(b) >= Number(B(c, "Housing", s))
   },
   "15T": {
     goal: (s, b) => b.ok.some((t) => t.tileId === "c11_washhouse" && b.beside(t, "crafting") && b.beside(t, "merchant") &&
       b.beside(t, "social") && (p(s) < 4 || b.beside(t, "housing")))
   },
   "15B": {
-    breaks: (s, b, c) => atOnce(b.all, (t) => t.strain >= 2, Number(B(c, "Limit", s))),
-    keep: (s, b, c) => categoryCount(b) >= K(c, s)
+    breaks: (s, b, c) => atOnce(b.all, (t) => t.strain >= 2, Number(B(c, "Tiles with 2+ Strain", s)))
   },
   "16T": {
     goal: (s, b, c) => b.ok.some((track) => track.tileId === "c17_track" &&
@@ -287,7 +286,7 @@ const quests: Record<string, QuestCheck> = {
   },
   "16B": {
     breaks: (_s, b) => b.all.some((t) => category(t) === "travel"),
-    keep: (s, b, c) => categoryCount(b) >= K(c, s)
+    keep: (s, b, c) => categoryCount(b) >= Number(B(c, "Categories", s))
   },
   "17T": {
     goal: (_s, b) => ofCategory(b.ok, "travel").some((t) =>
@@ -319,7 +318,7 @@ const quests: Record<string, QuestCheck> = {
   },
   "19B": {
     breaks: (_s, b) => groups(ofCategory(b.all, "housing")).length > 1,
-    keep: (s, b, c) => largestCluster(b) >= K(c, s)
+    keep: (s, b, c) => largestCluster(b) >= Number(B(c, "Cluster size", s))
   },
   "20T": {
     goal: (s, b) => {
@@ -330,7 +329,7 @@ const quests: Record<string, QuestCheck> = {
   },
   "20B": {
     breaks: (_s, b) => b.all.some((t) => category(t) === "travel" && b.all.some((h) => category(h) === "housing" && touches(t, h))),
-    keep: (s, b, c) => categoryCount(b) >= K(c, s)
+    keep: (s, b, c) => categoryCount(b) >= Number(B(c, "Categories", s))
   },
   "21T": {
     goal: (s, b, c) => {
@@ -383,7 +382,7 @@ export function trackQuest(state: GameState): GameState {
 }
 
 /**
- * Where each half stands now. Before the game ends, Final quests and Keep it
+ * Where each half stands now. Before the game ends, Final quests and Vow end
  * lines read "open"; at game end they are checked.
  */
 export function evaluateQuest(state: GameState): QuestResult | null {
@@ -399,7 +398,7 @@ export function evaluateQuest(state: GameState): QuestResult | null {
     let status: QuestHalfStatus = "open";
     let onTrack = false;
     if (kind.kind === "Vow") {
-      onTrack = !run.broken.includes(id) && Boolean(check.keep?.(state, b, card));
+      onTrack = !run.broken.includes(id) && (check.keep ? check.keep(state, b, card) : true);
       if (run.broken.includes(id)) status = "broken";
       else if (ended && onTrack) status = "met";
     } else if (kind.check === "Moment") {

@@ -42,8 +42,11 @@ describe("Quest Cards", () => {
       for (const [half, key] of [["top", "T"], ["bottom", "B"]] as const) {
         expect(ids).toContain(`${card.n}${key}`);
         for (const [, values] of card[half].strips) expect(values).toHaveLength(5);
-        if (card[half].keep) expect(card[half].keep![1]).toHaveLength(5);
-        if (card[half].kind === "Vow") expect(card[half].check).toBe("All game");
+        if (card[half].kind === "Vow") {
+          expect(card[half].check).toBe("All game");
+          // One target per Vow, named by the card's own sentence.
+          expect(card[half].strips).toHaveLength(1);
+        }
       }
     }
     expect(ids).toHaveLength(42);
@@ -87,13 +90,23 @@ describe("Quest Cards", () => {
     expect(evaluateQuest(state)?.bottom.status).toBe("broken");
   });
 
-  it("allows Overstrained tiles up to a Vow's limit at higher player counts", () => {
-    const tiles = [placed("a", "c05_cabin", "D4", 3), placed("b", "c05_cabin", "H4")];
-    expect(trackQuest(questState(13, tiles, 1)).questRun?.broken).toContain("13B");
-    expect(trackQuest(questState(13, tiles, 3)).questRun?.broken).not.toContain("13B");
+  it("allows one Overstrained tile at a time at 4 to 5 players, as the cards say", () => {
+    const one = [placed("a", "c05_cabin", "D4", 3), placed("b", "c05_cabin", "H4")];
+    const two = [placed("a", "c05_cabin", "D4", 3), placed("b", "c05_cabin", "H4", 3)];
+    expect(trackQuest(questState(13, one, 3)).questRun?.broken).toContain("13B");
+    expect(trackQuest(questState(13, one, 4)).questRun?.broken).not.toContain("13B");
+    expect(trackQuest(questState(13, two, 5)).questRun?.broken).toContain("13B");
   });
 
-  it("checks a kept Vow's Keep it line at the end of the game", () => {
+  it("caps tiles with 2+ Strain by the strip on The Unbroken Vale", () => {
+    const strained = [placed("a", "c05_cabin", "D4", 2), placed("b", "c05_cabin", "H4", 2)];
+    expect(trackQuest(questState(15, strained, 1)).questRun?.broken).toContain("15B");
+    expect(trackQuest(questState(15, strained, 3)).questRun?.broken).not.toContain("15B");
+    const ended = { ...trackQuest(questState(15, strained, 3)), phase: "gameEnd" as const };
+    expect(evaluateQuest(ended)?.bottom.status).toBe("met");
+  });
+
+  it("checks a kept Vow's end-of-game target", () => {
     const tiles = [
       placed("home", "c05_cabin", "D4"),
       placed("inn", "c09_tavern", "F4"),
