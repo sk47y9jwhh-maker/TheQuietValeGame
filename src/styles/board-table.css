@@ -1253,6 +1253,7 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .table-screen[data-coach="score"] .table-score,
 .table-screen[data-coach="encounters"] .rail-heading,
 .table-screen[data-coach="quest"] .rail-quest,
+.table-screen[data-coach="quest"] .table-quest-chip,
 .table-screen[data-coach="seed"] .table-seed-slots { position: relative; z-index: 1; border-radius: 12px; box-shadow: 0 0 0 3px #f2c94c, 0 0 22px rgba(242, 201, 76, 0.55); }
 @media (prefers-reduced-motion: no-preference) {
   .table-screen[data-coach] :is(.rail-arrival, .rail-end > button, .table-score, .rail-heading, .table-seed-slots) { animation: bt-coach-glow 1.8s ease-in-out infinite; }
@@ -1879,3 +1880,31 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .rail-quest-half .rail-quest-targets { font-size: 0.78rem; }
 .rail-quest-targets b { color: var(--bt-ink); }
 .table-rail .rail-quest-more { justify-self: start; min-height: 32px; padding: 3px 10px; background: transparent; border-color: #c9ad62; font-size: 0.8rem; }
+
+/* The Quest Card at a glance in the top bar */
+.table-quest-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  min-width: 0;
+  max-width: 260px;
+  padding: 6px 10px;
+  border: 1px solid rgba(232, 196, 99, 0.45);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.table-quest-chip span { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bt-brass-light); }
+.table-quest-chip strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.table-quest-chip small { color: #cfc6a8; }
+.table-quest-chip.is-complete { border-color: #8fb07e; }
+.table-quest-chip.is-complete small { color: #b9d6a8; }
+.table-quest-chip:hover { background: rgba(255, 255, 255, 0.06); }
+@media (max-width: 1180px) { .table-quest-chip small { display: none; } }
+@media (max-width: 1040px) { .table-quest-chip { display: none; } }
+.rail-quest.is-called { animation: rail-quest-call 1.4s ease-out; }
+@keyframes rail-quest-call { 0%, 30% { box-shadow: 0 0 0 3px #f2c94c, 0 0 22px rgba(242, 201, 76, 0.55); } 100% { box-shadow: 0 0 0 0 rgba(242, 201, 76, 0); } }

@@ -149,6 +149,10 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
   const [choices, ChoiceHost] = useBoardChoiceHost();
   const resolving = Boolean(resolution);
   const [coachTarget, setCoachTarget] = useState<CoachTarget | null>(null);
+  // The Quest Card panel sits low in the side rail: bring it into view when the coach points at it.
+  useEffect(() => {
+    if (coachTarget?.ui === "quest") document.querySelector<HTMLElement>(".table-rail .rail-quest")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [coachTarget?.ui]);
   const [sheetLow, setSheetLow] = useState(false);
   // Earlier links of the current Overstrain chain, so the board shows its path.
   const [chainTrail, setChainTrail] = useState<{ from: string; to: string }[]>([]);
@@ -450,6 +454,25 @@ function placingAnchorHint(state: GameState): string {
   return state.players.find((player) => player.id === state.currentPlayerId)?.stewardHexId ?? "G5";
 }
 
+/** The Quest Card at a glance in the top bar; it points to the full panel in the side rail. */
+function QuestChip({ state }: { state: GameState }) {
+  const quest = evaluateQuest(state);
+  if (!quest || state.phase === "gameEnd") return null;
+  const tones = [questHalfStatus(quest.card.top, quest.top, false), questHalfStatus(quest.card.bottom, quest.bottom, false)];
+  const reading = quest.complete ? "Complete, +20" : tones.some((tone) => tone.tone === "on-track") ? "On track" : tones.every((tone) => tone.tone === "broken") ? "Both halves broken" : "In progress";
+  const show = () => {
+    const panel = document.querySelector<HTMLElement>(".table-rail .rail-quest");
+    if (!panel) return;
+    panel.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    panel.classList.remove("is-called");
+    void panel.offsetWidth;
+    panel.classList.add("is-called");
+  };
+  return <button type="button" className={`table-quest-chip${quest.complete ? " is-complete" : ""}`} onClick={show} aria-label={`Quest Card ${quest.card.n}, ${quest.card.theme}: ${reading}. Show the card`}>
+    <span>Quest</span><strong>{quest.card.theme}</strong><small>{reading}</small>
+  </button>;
+}
+
 function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo, onReset, compact, asHeading = false }: { state: GameState; forecast?: ActionForecast; score: number; canUndo: boolean; canRedo: boolean; onUndo: () => void; onRedo: () => void; onReset: () => void; compact: boolean; asHeading?: boolean }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -483,6 +506,7 @@ function TableTopBar({ state, forecast, score, canUndo, canRedo, onUndo, onRedo,
         return <span key={round} className={round < state.round ? "is-done" : round === state.round ? "is-now" : ""} />;
       })}</span>)}</span>}
     </div>
+    {!compact && <QuestChip state={state} />}
     {!compact && <ul className="table-warehouse" aria-label="Warehouse">
       {resources.map((resource) => {
         const after = deltas.get(resource);

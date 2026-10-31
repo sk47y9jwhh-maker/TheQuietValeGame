@@ -58,6 +58,22 @@ describe("Quest Cards", () => {
     expect(evaluateQuest(state)?.complete).toBe(true);
   });
 
+  it("logs a completed half and a broken Vow once", () => {
+    const corners = [placed("a", "c05_cabin", "A1"), placed("b", "c05_cabin", "A9")];
+    const state = trackQuest(questState(3, corners));
+    expect(state.log[0].message).toBe("Quest Card: Corners of the Vale is complete. The card scores +20 Renown.");
+    expect(trackQuest(state).log).toBe(state.log);
+    const broken = trackQuest(questState(13, [placed("a", "c05_cabin", "D4", 3)]));
+    expect(broken.log[0].message).toMatch(/^Quest Card: the Vow Not One Lost is broken\. The other half can still complete the card\.$/);
+  });
+
+  it("reads Final goals and kept Vows as on track during play", () => {
+    const playing = trackQuest(questState(21, [placed("a", "c05_cabin", "D4")]));
+    const result = evaluateQuest(playing)!;
+    expect(result.bottom).toMatchObject({ status: "open", onTrack: true });
+    expect(result.complete).toBe(false);
+  });
+
   it("asks for more at higher player counts", () => {
     const corners = [placed("a", "c05_cabin", "A1"), placed("b", "c05_cabin", "A9"), placed("c", "c05_cabin", "N1")];
     expect(trackQuest(questState(3, corners, 3)).questRun?.moments).toContain("3T");
