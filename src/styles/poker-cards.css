@@ -275,13 +275,12 @@
 .qmini { width: 100%; border-radius: 6% / 4.3%; }
 .qmini .qface-type { top: calc(500 * var(--u)); font-size: calc(70 * var(--u)); }
 .qmini .qface-title { top: calc(640 * var(--u)); height: calc(260 * var(--u)); font-size: calc(170 * var(--u)); line-height: 0.95; }
-.qmini-number { position: absolute; top: calc(1300 * var(--u)); left: 0; right: 0; text-align: center; font: italic 400 calc(110 * var(--u)) / 1 var(--font-body); color: #4a3f2e; }
 
 .ledger-card-group { margin-top: 14px; }
 .ledger-card-group h4 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; font: 700 12px/1.2 var(--font-ui); letter-spacing: 0.08em; text-transform: uppercase; color: var(--qv-brass-dark); }
 .ledger-card-group h4 span { padding: 1px 7px; border-radius: 999px; background: rgba(111, 93, 46, 0.12); letter-spacing: 0; }
 .ledger-card-empty { margin: 0; padding: 10px 12px; border: 1px dashed rgba(111, 93, 46, 0.35); border-radius: 9px; font-size: 13px; }
-.ledger-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 14px 12px; margin: 0; padding: 0; list-style: none; }
+.ledger-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 14px 12px; margin: 0; padding: 0; list-style: none; }
 .ledger-quest-card button { display: grid; gap: 6px; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .ledger-quest-card .poker-card { transition: transform 0.18s ease, box-shadow 0.18s ease; }
 .ledger-quest-card button:hover .poker-card,

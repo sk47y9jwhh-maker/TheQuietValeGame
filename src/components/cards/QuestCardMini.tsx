@@ -7,6 +7,5 @@ export function QuestCardMini({ card, faceDown = false }: { card: QuestCard; fac
   return <CardFace kind="quest" className="qmini qface" sizes="120px">
     <div className="qface-type">Quest</div>
     <div className="qface-title">{card.theme}</div>
-    <div className="qmini-number">No. {card.n}</div>
   </CardFace>;
 }

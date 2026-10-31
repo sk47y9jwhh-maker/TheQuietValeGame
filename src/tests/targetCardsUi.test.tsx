@@ -101,7 +101,7 @@ describe("Target Card UI", () => {
     expect(screen.getByRole("region", { name: /target card resolution/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /card 03/i })).toBeInTheDocument();
     expect(screen.getByText(/target 1/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/unless specified/i)).toHaveLength(4);
+    expect(screen.getByText("Work down the rows. Skip any row no tile matches.")).toBeInTheDocument();
     expect(screen.getByText(/selected: path/i)).toBeInTheDocument();
     expect(screen.getByText(/supported will prevent 1 strain after selection/i)).toBeInTheDocument();
     expect(screen.getAllByText(/applied|ignored/i)).toHaveLength(4);
