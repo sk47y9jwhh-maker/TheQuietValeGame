@@ -38,25 +38,18 @@
 .poker-card-layer strong,
 .poker-card-layer small { margin: 0; }
 
-/* Turning a drawn card over */
-.poker-flip { perspective: 1400px; }
-.poker-flip-inner {
-  position: relative;
-  display: grid;
-  transform-style: preserve-3d;
-  transform: rotateY(180deg);
-  transition: transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-.poker-flip.is-shown .poker-flip-inner { transform: rotateY(0deg); }
+/* Turning a drawn card over: the back narrows to nothing, then the face widens out. */
+.poker-flip-inner { display: grid; }
 .poker-flip-front,
-.poker-flip-back {
-  grid-area: 1 / 1;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-.poker-flip-back { transform: rotateY(180deg); }
+.poker-flip-back { grid-area: 1 / 1; }
+.poker-flip:not(.is-face) .poker-flip-front { visibility: hidden; }
+.poker-flip.is-face .poker-flip-back { visibility: hidden; }
+.poker-flip.is-turning .poker-flip-inner { animation: poker-turn-away 0.2s ease-in forwards; }
+.poker-flip.is-face .poker-flip-inner { animation: poker-turn-in 0.32s cubic-bezier(0.2, 0.7, 0.3, 1); }
+@keyframes poker-turn-away { from { transform: scaleX(1); } to { transform: scaleX(0.02); } }
+@keyframes poker-turn-in { from { transform: scaleX(0.02); } to { transform: scaleX(1); } }
 @media (prefers-reduced-motion: reduce) {
-  .poker-flip-inner { transition: none; }
+  .poker-flip .poker-flip-inner { animation: none !important; }
 }
 
 /* ---------------------------------------------------------------- Quest Card */

@@ -39,20 +39,39 @@ function prefersReducedMotion() {
 
 /**
  * Shows the back, then turns the card over: the moment a card is drawn.
- * `revealKey` replays the turn when the drawn card changes. Reduced motion
- * shows the face at once.
+ * The turn is drawn in two flat halves (the back narrows to nothing, then
+ * the face widens out), so it does not depend on 3D support. `revealKey`
+ * replays it when the drawn card changes; reduced motion shows the face.
  */
+const turnHalf = 200;
+
 export function FlipCard({ kind, revealKey, children, className = "", sizes, delay = 220 }: { kind: PokerCardKind; revealKey: string | number; children: ReactNode; className?: string; sizes?: string; delay?: number }) {
-  const [shown, setShown] = useState(() => prefersReducedMotion());
+  const [stage, setStage] = useState<"back" | "turning" | "face">(() => prefersReducedMotion() ? "face" : "back");
+  const element = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (prefersReducedMotion()) { setShown(true); return undefined; }
-    setShown(false);
-    const timer = window.setTimeout(() => setShown(true), delay);
-    return () => window.clearTimeout(timer);
+    if (prefersReducedMotion()) { setStage("face"); return undefined; }
+    setStage("back");
+    const timers: number[] = [];
+    const turn = () => {
+      timers.push(window.setTimeout(() => setStage("turning"), delay));
+      timers.push(window.setTimeout(() => setStage("face"), delay + turnHalf));
+    };
+    // Wait until the card is on screen, so the turn is seen rather than missed.
+    const node = element.current;
+    let observer: IntersectionObserver | null = null;
+    if (node && typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) { observer?.disconnect(); turn(); }
+      }, { threshold: 0.5 });
+      observer.observe(node);
+    } else {
+      turn();
+    }
+    return () => { observer?.disconnect(); timers.forEach((timer) => window.clearTimeout(timer)); };
   }, [revealKey, delay]);
-  return <div className={`poker-flip${shown ? " is-shown" : ""} ${className}`.trim()}>
+  return <div ref={element} className={`poker-flip is-${stage}${stage === "face" ? " is-shown" : ""} ${className}`.trim()}>
     <div className="poker-flip-inner">
-      <div className="poker-flip-front">{children}</div>
+      <div className="poker-flip-front" aria-hidden={stage === "face" ? undefined : true}>{children}</div>
       <CardBack kind={kind} className="poker-flip-back" sizes={sizes} />
     </div>
   </div>;
