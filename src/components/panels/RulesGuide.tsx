@@ -357,16 +357,16 @@ const rules: RuleReferenceCard[] = [
   {
     category: "Campaign",
     page: "22",
-    title: "Quest Cards and the Steward’s Ledger",
+    title: "Steward’s Ledger",
     summary: "Each game draws one Quest Card. Completed cards go into the Steward’s Ledger, which unlocks the Golden pairs across many games.",
     sections: [
       {
         title: "The Quest Card",
         bullets: [
           "At setup, draw the top card of the 21-card Quest deck. Only one card is in play, whatever the player count.",
-          "Both halves are live. The top half is easier; the bottom half is harder. Complete either half to complete the card.",
+          "Both halves are live. The top half is easier and the bottom half is harder. Complete either half to complete the card.",
           "A completed card scores +20 Renown, once. Completing both halves gives no extra Renown.",
-          "Read the target for your player count from the strip on each half. A Moment is met as soon as it happens; a Final is checked at final scoring; a Vow must hold all game and its Keep it line is checked at final scoring."
+          "Read the target for your player count from the strip on each half. A Moment is met as soon as it happens. A Final is checked at final scoring. A Vow must hold all game, and its Keep it line is checked at final scoring."
         ]
       },
       {

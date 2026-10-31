@@ -349,7 +349,7 @@ export function BottomDrawer({
                       ? "This game has been recorded in the Steward’s Ledger."
                       : state.phase === "gameEnd"
                         ? "Review and record this game from the final scoring panel."
-                        : "The Quest Card is tracked automatically. A completed card goes into the Ledger when the finished game is recorded; a failed card goes to the bottom of the deck."}
+                        : "The Quest Card is tracked automatically. A completed card goes into the Ledger when the finished game is recorded. A failed card goes to the bottom of the deck."}
                   </p>
                 </div>
               )}
