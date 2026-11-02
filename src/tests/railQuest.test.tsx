@@ -15,9 +15,9 @@ describe("Quest Card in the table's side panel", () => {
     expect(within(panel).getByText("The Mine Road")).toBeInTheDocument();
     expect(within(panel).getByText("On track")).toBeInTheDocument();
     expect(within(panel).getByText("Not yet")).toBeInTheDocument();
-    expect(within(panel).queryByText(/Mine Tunnels, each beside a Travel tile/)).not.toBeInTheDocument();
+    expect(within(panel).queryByText(/End with Mine Tunnels \(see table\), each beside a Travel tile/)).not.toBeInTheDocument();
     fireEvent.click(within(panel).getByRole("button", { name: "Read the card" }));
-    expect(within(panel).getByText(/Mine Tunnels, each beside a Travel tile/)).toBeInTheDocument();
+    expect(within(panel).getByText(/End with Mine Tunnels \(see table\), each beside a Travel tile/)).toBeInTheDocument();
   });
 
   it("stays out of the way in a game without a Quest Card", () => {
