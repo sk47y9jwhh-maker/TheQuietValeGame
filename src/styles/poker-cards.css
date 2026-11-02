@@ -167,10 +167,10 @@
 
 .poker-card .tface-glow {
   position: absolute;
-  top: calc(689 * var(--u));
-  left: calc(159 * var(--u));
-  right: calc(159 * var(--u));
-  height: calc(110 * var(--u));
+  top: calc(301 * var(--u));
+  left: calc(199 * var(--u));
+  right: calc(199 * var(--u));
+  height: calc(130 * var(--u));
   border-radius: 50%;
   background: radial-gradient(ellipse at center, rgba(120, 136, 150, 0.32), rgba(120, 136, 150, 0) 70%);
 }
@@ -203,10 +203,10 @@
 
 .poker-card .tface-rows {
   position: absolute;
-  top: calc(877 * var(--u));
+  top: calc(485 * var(--u));
   left: calc(179 * var(--u));
   right: calc(179 * var(--u));
-  height: calc(690 * var(--u));
+  height: calc(900 * var(--u));
   display: grid;
   grid-template-rows: repeat(4, 1fr);
 }
@@ -219,16 +219,16 @@
   border-bottom: calc(2 * var(--u)) solid rgba(43, 47, 51, 0.22);
 }
 .poker-card .tface-row:last-child { border-bottom: 0; }
-.poker-card .tface-label { font: 400 calc(50 * var(--u)) / 1 var(--font-display); color: #44494e; }
-.poker-card .tface-value { display: flex; align-items: center; gap: calc(26 * var(--u)); font: 700 calc(76 * var(--u)) / 1 var(--font-body); color: #1f2226; }
-.poker-card .tface-glyph svg { display: block; width: calc(80 * var(--u)); height: calc(80 * var(--u)); }
+.poker-card .tface-label { font: 400 calc(56 * var(--u)) / 1 var(--font-display); color: #44494e; }
+.poker-card .tface-value { display: flex; align-items: center; gap: calc(28 * var(--u)); font: 700 calc(88 * var(--u)) / 1 var(--font-body); color: #1f2226; }
+.poker-card .tface-glyph svg { display: block; width: calc(96 * var(--u)); height: calc(96 * var(--u)); }
 
 .poker-card .tface-outcome {
   position: absolute;
-  top: calc(1625 * var(--u));
-  left: calc(159 * var(--u));
-  right: calc(159 * var(--u));
-  height: calc(310 * var(--u));
+  top: calc(1441 * var(--u));
+  left: calc(149 * var(--u));
+  right: calc(149 * var(--u));
+  height: calc(480 * var(--u));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -236,10 +236,10 @@
   gap: calc(4 * var(--u));
 }
 .poker-card .tface-tie { display: flex; align-items: center; gap: calc(26 * var(--u)); }
-.poker-card .tface-diagram { flex: none; width: calc(330 * var(--u)); height: calc(229 * var(--u)); }
-.poker-card .tface-tie-words { max-width: calc(700 * var(--u)); display: grid; gap: calc(4 * var(--u)); }
-.poker-card .tface-big { font: 700 calc(72 * var(--u)) / 1.05 var(--font-body); color: #3e5566; text-align: center; }
-.poker-card .tface-small { font: italic 400 calc(46 * var(--u)) / 1.1 var(--font-body); color: #44494e; text-align: center; }
+.poker-card .tface-diagram { flex: none; width: calc(400 * var(--u)); height: calc(278 * var(--u)); }
+.poker-card .tface-tie-words { max-width: calc(680 * var(--u)); display: grid; gap: calc(4 * var(--u)); }
+.poker-card .tface-big { font: 700 calc(80 * var(--u)) / 1.05 var(--font-body); color: #3e5566; text-align: center; }
+.poker-card .tface-small { font: italic 400 calc(52 * var(--u)) / 1.1 var(--font-body); color: #44494e; text-align: center; }
 .poker-card .tface-tie-words .tface-big,
 .poker-card .tface-tie-words .tface-small { text-align: left; }
 .poker-card .tface-direction { font-style: normal; font-weight: 700; }

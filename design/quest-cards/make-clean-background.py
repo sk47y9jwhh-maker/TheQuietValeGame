@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Make quest-front-background-clean-600dpi.png from the Quest front background.
+"""Make the clean Quest or Target front background (quest|target as 3rd arg).
 
 Removes the compass medallion, the three baked-in dividers and the gold glow
 bands, so the renderer can draw dividers and glows (moved up) itself.
@@ -19,11 +19,12 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 src, out = sys.argv[1], sys.argv[2]
+mode = sys.argv[3] if len(sys.argv) > 3 else "quest"
 im = np.asarray(Image.open(src).convert("RGB")).astype(np.float32)
 H, W = im.shape[:2]
 
 # Parchment area inside the gold frame (corners chamfered).
-x0, x1, y0, y1, ch = 167, 1463, 164, 2086, 46
+x0, x1, y0, y1, ch = (167, 1463, 164, 2086, 46) if mode == "quest" else (165, 1465, 164, 2052, 46)
 pm = Image.new("L", (W, H), 0)
 ImageDraw.Draw(pm).polygon([(x0 + ch, y0), (x1 - ch, y0), (x1, y0 + ch), (x1, y1 - ch), (x1 - ch, y1), (x0 + ch, y1), (x0, y1 - ch), (x0, y0 + ch)], fill=255)
 paper = np.asarray(pm) > 0
@@ -38,10 +39,12 @@ def masked_blur(img, mask, sigma):
 m = Image.new("L", (W, H), 0)
 d = ImageDraw.Draw(m)
 d.ellipse((815 - 228, 372 - 228, 815 + 228, 372 + 228), fill=255)       # medallion
-for y in (677, 919, 1452):                                               # dividers
-    d.rectangle((195, y - 34, 1435, y + 34), fill=255)
-for box in ((250, 690, 1380, 910), (360, 925, 1270, 1055), (360, 1455, 1270, 1585), (540, 215, 1090, 640)):
-    d.ellipse(box, fill=255)                                             # glows and top light
+if mode == "quest":
+    for y in (677, 919, 1452):                                           # dividers
+        d.rectangle((195, y - 34, 1435, y + 34), fill=255)
+    for box in ((250, 690, 1380, 910), (360, 925, 1270, 1055), (360, 1455, 1270, 1585)):
+        d.ellipse(box, fill=255)                                         # glows
+d.ellipse((540, 215, 1090, 640), fill=255)                               # top light
 remove = cv2.dilate(np.asarray(m), np.ones((9, 9), np.uint8)) > 0
 # Ink (ornament lines) must not darken the shading estimate.
 lum = im @ np.array([0.299, 0.587, 0.114], np.float32)
@@ -72,7 +75,7 @@ col = (col + col[::-1]) / 2
 mid = band[1100:1400, 400:1230].mean(axis=(0, 1))
 foot = band[:, 400:1230].mean(axis=1) / mid           # (H, 3) ratio per row
 ratio = np.ones((H, 3), np.float32)
-start = 1750
+start = y1 - 336
 ratio[start:] = np.minimum(foot[start:], 1.0)
 for y in range(start, y1 + 1):
     t = y1 - y                                       # distance from the foot edge

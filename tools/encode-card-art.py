@@ -25,7 +25,7 @@ SOURCES = {
     "quest-back": "design/encounter-card-templates/card-back/print/card-back-poker-gold-printerstudio-600dpi.png",
     "target-back": "design/encounter-card-templates/card-back/print/card-back-poker-silver-printerstudio-600dpi.png",
     "quest-front": "design/quest-cards/quest-front-background-clean-600dpi.png",
-    "target-front": "design/target-cards/target-front-background-600dpi.png",
+    "target-front": "design/target-cards/target-front-background-clean-600dpi.png",
 }
 
 
@@ -50,10 +50,10 @@ def quest_front(image: Image.Image) -> Image.Image:
 
 def target_front(image: Image.Image) -> Image.Image:
     """The silver front with the print renderer's three dividers."""
-    divider = Image.open(ROOT / "design/quest-cards/divider-long.png").convert("RGBA").resize((1248, 28), Image.LANCZOS)
+    src = Image.open(ROOT / "design/quest-cards/divider-long.png").convert("RGBA")
     out = image.convert("RGBA")
-    for top in (663, 905, 1648):
-        out.alpha_composite(divider, (191, top))
+    for top, left, width in ((322, 440, 750), (516, 245, 1140), (1470, 245, 1140)):
+        out.alpha_composite(src.resize((width, 28), Image.LANCZOS), (left, top))
     return out
 
 

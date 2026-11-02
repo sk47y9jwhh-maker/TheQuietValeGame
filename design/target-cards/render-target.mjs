@@ -90,32 +90,32 @@ function page(card) {
   @font-face { font-family: "Alegreya Sans"; font-weight: 500; src: url(${font("alegreya-sans-latin-medium.woff2")}); }
   html, body { margin: 0; width: 1630px; height: 2220px; overflow: hidden; }
   body { position: relative; background: url(${bg}) no-repeat 0 0 / 1630px 2220px; color: ${ink}; font-family: Alegreya, serif; }
-  .glow { position: absolute; left: 230px; right: 230px; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(120, 136, 150, 0.32), rgba(120, 136, 150, 0) 70%); }
-  .div { position: absolute; left: 191px; width: 1248px; height: 28px; background: url(${divider}) no-repeat center / 1248px 28px; }
-  .type { position: absolute; top: 590px; left: 0; right: 0; text-align: center; font: 500 46px/1 "Alegreya Sans", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #333; }
-  .title { position: absolute; top: 745px; left: 260px; right: 260px; height: 135px; display: flex; align-items: center; justify-content: center;
+  .glow { position: absolute; left: 270px; right: 270px; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(120, 136, 150, 0.32), rgba(120, 136, 150, 0) 70%); }
+  .div { position: absolute; height: 28px; background: url(${divider}) no-repeat center / 100% 28px; }
+  .type { position: absolute; top: 250px; left: 0; right: 0; text-align: center; font: 500 46px/1 "Alegreya Sans", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #333; }
+  .title { position: absolute; top: 368px; left: 260px; right: 260px; height: 135px; display: flex; align-items: center; justify-content: center;
     font: 400 104px/1 Almendra, serif; color: #26292c; text-shadow: 0 2px 0 rgba(255, 252, 240, 0.8), 0 -1px 0 rgba(30, 35, 40, 0.3); }
-  .rows { position: absolute; top: 948px; left: 250px; right: 250px; height: 690px; display: grid; grid-template-rows: repeat(4, 1fr); }
+  .rows { position: absolute; top: 556px; left: 250px; right: 250px; height: 900px; display: grid; grid-template-rows: repeat(4, 1fr); }
   .row { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border-bottom: 2px solid rgba(43, 47, 51, 0.22); }
   .row:last-child { border-bottom: 0; }
-  .label { font: 400 50px/1 Almendra, serif; color: #44494e; }
-  .value { display: flex; align-items: center; gap: 26px; font: 700 76px/1 Alegreya, serif; color: #1f2226; }
-  .glyph svg { width: 80px; height: 80px; display: block; }
-  .outcome { position: absolute; top: 1696px; left: 230px; right: 230px; height: 310px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+  .label { font: 400 56px/1 Almendra, serif; color: #44494e; }
+  .value { display: flex; align-items: center; gap: 28px; font: 700 88px/1 Alegreya, serif; color: #1f2226; }
+  .glyph svg { width: 96px; height: 96px; display: block; }
+  .outcome { position: absolute; top: 1512px; left: 220px; right: 220px; height: 480px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
   .tie { display: flex; align-items: center; gap: 26px; }
   .tied { gap: 0; }
-  .diagram { width: 330px; height: 229px; flex: 0 0 auto; }
-  .tie-words { max-width: 700px; }
-  .big { font: 700 72px/1.05 Alegreya, serif; color: ${steel}; text-align: center; }
-  .small { font: italic 400 46px/1.1 Alegreya, serif; color: #44494e; text-align: center; }
+  .diagram { width: 400px; height: 278px; flex: 0 0 auto; }
+  .tie-words { max-width: 680px; }
+  .big { font: 700 80px/1.05 Alegreya, serif; color: ${steel}; text-align: center; }
+  .small { font: italic 400 52px/1.1 Alegreya, serif; color: #44494e; text-align: center; }
   .tie-words .big, .tie-words .small { text-align: left; }
   .tie-words .big { margin: 4px 0; }
   .foot { position: absolute; top: 2012px; left: 0; right: 0; text-align: center; font: italic 400 46px/1 Alegreya, serif; color: #44494e; }
   </style></head><body>
-  <div class="glow" style="top:760px;height:110px"></div>
-  <div class="div" style="top:663px"></div>
-  <div class="div" style="top:905px"></div>
-  <div class="div" style="top:1648px"></div>
+  <div class="glow" style="top:372px;height:130px"></div>
+  <div class="div" style="top:322px;left:440px;width:750px"></div>
+  <div class="div" style="top:516px;left:245px;width:1140px"></div>
+  <div class="div" style="top:1470px;left:245px;width:1140px"></div>
   <div class="type">Target</div>
   <div class="title">Card ${String(card.id).padStart(2, "0")}</div>
   <div class="rows">

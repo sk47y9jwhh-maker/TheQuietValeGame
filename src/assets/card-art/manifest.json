@@ -64,21 +64,21 @@
     },
     "target-front": {
       "source": {
-        "path": "design/target-cards/target-front-background-600dpi.png",
-        "sha256": "735168a43e7a1c8eea016642ce8047b5ee14e6c4b7c5be9a91b7b06d4985299c"
+        "path": "design/target-cards/target-front-background-clean-600dpi.png",
+        "sha256": "53bb72f309c4cc984468be22ae3526b45bc232cb1e425c4dfda8ad008ae50160"
       },
       "variants": [
         {
           "path": "src/assets/card-art/target-front-420.webp",
           "width": 420,
           "height": 587,
-          "bytes": 24808
+          "bytes": 19778
         },
         {
           "path": "src/assets/card-art/target-front-840.webp",
           "width": 840,
           "height": 1173,
-          "bytes": 81718
+          "bytes": 65928
         }
       ]
     }
