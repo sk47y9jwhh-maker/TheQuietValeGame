@@ -1,7 +1,7 @@
 {
  "version": "prototype-1",
  "date": "2026-10-31",
- "note": "First live-play prototype. Targets retuned by player count (fairness analysis, 31 Oct). Strips list values for 1, 2, 3, 4 and 5 players. Vows simplified 31 Oct: one rule, one 'End with...' target and one strip each; the Overstrain allowance is a fixed clause (one at a time at 4 to 5 players).",
+ "note": "First live-play prototype. Targets retuned by player count (fairness analysis, 31 Oct). Strips list values for 1, 2, 3, 4 and 5 players. Vows simplified 31 Oct: one rule, one 'End with...' target and one strip each; the Overstrain allowance is a fixed clause (one at a time at 4 to 5 players). Wording rewritten 2 Nov: each sentence states the requirement and marks the counted thing '(see table)'.",
  "cards": [
   {
    "n": 1,
@@ -10,7 +10,7 @@
     "name": "The First Crossing",
     "kind": "Goal",
     "check": "Moment",
-    "text": "Tiles on both banks, joined by a Bridge. Each crossing needs its own Bridge.",
+    "text": "Join tiles on the two river banks with Bridge crossings (see table). Each crossing needs its own Bridge.",
     "strips": [
      [
       "Crossings",
@@ -28,7 +28,7 @@
     "name": "The River Kept Calm",
     "kind": "Vow",
     "check": "All game",
-    "text": "No tile beside River/Water may ever be Overstrained (one at a time is allowed at 4 to 5 players). End with tiles on this many riverbank hexes.",
+    "text": "No tile beside River/Water may ever be Overstrained (at 4 to 5 players, one may be Overstrained at a time). End with tiles on riverbank hexes (see table).",
     "strips": [
      [
       "Riverbank hexes",
@@ -50,7 +50,7 @@
     "name": "No Hearth Stands Alone",
     "kind": "Goal",
     "check": "Final",
-    "text": "Housing tiles, each beside another Housing tile.",
+    "text": "End with Housing tiles (see table), each beside another Housing tile.",
     "strips": [
      [
       "Housing",
@@ -68,7 +68,7 @@
     "name": "No Cold Hearth",
     "kind": "Vow",
     "check": "All game",
-    "text": "No Housing tile may ever be Overstrained (one at a time is allowed at 4 to 5 players). End with this many Housing tiles.",
+    "text": "No Housing tile may ever be Overstrained (at 4 to 5 players, one may be Overstrained at a time). End with Housing tiles (see table).",
     "strips": [
      [
       "Housing",
@@ -90,7 +90,7 @@
     "name": "Corners of the Vale",
     "kind": "Goal",
     "check": "Moment",
-    "text": "Tiles on the corner hexes A1, A9, N1 and N9.",
+    "text": "Have tiles on corner hexes (see table). The corners are A1, A9, N1 and N9.",
     "strips": [
      [
       "Corners",
@@ -108,7 +108,7 @@
     "name": "The Borders Held",
     "kind": "Vow",
     "check": "All game",
-    "text": "No tile on an edge hex may ever be Overstrained (one at a time is allowed at 4 to 5 players). End with tiles on this many edge hexes.",
+    "text": "No tile on an edge hex may ever be Overstrained (at 4 to 5 players, one may be Overstrained at a time). End with tiles on edge hexes (see table).",
     "strips": [
      [
       "Edge hexes",
@@ -130,7 +130,7 @@
     "name": "A Settlement of Many Hands",
     "kind": "Goal",
     "check": "Moment",
-    "text": "Tiles in different tile categories.",
+    "text": "Have tiles in different categories (see table).",
     "strips": [
      [
       "Categories",
@@ -148,7 +148,7 @@
     "name": "Patchwork",
     "kind": "Vow",
     "check": "All game",
-    "text": "Never place a tile beside another of its own category (Housing, Travel and Resource tiles are exempt). End with tiles in this many categories.",
+    "text": "Never place a tile beside another of its own category (Housing, Travel and Resource tiles are exempt). End with tiles in different categories (see table).",
     "strips": [
      [
       "Categories",
@@ -170,7 +170,7 @@
     "name": "Lands Remembered",
     "kind": "Goal",
     "check": "Moment",
-    "text": "Tiles on different terrains, not counting River/Water.",
+    "text": "Have tiles on different terrains (see table), not counting River/Water.",
     "strips": [
      [
       "Terrains",
@@ -188,7 +188,7 @@
     "name": "The Whole Vale",
     "kind": "Goal",
     "check": "Final",
-    "text": "At the end, all at once: tiles on corners and on different terrains, and both banks joined by a Bridge.",
+    "text": "At the end, all at once: tiles on corner hexes and on different terrains (see table), and both banks joined by a Bridge.",
     "strips": [
      [
       "Corners",
@@ -220,7 +220,7 @@
     "name": "The Home Farms",
     "kind": "Goal",
     "check": "Final",
-    "text": "Farmsteads, each beside a Housing tile.",
+    "text": "End with Farmsteads (see table), each beside a Housing tile.",
     "strips": [
      [
       "Farmsteads",
@@ -238,7 +238,7 @@
     "name": "The Four Storehouses",
     "kind": "Goal",
     "check": "Final",
-    "text": "Copies of each of Lumber Yard, Mine Tunnel, Gathering Outpost and Farmstead.",
+    "text": "End with at least the number in the table of each: Lumber Yard, Mine Tunnel, Gathering Outpost and Farmstead.",
     "strips": [
      [
       "Of each",
@@ -260,7 +260,7 @@
     "name": "The Mine Road",
     "kind": "Goal",
     "check": "Final",
-    "text": "Mine Tunnels, each beside a Travel tile.",
+    "text": "End with Mine Tunnels (see table), each beside a Travel tile.",
     "strips": [
      [
       "Mine Tunnels",
@@ -278,7 +278,7 @@
     "name": "The Resource Crown",
     "kind": "Goal",
     "check": "Final",
-    "text": "Kinds of Resource tile with two copies placed, both upgraded.",
+    "text": "End with kinds of Resource tile (see table) that each have two copies placed, both upgraded.",
     "strips": [
      [
       "Kinds",
@@ -300,7 +300,7 @@
     "name": "The Fair Day",
     "kind": "Goal",
     "check": "Moment",
-    "text": "Merchant tiles, each beside a Housing, a Social and a Travel tile.",
+    "text": "Have Merchant tiles (see table), each beside a Housing, a Social and a Travel tile.",
     "strips": [
      [
       "Merchants",
@@ -318,7 +318,7 @@
     "name": "The Heart of the Vale",
     "kind": "Goal",
     "check": "Moment",
-    "text": "One tile ringed by six tiles, the seven in different categories. At 4 to 5 players, none of the seven may hold Strain.",
+    "text": "Ring one tile with six others, the seven covering different categories (see table). At 4 to 5 players, none of the seven may hold Strain.",
     "strips": [
      [
       "Categories",
@@ -340,7 +340,7 @@
     "name": "Shelter and Song",
     "kind": "Goal",
     "check": "Final",
-    "text": "A connected Housing cluster beside both a Social and a Wellbeing tile.",
+    "text": "End with a connected Housing cluster (size in table) beside both a Social and a Wellbeing tile.",
     "strips": [
      [
       "Cluster",
@@ -358,7 +358,7 @@
     "name": "One Great Hearth",
     "kind": "Goal",
     "check": "Final",
-    "text": "One connected cluster of Housing tiles.",
+    "text": "End with one connected cluster of Housing tiles (size in table).",
     "strips": [
      [
       "Cluster",
@@ -380,7 +380,7 @@
     "name": "The Care Ring",
     "kind": "Goal",
     "check": "Moment",
-    "text": "A Wellbeing tile ringed by six tiles, at least 4 of them Housing, Social or Wellbeing.",
+    "text": "Have Care Rings (see table): a Wellbeing tile ringed by six tiles, at least 4 of them Housing, Social or Wellbeing.",
     "strips": [
      [
       "Rings",
@@ -398,7 +398,7 @@
     "name": "Garden Community",
     "kind": "Goal",
     "check": "Final",
-    "text": "A Common Land ringed by Housing tiles. At 4 to 5 players, none of the seven may hold Strain.",
+    "text": "End with a Common Land ringed by six tiles, with Housing tiles in the ring (see table). At 4 to 5 players, none of the seven may hold Strain.",
     "strips": [
      [
       "Housing in the ring",
@@ -420,7 +420,7 @@
     "name": "The Quiet Courtyard",
     "kind": "Goal",
     "check": "Moment",
-    "text": "Six tiles ringed round an empty hex, in at least 4 categories.",
+    "text": "Have courtyards (see table): six tiles ringed round an empty hex, in at least 4 categories.",
     "strips": [
      [
       "Courtyards",
@@ -438,7 +438,7 @@
     "name": "The Ring Road",
     "kind": "Goal",
     "check": "Moment",
-    "text": "A closed loop of Travel tiles with other tiles inside it.",
+    "text": "Make a closed loop of Travel tiles with tiles inside it (see table).",
     "strips": [
      [
       "Tiles inside",
@@ -460,7 +460,7 @@
     "name": "Mended Before Nightfall",
     "kind": "Goal",
     "check": "Moment",
-    "text": "In a single round, remove Strain from tiles in at least 2 categories (any tiles when solo).",
+    "text": "In a single round, remove Strain (see table) from tiles in at least 2 categories (any tiles when solo).",
     "strips": [
      [
       "Strain removed",
@@ -475,10 +475,10 @@
     ]
    },
    "bottom": {
-    "name": "The Vale Bent, Not Broke",
+    "name": "The Vale Bent, Not Broken",
     "kind": "Goal",
     "check": "Final",
-    "text": "Have Overstrained tiles at the same time, then end the game with none.",
+    "text": "Have Overstrained tiles at the same time (see table), then end the game with none.",
     "strips": [
      [
       "Overstrained at once",
@@ -500,7 +500,7 @@
     "name": "Sheltered District",
     "kind": "Goal",
     "check": "Final",
-    "text": "Supported tiles across at least 3 categories (2 when solo).",
+    "text": "End with Supported tiles (see table) across at least 3 categories (2 when solo).",
     "strips": [
      [
       "Supported",
@@ -518,7 +518,7 @@
     "name": "Not One Lost",
     "kind": "Vow",
     "check": "All game",
-    "text": "No tile may ever be Overstrained (one at a time is allowed at 4 to 5 players). End with no more than this much Strain on the map.",
+    "text": "No tile may ever be Overstrained (at 4 to 5 players, one may be Overstrained at a time). End with no more Strain on the map than the table shows.",
     "strips": [
      [
       "Strain at most",
@@ -540,7 +540,7 @@
     "name": "Good Work Made Last",
     "kind": "Goal",
     "check": "Moment",
-    "text": "Upgrade tiles.",
+    "text": "Upgrade tiles over the course of the game (see table).",
     "strips": [
      [
       "Upgrades",
@@ -558,7 +558,7 @@
     "name": "No Fine Work",
     "kind": "Vow",
     "check": "All game",
-    "text": "Never upgrade a Core tile, by any means. End with this many Housing tiles, each beside another Housing tile.",
+    "text": "Never upgrade a Core tile, by any means. End with Housing tiles (see table), each beside another Housing tile.",
     "strips": [
      [
       "Housing",
@@ -580,14 +580,14 @@
     "name": "Work and Rest",
     "kind": "Goal",
     "check": "Final",
-    "text": "A Washhouse beside a Crafting, a Merchant and a Social tile, and also a Housing tile at 4 to 5 players.",
+    "text": "End with a Washhouse beside a Crafting, a Merchant and a Social tile, and also a Housing tile at 4 to 5 players.",
     "strips": []
    },
    "bottom": {
     "name": "The Unbroken Vale",
     "kind": "Vow",
     "check": "All game",
-    "text": "No more than this many tiles may hold 2 or more Strain at any one time.",
+    "text": "At no time may more tiles hold 2 or more Strain than the table shows.",
     "strips": [
      [
       "Tiles with 2+ Strain",
@@ -609,7 +609,7 @@
     "name": "The Market Track",
     "kind": "Goal",
     "check": "Final",
-    "text": "Workshops and Market Stalls, all beside the same Track.",
+    "text": "End with Workshops and Market Stalls (see table for each), all beside the same Track.",
     "strips": [
      [
       "Of each",
@@ -627,7 +627,7 @@
     "name": "No Roads Raised",
     "kind": "Vow",
     "check": "All game",
-    "text": "Never place a Travel tile, by any means (Common Land counts as Travel). End with tiles in this many categories.",
+    "text": "Never place a Travel tile, by any means (Common Land counts as Travel). End with tiles in different categories (see table).",
     "strips": [
      [
       "Categories",
@@ -649,14 +649,14 @@
     "name": "The Crossroads",
     "kind": "Goal",
     "check": "Moment",
-    "text": "A Travel tile beside three other Travel tiles and a Merchant tile.",
+    "text": "Have a Travel tile beside three other Travel tiles and a Merchant tile.",
     "strips": []
    },
    "bottom": {
     "name": "The Long Road",
     "kind": "Goal",
     "check": "Moment",
-    "text": "One connected line of Travel tiles joining the rows shown. At 4 to 5 players it must also join column A to column N.",
+    "text": "Make one connected line of Travel tiles joining the rows in the table. At 4 to 5 players it must also join column A to column N.",
     "strips": [
      [
       "Rows",
@@ -678,7 +678,7 @@
     "name": "The River Is Welcomed",
     "kind": "Goal",
     "check": "Final",
-    "text": "Housing, Merchant, Social and Wellbeing tiles beside River/Water, one of each kind.",
+    "text": "End with tiles beside River/Water from Housing, Merchant, Social and Wellbeing: as many different kinds as the table shows.",
     "strips": [
      [
       "Kinds",
@@ -696,7 +696,7 @@
     "name": "Twin Villages",
     "kind": "Goal",
     "check": "Final",
-    "text": "On each bank, a Housing cluster beside a Social tile, with the banks joined by a Bridge.",
+    "text": "On each bank, end with a Housing cluster (size in table) beside a Social tile, and join the banks with a Bridge.",
     "strips": [
      [
       "Cluster on each bank",
@@ -718,7 +718,7 @@
     "name": "Hearths in Every Land",
     "kind": "Goal",
     "check": "Final",
-    "text": "Housing tiles on different terrains, not counting Grasslands.",
+    "text": "End with Housing tiles on different terrains (see table), not counting Grasslands.",
     "strips": [
      [
       "Terrains",
@@ -736,7 +736,7 @@
     "name": "One Village",
     "kind": "Vow",
     "check": "All game",
-    "text": "Every Housing tile must join the one Housing cluster when it is placed. End with a cluster this big.",
+    "text": "Every Housing tile must join the one Housing cluster when it is placed. End with that cluster at the size in the table.",
     "strips": [
      [
       "Cluster size",
@@ -758,14 +758,14 @@
     "name": "Bread, Stone and Timber",
     "kind": "Goal",
     "check": "Final",
-    "text": "Lumber Yard, Mine Tunnel and Farmstead, all beside one connected Travel group, and also a Gathering Outpost at 4 to 5 players.",
+    "text": "End with a Lumber Yard, Mine Tunnel and Farmstead all beside one connected Travel group, and also a Gathering Outpost at 4 to 5 players.",
     "strips": []
    },
    "bottom": {
     "name": "No Road Through",
     "kind": "Vow",
     "check": "All game",
-    "text": "No Travel tile may ever be beside a Housing tile. End with tiles in this many categories.",
+    "text": "No Travel tile may ever be beside a Housing tile. End with tiles in different categories (see table).",
     "strips": [
      [
       "Categories",
@@ -787,7 +787,7 @@
     "name": "Stone over Running Water",
     "kind": "Goal",
     "check": "Final",
-    "text": "Bridges placed, at least one upgraded to Stone Bridge.",
+    "text": "End with Bridges (see table), at least one upgraded to Stone Bridge.",
     "strips": [
      [
       "Bridges",
@@ -805,7 +805,7 @@
     "name": "Clean Slate",
     "kind": "Goal",
     "check": "Final",
-    "text": "End the game with no more than this much Strain on the map.",
+    "text": "End the game with no more Strain on the map than the table shows.",
     "strips": [
      [
       "Strain",

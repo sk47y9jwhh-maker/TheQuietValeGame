@@ -1,6 +1,7 @@
 // Renders the Quest Card fronts (poker 69 x 94 mm with bleed, 600 dpi).
 // Usage: node render-quest.mjs <background.png> <out-dir> [cardNumber...]
-// The background is the poker Golden Boon front (see README.md). Text is set
+// The background is quest-front-background-clean-600dpi.png (see README.md);
+// dividers and glow bands are drawn here. Text is set
 // in the game's own fonts; each half shrinks slightly if its text is long.
 import fs from "node:fs";
 import path from "node:path";
@@ -11,6 +12,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const fonts = path.resolve(here, "../../src/assets/fonts");
 const [bgArg, outArg, ...only] = process.argv.slice(2);
 const bg = "data:image/png;base64," + fs.readFileSync(bgArg).toString("base64");
+const divider = "data:image/png;base64," + fs.readFileSync(path.join(here, "divider-long.png")).toString("base64");
 const data = JSON.parse(fs.readFileSync(path.resolve(here, "../../src/data/questCards.json"), "utf8"));
 fs.mkdirSync(outArg, { recursive: true });
 
@@ -46,24 +48,32 @@ function page(card) {
   @font-face { font-family: "Alegreya Sans"; font-weight: 700; src: url(${font("alegreya-sans-latin-bold.woff2")}); }
   html, body { margin: 0; width: 1630px; height: 2220px; overflow: hidden; }
   body { position: relative; background: url(${bg}) no-repeat 0 0 / 1630px 2220px; color: #2f2a22; font-family: Alegreya, serif; }
-  .type { position: absolute; top: 590px; left: 0; right: 0; text-align: center; font: 500 46px/1 "Alegreya Sans", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #3a332a; }
-  .title { position: absolute; top: 745px; left: 260px; right: 260px; height: 135px; display: flex; align-items: center; justify-content: center; text-align: center;
+  .glow { position: absolute; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(214, 168, 62, 0.55), rgba(214, 168, 62, 0) 70%); }
+  .div { position: absolute; height: 28px; background: url(${divider}) no-repeat center / 100% 28px; }
+  .type { position: absolute; top: 250px; left: 0; right: 0; text-align: center; font: 500 46px/1 "Alegreya Sans", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #3a332a; }
+  .title { position: absolute; top: 368px; left: 260px; right: 260px; height: 135px; display: flex; align-items: center; justify-content: center; text-align: center;
     font: 400 104px/1 Almendra, serif; color: #2e2a24; text-shadow: 0 2px 0 rgba(255, 248, 226, 0.75), 0 -1px 0 rgba(60, 45, 20, 0.35); }
   .half { position: absolute; left: 255px; right: 255px; display: flex; flex-direction: column; align-items: center; }
-  .top { top: 945px; height: 490px; }
-  .bottom { top: 1462px; height: 540px; }
-  .label { height: 78px; display: flex; align-items: center; gap: 18px; font: 400 52px/1 Almendra, serif; color: #3a2f1d; }
+  .top { top: 548px; height: 700px; }
+  .bottom { top: 1282px; height: 720px; }
+  .label { height: 82px; display: flex; align-items: center; gap: 18px; font: 400 56px/1 Almendra, serif; color: #3a2f1d; }
   .label .gem { font-size: 26px; color: #8a6a1e; }
   .label .pips { font-size: 22px; letter-spacing: 6px; color: #8a6a1e; margin-right: 8px; }
-  .fit { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 14px; padding-top: 10px; transform-origin: top center; }
-  h2 { margin: 0; font: 700 72px/1.05 Almendra, serif; text-align: center; color: #2b2620; }
-  p { margin: 0; font: 400 60px/1.18 Alegreya, serif; text-align: center; text-wrap: balance; max-width: 1080px; }
+  .fit { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 20px; padding-top: 12px; transform-origin: top center; }
+  h2 { margin: 0; font: 700 82px/1.05 Almendra, serif; text-align: center; color: #2b2620; }
+  p { margin: 0; font: 400 70px/1.18 Alegreya, serif; text-align: center; text-wrap: balance; max-width: 1110px; }
   .strip { border-collapse: collapse; margin-top: 6px; font-family: "Alegreya Sans", sans-serif; }
-  .strip th { font: 500 48px/1.1 "Alegreya Sans", sans-serif; text-align: right; padding: 4px 22px 4px 0; color: #4a3f2e; max-width: 470px; }
-  .strip td { width: 100px; text-align: center; font: 700 56px/1.1 "Alegreya Sans", sans-serif; color: #2b2620; border-left: 2px solid rgba(138, 106, 30, 0.45); }
-  .strip tr.players td, .strip tr.players th { font: 500 44px/1 "Alegreya Sans", sans-serif; color: #7a6a4c; padding-bottom: 6px; }
+  .strip th { font: 500 54px/1.1 "Alegreya Sans", sans-serif; text-align: right; padding: 4px 22px 4px 0; color: #4a3f2e; max-width: 470px; }
+  .strip td { width: 108px; text-align: center; font: 700 64px/1.1 "Alegreya Sans", sans-serif; color: #2b2620; border-left: 2px solid rgba(138, 106, 30, 0.45); }
+  .strip tr.players td, .strip tr.players th { font: 500 48px/1 "Alegreya Sans", sans-serif; color: #7a6a4c; padding-bottom: 6px; }
   .foot { position: absolute; top: 2010px; left: 0; right: 0; text-align: center; font: italic 400 46px/1 Alegreya, serif; color: #4a3f2e; }
   </style></head><body>
+  <div class="glow" style="top:372px;height:130px;left:270px;right:270px"></div>
+  <div class="glow" style="top:556px;height:66px;left:470px;right:470px"></div>
+  <div class="glow" style="top:1290px;height:66px;left:470px;right:470px"></div>
+  <div class="div" style="top:322px;left:440px;width:750px"></div>
+  <div class="div" style="top:516px;left:245px;width:1140px"></div>
+  <div class="div" style="top:1252px;left:245px;width:1140px"></div>
   <div class="type">Quest</div>
   <div class="title">${esc(card.theme)}</div>
   ${half(card.top, 1, "top")}

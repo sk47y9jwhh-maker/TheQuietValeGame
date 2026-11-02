@@ -6,7 +6,9 @@ print run. Design doc: https://claude.ai/artifact/3SBA7V5j9kWNV7gtnXKy1t
 | File | What it is |
 | --- | --- |
 | `src/data/questCards.json` | The 21 cards (shared with the online game): theme, both halves, check type and player-count strips. The source of truth for the print. |
-| `quest-front-background-600dpi.png` | Front background: the Golden Boon master re-laid to poker, text removed, gold glow bands and the master's own dividers redrawn for this layout. |
+| `quest-front-background-600dpi.png` | Original front background (with the compass medallion, dividers and glow bands baked in). Kept as the source. |
+| `quest-front-background-clean-600dpi.png` | The background used since 2 Nov 2026: medallion, dividers and glows removed by `make-clean-background.py`, so the renderer draws them higher up and the text gets more room. |
+| `make-clean-background.py` | Makes the clean background from the original. |
 | `render-quest.mjs` | Renders every front from `src/data/questCards.json` onto the background in the game's fonts (Almendra, Alegreya, Alegreya Sans). |
 | `print/quest-NN.png` | Print fronts, 1630 × 2220 px at 600 dpi: 63 × 88 mm trim with 3 mm bleed each side, sRGB. |
 
@@ -15,7 +17,7 @@ Back: `design/encounter-card-templates/card-back/print/card-back-poker-gold-prin
 Regenerate from the repo root (Chrome at `/usr/bin/google-chrome`, puppeteer):
 
 ```bash
-node design/quest-cards/render-quest.mjs design/quest-cards/quest-front-background-600dpi.png design/quest-cards/print
+node design/quest-cards/render-quest.mjs design/quest-cards/quest-front-background-clean-600dpi.png design/quest-cards/print
 ```
 
 The renderer reports a scale per half. A half that overflows shrinks (never

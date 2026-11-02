@@ -44,21 +44,21 @@
     },
     "quest-front": {
       "source": {
-        "path": "design/quest-cards/quest-front-background-600dpi.png",
-        "sha256": "7e8b58c31ff7024a9131559ee80cc61f2d6244cafc54086733c053454916c27d"
+        "path": "design/quest-cards/quest-front-background-clean-600dpi.png",
+        "sha256": "3e99a884591c00022b7f42c7f6e64058462c9a65e2eed66ae4fcc1828790acd7"
       },
       "variants": [
         {
           "path": "src/assets/card-art/quest-front-420.webp",
           "width": 420,
           "height": 587,
-          "bytes": 26880
+          "bytes": 21414
         },
         {
           "path": "src/assets/card-art/quest-front-840.webp",
           "width": 840,
           "height": 1173,
-          "bytes": 86924
+          "bytes": 68418
         }
       ]
     },

@@ -90,14 +90,21 @@ export function useFitScale<T extends HTMLElement>(deps: unknown[]) {
     const room = element?.parentElement;
     if (!element || !room) return undefined;
     const measure = () => {
-      const available = room.clientHeight - (element.offsetTop - room.offsetTop);
+      // Room left below the text's top edge, measured on screen: offsetTop
+      // would be relative to the half itself, not to the card.
+      const available = room.getBoundingClientRect().bottom - element.getBoundingClientRect().top;
       const needed = element.scrollHeight;
       setScale(available > 0 && needed > available ? Math.max(0.7, available / needed) : 1);
     };
     measure();
+    // Measure again once the web fonts are in: until then the fallback font
+    // sets the text at a different length.
+    let live = true;
+    if (typeof document !== "undefined" && document.fonts?.ready) void document.fonts.ready.then(() => { if (live) measure(); });
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
     observer?.observe(room);
-    return () => observer?.disconnect();
+    observer?.observe(element);
+    return () => { live = false; observer?.disconnect(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
   return { ref, style: scale < 1 ? { transform: `scale(${scale})` } : undefined };

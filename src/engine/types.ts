@@ -525,7 +525,7 @@ export interface QuestRunState {
   moments: string[];
   /** Vow quests broken at some point. */
   broken: string[];
-  /** Most Overstrained tiles on the map at once (for The Vale Bent, Not Broke). */
+  /** Most Overstrained tiles on the map at once (for The Vale Bent, Not Broken). */
   peakOverstrained: number;
 }
 

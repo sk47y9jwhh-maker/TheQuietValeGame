@@ -24,9 +24,28 @@ QUALITY = 86
 SOURCES = {
     "quest-back": "design/encounter-card-templates/card-back/print/card-back-poker-gold-printerstudio-600dpi.png",
     "target-back": "design/encounter-card-templates/card-back/print/card-back-poker-silver-printerstudio-600dpi.png",
-    "quest-front": "design/quest-cards/quest-front-background-600dpi.png",
+    "quest-front": "design/quest-cards/quest-front-background-clean-600dpi.png",
     "target-front": "design/target-cards/target-front-background-600dpi.png",
 }
+
+
+def quest_front(image: Image.Image) -> Image.Image:
+    """The gold front with the print renderer's glows and three dividers."""
+    import numpy as np
+    out = image.convert("RGBA")
+    w, h = out.size
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    for top, height, left, right in ((372, 130, 270, 270), (556, 66, 470, 470), (1290, 66, 470, 470)):
+        cx, cy, rx, ry = (left + w - right) / 2, top + height / 2, (w - left - right) / 2, height / 2
+        r = np.sqrt(((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2)
+        a = np.clip(1 - r / 0.7, 0, 1) * 0.55
+        glow = Image.new("RGBA", (w, h), (214, 168, 62, 0))
+        glow.putalpha(Image.fromarray((a * 255).astype(np.uint8)))
+        out.alpha_composite(glow)
+    src = Image.open(ROOT / "design/quest-cards/divider-long.png").convert("RGBA")
+    for top, left, width in ((322, 440, 750), (516, 245, 1140), (1252, 245, 1140)):
+        out.alpha_composite(src.resize((width, 28), Image.LANCZOS), (left, top))
+    return out
 
 
 def target_front(image: Image.Image) -> Image.Image:
@@ -49,6 +68,8 @@ def main() -> None:
         image = Image.open(ROOT / source)
         if name == "target-front":
             image = target_front(image)
+        if name == "quest-front":
+            image = quest_front(image)
         trimmed = image.convert("RGB").crop(TRIM)
         variants = []
         for width in WIDTHS:

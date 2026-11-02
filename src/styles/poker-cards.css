@@ -57,7 +57,7 @@
 
 .poker-card .qface-type {
   position: absolute;
-  top: calc(519 * var(--u));
+  top: calc(179 * var(--u));
   left: 0;
   right: 0;
   text-align: center;
@@ -69,7 +69,7 @@
 
 .poker-card .qface-title {
   position: absolute;
-  top: calc(674 * var(--u));
+  top: calc(297 * var(--u));
   left: calc(189 * var(--u));
   right: calc(189 * var(--u));
   height: calc(135 * var(--u));
@@ -91,16 +91,16 @@
   align-items: center;
   overflow: hidden;
 }
-.poker-card .qface-half.is-top { top: calc(874 * var(--u)); height: calc(490 * var(--u)); }
-.poker-card .qface-half.is-bottom { top: calc(1391 * var(--u)); height: calc(540 * var(--u)); }
+.poker-card .qface-half.is-top { top: calc(477 * var(--u)); height: calc(700 * var(--u)); }
+.poker-card .qface-half.is-bottom { top: calc(1211 * var(--u)); height: calc(720 * var(--u)); }
 
 .poker-card .qface-label {
   flex: none;
-  height: calc(78 * var(--u));
+  height: calc(82 * var(--u));
   display: flex;
   align-items: center;
   gap: calc(18 * var(--u));
-  font: 400 calc(52 * var(--u)) / 1 var(--font-display);
+  font: 400 calc(56 * var(--u)) / 1 var(--font-display);
   color: #3a2f1d;
 }
 .poker-card .qface-gem { font-size: calc(26 * var(--u)); color: #8a6a1e; }
@@ -111,18 +111,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: calc(14 * var(--u));
-  padding-top: calc(10 * var(--u));
+  gap: calc(20 * var(--u));
+  padding-top: calc(12 * var(--u));
   transform-origin: top center;
 }
-.poker-card .qface-fit h3 { margin: 0; font: 700 calc(72 * var(--u)) / 1.05 var(--font-display); text-align: center; color: #2b2620; }
-.poker-card .qface-fit p { margin: 0; max-width: calc(1080 * var(--u)); font: 400 calc(60 * var(--u)) / 1.18 var(--font-body); text-align: center; text-wrap: balance; }
+.poker-card .qface-fit h3 { margin: 0; font: 700 calc(82 * var(--u)) / 1.05 var(--font-display); text-align: center; color: #2b2620; }
+.poker-card .qface-fit p { margin: 0; max-width: calc(1110 * var(--u)); font: 400 calc(70 * var(--u)) / 1.18 var(--font-body); text-align: center; text-wrap: balance; }
 
 .poker-card .qface-strip { border-collapse: collapse; margin-top: calc(6 * var(--u)); font-family: var(--font-ui); }
-.poker-card .qface-strip th { padding: calc(4 * var(--u)) calc(22 * var(--u)) calc(4 * var(--u)) 0; max-width: calc(470 * var(--u)); text-align: right; font: 500 calc(48 * var(--u)) / 1.1 var(--font-ui); color: #4a3f2e; }
-.poker-card .qface-strip td { width: calc(100 * var(--u)); text-align: center; border-left: calc(2 * var(--u)) solid rgba(138, 106, 30, 0.45); font: 700 calc(56 * var(--u)) / 1.1 var(--font-ui); color: #2b2620; }
+.poker-card .qface-strip th { padding: calc(4 * var(--u)) calc(22 * var(--u)) calc(4 * var(--u)) 0; max-width: calc(470 * var(--u)); text-align: right; font: 500 calc(54 * var(--u)) / 1.1 var(--font-ui); color: #4a3f2e; }
+.poker-card .qface-strip td { width: calc(108 * var(--u)); text-align: center; border-left: calc(2 * var(--u)) solid rgba(138, 106, 30, 0.45); font: 700 calc(64 * var(--u)) / 1.1 var(--font-ui); color: #2b2620; }
 .poker-card .qface-players th,
-.poker-card .qface-players td { padding-bottom: calc(6 * var(--u)); font: 500 calc(44 * var(--u)) / 1 var(--font-ui); color: #7a6a4c; }
+.poker-card .qface-players td { padding-bottom: calc(6 * var(--u)); font: 500 calc(48 * var(--u)) / 1 var(--font-ui); color: #7a6a4c; }
 /* The column for this game's player count */
 .poker-card .qface-strip td.is-now { background: rgba(196, 150, 46, 0.24); color: #1f1a12; }
 .poker-card .qface-players td.is-now { font-weight: 700; color: #5b4615; }
@@ -177,7 +177,7 @@
 
 .poker-card .tface-type {
   position: absolute;
-  top: calc(519 * var(--u));
+  top: calc(179 * var(--u));
   left: 0;
   right: 0;
   text-align: center;
@@ -189,7 +189,7 @@
 
 .poker-card .tface-title {
   position: absolute;
-  top: calc(674 * var(--u));
+  top: calc(297 * var(--u));
   left: calc(189 * var(--u));
   right: calc(189 * var(--u));
   height: calc(135 * var(--u));
@@ -264,7 +264,7 @@
 
 /* The Steward's Ledger: completed cards face up, the deck face down */
 .qmini { width: 100%; border-radius: 6% / 4.3%; }
-.qmini .qface-type { top: calc(500 * var(--u)); font-size: calc(70 * var(--u)); }
+.qmini .qface-type { top: calc(320 * var(--u)); font-size: calc(70 * var(--u)); }
 .qmini .qface-title { top: calc(640 * var(--u)); height: calc(260 * var(--u)); font-size: calc(170 * var(--u)); line-height: 0.95; }
 
 .ledger-card-group { margin-top: 14px; }
