@@ -45,20 +45,20 @@
     "quest-front": {
       "source": {
         "path": "design/quest-cards/quest-front-background-clean-600dpi.png",
-        "sha256": "3e99a884591c00022b7f42c7f6e64058462c9a65e2eed66ae4fcc1828790acd7"
+        "sha256": "1c92646e69d96b88346097dcb6763c1b091eac6a1b25b96215f6430252d3004a"
       },
       "variants": [
         {
           "path": "src/assets/card-art/quest-front-420.webp",
           "width": 420,
           "height": 587,
-          "bytes": 21414
+          "bytes": 21098
         },
         {
           "path": "src/assets/card-art/quest-front-840.webp",
           "width": 840,
           "height": 1173,
-          "bytes": 68418
+          "bytes": 66582
         }
       ]
     },

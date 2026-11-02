@@ -49,7 +49,7 @@ export default function ScenarioPreview({ experience, scenarioId }: { experience
         <span className="demo-spacer" />
         <button type="button" onClick={restart}><RotateCcw size={16} aria-hidden="true" />Restart</button>
         <a className="demo-play" href="?experience=table">Play a real game</a>
-        <span className="demo-build" title="Demo version">v2 Nov · 1</span>
+        <span className="demo-build" title="Demo version">v2 Nov · 2</span>
         <span className="scenario-status" role="status">{!restartFailed && message}</span>
       </aside>
       {restartFailed && <p className="scenario-restart-error" role="alert">{message}</p>}
