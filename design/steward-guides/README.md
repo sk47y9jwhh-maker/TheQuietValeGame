@@ -29,5 +29,5 @@ bleed with TrimBox and BleedBox set.
 | 19 | At-table reference: placing Strain, Season end, final score |
 | 20 | Back cover |
 
-Interior pages carry a fine ink border with the card fronts' corner ornament
-(`assets/ornament-corner.png`, taken from the Quest Card background).
+Interior pages have no decorative border: the text area runs to about 7 mm
+from the trim so the type can be as large as possible.
