@@ -31,3 +31,8 @@ bleed with TrimBox and BleedBox set.
 
 Interior pages have no decorative border: the text area runs to about 7 mm
 from the trim so the type can be as large as possible.
+
+## Print files
+
+`make_print_pdfs.py` rasterises a guide at 600 dpi and converts it to CMYK
+(FOGRA39), keeping A6 TrimBox and BleedBox. Uses `pdfkit.py` alongside it.
