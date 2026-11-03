@@ -21,10 +21,13 @@ bleed with TrimBox and BleedBox set.
 | 1 | Cover: leather, gold lettering, card-back compass |
 | 2 | The Steward: Power, Objective, Starting Terrain, rules for every Steward |
 | 3 | Your turn: Seasons, round sequence, four Actions, Steward Token |
-| 4–14 | All 21 Core Tiles, both sides, with art, cost, effect and score; Linked Production |
-| 15 | Reading a Tile and the effect symbols |
+| 4–14 | All 21 Core Tiles, both sides, with art, cost, effect and score. Page 6 adds Linked Production and the symbols and timing |
+| 15 | Target Cards: eligible Tiles, the four rows, ties and Open cards |
 | 16 | Encounter Cards |
 | 17 | Quest Cards and the Steward's Ledger |
 | 18 | Special Tiles (back numbers) and Golden content |
-| 19 | At-table reference: Strain and Target Cards, Season end, final score |
+| 19 | At-table reference: placing Strain, Season end, final score |
 | 20 | Back cover |
+
+Interior pages carry a fine ink border with the card fronts' corner ornament
+(`assets/ornament-corner.png`, taken from the Quest Card background).
