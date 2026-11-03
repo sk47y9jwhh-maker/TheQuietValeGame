@@ -241,9 +241,9 @@ h3.sub { margin: 1mm 0 0; font: 700 6.6pt/1 Sans, sans-serif; letter-spacing: 0.
 ol.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.2mm; }
 ol.steps li { display: grid; grid-template-columns: 4.6mm 1fr; gap: 1.6mm; align-items: start; }
 ol.steps .n { width: 4.4mm; height: 4.4mm; border-radius: 50%; background: #2b2620; color: #f1e3b8; font: 700 6.5pt/4.4mm Sans, sans-serif; text-align: center; }
-.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 1.8mm 3mm; }
-.actions div { font-size: 8.4pt; line-height: 1.25; }
-.actions b { display: block; font: 700 10pt/1.1 Almendra, serif; color: #2b2620; margin-bottom: 0.4mm; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4mm; }
+.actions div { border-radius: 1.4mm; padding: 1.3mm 1.8mm; background: rgba(138,106,30,0.07); font-size: 8.2pt; line-height: 1.22; }
+.actions b { display: block; font: 700 9.6pt/1.1 Almendra, serif; color: #8a6a1e; margin-bottom: 0.3mm; }
 .tiles .body { gap: 2.2mm; }
 .turn .body { gap: 1.3mm; }
 .turn h3.sub { margin-top: 0.6mm; }
@@ -255,6 +255,7 @@ ol.steps .n { width: 4.4mm; height: 4.4mm; border-radius: 50%; background: #2b26
 .sides { flex: 1; display: grid; grid-template-columns: 1fr 1fr; }
 .side { padding: 1.2mm 2mm 1mm; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
 .side p { max-width: 38mm; }
+.side + .side { border-left: 0.15mm solid rgba(107,93,69,0.22); }
 .tileimg { width: 28mm; filter: drop-shadow(0 0.3mm 0.4mm rgba(40,30,15,0.35)); }
 .sidelabel { margin-top: 0.8mm; font: 700 6pt/1 Sans, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #6b5d45; }
 .side h4 { margin: 0.5mm 0 0.6mm; font: 700 10pt/1.05 Almendra, serif; }
