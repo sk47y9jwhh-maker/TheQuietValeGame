@@ -181,7 +181,7 @@ P.push(page("2 · Setup", "Setting up a two-player game", `
     <li>Each player&rsquo;s Steward Guide.</li>
     <li>Each player&rsquo;s hidden hand of 9 Encounter Cards.</li>
   </ol>
-  ${fig("fig-setup-alt", [], "<b>Another layout.</b> On a deeper table, lay the Encounter board, the Logistics board and the Tiles board flat in a column to the right of the map.")}`, "setupfig"));
+  ${fig("fig-setup-alt", [], "<b>Alternative layout.</b> The Encounter board, the Logistics board and the Tiles board lie flat in a column to the right of the map.")}`, "setupfig"));
 
 // 7 Setup steps
 P.push(page("2 · Setup", "Setup step by step", `
@@ -189,7 +189,7 @@ P.push(page("2 · Setup", "Setup step by step", `
     <div>
       <h3>Prepare the shared area</h3>
       ${steps([
-        "Lay out the map board. Stand the Encounter board on end along its left side and the Logistics board on end along its right side, both with their lettering facing the map, and put the Tiles board beyond the Logistics board. On a deeper table, lay the three boards flat in a column to the right of the map instead (page 6).",
+        "Lay out the map board. Stand the Encounter board on end along its left side and the Logistics board on end along its right side, both with their lettering facing the map, and put the Tiles board beyond the Logistics board. For the alternative layout, lay the three boards flat in a column to the right of the map instead (page 6).",
         "Sort the Core Tiles into the Tiles board&rsquo;s five bays with every basic side face up. The upgraded side is the back of the same Tile, so there is no separate upgraded supply. Keep the Travel extension hexes with the Travel Tiles.",
         "Arrange the Special Tiles by their numbered backs, ready to match to Arrival rewards.",
         "Put the Round marker in the Round 1 socket.",
