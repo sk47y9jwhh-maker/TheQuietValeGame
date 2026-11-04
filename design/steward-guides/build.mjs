@@ -83,9 +83,9 @@ function stewardPage(s, idx) {
   return page(`Steward ${numerals[idx]}`, s.name, `
     ${box("Power · once per Season", `<p class="lead">${esc(s.powerText)}</p>`, "gold")}
     ${box(`Objective · +${s.objectiveRenown} Renown`, `<p class="lead">${esc(s.objectiveText)}</p>`, "gold")}
-    ${box("Starting terrain", `<div class="terrain${s.startingTerrains.length > 1 ? " multi" : ""}">${icons}<p>${terr}</p></div><p class="small">At setup, put your Steward Token on an empty hex of this terrain. Two Tokens cannot share a hex.</p>`)}
+    ${box("Starting terrain", `<div class="terrain${s.startingTerrains.length > 1 ? " multi" : ""}">${icons}<p>${terr}</p></div><p class="small">At setup, put your Steward meeple on an empty hex of this terrain. Two meeples cannot share a hex.</p>`)}
     <h3 class="sub">For every Steward</h3>
-    <p><b>First placement.</b> On your first turn, your first Action must place any legal Tile on the hex under your Steward Token. It need not be a Resource Tile and need not connect to another Tile.</p>
+    <p><b>First placement.</b> On your first turn, your first Action must place any legal Tile on the hex under your meeple. It need not be a Resource Tile and need not connect to another Tile.</p>
     <p><b>Shelter in the Ruins.</b> When a Tile&rsquo;s whole footprint lies on Ruins, ignore all Stone in its placement or upgrade cost. Otherwise pay the full cost.</p>
     <p><b>Your Power</b> costs no Action and refreshes at the start of each Season.</p>`, "steward");
 }
@@ -101,7 +101,7 @@ const turnPage = page("How a round works", "Your turn", `
     <div><b>Activate</b>Use a reachable, non-Overstrained Tile&rsquo;s Activated Effect.</div>
     <div><b>Interact</b>Complete an Arrival, or resolve an active Burden.</div>
   </div>
-  ${box("Steward Token", `<p>Place, Upgrade and Activate move your Steward Token onto the Tile you chose; reach is measured from there. Interact does not move it.</p>`)}`, "turn");
+  ${box("Your meeple", `<p>Place, Upgrade and Activate move your meeple onto the Tile you chose; reach is measured from there. Interact does not move it.</p>`)}`, "turn");
 
 const byId = Object.fromEntries(coreTiles.map((t) => [t.id, t]));
 const T = (id) => tileBlock(byId[id]);
@@ -208,13 +208,13 @@ html, body { margin: 0; padding: 0; }
 body { font-family: Alegreya, serif; color: #2b2620; font-size: 8.9pt; line-height: 1.27; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .page { width: 111.35mm; height: 154.35mm; position: relative; overflow: hidden; page-break-after: always; background: url(${A("parchment.jpg")}) center / cover; }
 .page.cover { background-size: cover; background-position: center; }
-.inner { position: absolute; left: 10.4mm; right: 10.4mm; top: 10.2mm; bottom: 10.6mm; display: flex; flex-direction: column; }
+.inner { position: absolute; left: 10.4mm; right: 10.4mm; top: 10.2mm; bottom: 11.8mm; display: flex; flex-direction: column; }
 
 header { border-bottom: 0.25mm solid rgba(138,106,30,0.6); padding-bottom: 1.4mm; margin-bottom: 2.2mm; }
 .eyebrow { font: 700 6.2pt/1 Sans, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #8a6a1e; margin-bottom: 1.2mm; }
 h2 { margin: 0; font: 700 15.5pt/1.05 Almendra, serif; color: #2b2620; }
 .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 2mm; }
-footer { position: absolute; bottom: -4.6mm; left: 0; right: 0; text-align: center; font: 400 7.5pt/1 Almendra, serif; color: #6b5d45; }
+footer { position: absolute; bottom: -2.2mm; left: 0; right: 0; text-align: center; font: 400 7.5pt/1 Almendra, serif; color: #6b5d45; }
 p { margin: 0; }
 b { font-weight: 700; }
 .small { font-size: 7.9pt; color: #4a4033; }
@@ -244,7 +244,7 @@ ol.steps .n { width: 4.4mm; height: 4.4mm; border-radius: 50%; background: #2b26
 .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4mm; }
 .actions div { border-radius: 1.4mm; padding: 1.3mm 1.8mm; background: rgba(138,106,30,0.07); font-size: 8.2pt; line-height: 1.22; }
 .actions b { display: block; font: 700 9.6pt/1.1 Almendra, serif; color: #8a6a1e; margin-bottom: 0.3mm; }
-.tiles .body { gap: 2.2mm; }
+.tiles .body { gap: 1.4mm; }
 .turn .body { gap: 1.3mm; }
 .turn h3.sub { margin-top: 0.6mm; }
 .tile { flex: 1 0 auto; display: flex; flex-direction: column; }
@@ -363,7 +363,7 @@ for f in sys.argv[1:]:
         x0, y0, x1, y1 = [float(v) for v in pg.MediaBox]
         pg.BleedBox = [x0, y0, x1, y1]
         pg.TrimBox = [x0 + b, y0 + b, x1 - b, y1 - b]
-    p.docinfo["/Title"] = "The Quiet Vale - " + f.split("A6_")[1].split("_Steward")[0] + " Steward Guide (A6, v6.9 review)"
+    p.docinfo["/Title"] = "The Quiet Vale - " + f.split("A6_")[1].split("_Steward")[0] + " Steward Guide"
     p.save(f)
 `, ...pdfs]);
 console.log(JSON.stringify(report));

@@ -22,7 +22,7 @@ h2 { margin: 0; font: 700 21pt/1.05 Almendra, serif; color: #2b2620; }
 h3 { margin: 1.2mm 0 0; font: 700 12.6pt/1.1 Almendra, serif; color: #6f5418; }
 h4 { margin: 0; font: 700 11.4pt/1.1 Almendra, serif; }
 .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 2.6mm; }
-footer { position: absolute; bottom: -9mm; left: 0; right: 0; font: 400 9pt/1 Almendra, serif; color: #6b5d45; }
+footer { position: absolute; bottom: -6.4mm; left: 0; right: 0; font: 400 9pt/1 Almendra, serif; color: #6b5d45; }
 .page.odd footer { text-align: right; }
 .page.even footer { text-align: left; }
 p { margin: 0; }

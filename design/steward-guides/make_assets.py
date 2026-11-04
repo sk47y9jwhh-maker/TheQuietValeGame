@@ -71,7 +71,7 @@ def back(seed: int) -> Image.Image:
     frame_stitch(b, 6.0, seed + 1)
     b.tree(W_MM / 2, 64, 46, opacity=0.62)
     b.label("THE QUIET VALE", W_MM / 2, 106, 5.4, seed + 2)
-    b.label("Steward Guide · v6.9 review edition · November 2026", W_MM / 2, 134, 2.9, seed + 3, font=FONTS / "alegreya-latin-italic.woff2")
+    b.label("A shared settlement. A changing Vale. One story built together.", W_MM / 2, 120, 3.0, seed + 3, font=FONTS / "alegreya-latin-italic.woff2")
     return b.finish()
 
 

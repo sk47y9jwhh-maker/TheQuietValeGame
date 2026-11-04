@@ -842,7 +842,7 @@ for pg in p.pages:
     x0, y0, x1, y1 = [float(v) for v in pg.MediaBox]
     pg.BleedBox = [x0, y0, x1, y1]
     pg.TrimBox = [x0 + b, y0 + b, x1 - b, y1 - b]
-p.docinfo["/Title"] = "The Quiet Vale - Main Rulebook (v6.9 review edition)"
+p.docinfo["/Title"] = "The Quiet Vale - Rulebook"
 p.save(sys.argv[1])
 print(len(p.pages), "pages")
 `, pdf], { stdio: "inherit" });
