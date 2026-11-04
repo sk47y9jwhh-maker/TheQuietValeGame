@@ -18,7 +18,7 @@ src, out, work = sys.argv[1], sys.argv[2], sys.argv[3]
 os.makedirs(work, exist_ok=True)
 B = 3.175
 W, H = 195 + 2 * B, 255 + 2 * B
-d = Doc("The Quiet Vale - Main Rulebook (195 x 255 mm, 32 pages, CMYK)")
+d = Doc("The Quiet Vale - Main Rulebook (195 x 255 mm, 36 pages, CMYK)")
 worst = 0
 for i in range(1, 100):
     stem = f"{work}/p"

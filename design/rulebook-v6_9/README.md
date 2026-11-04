@@ -1,6 +1,6 @@
 # Main Rulebook v6.9 (review edition, 4 November 2026)
 
-32 pages, 195 × 255 mm with 3.175 mm bleed (TrimBox and BleedBox set). It
+36 pages, 195 × 255 mm with 3.175 mm bleed (TrimBox and BleedBox set). It
 pairs with the v6.9 Steward Guides and uses the same type, parchment, leather
 covers and gold lettering. It replaces the v6.8 review rulebook; the v6.6
 locked archive is unchanged and stays the approved record.
@@ -61,3 +61,24 @@ each page.
 - Resource pieces are drawn as coloured wooden discs (the Logistics board
   calls the spares "discs").
 - Steward meeple colours follow the Steward Guides' accents.
+
+## 36-page learning edition (4 November 2026)
+
+Reorganised so a new group can learn in order, borrowing the best ideas from a
+friend's v6.7 review draft (its rules text was not used; it predates Quest
+Cards):
+
+- Contents with a "New to the Vale?" route and a "Coming back?" route.
+- The shortest route into the Vale: the whole game on one page.
+- Components are a list keyed to the numbers on the setup picture; the
+  separate board, tile, card and token pictures are gone.
+- Your first round (two pages): Round 1 of the pictured two-player setup,
+  Action by Action, with the Warehouse tracked through the round.
+- Tips for your first game.
+- When effects meet: round timing, the Strain sequence, and what happens
+  inside one effect and between Seasons.
+- Scoring example as a tally; a Tile Strain status strip in the Quick reference.
+- Questions at the table: twelve common questions with page numbers.
+
+Page references are written as `{{p:<page id>}}` and filled in at build time,
+so they stay right when pages move.

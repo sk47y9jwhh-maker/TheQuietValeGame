@@ -212,10 +212,10 @@ class Scene:
         self.marks.setdefault(hex_id, (cx, cy))
         return self
 
-    def crop(self, hexes: list[str], margin_mm: float = 6.0, width_px: int | None = None, aspect: float | None = None):
+    def crop(self, hexes: list[str], margin_mm: float = 6.0, width_px: int | None = None, aspect: float | None = None, only: bool = False):
         """Crop round the given hexes. Returns the image and every hex centre
         (as fractions of the crop) so the rulebook can draw over it."""
-        pts = [board_px(h) for h in list(hexes) + list(self.marks)]
+        pts = [board_px(h) for h in list(hexes) + ([] if only else list(self.marks))]
         x0 = min(p[0] for p in pts) - (HEX_R + margin_mm) * PPM
         x1 = max(p[0] for p in pts) + (HEX_R + margin_mm) * PPM
         y0 = min(p[1] for p in pts) - (HEX_H / 2 + margin_mm) * PPM

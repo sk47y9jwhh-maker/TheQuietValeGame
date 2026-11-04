@@ -311,8 +311,8 @@ def setup_table_alt():
 
 
 # ---------------------------------------------------------- map close-ups
-def map_fig(name: str, sc: Scene, hexes, width=2600, margin=6.0, aspect=None):
-    im, meta = sc.crop(hexes, margin_mm=margin, width_px=width, aspect=aspect)
+def map_fig(name: str, sc: Scene, hexes, width=2600, margin=6.0, aspect=None, only=False):
+    im, meta = sc.crop(hexes, margin_mm=margin, width_px=width, aspect=aspect, only=only)
     save(name, im, meta)
 
 
@@ -394,6 +394,15 @@ def map_figures():
     sc.steward("D6", "knight", 0.25, -0.2)
     sc.steward("F5", "warden", 0.25, -0.2)
     map_fig("fig-finale", sc, ["A4", "H7"], margin=3, aspect=1.75)
+
+    # The first round of the two-player game in the setup picture.
+    sc = Scene()
+    sc.tile("B6", "c04_farmstead").tile("C6", "c05_cabin")
+    sc.tile("B1", "c02_mine_tunnel").tile("B2", "c15_path")
+    sc.steward("B6", "knight", 0.25, -0.18)
+    sc.steward("B2", "sentinel", 0.25, -0.18)
+    map_fig("fig-round1-knight", sc, ["B5", "D7"], margin=0, aspect=1.35, only=True)
+    map_fig("fig-round1-sentinel", sc, ["B1", "C3"], margin=0, aspect=1.35, only=True)
 
     # First placement: Sentinel on Mountains places a Mine Tunnel under the Token.
     sc = Scene()
