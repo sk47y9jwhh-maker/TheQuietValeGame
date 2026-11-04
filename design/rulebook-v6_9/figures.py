@@ -168,11 +168,12 @@ def tile_stack(tile: str, n: int, ppm: float, side="basic") -> Image.Image:
 
 # ---------------------------------------------------------------- setup table
 def setup_table():
-    """The table from above: the map in the middle, the Encounter board on its
-    left and the Logistics board on its right, both standing on end with their
-    lettering facing the map, and the Tiles board below."""
+    """The table from above, laid out long and narrow: the Encounter board on
+    end at the map's left, the Logistics board on end at its right (both with
+    their lettering facing the map), then the Tiles board, with the players'
+    Steward Guides and hands below it."""
     T = 2.6  # px per mm on the table
-    W_MM, H_MM = 1080, 900
+    W_MM, H_MM = 1372, 640
     canvas = wood_table(round(W_MM * T), round(H_MM * T))
     pos = {}
     LW, LH = 568.5, 146.0          # a side board lying flat
@@ -244,7 +245,7 @@ def setup_table():
 
     # Tiles board below the map: the Quest Card and the Core Tile stacks.
     BW, BH = 284.25, 232.83
-    BX, BY = MX + 349 - BW / 2, MY + 568.5 + 22
+    BX, BY = LX + LH + GAP + 4, MY
     place(canvas, board("04-tiles-board-v4", T), BX, BY, T, shadow=(4, 0.8), lift=(1.5, 3))
     q = poker(QUEST(7), T)
     place(canvas, q, BX + 10, BY + 9.5, T, rot=90, shadow=(0.9, 0.55))
@@ -259,18 +260,21 @@ def setup_table():
     pos["specials"] = (BX + 233, BY + 40)
 
     # Each player's Steward Guide and hidden hand, either side of the Tiles board.
-    for i, (sid, gx, gy, rot, hx) in enumerate([("knight", 70, 640, 4, 250), ("sentinel", BX + BW + 175, 640, -4, BX + BW + 75)]):
+    for i, (sid, gx, gy, rot, hx) in enumerate([("knight", BX + 14, BY + BH + 12, 3, BX + 70), ("sentinel", BX + BW - 119, BY + BH + 16, -3, BX + BW - 70)]):
         g = Image.open(GUIDE(sid)).convert("RGBA")
         bpx = round(3.175 * g.width / 111.35)
         g = g.crop((bpx, bpx, g.width - bpx, g.height - bpx)).resize((round(105 * T), round(148 * T)), Image.Resampling.LANCZOS)
         g = rounded(g, round(1.5 * T))
         place(canvas, g, gx, gy, T, rot=rot, shadow=(2.2, 0.75), lift=(1, 2))
         for k in range(5):
-            centre(canvas, back, hx + (k - 2) * 9, gy + 80 + abs(k - 2) * 2.4, T, rot=(k - 2) * 6, shadow=(0.9, 0.5))
+            centre(canvas, back, hx + (k - 2) * 9, gy + 202 + abs(k - 2) * 2.4, T, rot=(k - 2) * 6, shadow=(0.9, 0.5))
         pos[f"guide{i}"] = (gx + 52, gy + 74)
-        pos[f"hand{i}"] = (hx, gy + 80)
+        pos[f"hand{i}"] = (hx, gy + 202)
     W, H = canvas.size
     save("fig-setup", canvas, {"points": {k: (round(v[0] / W_MM, 4), round(v[1] / H_MM, 4)) for k, v in pos.items()}})
+    # A close look at the Warehouse, the Tiles board and the players' places.
+    x0 = round((LX - 8) * T)
+    save("fig-setup-detail", canvas.crop((x0, round(14 * T), W, H - round(14 * T))))
 
 
 # ---------------------------------------------------------- map close-ups

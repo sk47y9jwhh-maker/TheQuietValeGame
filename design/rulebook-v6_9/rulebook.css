@@ -250,3 +250,6 @@ dl.gloss dd { margin: 0; border-bottom: 0.15mm solid rgba(107,93,69,0.2); paddin
 .frontis { width: 60%; margin: 0 auto; text-align: center; }
 
 .tw { position: relative; }
+
+.setupgrid { display: grid; grid-template-columns: 1fr 78mm; gap: 6mm; align-items: start; }
+.setupgrid ol.legend { columns: 1; }
