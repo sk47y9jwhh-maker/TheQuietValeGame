@@ -19,7 +19,7 @@ const want = [
   { name: "Quiet Quest", key: "arrival-quiet-quest", timers: 3 }, { name: "Blade to Herb", key: "arrival-blade-to-herb" },
   { name: "A Little Time", key: "boon-a-little-time", season: 1 }, { name: "Old Wounds Reopen", key: "burden-old-wounds", season: 1 },
   { name: "The Golden Scroll", key: "golden-scroll" }, { name: "Ancient Paths Reopen", key: "boon-ancient-paths" },
-  { name: "Remnants of the Cavalry", key: "arrival-cavalry", timers: 2 }];
+  { name: "Remnants of the Cavalry", key: "arrival-cavalry" }];
 fs.writeFileSync(path.join(dist, "page.html"), `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="entry.css"><style>body{margin:0}.shot{display:inline-block;margin:20px;width:420px}</style></head><body><div id="root"></div><script>window.WANT=${JSON.stringify(want)}</script><script src="entry.js"></script></body></html>`);
 const browser = await chromium.launch();
 const page = await browser.newPage({ deviceScaleFactor: 4, viewport: { width: 1400, height: 1000 } });

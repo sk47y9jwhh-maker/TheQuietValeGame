@@ -30,7 +30,13 @@ node design/rulebook-v6_9/cards/render-cards.mjs output/rulebook-v6_9/cards
 python3 design/rulebook-v6_9/make_assets.py                              # covers, parchment
 python3 design/rulebook-v6_9/figures.py output/boards-v4 output/rulebook-v6_9/cards
 node design/rulebook-v6_9/build.mjs output/rulebook-v6_9
+python3 design/rulebook-v6_9/make_print_pdf.py output/rulebook-v6_9/The_Quiet_Vale_Main_Rulebook_v6_9.pdf \
+  output/rulebook-v6_9/The_Quiet_Vale_Main_Rulebook_v6_9_PRINT_CMYK.pdf tmp/rulebook-print
 ```
+
+The print file is every page at 600 dpi in CMYK (FOGRA39, relative
+colorimetric), trim and bleed boxes set, total ink at most about 318%. Every
+picture in the review file is at least 300 ppi at its printed size.
 
 `build.mjs` reports any page whose content overflows and the space left on
 each page.

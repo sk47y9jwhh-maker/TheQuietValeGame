@@ -98,19 +98,18 @@ P.push(page("Welcome to the Vale", "The Quiet Vale", `
   ${note("Your shared score", "Population and Renown, plus Steward Objective, Quest Card and Golden bonuses, minus 10 for each active Burden, each failed Arrival and each Strain on the map.")}
   <h3>The game at a glance</h3>
   <div class="glance">
-    <div><span>1</span><b>Season start</b>Each player secretly seeds three Encounter Cards into the deck: one on top, one in the middle and one at the bottom.</div>
-    <div><span>2</span><b>Each round</b>Reveal and resolve Encounters, choose the player order, then each player takes one turn of up to 4 Actions. Finish with the end of the round.</div>
-    <div><span>3</span><b>Season end</b>After Rounds 4 and 8, work through the Season transition. After Round 12, work out the final score.</div>
+    <div><b><span>1</span>Season start</b>Each player secretly seeds three Encounter Cards into the deck: one on top, one in the middle and one at the bottom.</div>
+    <div><b><span>2</span>Each round</b>Reveal and resolve Encounters, choose the player order, then each player takes one turn of up to 4 Actions. Finish with the end of the round.</div>
+    <div><b><span>3</span>Season end</b>After Rounds 4 and 8, work through the Season transition. After Round 12, work out the final score.</div>
   </div>
   <h3>Three Seasons, twelve rounds</h3>
   <div class="seasons">${[["I", "Foundations", "Rounds 1 to 4", "Season transition"], ["II", "Growth", "Rounds 5 to 8", "Season transition"], ["III", "Maturity", "Rounds 9 to 12", "Final scoring"]].map(([n, t, r, e]) => `<div><span>${n}</span><b>${t}</b><i>${r}</i><em>Then: ${e}</em></div>`).join("")}</div>`, "welcome"));
 
 // 3 Contents
-const contents = [["Components", 4], ["Setup", 6], ["Seasons and Encounter seeding", 8], ["The round", 9], ["Your turn and the four Actions", 10], ["Production and the Warehouse", 12], ["Reading a Tile", 13], ["Placing Tiles", 14], ["Reach, rivers and Bridges", 15], ["Special Tiles", 16], ["Encounter Cards", 17], ["Strain and Supported", 20], ["Overstrain chains", 21], ["The Target Deck", 22], ["Stewards", 24], ["End of a Season", 25], ["Final scoring", 26], ["Quest Cards and the Steward&rsquo;s Ledger", 27], ["Golden content", 28], ["Quick reference", 29], ["Glossary", 30]];
 P.push(page("Welcome to the Vale", "Using this rulebook", `
   <p class="lead">For your first game, follow Setup and Encounter seeding (pages 6 to 8), then keep the round and the four Actions (pages 9 to 11) open beside you. During play, use your Steward Guide and the Quick reference on page 29. Leave Golden content in the box for your first game.</p>
   <p>Rings, numbers and arrows drawn over a picture are there to explain it; they are not on the board.</p>
-  <div class="contents">${contents.map(([t, n], i) => `<div><span class="cn">${i + 1}</span><span class="ct">${t}</span><span class="dots"></span><span class="cp">${n}</span></div>`).join("")}</div>
+  <div class="contents">{{CONTENTS}}</div>
   <figure class="frontis"><img src="${A("board-map-board-v4.jpg")}" alt="">${caption("The Vale before the first Tile is laid.")}</figure>
   ${note("When rules conflict", "Text on a specific card or Tile overrides a general rule, but only for the situation it names. Otherwise follow this rulebook, and finish every mandatory effect before play continues.")}`, "contentsp"));
 
@@ -148,7 +147,7 @@ P.push(page("1 · Components", "Tiles, cards and tokens", `
     <figure>${cardImg("card-encounter-back.webp")}${caption("Encounter back")}</figure>
     <figure>${cardImg("card-boon-a-little-time.webp")}${caption("Boon")}</figure>
     <figure>${cardImg("card-burden-old-wounds.webp")}${caption("Burden")}</figure>
-    <figure>${cardImg("card-arrival-quiet-quest.webp")}${caption("Arrival")}</figure>
+    <figure>${cardImg("card-arrival-blade-to-herb.webp")}${caption("Arrival")}</figure>
     <figure>${cardImg("card-golden-scroll.webp")}${caption("Golden Boon")}</figure>
   </div>
   <div class="cardrow poker">
@@ -194,7 +193,7 @@ P.push(page("2 · Setup", "Setup step by step", `
         "Arrange the Special Tiles by their numbered backs, ready to match to Arrival rewards.",
         "Put the Round marker in the Round 1 socket.",
         "Shuffle the 30 Target Cards once and put the deck face down in its well. There is no discard pile and you never reshuffle it.",
-        "Shuffle the 21 Quest Cards and draw the top one onto the Tiles board. Keep the rest as the Quest deck (page 27).",
+        "Draw the top card of the Quest deck onto the Tiles board. Before your group&rsquo;s very first game, shuffle the 21 Quest Cards to make the Quest deck; after that, keep its order from game to game (page 27).",
       ], 1, "2.")}
       <h3>Choose Stewards</h3>
       <p>Each player chooses a different Steward and takes its Steward Guide and meeple. Read each Steward&rsquo;s Starting Terrain, Power and Objective aloud. For 1 player, choose 1 Steward and use the 1-player values wherever they are shown. For 5 players, return the sixth Steward to the box.</p>
@@ -297,7 +296,7 @@ P.push(page("5 · Your turn", "Activate, Interact and your meeple", `
     </div>
     <div>
       <h3>Interact with an Encounter</h3>
-      <p><b>Arrival.</b> Choose an active Arrival, meet and pay its Requirements and spend 1 Action. Remove its timers, discard it, and set the matching Special Tile beside the board (page 16).</p>
+      <p><b>Arrival.</b> Choose an active Arrival, meet and pay its Requirements and spend 1 Action. Remove its timers, discard it, and set the matching Special Tile on the Tiles board (page 16).</p>
       <p><b>Burden.</b> Choose an active Burden, spend 1 Action and carry out its current-Season resolution, including any payment. Discard it. Strain it has already placed stays.</p>
       <p class="small">If another effect resolves a Burden, follow that effect&rsquo;s own cost and timing instead. Interact does not move your meeple.</p>
     </div>
@@ -312,8 +311,8 @@ P.push(page("6 · Production and the Warehouse", "Production", `
   <h3>Linked Production</h3>
   <p>The first time each round you activate a Resource Tile, check it and every <b>immediately adjacent</b> copy from the same Tile stack. If none of them has produced this round, the chosen Tile and all its immediately adjacent, non-Overstrained copies produce for that one Activate Action, each using its current side.</p>
   <p>Linked Production never continues outward through a chain: only copies touching the chosen Tile join in. Mark every Tile that produced as having taken part this round. If the chosen Tile or an adjacent copy has already taken part, only the chosen Tile produces. A separate group of copies elsewhere may still use Linked Production. Everything refreshes at the start of the next round.</p>
-  ${fig("fig-linked", [["ring", "A1"], ["ring", "B1"], ["ring", "C1"], ["badge", "B1", "5", -0.05, 0.62], ["badge", "A1", "5", -0.05, 0.62], ["badge", "C1", "5", -0.05, 0.62]], "Three upgraded Mine Shafts on the Mountains. The Sentinel activates the middle one: it and both copies touching it produce 5 each, 15 in all, for one Action. Activating any of them again this round produces only 5, from the Tile chosen.")}
-  ${note("Example", "Had the Sentinel activated the left Mine Shaft, only it and the middle one would touch, so 10 would be produced. The right one, which does not touch the left one, could still produce later that round, alone.")}
+  ${fig("fig-linked", [["ring", "A1"], ["ring", "B1"], ["ring", "C1"], ["badge", "B1", "1", -0.05, 0.62]], "Three upgraded Mine Shafts on the Mountains, each producing 3 Stone and 2 Metal. The Sentinel activates the middle one (1): it and both copies touching it produce, 9 Stone and 6 Metal for one Action. Activating any of them again this round produces only from the Tile chosen: 3 Stone and 2 Metal.")}
+  ${note("Example", "Had the Sentinel activated the left Mine Shaft instead, only it and the middle one would touch, giving 6 Stone and 4 Metal. The right one does not touch the left one and has not taken part, but its neighbour the middle one has, so it could later produce only alone that round.")}
   <h3>The Warehouse</h3>
   <p>All resources are shared and kept on the Logistics board: pieces above the stitch are in the Warehouse, spares sit below. Each resource holds at most 15 unless an effect changes the limit. Any gain beyond the limit is lost. Resources never go below zero.</p>`, "prod"));
 
@@ -667,6 +666,7 @@ const gloss = [
   ["Round", "Reveal Encounters, one turn per player, then the end of the round."],
   ["Season", "Four rounds: Foundations (1 to 4), Growth (5 to 8) or Maturity (9 to 12)."],
   ["Special Tile", "A Tile unlocked by an Arrival and placed later with a Place Action for no resources."],
+  ["Steward meeple", "Your wooden piece on the map. Your reach starts from the Tile it stands on."],
   ["Steward&rsquo;s Ledger", "Your group&rsquo;s pile of completed Quest Cards. It unlocks the Golden pairs."],
   ["Strain Cascade", "Card-specific Strain placements resolved inside the original effect."],
   ["Supported", "A bronze token that stops 1 Strain. Passive or single-use; never stacks."],
@@ -703,6 +703,12 @@ const css = fs.readFileSync(path.join(here, "rulebook.css"), "utf8")
   .replaceAll("{{FONT}}", url("src/assets/fonts/").replace(/\/$/, ""))
   .replaceAll("{{PARCHMENT}}", A("parchment.jpg"));
 void font;
+
+// Contents: the first page of each numbered section, taken from the pages.
+const seen = new Set();
+const contentsHtml = P.map((pg, i) => [pg.section, i + 2]).filter(([sec]) => /^\d+ · /.test(sec) && !seen.has(sec) && seen.add(sec))
+  .map(([sec, n]) => { const [num, name] = sec.split(" · "); return `<div><span class="cn">${num}</span><span class="ct">${name}</span><span class="dots"></span><span class="cp">${n}</span></div>`; }).join("");
+for (const pg of P) pg.body = pg.body.replace("{{CONTENTS}}", contentsHtml);
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body>
   <div class="page cover" style="background-image:url(${A("cover.jpg")})"></div>

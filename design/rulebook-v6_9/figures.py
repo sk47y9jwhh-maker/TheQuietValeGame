@@ -311,7 +311,7 @@ def setup_table_alt():
 
 
 # ---------------------------------------------------------- map close-ups
-def map_fig(name: str, sc: Scene, hexes, width=1800, margin=6.0, aspect=None):
+def map_fig(name: str, sc: Scene, hexes, width=2600, margin=6.0, aspect=None):
     im, meta = sc.crop(hexes, margin_mm=margin, width_px=width, aspect=aspect)
     save(name, im, meta)
 
@@ -425,7 +425,7 @@ def leather_bg(w_mm, h_mm, ppm):
 
 
 def components():
-    T = 10.0
+    T = 20.0
     # Tiles: Core basic and upgraded, Travel extension, Special front and back, Golden front and back.
     names = [("c06_cottage-basic", "Core Tile, basic side"), ("c06_cottage-upgraded", "Its upgraded side"),
              ("c16_street-basic", "Street (2 hexes)"), ("travel-extension-basic", "Travel extension"),
