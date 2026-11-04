@@ -61,10 +61,9 @@ li { margin-bottom: 0.5mm; }
 .story h1 { font-size: 22pt; }
 .story .sub { font-style: italic; font-size: 9pt; color: #5a4c38; margin-top: 1.2mm; }
 .rule { height: 3mm; margin: 2mm auto 2.6mm; width: 40mm; background: radial-gradient(circle, #a78343 0.55mm, transparent 0.7mm) center / 3mm 3mm no-repeat, linear-gradient(#a78343, #a78343) center / 100% 0.25mm no-repeat; }
-.text { columns: 2; column-gap: 6mm; font-size: 8.4pt; line-height: 1.36; text-align: left; hyphens: manual; }
+.text { columns: 2; column-gap: 7mm; column-fill: balance; font-size: 8.8pt; line-height: 1.42; text-align: left; hyphens: manual; }
 .text p { margin: 0 0 1.5mm; text-indent: 3.2mm; }
 .text p.first { text-indent: 0; }
-.text p.first::first-letter { float: left; font: 700 27pt/0.82 Almendra, serif; color: #8a6a1e; margin: 0.6mm 1.2mm 0 0; }
 .text h3 { font-size: 9.2pt; letter-spacing: 0.02em; margin: 2.2mm 0 1.2mm; break-after: avoid; text-align: left; }
 .text h3 span { font: 700 6.4pt/1 Sans, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #8a6a1e; display: block; margin-bottom: 0.6mm; }
 .intro { font-style: italic; font-size: 8.8pt; line-height: 1.36; text-align: center; color: #3d3427; margin: 0 5mm 2mm; }
@@ -142,11 +141,10 @@ const story = `
     <p>A brewer rolled in behind casks strapped to wagons braced like fortifications. A settlement, he told me, lives on roofs and bread, but also on evenings when the singing is louder than the remembering. I meant to leave that out of the record. Then the yard broke into song.</p>
     <h3><span>Season III</span>Maturity</h3>
     <p class="first">Some arrivals asked for nothing that could be counted. Players in painted wagons wanted a square where old names could be spoken without glorifying the wars that took them. The dryads asked for nothing at all, yet where they walked the wildlands grew calmer. Children planted acorns beside elders who still remembered the groves that burned, knowing none of them would sit in that shade.</p>
-    <p>The last to come were the burden-bearers. They asked for no comfort first, only a place to set down what they had carried. I gave them the quiet hall at the end of the street, and I did not write down what they left there.</p>
     <p>Reading the ledger back now, the numbers matter less than I thought they would. Nobody planned the Vale whole. It was built by people who arrived carrying what was left of the old world, and chose to put it to gentler work.</p>
   </div>
   <div class="end">&#10022;</div>
-</div><img class="tree" src="${url("src/assets/quiet_vale_tree_brass_transparent.png")}" alt=""></div>`;
+</div></div>`;
 
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${twin}${story}</body></html>`;
 const htmlPath = path.join(outDir, "_a5.html");
