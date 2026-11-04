@@ -164,7 +164,7 @@ P.push(page("1 · Components", "Tiles, cards and tokens", `
 
 // 6 Setup picture
 const sp = figMeta["fig-setup"].points;
-const setupCallouts = [["map", 1, -0.02, 0], ["meeple", 2, 0.03, -0.025], ["round", 3, 0.03, -0.02], ["encdeck", 4, 0.035, -0.01], ["target", 5, 0.035, -0.05], ["warehouse", 6, 0, 0.03], ["tokens", 7, 0, 0.02], ["quest", 8, 0.02, -0.06], ["tiles", 9, 0.04, 0.035], ["guide0", 10, -0.05, -0.04], ["hand0", 11, -0.06, 0.02]]
+const setupCallouts = [["map", 1, 0.06, -0.06], ["meeple", 2, 0.03, -0.025], ["round", 3, 0.035, -0.03], ["encdeck", 4, 0.06, 0.045], ["target", 5, -0.065, 0], ["warehouse", 6, -0.045, 0], ["tokens", 7, -0.05, 0.03], ["quest", 8, 0.03, -0.05], ["tiles", 9, 0.045, 0.03], ["guide0", 10, 0, -0.105], ["hand0", 11, 0, -0.095]]
   .map(([k, n, dx, dy]) => ["num", [sp[k][0] + dx, sp[k][1] + dy], n, 17]);
 P.push(page("2 · Setup", "Setting up a two-player game", `
   ${fig("fig-setup", setupCallouts, "", "setup")}
@@ -188,7 +188,7 @@ P.push(page("2 · Setup", "Setup step by step", `
     <div>
       <h3>Prepare the shared area</h3>
       ${steps([
-        "Lay out the map board. Put the Encounter board above it, the Logistics board below and the Tiles board beside it.",
+        "Lay out the map board. Stand the Encounter board on end along its left side and the Logistics board on end along its right side, both with their lettering facing the map. Put the Tiles board below the map.",
         "Sort the Core Tiles into the Tiles board&rsquo;s five bays with every basic side face up. The upgraded side is the back of the same Tile, so there is no separate upgraded supply. Keep the Travel extension hexes with the Travel Tiles.",
         "Arrange the Special Tiles by their numbered backs, ready to match to Arrival rewards.",
         "Put the Round marker in the Round 1 socket.",
