@@ -137,11 +137,11 @@ const story = `
     <h3><span>Season II</span>Growth</h3>
     <p class="first">That summer, old armour came in by the cartload. Helmets became lantern casings and swords became ploughs. The veterans who oversaw the work said little. The dents in the metal said enough.</p>
     <p>The woodcutter arrived carrying an axe big enough to split a shield and the soldier behind it. These days it fells only deadwood. She has one arm and a laugh you can hear across the river, and the children follow her everywhere. Forests grow back, she says. Kingdoms rarely do.</p>
-    <p>The Beastmaster&rsquo;s name reached us long before he did. The feared commander who finally arrived now spends his evenings tending lame oxen and brushing tired draught horses, and he speaks to them more gently than anyone expected.</p>
-    <p>A brewer came with great casks strapped to his wagons. A settlement, he told me, needs roofs and bread, but it also needs evenings when people sing together and, for a while, forget the war. I thought it hardly worth recording. Then the whole yard broke into song.</p>
+    <p>The Beastmaster&rsquo;s name reached us long before he did. The feared commander who finally arrived now spends his evenings tending lame oxen and brushing tired draught horses, and he speaks to them more gently than his reputation ever suggested.</p>
+    <p>A brewer came with great casks strapped to his wagons. A settlement, he told me, needs roofs and bread, but it also needs evenings when people sing together and, for a while, forget the war. That evening, the whole yard broke into song.</p>
     <h3><span>Season III</span>Maturity</h3>
     <p class="first">Some arrivals asked for nothing that could be counted. Actors in painted wagons wanted only a square where they could speak the names of the fallen without glorifying the wars that took them. The dryads asked for nothing at all, yet wherever they walked the wildlands grew calmer. Children planted acorns beside elders who still remembered the groves that burned. The elders knew they would never sit in that shade. They planted anyway, so that the children would.</p>
-    <p>When I read the ledger back now, the numbers matter less than I expected. Nobody planned the Vale as a whole. It was built by people who arrived carrying what was left of the old world, and chose to put it to gentler work.</p>
+    <p>When I read the ledger back now, it is the margins I return to. Nobody planned the Vale as a whole. It was built by people who arrived carrying what was left of the old world, and chose to put it to gentler work.</p>
   </div>
   <div class="end">&#10022;</div>
 </div></div>`;
