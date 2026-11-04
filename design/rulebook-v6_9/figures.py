@@ -167,52 +167,30 @@ def tile_stack(tile: str, n: int, ppm: float, side="basic") -> Image.Image:
 
 
 # ---------------------------------------------------------------- setup table
-def setup_table():
-    """The table from above, laid out long and narrow: the Encounter board on
-    end at the map's left, the Logistics board on end at its right (both with
-    their lettering facing the map), then the Tiles board, with the players'
-    Steward Guides and hands below it."""
-    T = 2.6  # px per mm on the table
-    W_MM, H_MM = 1372, 640
-    canvas = wood_table(round(W_MM * T), round(H_MM * T))
-    pos = {}
-    LW, LH = 568.5, 146.0          # a side board lying flat
-    GAP = 14
-    EX, MY = 30, 30                 # Encounter board (on end) at the left
-    MX = EX + LH + GAP              # map
-    LX = MX + 698.5 + GAP           # Logistics board (on end) at the right
+LW, LH = 568.5, 146.0       # Encounter and Logistics boards, lying flat
+BW, BH = 284.25, 232.83     # Tiles board
+MAPW, MAPH = 698.5, 568.5
 
-    def left(x, y):    # Encounter board point -> table, turned clockwise (top faces the map)
-        return EX + (LH - y), MY + x
 
-    def right(x, y):   # Logistics board point -> table, turned anticlockwise (top faces the map)
-        return LX + y, MY + (LW - x)
-
+def setup_pieces(T):
+    """The four boards with their setup contents, each drawn flat."""
     # Map board with Steward meeples and the Round marker on 1.
     sc = Scene()
     sc.steward("B6", "knight", 0, 0)
     sc.steward("B1", "sentinel", 0, 0)
     rm = _disc(round(15 * S.PPM), BRONZE, sheen=0.6, rim=0.3)
-    rx, ry = (80.42 + S.BLEED) * S.PPM, (548.76 + S.BLEED) * S.PPM
-    sc._paste(rm, rx, ry, shadow=(5, 0.7), lift=(3, 6))
+    sc._paste(rm, (80.42 + S.BLEED) * S.PPM, (548.76 + S.BLEED) * S.PPM, shadow=(5, 0.7), lift=(3, 6))
     b = round(S.BLEED * S.PPM)
     mapb = sc.img.crop((b, b, sc.img.width - b, sc.img.height - b))
-    mapb = rounded(mapb.resize((round(698.5 * T), round(568.5 * T)), Image.Resampling.LANCZOS), round(2.5 * T))
-    place(canvas, mapb, MX, MY, T, shadow=(4, 0.8), lift=(1.5, 3))
-    pos["map"] = (MX + 349, MY + 280)
-    pos["round"] = (MX + 80.42, MY + 548.76)
-    pos["meeple"] = (MX + S.svg_centre("B6")[0] + S.OFF_X, MY + S.svg_centre("B6")[1] + S.OFF_Y)
+    mapb = rounded(mapb.resize((round(MAPW * T), round(MAPH * T)), Image.Resampling.LANCZOS), round(2.5 * T))
 
-    # Encounter board, built flat, then stood on end at the left.
+    # Encounter board: the Encounter deck face down in its well.
     eb = board("02-encounter-board-v4", T)
     back = tarot_back(T)
     for i in range(4):
         place(eb, back, 6 + 5 + i * 0.25, 6 + 7 - i * 0.4, T, shadow=(0.8, 0.5))
-    place(canvas, eb, EX, MY, T, rot=-90, shadow=(4, 0.8), lift=(1.5, 3))
-    pos["encdeck"] = left(46, 73)
-    pos["inplay"] = left(284, 73)
 
-    # Logistics board: Target deck, Warehouse at 2 players, tokens; stood on end at the right.
+    # Logistics board: Target deck, Warehouse at 2 players, tokens.
     lb = board("03-logistics-board-v4", T)
     sil = poker(BACK_SILVER, T)
     for i in range(4):
@@ -221,13 +199,11 @@ def setup_table():
     inner_l, inner_r = cl + 4, cr - 4
     lw = (inner_r - inner_l) / 6
     rng = np.random.default_rng(3)
-    order = ["stone", "metal", "goods", "wood", "food", "herbs"]
-    for i, r in enumerate(order):
+    for i, r in enumerate(["stone", "metal", "goods", "wood", "food", "herbs"]):
         cx = inner_l + lw * (i + 0.5)
         for k in range(10):  # stock: 10 each at 2 players
-            col, row = k % 4, k // 4
-            x = cx + (col - 1.5) * 11.5 + rng.uniform(-1.2, 1.2)
-            y = 30 + row * 11.5 + rng.uniform(-1.2, 1.2)
+            x = cx + (k % 4 - 1.5) * 11.5 + rng.uniform(-1.2, 1.2)
+            y = 30 + (k // 4) * 11.5 + rng.uniform(-1.2, 1.2)
             centre(lb, disc(10, RES_COLOURS[r], T, seed=k + i * 20, grain=0.05), x, y, T, shadow=(0.6, 0.6), lift=(0.4, 0.7))
         for k in range(5):  # spare pieces below the stitch
             x = cx + (k - 2) * 7.5 + rng.uniform(-1.5, 1.5)
@@ -238,43 +214,100 @@ def setup_table():
         centre(lb, disc(12, STRAIN, T, seed=k, grain=0.06, sheen=0.55), tx + 18 + (k % 4) * 13 + rng.uniform(-2, 2), 28 + (k // 4) * 13 + rng.uniform(-2, 2), T, shadow=(0.6, 0.6), lift=(0.4, 0.7))
     for k in range(10):
         centre(lb, disc(12, BRONZE, T, seed=k, sheen=0.6), tx + 22 + (k % 4) * 12 + rng.uniform(-2, 2), 98 + (k // 4) * 11 + rng.uniform(-2, 2), T, shadow=(0.6, 0.6), lift=(0.4, 0.7))
-    place(canvas, lb, LX, MY, T, rot=90, shadow=(4, 0.8), lift=(1.5, 3))
-    pos["target"] = right(46, 73)
-    pos["warehouse"] = right(284, 30)
-    pos["tokens"] = right(tx + 40, 73)
 
-    # Tiles board below the map: the Quest Card and the Core Tile stacks.
-    BW, BH = 284.25, 232.83
-    BX, BY = LX + LH + GAP + 4, MY
-    place(canvas, board("04-tiles-board-v4", T), BX, BY, T, shadow=(4, 0.8), lift=(1.5, 3))
-    q = poker(QUEST(7), T)
-    place(canvas, q, BX + 10, BY + 9.5, T, rot=90, shadow=(0.9, 0.55))
+    # Tiles board: the Quest Card and the Core Tile stacks.
+    tb = board("04-tiles-board-v4", T)
+    place(tb, poker(QUEST(7), T), 10, 9.5, T, rot=90, shadow=(0.9, 0.55))
     bays = [("c01_lumber_yard", 4), ("c14_market_stalls", 3), ("c09_tavern", 3), ("c05_cabin", 4), ("c15_path", 5)]
-    inner_l, inner_r = 6 + 4, BW - 6 - 4
-    bw = (inner_r - inner_l) / 5
+    il, ir = 6 + 4, BW - 6 - 4
+    bw = (ir - il) / 5
     for i, (tid, n) in enumerate(bays):
-        st = tile_stack(tid, n, T)
-        centre(canvas, st, BX + inner_l + bw * (i + 0.5), BY + (124 if i % 2 == 0 else 171), T, shadow=(1.2, 0.6), lift=(0.6, 1.2))
-    pos["quest"] = (BX + 54, BY + 41)
-    pos["tiles"] = (BX + 142, BY + 147)
-    pos["specials"] = (BX + 233, BY + 40)
+        centre(tb, tile_stack(tid, n, T), il + bw * (i + 0.5), 124 if i % 2 == 0 else 171, T, shadow=(1.2, 0.6), lift=(0.6, 1.2))
+    return mapb, eb, lb, tb, back
 
-    # Each player's Steward Guide and hidden hand, either side of the Tiles board.
-    for i, (sid, gx, gy, rot, hx) in enumerate([("knight", BX + 14, BY + BH + 12, 3, BX + 70), ("sentinel", BX + BW - 119, BY + BH + 16, -3, BX + BW - 70)]):
+
+def players(canvas, T, back, seats, pos):
+    """Each player's Steward Guide with their hidden hand fanned below it."""
+    for i, (sid, gx, gy, rot, hx) in enumerate(seats):
         g = Image.open(GUIDE(sid)).convert("RGBA")
         bpx = round(3.175 * g.width / 111.35)
         g = g.crop((bpx, bpx, g.width - bpx, g.height - bpx)).resize((round(105 * T), round(148 * T)), Image.Resampling.LANCZOS)
-        g = rounded(g, round(1.5 * T))
-        place(canvas, g, gx, gy, T, rot=rot, shadow=(2.2, 0.75), lift=(1, 2))
+        place(canvas, rounded(g, round(1.5 * T)), gx, gy, T, rot=rot, shadow=(2.2, 0.75), lift=(1, 2))
         for k in range(5):
             centre(canvas, back, hx + (k - 2) * 9, gy + 202 + abs(k - 2) * 2.4, T, rot=(k - 2) * 6, shadow=(0.9, 0.5))
         pos[f"guide{i}"] = (gx + 52, gy + 74)
         pos[f"hand{i}"] = (hx, gy + 202)
-    W, H = canvas.size
+
+
+def setup_table():
+    """The table from above, laid out long and narrow: the Encounter board on
+    end at the map's left, the Logistics board on end at its right (both with
+    their lettering facing the map), then the Tiles board, with the players'
+    Steward Guides and hands below it."""
+    T = 2.6  # px per mm on the table
+    W_MM, H_MM = 1372, 640
+    canvas = wood_table(round(W_MM * T), round(H_MM * T))
+    mapb, eb, lb, tb, back = setup_pieces(T)
+    pos = {}
+    GAP = 14
+    EX, MY = 30, 30
+    MX = EX + LH + GAP
+    LX = MX + MAPW + GAP
+
+    def left(x, y):    # Encounter board point -> table, turned clockwise (top faces the map)
+        return EX + (LH - y), MY + x
+
+    def right(x, y):   # Logistics board point -> table, turned anticlockwise (top faces the map)
+        return LX + y, MY + (LW - x)
+
+    place(canvas, mapb, MX, MY, T, shadow=(4, 0.8), lift=(1.5, 3))
+    place(canvas, eb, EX, MY, T, rot=-90, shadow=(4, 0.8), lift=(1.5, 3))
+    place(canvas, lb, LX, MY, T, rot=90, shadow=(4, 0.8), lift=(1.5, 3))
+    BX, BY = LX + LH + GAP + 4, MY
+    place(canvas, tb, BX, BY, T, shadow=(4, 0.8), lift=(1.5, 3))
+    players(canvas, T, back, [("knight", BX + 14, BY + BH + 12, 3, BX + 70), ("sentinel", BX + BW - 119, BY + BH + 16, -3, BX + BW - 70)], pos)
+
+    pos["map"] = (MX + 349, MY + 280)
+    pos["round"] = (MX + 80.42, MY + 548.76)
+    pos["meeple"] = (MX + S.svg_centre("B6")[0] + S.OFF_X, MY + S.svg_centre("B6")[1] + S.OFF_Y)
+    pos["encdeck"] = left(46, 73)
+    pos["target"] = right(46, 73)
+    pos["warehouse"] = right(284, 30)
+    pos["tokens"] = right(LW - 6 - 40, 73)
+    pos["quest"] = (BX + 54, BY + 41)
+    pos["tiles"] = (BX + 142, BY + 147)
     save("fig-setup", canvas, {"points": {k: (round(v[0] / W_MM, 4), round(v[1] / H_MM, 4)) for k, v in pos.items()}})
-    # A close look at the Warehouse, the Tiles board and the players' places.
-    x0 = round((LX - 8) * T)
-    save("fig-setup-detail", canvas.crop((x0, round(14 * T), W, H - round(14 * T))))
+
+
+def setup_table_alt():
+    """Another layout for a deeper table: the map on the left; to its right,
+    the Encounter board, the Logistics board and the Tiles board, all lying
+    flat, one below the other. The players' guides and hands sit beside the
+    Tiles board."""
+    T = 2.6
+    GAP = 12
+    MX, MY = 30, 30
+    RX = MX + MAPW + 18
+    W_MM = RX + LW + 30
+    H_MM = MY + MAPH + 30
+    canvas = wood_table(round(W_MM * T), round(H_MM * T), seed=9)
+    mapb, eb, lb, tb, back = setup_pieces(T)
+    place(canvas, mapb, MX, MY, T, shadow=(4, 0.8), lift=(1.5, 3))
+    ey = MY - 4
+    place(canvas, eb, RX, ey, T, shadow=(4, 0.8), lift=(1.5, 3))
+    ly = ey + LH + GAP
+    place(canvas, lb, RX, ly, T, shadow=(4, 0.8), lift=(1.5, 3))
+    ty = ly + LH + GAP
+    place(canvas, tb, RX, ty, T, shadow=(4, 0.8), lift=(1.5, 3))
+    # Guides and hands in the space beside the Tiles board.
+    for i, (sid, gx, rot) in enumerate([("knight", RX + BW + 22, 3), ("sentinel", RX + BW + 150, -3)]):
+        g = Image.open(GUIDE(sid)).convert("RGBA")
+        bpx = round(3.175 * g.width / 111.35)
+        g = g.crop((bpx, bpx, g.width - bpx, g.height - bpx)).resize((round(105 * T), round(148 * T)), Image.Resampling.LANCZOS)
+        place(canvas, rounded(g, round(1.5 * T)), gx, ty + 2, T, rot=rot, shadow=(2.2, 0.75), lift=(1, 2))
+        for k in range(5):
+            centre(canvas, back, gx + 52 + (k - 2) * 7, ty + 186 + abs(k - 2) * 2, T, rot=(k - 2) * 6 + 90, shadow=(0.9, 0.5))
+    save("fig-setup-alt", canvas)
 
 
 # ---------------------------------------------------------- map close-ups
@@ -469,5 +502,7 @@ if __name__ == "__main__":
     if "components" in which: components()
     if "inplay" in which: encounter_in_play()
     if "map" in which: map_figures()
-    if "setup" in which: setup_table()
+    if "setup" in which:
+        setup_table()
+        setup_table_alt()
     prev.write_text(json.dumps(META, indent=1))

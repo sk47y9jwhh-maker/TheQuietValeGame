@@ -109,7 +109,7 @@ P.push(page("Welcome to the Vale", "The Quiet Vale", `
 const contents = [["Components", 4], ["Setup", 6], ["Seasons and Encounter seeding", 8], ["The round", 9], ["Your turn and the four Actions", 10], ["Production and the Warehouse", 12], ["Reading a Tile", 13], ["Placing Tiles", 14], ["Reach, rivers and Bridges", 15], ["Special Tiles", 16], ["Encounter Cards", 17], ["Strain and Supported", 20], ["Overstrain chains", 21], ["The Target Deck", 22], ["Stewards", 24], ["End of a Season", 25], ["Final scoring", 26], ["Quest Cards and the Steward&rsquo;s Ledger", 27], ["Golden content", 28], ["Quick reference", 29], ["Glossary", 30]];
 P.push(page("Welcome to the Vale", "Using this rulebook", `
   <p class="lead">For your first game, follow Setup and Encounter seeding (pages 6 to 8), then keep the round and the four Actions (pages 9 to 11) open beside you. During play, use your Steward Guide and the Quick reference on page 29. Leave Golden content in the box for your first game.</p>
-  <p>The pictures in this book show the real components on the table: the map board, the tiles, the cards and the wooden tokens. Pale rings, numbers and arrows drawn over a picture are there to explain it; they are not on the board.</p>
+  <p>Rings, numbers and arrows drawn over a picture are there to explain it; they are not on the board.</p>
   <div class="contents">${contents.map(([t, n], i) => `<div><span class="cn">${i + 1}</span><span class="ct">${t}</span><span class="dots"></span><span class="cp">${n}</span></div>`).join("")}</div>
   <figure class="frontis"><img src="${A("board-map-board-v4.jpg")}" alt="">${caption("The Vale before the first Tile is laid.")}</figure>
   ${note("When rules conflict", "Text on a specific card or Tile overrides a general rule, but only for the situation it names. Otherwise follow this rulebook, and finish every mandatory effect before play continues.")}`, "contentsp"));
@@ -168,7 +168,7 @@ const setupCallouts = [["map", 1, 0.05, -0.07], ["meeple", 2, 0.025, -0.03], ["r
   .map(([k, n, dx, dy]) => ["num", [sp[k][0] + dx, sp[k][1] + dy], n, 17]);
 P.push(page("2 · Setup", "Setting up a two-player game", `
   ${fig("fig-setup", setupCallouts, "", "setup")}
-  <div class="setupgrid"><ol class="legend">
+  <ol class="legend">
     <li>The map board, with the round tracker along its foot.</li>
     <li>Each Steward meeple on its Starting Terrain: here the Knight on Arable Land and the Sentinel on Mountains.</li>
     <li>The Round marker in the Round 1 socket.</li>
@@ -181,7 +181,7 @@ P.push(page("2 · Setup", "Setting up a two-player game", `
     <li>Each player&rsquo;s Steward Guide.</li>
     <li>Each player&rsquo;s hidden hand of 9 Encounter Cards.</li>
   </ol>
-  ${fig("fig-setup-detail", [], "Close up: the Logistics board on end with the Warehouse filled for two players, the Tiles board, and each player&rsquo;s Steward Guide and hand.")}</div>`, "setupfig"));
+  ${fig("fig-setup-alt", [], "<b>Another layout.</b> On a deeper table, lay the Encounter board, the Logistics board and the Tiles board flat in a column to the right of the map.")}`, "setupfig"));
 
 // 7 Setup steps
 P.push(page("2 · Setup", "Setup step by step", `
@@ -189,7 +189,7 @@ P.push(page("2 · Setup", "Setup step by step", `
     <div>
       <h3>Prepare the shared area</h3>
       ${steps([
-        "Lay out the map board. Stand the Encounter board on end along its left side and the Logistics board on end along its right side, both with their lettering facing the map. Put the Tiles board beyond the Logistics board, so everything sits in one row that suits a long, narrow table.",
+        "Lay out the map board. Stand the Encounter board on end along its left side and the Logistics board on end along its right side, both with their lettering facing the map, and put the Tiles board beyond the Logistics board. On a deeper table, lay the three boards flat in a column to the right of the map instead (page 6).",
         "Sort the Core Tiles into the Tiles board&rsquo;s five bays with every basic side face up. The upgraded side is the back of the same Tile, so there is no separate upgraded supply. Keep the Travel extension hexes with the Travel Tiles.",
         "Arrange the Special Tiles by their numbered backs, ready to match to Arrival rewards.",
         "Put the Round marker in the Round 1 socket.",
@@ -686,7 +686,7 @@ P.push(page("20 · Glossary", "Glossary, continued", `
   <h3>Where to look</h3>
   <div class="index">${where.map(([t, n]) => `<div><span>${t}</span><span class="dots"></span><span>${n}</span></div>`).join("")}</div>
   ${story("After the rain, one wall bowed and a path washed thin. Before either failed, neighbours arrived with braces, stone and dry timber. Nothing grand was done that day. The settlement held because ordinary repairs were made in time.")}
-  ${note("Credits and edition", "The Quiet Vale: Seasons of Settlement. Rulebook v6.9, review edition, November 2026. It pairs with the v6.9 Steward Guides and replaces the v6.8 review rulebook. The v6.6 locked rules remain the approved record until this edition is approved.")}`, "indexp"));
+`, "indexp"));
 
 // ---------------------------------------------------------------- render
 function pageHtml(p, n) {

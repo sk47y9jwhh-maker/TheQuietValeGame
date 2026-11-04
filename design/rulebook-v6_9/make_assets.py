@@ -36,7 +36,6 @@ def back():
     b.tree(W / 2, 108, 84, opacity=0.62)
     b.label("THE QUIET VALE", W / 2, 180, 9.0, 96002)
     b.label("A shared settlement. A changing Vale. One story built together.", W / 2, 196, 4.6, 96003, font=ITALIC)
-    b.label("Rulebook  ·  v6.9 review edition  ·  November 2026", W / 2, 232, 3.6, 96004, font=ITALIC)
     return b.finish()
 
 

@@ -12,7 +12,7 @@ own production files, so it always matches what is printed:
 
 | Picture | Made from |
 |---|---|
-| Table setup, map close-ups | The v4 board renders (`design/boards-v4`) with the artist tiles from `public/tiles` laid exactly on the map's hexes (60 mm point to point, Hayman option A), wooden Strain and bronze tokens and Steward meeples (`scene.py`) |
+| Table setups (two layouts), map close-ups | The v4 board renders (`design/boards-v4`) with the artist tiles from `public/tiles` laid exactly on the map's hexes (60 mm point to point, Hayman option A), wooden Strain and bronze tokens and Steward meeples (`scene.py`) |
 | Encounter Cards | The online game's `EncounterCard` component in print mode (`cards/render-cards.mjs`) |
 | Quest and Target Cards, card backs | The print files in `design/quest-cards/print`, `design/target-cards/print` and `design/encounter-card-templates/card-back/print` |
 | Steward Guides on the table | `design/steward-guides/assets` covers |
