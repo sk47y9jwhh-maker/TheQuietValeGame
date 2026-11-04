@@ -61,7 +61,7 @@ li { margin-bottom: 0.5mm; }
 .story h1 { font-size: 22pt; }
 .story .sub { font-style: italic; font-size: 9pt; color: #5a4c38; margin-top: 1.2mm; }
 .rule { height: 3mm; margin: 2mm auto 2.6mm; width: 40mm; background: radial-gradient(circle, #a78343 0.55mm, transparent 0.7mm) center / 3mm 3mm no-repeat, linear-gradient(#a78343, #a78343) center / 100% 0.25mm no-repeat; }
-.text { columns: 2; column-gap: 7mm; column-fill: balance; font-size: 8.8pt; line-height: 1.42; text-align: left; hyphens: manual; }
+.text { columns: 2; column-gap: 7mm; column-fill: balance; font-size: 8.7pt; line-height: 1.38; text-align: left; hyphens: manual; }
 .text p { margin: 0 0 1.5mm; text-indent: 3.2mm; }
 .text p.first { text-indent: 0; }
 .text h3 { font-size: 9.2pt; letter-spacing: 0.02em; margin: 2.2mm 0 1.2mm; break-after: avoid; text-align: left; }
@@ -128,20 +128,20 @@ const story = `
     <div class="sub">from the margins of the first Steward&rsquo;s ledger</div>
   </header>
   <div class="rule"></div>
-  <p class="intro">Most of the ledger is numbers: timber counted, grain measured, debts owed and paid. But in the margins are the people who came.</p>
+  <p class="intro">Most of the ledger is figures: timber counted, grain measured, debts owed and paid. In the margins, though, are the people who came.</p>
   <div class="text">
     <h3><span>Season I</span>Foundations</h3>
-    <p class="first">The riders came first, slowly, cloaks heavy with rain and years alike. Their banners were long gone and their rations worn thin, but the horses were immaculate: brushed, fed and spoken to with a tenderness the old age rarely spared for anything. They did not ask for barracks, or for glory. They asked for pasture, fresh water and somewhere both rider and horse could finally rest. I wrote: <i>find them a field.</i></p>
-    <p>A week later a river boat nosed into the bank, stitched together from the timber of forgotten ports and ruined warships. The crew said little of where they had been, only that safe harbours had become rare things. Before the cargo was ashore they were pacing the bank and talking of trade.</p>
-    <p>Then a whole wagonload of labourers: strong backs, calloused hands and a need to be useful. They asked for modest meals, a dry roof and work that builds rather than breaks. By dusk the foundations were cleared twice as fast.</p>
+    <p class="first">The riders came first, slowly, their cloaks heavy with rain. Their banners were long gone and their rations thin, but the horses were immaculate: brushed, well fed and spoken to with a tenderness the old age seldom showed anyone. They did not ask for barracks, or for glory. They asked for pasture, fresh water and somewhere both rider and horse could finally rest. I wrote: <i>find them a field.</i></p>
+    <p>A week later a river boat came to the bank, patched with timber salvaged from old jetties and ruined warships. The crew said little about where they had been, only that safe harbours had become rare. Before their cargo was even unloaded, they were walking the riverbank and talking about trade.</p>
+    <p>Then came a wagonload of labourers: strong backs, calloused hands and a need to be useful. They asked for plain meals, a dry roof and work that would build rather than break. Within days, foundations were being cleared twice as fast as before.</p>
     <h3><span>Season II</span>Growth</h3>
-    <p class="first">Old armour came in by the cartload that summer. Helms became lantern casings; swords became ploughs. The veterans who oversaw the work spoke little. The dents spoke enough.</p>
-    <p>The woodcutter arrived with an axe big enough to split a shield and the body behind it. These days it fells only deadwood. She has one arm and a laugh you can hear across the river, and the children follow her everywhere. Forests, she says, regrow more honestly than kingdoms.</p>
-    <p>The Beastmaster&rsquo;s name reached us long before he did. The feared commander who finally walked in spends his evenings tending lame oxen and brushing tired draft horses, and he speaks to them more gently than his face would have you believe.</p>
-    <p>A brewer rolled in behind casks strapped to wagons braced like fortifications. A settlement, he told me, lives on roofs and bread, but also on evenings when the singing is louder than the remembering. I meant to leave that out of the record. Then the yard broke into song.</p>
+    <p class="first">That summer, old armour came in by the cartload. Helmets became lantern casings and swords became ploughs. The veterans who oversaw the work said little. The dents in the metal said enough.</p>
+    <p>The woodcutter arrived carrying an axe big enough to split a shield and the soldier behind it. These days it fells only deadwood. She has one arm and a laugh you can hear across the river, and the children follow her everywhere. Forests grow back, she says. Kingdoms rarely do.</p>
+    <p>The Beastmaster&rsquo;s name reached us long before he did. The feared commander who finally arrived now spends his evenings tending lame oxen and brushing tired draught horses, and he speaks to them more gently than anyone expected.</p>
+    <p>A brewer came with great casks strapped to his wagons. A settlement, he told me, needs roofs and bread, but it also needs evenings when people sing together and, for a while, forget the war. I thought it hardly worth recording. Then the whole yard broke into song.</p>
     <h3><span>Season III</span>Maturity</h3>
-    <p class="first">Some arrivals asked for nothing that could be counted. Players in painted wagons wanted a square where old names could be spoken without glorifying the wars that took them. The dryads asked for nothing at all, yet where they walked the wildlands grew calmer. Children planted acorns beside elders who still remembered the groves that burned, knowing none of them would sit in that shade.</p>
-    <p>Reading the ledger back now, the numbers matter less than I thought they would. Nobody planned the Vale whole. It was built by people who arrived carrying what was left of the old world, and chose to put it to gentler work.</p>
+    <p class="first">Some arrivals asked for nothing that could be counted. Actors in painted wagons wanted only a square where they could speak the names of the fallen without glorifying the wars that took them. The dryads asked for nothing at all, yet wherever they walked the wildlands grew calmer. Children planted acorns beside elders who still remembered the groves that burned. The elders knew they would never sit in that shade. They planted anyway, so that the children would.</p>
+    <p>When I read the ledger back now, the numbers matter less than I expected. Nobody planned the Vale as a whole. It was built by people who arrived carrying what was left of the old world, and chose to put it to gentler work.</p>
   </div>
   <div class="end">&#10022;</div>
 </div></div>`;
