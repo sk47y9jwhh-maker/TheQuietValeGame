@@ -292,11 +292,6 @@ P.push(page("Your first round", "Your first round, continued", `
   <p>No Arrival is still active, so no timers come off. The Farmstead and Mine Tunnel refresh for next round, and the Round marker moves to Round 2. The group has used every Action, cleared the Burden and unlocked its first Special Tile.</p>
   ${note("What to try next round", "Upgrade a Tile, link two copies of the same Resource Tile for Linked Production (page {{p:prod}}), or build towards the Quest Card&rsquo;s easier half.")}`, "round1b"));
 
-// Tips for a first game
-P.push(page("Tips for your first game", "Tips for your first game", `
-  <p class="lead">None of these are rules; they are what groups tend to learn in their first few games.</p>
-  <div class="tips"><div><span>1</span><div><b>Start producing early</b><p>Your first placement is a good place for a Resource Tile that suits your Starting Terrain. Activate it the same turn, and build Housing beside it. <em>Page {{p:round1b}}.</em></p></div></div><div><span>2</span><div><b>Put copies side by side</b><p>Two or three of the same Resource Tile touching each other produce together for one Action, once each round (Linked Production). <em>Page {{p:prod}}.</em></p></div></div><div><span>3</span><div><b>Deal with Burdens while they are cheap</b><p>A Burden&rsquo;s Season I row is usually its mildest, and it applies again, harder, each Season. Every Burden still active at the end costs 10. <em>Page {{p:boons}}.</em></p></div></div><div><span>4</span><div><b>Watch the Arrival timers</b><p>An Arrival loses a timer at the end of every round. Save the resources it asks for, and remember an Inn can add a timer. <em>Page {{p:arrivals}}.</em></p></div></div><div><span>5</span><div><b>Keep Housing together</b><p>Housing Tiles score more in a cluster, and every 3 in a cluster earn Supported at the end of a Season. <em>Page {{p:seasonend}}.</em></p></div></div><div><span>6</span><div><b>End your turn where you want to start</b><p>Your meeple stays on the last Tile you placed, upgraded or activated, and your next turn reaches out from there. <em>Page {{p:turn}}.</em></p></div></div><div><span>7</span><div><b>Use your Power every Season</b><p>Steward Powers refresh at the start of each Season. One left unused is lost. <em>Page {{p:stewardsp}}.</em></p></div></div><div><span>8</span><div><b>Look at the Quest Card early</b><p>Either half completes it for +20 Renown. The top half is the easier one; plan for it from Round 1. <em>Page {{p:quest}}.</em></p></div></div><div><span>9</span><div><b>Protect before Strain arrives</b><p>Common Land gives a neighbouring Housing Tile Supported, which stops the next Strain. Strain costs 10 at the end, and 3 on one Tile shuts it down. <em>Page {{p:strain}}.</em></p></div></div><div><span>10</span><div><b>Seed with a plan</b><p>Talk about what you hope to do this Season, without naming cards. Seed an Arrival you can meet soon near the top, and a Burden you are ready for. <em>Page {{p:seeding}}.</em></p></div></div></div>`, "tipsp"));
-
 // 10 Your turn
 P.push(page("5 · Your turn", "The four Actions", `
   <p class="lead">On your turn, take up to 4 Actions. You may repeat an Action as often as each use is legal. Unused Actions are lost when your turn ends.</p>
@@ -705,8 +700,52 @@ P.push(page("18 · Golden content", "Golden content", `
   <h3>Golden Boons</h3>
   <p>Golden Boons never enter hands or seeding. When one is revealed, resolve it free, do not count it towards the standard reveal, and keep revealing. <i>The Golden Scroll</i>, for example, lets each player discard any standard Encounter Cards from their hand and draw the same number at random from the box; Golden Boons cannot be drawn, and if the box runs short, draw as many as you can. Then discard it.</p>`, "goldenp"));
 
+// Twin Settlements, an optional mode
+const twinLab = {"B5": [0.12336988892059868, 0.5259574501156132], "J3": [0.6713150944000508, 0.31880187180172764], "D5": [0.2603561902904617, 0.5259574501156132], "F5": [0.3973424916603247, 0.5259574501156132]};
+P.push(page("19 · Twin Settlements", "Twin Settlements", `
+  <p class="lead">An optional mode: two Vales grow on opposite banks of the river. Each team builds its own settlement with its own Warehouse, Tiles and Encounters, and the whole table shares one result. For 2 to 4 players; one player can also run both Vales.</p>
+  <div class="twinmap">
+    <div class="map"><img src="${A("twin-map.jpg")}" alt=""><span class="tag" style="left:${twinLab.B5[0] * 100}%;top:${twinLab.B5[1] * 100}%">West Vale</span><span class="tag" style="left:${twinLab.J3[0] * 100}%;top:${twinLab.J3[1] * 100}%">East Vale</span></div>
+    <div class="maptext">
+      <p><b>The West Vale</b> is the land west of the river&rsquo;s western channel, shaded blue.</p>
+      <p><b>The East Vale</b> is all the other land, shaded gold, including both Ruins.</p>
+      <p class="small">A team may cross the river to build, but its Tiles always belong to its own Vale.</p>
+    </div>
+  </div>
+  <div class="cols2">
+    <div>
+      <h3>Setup</h3>
+      <ul class="twin">
+        <li><b>Teams.</b> Split into two teams: 1 and 1, 2 and 2, or 1 and 2. In 1 and 2, the solo player chooses a Vale.</li>
+        <li><b>Stewards.</b> Choose different Stewards as normal, but leave out the Warden. A Quartermaster may not start on Ruins.</li>
+        <li><b>Meeples.</b> Each player puts their meeple on an empty hex of their Starting Terrain in their own Vale. Their first Action places a Tile there, as normal.</li>
+        <li><b>Tiles.</b> Split every stack of Core Tiles in half, one half for each Vale.</li>
+        <li><b>Warehouses.</b> Each Vale has its own: 15 of each resource for a one-player team, 10 of each for a two-player team.</li>
+        <li><b>Encounters.</b> Build one Encounter deck and set of hands for each team, using the normal setup for that team&rsquo;s size.</li>
+        <li><b>Leave out</b> the Docks, the Stables, the two Arrivals that unlock them, Golden content and the Quest Card. Replace each of those Arrivals with another unused Arrival.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Play</h3>
+      <ul class="twin">
+        <li>Play 12 rounds as normal. Each round, both Vales reveal their own Encounters, then every player takes one turn of up to 4 Actions, in an order the whole table chooses.</li>
+        <li>Teammates share everything in their Vale: the Warehouse, the Tile supply, the network, unlocked Special Tiles, Encounters, Strain and Supported.</li>
+        <li>Turns, Actions, meeples, Steward Powers and Objectives stay individual.</li>
+        <li>A team may only use, upgrade, activate or count its own Tiles, resources and Encounters.</li>
+        <li>A team&rsquo;s first Tiles need not touch; once joined, they are one network.</li>
+        <li>Read &ldquo;each player&rdquo; on a card as &ldquo;each team&rdquo;, resolved once.</li>
+        <li>Both teams draw from the one Target deck. Only the drawing team&rsquo;s Tiles are ever eligible.</li>
+      </ul>
+      ${note("Never join the Vales", "No Tile may be placed where it would connect the West Vale network to the East Vale network.")}
+    </div>
+  </div>
+  <div class="scoregrid">
+    <div class="plus"><b>Score each Vale</b>Use the normal final scoring with only that team&rsquo;s Tiles, Steward Objectives, active Burdens, failed Arrivals and Strain.</div>
+    <div class="minus" style="background: rgba(214,168,62,0.13)"><b>One result</b>Record both scores together as the table&rsquo;s result. Nobody wins alone; the aim is two strong Vales.</div>
+  </div>`, "twinp"));
+
 // 29 Quick reference
-P.push(page("19 · Quick reference", "Quick reference", `
+P.push(page("20 · Quick reference", "Quick reference", `
   <h3>The round</h3>
   <div class="qr3"><div><span>1</span>Reveal and resolve Encounters</div><div><span>2</span>Choose the order; each player takes one turn of up to 4 Actions</div><div><span>3</span>Remove Arrival timers, resolve failures, tidy up, move the Round marker</div></div>
 
@@ -768,15 +807,14 @@ const gloss = [
 gloss.sort((a, b) => a[0].replace("&rsquo;", "'").localeCompare(b[0].replace("&rsquo;", "'")));
 const glossDl = (rows) => `<dl class="gloss">${rows.map(([t, d]) => `<dt>${t}</dt><dd>${d}</dd>`).join("")}</dl>`;
 const GSPLIT = 22;
-P.push(page("20 · Glossary", "Glossary", glossDl(gloss.slice(0, GSPLIT)), "glossary"));
+P.push(page("21 · Glossary", "Glossary", glossDl(gloss.slice(0, GSPLIT)), "glossary"));
 
 // 31 Index
-const where = [["Arrivals", "arrivals"], ["Boons and Burdens", "boons"], ["Components", "comp1"], ["End of a Season", "seasonend"], ["Final scoring", "scoring"], ["First round, guided", "round1"], ["Four Actions", "turn"], ["Golden content", "goldenp"], ["Linked Production", "prod"], ["Neighbourly Support", "seasonend"], ["Overstrain chains", "chain"], ["Quest Cards", "quest"], ["Questions at the table", "faqp"], ["Reachability", "rivers"], ["Reading a Tile", "anatomy"], ["Rivers and Bridges", "rivers"], ["Round sequence", "round"], ["Seeding", "seeding"], ["Setup", "setupfig"], ["Shelter in the Ruins", "place"], ["Special Tile numbers", "special"], ["Steward meeple movement", "turn"], ["Stewards", "stewardsp"], ["Strain and Supported", "strain"], ["Target Cards", "target"], ["Timing", "timing"], ["Warehouse", "prod"]].map(([t, id]) => [t, `{{p:${id}}}`]);
-P.push(page("20 · Glossary", "Glossary, continued", `
+const where = [["Arrivals", "arrivals"], ["Boons and Burdens", "boons"], ["Components", "comp1"], ["End of a Season", "seasonend"], ["Final scoring", "scoring"], ["First round, guided", "round1"], ["Four Actions", "turn"], ["Golden content", "goldenp"], ["Linked Production", "prod"], ["Neighbourly Support", "seasonend"], ["Overstrain chains", "chain"], ["Quest Cards", "quest"], ["Questions at the table", "faqp"], ["Reachability", "rivers"], ["Reading a Tile", "anatomy"], ["Rivers and Bridges", "rivers"], ["Round sequence", "round"], ["Seeding", "seeding"], ["Setup", "setupfig"], ["Shelter in the Ruins", "place"], ["Special Tile numbers", "special"], ["Steward meeple movement", "turn"], ["Stewards", "stewardsp"], ["Strain and Supported", "strain"], ["Target Cards", "target"], ["Timing", "timing"], ["Twin Settlements", "twinp"], ["Warehouse", "prod"]].map(([t, id]) => [t, `{{p:${id}}}`]);
+P.push(page("21 · Glossary", "Glossary, continued", `
   ${glossDl(gloss.slice(GSPLIT))}
   <h3>Where to look</h3>
   <div class="index">${where.map(([t, n]) => `<div><span>${t}</span><span class="dots"></span><span>${n}</span></div>`).join("")}</div>
-  ${story("After the rain, one wall bowed and a path washed thin. Before either failed, neighbours arrived with braces, stone and dry timber. Nothing grand was done that day. The settlement held because ordinary repairs were made in time.")}
 `, "indexp"));
 
 // ---------------------------------------------------------------- render

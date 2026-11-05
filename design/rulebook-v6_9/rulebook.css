@@ -331,3 +331,12 @@ table.comp td { padding: 2mm 2mm; }
 .ideas div, .routep .glance div { font-size: 10.2pt; }
 .timeline b { display: block; }
 .timeline span { display: inline; }
+
+/* Twin Settlements */
+.twinmap { display: grid; grid-template-columns: 84mm 1fr; gap: 5mm; align-items: center; }
+.twinmap .map { position: relative; border-radius: 1.4mm; overflow: hidden; box-shadow: 0 0.4mm 1.2mm rgba(40,30,15,0.35); }
+.twinmap .map img { display: block; width: 100%; }
+.twinmap .tag { position: absolute; transform: translate(-50%, -50%); font: 700 9pt/1 Almendra, serif; color: #f8eed2; background: rgba(43,38,32,0.82); border: 0.3mm solid #c9a457; padding: 1.2mm 2.4mm; border-radius: 1mm; white-space: nowrap; }
+.maptext { display: flex; flex-direction: column; gap: 2mm; font-size: 10pt; line-height: 1.32; }
+ul.twin { margin: 0; padding-left: 4.4mm; font-size: 9.2pt; line-height: 1.28; }
+ul.twin li { margin-bottom: 0.8mm; }
