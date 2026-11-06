@@ -3618,6 +3618,9 @@ button.effect-row {
   overflow: hidden;
 }
 
+.rules-pdf-link { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 10px 14px; border: 1px solid rgba(48,75,61,.35); border-radius: 8px; background: rgba(196,170,112,.14); color: #273b31; text-decoration: none; font-weight: 700; }
+.rules-pdf-link:hover { background: rgba(196,170,112,.26); }
+.rules-pdf-link small { display: block; font-weight: 400; font-size: 12px; color: #5d6b54; }
 .rules-quick-start {
   position: sticky;
   top: 0;

@@ -90,6 +90,17 @@
 .welcome-beginning span { color: #c4aa70; font: italic 20px var(--font-body); }
 .welcome-beginning h3 { font: 600 22px var(--font-body); margin: 8px 0; }
 .welcome-beginning p { font-size: 15px; line-height: 1.5; color: #c3caba; max-width: 260px; margin: 0; }
+.welcome-rulebook { display: grid; grid-template-columns: 150px 1fr; gap: 30px; align-items: center; max-width: 1000px; margin: 0 auto 26px; padding: 24px; border: 1px solid #5b6953; border-radius: 10px; }
+.welcome-rulebook-cover { display: block; border-radius: 4px; overflow: hidden; box-shadow: 0 8px 22px rgba(0,0,0,.4); transition: transform .15s ease; }
+.welcome-rulebook-cover:hover { transform: translateY(-2px); }
+.welcome-rulebook-cover img { display: block; width: 100%; height: auto; }
+.welcome-rulebook h2 { font: 600 28px/1.15 var(--font-body); margin: 4px 0 8px; }
+.welcome-rulebook p { margin: 0; font-size: 15px; line-height: 1.5; color: #c3caba; max-width: 560px; }
+.welcome-rulebook .studio-kicker { color: #c4aa70; }
+.welcome-rulebook-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; margin-top: 18px; }
+.welcome-rulebook-actions .studio-primary { width: auto; min-height: 44px; padding: 10px 20px; font-size: 16px; background: #c4aa70; border-color: #c4aa70; color: #1f2b22; }
+.welcome-rulebook-actions .studio-primary:hover { background: #d4bc84; }
+.welcome-rulebook-download { display: inline-flex; align-items: center; gap: 8px; color: #e3d6b0; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
 .welcome-rules { max-width: 1000px; margin: 0 auto; border: 1px solid #5b6953; border-radius: 10px; overflow: hidden; }
 .welcome-rules > summary { display: flex; align-items: center; gap: 18px; padding: 20px 24px; cursor: pointer; }
 .welcome-rules summary > span { flex: 1; }
@@ -163,6 +174,7 @@
   .welcome-landscape { min-height: 680px; }
   .welcome-setup { padding: 28px 24px; }
   .welcome-rules { margin-inline: 30px; }
+  .welcome-rulebook { margin-inline: 30px; }
   .player-guide-stages { display: none; }
   .tabletop-play { grid-template-columns: minmax(0, 1fr) 300px; gap: 10px; padding: 10px; }
   .experience-tabletop .setup-flow-table { grid-template-columns: 270px minmax(0, 1fr); }
@@ -222,6 +234,8 @@
   .welcome-beginning h3 { margin: 0 0 4px; font-size: 21px; }
   .welcome-beginning p { max-width: none; }
   .welcome-rules { margin-inline: 12px; }
+  .welcome-rulebook { margin-inline: 12px; grid-template-columns: 96px 1fr; gap: 16px; padding: 16px; }
+  .welcome-rulebook h2 { font-size: 22px; }
   .welcome-rules > summary { padding: 18px 20px; gap: 12px; }
   .welcome-rules > div { padding: 16px; }
   .experience-tabletop .app-shell { min-height: 100dvh; height: auto; overflow: visible; padding-bottom: 60px; }

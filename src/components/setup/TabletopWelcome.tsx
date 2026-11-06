@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ArrowRight, BookOpen, ChevronDown, Users } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronDown, Download, Users } from "lucide-react";
 import { getStartingWarehouseAmount } from "../../engine/setup";
 import { terrainLabels } from "../../data/map";
 import { stewardById, stewards } from "../../data/stewards";
@@ -11,6 +11,8 @@ import { demoGroups, demoHref, demoOrder } from "../../app/demoCatalog";
 import { RulesGuide } from "../panels/RulesGuide";
 import type { SetupPanelProps } from "./SetupPanel";
 import mapArtwork from "../../assets/quiet_vale_map_v02.webp";
+import rulebookCover from "../../assets/rulebook-cover.webp";
+import { rulebookPdfHref } from "../../app/rulebook";
 
 
 const stewardRoles: Record<string, string> = {
@@ -93,6 +95,18 @@ export function TabletopWelcome(props: SetupPanelProps) {
         <div><h3>Find your place</h3><p>Choose a starting place that suits your Steward.</p></div>
         <div><h3>Shape the season</h3><p>Seed encounters to influence what lies ahead.</p></div>
         <div><h3>Build together</h3><p>Grow the settlement, care for its people and earn Renown.</p></div>
+      </section>
+      <section className="welcome-rulebook" aria-labelledby="welcome-rulebook-heading">
+        <a className="welcome-rulebook-cover" href={rulebookPdfHref} target="_blank" rel="noopener"><img src={rulebookCover} alt="The Quiet Vale rulebook cover" /></a>
+        <div>
+          <p className="studio-kicker">The rulebook</p>
+          <h2 id="welcome-rulebook-heading">Read the printed rules</h2>
+          <p>The full rulebook from the box: setup, a guided first round, every rule with worked examples, and the Twin Settlements mode. 36 pages.</p>
+          <div className="welcome-rulebook-actions">
+            <a className="studio-primary" href={rulebookPdfHref} target="_blank" rel="noopener"><BookOpen size={18} aria-hidden="true" />Open the rulebook</a>
+            <a className="welcome-rulebook-download" href={rulebookPdfHref} download="The Quiet Vale Rulebook.pdf"><Download size={16} aria-hidden="true" />Download PDF (10 MB)</a>
+          </div>
+        </div>
       </section>
       <details className="welcome-rules"><summary><BookOpen size={20} aria-hidden="true" /><span>New to the Vale?<small>Learn the essentials or browse the full rules.</small></span><ChevronDown size={20} aria-hidden="true" /></summary><div><RulesGuide /></div></details>
       <footer className="welcome-footer">The Quiet Vale: Seasons of Settlement. © 2026 Robert Little</footer>

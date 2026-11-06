@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { BookOpen } from "lucide-react";
+import { rulebookPdfHref } from "../../app/rulebook";
 
 type RulesView = "howTo" | "gameRules";
 
@@ -510,6 +512,11 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
           )}
         </div>
       </section>
+
+      <a className="rules-pdf-link" href={rulebookPdfHref} target="_blank" rel="noopener">
+        <BookOpen size={16} aria-hidden="true" />
+        <span>Open the printed rulebook<small>PDF, 36 pages</small></span>
+      </a>
 
       <nav className="rules-view-tabs" aria-label="Guide sections" role="tablist">
         <button
