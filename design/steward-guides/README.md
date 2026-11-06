@@ -23,9 +23,9 @@ bleed with TrimBox and BleedBox set.
 | Page | Content |
 |---|---|
 | 1 | Cover: leather, gold lettering, card-back compass, "Steward Guide" (no Steward name) |
-| 2 | Stewards I and II: Vanguard, Knight (terrain, Power, Objective) |
+| 2 | Stewards I and II: Vanguard, Knight (terrain, Power, Objective), then "Every Steward: getting started" |
 | 3 | Stewards III and IV: Sentinel, Ranger |
-| 4 | Stewards V and VI: Warden, Quartermaster, then the rules for every Steward |
+| 4 | Stewards V and VI: Warden, Quartermaster, then "Every Steward: during play" (Shelter in the Ruins, Power refresh) |
 | 5 | Your turn: Seasons, round sequence, four Actions, your meeple |
 | 6–16 | All 21 Core Tiles, both sides (unchanged). Page 8 adds Linked Production and the symbols and timing |
 | 17 | Target Cards (unchanged) |

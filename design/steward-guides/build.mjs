@@ -85,12 +85,12 @@ function stewardBlock(s, idx) {
     ${box(`Objective · +${s.objectiveRenown} Renown`, `<p>${esc(s.objectiveText)}</p>`, "gold")}
   </section>`;
 }
-const everySteward = box("For every Steward", `<p><b>Setup.</b> Put your meeple on an empty hex of your starting terrain (never two on one hex).</p>
-    <p><b>First placement.</b> Your first Action places any legal Tile under your meeple. It need not be a Resource Tile or connect to another Tile.</p>
-    <p><b>Shelter in the Ruins.</b> A Tile wholly on Ruins ignores all Stone in its placement or upgrade cost.</p>
+const everyStart = box("Every Steward: getting started", `<p><b>Setup.</b> Put your meeple on an empty hex of your starting terrain (never two on one hex).</p>
+    <p><b>First placement.</b> Your first Action places any legal Tile under your meeple. It need not be a Resource Tile or connect to another Tile.</p>`, "every");
+const everyPlay = box("Every Steward: during play", `<p><b>Shelter in the Ruins.</b> When you place or upgrade a Tile whose whole footprint lies on Ruins, ignore all Stone in that cost. If any part of it lies outside the Ruins, pay the full cost.</p>
     <p><b>Your Power</b> costs no Action and refreshes at the start of each Season.</p>`, "every");
 const stewardPages = [0, 2, 4].map((i) => page(`The Stewards · ${numerals[i]} and ${numerals[i + 1]}`, `${stewards[i].name} & ${stewards[i + 1].name}`,
-  stewardBlock(stewards[i], i) + stewardBlock(stewards[i + 1], i + 1) + (i === 4 ? everySteward : ""), "steward"));
+  stewardBlock(stewards[i], i) + stewardBlock(stewards[i + 1], i + 1) + (i === 0 ? everyStart : i === 4 ? everyPlay : ""), "steward"));
 
 const turnPage = page("How a round works", "Your turn", `
   <div class="seasons">${[["I", "Foundations", "Rounds 1–4"], ["II", "Growth", "Rounds 5–8"], ["III", "Maturity", "Rounds 9–12"]].map(([n, t, r]) => `<div><span>${n}</span><b>${t}</b><i>${r}</i></div>`).join("")}</div>
