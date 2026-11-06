@@ -166,7 +166,7 @@ const cardsPage = page("The Encounter and Quest decks", "Encounter & Quest Cards
   </div>
   <p class="small"><b>The Steward&rsquo;s Ledger.</b> A completed card goes into the Ledger; a failed card goes to the bottom of the Quest deck. Golden pairs unlock at 3, 6, 9, 12 and 15 cards in the Ledger.</p>`, "cardsp");
 
-const refPage = page("Keep this page open", "At-table reference", `
+const refPage = page("During play", "At-table reference", `
   <h3 class="sub">Placing Strain</h3>
   ${steps([["Select.", "The effect sets which Tiles are eligible. Draw a Target Card to choose among them (page 17)."], ["Prevent.", "Supported stops 1 Strain. It does not stack."], ["Check.", "At 3 Strain a Tile is Overstrained: it does nothing, connects nothing and scores nothing until it drops below 3."], ["Chain.", "After the whole effect, each newly Overstrained Tile spreads 1 Strain to a neighbour, chosen with a fresh Target Card."]])}
   <h3 class="sub">End of Seasons I and II (after Rounds 4 and 8)</h3>
