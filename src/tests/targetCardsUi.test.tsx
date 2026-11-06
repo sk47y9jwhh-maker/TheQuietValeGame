@@ -1,11 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../app/App";
 import { TargetCard } from "../components/common/TargetCard";
 import { EffectPrompt } from "../components/effects/EffectPrompt";
-import { systemEffectRuleId } from "../data/effectRules";
+import { cardEffectRuleId, systemEffectRuleId } from "../data/effectRules";
 import { targetCardById } from "../data/targetCards";
-import { preparePendingEffectQueueHead } from "../engine/manualEffects";
+import { preparePendingEffectQueueHead, resolvePendingEffect } from "../engine/manualEffects";
 import { createNewGame } from "../engine/setup";
 import { createTargetCardDeckState } from "../engine/targetCards";
 import type { PlacedTile } from "../engine/types";
@@ -106,5 +106,42 @@ describe("Target Card UI", () => {
     expect(screen.getByText(/supported will prevent 1 strain after selection/i)).toBeInTheDocument();
     expect(screen.getAllByText(/applied|ignored/i)).toHaveLength(4);
     expect(screen.getByText(/prevented strain is not redirected/i)).toBeInTheDocument();
+  });
+
+  it.each([false, true])("allows both Coin Before Craft targets with Any (old saved plan: %s)", (oldSavedPlan) => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.season = 2;
+    state.map.placedTiles = [
+      { ...tile("merchant", "G1"), tileId: "c14_market_stalls" },
+      { ...tile("crafting", "H1"), tileId: "c13_workshops" },
+      tile("unrelated", "J1")
+    ];
+    state.targetCards.drawPile = [25, ...state.targetCards.drawPile.filter((id) => id !== 25)];
+    state.pendingEffects = [{
+      id: "coin_any",
+      ruleId: cardEffectRuleId("burden_coin_before_craft", 2),
+      sourceType: "card",
+      sourceId: "burden_coin_before_craft",
+      sourceName: "Coin Before Craft",
+      title: "Coin Before Craft",
+      effectText: "Place 1 Strain on each of a Merchant and Crafting tile.",
+      requiresManualChoice: true
+    }];
+    const prepared = preparePendingEffectQueueHead(state);
+    if (oldSavedPlan) prepared.pendingEffects[0].targetCardTargetTileIds = ["merchant"];
+    const onApply = vi.fn();
+    render(<EffectPrompt state={prepared} effect={prepared.pendingEffects[0]} onApply={onApply} />);
+    const apply = screen.getByRole("button", { name: /apply effect/i });
+    expect(apply).toBeDisabled();
+    expect(screen.queryByRole("button", { name: /^Increase Strain adjustment for Path(?: at |$)/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Increase Strain adjustment for Market Stalls(?: at |$)/ }));
+    expect(apply).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: /^Increase Strain adjustment for Workshops(?: at |$)/ }));
+    expect(apply).toBeEnabled();
+    fireEvent.click(apply);
+    expect(onApply).toHaveBeenCalledTimes(1);
+    const resolved = resolvePendingEffect(prepared, onApply.mock.calls[0][0]);
+    expect(resolved.pendingEffects).toHaveLength(0);
+    expect(resolved.map.placedTiles.map((tile) => tile.strain)).toEqual([1, 1, 0]);
   });
 });

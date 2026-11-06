@@ -426,6 +426,34 @@ describe("Target Cards", () => {
     expect(resolvePendingEffect(prepared).pendingEffects).toHaveLength(0);
   });
 
+  it.each([[25, 1], [1, 25]])(
+    "finishes Coin Before Craft Season II with target draws %s, %s",
+    (firstCard, secondCard) => {
+      const prepared = pendingBurden(
+        targetCardState([
+          placed("merchant", "c14_market_stalls", "G1"),
+          placed("crafting", "c13_workshops", "H1"),
+          placed("unrelated", "c15_path", "J1")
+        ], [firstCard, secondCard]),
+        "burden_coin_before_craft",
+        2
+      );
+      const effect = prepared.pendingEffects[0];
+      expect(effect.targetCardManualChoice).toBe(true);
+      expect(effect.targetCardTargetTileIds?.slice().sort()).toEqual([
+        "crafting", "merchant"
+      ]);
+      expect(resolvePendingEffect(prepared, {
+        tileStrainDeltas: { merchant: 1 }
+      }).pendingEffects).toHaveLength(1);
+      const resolved = resolvePendingEffect(prepared, {
+        tileStrainDeltas: { merchant: 1, crafting: 1 }
+      });
+      expect(resolved.pendingEffects).toHaveLength(0);
+      expect(resolved.map.placedTiles.map((tile) => tile.strain)).toEqual([1, 1, 0]);
+    }
+  );
+
   it("locks payment-or-Strain targets while preserving the payment choice", () => {
     const tiles = [
       placed("social1", "c09_tavern", "A1"),

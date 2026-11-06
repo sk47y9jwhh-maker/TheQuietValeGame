@@ -286,7 +286,7 @@ function StandardEffectPrompt({
     const suggestedStrainIds = Object.keys(effect.suggestedAdjustment?.tileStrainDeltas ?? {});
     const suggestedSupportIds = effect.suggestedAdjustment?.supportTileIds ?? [];
     const suggestedTileIds = new Set([...suggestedStrainIds, ...suggestedSupportIds]);
-    const lockedTargetIds = effect.targetCardPrepared
+    const lockedTargetIds = effect.targetCardPrepared && !effect.targetCardManualChoice
       ? new Set(effect.targetCardTargetTileIds ?? [])
       : null;
     const legalTargets = getValidEffectStrainTargets(
@@ -316,7 +316,8 @@ function StandardEffectPrompt({
       strainTargetIds: legalTargetIds,
       supportTargetIds
     };
-  }, [effect.ruleId, effect.suggestedAdjustment, sourceTile, state]);
+  }, [effect.ruleId, effect.suggestedAdjustment, effect.targetCardPrepared,
+    effect.targetCardManualChoice, effect.targetCardTargetTileIds, sourceTile, state]);
   const tileControlTargets = tileControlData.targets;
   const tileAdjustmentRule = useMemo(
     () => getTileAdjustmentRule(state, effect.ruleId, sourceTile),

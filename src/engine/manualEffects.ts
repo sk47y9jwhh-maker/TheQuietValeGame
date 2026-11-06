@@ -1499,7 +1499,10 @@ function planDirectTargetCardStrain(
     if (!selected) return false;
     planningState = selected.state;
     if (selected.kind === "manual") {
-      manualTargetCandidateIds = pool.map((tile) => tile.instanceId);
+      // An Open card hands the unfinished effect to the player, including
+      // later category or linked-target groups that still need Strain.
+      // The printed effect rules continue to validate the final selection.
+      manualTargetCandidateIds = remainingCandidates.map((tile) => tile.instanceId);
       manualDiagnostic = selected.diagnostic;
       return false;
     }
