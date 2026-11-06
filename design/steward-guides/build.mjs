@@ -1,8 +1,8 @@
-// The Quiet Vale: Steward Guides (A6, 20 pages, one per Steward).
+// The Quiet Vale: Steward Guide (A6, 20 pages, one shared design for all six Stewards).
 // Content comes from the game data (src/data) and the current rules; art from
 // design/steward-guides/assets (make_assets.py), the artist tiles
 // (public/tiles) and the card print files.
-//   node design/steward-guides/build.mjs <out-dir> [stewardId...]
+//   node design/steward-guides/build.mjs <out-dir>
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -14,7 +14,6 @@ const require = createRequire(path.join(root, "package.json"));
 const { chromium } = require("playwright");
 const ts = require("typescript");
 const outDir = path.resolve(process.argv[2] || path.join(root, "output/steward-guides"));
-const only = process.argv.slice(3);
 fs.mkdirSync(outDir, { recursive: true });
 
 function load(file) {
@@ -75,20 +74,23 @@ const box = (label, body, cls = "") => `<section class="box ${cls}"><div class="
 const list = (items, cls = "") => `<ul class="${cls}">${items.map((i) => `<li>${i}</li>`).join("")}</ul>`;
 const steps = (items) => `<ol class="steps">${items.map(([h, b], i) => `<li><span class="n">${i + 1}</span><div><b>${h}</b> ${b}</div></li>`).join("")}</ol>`;
 
-function stewardPage(s, idx) {
+function stewardBlock(s, idx) {
   const terr = s.startingTerrains.length > 1
-    ? `Any of ${s.startingTerrains.map((k) => terrainName[k]).join(", ").replace(/, ([^,]*)$/, " or $1")}. Never Grasslands or River/Water.`
+    ? "Any but Grasslands or River/Water"
     : terrainName[s.startingTerrains[0]];
   const icons = s.startingTerrains.map((k) => `<img src="${ICON(`icon-Placement ${terrainIcon[k]}.png`)}">`).join("");
-  return page(`Steward ${numerals[idx]}`, s.name, `
-    ${box("Power · once per Season", `<p class="lead">${esc(s.powerText)}</p>`, "gold")}
-    ${box(`Objective · +${s.objectiveRenown} Renown`, `<p class="lead">${esc(s.objectiveText)}</p>`, "gold")}
-    ${box("Starting terrain", `<div class="terrain${s.startingTerrains.length > 1 ? " multi" : ""}">${icons}<p>${terr}</p></div><p class="small">At setup, put your Steward meeple on an empty hex of this terrain. Two meeples cannot share a hex.</p>`)}
-    <h3 class="sub">For every Steward</h3>
-    <p><b>First placement.</b> On your first turn, your first Action must place any legal Tile on the hex under your meeple. It need not be a Resource Tile and need not connect to another Tile.</p>
-    <p><b>Shelter in the Ruins.</b> When a Tile&rsquo;s whole footprint lies on Ruins, ignore all Stone in its placement or upgrade cost. Otherwise pay the full cost.</p>
-    <p><b>Your Power</b> costs no Action and refreshes at the start of each Season.</p>`, "steward");
+  return `<section class="stw">
+    <div class="stwhead${s.startingTerrains.length > 1 ? " multi" : ""}"><span class="num">${numerals[idx]}</span><h3>${esc(s.name)}</h3><div class="terr">${icons}<span>${terr}</span></div></div>
+    ${box("Power · once per Season", `<p>${esc(s.powerText)}</p>`, "gold")}
+    ${box(`Objective · +${s.objectiveRenown} Renown`, `<p>${esc(s.objectiveText)}</p>`, "gold")}
+  </section>`;
 }
+const everySteward = box("For every Steward", `<p><b>Setup.</b> Put your meeple on an empty hex of your starting terrain (never two on one hex).</p>
+    <p><b>First placement.</b> Your first Action places any legal Tile under your meeple. It need not be a Resource Tile or connect to another Tile.</p>
+    <p><b>Shelter in the Ruins.</b> A Tile wholly on Ruins ignores all Stone in its placement or upgrade cost.</p>
+    <p><b>Your Power</b> costs no Action and refreshes at the start of each Season.</p>`, "every");
+const stewardPages = [0, 2, 4].map((i) => page(`The Stewards · ${numerals[i]} and ${numerals[i + 1]}`, `${stewards[i].name} & ${stewards[i + 1].name}`,
+  stewardBlock(stewards[i], i) + stewardBlock(stewards[i + 1], i + 1) + (i === 4 ? everySteward : ""), "steward"));
 
 const turnPage = page("How a round works", "Your turn", `
   <div class="seasons">${[["I", "Foundations", "Rounds 1–4"], ["II", "Growth", "Rounds 5–8"], ["III", "Maturity", "Rounds 9–12"]].map(([n, t, r]) => `<div><span>${n}</span><b>${t}</b><i>${r}</i></div>`).join("")}</div>
@@ -148,43 +150,33 @@ const targetPage = page("Choosing where Strain lands", "Target Cards", `
     </div>
   </div>`, "target");
 
-const encPage = page("The Encounter deck", "Encounter Cards", `
+const cardsPage = page("The Encounter and Quest decks", "Encounter & Quest Cards", `
   <div class="cards4">
-    ${[["boon", "Boon", "Use the row for the current Season. The italic line says how long it stays."], ["burden", "Burden", "Apply the current row. It stays active, and reapplies with the new row each Season, until resolved."], ["arrival", "Arrival", "Enters with 3 timers. Meet its Requirements with an Interact Action to unlock its Special Tile."], ["goldenBoon", "Golden Boon", "Resolve free, then discard. It does not count toward the cards revealed each round."]].map(([k, n, d]) => `<figure><img src="${A(`enc-${k}.jpg`)}"><figcaption><b>${n}</b>${d}</figcaption></figure>`).join("")}
+    ${[["boon", "Boon", "Use the row for the current Season. The italic line says how long it stays."], ["burden", "Burden", "Apply the current row. It stays active, and reapplies with the new row each Season, until resolved."], ["arrival", "Arrival", "Enters with 3 timers. Meet its Requirements with an Interact Action to unlock its Special Tile."], ["goldenBoon", "Golden Boon", "Resolve free, then discard. Not counted among the cards revealed."]].map(([k, n, d]) => `<figure><img src="${A(`enc-${k}.jpg`)}"><figcaption><b>${n}</b>${d}</figcaption></figure>`).join("")}
   </div>
-  <p class="small">An Arrival whose last timer is removed fails: discard it, record a failure and place 1 Strain using a Target Card. An Arrival still active after Round 12 does not fail.</p>`, "enc");
-
-const questPage = page("One card each game", "Quest Cards & the Ledger", `
+  <p class="small">When an Arrival&rsquo;s last timer is removed it fails: discard it, record a failure and place 1 Strain using a Target Card. An Arrival still active after Round 12 does not fail. A completed Arrival&rsquo;s Special Tile (matching back number) is placed later with a Place Action for 0 resources.</p>
+  <h3 class="sub">Quest Cards</h3>
   <div class="quest">
     <img src="${A("card-quest.jpg")}">
     <div>
       <p>At setup, draw the top Quest Card. One card is in play, whatever the player count.</p>
-      <p><b>Both halves are live.</b> The top is easier, the bottom harder. Complete either half and the card scores <b>+20 Renown</b>, once.</p>
-      <p>Read your target from the table for the number of players.</p>
+      <p><b>Both halves are live.</b> Complete either half and the card scores <b>+20 Renown</b>, once. Read your target from the row for the number of players.</p>
+      <p class="small"><b>Moment:</b> done when it happens. <b>Final:</b> checked at final scoring. <b>Vow:</b> a rule kept all game, with an &ldquo;End with&rdquo; target.</p>
     </div>
   </div>
-  <div class="kinds"><div><b>Moment</b>Done as soon as it happens.</div><div><b>Final</b>Checked at final scoring.</div><div><b>Vow</b>A rule kept all game; its &ldquo;End with&rdquo; target is checked at the end.</div></div>
-  ${box("The Steward&rsquo;s Ledger", `<p>After scoring, a completed card goes into the Ledger; a failed card goes to the bottom of the Quest deck.</p><p>Golden pairs unlock at <b>3, 6, 9, 12 and 15</b> cards in the Ledger. Each unlocks one Golden Tile and one Golden Boon for good.</p>`)}`, "questp");
-
-const numberOf = (id) => (specialTileBackNumbers[id] || []).join(" & ");
-const specialRows = specialTiles.map((t) => [numberOf(t.id), t.name]).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
-const specialPage = page("Unlocking and placing", "Special & Golden Tiles", `
-  <p><b>Special Tiles.</b> Completing an Arrival unlocks the Special Tile whose <b>back number</b> matches its reward. Place it later with a normal Place Action, for <b>0 resources</b>, following its printed placement rule. Stables (17 &amp; 18) places two separate hexes.</p>
-  <div class="specials">${specialRows.map(([n, name]) => `<div><span>${n}</span>${esc(name)}</div>`).join("")}</div>
-  <p class="small">Shrines and Respites placed on their terrain need no adjacent Resource Tile.</p>
-  <h3 class="sub">Golden content (optional)</h3>
-  <p>At setup, after hands are dealt, choose up to 1 unlocked Golden Tile and up to 1 unlocked Golden Boon. Place the Tile on an eligible empty hex for 0 Actions and 0 resources; shuffle the Boon into the Encounter deck. Each placed, non-Overstrained Golden Tile scores <b>+5 Renown</b> if its condition is met.</p>`, "special");
+  <p class="small"><b>The Steward&rsquo;s Ledger.</b> A completed card goes into the Ledger; a failed card goes to the bottom of the Quest deck. Golden pairs unlock at 3, 6, 9, 12 and 15 cards in the Ledger.</p>`, "cardsp");
 
 const refPage = page("Keep this page open", "At-table reference", `
   <h3 class="sub">Placing Strain</h3>
-  ${steps([["Select.", "The effect sets which Tiles are eligible. Draw a Target Card to choose among them (page 15)."], ["Prevent.", "Supported stops 1 Strain. It does not stack."], ["Check.", "At 3 Strain a Tile is Overstrained: it does nothing, connects nothing and scores nothing until it drops below 3."], ["Chain.", "After the whole effect, each newly Overstrained Tile spreads 1 Strain to a neighbour, chosen with a fresh Target Card."]])}
+  ${steps([["Select.", "The effect sets which Tiles are eligible. Draw a Target Card to choose among them (page 17)."], ["Prevent.", "Supported stops 1 Strain. It does not stack."], ["Check.", "At 3 Strain a Tile is Overstrained: it does nothing, connects nothing and scores nothing until it drops below 3."], ["Chain.", "After the whole effect, each newly Overstrained Tile spreads 1 Strain to a neighbour, chosen with a fresh Target Card."]])}
   <h3 class="sub">End of Seasons I and II (after Rounds 4 and 8)</h3>
   <ol class="mini"><li>Finish Arrival expiry.</li><li>Discard Boons that end with the Season.</li><li>Neighbourly Support: each Housing cluster gains 1 Supported per 3 Housing Tiles.</li><li>Reapply every Burden with the new row.</li><li>Refresh every Steward Power.</li><li>Each Steward seeds 3 cards from their hand.</li></ol>
   <h3 class="sub">Final score (shared)</h3>
   <div class="scoregrid">
     <div class="plus"><b>Add</b>Population and Renown on non-Overstrained Tiles · +15 each Steward Objective met · +5 each Golden Tile condition met · +20 Quest Card</div>
     <div class="minus"><b>Subtract 10</b>for each active Burden · each failed Arrival · each Strain on the map</div>
-  </div>`, "ref");
+  </div>
+  ${box("Golden content (optional)", `<p class="small">At setup, you may add 1 unlocked Golden Tile (placed free on an eligible empty hex) and 1 unlocked Golden Boon (shuffled into the Encounter deck).</p>`)}`, "ref");
 
 function pageHtml(p, n) {
   return `<div class="page ${p.cls}"><div class="inner">
@@ -224,10 +216,25 @@ h3.sub { margin: 1mm 0 0; font: 700 6.6pt/1 Sans, sans-serif; letter-spacing: 0.
 .boxlabel { font: 700 6.4pt/1 Sans, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: #8a6a1e; margin-bottom: 1.2mm; }
 .box p + p { margin-top: 1mm; }
 .lead { font-size: 9.6pt; line-height: 1.27; }
-.steward h2 { font-size: 22pt; }
-.steward .body { gap: 2mm; }
-.steward .body > p { font-size: 8.4pt; }
-.steward .box .small { margin-top: 1mm; }
+.steward .body { gap: 1.8mm; }
+.steward header { padding-bottom: 1.2mm; margin-bottom: 1.6mm; }
+.steward h2 { display: none; }
+.steward .eyebrow { margin-bottom: 0; }
+.stw { display: flex; flex-direction: column; gap: 1.1mm; }
+.stw + .stw { border-top: 0.25mm solid rgba(138,106,30,0.35); padding-top: 2.2mm; }
+.stwhead.multi { flex-wrap: wrap; row-gap: 0.6mm; }
+.stwhead.multi .terr { margin-left: 8mm; flex-basis: 100%; }
+.stwhead.multi .terr span { max-width: none; }
+.stwhead { display: flex; align-items: center; gap: 2mm; }
+.stwhead .num { font: 700 11pt/1 Almendra, serif; color: #8a6a1e; min-width: 6mm; }
+.stwhead h3 { margin: 0; font: 700 15pt/1 Almendra, serif; }
+.terr { margin-left: auto; display: flex; align-items: center; gap: 0.6mm; font: 500 6.8pt/1.1 Sans, sans-serif; color: #4a4033; text-align: right; }
+.terr img { height: 5.2mm; }
+.terr span { margin-left: 0.8mm; max-width: 30mm; }
+.stw .box { padding: 1.5mm 2.4mm 1.7mm; }
+.stw .box p { font-size: 8.5pt; line-height: 1.24; }
+.box.every p { font-size: 7.8pt; line-height: 1.2; }
+.box.every p + p { margin-top: 0.6mm; }
 .terrain { display: flex; align-items: center; gap: 1.5mm; }
 .terrain img { height: 7mm; }
 .terrain p { font-size: 9pt; font-weight: 700; margin-left: 1mm; }
@@ -290,10 +297,14 @@ ol.legend li { margin-bottom: 0.6mm; break-inside: avoid; }
 .cards4 img { width: 17mm; border-radius: 1mm;  }
 .cards4 figcaption { font-size: 7pt; line-height: 1.22; }
 .cards4 figcaption b { display: block; font: 700 8.6pt/1.1 Almendra, serif; margin-bottom: 0.4mm; }
-.enc .cards4 { grid-template-columns: 1fr 1fr; gap: 2.6mm 4mm; }
-.enc .cards4 figure { grid-template-columns: 1fr; gap: 1.2mm; justify-items: center; text-align: center; }
-.enc .cards4 img { width: 20mm; }
-.enc .cards4 figcaption { font-size: 7.9pt; }
+.cardsp .body { gap: 1.6mm; }
+.cardsp .cards4 { gap: 1.8mm 3mm; }
+.cardsp .cards4 figure { grid-template-columns: 13mm 1fr; gap: 1.6mm; }
+.cardsp .cards4 img { width: 13mm; }
+.cardsp .cards4 figcaption { font-size: 7.5pt; }
+.cardsp .quest { grid-template-columns: 19mm 1fr; gap: 2.6mm; align-items: start; }
+.cardsp .quest img { width: 19mm; border-radius: 1mm; }
+.cardsp .quest p + p { margin-top: 0.8mm; }
 .quest { display: grid; grid-template-columns: 33mm 1fr; gap: 3mm; align-items: center; }
 .quest img { width: 33mm; border-radius: 1.4mm;  }
 .quest p + p { margin-top: 1.2mm; }
@@ -304,10 +315,10 @@ ol.legend li { margin-bottom: 0.6mm; break-inside: avoid; }
 .specials span { display: inline-block; min-width: 8.4mm; font: 700 6.6pt/1 Sans, sans-serif; color: #8a6a1e; }
 .special .body { gap: 1.6mm; }
 .ref .body { gap: 1.4mm; }
-.ref ol.steps li { font-size: 9.3pt; }
-.ref ol.mini { font-size: 8.9pt; }
-.ref .scoregrid { font-size: 8.9pt; }
-.ref .body { gap: 2.4mm; }
+.ref ol.steps li { font-size: 8.9pt; }
+.ref ol.mini { font-size: 8.6pt; }
+.ref .scoregrid { font-size: 8.3pt; }
+.ref .body { gap: 1.7mm; }
 ol.mini { margin: 0; padding-left: 4.2mm; font-size: 7.2pt; columns: 2; column-gap: 4mm; }
 ol.mini li { break-inside: avoid; margin-bottom: 0.3mm; }
 .scoregrid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6mm; font-size: 7.1pt; line-height: 1.22; }
@@ -317,11 +328,11 @@ ol.mini li { break-inside: avoid; margin-bottom: 0.3mm; }
 .minus { background: rgba(130,80,59,0.12); }
 `;
 
-function guideHtml(s, idx) {
-  const pages = [stewardPage(s, idx), turnPage, ...tilePages, targetPage, encPage, questPage, specialPage, refPage];
+function guideHtml() {
+  const pages = [...stewardPages, turnPage, ...tilePages, targetPage, cardsPage, refPage];
   const inner = pages.map((p, i) => pageHtml(p, i + 2)).join("");
   return `<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body>
-    <div class="page cover" style="background-image:url(${A(`cover-${s.id}.jpg`)})"></div>
+    <div class="page cover" style="background-image:url(${A("cover.jpg")})"></div>
     ${inner}
     <div class="page cover" style="background-image:url(${A("back.jpg")})"></div>
   </body></html>`;
@@ -331,25 +342,23 @@ const browser = await chromium.launch();
 const tab = await browser.newPage();
 const report = [];
 const pdfs = [];
-for (const [idx, s] of stewards.entries()) {
-  if (only.length && !only.includes(s.id)) continue;
-  const html = path.join(outDir, `_${s.id}.html`);
-  fs.writeFileSync(html, guideHtml(s, idx));
+{
+  const html = path.join(outDir, "_guide.html");
+  fs.writeFileSync(html, guideHtml());
   await tab.goto(pathToFileURL(html).href, { waitUntil: "load" });
   await tab.evaluate(() => document.fonts.ready);
   const overflow = await tab.evaluate(() => [...document.querySelectorAll(".page")].map((pg, i) => {
     const body = pg.querySelector(".body");
     if (!body) return null;
     const over = [...body.children].some((c) => c.getBoundingClientRect().bottom > body.getBoundingClientRect().bottom + 1) || body.scrollHeight > body.clientHeight + 1;
-    const clipped = [...pg.querySelectorAll('.side')].some((sd) => { const last = sd.lastElementChild; return last && last.getBoundingClientRect().bottom > sd.closest('.tile').getBoundingClientRect().bottom - 1; });
-    if (clipped) return i + 1;
-    return over ? i + 1 : null;
+    const clipped = [...pg.querySelectorAll(".side")].some((sd) => { const last = sd.lastElementChild; return last && last.getBoundingClientRect().bottom > sd.closest(".tile").getBoundingClientRect().bottom - 1; });
+    return clipped || over ? i + 1 : null;
   }).filter(Boolean));
-  const pdf = path.join(outDir, `The_Quiet_Vale_A6_${s.name}_Steward_Guide_v6_9.pdf`);
+  const pdf = path.join(outDir, "The_Quiet_Vale_A6_Steward_Guide_v6_9.pdf");
   await tab.pdf({ path: pdf, width: "111.35mm", height: "154.35mm", printBackground: true, preferCSSPageSize: true });
   if (!process.env.KEEP_HTML) fs.unlinkSync(html);
   pdfs.push(pdf);
-  report.push({ steward: s.id, overflowPages: overflow });
+  report.push({ guide: "shared", pages: await tab.evaluate(() => document.querySelectorAll(".page").length), overflowPages: overflow });
 }
 await browser.close();
 // Set the A6 TrimBox and BleedBox on every page (3.175 mm bleed).
@@ -363,7 +372,7 @@ for f in sys.argv[1:]:
         x0, y0, x1, y1 = [float(v) for v in pg.MediaBox]
         pg.BleedBox = [x0, y0, x1, y1]
         pg.TrimBox = [x0 + b, y0 + b, x1 - b, y1 - b]
-    p.docinfo["/Title"] = "The Quiet Vale - " + f.split("A6_")[1].split("_Steward")[0] + " Steward Guide"
+    p.docinfo["/Title"] = "The Quiet Vale - Steward Guide"
     p.save(f)
 `, ...pdfs]);
 console.log(JSON.stringify(report));

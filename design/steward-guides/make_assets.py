@@ -20,8 +20,6 @@ from build_leather_boards import Board, rounded_rect_path, draw_stitch_path, GOL
 
 OUT = Path(__file__).resolve().parent / "assets"
 W_MM, H_MM = 105.0, 148.0  # A6 trim; Board adds 3.175 mm bleed
-STEWARDS = [("vanguard", "Vanguard", "I"), ("knight", "Knight", "II"), ("sentinel", "Sentinel", "III"),
-            ("ranger", "Ranger", "IV"), ("warden", "Warden", "V"), ("quartermaster", "Quartermaster", "VI")]
 CARD_BACK = ROOT / "design/encounter-card-templates/card-back/print/card-back-tarot-printerstudio-600dpi.png"
 
 
@@ -54,15 +52,16 @@ def frame_stitch(b: Board, inset: float, seed: int):
     draw_stitch_path(b.img, rounded_rect_path((P(g), P(g), W - P(g), H - P(g)), P(5)), GOLD_THREAD, lb.PPM, seed=seed)
 
 
-def cover(sid: str, name: str, numeral: str, seed: int) -> Image.Image:
+def cover(seed: int) -> Image.Image:
+    """One shared cover for all six guides: no Steward name, so every copy is identical."""
     b = Board(W_MM, H_MM, seed)
     frame_stitch(b, 6.0, seed + 1)
     b.label("THE QUIET VALE", W_MM / 2, 22, 7.0, seed + 2)
     b.label("Seasons of Settlement", W_MM / 2, 30, 3.8, seed + 3, font=FONTS / "alegreya-latin-italic.woff2")
     medallion(b, W_MM / 2, 64, 40)
-    b.label(f"STEWARD {numeral}", W_MM / 2, 98, 4.2, seed + 4, font=lb.SANS)
-    b.label(name.upper(), W_MM / 2, 110, 11.0 if len(name) < 9 else 8.6, seed + 5)
-    b.label("Steward Guide", W_MM / 2, 134, 4.0, seed + 6, font=FONTS / "alegreya-latin-italic.woff2")
+    b.label("STEWARD", W_MM / 2, 104, 9.4, seed + 5)
+    b.label("GUIDE", W_MM / 2, 116, 9.4, seed + 7)
+    b.label("The six Stewards, their Powers and every Core Tile", W_MM / 2, 134, 3.2, seed + 6, font=FONTS / "alegreya-latin-italic.woff2")
     return b.finish()
 
 
@@ -96,9 +95,8 @@ def parchment(w_px: int, h_px: int, seed: int) -> Image.Image:
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    for i, (sid, name, num) in enumerate(STEWARDS):
-        cover(sid, name, num, 91000 + i * 100).save(OUT / f"cover-{sid}.jpg", quality=92, dpi=(304.8, 304.8))
-        print("cover", sid)
+    cover(91000).save(OUT / "cover.jpg", quality=92, dpi=(304.8, 304.8))
+    print("cover")
     back(92000).save(OUT / "back.jpg", quality=92, dpi=(304.8, 304.8))
     pw, ph = P(W_MM + 2 * lb.BLEED), P(H_MM + 2 * lb.BLEED)
     parchment(pw, ph, 93000).save(OUT / "parchment.jpg", quality=90, dpi=(304.8, 304.8))
