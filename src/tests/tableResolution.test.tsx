@@ -129,18 +129,16 @@ describe("decision walkthroughs", () => {
 });
 
 describe("demo scene navigation", () => {
-  it("numbers the scene, lists every scene and links the next one", async () => {
+  it("gives an older demo link a plain bar: no scene list, a way to the demo game and a real game", async () => {
     const { default: ScenarioPreview } = await import("../app/ScenarioPreview");
-    const { demoOrder } = await import("../app/demoCatalog");
     window.history.replaceState(null, "", "/?experience=table&scenario=decide-guild");
     render(<ScenarioPreview experience="table" scenarioId="decide-guild" />);
-    const position = demoOrder.indexOf("decide-guild") + 1;
-    const picker = screen.getByRole("button", { name: new RegExp(`Scene ${position} of ${demoOrder.length}`) });
-    expect(screen.getByRole("link", { name: /^Next scene: A Warden/ })).toHaveAttribute("href", "?experience=table&scenario=decide-warden");
-    fireEvent.click(picker);
-    const gallery = screen.getByRole("dialog", { name: "All demo scenes" });
-    expect(within(gallery).getAllByRole("link")).toHaveLength(demoOrder.length);
-    expect(within(gallery).getByRole("link", { current: "page" })).toHaveTextContent("Set down the right Burden");
+    const bar = screen.getByRole("complementary", { name: "Demo controls" });
+    expect(within(bar).getByText("Set down the right Burden")).toBeInTheDocument();
+    expect(within(bar).queryByRole("button", { name: /Scene \d+ of/ })).not.toBeInTheDocument();
+    expect(within(bar).queryByRole("link", { name: /Next scene/ })).not.toBeInTheDocument();
+    expect(within(bar).getByRole("link", { name: "Watch a demo" })).toHaveAttribute("href", "?demo=watch");
+    expect(within(bar).getByRole("link", { name: "Play a real game" })).toHaveAttribute("href", "?experience=table");
   });
 
   it("plays each new decision scene to its end", () => {

@@ -2,17 +2,21 @@ import { lazy, Suspense } from "react";
 import { ArrowRight, Compass, Map } from "lucide-react";
 import { ScenarioLauncher } from "./ScenarioLauncher";
 import { getScenario } from "./scenarioCatalog";
+import { isWatchDemo } from "./demoCatalog";
 import { App } from "./App";
 import { experienceClassName, getExperience } from "./experience";
 import { BrandMark } from "../components/common/BrandMark";
 import mapArtwork from "../assets/quiet_vale_map_v02.webp";
 
 const ScenarioPreview = lazy(() => import("./ScenarioPreview"));
+const WatchDemo = lazy(() => import("./watch/WatchDemo"));
 
 export function ExperienceRoot() {
   const experience = getExperience();
   const scenario = getScenario();
   const query = new URLSearchParams(window.location.search);
+  // The demo game: it plays itself on the board-first table, whatever the default layout.
+  if (isWatchDemo()) return <Suspense fallback={<main className="scenario-error" role="status">Setting out the table…</main>}><WatchDemo /></Suspense>;
   if (query.has("experience") && !experience) return <main className="scenario-error"><h1>This layout is not included.</h1><p>This review contains the Living Table alternative and the original baseline.</p><a href="./">Return to the concept preview</a></main>;
   if (query.has("scenario") && (!scenario || !experience)) return <main className="scenario-error"><h1>This comparison link is incomplete.</h1><p>Choose a situation and a design in the studio to open a separate demo.</p><a href="./#compare-scenarios">Return to the comparison studio</a></main>;
   if (experience && scenario) return <Suspense fallback={<main className="scenario-error" role="status">Preparing the comparison…</main>}><ScenarioPreview experience={experience} scenarioId={scenario} /></Suspense>;
