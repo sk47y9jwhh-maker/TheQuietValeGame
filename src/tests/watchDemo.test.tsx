@@ -47,7 +47,8 @@ describe("the recorded demo game", () => {
       expect(shown.pendingEffects).toHaveLength(0);
       expect(shown.pendingCostChoice).toBeNull();
       expect(frame.caption.length).toBeGreaterThan(10);
-      expect(frameDuration(frame)).toBeLessThanOrEqual(2400);
+      expect(frameDuration(frame)).toBeGreaterThanOrEqual(1800);
+      expect(frameDuration(frame)).toBeLessThanOrEqual(5200);
     }
   });
 });
@@ -71,7 +72,7 @@ describe("watching the demo", () => {
     // Playing: a caption, and a pause button.
     expect(within(card).getByRole("button", { name: "Pause" })).toBeInTheDocument();
     expect(card).toHaveTextContent("seeds three cards into the Encounter Deck");
-    for (let step = 0; step < 6 && !within(card).queryByRole("heading", { name: "The first action" }); step++) await act(async () => { vi.advanceTimersByTime(2500); });
+    for (let step = 0; step < 12 && !within(card).queryByRole("heading", { name: "The first action" }); step++) await act(async () => { vi.advanceTimersByTime(3000); });
     expect(within(card).getByRole("heading", { name: "The first action" })).toBeInTheDocument();
     // A highlight waits for the viewer.
     await act(async () => { vi.advanceTimersByTime(10000); });
@@ -93,6 +94,16 @@ describe("watching the demo", () => {
     expect(within(card).getByRole("link", { name: "Play a real game" })).toHaveAttribute("href", "?experience=table");
     fireEvent.click(within(card).getByRole("button", { name: "Watch again" }));
     expect(within(card).getByRole("heading", { name: "Two Stewards, one settlement" })).toBeInTheDocument();
+  });
+
+  it("changes speed between normal, fast and slow, and remembers it", async () => {
+    const card = await openDemo();
+    const speed = within(card).getByRole("button", { name: /^Speed: Normal/ });
+    fireEvent.click(speed);
+    expect(within(card).getByRole("button", { name: /^Speed: Fast/ })).toBeInTheDocument();
+    fireEvent.click(within(card).getByRole("button", { name: /^Speed: Fast/ }));
+    expect(within(card).getByRole("button", { name: /^Speed: Slow/ })).toBeInTheDocument();
+    expect(window.localStorage.getItem("quietVale.watchSpeed.v1")).toBe("slow");
   });
 
   it("leaves the table read-only and saves nothing", async () => {

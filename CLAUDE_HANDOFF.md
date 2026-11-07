@@ -104,8 +104,8 @@ and unique effect-queue identities. They are not a rules rebalance.
 ## Watch a demo (November)
 
 The live site's demo is one recorded two-player game (Vanguard and Knight,
-129 points) that plays itself on the board-first table at `?demo=watch`. It
-moves on by itself and stops at fourteen points of interest, each with the
+139 points) that plays itself on the board-first table at `?demo=watch`. It
+moves on by itself (Slow, Normal or Fast) and stops at fourteen points of interest, each with the
 options the players had and why they chose. The start page and the end of a
 game link only to it. The older staged scenes and walkthroughs still open from
 a direct `?experience=table&scenario=…` link with a plain bar, but nothing

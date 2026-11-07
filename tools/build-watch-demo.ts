@@ -84,7 +84,8 @@ function recordGame(start: GameState): StoredBeat[] {
     } else if (state.phase === "turns") {
       // Each turn is planned as a whole, then played one action at a time.
       const owner = `${state.round}:${state.currentPlayerId}`;
-      if (planOwner !== owner) { planOwner = owner; plan = planTurn(state, watchValueOf, 1, 1).actions; }
+      if (planOwner !== owner) { planOwner = owner; // The last round is searched more widely: every action counts.
+        plan = (state.round >= 12 ? planTurn(state, watchValueOf, 6, 24) : planTurn(state, watchValueOf, 1, 1)).actions; }
       const action = plan.shift();
       const scored: { moves: WatchMove[]; value: number; state: GameState }[] = [];
       if (action) for (const option of candidates(state)) {

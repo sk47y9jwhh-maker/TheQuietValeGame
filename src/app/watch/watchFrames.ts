@@ -60,8 +60,16 @@ export function displayState(state: GameState): GameState {
   };
 }
 
-/** How long a frame stays on screen at normal speed, in milliseconds. */
+/**
+ * How long a frame stays on screen at normal speed, in milliseconds: long
+ * enough to read the caption and see the change on the board.
+ */
 export function frameDuration(frame: WatchFrame): number {
   const words = frame.caption.split(/\s+/).length;
-  return Math.min(2400, 650 + words * 55);
+  return Math.min(5200, 1800 + words * 110);
 }
+
+export type WatchSpeed = "slow" | "normal" | "fast";
+export const speedFactor: Record<WatchSpeed, number> = { slow: 0.65, normal: 1, fast: 2 };
+export const speedLabel: Record<WatchSpeed, string> = { slow: "Slow", normal: "Normal", fast: "Fast" };
+export const nextSpeed: Record<WatchSpeed, WatchSpeed> = { normal: "fast", fast: "slow", slow: "normal" };

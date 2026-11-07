@@ -57,7 +57,7 @@
 /* The controls: one main button, small icon buttons either side. */
 .watch-controls { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
 .table-coach .watch-icon, .table-coach .watch-speed { display: grid; place-items: center; width: 40px; min-height: 40px; padding: 0; border: 1px solid #b8aa86; border-radius: 6px; color: #3b3528; background: transparent; }
-.table-coach .watch-speed { font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.table-coach .watch-speed { width: auto; min-width: 64px; padding: 0 8px; font-size: 0.8rem; font-weight: 700; }
 .table-coach .watch-icon:hover:not(:disabled), .table-coach .watch-speed:hover { background: #efe5c8; }
 .table-coach .watch-icon:disabled { opacity: 0.35; cursor: default; }
 .table-coach .watch-main { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 1; min-height: 42px; border-radius: 6px; color: #f6efdc !important; background: #2f4a33; font-size: 1rem; }

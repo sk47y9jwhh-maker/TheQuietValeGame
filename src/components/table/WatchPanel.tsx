@@ -3,6 +3,7 @@ import { ArrowLeft, Check, Pause, Play, RotateCcw, SkipForward } from "lucide-re
 import type { WatchPlayer } from "../../app/watch/WatchDemo";
 import type { CoachTarget } from "./TableCoach";
 import { stewardById } from "../../data/stewards";
+import { nextSpeed, speedLabel } from "../../app/watch/watchFrames";
 
 const kindLabel = { decision: "Decision", moment: "Moment", rule: "How it works", finale: "Final scoring" } as const;
 const seasonOf = (round: number) => ["I", "II", "III"][Math.min(2, Math.floor((round - 1) / 4))];
@@ -47,7 +48,7 @@ export function WatchPanel({ player, onTarget }: { player: WatchPlayer; onTarget
       </li>)}</ol>}
       {pause.breakdown && <dl className="watch-breakdown">{pause.breakdown.map((line) => <div key={line.label} className={line.tone ? `is-${line.tone}` : undefined}><dt>{line.label}</dt><dd>{line.value}</dd></div>)}</dl>}
       <p className="coach-why">{pause.kind === "decision" && <strong className="tour-why">Why: </strong>}{pause.text}</p>
-    </div> : <div className="watch-feed" aria-live={playing && speed > 1 ? "off" : "polite"}>
+    </div> : <div className="watch-feed" aria-live={playing && speed === "fast" ? "off" : "polite"}>
       <p className="watch-caption" key={index}>{frame.caption}</p>
       {recent.length > 0 && <ol className="watch-recent" aria-hidden="true">{recent.map((line, at) => <li key={`${index}-${at}`}>{line}</li>)}</ol>}
     </div>}
@@ -60,7 +61,7 @@ export function WatchPanel({ player, onTarget }: { player: WatchPlayer; onTarget
           ? <button type="button" className="coach-ok watch-main" onClick={player.toggle} autoFocus={index > 0}>{index === 0 ? "Start the game" : "Continue"}</button>
           : <button type="button" className="coach-ok watch-main" onClick={player.toggle} aria-label={playing ? "Pause" : "Play"}>{playing ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}{playing ? "Pause" : "Play"}</button>}
       {!last && <button type="button" className="watch-icon" onClick={player.nextHighlight} aria-label={nextStop === undefined ? "Skip to the end" : "Skip to the next highlight"} title={nextStop === undefined ? "Skip to the end" : "Skip to the next highlight"}><SkipForward size={17} aria-hidden="true" /></button>}
-      {!last && <button type="button" className="watch-speed" onClick={() => player.setSpeed(speed === 1 ? 2 : 1)} aria-label={`Speed: ${speed} times. Change speed`}>{speed}×</button>}
+      {!last && <button type="button" className="watch-speed" onClick={() => player.setSpeed(nextSpeed[speed])} aria-label={`Speed: ${speedLabel[speed]}. Change to ${speedLabel[nextSpeed[speed]]}`} title="Change speed">{speedLabel[speed]}</button>}
       <span className="watch-status" role="status">{status}</span>
     </footer>
     {last && <nav className="coach-links watch-after" aria-label="What next"><a className="coach-ok" href="?experience=table">Play a real game</a></nav>}

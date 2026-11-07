@@ -160,6 +160,7 @@ export function candidates(state: GameState): WatchMove[][] {
  * Strain kept off the tiles.
  */
 export function watchValueOf(state: GameState): number {
+  if (state.round >= 12) return lastRoundValueOf(state);
   const late = Math.max(0, 12 - state.round) / 12;
   const stock = resources.reduce((total, resource) => total + Math.min(state.warehouse[resource], 12), 0);
   const scarce = resources.filter((resource) => state.warehouse[resource] < 2).length;
@@ -177,6 +178,23 @@ export function watchValueOf(state: GameState): number {
   return calculateFinalScore(state).finalScore
     + late * (stock - scarce * 4 + makes.size * 6)
     - waiting - strain * 2 - burdens;
+}
+
+/**
+ * The last round. Only points count at the end, so a tile that adds nothing
+ * is not worth an action. But the table's turn is not over until the last
+ * Steward has played: resources made now, and Special tiles unlocked now, are
+ * what the next Steward builds with. An Arrival on its last timer still
+ * leaves when the round ends, for −10 and a Strain.
+ */
+export function lastRoundValueOf(state: GameState): number {
+  const order = state.players.map((player) => player.id);
+  const laterTurn = state.phase === "turns" && order.indexOf(state.currentPlayerId) < order.length - 1;
+  const stock = resources.reduce((total, resource) => total + Math.min(state.warehouse[resource], 12), 0);
+  const placed = new Set(state.map.placedTiles.map((tile) => tile.tileId));
+  const unbuilt = state.encounters.completedArrivals.flatMap((arrival) => arrival.specialTileIds).filter((id) => !placed.has(id)).length;
+  const leaving = state.phase === "gameEnd" ? 0 : state.encounters.activeArrivals.filter((arrival) => arrival.timerTokens <= 1).length * 20;
+  return calculateFinalScore(state).finalScore - leaving + (laterTurn ? stock * 0.25 + unbuilt * 4 : 0);
 }
 
 export interface TurnPlan { actions: WatchMove[][]; value: number }

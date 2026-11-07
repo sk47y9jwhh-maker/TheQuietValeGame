@@ -8,7 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { TableScreen, type TableGameHandlers } from "../../components/table/TableScreen";
 import type { TourControls } from "../../components/table/TableCoach";
 import { experienceClassName } from "../experience";
-import { buildFrames, displayState, frameDuration, type WatchFrame } from "./watchFrames";
+import { buildFrames, displayState, frameDuration, speedFactor, type WatchFrame, type WatchSpeed } from "./watchFrames";
 import type { WatchDemoData } from "./watchTypes";
 
 export interface WatchPlayer {
@@ -16,7 +16,7 @@ export interface WatchPlayer {
   index: number;
   frame: WatchFrame;
   playing: boolean;
-  speed: 1 | 2;
+  speed: WatchSpeed;
   /** Indexes of the frames that stop for a closer look. */
   highlights: number[];
   /** Play, or pause, or carry on from a highlight. */
@@ -25,16 +25,21 @@ export interface WatchPlayer {
   back: () => void;
   nextHighlight: () => void;
   restart: () => void;
-  setSpeed: (speed: 1 | 2) => void;
+  setSpeed: (speed: WatchSpeed) => void;
 }
 
 const noop = () => undefined;
+const speedKey = "quietVale.watchSpeed.v1";
+function readSpeed(): WatchSpeed {
+  try { const saved = window.localStorage.getItem(speedKey); return saved === "slow" || saved === "fast" ? saved : "normal"; } catch { return "normal"; }
+}
 const handlers: TableGameHandlers = { activate: noop, upgrade: noop, place: noop, completeArrival: noop, resolveBurden: noop, useBoon: noop, useStewardPower: noop, endTurn: noop, reveal: noop, endRound: noop, inspectPlaced: noop, undo: noop, redo: noop, reset: noop };
 
 export function usePlayer(frames: WatchFrame[]): WatchPlayer {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState<1 | 2>(1);
+  const [speed, setSpeedState] = useState<WatchSpeed>(readSpeed);
+  const setSpeed = useCallback((value: WatchSpeed) => { setSpeedState(value); try { window.localStorage.setItem(speedKey, value); } catch { /* a remembered speed is only a convenience */ } }, []);
   const frame = frames[Math.min(index, frames.length - 1)];
   const last = frames.length - 1;
   const highlights = useMemo(() => frames.flatMap((candidate, at) => candidate.pause ? [at] : []), [frames]);
@@ -42,7 +47,7 @@ export function usePlayer(frames: WatchFrame[]): WatchPlayer {
   // Move on by itself, except at a highlight or the end.
   useEffect(() => {
     if (!playing || frame.pause || index >= last) return undefined;
-    const timer = window.setTimeout(() => setIndex((at) => Math.min(last, at + 1)), frameDuration(frame) / speed);
+    const timer = window.setTimeout(() => setIndex((at) => Math.min(last, at + 1)), frameDuration(frame) / speedFactor[speed]);
     return () => window.clearTimeout(timer);
   }, [frame, index, last, playing, speed]);
 
@@ -93,7 +98,7 @@ export default function WatchDemo() {
       <a className="watch-home" href="?experience=table"><ArrowLeft size={17} aria-hidden="true" /><span>The Quiet Vale</span></a>
       <p className="watch-title"><strong>Watching a demo game</strong><span>Vanguard and Knight · two players · 12 rounds</span></p>
       <a className="watch-play" href="?experience=table">Play a real game</a>
-      <span className="watch-build" title="Demo version">v6 Nov · 2</span>
+      <span className="watch-build" title="Demo version">v6 Nov · 3</span>
     </header>
     {frames ? <WatchTable frames={frames} /> : <main className="scenario-error" role={failed || (data && !frames) ? "alert" : "status"}>{failed || (data && !frames) ? <><h1>The demo could not be loaded.</h1><p>Reload the page to try again.</p><a href="?experience=table">Back to the start page</a></> : "Setting out the table…"}</main>}
   </div>;

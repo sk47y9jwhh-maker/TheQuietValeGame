@@ -7,7 +7,6 @@
 import { calculateFinalScore } from "../src/engine/scoring";
 import { evaluateQuest } from "../src/engine/quests";
 import { getHexNeighbors } from "../src/engine/hex";
-import { canCompleteArrival } from "../src/engine/gameActions";
 import { getAlternativeEffectRule, preparePendingEffectQueueHead } from "../src/engine/manualEffects";
 import { getBurdenResolutionCost } from "../src/data/contentRules";
 import { encounterById } from "../src/data/encounters";
@@ -127,6 +126,9 @@ function caption(beat: RecordedBeat): string {
     }
     case "endTurn": {
       const next = after.phase === "turns" && after.currentPlayerId !== beat.player ? ` ${who(after, after.currentPlayerId)}’s turn.` : "";
+      const order = before.players.map((player) => player.id);
+      const finalTurn = before.round === 12 && order.indexOf(beat.player) === order.length - 1;
+      if (finalTurn && before.actionsRemaining) return `${name} ends the game’s last turn: nothing left would add a point.`;
       const unused = before.actionsRemaining ? ` with ${numberWord[before.actionsRemaining]} action${before.actionsRemaining === 1 ? "" : "s"} unused` : "";
       return `${name} ends the turn${unused}.${next}`;
     }
@@ -445,18 +447,49 @@ function pauseFor(beat: RecordedBeat, index: number, context: Context): DemoPaus
     };
   }
 
-  // A turn ended early in the last round.
-  if (beat.type === "endTurn" && before.round === 12 && before.actionsRemaining > 0 && once("unused")) {
-    const waiting = before.encounters.activeArrivals.map((arrival) => ({ id: arrival.cardId, check: canCompleteArrival(before, arrival.cardId) }));
-    const blocked = waiting.find((entry) => !entry.check.ok);
-    const best = Math.max(score(before), ...(context.beats.slice(0, index).reverse().find((other) => other.type === "action" && other.player === beat.player)?.options ?? []).map((option) => score(option.state)));
-    if (best > score(before)) return undefined;
+  // The last round: the first Steward plays for points now and sets up the next.
+  if (beat.type === "action" && before.round === 12 && before.phase === "turns" && once("last-round")) {
+    const order = before.players.map((player) => player.id);
+    if (order.indexOf(beat.player) === order.length - 1) return undefined;
+    const nextId = order[order.indexOf(beat.player) + 1];
+    const nextName = who(before, nextId);
+    // This Steward's last turn, and what the next Steward did with it.
+    let end = index;
+    while (end < context.beats.length && !(context.beats[end].type === "endTurn" && context.beats[end].player === beat.player)) end++;
+    const turn = context.beats.slice(index, end);
+    const turnStart = beat.before;
+    const handOver = context.beats[end]?.after ?? after;
+    let nextEnd = end + 1;
+    while (nextEnd < context.beats.length && !(context.beats[nextEnd].type === "endTurn" && context.beats[nextEnd].player === nextId)) nextEnd++;
+    const nextTurn = context.beats.slice(end + 1, nextEnd).filter((other) => other.type === "action");
+    const nextDone = context.beats[nextEnd]?.before ?? handOver;
+    const welcomedIds = turn.flatMap((other) => other.moves[0].k === "arrival" ? [other.moves[0].id] : []);
+    const lastTimer = welcomedIds.filter((id) => (turnStart.encounters.activeArrivals.find((arrival) => arrival.cardId === id)?.timerTokens ?? 9) <= 1);
+    const waiting = turnStart.encounters.activeArrivals.filter((arrival) => !welcomedIds.includes(arrival.cardId) && arrival.timerTokens > 1).map((arrival) => arrival.cardId);
+    const made: Partial<Record<ResourceType, number>> = {};
+    for (const other of turn) if (other.moves[0].k === "activate") for (const [resource, amount] of Object.entries(warehouseChange(other.before, other.after))) if (amount > 0) made[resource as ResourceType] = (made[resource as ResourceType] ?? 0) + amount;
+    const madeWhat = amounts(made, 1);
+    const nextBuilt = nextTurn.flatMap((other) => newTiles(other.before, other.after)).filter((tile) => !coreTileById[tile.tileId] || coreTileById[tile.tileId].category !== "travel");
+    const nextStrain = nextTurn.flatMap((other) => strainChanges(other.before, other.after)).filter((entry) => entry.delta < 0);
+    // What the handed-over resources became, not counting a last Path.
+    const nextGain = nextTurn.filter((other) => !(other.moves[0].k === "place" && coreTileById[other.moves[0].tile]?.category === "travel")).reduce((total, other) => total + score(other.after) - score(other.before), 0);
+    void nextDone;
+    const eased = turn.flatMap((other) => strainChanges(other.before, other.after)).filter((entry) => entry.delta < 0);
+    const plan = [
+      lastTimer.length ? `Welcome ${list(lastTimer.map(cardName))}` : welcomedIds.length ? `Welcome ${list(welcomedIds.map(cardName))}` : "",
+      madeWhat ? `make ${madeWhat} for ${nextName}` : ""
+    ].filter(Boolean).join(", then ");
     return {
-      at: "after",
-      kind: "moment",
-      title: "Nothing left worth doing",
-      text: `In the last round, resources left in the Warehouse score nothing, so only actions that add points matter. ${who(before, beat.player)} has ${numberWord[before.actionsRemaining]} actions left and none of them would raise the score${blocked ? `: ${cardName(blocked.id)} cannot be welcomed (${lower(blocked.check.reasons[0] ?? "the Warehouse is short").replace(/\.$/, "")})` : ""}. Arrivals still waiting when the game ends do not count against the settlement.`,
-      target: { ui: "score" }
+      at: "before",
+      kind: "decision",
+      title: "The last round",
+      text: `Resources left at the end score nothing, so each action now should add points, or give ${nextName} what they need to add points.${lastTimer.length ? ` ${list(lastTimer.map(cardName))} are on their last timer: still waiting when the round ends, they leave for −10 and a Strain, so welcoming them comes first.` : ""}${eased.length ? ` One action lifts a Strain off ${list(eased.map((entry) => theTile(tileName(entry.tile))))}: +10.` : ""}${waiting.length ? ` ${list(waiting.map(cardName))} only came out this round and will still be waiting at the end, which costs nothing, and the Warehouse has Food for one welcome, not two.` : ""}${madeWhat ? ` The rest make ${madeWhat}: ${nextName} ${nextBuilt.length ? `spends them on ${list(nextBuilt.map((tile) => aTile(tileName(tile))))}` : "spends them"}${nextStrain.length ? `, whose activation lifts a Strain off ${list(nextStrain.map((entry) => theTile(tileName(entry.tile))))}` : ""}, worth +${nextGain}.` : ""}`,
+      target: { ui: "arrivals" },
+      options: [
+        { label: plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : "Play for points", chosen: true, lines: [lastTimer.length ? `Saves the −10 and the Strain` : `Score ${points(score(turnStart))} → ${points(score(handOver))}`, madeWhat ? `${nextName} turns it into +${nextGain}` : "Every action used"] },
+        ...(waiting.length ? [{ label: `Welcome ${cardName(waiting[0])} instead`, lines: ["Unlocks a Special tile, but uses the only Food", `${list(lastTimer.map(cardName)) || "The other Arrival"} would leave: −10 and a Strain`] }] : []),
+        { label: "Stop early", lines: ["Leftover actions and resources score nothing"] }
+      ]
     };
   }
 
@@ -490,7 +523,7 @@ function finalePause(final: GameState): DemoPause {
   const strain = final.map.placedTiles.reduce((total, tile) => total + tile.strain, 0);
   const left = final.encounters.activeBurdens.map(cardName);
   const late = final.encounters.activeArrivals.map((arrival) => cardName(arrival.cardId));
-  const welcomed = result.failedArrivals ? `${numberWord[result.failedArrivals] ?? result.failedArrivals} Arrival${result.failedArrivals === 1 ? "" : "s"} left unwelcomed` : late.length ? `every Arrival was welcomed in time (${list(late)} came out in the last round)` : "every Arrival was welcomed in time";
+  const welcomed = result.failedArrivals ? `${numberWord[result.failedArrivals] ?? result.failedArrivals} Arrival${result.failedArrivals === 1 ? "" : "s"} left unwelcomed` : late.length ? `no Arrival left unwelcomed (${list(late)} ${late.length === 1 ? "was" : "were"} still waiting when the game ended, which costs nothing)` : "every Arrival was welcomed in time";
   const held = [strain && `${numberWord[strain] ?? strain} Strain left on the tiles`, left.length && `${list(left)} still on the table`].filter(Boolean) as string[];
   return {
     at: "after",
