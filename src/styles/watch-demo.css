@@ -19,7 +19,7 @@
 }
 
 /* The commentary card. It sits where the walkthrough card sits, and grows only at a highlight. */
-.table-coach.watch-panel { gap: 10px; width: min(392px, calc(100% - 28px)); max-height: calc(100% - 28px); overflow: auto; }
+.table-coach.watch-panel { gap: 12px; width: min(440px, calc(100% - 28px)); max-height: calc(100% - 28px); overflow: auto; padding: 16px 18px; font-size: 1.02rem; }
 .watch-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .watch-where { color: #5d5642; font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .watch-who { display: inline-flex; align-items: center; gap: 6px; color: #2b261b; font-size: 0.84rem; font-weight: 700; }
@@ -33,9 +33,9 @@
 
 /* While playing: what just happened, with the two steps before it fading out. */
 .watch-feed { display: grid; gap: 6px; min-height: 4.6em; }
-.watch-caption { margin: 0; color: #22301f; font-family: "Alegreya", Georgia, serif; font-size: 1.12rem; line-height: 1.35; animation: watch-in 0.35s ease both; }
+.watch-caption { margin: 0; color: #22301f; font-family: "Alegreya", Georgia, serif; font-size: 1.22rem; line-height: 1.38; animation: watch-in 0.35s ease both; }
 .watch-recent { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
-.watch-recent li { overflow: hidden; color: #6b6250; font-size: 0.82rem; line-height: 1.35; white-space: nowrap; text-overflow: ellipsis; }
+.watch-recent li { color: #6b6250; font-size: 0.86rem; line-height: 1.4; }
 .watch-recent li + li { opacity: 0.6; }
 @keyframes watch-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
@@ -114,4 +114,75 @@
 
 /* Revealed cards turn over beside the commentary, never over it. */
 .watch-demo .table-coach.watch-panel { z-index: 31; }
-.watch-demo .table-screen:not(.is-compact) .reveal-ceremony { padding-left: 410px; }
+.watch-demo .table-screen:not(.is-compact) .reveal-ceremony { padding-left: 460px; }
+
+
+/* The close-up: the card or tile a step turns on, large enough to read. */
+.watch-spot { position: absolute; top: 16px; right: 18px; z-index: 6; display: grid; justify-items: center; gap: 8px; width: 300px; max-height: calc(100% - 32px); margin: 0; padding: 12px 12px 14px; box-sizing: border-box; overflow: hidden; border-radius: 14px; background: rgba(28, 33, 26, 0.86); box-shadow: 0 16px 34px rgba(0, 0, 0, 0.35); pointer-events: none; animation: watch-spot-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.watch-spot figcaption { display: grid; justify-items: center; gap: 2px; color: #f3e4b4; font-family: "Alegreya", Georgia, serif; font-size: 1.15rem; font-weight: 700; text-align: center; }
+.watch-spot figcaption small { color: #cfd3bd; font-family: var(--font-ui, system-ui, sans-serif); font-size: 0.78rem; font-weight: 600; }
+.watch-spot-card, .watch-spot-tile { width: 100%; }
+.watch-spot-card .encounter-card-shell { width: 100%; }
+.watch-spot .tile-artwork { display: block; width: 100%; height: auto; filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.45)); }
+.watch-spot-name { color: #f6efdc; font-size: 0.95rem; text-align: center; }
+.watch-spot-from { display: grid; justify-items: center; width: 52%; color: #e8c463; font-size: 1.2rem; opacity: 0.85; }
+.watch-spot-unlock { display: grid; grid-template-columns: 74px 1fr; grid-template-rows: auto auto; align-items: center; column-gap: 10px; width: 100%; padding-top: 8px; border-top: 1px solid rgba(232, 196, 99, 0.35); color: #f6efdc; }
+.watch-spot-unlock span { grid-column: 2; color: #cfd3bd; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.watch-spot-unlock .tile-artwork { grid-row: 1 / span 2; }
+.watch-spot-unlock strong { grid-column: 2; font-size: 0.92rem; }
+@keyframes watch-spot-in { from { opacity: 0; transform: translateY(10px) scale(0.92); } to { opacity: 1; transform: none; } }
+
+/* Seeding: a Steward's three cards, dealt into the top, middle and bottom of the deck. */
+.watch-seed { position: absolute; inset: 16px 18px auto 470px; z-index: 6; display: grid; gap: 14px; justify-items: center; padding: 18px 20px 16px; border-radius: 16px; background: rgba(24, 29, 22, 0.9); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4); pointer-events: none; animation: watch-spot-in 0.4s ease both; }
+.watch-seed-title { display: grid; justify-items: center; gap: 2px; margin: 0; color: #f6efdc; font-family: "Alegreya", Georgia, serif; font-size: 1.35rem; font-weight: 700; text-align: center; }
+.watch-seed-title span { color: #e8c463; font-family: var(--font-ui, system-ui, sans-serif); font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.watch-seed-slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; width: 100%; max-width: 640px; margin: 0; padding: 0; list-style: none; }
+.watch-seed-slots li { display: grid; justify-items: center; align-content: start; gap: 6px; animation: watch-deal 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(0.35s + var(--i) * 0.7s); }
+.watch-seed-slot { margin: 0; padding: 3px 12px; border-radius: 999px; color: #1d2416; background: #e8c463; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.watch-seed-card { width: 100%; max-width: 210px; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45)); }
+.watch-seed-card .encounter-card-shell { width: 100%; }
+.watch-seed-note { margin: 0; color: #d9dccb; font-size: 0.82rem; line-height: 1.35; text-align: center; }
+.watch-seed-secret { margin: 0; color: #a9ad97; font-size: 0.78rem; font-style: italic; text-align: center; }
+@keyframes watch-deal { from { opacity: 0; transform: translateY(-30px) rotate(-4deg) scale(0.9); } to { opacity: 1; transform: none; } }
+
+/* Narrower desktop windows: the close-up shrinks before it crowds the board. */
+@media (max-width: 1399px) and (min-width: 861px) {
+  .table-coach.watch-panel { width: 380px; }
+  .watch-spot { width: 222px; }
+  .watch-seed { left: 408px; }
+  .watch-demo .table-screen:not(.is-compact) .reveal-ceremony { padding-left: 400px; }
+}
+/* A short screen: the close-up keeps the text and drops the extras. */
+@media (max-height: 780px) and (min-width: 861px) {
+  .watch-spot-unlock, .watch-spot-from { display: none; }
+  .watch-spot.is-card .watch-spot-card { width: 48%; }
+  .watch-spot.is-tile .watch-spot-tile { width: 60%; }
+  .watch-seed-card { max-width: 150px; }
+}
+
+/* On a phone the close-up is a small picture in the corner, and steps aside while a stop is open. */
+.table-screen.is-compact .watch-spot { top: 8px; right: 8px; width: 132px; max-height: 46%; padding: 6px 6px 8px; gap: 4px; border-radius: 10px; }
+.table-screen.is-compact .watch-spot figcaption { font-size: 0.82rem; }
+.table-screen.is-compact .watch-spot figcaption small, .table-screen.is-compact .watch-lens, .table-screen.is-compact .watch-spot-unlock, .table-screen.is-compact .watch-spot-from { display: none; }
+.table-screen.is-compact .watch-spot.is-card .watch-spot-card { display: block; width: 100%; }
+.table-screen.is-compact .watch-spot.is-tile .watch-spot-tile { width: 100%; }
+.table-screen.is-compact .watch-spot-name { font-size: 0.75rem; }
+.table-screen.is-compact .watch-seed { inset: 8px 8px auto 8px; padding: 10px 10px 12px; gap: 6px; }
+.table-screen.is-compact .watch-seed-title { font-size: 1rem; }
+.table-screen.is-compact .watch-seed-note, .table-screen.is-compact .watch-seed-secret { display: none; }
+.table-screen.is-compact .watch-seed-slots { gap: 8px; }
+.table-screen.is-compact:has(.watch-panel.is-highlight) :is(.watch-spot, .watch-seed) { display: none; }
+
+@media (prefers-reduced-motion: reduce) { .watch-spot, .watch-seed, .watch-seed-slots li { animation: none; } }
+
+/* The card shrinks to make room for its text, magnified. */
+.watch-spot.is-card .watch-spot-card { width: 62%; }
+.watch-lens { display: grid; gap: 6px; width: 100%; margin: 0; }
+.watch-lens div { padding: 7px 10px; border-radius: 8px; background: #f6efdc; color: #22301f; box-shadow: inset 0 0 0 1px #d6c7a0; }
+.watch-lens dt { color: #7a5b1e; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.watch-lens dd { margin: 2px 0 0; font-family: "Alegreya", Georgia, serif; font-size: 1.02rem; line-height: 1.3; }
+/* The zoom buttons move down out of the close-up's way. */
+.watch-demo .table-screen:not(.is-compact) .board-tools { top: auto; bottom: 16px; }
+.watch-spot.is-tile .watch-spot-tile { width: 78%; }
+/* On a short screen a long stop scrolls inside the card; its buttons stay in reach. */
+.table-coach.watch-panel .watch-controls { position: sticky; bottom: -16px; z-index: 1; margin: 0 -18px -16px; padding: 10px 18px 14px; background: var(--bt-paper-light, #f6efdc); }

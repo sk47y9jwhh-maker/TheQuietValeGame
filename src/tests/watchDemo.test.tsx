@@ -40,6 +40,13 @@ describe("the recorded demo game", () => {
     expect(breakdown[breakdown.length - 1]).toMatchObject({ label: "Final score", value: String(demo.finalScore) });
   });
 
+  it("gives each Season's seeding a close-up, and a card or tile to most actions", () => {
+    const frames = buildFrames(demo);
+    expect(frames.flatMap((frame) => frame.spotlight?.kind === "seed" ? [frame.spotlight.season] : [])).toEqual([1, 1, 2, 2, 3, 3]);
+    const actions = frames.filter((frame) => /builds|upgrades|activates|welcomes|resolves/.test(frame.caption) && !frame.pause);
+    expect(actions.every((frame) => frame.spotlight)).toBe(true);
+  });
+
   it("shows every step as a read-only turn or the finished game, never a pending choice", () => {
     for (const frame of buildFrames(demo)) {
       const shown = displayState(frame.state);
@@ -77,6 +84,22 @@ describe("watching the demo", () => {
     // A highlight waits for the viewer.
     await act(async () => { vi.advanceTimersByTime(10000); });
     expect(within(card).getByRole("heading", { name: "The first action" })).toBeInTheDocument();
+  });
+
+  it("shows the seeding as cards, and a readable close-up of what each step is about", async () => {
+    const card = await openDemo();
+    fireEvent.click(within(card).getByRole("button", { name: "Start the game" }));
+    const seeding = screen.getByRole("region", { name: "Seeding the Encounter Deck" });
+    expect(seeding).toHaveTextContent("Top");
+    expect(seeding).toHaveTextContent("Middle");
+    expect(seeding).toHaveTextContent("Bottom");
+    fireEvent.click(within(card).getByRole("button", { name: "Skip to the next highlight" }));
+    expect(within(card).getByRole("heading", { name: "The first action" })).toBeInTheDocument();
+    const closeUp = screen.getByRole("figure", { name: "To build: Lumber Yard" });
+    expect(closeUp).toHaveTextContent("Cost");
+    expect(closeUp).toHaveTextContent("Activate: Gain 2 Wood.");
+    fireEvent.click(within(card).getByRole("button", { name: "Continue" }));
+    expect(screen.getByRole("figure", { name: "Built: Lumber Yard" })).toBeInTheDocument();
   });
 
   it("pauses, steps back, skips between highlights and reaches the final scoring", async () => {

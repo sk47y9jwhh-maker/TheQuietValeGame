@@ -71,6 +71,8 @@ interface TableScreenProps {
   coach?: boolean;
   /** The guided tour's controls, when the tour may drive the table. */
   tour?: TourControls;
+  /** Something shown over the board, such as the demo's close-up of a card. */
+  stage?: ReactNode;
 }
 
 export interface TableResolution {
@@ -105,6 +107,18 @@ function useShortLandscape() {
   return match;
 }
 
+/**
+ * Room the board keeps clear around a walkthrough: the coach card on the left,
+ * and in the demo game its close-up on the right. Narrower screens get
+ * slimmer panels (see watch-demo.css).
+ */
+function watchFraming(compact: boolean, watching: boolean): { left: number; right?: number } {
+  if (compact) return { left: 0 };
+  if (!watching) return { left: 500 };
+  const narrow = typeof window !== "undefined" && window.innerWidth < 1400;
+  return narrow ? { left: 410, right: 250 } : { left: 470, right: 330 };
+}
+
 function useCompact() {
   const query = "(max-width: 860px)";
   const [compact, setCompact] = useState(() => typeof window !== "undefined" && (window.matchMedia?.(query).matches ?? false));
@@ -118,7 +132,7 @@ function useCompact() {
   return compact;
 }
 
-export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, notice, onDismissNotice, tray, resolution, coach, tour }: TableScreenProps) {
+export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, notice, onDismissNotice, tray, resolution, coach, tour, stage }: TableScreenProps) {
   const compact = useCompact();
   const sideSheet = useShortLandscape() && compact;
   const boardSection = useRef<HTMLElement>(null);
@@ -354,7 +368,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
           footprintHexIds={placingFootprint}
           choiceMarks={resolving ? choices.marks : undefined}
           links={boardLinks}
-          focus={tour ? { hexIds: walkthroughFocus(state, coachTarget), left: compact ? 0 : 500 } : null}
+          focus={tour ? { hexIds: walkthroughFocus(state, coachTarget), ...watchFraming(compact, Boolean(tour.watch)) } : null}
           beacon={coach && (!resolving || tour) && !card && coachTarget?.hexIds ? { hexIds: coachTarget.hexIds, label: coachTarget.label } : null}
           hiddenPawnIds={state.phase === "setup" ? new Set(state.players.slice(state.players.findIndex((player) => player.id === state.currentPlayerId)).map((player) => player.id)) : undefined}
           coveredBottom={sideSheet ? 0 : compact ? (sheetHeight || (resolving ? Math.round(window.innerHeight * 0.55) : 196)) : resolving ? 0 : 62}
@@ -369,6 +383,7 @@ export function TableScreen({ state, handlers, canUndo, canRedo, newCardIds, not
         </div>
         {coach && !compact && <TableCoach state={state} onTarget={setCoachTarget} tour={tour} />}
         {!compact && <RevealCeremony state={state} newCardIds={newCardIds} />}
+        {stage}
         {notice && <div className="table-notice" role="status"><p>{notice}</p><button type="button" aria-label="Dismiss" onClick={onDismissNotice}><X size={16} /></button></div>}
         {!compact && !resolving && !tour && <div className="table-tray" onPointerDownCapture={() => { if (mode.kind === "selected") setMode({ kind: "idle" }); }}>{tray}</div>}
 

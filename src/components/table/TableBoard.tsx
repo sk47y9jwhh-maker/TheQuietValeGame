@@ -47,7 +47,7 @@ interface TableBoardProps {
   /** Pixels at the bottom of the board hidden behind a sheet on small screens. */
   coveredBottom?: number;
   /** Frame these spaces in the part of the board a walkthrough card leaves clear (its width from the left). */
-  focus?: { hexIds: string[]; left: number } | null;
+  focus?: { hexIds: string[]; left: number; right?: number } | null;
   onHexTap: (hexId: string) => void;
   onEmptyTap?: () => void;
   /** A card shown beside a hex, kept next to it as the board pans and zooms. */
@@ -182,7 +182,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
   }, [clampView, coveredBottom, fitView, size.height, size.width, state.currentPlayerId, state.players, view]);
 
   // A walkthrough frames what it is talking about beside its card.
-  const focusKey = focus ? `${focus.left}:${[...focus.hexIds].sort().join(",")}` : "";
+  const focusKey = focus ? `${focus.left}:${focus.right ?? 0}:${[...focus.hexIds].sort().join(",")}` : "";
   // A step with nothing to point at keeps the last framing, re-fitted if the
   // window changes (the side panel narrows or widens between steps).
   const lastFocus = useRef<typeof focus>(undefined);
@@ -195,7 +195,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
     const pad = hexRadius * 1.6;
     const minX = Math.min(...cells.map((cell) => cell.x)) - pad, maxX = Math.max(...cells.map((cell) => cell.x)) + pad;
     const minY = Math.min(...cells.map((cell) => cell.y)) - pad, maxY = Math.max(...cells.map((cell) => cell.y)) + pad;
-    const right = 76; // the zoom buttons
+    const right = Math.max(76, focus.right ?? 0); // the zoom buttons, or a panel on the right
     const availableWidth = Math.max(220, size.width - focus.left - right - 12);
     const availableHeight = Math.max(220, size.height - coveredBottom - 24);
     const closest = (hexRadius * 2) / 132;
@@ -211,7 +211,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
       const framed = { upp, cx, cy: (minY + maxY) / 2 + (coveredBottom * upp) / 2 };
       const screenLeft = (minX + pad * 0.4 - (cx - half)) / upp;
       const screenRight = (maxX - pad * 0.4 - (cx - half)) / upp;
-      return { view: { ...framed, cy: clampView(framed).cy }, fits: screenLeft >= focus.left - 8 && screenRight <= size.width - 8 };
+      return { view: { ...framed, cy: clampView(framed).cy }, fits: screenLeft >= focus.left - 8 && screenRight <= size.width - (focus.right ?? 8) };
     };
     let upp = Math.min(fitUpp, Math.max(closest, (maxX - minX) / availableWidth, (maxY - minY) / availableHeight));
     let placed = place(upp);

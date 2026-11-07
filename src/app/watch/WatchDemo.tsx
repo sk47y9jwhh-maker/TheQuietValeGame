@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { TableScreen, type TableGameHandlers } from "../../components/table/TableScreen";
+import { WatchSpotlight } from "../../components/table/WatchSpotlight";
 import type { TourControls } from "../../components/table/TableCoach";
 import { experienceClassName } from "../experience";
 import { buildFrames, displayState, frameDuration, speedFactor, type WatchFrame, type WatchSpeed } from "./watchFrames";
@@ -98,7 +99,7 @@ export default function WatchDemo() {
       <a className="watch-home" href="?experience=table"><ArrowLeft size={17} aria-hidden="true" /><span>The Quiet Vale</span></a>
       <p className="watch-title"><strong>Watching a demo game</strong><span>Vanguard and Knight · two players · 12 rounds</span></p>
       <a className="watch-play" href="?experience=table">Play a real game</a>
-      <span className="watch-build" title="Demo version">v6 Nov · 3</span>
+      <span className="watch-build" title="Demo version">v6 Nov · 4</span>
     </header>
     {frames ? <WatchTable frames={frames} /> : <main className="scenario-error" role={failed || (data && !frames) ? "alert" : "status"}>{failed || (data && !frames) ? <><h1>The demo could not be loaded.</h1><p>Reload the page to try again.</p><a href="?experience=table">Back to the start page</a></> : "Setting out the table…"}</main>}
   </div>;
@@ -112,7 +113,8 @@ function WatchTable({ frames }: { frames: WatchFrame[] }) {
   const tour = useMemo<TourControls>(() => ({ steps: [], kind: "Walkthrough", commit: noop, undo: noop, restart: player.restart, isAtStart: () => player.index === 0, watch: player }), [player]);
   return <div className={`experience-app ${experienceClassName("table")}`}>
     <div className="app-shell board-table-shell">
-      <TableScreen state={state} handlers={handlers} canUndo={false} canRedo={false} newCardIds={newCards} notice={null} onDismissNotice={noop} tray={null} coach tour={tour} />
+      <TableScreen state={state} handlers={handlers} canUndo={false} canRedo={false} newCardIds={newCards} notice={null} onDismissNotice={noop} tray={null} coach tour={tour}
+        stage={<WatchSpotlight spotlight={player.frame.spotlight} state={state} frameKey={player.index} upcoming={Boolean(player.frame.pause?.at === "before" && player.frame.spotlight?.kind !== "seed")} />} />
     </div>
   </div>;
 }
