@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Check } from "lucide-react";
 import type { TourStep } from "./tourScript";
 import type { GameState } from "../../engine/types";
-import { getScenario, comparisonScenarios } from "../../app/scenarioCatalog";
-import { demoHref, demoNeighbours } from "../../app/demoCatalog";
+import { watchDemoHref } from "../../app/demoCatalog";
+import type { WatchPlayer } from "../../app/watch/WatchDemo";
+import { WatchPanel } from "./WatchPanel";
 
 /**
  * Demo walkthroughs. A demo is always a walkthrough: one card with Next and
@@ -31,6 +32,8 @@ export interface TourControls {
   /** Put the table back at the walkthrough's opening position. */
   restart: () => void;
   isAtStart: (state: GameState) => boolean;
+  /** The recorded demo game: it plays itself, and this card is its commentary. */
+  watch?: WatchPlayer;
 }
 
 interface TourPlace { index: number; history: { from: number; played: boolean }[]; }
@@ -42,7 +45,12 @@ const freshPlace = (): TourPlace => ({ index: 0, history: [] });
 // Earlier versions remembered a switched-off guide in the browser. Clear it.
 try { for (const key of Object.keys(window.localStorage)) if (/quietVale\.(guide|tour)\.v1/.test(key)) window.localStorage.removeItem(key); } catch { /* nothing to clear */ }
 
-export function TableCoach({ state, onTarget, tour }: { state: GameState; onTarget?: (target: CoachTarget | null) => void; tour?: TourControls }) {
+export function TableCoach(props: { state: GameState; onTarget?: (target: CoachTarget | null) => void; tour?: TourControls }) {
+  if (props.tour?.watch) return <WatchPanel player={props.tour.watch} onTarget={props.onTarget} />;
+  return <WalkthroughCoach {...props} />;
+}
+
+function WalkthroughCoach({ state, onTarget, tour }: { state: GameState; onTarget?: (target: CoachTarget | null) => void; tour?: TourControls }) {
   const tourId = tour?.steps[0]?.id ?? "";
   const [place, setPlace] = useState<TourPlace>(() => {
     const saved = memoryPlaces.get(tourId) ?? freshPlace();
@@ -70,8 +78,6 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
   const options = useMemo(() => step.decision?.(state) ?? [], [step, state]);
   const last = place.index >= tourSteps.length - 1;
   const atStart = tour.isAtStart(state);
-  const scenario = getScenario();
-  const nextScene = scenario ? demoNeighbours(scenario).next : undefined;
 
   function following(from: number, after: GameState): number {
     let index = from + 1;
@@ -116,12 +122,10 @@ function TableTour({ state, tour, place, onPlace, onTarget }: { state: GameState
     {last ? <>
       <footer className="tour-controls">
         <button type="button" className="tour-back" onClick={back} disabled={!place.history.length} aria-label="Back"><ArrowLeft size={16} aria-hidden="true" /></button>
-        {nextScene
-          ? <a className="coach-ok tour-next tour-real" href={demoHref(nextScene)}><span className="tour-next-word">Next scene</span><small>{comparisonScenarios[nextScene].name}</small></a>
-          : <a className="coach-ok tour-next tour-real" href="?experience=table">Play a real game</a>}
+        <a className="coach-ok tour-next tour-real" href="?experience=table">Play a real game</a>
       </footer>
       <nav className="coach-links tour-after" aria-label="Or">
-        {nextScene && <a href="?experience=table">Play a real game</a>}
+        <a href={watchDemoHref}>Watch a demo game</a>
         <button type="button" onClick={begin}>Watch again</button>
       </nav>
     </> : <footer className="tour-controls">

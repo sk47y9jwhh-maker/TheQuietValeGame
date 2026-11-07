@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ArrowRight, BookOpen, ChevronDown, Download, Users } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronDown, Download, Play, Users } from "lucide-react";
 import { getStartingWarehouseAmount } from "../../engine/setup";
 import { terrainLabels } from "../../data/map";
 import { stewardById, stewards } from "../../data/stewards";
@@ -7,7 +7,7 @@ import { LegacySetupOptions } from "./LegacySetupOptions";
 import { supportedPlayerCounts } from "../../engine/types";
 import { BrandMark } from "../common/BrandMark";
 import { isBoardTableExperience, isHostedDemo } from "../../app/experience";
-import { demoGroups, demoHref, demoOrder } from "../../app/demoCatalog";
+import { watchDemoHref } from "../../app/demoCatalog";
 import { RulesGuide } from "../panels/RulesGuide";
 import type { SetupPanelProps } from "./SetupPanel";
 import mapArtwork from "../../assets/quiet_vale_map_v02.webp";
@@ -44,13 +44,10 @@ export function TabletopWelcome(props: SetupPanelProps) {
             <p className="studio-kicker">A cooperative board game for 1 to 5 players</p>
             <h1>A new season<br />in the Vale.</h1>
             <p>Build one settlement together across three Seasons. Welcome the people who arrive, carry the Burdens that follow, and keep the land from breaking under the Strain.</p>
-            {isBoardTableExperience() && <nav className="welcome-moment-chips" aria-labelledby="welcome-moments-heading">
-              <h2 id="welcome-moments-heading">Or watch it played</h2>
-              <div>
-                {demoGroups.filter((group) => group.ids.length > 1).map((group) => <a key={group.title} href={demoHref(group.ids[0])}><strong>{group.title}</strong><small>{group.ids.length} scenes</small></a>)}
-                <a className="welcome-all-scenes" href={demoHref(demoOrder[0], "&scenes=open")}><strong>All {demoOrder.length} scenes</strong><small>the full list</small></a>
-              </div>
-            </nav>}
+            {isBoardTableExperience() && <a className="welcome-watch" href={watchDemoHref}>
+              <span className="welcome-watch-icon" aria-hidden="true"><Play size={18} /></span>
+              <span><strong>Watch a demo</strong><small>A two-player game plays itself, with commentary on the decisions. About 5 minutes.</small></span>
+            </a>}
           </div>
           <span className="welcome-art-credit">Map by Giovanni Spadaro & Daniele Nicotra</span>
         </section>
@@ -59,9 +56,6 @@ export function TabletopWelcome(props: SetupPanelProps) {
           {!isBoardTableExperience() && <p className="studio-kicker">The Living Table</p>}
           <h2 id="welcome-setup-heading" ref={heading} tabIndex={-1}>Gather your Stewards.</h2>
           <p className="welcome-intro">Play solo or share this device with friends. Everyone helps the same settlement thrive.</p>
-          {isBoardTableExperience() && <a className="welcome-guided" href="?experience=table&scenario=guided">
-            <span><strong>New to the Vale? Watch a guided first game.</strong><small>About 5 minutes. The opening rounds play out one step at a time, with each move explained.</small></span>
-          </a>}
           <fieldset className="welcome-player-count">
             <legend><Users size={16} aria-hidden="true" />Who’s at the table?</legend>
             <div>{supportedPlayerCounts.map((count) => <button key={count} type="button" aria-label={`${count} player${count === 1 ? "" : "s"}`} aria-pressed={count === playerCount} onClick={() => onPlayerCountChange(count)}>{count === 1 ? "Solo" : count}</button>)}</div>

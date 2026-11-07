@@ -1,0 +1,117 @@
+/* "Watch a demo": a recorded game playing itself, with a commentary card. */
+
+/* The bar above the demo: calm, one line, the way home and the way into a real game. */
+.watch-demo { --watch-bar: 48px; }
+.watch-bar { position: relative; z-index: 50; display: flex; align-items: center; gap: 14px; height: var(--watch-bar); padding: 0 12px 0 6px; box-sizing: border-box; color: #ece4cc; background: #1b211b; border-bottom: 1px solid #39432f; font: 500 13px var(--font-ui, system-ui, sans-serif); }
+.watch-bar a { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 4px 10px; border-radius: 8px; color: inherit; text-decoration: none; font-weight: 700; white-space: nowrap; }
+.watch-bar .watch-home:hover { background: rgba(255, 255, 255, 0.07); }
+.watch-title { display: flex; align-items: baseline; gap: 10px; min-width: 0; flex: 1; margin: 0; overflow: hidden; white-space: nowrap; }
+.watch-title strong { color: #f3e4b4; font-family: "Alegreya", Georgia, serif; font-size: 16px; font-weight: 700; }
+.watch-title span { overflow: hidden; color: #b5b39c; text-overflow: ellipsis; }
+.watch-bar .watch-play { flex: none; padding: 6px 14px; color: #1d2416; background: #e8c463; }
+.watch-bar .watch-play:hover { background: #f2d272; }
+.watch-demo .rail-overlay { top: var(--watch-bar); }
+@media (max-width: 760px) {
+  .watch-bar { gap: 6px; }
+  .watch-bar .watch-home span, .watch-title span { display: none; }
+  .watch-title strong { font-size: 15px; }
+  .watch-bar .watch-play { padding: 6px 10px; font-size: 12.5px; }
+}
+
+/* The commentary card. It sits where the walkthrough card sits, and grows only at a highlight. */
+.table-coach.watch-panel { gap: 10px; width: min(392px, calc(100% - 28px)); max-height: calc(100% - 28px); overflow: auto; }
+.watch-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.watch-where { color: #5d5642; font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.watch-who { display: inline-flex; align-items: center; gap: 6px; color: #2b261b; font-size: 0.84rem; font-weight: 700; }
+.watch-who i { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: #fff7e4; background: #9a4a2e; font-size: 0.72rem; font-style: normal; box-shadow: 0 0 0 2px #f6efdc, 0 0 0 3px #b89a52; }
+.watch-who.is-knight i { background: #3d5c7a; }
+
+.watch-progress { position: relative; height: 6px; margin: 0 2px; border-radius: 3px; background: #ddd1b0; }
+.watch-progress-fill { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: #2f4a33; transition: width 0.4s ease; }
+.watch-progress-stop { position: absolute; top: 50%; width: 9px; height: 9px; border-radius: 50%; background: #f6efdc; box-shadow: inset 0 0 0 2px #a8893f; transform: translate(-50%, -50%); }
+.watch-progress-stop.is-past { background: #e8c463; box-shadow: inset 0 0 0 2px #7a6224; }
+
+/* While playing: what just happened, with the two steps before it fading out. */
+.watch-feed { display: grid; gap: 6px; min-height: 4.6em; }
+.watch-caption { margin: 0; color: #22301f; font-family: "Alegreya", Georgia, serif; font-size: 1.12rem; line-height: 1.35; animation: watch-in 0.35s ease both; }
+.watch-recent { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
+.watch-recent li { overflow: hidden; color: #6b6250; font-size: 0.82rem; line-height: 1.35; white-space: nowrap; text-overflow: ellipsis; }
+.watch-recent li + li { opacity: 0.6; }
+@keyframes watch-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* At a highlight: the options, then why. */
+.watch-highlight { display: grid; gap: 8px; animation: watch-in 0.35s ease both; }
+.watch-kind { margin: 0; color: #7a5b1e; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.watch-panel.is-highlight .watch-highlight h3 { margin: 0; }
+.watch-options { margin: 0; }
+.watch-breakdown { display: grid; gap: 0; margin: 0; padding: 6px 12px; border: 1px solid #d6c7a0; border-radius: 4px; background: #fbf6e8; }
+.watch-breakdown div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 0.9rem; }
+.watch-breakdown div + div { border-top: 1px dotted #d6c7a0; }
+.watch-breakdown dt { color: #3b3528; }
+.watch-breakdown dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.watch-breakdown .is-plus dd { color: #2f4a33; }
+.watch-breakdown .is-minus dd { color: #8a3b24; }
+.watch-breakdown .is-total { margin-top: 2px; border-top: 2px solid #2b261b !important; font-size: 1.05rem; }
+.watch-breakdown .is-total dt, .watch-breakdown .is-total dd { color: #1b2a1d; font-weight: 800; }
+
+/* The controls: one main button, small icon buttons either side. */
+.watch-controls { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.table-coach .watch-icon, .table-coach .watch-speed { display: grid; place-items: center; width: 40px; min-height: 40px; padding: 0; border: 1px solid #b8aa86; border-radius: 6px; color: #3b3528; background: transparent; }
+.table-coach .watch-speed { font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.table-coach .watch-icon:hover:not(:disabled), .table-coach .watch-speed:hover { background: #efe5c8; }
+.table-coach .watch-icon:disabled { opacity: 0.35; cursor: default; }
+.table-coach .watch-main { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 1; min-height: 42px; border-radius: 6px; color: #f6efdc !important; background: #2f4a33; font-size: 1rem; }
+.table-coach .watch-main:hover { background: #253c29; }
+.watch-panel.is-highlight .watch-main { animation: tour-next 2.4s ease-in-out infinite; }
+.watch-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.watch-after { justify-content: center; }
+.table-coach.watch-panel .watch-after a.coach-ok { display: inline-flex; justify-content: center; width: 100%; padding: 10px 16px; border-radius: 6px; color: #241b05 !important; background: #e8c463; text-align: center; }
+
+/* On a phone the card is the sheet. Keep the board in view while playing. */
+.sheet-coach .table-coach.watch-panel { width: 100%; max-height: none; overflow: visible; }
+.table-sheet:has(.watch-panel:not(.is-highlight)) { max-height: min(40dvh, 300px); }
+.table-screen.is-compact .watch-caption { font-size: 1rem; }
+.table-screen.is-compact .watch-recent li + li { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .watch-caption, .watch-highlight { animation: none; }
+  .watch-progress-fill { transition: none; }
+  .watch-panel.is-highlight .watch-main { animation: none; }
+}
+
+/* The start page's single way in. */
+.welcome-watch { display: inline-flex; align-items: center; gap: 14px; max-width: 460px; margin-top: 22px; padding: 12px 18px 12px 12px; border: 1px solid rgba(232, 196, 99, 0.55); border-radius: 14px; color: #fff9e9 !important; background: rgba(20, 30, 22, 0.78); text-decoration: none; backdrop-filter: blur(4px); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25); }
+.welcome-watch:hover { border-color: #e8c463; background: rgba(20, 30, 22, 0.94); }
+.welcome-watch:focus-visible { outline: 3px solid #e8c463; outline-offset: 3px; }
+.welcome-watch-icon { display: grid; flex: none; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: #1d2416; background: #e8c463; }
+.welcome-watch > span:last-child { display: grid; gap: 3px; }
+.welcome-watch strong { font-family: "Alegreya", Georgia, serif; font-size: 1.25rem; line-height: 1.1; }
+.welcome-watch small { color: #d9dccb; font-size: 0.88rem; line-height: 1.35; }
+
+/* The plain bar on an older demo link. */
+.demo-ribbon-title { overflow: hidden; color: #2a2112; font-family: var(--bt-display, Georgia, serif); font-size: 15px; white-space: nowrap; text-overflow: ellipsis; }
+.scenario-preview-table .demo-ribbon > a.demo-watch { flex: none; padding: 6px 12px; min-height: 32px; border-radius: 8px; color: #2a2112; font-weight: 700; text-decoration: none; }
+.scenario-preview-table .demo-ribbon > a.demo-watch:hover { background: rgba(42, 33, 18, 0.1); }
+@media (max-width: 760px) { .scenario-preview-table .demo-ribbon > a.demo-watch { display: none; } }
+
+/* The table is only watched: prompts written for a player at the table stay out of the way. */
+.watch-demo :is(.rail-how, .rail-urgent, .rail-end, .rail-folded, .rail-power-more, .rail-power > button, .rail-card-help) { display: none !important; }
+.watch-demo .table-rail article button { display: none; }
+.watch-demo .compact-turn :is(button, .compact-hint) { display: none; }
+/* A long highlight scrolls inside the sheet; its buttons stay in reach. */
+.sheet-coach .watch-panel .watch-controls { position: sticky; bottom: 0; z-index: 1; margin: 0 -12px -10px; padding: 8px 12px 10px; background: #f6efdc; box-shadow: 0 -8px 12px -8px rgba(43, 38, 27, 0.25); }
+.watch-build { flex: none; color: #8d8b77; font-size: 11px; }
+@media (max-width: 760px) { .watch-build { display: none; } }
+.watch-lead { margin: 0; padding-bottom: 8px; border-bottom: 1px dotted #cdbd92; color: #4a4434; font-size: 0.88rem; line-height: 1.4; }
+
+/* An older demo link keeps a plain dark bar, like the demo game's. */
+.scenario-preview-table.is-practice .demo-ribbon { color: #ece4cc; background: #1b211b; border-bottom: 1px solid #39432f; box-shadow: none; }
+.scenario-preview-table.is-practice .demo-ribbon > a, .scenario-preview-table.is-practice .demo-ribbon > button, .scenario-preview-table.is-practice .demo-ribbon .demo-ribbon-title, .scenario-preview-table.is-practice .demo-ribbon > a.demo-watch { color: #ece4cc; }
+.scenario-preview-table.is-practice .demo-ribbon > button:hover, .scenario-preview-table.is-practice .demo-ribbon > a.demo-watch:hover { background: rgba(255, 255, 255, 0.07); }
+.scenario-preview-table.is-practice .demo-ribbon > a.demo-play { color: #1d2416; background: #e8c463; box-shadow: none; }
+.scenario-preview-table.is-practice .demo-ribbon > a.demo-play:hover { background: #f2d272; }
+.scenario-preview-table.is-practice .table-board { box-shadow: none; }
+
+/* Revealed cards turn over beside the commentary, never over it. */
+.watch-demo .table-coach.watch-panel { z-index: 31; }
+.watch-demo .table-screen:not(.is-compact) .reveal-ceremony { padding-left: 410px; }

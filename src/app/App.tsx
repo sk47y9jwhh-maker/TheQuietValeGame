@@ -1103,7 +1103,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
                 <p className="eyebrow">At the table</p>
                 <h2>The Quiet Vale is a board game</h2>
                 <p>This demo plays the printed rules of The Quiet Vale: Seasons of Settlement, a co-operative game for 1–5 players on a hand-painted map, with tiles, Encounter Cards and Target Cards on the table.</p>
-                <p className="physical-game-moments">Want to see another side of it? <a href="?experience=table&scenario=showcase-chain">The Strain spreads</a> or <a href="?experience=table&scenario=showcase-late">A thriving settlement</a></p>
+                <p className="physical-game-moments">Want to see how others play it? <a href="?demo=watch">Watch a demo game</a></p>
               </aside></div>
           } : state.pendingGoldenEffect ? {
             key: `golden_${state.pendingGoldenEffect.cardId}_${state.pendingGoldenEffect.kind}`,

@@ -101,6 +101,24 @@ local play; there is no remote multiplayer, account system or cloud save.
 The engine fixes enforce existing prepared-power ownership, temporary reach,
 and unique effect-queue identities. They are not a rules rebalance.
 
+## Watch a demo (November)
+
+The live site's demo is one recorded two-player game (Vanguard and Knight,
+129 points) that plays itself on the board-first table at `?demo=watch`. It
+moves on by itself and stops at fourteen points of interest, each with the
+options the players had and why they chose. The start page and the end of a
+game link only to it. The older staged scenes and walkthroughs still open from
+a direct `?experience=table&scenario=…` link with a plain bar, but nothing
+lists them.
+
+- `tools/build-watch-demo.ts` (`npm run preview:watch`) plays and records the
+  game, then writes the commentary. Add `-- --reuse` to rewrite only the
+  commentary from `tools/watch-demo.recording.json`, which takes seconds.
+- `tools/watch-recorder.ts` is the lookahead player; `tools/watch-commentary.ts`
+  writes the captions and finds the pauses from what happened.
+- `src/app/watch/` replays the moves through the engine in the browser.
+  `src/tests/watchDemo.test.tsx` checks the replay reaches the recorded score.
+
 ## Verification and remaining work
 
 The curated branch passes **64 test files / 692 tests** and `npm run build`.
