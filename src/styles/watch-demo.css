@@ -62,7 +62,6 @@
 .table-coach .watch-icon:disabled { opacity: 0.35; cursor: default; }
 .table-coach .watch-main { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 1; min-height: 42px; border-radius: 6px; color: #f6efdc !important; background: #2f4a33; font-size: 1rem; }
 .table-coach .watch-main:hover { background: #253c29; }
-.watch-panel.is-highlight .watch-main { animation: tour-next 2.4s ease-in-out infinite; }
 .watch-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .watch-after { justify-content: center; }
 .table-coach.watch-panel .watch-after a.coach-ok { display: inline-flex; justify-content: center; width: 100%; padding: 10px 16px; border-radius: 6px; color: #241b05 !important; background: #e8c463; text-align: center; }
@@ -76,7 +75,7 @@
 @media (prefers-reduced-motion: reduce) {
   .watch-caption, .watch-highlight { animation: none; }
   .watch-progress-fill { transition: none; }
-  .watch-panel.is-highlight .watch-main { animation: none; }
+  .watch-timer { animation: none; display: none; }
 }
 
 /* The start page's single way in. */
@@ -186,3 +185,30 @@
 .watch-spot.is-tile .watch-spot-tile { width: 78%; }
 /* On a short screen a long stop scrolls inside the card; its buttons stay in reach. */
 .table-coach.watch-panel .watch-controls { position: sticky; bottom: -16px; z-index: 1; margin: 0 -18px -16px; padding: 10px 18px 14px; background: var(--bt-paper-light, #f6efdc); }
+
+/* The demo plays straight through. A highlight stands apart from the running captions. */
+.table-coach.watch-panel.is-highlight { border-left-color: #b8862e; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.34), 0 0 0 2px rgba(232, 196, 99, 0.55); }
+.watch-kind { justify-self: start; padding: 3px 10px; border-radius: 999px; color: #fff7e4 !important; background: #7a5b1e; letter-spacing: 0.1em; }
+.watch-kind.is-decision { background: #8a3b24; }
+.watch-kind.is-moment { background: #2f4a33; }
+.watch-kind.is-rule { background: #3d5c7a; }
+.watch-kind.is-finale { background: #1b2a1d; }
+.watch-panel.is-highlight .watch-highlight h3 { font-size: 1.45rem; line-height: 1.15; }
+
+/* The choices carry the weight: the one taken is bold and gold, the others step back. */
+.watch-options > li { transition: opacity 0.2s ease; }
+.watch-options > li.is-chosen { padding: 11px 14px; border: 2px solid #c89b3c !important; background: #fff5d6 !important; box-shadow: inset 5px 0 0 #c89b3c, 0 4px 12px rgba(122, 91, 30, 0.18) !important; }
+.watch-options > li.is-chosen .tour-option-label { font-size: 1.04rem; }
+.watch-options > li:not(.is-chosen) { opacity: 0.78; }
+.watch-options > li:not(.is-chosen) .tour-option-label { font-size: 0.9rem; }
+.watch-options .tour-chosen { padding: 3px 9px; border-radius: 999px; background: #8a3b24; color: #fff7e4; line-height: 1.2; }
+
+/* The highlight's timer: a thin bar that runs down while the game plays, and holds while paused. */
+.watch-timer { display: block; height: 4px; border-radius: 2px; background: #c89b3c; transform-origin: left center; animation-name: watch-timer; animation-timing-function: linear; animation-fill-mode: both; }
+.watch-timer.is-held { animation-play-state: paused; opacity: 0.45; }
+@keyframes watch-timer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+/* The main button: dark while playing, gold when the demo is waiting for the viewer. */
+.table-coach .watch-main.is-paused, .table-coach .watch-main.is-start { color: #241b05 !important; background: #e8c463; box-shadow: 0 0 0 3px rgba(232, 196, 99, 0.35); }
+.table-coach .watch-main.is-paused:hover, .table-coach .watch-main.is-start:hover { background: #f2d272; }
+.table-coach .watch-main.is-start { font-size: 1.08rem; }

@@ -117,6 +117,23 @@ export function frameDuration(frame: WatchFrame): number {
   return Math.min(5200, 1800 + words * 110);
 }
 
+/**
+ * How long a highlight stays on screen at normal speed: time to read the
+ * choices and the reason. The demo never waits; the viewer can pause.
+ */
+export function highlightDuration(frame: WatchFrame): number {
+  const pause = frame.pause;
+  if (!pause) return frameDuration(frame);
+  const text = [pause.title, pause.text, ...(pause.options ?? []).flatMap((option) => [option.label, ...option.lines])].join(" ");
+  const words = text.split(/\s+/).length;
+  return Math.min(20000, Math.max(8000, 4000 + words * 95));
+}
+
+/** How long any frame stays on screen at normal speed. */
+export function holdFor(frame: WatchFrame): number {
+  return frame.pause ? highlightDuration(frame) : frameDuration(frame);
+}
+
 export type WatchSpeed = "slow" | "normal" | "fast";
 export const speedFactor: Record<WatchSpeed, number> = { slow: 0.65, normal: 1, fast: 2 };
 export const speedLabel: Record<WatchSpeed, string> = { slow: "Slow", normal: "Normal", fast: "Fast" };

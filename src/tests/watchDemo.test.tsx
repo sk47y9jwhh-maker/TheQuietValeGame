@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from "@testing-librar
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import data from "../app/watch/watchDemo.generated.json";
 import recording from "../../tools/watch-demo.recording.json";
-import { buildFrames, displayState, frameDuration } from "../app/watch/watchFrames";
+import { buildFrames, displayState, frameDuration, highlightDuration } from "../app/watch/watchFrames";
 import type { WatchDemoData } from "../app/watch/watchTypes";
 import { calculateFinalScore } from "../engine/scoring";
 
@@ -26,7 +26,7 @@ describe("the recorded demo game", () => {
     expect(demo.beats.flatMap((beat) => beat.moves)).toEqual(fromRecording);
   });
 
-  it("stops only at points of interest: an introduction first and the final scoring last", () => {
+  it("marks its points of interest: an introduction first and the final scoring last", () => {
     const pauses = demo.beats.filter((beat) => beat.pause);
     expect(demo.beats[0].pause?.title).toBe("Two Stewards, one settlement");
     expect(demo.beats[demo.beats.length - 1].pause?.kind).toBe("finale");
@@ -56,6 +56,8 @@ describe("the recorded demo game", () => {
       expect(frame.caption.length).toBeGreaterThan(10);
       expect(frameDuration(frame)).toBeGreaterThanOrEqual(1800);
       expect(frameDuration(frame)).toBeLessThanOrEqual(5200);
+      if (frame.pause) expect(highlightDuration(frame)).toBeGreaterThanOrEqual(8000);
+      if (frame.pause) expect(highlightDuration(frame)).toBeLessThanOrEqual(20000);
     }
   });
 });
@@ -67,28 +69,29 @@ describe("watching the demo", () => {
     return await screen.findByRole("complementary", { name: "Demo commentary" }, { timeout: 8000 });
   }
 
-  it("opens on the introduction, plays on by itself and stops at the next highlight", async () => {
+  it("waits on the introduction, then plays straight through its highlights without stopping", async () => {
     const card = await openDemo();
     expect(within(card).getByRole("heading", { name: "Two Stewards, one settlement" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Play a real game" })).toHaveAttribute("href", "?experience=table");
     vi.useFakeTimers();
-    fireEvent.click(within(card).getByRole("button", { name: "Start the game" }));
+    // Nothing moves until the viewer presses Play.
+    await act(async () => { vi.advanceTimersByTime(30000); });
+    expect(within(card).getByRole("heading", { name: "Two Stewards, one settlement" })).toBeInTheDocument();
+    fireEvent.click(within(card).getByRole("button", { name: "Play the demo" }));
     expect(within(card).getByRole("heading", { name: "Seeding the Season" })).toBeInTheDocument();
     expect(within(card).getByRole("list", { name: "The options" })).toHaveTextContent("Chosen");
-    fireEvent.click(within(card).getByRole("button", { name: "Continue" }));
-    // Playing: a caption, and a pause button.
     expect(within(card).getByRole("button", { name: "Pause" })).toBeInTheDocument();
-    expect(card).toHaveTextContent("seeds three cards into the Encounter Deck");
-    for (let step = 0; step < 12 && !within(card).queryByRole("heading", { name: "The first action" }); step++) await act(async () => { vi.advanceTimersByTime(3000); });
+    // The highlight is held, then the game moves on by itself, through the next highlight too.
+    for (let step = 0; step < 40 && !within(card).queryByRole("heading", { name: "The first action" }); step++) await act(async () => { vi.advanceTimersByTime(2500); });
     expect(within(card).getByRole("heading", { name: "The first action" })).toBeInTheDocument();
-    // A highlight waits for the viewer.
-    await act(async () => { vi.advanceTimersByTime(10000); });
-    expect(within(card).getByRole("heading", { name: "The first action" })).toBeInTheDocument();
+    for (let step = 0; step < 20 && within(card).queryByRole("heading", { name: "The first action" }); step++) await act(async () => { vi.advanceTimersByTime(2500); });
+    expect(within(card).queryByRole("heading", { name: "The first action" })).not.toBeInTheDocument();
+    expect(card).toHaveTextContent("Vanguard builds a Lumber Yard");
   });
 
   it("shows the seeding as cards, and a readable close-up of what each step is about", async () => {
     const card = await openDemo();
-    fireEvent.click(within(card).getByRole("button", { name: "Start the game" }));
+    fireEvent.click(within(card).getByRole("button", { name: "Play the demo" }));
     const seeding = screen.getByRole("region", { name: "Seeding the Encounter Deck" });
     expect(seeding).toHaveTextContent("Top");
     expect(seeding).toHaveTextContent("Middle");
@@ -98,16 +101,17 @@ describe("watching the demo", () => {
     const closeUp = screen.getByRole("figure", { name: "To build: Lumber Yard" });
     expect(closeUp).toHaveTextContent("Cost");
     expect(closeUp).toHaveTextContent("Activate: Gain 2 Wood.");
-    fireEvent.click(within(card).getByRole("button", { name: "Continue" }));
+    fireEvent.click(within(card).getByRole("button", { name: "Next step" }));
     expect(screen.getByRole("figure", { name: "Built: Lumber Yard" })).toBeInTheDocument();
   });
 
-  it("pauses, steps back, skips between highlights and reaches the final scoring", async () => {
+  it("pauses, steps back and forward, skips between highlights and reaches the final scoring", async () => {
     const card = await openDemo();
-    fireEvent.click(within(card).getByRole("button", { name: "Start the game" }));
-    fireEvent.click(within(card).getByRole("button", { name: "Continue" }));
+    fireEvent.click(within(card).getByRole("button", { name: "Play the demo" }));
     fireEvent.click(within(card).getByRole("button", { name: "Pause" }));
     expect(within(card).getByRole("button", { name: "Play" })).toBeInTheDocument();
+    fireEvent.click(within(card).getByRole("button", { name: "Next step" }));
+    expect(card).toHaveTextContent("seeds three cards into the Encounter Deck");
     fireEvent.click(within(card).getByRole("button", { name: "Back one step" }));
     expect(within(card).getByRole("heading", { name: "Seeding the Season" })).toBeInTheDocument();
     fireEvent.click(within(card).getByRole("button", { name: "Skip to the next highlight" }));
@@ -117,6 +121,7 @@ describe("watching the demo", () => {
     expect(within(card).getByRole("link", { name: "Play a real game" })).toHaveAttribute("href", "?experience=table");
     fireEvent.click(within(card).getByRole("button", { name: "Watch again" }));
     expect(within(card).getByRole("heading", { name: "Two Stewards, one settlement" })).toBeInTheDocument();
+    expect(within(card).getByRole("button", { name: "Play the demo" })).toBeInTheDocument();
   });
 
   it("changes speed between normal, fast and slow, and remembers it", async () => {

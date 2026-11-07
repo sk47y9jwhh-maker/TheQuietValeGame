@@ -278,7 +278,7 @@ function introPause(start: GameState): DemoPause {
     at: "before",
     kind: "rule",
     title: "Two Stewards, one settlement",
-    text: `The Quiet Vale is co-operative: the Vanguard and the Knight build one settlement and share one Warehouse, which starts with ${start.warehouse.wood} of each resource. Twelve rounds make three Seasons. Each turn a Steward has four actions.${quest ? ` This game’s Quest Card is ${quest.card.theme}: complete either half for +20 Renown.` : ""} The demo plays on by itself and stops when something is worth a closer look.`,
+    text: `The Quiet Vale is co-operative: the Vanguard and the Knight build one settlement and share one Warehouse, which starts with ${start.warehouse.wood} of each resource. Twelve rounds make three Seasons. Each turn a Steward has four actions.${quest ? ` This game’s Quest Card is ${quest.card.theme}: complete either half for +20 Renown.` : ""} The game plays straight through. Key decisions stay on screen longer, with the options the players had; pause, step back or skip ahead at any time.`,
     options: start.players.map((player) => {
       const steward = stewardById[player.stewardId];
       return { label: steward.name, lines: [shortPower(steward.id), `Objective: ${shortObjective(steward.id)} (+${steward.objectiveRenown})`] };

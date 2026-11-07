@@ -46,7 +46,7 @@ export function TabletopWelcome(props: SetupPanelProps) {
             <p>Build one settlement together across three Seasons. Welcome the people who arrive, carry the Burdens that follow, and keep the land from breaking under the Strain.</p>
             {isBoardTableExperience() && <a className="welcome-watch" href={watchDemoHref}>
               <span className="welcome-watch-icon" aria-hidden="true"><Play size={18} /></span>
-              <span><strong>Watch a demo</strong><small>A two-player game plays itself, with commentary on the decisions. About 10 minutes, or less at Fast speed.</small></span>
+              <span><strong>Watch a demo</strong><small>A two-player game plays itself, with commentary on the decisions. About 10 minutes, or 5 at Fast speed.</small></span>
             </a>}
           </div>
           <span className="welcome-art-credit">Map by Giovanni Spadaro & Daniele Nicotra</span>

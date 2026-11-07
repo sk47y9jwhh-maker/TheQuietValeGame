@@ -9,7 +9,7 @@ import { TableScreen, type TableGameHandlers } from "../../components/table/Tabl
 import { WatchSpotlight } from "../../components/table/WatchSpotlight";
 import type { TourControls } from "../../components/table/TableCoach";
 import { experienceClassName } from "../experience";
-import { buildFrames, displayState, frameDuration, speedFactor, type WatchFrame, type WatchSpeed } from "./watchFrames";
+import { buildFrames, displayState, holdFor, speedFactor, type WatchFrame, type WatchSpeed } from "./watchFrames";
 import type { WatchDemoData } from "./watchTypes";
 
 export interface WatchPlayer {
@@ -20,8 +20,10 @@ export interface WatchPlayer {
   speed: WatchSpeed;
   /** Indexes of the frames that stop for a closer look. */
   highlights: number[];
-  /** Play, or pause, or carry on from a highlight. */
+  /** Play or pause; at the end, watch again. */
   toggle: () => void;
+  /** How long the current frame is held at the current speed, in milliseconds. */
+  hold: number;
   forward: () => void;
   back: () => void;
   nextHighlight: () => void;
@@ -38,25 +40,28 @@ const handlers: TableGameHandlers = { activate: noop, upgrade: noop, place: noop
 
 export function usePlayer(frames: WatchFrame[]): WatchPlayer {
   const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(true);
+  // It waits on the introduction until the viewer presses Play, then plays to the end.
+  const [playing, setPlaying] = useState(false);
   const [speed, setSpeedState] = useState<WatchSpeed>(readSpeed);
   const setSpeed = useCallback((value: WatchSpeed) => { setSpeedState(value); try { window.localStorage.setItem(speedKey, value); } catch { /* a remembered speed is only a convenience */ } }, []);
   const frame = frames[Math.min(index, frames.length - 1)];
   const last = frames.length - 1;
   const highlights = useMemo(() => frames.flatMap((candidate, at) => candidate.pause ? [at] : []), [frames]);
+  const hold = holdFor(frame) / speedFactor[speed];
 
-  // Move on by itself, except at a highlight or the end.
+  // Move on by itself. A highlight is held longer, but never waits.
   useEffect(() => {
-    if (!playing || frame.pause || index >= last) return undefined;
-    const timer = window.setTimeout(() => setIndex((at) => Math.min(last, at + 1)), frameDuration(frame) / speedFactor[speed]);
+    if (!playing || index >= last) return undefined;
+    const timer = window.setTimeout(() => setIndex((at) => Math.min(last, at + 1)), hold);
     return () => window.clearTimeout(timer);
-  }, [frame, index, last, playing, speed]);
+  }, [hold, index, last, playing]);
 
   const toggle = useCallback(() => {
-    if (frame.pause && index < last) { setIndex(index + 1); setPlaying(true); return; }
     if (index >= last) { setIndex(0); setPlaying(true); return; }
+    // Pressing Play on the introduction moves straight into the game.
+    if (index === 0 && !playing) { setIndex(1); setPlaying(true); return; }
     setPlaying((value) => !value);
-  }, [frame, index, last]);
+  }, [index, last, playing]);
   const forward = useCallback(() => setIndex((at) => Math.min(last, at + 1)), [last]);
   const back = useCallback(() => { setPlaying(false); setIndex((at) => Math.max(0, at - 1)); }, []);
   const nextHighlight = useCallback(() => {
@@ -64,8 +69,8 @@ export function usePlayer(frames: WatchFrame[]): WatchPlayer {
     setIndex(next);
     setPlaying(true);
   }, [highlights, index, last]);
-  const restart = useCallback(() => { setIndex(0); setPlaying(true); }, []);
-  return { frames, index, frame, playing, speed, highlights, toggle, forward, back, nextHighlight, restart, setSpeed };
+  const restart = useCallback(() => { setIndex(0); setPlaying(false); }, []);
+  return { frames, index, frame, playing, speed, hold, highlights, toggle, forward, back, nextHighlight, restart, setSpeed };
 }
 
 /** Space plays and pauses, the arrows step. Keys typed into a control are left alone. */
@@ -77,7 +82,7 @@ function useKeys(player: WatchPlayer) {
       const target = event.target as HTMLElement | null;
       if (event.metaKey || event.ctrlKey || event.altKey || target?.closest("input, select, textarea, [contenteditable]")) return;
       if (event.key === " " && !target?.closest("button, a")) { event.preventDefault(); ref.current.toggle(); }
-      else if (event.key === "ArrowRight") { event.preventDefault(); if (ref.current.frame.pause) ref.current.toggle(); else ref.current.forward(); }
+      else if (event.key === "ArrowRight") { event.preventDefault(); ref.current.forward(); }
       else if (event.key === "ArrowLeft") { event.preventDefault(); ref.current.back(); }
     };
     window.addEventListener("keydown", onKey);
@@ -99,7 +104,7 @@ export default function WatchDemo() {
       <a className="watch-home" href="?experience=table"><ArrowLeft size={17} aria-hidden="true" /><span>The Quiet Vale</span></a>
       <p className="watch-title"><strong>Watching a demo game</strong><span>Vanguard and Knight · two players · 12 rounds</span></p>
       <a className="watch-play" href="?experience=table">Play a real game</a>
-      <span className="watch-build" title="Demo version">v6 Nov · 4</span>
+      <span className="watch-build" title="Demo version">v6 Nov · 5</span>
     </header>
     {frames ? <WatchTable frames={frames} /> : <main className="scenario-error" role={failed || (data && !frames) ? "alert" : "status"}>{failed || (data && !frames) ? <><h1>The demo could not be loaded.</h1><p>Reload the page to try again.</p><a href="?experience=table">Back to the start page</a></> : "Setting out the table…"}</main>}
   </div>;
