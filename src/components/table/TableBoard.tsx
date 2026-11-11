@@ -124,6 +124,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
     }
   }, [state.map.placedTiles, state.warehouse, state.tileActivationRecords, state.round, state.log]);
   const [view, setView] = useState<View | null>(null);
+  const wholeBoard = useRef<View | null>(null);
   const [cursorHexId, setCursorHexId] = useState<string>(() => state.players.find((player) => player.id === state.currentPlayerId)?.stewardHexId ?? "A1");
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const gesture = useRef<{ startX: number; startY: number; moved: boolean; view: View; pinchDistance?: number; hexId?: string } | null>(null);
@@ -174,12 +175,23 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
     const hexPx = (hexRadius * 2) / fitted.upp;
     // A laptop sees the whole board even when the hexes are small: only a
     // phone-sized frame starts close in.
-    if (hexPx >= 56 || (size.width >= 700 && hexPx >= 34)) { setView(fitted); return; }
+    if (hexPx >= 56 || (size.width >= 700 && hexPx >= 34)) { wholeBoard.current = fitted; setView(fitted); return; }
     const steward = state.players.find((player) => player.id === state.currentPlayerId)?.stewardHexId;
     const anchor = (steward ? boardCellById.get(steward) : undefined) ?? boardCellById.get("G5");
     const upp = (hexRadius * 2) / 72;
     setView(clampView({ cx: anchor?.x ?? 340, cy: (anchor?.y ?? 260) + (coveredBottom * upp) / 2, upp }));
   }, [clampView, coveredBottom, fitView, size.height, size.width, state.currentPlayerId, state.players, view]);
+
+  // While the whole board is showing (nobody has zoomed or panned), it stays
+  // fitted as the frame changes: the drawer appears when play begins and the
+  // side panel changes width, and the board should never slip under either.
+  useEffect(() => {
+    if (!view || view !== wholeBoard.current || !size.width || !size.height) return;
+    const fitted = fitView(size.width, size.height);
+    if (Math.abs(fitted.upp - view.upp) < 1e-6 && Math.abs(fitted.cy - view.cy) < 1e-6 && Math.abs(fitted.cx - view.cx) < 1e-6) return;
+    wholeBoard.current = fitted;
+    setView(fitted);
+  }, [fitView, size.height, size.width, view]);
 
   // A walkthrough frames what it is talking about beside its card.
   const focusKey = focus ? `${focus.left}:${focus.right ?? 0}:${[...focus.hexIds].sort().join(",")}` : "";
@@ -263,7 +275,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
       });
     },
     zoomBy: (factor: number) => zoomAround(factor),
-    fit: () => size.width && setView(fitView(size.width, size.height))
+    fit: () => { if (!size.width) return; const fitted = fitView(size.width, size.height); wholeBoard.current = fitted; setView(fitted); }
   }), [clampView, coveredBottom, current, fitView, size.height, size.width, zoomAround]);
 
   function hexFromEvent(target: EventTarget | null): string | undefined {

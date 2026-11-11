@@ -91,7 +91,7 @@ function TableHand({ state, onConfirm }: Props) {
             <button type="button" className="table-seed-choose" onClick={() => edit(slot)} aria-label={`Edit ${labels[slot]} choice`}>Change</button>
           </article>;
           return <article className={`table-seed-card card-${card.type}`} key={slot}><div className="table-seed-review-heading"><span>{labels[slot]}<small>{getEncounterTypeLabel(card)}</small></span><button type="button" onClick={() => edit(slot)} aria-label={`Edit ${labels[slot]} choice`}>Change</button></div><h2>{card.name}</h2><CardSummary card={card} season={state.season} /></article>;
-        })}<div className="table-seed-confirm"><p>{nextPlayer ? `After confirming, pass the device to ${nextPlayer.name}.` : `After confirming, reveal Round ${state.round}’s encounters together.`}</p><button className="primary-action" disabled={!validation.ok} type="button" onClick={() => onConfirm(selection)}><CheckCircle2 size={18} aria-hidden="true" />Confirm Seeding</button>{!validation.ok && <p role="status">{validation.reasons.join(" ")}</p>}</div></div>}
+        })}<div className="table-seed-confirm"><p>{nextPlayer ? `After confirming, pass the device to ${nextPlayer.name}.` : `After confirming, reveal Round ${state.round}’s encounters together.`}</p><button className="primary-action" disabled={!validation.ok} type="button" onClick={() => onConfirm(selection)}><CheckCircle2 size={18} aria-hidden="true" />Confirm seeding</button>{!validation.ok && <p role="status">{validation.reasons.join(" ")}</p>}</div></div>}
       </section>
     </main>
   </PrivateHandGate>;

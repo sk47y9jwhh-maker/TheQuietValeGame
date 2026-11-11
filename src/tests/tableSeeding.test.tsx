@@ -23,13 +23,13 @@ describe("Living Table deliberate seeding", () => {
     const hand = state.encounters.handsByPlayerId.player_1;
     const onConfirm = vi.fn();
     render(<TableSeeding state={state} onConfirm={onConfirm} />);
-    expect(screen.queryByRole("button", { name: "Confirm Seeding" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Confirm seeding" })).not.toBeInTheDocument();
     choose(hand[0], "top"); choose(hand[1], "middle"); choose(hand[2], "bottom");
     expect(screen.getByRole("heading", { name: "Review your three cards." })).toHaveFocus();
     expect(screen.getByText("After confirming, reveal Round 1’s encounters together.")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Edit Top choice" }));
     choose(hand[1], "top");
-    fireEvent.click(screen.getByRole("button", { name: "Confirm Seeding" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm seeding" }));
     expect(onConfirm).toHaveBeenCalledTimes(1);
     expect(onConfirm).toHaveBeenCalledWith({ top: hand[1], middle: hand[0], bottom: hand[2] });
   });
@@ -80,7 +80,7 @@ describe("Living Table deliberate seeding", () => {
     choose(hand[2], "top"); choose(hand[5], "middle"); choose(hand[8], "bottom");
     expect(readSavedGame()?.state.encounters.deck).toEqual(state.encounters.deck);
     expect(screen.getByText("After confirming, pass the device to Player 2.")).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Confirm Seeding" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm seeding" }));
     const expected = commitSeasonSeeding(state, "player_1", { top: hand[2], middle: hand[5], bottom: hand[8] });
     expect(readSavedGame()?.state.encounters).toEqual(expected.encounters);
     expect(screen.getByRole("heading", { name: "Pass to Player 2." })).toHaveFocus();

@@ -74,7 +74,7 @@ describe("Living Table player flow", () => {
     for (const [index, slot] of ["top", "middle", "bottom"].entries()) {
       fireEvent.click(screen.getByRole("button", { name: `Seed ${encounterById[hand[index]].name} at ${slot}` }));
     }
-    fireEvent.click(screen.getByRole("button", { name: "Confirm Seeding" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm seeding" }));
     expect(screen.getByRole("region", { name: "Current step" })).toHaveTextContent("See what the Vale brings");
     expect(screen.getByRole("button", { name: "Reveal Encounters" })).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Encounters 0" }));

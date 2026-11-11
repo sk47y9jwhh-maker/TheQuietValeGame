@@ -10,7 +10,8 @@ import { isBoardTableExperience, isHostedDemo } from "../../app/experience";
 import { watchDemoHref } from "../../app/demoCatalog";
 import { RulesGuide } from "../panels/RulesGuide";
 import type { SetupPanelProps } from "./SetupPanel";
-import mapArtwork from "../../assets/quiet_vale_map_v02.webp";
+import mapArtwork from "../../assets/quiet_vale_map_v02-1600.webp";
+import boardMapArtwork from "../../assets/quiet_vale_map_v02.webp";
 import rulebookCover from "../../assets/rulebook-cover.webp";
 import { rulebookPdfHref } from "../../app/rulebook";
 
@@ -28,6 +29,12 @@ export function TabletopWelcome(props: SetupPanelProps) {
   const { playerCount, stewardIds, onPlayerCountChange, onStewardChange, onStart } = props;
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { if (props.focusOnMount) heading.current?.focus(); }, [props.focusOnMount]);
+  // The home page shows a lighter copy of the map. The board's full-size map is
+  // fetched quietly once the page has settled, so the first board appears at once.
+  useEffect(() => {
+    const timer = window.setTimeout(() => { const image = new Image(); image.decoding = "async"; image.src = boardMapArtwork; }, 1200);
+    return () => window.clearTimeout(timer);
+  }, []);
   const startingResources = getStartingWarehouseAmount(playerCount);
   const selectedStewards = stewardIds.slice(0, playerCount).map((id) => stewardById[id]);
 
@@ -39,7 +46,7 @@ export function TabletopWelcome(props: SetupPanelProps) {
       </header>
       <div className="welcome-layout">
         <section className="welcome-landscape">
-          <img src={mapArtwork} alt="Woodlands, rivers and ancient ruins waiting to become your settlement" />
+          <img src={mapArtwork} width={1600} height={1222} decoding="async" alt="Woodlands, rivers and ancient ruins waiting to become your settlement" />
           <div className="welcome-landscape-copy">
             <p className="studio-kicker">A cooperative board game for 1 to 5 players</p>
             <h1>A new season<br />in the Vale.</h1>

@@ -79,6 +79,14 @@
   filter: drop-shadow(0 5px 7px rgba(20, 19, 15, 0.28));
 }
 
+/* The frame's own paper shows at once, so card text never floats on the page
+   while the artwork arrives. */
+.physical-card-arrival { background: radial-gradient(ellipse at center, #f5ede7 62%, #a9a5ad 100%); }
+.physical-card-boon { background: radial-gradient(ellipse at center, #fbf2d5 62%, #ecd8a8 100%); }
+.physical-card-burden { background: radial-gradient(ellipse at center, #ebebeb 62%, #b4b4b4 100%); }
+.physical-card-goldenBoon { background: radial-gradient(ellipse at center, #fdf5e1 70%, #2a2c22 100%); }
+.physical-card-with-bleed { background: none; }
+
 .physical-card-print-canvas {
   /* Match live text to the trimmed artwork while retaining the original 3:5
      coordinate system and its container-relative type sizes. */

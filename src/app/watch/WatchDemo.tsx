@@ -104,7 +104,7 @@ export default function WatchDemo() {
       <a className="watch-home" href="?experience=table"><ArrowLeft size={17} aria-hidden="true" /><span>The Quiet Vale</span></a>
       <p className="watch-title"><strong>Watching a demo game</strong><span>Vanguard and Knight · two players · 12 rounds</span></p>
       <a className="watch-play" href="?experience=table">Play a real game</a>
-      <span className="watch-build" title="Demo version">v6 Nov · 5</span>
+      <span className="watch-build" title="Demo version">v11 Nov · 1</span>
     </header>
     {frames ? <WatchTable frames={frames} /> : <main className="scenario-error" role={failed || (data && !frames) ? "alert" : "status"}>{failed || (data && !frames) ? <><h1>The demo could not be loaded.</h1><p>Reload the page to try again.</p><a href="?experience=table">Back to the start page</a></> : "Setting out the table…"}</main>}
   </div>;

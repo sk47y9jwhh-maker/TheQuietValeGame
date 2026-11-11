@@ -1915,3 +1915,34 @@ h1.table-brand { margin: 0; line-height: 1; color: inherit; }
 .rail-quest.is-called { animation: rail-quest-call 1.4s ease-out; }
 @keyframes rail-quest-call { 0%, 30% { box-shadow: 0 0 0 3px #f2c94c, 0 0 22px rgba(242, 201, 76, 0.55); } 100% { box-shadow: 0 0 0 0 rgba(242, 201, 76, 0); } }
 @media (max-width: 1100px) { .table-season .season-name { display: none; } }
+
+/* ---- Laptop pass (11 Nov) ------------------------------------------------ */
+/* End turn is always in reach: it stays at the foot of the side panel while
+   the cards above it scroll. */
+.table-screen:not(.is-compact) .table-rail > .rail-end {
+  position: sticky;
+  bottom: -14px;
+  z-index: 2;
+  margin: auto -14px -14px;
+  padding: 10px 14px 14px;
+  background: var(--bt-paper);
+  box-shadow: 0 -10px 14px -12px rgba(40, 34, 18, 0.45);
+}
+.table-screen:not(.is-compact) .table-rail > .rail-end.is-confirming { margin: auto 0 0; border-radius: 10px; background: #efe3bd; bottom: 0; }
+
+/* The Steward's power is one line until it is asked for, so the cards on the
+   table sit higher in the panel. */
+.rail-power p.is-clamped { -webkit-line-clamp: 1; }
+
+/* Small print large enough to read at arm's length on a laptop. */
+.experience-table .table-screen .tray-summary-item { font-size: 0.84rem; }
+.experience-table .table-screen .tray-summary-item span { font-size: 0.8rem; }
+.table-quest-chip span { font-size: 0.76rem; }
+.table-quest-chip small { font-size: 0.78rem; }
+.rail-quest-which { width: 4.2em; font-size: 0.76rem; }
+.rail-quest-status { font-size: 0.78rem; }
+.rail-card-kind, .rail-new { font-size: 0.78rem; }
+
+/* The build menu uses the height the window has, instead of a short list
+   that scrolls after three or four tiles. */
+.table-screen:not(.is-compact) .place-list { max-height: clamp(240px, calc(100dvh - 330px), 620px); }
