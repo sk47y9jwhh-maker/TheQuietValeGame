@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ArrowRight, BookOpen, ChevronDown, Download, Play, Users } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronDown, Download, Play, Users, Youtube } from "lucide-react";
 import { getStartingWarehouseAmount } from "../../engine/setup";
 import { terrainLabels } from "../../data/map";
 import { stewardById, stewards } from "../../data/stewards";
@@ -42,7 +42,14 @@ export function TabletopWelcome(props: SetupPanelProps) {
     <main className="vale-welcome">
       <header className="welcome-header">
         <a href={isHostedDemo ? "./" : "?"} className="welcome-brand" aria-label={isHostedDemo ? "The Quiet Vale" : "The Quiet Vale experience studio"}><BrandMark /><span>The Quiet Vale<small>Seasons of Settlement</small></span></a>
-        {!isHostedDemo && <a className="welcome-studio-link" href="?">Compare experiences <ArrowRight size={16} aria-hidden="true" /></a>}
+        {isHostedDemo ? (
+          <a className="welcome-studio-link" href="https://www.youtube.com/@TheQuietValeGame" target="_blank" rel="noopener noreferrer">
+            <Youtube size={18} aria-hidden="true" />
+            YouTube channel
+          </a>
+        ) : (
+          <a className="welcome-studio-link" href="?">Compare experiences <ArrowRight size={16} aria-hidden="true" /></a>
+        )}
       </header>
       <div className="welcome-layout">
         <section className="welcome-landscape">
