@@ -95,7 +95,7 @@ const stewardPages = [0, 2, 4].map((i) => page(`The Stewards · ${numerals[i]} a
 const turnPage = page("How a round works", "Your turn", `
   <div class="seasons">${[["I", "Foundations", "Rounds 1–4"], ["II", "Growth", "Rounds 5–8"], ["III", "Maturity", "Rounds 9–12"]].map(([n, t, r]) => `<div><span>${n}</span><b>${t}</b><i>${r}</i></div>`).join("")}</div>
   <h3 class="sub">Each round</h3>
-  ${steps([["Reveal.", "Reveal Encounter Cards until the number of standard cards revealed equals the player count. Finish every mandatory effect."], ["Turns.", "Clockwise from the first player, who moves one seat left each round, each player takes one turn of up to 4 Actions (3 with 4 or 5 players) and may stop early."], ["End of round.", "Remove 1 timer from every active Arrival and resolve any that run out. End durations, refresh round effects and move the Round marker."]])}
+  ${steps([["Reveal.", "Reveal Encounter Cards until the number of standard cards revealed equals the player count. Finish every mandatory effect."], ["Turns.", "Clockwise from the first player, who moves one seat left each round, each player takes one turn of up to 4 Actions (3 with 4 or 5 players) and may stop early."], ["End of round.", "Remove 1 timer from every active Arrival and resolve any that run out. End durations, remove every X token and move the Round marker."]])}
   <h3 class="sub">Four Actions (repeat any)</h3>
   <div class="actions">
     <div><b>Place</b>Put an available Tile on a legal, reachable empty hex and pay its cost.</div>
@@ -108,9 +108,9 @@ const turnPage = page("How a round works", "Your turn", `
 const byId = Object.fromEntries(coreTiles.map((t) => [t.id, t]));
 const T = (id) => tileBlock(byId[id]);
 const sym = [["Resource Wood", "Wood"], ["Resource Stone", "Stone"], ["Resource Metal", "Metal"], ["Resource Food", "Food"], ["Resource Herbs", "Herbs"], ["Resource Goods", "Goods"], ["Population", "Population"], ["Renown", "Renown"]];
-const lpBox = `<div class="lpwrap">${box("Linked Production", `<p>The first time each round you activate a Resource Tile, it and every <b>immediately adjacent</b>, non-Overstrained copy from the same stack all produce, for one Action. It never continues outward through a chain. Activating any of those Tiles again that round produces only from the Tile you choose.</p>`)}
+const lpBox = `<div class="lpwrap">${box("Linked Production", `<p>The first time each round you activate a Resource Tile, it and every <b>immediately adjacent</b>, non-Overstrained copy from the same stack all produce, for one Action. It never continues outward through a chain. Put an X token on each Tile that produced: a Tile with an X produces only by itself until the X comes off at round end.</p>`)}
   ${box("Symbols and timing", `<div class="symbols">${sym.map(([f, n]) => `<div><img src="${ICON(`icon-${f}.png`)}"><span>${n}</span></div>`).join("")}</div>
-  <p><b>Activate:</b> spend an Activate Action. <b>Passive:</b> works by itself, at the printed timing. <b>Once per round / Season:</b> refreshes when the next one starts. Two costs mean pay either one.</p>`)}</div>`;
+  <p><b>Activate:</b> spend an Activate Action. <b>Passive:</b> works by itself, at the printed timing. <b>Once per round:</b> put an X token on the Tile; it comes off at round end. <b>Once per Season:</b> refreshes when the next Season starts. Two costs mean pay either one.</p>`)}</div>`;
 const tilePages = [
   ["Core Tiles · Resource", "Woodland & Mountains", [T("c01_lumber_yard"), T("c02_mine_tunnel")]],
   ["Core Tiles · Resource", "Heaths & Arable Land", [T("c03_gathering_outpost"), T("c04_farmstead")]],

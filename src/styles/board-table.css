@@ -276,6 +276,13 @@
 .tile-token-over { fill: #f4c5a8; font-family: "Alegreya Sans", system-ui, sans-serif; font-size: 3.4px; font-weight: 700; letter-spacing: 0.1em; }
 .tile-token-support circle { fill: var(--bt-brass); stroke: #f6f0dc; stroke-width: 1; }
 .tile-token-support path { fill: #fff; }
+/* X token: a small natural wooden cross on a tile whose once-per-round ability or Linked Production is used this round. */
+.round-use-token { pointer-events: none; animation: bt-round-use-drop 0.35s ease-out both; }
+.round-use-token-shadow rect { fill: rgba(30, 22, 12, 0.38); }
+.round-use-token-body rect { fill: #dcc08f; stroke: #9c7a48; stroke-width: 0.45; stroke-linejoin: round; }
+.round-use-token-grain { fill: none; stroke: rgba(140, 104, 58, 0.4); stroke-width: 0.25; stroke-dasharray: 1.4 0.9; }
+@keyframes bt-round-use-drop { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .round-use-token { animation: none; } }
 
 /* Fewer words when hexes are small */
 .detail-icon .tile-token-name,

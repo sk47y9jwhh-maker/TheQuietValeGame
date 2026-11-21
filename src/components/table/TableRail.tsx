@@ -106,7 +106,7 @@ export function TableRail(props: TableRailProps) {
     </section>}
     {state.phase === "endRound" && <section className="rail-phase">
       <h2>End of round {state.round}</h2>
-      <p>Arrivals lose a timer and round effects refresh.</p>
+      <p>Arrivals lose a timer, X tokens come off and round effects refresh.</p>
       <button type="button" className="rail-primary" onClick={props.onEndRound}>Continue</button>
     </section>}
 

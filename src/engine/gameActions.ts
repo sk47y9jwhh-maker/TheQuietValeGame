@@ -546,7 +546,10 @@ function shouldProductionPassiveTrigger(
   activatedTile: PlacedTile
 ): boolean {
   if (passiveTile.kind !== "special" || passiveTile.strain >= 3) return false;
-  if (state.tileActivationRecords[passiveTile.instanceId]?.round === state.round) {
+  if (
+    productionPassiveRules[passiveTile.tileId]?.oncePerRound !== false &&
+    state.tileActivationRecords[passiveTile.instanceId]?.round === state.round
+  ) {
     return false;
   }
   if (!passiveTile.hexIds.some((hexId) => getHexNeighbors(hexId).some((neighborId) => activatedTile.hexIds.includes(neighborId)))) {
@@ -614,7 +617,9 @@ function applyAdjacentProductionPassiveEffects(
         `${getPlacedTileName(passiveTile)} removed ${removedStrain} Strain from ${getPlacedTileName(activatedTile)}.`
       );
     }
-    nextState = recordRoundPassiveUse(nextState, passiveTile);
+    if (productionPassiveRules[passiveTile.tileId]?.oncePerRound !== false) {
+      nextState = recordRoundPassiveUse(nextState, passiveTile);
+    }
   }
 
   return nextState;

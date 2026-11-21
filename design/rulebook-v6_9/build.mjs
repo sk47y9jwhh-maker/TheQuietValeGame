@@ -119,7 +119,7 @@ P.push(page("The shortest route into the Vale", "The shortest route into the Val
   <div class="glance">
     <div><b><span>1</span>Encounters</b>Reveal one Encounter Card per player and resolve what they say.</div>
     <div><b><span>2</span>Player turns</b>Play goes clockwise from the first player, who moves one seat left each round. Each player takes one turn of up to 4 Actions (3 with 4 or 5 players): Place, Upgrade, Activate or Interact.</div>
-    <div><b><span>3</span>End of the round</b>Arrivals lose a timer, short effects end, and the Round marker moves on.</div>
+    <div><b><span>3</span>End of the round</b>Arrivals lose a timer, X tokens come off, short effects end, and the Round marker moves on.</div>
   </div>
   <h3>Keep three ideas in view</h3>
   <div class="ideas">
@@ -147,7 +147,7 @@ P.push(page("1 · Components", "What is in the box", `
     ["Target Cards", "30 poker-size cards with silver backs (page {{p:target}}).", at(5)],
     ["Stewards", "6 Steward Guides and 6 matching wooden Steward meeples (page {{p:stewardsp}}).", at(2) + at(10)],
     ["Resources", "90 wooden pieces in six colours: 15 each of Wood, Stone, Metal, Food, Herbs and Goods.", at(6)],
-    ["Tokens", "Black wooden Strain tokens, and bronze tokens for Supported, Arrival timers and the Round marker.", at(3) + at(7)],
+    ["Tokens", "Black wooden Strain tokens; bronze tokens for Supported, Arrival timers and the Round marker; small natural wooden X tokens for once-per-round uses.", at(3) + at(7)],
   ], "comp")}
   ${note("Before your first game", "Leave the Golden Tiles and Golden Boons in the box. They enter play only once the Steward&rsquo;s Ledger unlocks them (page {{p:quest}}).")}`, "comp1"));
 
@@ -164,7 +164,7 @@ P.push(page("2 · Setup", "Setting up a two-player game", `
     <li>The Encounter deck, face down.</li>
     <li>The Target deck, shuffled once and face down.</li>
     <li>The Warehouse: 10 of every resource for two players, spare pieces below the stitch.</li>
-    <li>Strain and bronze tokens.</li>
+    <li>Strain, bronze and X tokens.</li>
     <li>This game&rsquo;s Quest Card.</li>
     <li>The Core Tile supply, basic side up, by category.</li>
     <li>Each player&rsquo;s Steward Guide.</li>
@@ -236,7 +236,7 @@ P.push(page("4 · The round", "How a round works", `
   ${table(["Phase", "What happens"], [
     ["<b>1. Reveal Encounters</b>", "Reveal cards until the number of standard Encounter Cards revealed equals the player count. Resolve every mandatory effect before turns begin. Put Arrivals and kept Boons and Burdens in the In play area."],
     ["<b>2. Player turns</b>", "In Round 1 the group chooses who goes first. Each new round, the first player is the next player to the left of the last one, so everyone takes a turn going first. Play goes clockwise, and each player takes exactly one turn of up to 4 Actions, or 3 Actions with 4 or 5 players."],
-    ["<b>3. End of the round</b>", "Remove 1 timer from every active Arrival and resolve any that run out. Discard effects whose time is up, refresh effects used this round, then move the Round marker on."],
+    ["<b>3. End of the round</b>", "Remove 1 timer from every active Arrival and resolve any that run out. Discard effects whose time is up, remove every X token, then move the Round marker on."],
   ], "phase")}
   ${fig("fig-inplay", [["num", [0.075, 0.12], 1, 15], ["num", [0.31, 0.06], 2, 15], ["num", [0.56, 0.06], 3, 15], ["num", [0.81, 0.06], 4, 15]], "The Encounter board during Round 2 of a two-player game.")}
   <ol class="legend inline"><li>The Encounter deck.</li><li>An Arrival with its 3 bronze timers.</li><li>An active Burden.</li><li>A Boon kept face up until it is used.</li></ol>
@@ -289,7 +289,7 @@ P.push(page("Your first round", "Your first round, continued", `
   <h3>The Warehouse through the round</h3>
   ${wh([["Start", "10", "10", "10", "10", "10", "10"], ["After the Knight", "8", "10", "10", "7", "8", "10"], ["After the Sentinel", "8", "12", "10", "7", "6", "6"]])}
   <h3>3. End of the round</h3>
-  <p>No Arrival is still active, so no timers come off. The Farmstead and Mine Tunnel refresh for next round, and the Round marker moves to Round 2. The group has used every Action, cleared the Burden and unlocked its first Special Tile.</p>
+  <p>No Arrival is still active, so no timers come off. Every X token comes off, and the Round marker moves to Round 2. The group has used every Action, cleared the Burden and unlocked its first Special Tile.</p>
   ${note("What to try next round", "Upgrade a Tile, link two copies of the same Resource Tile for Linked Production (page {{p:prod}}), or build towards the Quest Card&rsquo;s easier half.")}`, "round1b"));
 
 // 10 Your turn
@@ -350,7 +350,7 @@ P.push(page("6 · Production and the Warehouse", "Production", `
   <p class="lead">Production is an Activated Effect on Resource Tiles. Spend an Activate Action, then add the Tile&rsquo;s printed resources to the Warehouse, up to its limit.</p>
   <h3>Linked Production</h3>
   <p>The first time each round you activate a Resource Tile, check it and every <b>immediately adjacent</b> copy from the same Tile stack. If none of them has produced this round, the chosen Tile and all its immediately adjacent, non-Overstrained copies produce for that one Activate Action, each using its current side.</p>
-  <p>Linked Production never continues outward through a chain: only copies touching the chosen Tile join in. Mark every Tile that produced as having taken part this round. If the chosen Tile or an adjacent copy has already taken part, only the chosen Tile produces. A separate group of copies elsewhere may still use Linked Production. Everything refreshes at the start of the next round.</p>
+  <p>Linked Production never continues outward through a chain: only copies touching the chosen Tile join in. Put an X token on the chosen Tile and on every copy that produced with it. If the chosen Tile or an adjacent copy already has an X token, only the chosen Tile produces; put an X on it too. A separate group of copies elsewhere may still use Linked Production. Every X token comes off at the end of the round.</p>
   ${fig("fig-linked", [["ring", "A1"], ["ring", "B1"], ["ring", "C1"], ["badge", "B1", "1", -0.05, 0.62]], "Three upgraded Mine Shafts on the Mountains, each producing 3 Stone and 2 Metal. The Sentinel activates the middle one (1): it and both copies touching it produce, 9 Stone and 6 Metal for one Action. Activating any of them again this round produces only from the Tile chosen: 3 Stone and 2 Metal.")}
   ${note("Example", "Had the Sentinel activated the left Mine Shaft instead, only it and the middle one would touch, giving 6 Stone and 4 Metal. The right one does not touch the left one and has not taken part, but its neighbour the middle one has, so it could later produce only alone that round.")}
   <h3>The Warehouse</h3>
@@ -374,7 +374,7 @@ P.push(page("7 · Reading a Tile", "Reading a Tile", `
     <li><b>Upgraded side.</b> A silver frame and the name of the basic side it came from.</li>
   </ol>
   <div class="symbols">${[["Resource Wood", "Wood"], ["Resource Stone", "Stone"], ["Resource Metal", "Metal"], ["Resource Food", "Food"], ["Resource Herbs", "Herbs"], ["Resource Goods", "Goods"], ["Population", "Population"], ["Renown", "Renown"]].map(([f, n]) => `<div>${icon(f)}<span>${n}</span></div>`).join("")}</div>
-  <p>Read a number beside a symbol as that amount. Two costs separated by &ldquo;or&rdquo; mean pay either one. Once per round and once per Season refresh when the next round or Season starts. Special Tiles have a coloured margin and a numbered back. Golden Tiles have a gold frame and print their placement rule in the effect box.</p>`, "anatomy"));
+  <p>Read a number beside a symbol as that amount. Two costs separated by &ldquo;or&rdquo; mean pay either one. When a Tile uses an ability marked once per round, put an X token on it: it cannot use that ability again until the X comes off at the end of the round. Once per Season refreshes when the next Season starts. Special Tiles have a coloured margin and a numbered back. Golden Tiles have a gold frame and print their placement rule in the effect box.</p>`, "anatomy"));
 
 // 14 Placing Tiles
 P.push(page("8 · Placing Tiles", "Terrain, placement and adjacency", `
@@ -413,7 +413,7 @@ P.push(page("9 · Special Tiles", "Unlocking and placing Special Tiles", `
     ${fig("fig-special", [["ring", "M4"]], "Placed later on a reachable Heaths hex.", "small")}
   </div>
   <h3>Special Tiles on their terrain</h3>
-  <p>These Special Tiles go on the listed terrain. They need no adjacent Resource Tile. Their effects still apply exactly as written, and any other printed requirement still uses side-sharing adjacency.</p>
+  <p>These Special Tiles go on the listed terrain. They need no adjacent Resource Tile. Their effects still apply exactly as written, and any other printed requirement still uses side-sharing adjacency. The five Shrines have no once-per-round limit: a Shrine adds its gain every time an adjacent matching producer produces, and never takes an X token.</p>
   ${table(["Place on", "Special Tiles"], [
     ["Heaths", "13 Shrine of Ancients, 23 The Root Weavers Respite"],
     ["Mountains", "15 Shrine of Depths, 19 The Iron Roots Respite"],
@@ -573,7 +573,7 @@ P.push(page("When effects meet", "When effects meet", `
     <div><b><span>1</span>Reveal</b>Reveal until the standard cards revealed equal the player count. Golden Boons do not count, so keep revealing.</div>
     <div><b><span>2</span>Resolve</b>Apply each revealed card&rsquo;s current Season row and finish every payment, choice and Strain it creates.</div>
     <div><b><span>3</span>Play</b>Clockwise from this round&rsquo;s first player, each player takes one turn of up to 4 Actions (3 with 4 or 5 players). Free effects can be used during your turn.</div>
-    <div><b><span>4</span>End</b>Arrivals lose a timer and failures are resolved one by one. Short effects end, round effects refresh, the Round marker moves on.</div>
+    <div><b><span>4</span>End</b>Arrivals lose a timer and failures are resolved one by one. Short effects end, X tokens come off, the Round marker moves on.</div>
   </div>
   <h3>When an effect would add Strain</h3>
   <div class="pipe">
@@ -747,7 +747,7 @@ P.push(page("19 · Twin Settlements", "Twin Settlements", `
 // 29 Quick reference
 P.push(page("20 · Quick reference", "Quick reference", `
   <h3>The round</h3>
-  <div class="qr3"><div><span>1</span>Reveal and resolve Encounters</div><div><span>2</span>Clockwise from the first player (one seat left each round), each player takes one turn of up to 4 Actions (3 with 4 or 5 players)</div><div><span>3</span>Remove Arrival timers, resolve failures, tidy up, move the Round marker</div></div>
+  <div class="qr3"><div><span>1</span>Reveal and resolve Encounters</div><div><span>2</span>Clockwise from the first player (one seat left each round), each player takes one turn of up to 4 Actions (3 with 4 or 5 players)</div><div><span>3</span>Remove Arrival timers, resolve failures, remove X tokens, tidy up, move the Round marker</div></div>
 
   <h3>Placing Strain</h3>
   <div class="qr4"><div><b>Select</b>Find the eligible Tiles, then draw a Target Card</div><div><b>Prevent</b>Supported and other prevention first</div><div><b>Check</b>At 3 Strain the Tile is Overstrained</div><div><b>Chain</b>After the effect, each newly Overstrained Tile spreads 1 Strain</div></div>
@@ -800,6 +800,7 @@ const gloss = [
   ["Steward&rsquo;s Ledger", "Your group&rsquo;s pile of completed Quest Cards. It unlocks the Golden pairs."],
   ["Strain Cascade", "Card-specific Strain placements resolved inside the original effect."],
   ["Supported", "A bronze token that stops 1 Strain. Passive or single-use; never stacks."],
+  ["X token", "A small natural wooden X on a Tile whose once-per-round ability or Linked Production was used this round. All come off at the end of the round."],
   ["Vow", "A Quest Card half whose rule must hold all game."],
   ["Warehouse", "The shared supply of resources, normally at most 15 of each."],
   ["River/Water", "The map&rsquo;s water. It blocks connection unless a Bridge or another rule allows the crossing."],
@@ -810,7 +811,7 @@ const GSPLIT = 22;
 P.push(page("21 · Glossary", "Glossary", glossDl(gloss.slice(0, GSPLIT)), "glossary"));
 
 // 31 Index
-const where = [["Arrivals", "arrivals"], ["Boons and Burdens", "boons"], ["Components", "comp1"], ["End of a Season", "seasonend"], ["Final scoring", "scoring"], ["First round, guided", "round1"], ["Four Actions", "turn"], ["Golden content", "goldenp"], ["Linked Production", "prod"], ["Neighbourly Support", "seasonend"], ["Overstrain chains", "chain"], ["Quest Cards", "quest"], ["Questions at the table", "faqp"], ["Reachability", "rivers"], ["Reading a Tile", "anatomy"], ["Rivers and Bridges", "rivers"], ["Round sequence", "round"], ["Seeding", "seeding"], ["Setup", "setupfig"], ["Shelter in the Ruins", "place"], ["Special Tile numbers", "special"], ["Steward meeple movement", "turn"], ["Stewards", "stewardsp"], ["Strain and Supported", "strain"], ["Target Cards", "target"], ["Timing", "timing"], ["Twin Settlements", "twinp"], ["Warehouse", "prod"]].map(([t, id]) => [t, `{{p:${id}}}`]);
+const where = [["Arrivals", "arrivals"], ["Boons and Burdens", "boons"], ["Components", "comp1"], ["End of a Season", "seasonend"], ["Final scoring", "scoring"], ["First round, guided", "round1"], ["Four Actions", "turn"], ["Golden content", "goldenp"], ["Linked Production", "prod"], ["Neighbourly Support", "seasonend"], ["Overstrain chains", "chain"], ["Quest Cards", "quest"], ["Questions at the table", "faqp"], ["Reachability", "rivers"], ["Reading a Tile", "anatomy"], ["Rivers and Bridges", "rivers"], ["Round sequence", "round"], ["Seeding", "seeding"], ["Setup", "setupfig"], ["Shelter in the Ruins", "place"], ["Special Tile numbers", "special"], ["Steward meeple movement", "turn"], ["Stewards", "stewardsp"], ["Strain and Supported", "strain"], ["Target Cards", "target"], ["Timing", "timing"], ["Twin Settlements", "twinp"], ["Warehouse", "prod"], ["X tokens", "prod"]].map(([t, id]) => [t, `{{p:${id}}}`]);
 P.push(page("21 · Glossary", "Glossary, continued", `
   ${glossDl(gloss.slice(GSPLIT))}
   <h3>Where to look</h3>

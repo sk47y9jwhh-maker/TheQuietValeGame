@@ -2,7 +2,7 @@ import { useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, 
 import { mapLayout, terrainLabels } from "../../data/map";
 import { stewardById } from "../../data/stewards";
 import { getTileCategory } from "../../engine/placementRules";
-import { selectTileName } from "../../engine/selectors";
+import { hasRoundUseToken, selectTileName } from "../../engine/selectors";
 import type { GameState, PlacedTile, ResourceType } from "../../engine/types";
 import { MapArtworkImage } from "../map/MapArtwork";
 import { tileArtworkUrl } from "../common/TileArtwork";
@@ -436,7 +436,7 @@ export const TableBoard = forwardRef<TableBoardHandle, TableBoardProps>(function
           const choice = choiceMarks?.get(cell.id);
           const name = placed ? selectTileName(placed) : "";
           const label = placed
-            ? `${cell.id}, ${name}${placed.side === "upgraded" ? ", upgraded" : ""}, ${placed.strain} Strain${placed.strain >= 3 ? ", Overstrained" : ""}${placed.support.passive || placed.support.singleUse ? ", Supported" : ""}`
+            ? `${cell.id}, ${name}${placed.side === "upgraded" ? ", upgraded" : ""}, ${placed.strain} Strain${placed.strain >= 3 ? ", Overstrained" : ""}${placed.support.passive || placed.support.singleUse ? ", Supported" : ""}${hasRoundUseToken(state, placed) ? ", X token: used this round" : ""}`
             : `${cell.id}, empty ${terrainLabels[cell.terrain]}${legal ? ", legal space" : ""}`;
           const fullLabel = choice ? `${label}. ${choice.selected ? "Chosen" : "Choice"}: ${choice.label}` : label;
           return <g
@@ -547,6 +547,20 @@ function StrainTokens({ x, y, count, latest }: { x: number; y: number; count: nu
   </g>;
 }
 
+/**
+ * The small natural wooden X set on a tile when its once-per-round ability or
+ * its Linked Production is used. All X tokens come off at the end of the round.
+ */
+function RoundUseToken({ x, y }: { x: number; y: number }) {
+  const bar = (turn: number) => <rect x={-5.4} y={-1.05} width={10.8} height={2.1} rx={0.6} transform={`rotate(${turn})`} />;
+  return <g className="round-use-token" transform={`translate(${x} ${y})`}>
+    <title>X token: used this round</title>
+    <g className="round-use-token-shadow" transform="translate(0.6 0.9)">{bar(45)}{bar(-45)}</g>
+    <g className="round-use-token-body">{bar(45)}{bar(-45)}</g>
+    <path className="round-use-token-grain" d="M-3.6 -3.4 L3.4 3.6 M3.6 -3.4 L-3.4 3.6" />
+  </g>;
+}
+
 type TileMotion = "arriving" | "flipping" | "straining" | "supported";
 const distance = (tile: PlacedTile, from: { x: number; y: number }) => { const cell = boardCellById.get(tile.hexIds[0]); return cell ? Math.hypot(cell.x - from.x, cell.y - from.y) : Infinity; };
 
@@ -603,7 +617,6 @@ function TileToken({ state, tile, hexId, x, y, motion, sharp = false }: { state:
   const nameSize = Math.min(lines.length > 1 ? 5.6 : 6.6, 44 / (longest * 0.5));
   const nameY = lines.length > 1 ? windowTop + 6.4 : windowTop + 8.6;
   const mark = tile.kind === "special" ? "SPECIAL" : golden ? "GOLDEN" : tile.side === "upgraded" ? "UPGRADED" : "";
-  void state;
   const moving = arriving || flipping || straining;
   return <g className={`tile-token tile-${category}${overstrained ? " is-overstrained" : ""}${tile.side === "upgraded" ? " is-upgraded" : ""}${arriving ? " is-arriving" : ""}${flipping ? " is-flipping" : ""}${straining ? " is-straining" : ""}`} style={moving ? { transformOrigin: `${x}px ${y}px` } : undefined} aria-hidden="true">
     <clipPath id={clipId}><polygon points={hexPoints(x, y, hexRadius - 0.6)} /></clipPath>
@@ -625,6 +638,7 @@ function TileToken({ state, tile, hexId, x, y, motion, sharp = false }: { state:
     {(tile.strain > 0 || overstrained) && <StrainTokens x={x} y={windowBottom + 3.6} count={Math.min(3, tile.strain)} latest={straining} />}
     {arriving && <polygon className="tile-token-land" points={hexPoints(x, y, hexRadius - 0.6)} style={{ transformOrigin: `${x}px ${y}px` }} />}
     {gainedSupport && anchor && <polygon className="tile-token-ring" points={hexPoints(x, y, hexRadius - 1.6)} pathLength={1} />}
+    {anchor && hasRoundUseToken(state, tile) && <RoundUseToken x={x + 20} y={windowTop + 4} />}
     {supported && <g className="tile-token-support" transform={`translate(${x - 20} ${windowTop + 4})`}>
       <circle r={4.6} />
       <path d="M0 -2.7 L2.5 -1.7 L2.5 0.35 C2.5 2 1.25 2.85 0 3.2 C-1.25 2.85 -2.5 2 -2.5 0.35 L-2.5 -1.7 Z" />

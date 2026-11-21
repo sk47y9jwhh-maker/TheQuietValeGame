@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import { mapById, terrainLabels } from "../../data/map";
 import { coreTileById, goldenTileById, specialTileById } from "../../data/tiles";
 import { formatCategory, formatCost } from "../common/gameText";
-import { selectTileName } from "../../engine/selectors";
+import { hasRoundUseToken, selectTileName } from "../../engine/selectors";
 import type { GameState, Terrain, TileSideData } from "../../engine/types";
 
 interface TileInspectModalProps {
@@ -148,6 +148,7 @@ export function TileInspectModal({
               <span>{terrainNames.join(", ") || "Terrain unknown"}</span>
               <span>{placedTile.strain} of 3 Strain</span>
               {supported && <span>Supported</span>}
+              {hasRoundUseToken(state, placedTile) && <span>X token: used this round</span>}
             </>
           ) : (
             <>

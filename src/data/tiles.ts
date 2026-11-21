@@ -715,7 +715,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place on Ruins terrain."
     },
     effectText:
-      "Passive: Once per round, after an adjacent Salvage Camp or Reclamation Works produces, gain 2 Metal.",
+      "Passive: After an adjacent Salvage Camp or Reclamation Works produces, gain 2 Metal.",
     population: 0,
     renown: 5
   },
@@ -730,7 +730,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place on Heaths terrain."
     },
     effectText:
-      "Passive: Once per round, after an adjacent Gathering Outpost or Gathering Lodge produces, gain 2 Herbs.",
+      "Passive: After an adjacent Gathering Outpost or Gathering Lodge produces, gain 2 Herbs.",
     population: 0,
     renown: 5
   },
@@ -745,7 +745,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place on Arable Land terrain."
     },
     effectText:
-      "Passive: Once per round, after an adjacent Farmstead or Artisan Farm produces, gain 2 Food.",
+      "Passive: After an adjacent Farmstead or Artisan Farm produces, gain 2 Food.",
     population: 0,
     renown: 5
   },
@@ -760,7 +760,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place on Mountains terrain."
     },
     effectText:
-      "Passive: Once per round, after an adjacent Mine Tunnel or Mine Shaft produces, gain 2 Stone.",
+      "Passive: After an adjacent Mine Tunnel or Mine Shaft produces, gain 2 Stone.",
     population: 0,
     renown: 5
   },
@@ -775,7 +775,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place on Woodland terrain."
     },
     effectText:
-      "Passive: Once per round, after an adjacent Lumber Yard or Sustainable Lumber Yard produces, gain 2 Wood.",
+      "Passive: After an adjacent Lumber Yard or Sustainable Lumber Yard produces, gain 2 Wood.",
     population: 0,
     renown: 5
   },

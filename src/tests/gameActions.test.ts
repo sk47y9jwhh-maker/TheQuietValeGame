@@ -1,3 +1,4 @@
+import { hasRoundUseToken } from "../engine/selectors";
 import { describe, expect, it } from "vitest";
 import {
   activateTile,
@@ -505,7 +506,7 @@ describe("game actions", () => {
     expect(activatedWithoutLink.warehouse.goods).toBe(0);
   });
 
-  it("allows a linked producer to trigger an adjacent Shrine only once per round", () => {
+  it("lets a Shrine add its gain each time an adjacent producer produces", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
@@ -554,12 +555,22 @@ describe("game actions", () => {
     const firstActivation = activateTile(ready, "player_1", "farm_1");
     const secondActivation = activateTile(firstActivation, "player_1", "farm_1");
 
+    // Linked: both Farmsteads produce (4 Food); the Shrine beside farm_2 adds 2.
     expect(firstActivation.warehouse.food).toBe(6);
-    expect(firstActivation.tileActivationRecords.shrine.round).toBe(1);
+    // Shrines have no once-per-round limit, so they never take an X token.
+    expect(firstActivation.tileActivationRecords.shrine).toBeUndefined();
+    // Only farm_1 produces now, and the Shrine is not beside it.
     expect(secondActivation.warehouse.food).toBe(8);
+    // Both Farmsteads took part in Linked Production, so both carry an X token; the Shrine does not.
+    const tileById = (id: string) => firstActivation.map.placedTiles.find((tile) => tile.instanceId === id)!;
+    expect(hasRoundUseToken(firstActivation, tileById("farm_1"))).toBe(true);
+    expect(hasRoundUseToken(firstActivation, tileById("farm_2"))).toBe(true);
+    expect(hasRoundUseToken(firstActivation, tileById("shrine"))).toBe(false);
+    // The tokens come off when the round changes.
+    expect(hasRoundUseToken({ ...firstActivation, round: 2 }, tileById("farm_1"))).toBe(false);
   });
 
-  it("applies adjacent Shrine production passives automatically once per round", () => {
+  it("applies adjacent Shrine production passives automatically every time", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
@@ -603,7 +614,7 @@ describe("game actions", () => {
     expect(getActivatableTileIds(ready, "player_1")).not.toContain("tile_2");
 
     const activatedAgain = activateTile(activated, "player_1", "tile_1");
-    expect(activatedAgain.warehouse.food).toBe(6);
+    expect(activatedAgain.warehouse.food).toBe(8);
   });
 
   it("does not offer an activated effect when it has no legal target", () => {

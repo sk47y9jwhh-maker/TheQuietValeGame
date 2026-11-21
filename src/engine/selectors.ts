@@ -13,3 +13,12 @@ export function selectTileName(tile: PlacedTile): string {
 export function selectEncounterName(cardId: string): string {
   return encounterById[cardId]?.name ?? cardId;
 }
+
+/**
+ * Whether a tile carries an X token: its once-per-round ability, or its Linked
+ * Production, has been used this round. The tokens come off at the end of the round.
+ */
+export function hasRoundUseToken(state: GameState, tile: PlacedTile): boolean {
+  const record = state.tileActivationRecords[tile.instanceId];
+  return record?.round === state.round || record?.linkedProductionRound === state.round;
+}

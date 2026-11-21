@@ -118,7 +118,7 @@ const rules: RuleReferenceCard[] = [
           "Reveal until the number of standard Encounters revealed equals the player count. Resolve every mandatory reveal effect before turns begin.",
           "Turns go round the table from the first player, who moves one seat along every round, so everyone takes a turn going first. Every player takes exactly one turn with up to 4 Actions (3 Actions with 4 or 5 players) and may end their turn early.",
           "After all turns, remove 1 timer from every active Arrival and resolve each expiry.",
-          "Discard effects whose duration ends, refresh round-based effects, and advance the Round marker."
+          "Remove every X token, discard effects whose duration ends, refresh round-based effects, and advance the Round marker."
         ]
       }
     ],
@@ -160,8 +160,16 @@ const rules: RuleReferenceCard[] = [
         title: "Linked Production",
         bullets: [
           "The first eligible activation in an immediately adjacent group from the same Resource Tile stack makes the chosen Tile and every adjacent non-Overstrained copy produce for one Action.",
-          "Linked Production does not continue outward through a chain. Mark every producer as having participated this round.",
-          "A later activation involving any Tile that already participated produces only from the chosen Tile. A disconnected matching group may still use its own Linked Production."
+          "Linked Production does not continue outward through a chain. Put an X token on every Tile that produced.",
+          "A later activation involving any Tile with an X token produces only from the chosen Tile. A disconnected matching group may still use its own Linked Production."
+        ]
+      },
+      {
+        title: "X tokens: once per round",
+        bullets: [
+          "When a Tile uses an ability marked once per round, put a small natural wooden X token on it. Linked Production uses the same token.",
+          "A Tile with an X token cannot use that ability, or join Linked Production, again this round. Remove every X token at the end of the round.",
+          "The five Shrines have no once-per-round limit: each adds its gain every time an adjacent matching producer produces, and never takes an X token."
         ]
       },
       {
@@ -616,7 +624,7 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
                 <strong>End the round</strong>
                 <p>
                   After all turns, remove 1 timer from each active Arrival and resolve expiries.
-                  Discard ended effects, refresh round-based effects, and advance the Round marker.
+                  Remove every X token, discard ended effects, refresh round-based effects, and advance the Round marker.
                 </p>
               </div>
             </article>

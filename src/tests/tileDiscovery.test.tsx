@@ -44,17 +44,19 @@ describe("uncommitted action forecasts", () => {
     expect(window.localStorage.length).toBe(0);
   });
 
-  it("accounts for linked production, a Shrine and repeated production in the same round", () => {
+  it("accounts for linked production, a Shrine on every production and repeated production in the same round", () => {
     const state = productionState();
-    state.warehouse.wood = 5;
+    state.warehouse.wood = 1;
     state.warehouse.food = 5;
     state.map.placedTiles.push(placed("c01_lumber_yard", "linked", "H1", "upgraded"), placed("special_shrine_of_renewal", "shrine", "G2", "special"));
     const first = previewTileAction(state, state.currentPlayerId, { type: "activate", placedTileId: "lumber" });
-    expect(first.resources.find((change) => change.resource === "wood")?.after).toBe(12);
+    // 2 + 3 from the linked Lumber Yards, and the Shrine adds 2 for each of them.
+    expect(first.resources.find((change) => change.resource === "wood")?.after).toBe(10);
     expect(first.resources.find((change) => change.resource === "food")?.after).toBe(7);
     const next = activateTile(state, state.currentPlayerId, "lumber");
     const second = previewTileAction(next, next.currentPlayerId, { type: "activate", placedTileId: "lumber" });
-    expect(second.resources.find((change) => change.resource === "wood")?.delta).toBe(2);
+    // Linked Production is spent: one Lumber Yard produces 2 and the Shrine adds 2 again.
+    expect(second.resources.find((change) => change.resource === "wood")?.delta).toBe(4);
     expect(second.resources.some((change) => change.resource === "food")).toBe(false);
   });
 

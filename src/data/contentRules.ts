@@ -183,14 +183,16 @@ export interface ProductionPassiveRule {
   sourceTileId: string;
   gain: { kind: "fixed"; resources: Partial<ResourceCost> } | { kind: "producedTypes"; amount: number };
   removeStrainFromProducer?: number;
+  /** False for the Shrines: they apply every time an adjacent producer produces. */
+  oncePerRound?: boolean;
 }
 
 export const productionPassiveRules: Record<string, ProductionPassiveRule> = {
-  special_shrine_of_ancestors: { sourceTileId: "c20_dig_site", gain: { kind: "fixed", resources: { metal: 2 } } },
-  special_shrine_of_ancients: { sourceTileId: "c03_gathering_outpost", gain: { kind: "fixed", resources: { herbs: 2 } } },
-  special_shrine_of_bounty: { sourceTileId: "c04_farmstead", gain: { kind: "fixed", resources: { food: 2 } } },
-  special_shrine_of_depths: { sourceTileId: "c02_mine_tunnel", gain: { kind: "fixed", resources: { stone: 2 } } },
-  special_shrine_of_renewal: { sourceTileId: "c01_lumber_yard", gain: { kind: "fixed", resources: { wood: 2 } } },
+  special_shrine_of_ancestors: { sourceTileId: "c20_dig_site", gain: { kind: "fixed", resources: { metal: 2 } }, oncePerRound: false },
+  special_shrine_of_ancients: { sourceTileId: "c03_gathering_outpost", gain: { kind: "fixed", resources: { herbs: 2 } }, oncePerRound: false },
+  special_shrine_of_bounty: { sourceTileId: "c04_farmstead", gain: { kind: "fixed", resources: { food: 2 } }, oncePerRound: false },
+  special_shrine_of_depths: { sourceTileId: "c02_mine_tunnel", gain: { kind: "fixed", resources: { stone: 2 } }, oncePerRound: false },
+  special_shrine_of_renewal: { sourceTileId: "c01_lumber_yard", gain: { kind: "fixed", resources: { wood: 2 } }, oncePerRound: false },
   special_the_iron_roots_respite: {
     sourceTileId: "c02_mine_tunnel",
     gain: { kind: "fixed", resources: { metal: 1 } },
