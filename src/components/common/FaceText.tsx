@@ -11,6 +11,7 @@ import { gameIconUrl, type GameIconName } from "./GameIcon";
 export function FaceText({ text, compact = true }: { text: string; compact?: boolean }) {
   const shown = compact ? compactRulesText(text) : text;
   const parts = splitFaceText(shown);
+  if (!parts.some((part) => "icon" in part)) return <span className="face-text">{shown}</span>;
   const nodes: JSX.Element[] = [];
   parts.forEach((part, index) => {
     if (!("icon" in part)) {
