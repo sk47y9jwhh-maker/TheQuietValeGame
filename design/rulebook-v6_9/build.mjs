@@ -147,7 +147,7 @@ P.push(page("1 · Components", "What is in the box", `
     ["Target Cards", "30 poker-size cards with silver backs (page {{p:target}}).", at(5)],
     ["Stewards", "6 Steward Guides and 6 matching wooden Steward meeples (page {{p:stewardsp}}).", at(2) + at(10)],
     ["Resources", "90 wooden pieces in six colours: 15 each of Wood, Stone, Metal, Food, Herbs and Goods.", at(6)],
-    ["Tokens", "Black wooden Strain tokens; bronze tokens for Supported, Arrival timers and the Round marker; small natural wooden X tokens for once-per-round uses.", at(3) + at(7)],
+    ["Tokens", "Black wooden Strain tokens; 20 bronze shields for Supported; 20 bronze discs for Arrival timers; 20 small natural wooden X tokens for once-per-round uses; the Round marker.", at(3) + at(7)],
   ], "comp")}
   ${note("Before your first game", "Leave the Golden Tiles and Golden Boons in the box. They enter play only once the Steward&rsquo;s Ledger unlocks them (page {{p:quest}}).")}`, "comp1"));
 
@@ -164,7 +164,7 @@ P.push(page("2 · Setup", "Setting up a two-player game", `
     <li>The Encounter deck, face down.</li>
     <li>The Target deck, shuffled once and face down.</li>
     <li>The Warehouse: 10 of every resource for two players, spare pieces below the stitch.</li>
-    <li>Strain, bronze and X tokens.</li>
+    <li>Strain tokens, bronze shields and discs, and X tokens.</li>
     <li>This game&rsquo;s Quest Card.</li>
     <li>The Core Tile supply, basic side up, by category.</li>
     <li>Each player&rsquo;s Steward Guide.</li>
@@ -239,7 +239,7 @@ P.push(page("4 · The round", "How a round works", `
     ["<b>3. End of the round</b>", "Remove 1 timer from every active Arrival and resolve any that run out. Discard effects whose time is up, remove every X token, then move the Round marker on."],
   ], "phase")}
   ${fig("fig-inplay", [["num", [0.075, 0.12], 1, 15], ["num", [0.31, 0.06], 2, 15], ["num", [0.56, 0.06], 3, 15], ["num", [0.81, 0.06], 4, 15]], "The Encounter board during Round 2 of a two-player game.")}
-  <ol class="legend inline"><li>The Encounter deck.</li><li>An Arrival with its 3 bronze timers.</li><li>An active Burden.</li><li>A Boon kept face up until it is used.</li></ol>
+  <ol class="legend inline"><li>The Encounter deck.</li><li>An Arrival with its 3 bronze timer discs.</li><li>An active Burden.</li><li>A Boon kept face up until it is used.</li></ol>
   ${note("Pending effects", "A pending effect is any mandatory choice, payment, placement, Strain, chain or other instruction already started but not finished. Finish it before turns begin or before moving to the next step.")}
   ${note("Golden content", "Golden Tiles and Golden Boons stay in the box until the Steward&rsquo;s Ledger unlocks them. If your group uses them, see page {{p:goldenp}}.", "gold")}`, "round"));
 
@@ -253,7 +253,7 @@ P.push(page("Your first round", "Your first round", `
       <p>Each player chooses 3 cards from their hand and seeds them into the Encounter deck: one on top, one in the middle and one at the bottom. The other 6 stay in hand for Seasons II and III.</p>
       <h3>1. Reveal Encounters</h3>
       <p>With two players, reveal 2 cards. They are <i>Quiet Quest</i>, an Arrival, and <i>Old Wounds Reopen</i>, a Burden.</p>
-      <p><b>Quiet Quest</b> goes in play with a bronze timer in each of its 3 circles. Paying 4 Goods and 2 Herbs will unlock Special Tile 1.</p>
+      <p><b>Quiet Quest</b> goes in play with a bronze timer disc in each of its 3 circles. Paying 4 Goods and 2 Herbs will unlock Special Tile 1.</p>
       <p><b>Old Wounds Reopen</b> applies its Season I row: choose 1 Social or Wellbeing Tile, then pay 2 Herbs or put 1 Strain on it. There is no such Tile yet, so nothing happens, but the Burden stays active. Left alone it would apply again in Season II and cost 10 points at the end.</p>
       <h3>2. Player turns</h3>
       <p>The players agree that the Knight goes first. Their turns are on the next page; this is the map once both have played.</p>
@@ -431,7 +431,7 @@ P.push(page("10 · Encounter Cards", "Encounter Cards at a glance", `
   <div class="enc4 grid2">
     <figure>${cardImg("card-boon-a-little-time.webp")}<figcaption><b>Boon</b>Use the row for the current Season. The italic line under it says whether the card is used at once, stays face up, has limited uses or ends with the Season.</figcaption></figure>
     <figure>${cardImg("card-burden-old-wounds.webp")}<figcaption><b>Burden</b>Apply the current row when it is revealed and leave the card active. Its italic line gives the Action and payment that resolve and discard it.</figcaption></figure>
-    <figure>${cardImg("card-arrival-quiet-quest.webp")}<figcaption><b>Arrival</b>Put a bronze timer in each of the three circles. Meet its Requirements with an Interact Action to unlock the Special Tile named in its Reward.</figcaption></figure>
+    <figure>${cardImg("card-arrival-quiet-quest.webp")}<figcaption><b>Arrival</b>Put a bronze timer disc in each of the three circles. Meet its Requirements with an Interact Action to unlock the Special Tile named in its Reward.</figcaption></figure>
     <figure>${cardImg("card-golden-scroll.webp")}<figcaption><b>Golden Boon</b>No Season rows and no timers. Resolve it free when revealed; it does not count towards the cards revealed each round.</figcaption></figure>
   </div>
   ${note("Current Season", "Use row I in Foundations (Rounds 1 to 4), II in Growth (Rounds 5 to 8) and III in Maturity (Rounds 9 to 12).")}
@@ -463,7 +463,7 @@ P.push(page("10 · Encounter Cards", "Arrivals", `
   <div class="side-card">
     ${cardImg("card-arrival-quiet-quest.webp")}
     <div>
-      <p class="lead">Arrivals are timed goals that unlock Special Tiles. When one is revealed, put it in play with a bronze timer in each of its 3 circles.</p>
+      <p class="lead">Arrivals are timed goals that unlock Special Tiles. When one is revealed, put it in play with a bronze timer disc in each of its 3 circles.</p>
       <p><i>Quiet Quest</i> asks for 4 Goods and 2 Herbs and unlocks Special Tile 1, the Adventurers&rsquo; Guild.</p>
       <p>To complete an Arrival, meet its Requirements and spend 1 Interact Action before its last timer is removed. Remove the timers, discard the card and set the unlocked Special Tile on the Tiles board.</p>
     </div>
@@ -491,12 +491,12 @@ P.push(page("11 · Strain and Supported", "Strain and Supported", `
     </div>
     <div>
       <h3>Supported</h3>
-      <p>A bronze token on a Tile shows Supported. Supported stops 1 Strain before you check whether the Tile becomes Overstrained. A Tile either has Supported or does not: it never stacks.</p>
+      <p>A bronze shield on a Tile shows Supported. Supported stops 1 Strain before you check whether the Tile becomes Overstrained. A Tile either has Supported or does not: it never stacks.</p>
       <p><b>Passive Supported</b> lasts while its source&rsquo;s condition holds and stops the first Strain on that Tile each round. Common Land gives it to 1 adjacent Housing Tile; The Pleasance to up to 3. Choose them when the effect starts and keep them until the eligible Tiles change or the source becomes Overstrained. You cannot move it in answer to incoming Strain.</p>
       <p><b>Single-use Supported</b>, from placement, activation or another effect, stops 1 Strain and is then removed.</p>
     </div>
   </div>
-  ${fig("fig-strain", [["badge", "G5", "0", 0.55, -0.45], ["badge", "I6", "1", 0.55, -0.45], ["badge", "H6", "2", 0.55, -0.45], ["badge", "G6", "3", 0.55, -0.45, "red"], ["arrow", "H7", "H6", 0.62]], "The Eatery has no Strain, the Cottage 1 and the Cabin 2. The Common Land gives the Cabin passive Supported (the bronze token), so the next Strain that reaches it this round is stopped. The Path holds 3 Strain and is Overstrained.", "side")}
+  ${fig("fig-strain", [["badge", "G5", "0", 0.55, -0.45], ["badge", "I6", "1", 0.55, -0.45], ["badge", "H6", "2", 0.55, -0.45], ["badge", "G6", "3", 0.55, -0.45, "red"], ["arrow", "H7", "H6", 0.62]], "The Eatery has no Strain, the Cottage 1 and the Cabin 2. The Common Land gives the Cabin passive Supported (the bronze shield), so the next Strain that reaches it this round is stopped. The Path holds 3 Strain and is Overstrained.", "side")}
   <p class="small">The Golden Garden and every other prevention apply at the same step as Supported. Prevented Strain is not placed, moved elsewhere or able to start a spread.</p>`, "strain"));
 
 // 21 Overstrained and chains
@@ -753,7 +753,7 @@ P.push(page("20 · Quick reference", "Quick reference", `
   <div class="qr4"><div><b>Select</b>Find the eligible Tiles, then draw a Target Card</div><div><b>Prevent</b>Supported and other prevention first</div><div><b>Check</b>At 3 Strain the Tile is Overstrained</div><div><b>Chain</b>After the effect, each newly Overstrained Tile spreads 1 Strain</div></div>
   <h3>Season transition, after Rounds 4 and 8</h3>
   <ol class="mini"><li>Finish Arrival failures.</li><li>Discard Boons that end with the Season.</li><li>Neighbourly Support: 1 Supported per 3 Housing Tiles in a cluster.</li><li>Apply every Burden again with the new row.</li><li>Refresh every Steward Power.</li><li>Seed the Encounter deck.</li></ol>
-  <div class="status"><b>Watch a Tile&rsquo;s Strain</b><span><em>1 or 2</em> It still works normally.</span><span><em>3</em> Overstrained: no effects, no connection, no score, and it spread 1 Strain when it got there.</span><span><em>Bronze</em> Supported: the next Strain is stopped.</span></div>
+  <div class="status"><b>Watch a Tile&rsquo;s Strain</b><span><em>1 or 2</em> It still works normally.</span><span><em>3</em> Overstrained: no effects, no connection, no score, and it spread 1 Strain when it got there.</span><span><em>Bronze shield</em> Supported: the next Strain is stopped.</span></div>
   <h3>Costs and limits</h3>
   ${table(["Rule", "Remember"], [
     ["Warehouse", "At most 15 of each. Start with 15, 10, 5, 0 or 0 of each for 1 to 5 players. Never below zero."],
@@ -799,7 +799,7 @@ const gloss = [
   ["Steward meeple", "Your wooden piece on the map. Your reach starts from the Tile it stands on."],
   ["Steward&rsquo;s Ledger", "Your group&rsquo;s pile of completed Quest Cards. It unlocks the Golden pairs."],
   ["Strain Cascade", "Card-specific Strain placements resolved inside the original effect."],
-  ["Supported", "A bronze token that stops 1 Strain. Passive or single-use; never stacks."],
+  ["Supported", "A bronze shield that stops 1 Strain. Passive or single-use; never stacks."],
   ["X token", "A small natural wooden X on a Tile whose once-per-round ability or Linked Production was used this round. All come off at the end of the round."],
   ["Vow", "A Quest Card half whose rule must hold all game."],
   ["Warehouse", "The shared supply of resources, normally at most 15 of each."],

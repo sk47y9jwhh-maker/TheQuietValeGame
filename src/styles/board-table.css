@@ -274,8 +274,10 @@
 .tile-token.is-overstrained .tile-token-name { fill: #fbf3df; }
 .tile-token.is-overstrained .tile-token-edge { stroke: #c0522f; stroke-width: 2; stroke-opacity: 1; }
 .tile-token-over { fill: #f4c5a8; font-family: "Alegreya Sans", system-ui, sans-serif; font-size: 3.4px; font-weight: 700; letter-spacing: 0.1em; }
-.tile-token-support circle { fill: var(--bt-brass); stroke: #f6f0dc; stroke-width: 1; }
-.tile-token-support path { fill: #fff; }
+/* Supported: a bronze shield token. */
+.tile-token-support-shadow { fill: rgba(30, 22, 12, 0.4); }
+.tile-token-support-body { fill: #b07c3e; stroke: #6e4a22; stroke-width: 0.5; stroke-linejoin: round; }
+.tile-token-support-shine { fill: rgba(255, 226, 170, 0.28); }
 /* X token: a small natural wooden cross on a tile whose once-per-round ability or Linked Production is used this round. */
 .round-use-token { pointer-events: none; animation: bt-round-use-drop 0.35s ease-out both; }
 .round-use-token-shadow rect { fill: rgba(30, 22, 12, 0.38); }

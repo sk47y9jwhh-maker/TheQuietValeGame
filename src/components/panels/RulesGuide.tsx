@@ -47,7 +47,7 @@ const rules: RuleReferenceCard[] = [
         title: "Shared supplies",
         bullets: [
           "90 resources: 15 each of Wood, Stone, Metal, Food, Herbs, and Goods.",
-          "30 black markers and 30 bronze markers. Strain is black. Supported and the Round marker are bronze. Arrival timers may use either colour.",
+          "Black wooden Strain tokens, 20 bronze shields for Supported, 20 bronze discs for Arrival timers and 20 small natural wooden X tokens for once-per-round uses.",
           "5 Golden Tiles remain out of play until unlocked through the Steward’s Ledger."
         ]
       }

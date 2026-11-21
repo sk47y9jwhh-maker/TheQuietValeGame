@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Table scenes for the rulebook: the printed v4 map board with the artist's
-tiles, black wooden Strain tokens, bronze tokens and Steward meeples set on it,
+tiles, black wooden Strain tokens, bronze Supported shields and Steward meeples set on it,
 drawn the way a photograph of the real game would show them.
 
     from scene import Scene
@@ -21,7 +21,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageEnhance
 
 ROOT = Path(__file__).resolve().parents[2]
 TILES = ROOT / "public/tiles"
@@ -124,6 +124,53 @@ def _disc(d_px: int, base, sheen=0.35, grain=0.0, seed=1, rim=0.25) -> Image.Ima
     return im.resize((d_px, d_px), Image.Resampling.LANCZOS)
 
 
+def _lit_shape(mask: Image.Image, base, sheen=0.5, grain=0.0, seed=1, rim=0.25) -> Image.Image:
+    """Shade a flat wooden or metal piece cut to `mask` (L, drawn 3x), lit from the upper left."""
+    D = mask.width
+    yy, xx = np.mgrid[0:mask.height, 0:D].astype(np.float32)
+    m = np.asarray(mask, np.float32) / 255
+    blur = np.asarray(mask.filter(ImageFilter.GaussianBlur(D * 0.04)), np.float32) / 255
+    edge = 1 - rim * np.clip((1 - blur) / 0.5, 0, 1)
+    light = 1 + sheen * np.clip(1 - np.hypot(xx - D * 0.32, yy - mask.height * 0.28) / (D * 0.6), 0, 1) ** 2
+    if grain:
+        rng = np.random.default_rng(seed)
+        ang = rng.uniform(0, math.pi)
+        u = (xx * math.cos(ang) + yy * math.sin(ang)) / D
+        g = 1 + grain * np.sin(u * 40 + 3 * np.sin(u * 7 + rng.uniform(0, 6)))
+    else:
+        g = 1
+    rgb = np.clip(np.array(base, np.float32) * (light * edge * g)[..., None], 0, 255)
+    im = Image.fromarray(np.dstack([rgb.astype(np.uint8), (m * 255).astype(np.uint8)]), "RGBA")
+    return im.resize((D // 3, mask.height // 3), Image.Resampling.LANCZOS)
+
+
+def _shield(h_px: int, base=(176, 124, 62)) -> Image.Image:
+    """A bronze Supported shield seen from above."""
+    H = h_px * 3
+    W = round(H * 0.86)
+    mask = Image.new("L", (W, H), 0)
+    d = ImageDraw.Draw(mask)
+    pts = [(W * 0.5, 0), (W, H * 0.16), (W, H * 0.5)]
+    for t in np.linspace(0, 1, 24):  # the curved lower edge to the point
+        pts.append((W * (1 - 0.5 * t), H * (0.5 + 0.5 * math.sin(t * math.pi / 2))))
+    pts += [(W * (0.5 * t), H * (0.5 + 0.5 * math.sin(t * math.pi / 2))) for t in np.linspace(1, 0, 24)][1:]
+    pts += [(0, H * 0.5), (0, H * 0.16)]
+    d.polygon(pts, fill=255)
+    return _lit_shape(mask, base, sheen=0.6, rim=0.35)
+
+
+def _xtoken(d_px: int, base=(214, 184, 136), seed=1) -> Image.Image:
+    """A small natural wooden X: two crossed bars."""
+    D = d_px * 3
+    mask = Image.new("L", (D, D), 0)
+    bar = Image.new("L", (D, D), 0)
+    ImageDraw.Draw(bar).rounded_rectangle((0, D * 0.39, D - 1, D * 0.61), radius=D * 0.05, fill=255)
+    for ang in (45, -45):
+        mask = ImageChops.lighter(mask, bar.rotate(ang, resample=Image.Resampling.BICUBIC))
+    # Trim the bar ends back inside the square after turning.
+    return _lit_shape(mask, base, sheen=0.35, grain=0.08, seed=seed, rim=0.3)
+
+
 def _meeple(h_px: int, colour) -> Image.Image:
     """A Steward meeple from above and a little in front, painted wood."""
     k = 4
@@ -201,8 +248,8 @@ class Scene:
             disc = _disc(d, (34, 31, 28), sheen=0.55, grain=0.06, seed=(sum(map(ord, hex_id)) * 7 + k) & 0xFFFF, rim=0.35)
             self._paste(disc, cx + dx * 2 * HEX_R * PPM, cy - 0.08 * HEX_H * PPM, shadow=(5, 0.7), lift=(3, 6))
         if supported:
-            disc = _disc(d, (176, 124, 62), sheen=0.6, grain=0.0, rim=0.3)
-            self._paste(disc, cx - 0.31 * 2 * HEX_R * PPM, cy - 0.06 * HEX_H * PPM, shadow=(5, 0.7), lift=(3, 6))
+            shield = _shield(int(12.5 * PPM))
+            self._paste(shield, cx - 0.31 * 2 * HEX_R * PPM, cy - 0.06 * HEX_H * PPM, shadow=(5, 0.7), lift=(3, 6))
         return self
 
     def steward(self, hex_id: str, steward: str, dx: float = 0.24, dy: float = -0.18):

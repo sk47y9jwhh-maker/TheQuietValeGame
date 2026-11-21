@@ -36,7 +36,7 @@ BACK_GOLD = ROOT / "design/encounter-card-templates/card-back/print/card-back-po
 BACK_SILVER = ROOT / "design/encounter-card-templates/card-back/print/card-back-poker-silver-printerstudio-600dpi.png"
 QUEST = lambda n: ROOT / f"design/quest-cards/print/quest-{n:02d}.png"  # noqa: E731
 TARGET = lambda n: ROOT / f"design/target-cards/print/target-{n:02d}.png"  # noqa: E731
-GUIDE = lambda sid: ROOT / f"design/steward-guides/assets/cover-{sid}.jpg"  # noqa: E731
+GUIDE = lambda sid: ROOT / "design/steward-guides/assets/cover.jpg"  # noqa: E731  (one shared Steward Guide design since 6 Nov)
 RES_COLOURS = {"stone": (126, 135, 142), "metal": (101, 133, 151), "goods": (149, 86, 62),
                "wood": (91, 124, 76), "food": (151, 141, 52), "herbs": (123, 91, 137)}
 BRONZE = (176, 124, 62)
@@ -210,10 +210,17 @@ def setup_pieces(T):
             y = 92 + (k % 2) * 6 + rng.uniform(-1, 1)
             centre(lb, disc(10, RES_COLOURS[r], T, seed=k + i * 20 + 300, grain=0.05), x, y, T, shadow=(0.6, 0.6), lift=(0.4, 0.7))
     tx = LW - 6 - 80
-    for k in range(18):
-        centre(lb, disc(12, STRAIN, T, seed=k, grain=0.06, sheen=0.55), tx + 18 + (k % 4) * 13 + rng.uniform(-2, 2), 28 + (k // 4) * 13 + rng.uniform(-2, 2), T, shadow=(0.6, 0.6), lift=(0.4, 0.7))
+    col = lambda k: tx + 17 + (k % 5) * 11.5 + rng.uniform(-1.5, 1.5)
+    # Strain (black discs), Arrival timers (bronze discs), Supported (bronze shields), X tokens (natural wood).
+    for k in range(15):
+        centre(lb, disc(10.5, STRAIN, T, seed=k, grain=0.06, sheen=0.55), col(k), 30 + (k // 5) * 11 + rng.uniform(-1.5, 1.5), T, shadow=(0.6, 0.6), lift=(0.4, 0.7))
     for k in range(10):
-        centre(lb, disc(12, BRONZE, T, seed=k, sheen=0.6), tx + 22 + (k % 4) * 12 + rng.uniform(-2, 2), 98 + (k // 4) * 11 + rng.uniform(-2, 2), T, shadow=(0.6, 0.6), lift=(0.4, 0.7))
+        centre(lb, disc(10.5, BRONZE, T, seed=k, sheen=0.6), col(k), 66 + (k // 5) * 10.5 + rng.uniform(-1.2, 1.2), T, shadow=(0.6, 0.6), lift=(0.4, 0.7))
+    shield = S._shield(round(10.5 * T))
+    for k in range(5):
+        centre(lb, shield, col(k), 90 + rng.uniform(-1.2, 1.2), T, shadow=(0.6, 0.6), lift=(0.4, 0.7))
+    for k in range(10):
+        centre(lb, S._xtoken(round(9.5 * T), seed=k), col(k), 103 + (k // 5) * 10.5 + rng.uniform(-1.2, 1.2), T, shadow=(0.6, 0.6), lift=(0.4, 0.7))
 
     # Tiles board: the Quest Card and the Core Tile stacks.
     tb = board("04-tiles-board-v4", T)

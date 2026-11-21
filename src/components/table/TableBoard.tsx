@@ -547,6 +547,9 @@ function StrainTokens({ x, y, count, latest }: { x: number; y: number; count: nu
   </g>;
 }
 
+/** The bronze Supported shield, about 9 units tall. */
+const shieldPath = "M0 -4.9 L4.3 -3.3 L4.3 0.2 C4.3 2.9 2.3 4.4 0 5.2 C-2.3 4.4 -4.3 2.9 -4.3 0.2 L-4.3 -3.3 Z";
+
 /**
  * The small natural wooden X set on a tile when its once-per-round ability or
  * its Linked Production is used. All X tokens come off at the end of the round.
@@ -639,9 +642,11 @@ function TileToken({ state, tile, hexId, x, y, motion, sharp = false }: { state:
     {arriving && <polygon className="tile-token-land" points={hexPoints(x, y, hexRadius - 0.6)} style={{ transformOrigin: `${x}px ${y}px` }} />}
     {gainedSupport && anchor && <polygon className="tile-token-ring" points={hexPoints(x, y, hexRadius - 1.6)} pathLength={1} />}
     {anchor && hasRoundUseToken(state, tile) && <RoundUseToken x={x + 20} y={windowTop + 4} />}
+    {/* Supported: a bronze shield token. */}
     {supported && <g className="tile-token-support" transform={`translate(${x - 20} ${windowTop + 4})`}>
-      <circle r={4.6} />
-      <path d="M0 -2.7 L2.5 -1.7 L2.5 0.35 C2.5 2 1.25 2.85 0 3.2 C-1.25 2.85 -2.5 2 -2.5 0.35 L-2.5 -1.7 Z" />
+      <path className="tile-token-support-shadow" transform="translate(0.6 0.9)" d={shieldPath} />
+      <path className="tile-token-support-body" d={shieldPath} />
+      <path className="tile-token-support-shine" d="M-2.6 -3.1 L0 -4 L0 3.2 C-1.6 2.6 -2.9 1.4 -2.9 -0.4 Z" />
     </g>}
   </g>;
 }
