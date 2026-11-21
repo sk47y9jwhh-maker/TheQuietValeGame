@@ -6888,6 +6888,7 @@ input,
 .face-text-words { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .face-icon { display: inline-block; vertical-align: -0.16em; margin: 0 0.06em; }
 .face-icon-resource { width: 1.12em; height: 1.02em; object-fit: contain; }
+.face-icon-type { width: 1.15em; height: 1.05em; object-fit: contain; vertical-align: -0.2em; }
 .face-icon-strain { width: 0.8em; height: 0.8em; vertical-align: -0.06em; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #4a4a4a 0, #151515 58%, #050505 100%); box-shadow: 0 0.04em 0.08em rgba(0, 0, 0, 0.35); }
 .face-icon-supported { width: 0.92em; height: 1.02em; vertical-align: -0.18em; overflow: visible; }
 .face-icon-supported path { fill: #b07c3e; stroke: #6e4a22; stroke-width: 0.5; stroke-linejoin: round; }

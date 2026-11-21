@@ -35,6 +35,11 @@ export function FaceText({ text, compact = true }: { text: string; compact?: boo
   );
 }
 
+const tileTypeIcons: Partial<Record<FaceIconWord, GameIconName>> = {
+  Housing: "type-housing", Social: "type-social", Wellbeing: "type-wellbeing", Crafting: "type-crafting",
+  Merchant: "type-merchant", Travel: "type-travel", Resource: "type-resource"
+};
+
 export function FaceIcon({ word }: { word: FaceIconWord }) {
   if (word === "Strain") {
     return <span className="face-icon face-icon-strain" role="img" aria-label="Strain" title="Strain" />;
@@ -47,6 +52,10 @@ export function FaceIcon({ word }: { word: FaceIconWord }) {
         <path className="face-icon-supported-shine" d="M-2.6 -3.1 L0 -4 L0 3.2 C-1.6 2.6 -2.9 1.4 -2.9 -0.4 Z" />
       </svg>
     );
+  }
+  const type = tileTypeIcons[word];
+  if (type) {
+    return <img className="face-icon face-icon-type" src={gameIconUrl(type)} alt={`${word} Tile`} title={`${word} Tile`} decoding="async" />;
   }
   return (
     <img

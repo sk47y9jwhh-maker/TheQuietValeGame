@@ -44,17 +44,21 @@ const rules: Rule[] = [
   [/\breduce the resource cost of (.+?) by (\d+)\b/g, (_m, what, n) => `${what} costs ${MINUS}${n} resources`]
 ];
 
+/** Tile types drawn as their type icons on faces; "Housing Tile" becomes just the Housing icon. */
+const TYPES = "Housing|Social|Wellbeing|Crafting|Merchant|Travel|Resource";
+
 export function compactRulesText(text: string): string {
   let out = text;
   for (const [pattern, replacement] of rules) {
     out = out.replace(pattern, replacement as never);
   }
+  out = out.replace(new RegExp(`\\b(${TYPES}) [Tt]iles?\\b`, "g"), "$1");
   // A "+" or "−" that now opens a sentence keeps the sentence readable.
   return out.replace(/\s{2,}/g, " ");
 }
 
 /** Words a face renderer draws as icons. */
-export const faceIconWords = ["Wood", "Stone", "Food", "Metal", "Herbs", "Goods", "Population", "Renown", "Strain", "Supported"] as const;
+export const faceIconWords = ["Wood", "Stone", "Food", "Metal", "Herbs", "Goods", "Population", "Renown", "Strain", "Supported", "Housing", "Social", "Wellbeing", "Crafting", "Merchant", "Travel", "Resource"] as const;
 export type FaceIconWord = (typeof faceIconWords)[number];
 
 /** Split face text into plain runs and icon words ("Overstrained" stays a word). */
