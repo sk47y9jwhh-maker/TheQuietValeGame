@@ -10,7 +10,7 @@ import {
   commitStewardPlacement,
   validateStewardPlacement
 } from "../engine/gameActions";
-import { getSeasonForRound, revealCountForPlayers } from "../engine/season";
+import { actionsPerTurn, getSeasonForRound, revealCountForPlayers } from "../engine/season";
 import {
   supportedPlayerCounts,
   type EncounterData
@@ -152,6 +152,15 @@ describe("setup and round authority", () => {
     expect(Object.values(state.encounters.handsByPlayerId).every((hand) => hand.length === 9)).toBe(true);
     expect(state.encounters.deck).toHaveLength(15);
     expect(Object.values(state.warehouse).every((amount) => amount === 0)).toBe(true);
+  });
+
+  it("gives 4 actions per turn at 1 to 3 players and 3 at 4 to 5 players", () => {
+    expect(supportedPlayerCounts.map((count) => actionsPerTurn(count))).toEqual([4, 4, 4, 3, 3]);
+    const stewardIds = ["vanguard", "knight", "sentinel", "ranger", "warden"];
+    for (const count of supportedPlayerCounts) {
+      const state = createNewGame(count, stewardIds.slice(0, count), { encounterSeed: `QV-ACTIONS-${count}` });
+      expect(state.actionsRemaining).toBe(count >= 4 ? 3 : 4);
+    }
   });
 
   it("builds repeatable shuffled Encounter pools from a setup seed", () => {

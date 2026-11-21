@@ -1,3 +1,4 @@
+import { actionsPerTurn } from "../../engine/season";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { evaluateQuest } from "../../engine/quests";
 import { questHalfStatus } from "../common/QuestCardView";
@@ -642,7 +643,7 @@ function CompactTurn({ state, onOpenRail, onEndTurn, onReveal, onEndRound }: { s
       {resources.map((resource) => <li key={resource} className={`res-${resource}${state.warehouse[resource] === 0 ? " is-empty" : ""}`}><GameIcon name={resource} className="compact-res-icon" /><span className="compact-res-label">{resourceLabels[resource]}</span><strong>{state.warehouse[resource]}</strong></li>)}
     </ul>
     {state.phase === "turns" ? <div className="compact-turn-row">
-      <div><strong>{state.players.length > 1 ? `${steward?.name}’s turn` : "Your turn"}</strong><small>{player && !player.hasPlacedFirstTile ? `First, build on your Steward’s space, ${player.stewardHexId}. ${state.actionsRemaining} of 4 actions left.` : state.actionsRemaining > 0 ? `${state.actionsRemaining} of 4 actions left. Tap a tile or a space.` : "No actions left. End the turn when you are ready."}</small></div>
+      <div><strong>{state.players.length > 1 ? `${steward?.name}’s turn` : "Your turn"}</strong><small>{player && !player.hasPlacedFirstTile ? `First, build on your Steward’s space, ${player.stewardHexId}. ${state.actionsRemaining} of ${actionsPerTurn(state.playerCount)} actions left.` : state.actionsRemaining > 0 ? `${state.actionsRemaining} of ${actionsPerTurn(state.playerCount)} actions left. Tap a tile or a space.` : "No actions left. End the turn when you are ready."}</small></div>
       {confirming
         ? <span className="compact-confirm"><button type="button" className="rail-primary" onClick={onEndTurn}>End</button><button type="button" onClick={() => setConfirming(false)}>Keep</button></span>
         : <button type="button" className="rail-secondary" onClick={() => state.actionsRemaining > 0 ? setConfirming(true) : onEndTurn()}>End turn</button>}

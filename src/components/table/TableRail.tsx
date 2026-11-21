@@ -21,6 +21,7 @@ import type { EncounterData } from "../../engine/types";
 import { categoryNames, seatColors } from "./boardGeometry";
 import { tileArtworkUrl } from "../common/TileArtwork";
 import { GameIcon, categoryIcon } from "../common/GameIcon";
+import { actionsPerTurn } from "../../engine/season";
 
 interface TableRailProps {
   state: GameState;
@@ -75,8 +76,8 @@ export function TableRail(props: TableRailProps) {
         <span className="rail-avatar" style={{ background: seatColors[playerIndex % seatColors.length] }} aria-hidden="true">{steward?.name.slice(0, 1)}</span>
         <div>
           <h2>{state.players.length > 1 ? `${steward?.name ?? player.name}’s turn` : "Your turn"}{state.bonusTurnsActive ? " (bonus turn)" : ""}</h2>
-          <p className="rail-actions" aria-label={`${state.actionsRemaining} of 4 actions left`}>
-            {[0, 1, 2, 3].map((index) => <span key={index} className={index < state.actionsRemaining ? "is-left" : ""} />)}
+          <p className="rail-actions" aria-label={`${state.actionsRemaining} of ${actionsPerTurn(state.playerCount)} actions left`}>
+            {Array.from({ length: actionsPerTurn(state.playerCount) }, (_, index) => index).map((index) => <span key={index} className={index < state.actionsRemaining ? "is-left" : ""} />)}
             <span>{state.actionsRemaining} {state.actionsRemaining === 1 ? "action" : "actions"} left</span>
           </p>
         </div>

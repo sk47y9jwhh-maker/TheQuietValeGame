@@ -95,7 +95,7 @@ const stewardPages = [0, 2, 4].map((i) => page(`The Stewards · ${numerals[i]} a
 const turnPage = page("How a round works", "Your turn", `
   <div class="seasons">${[["I", "Foundations", "Rounds 1–4"], ["II", "Growth", "Rounds 5–8"], ["III", "Maturity", "Rounds 9–12"]].map(([n, t, r]) => `<div><span>${n}</span><b>${t}</b><i>${r}</i></div>`).join("")}</div>
   <h3 class="sub">Each round</h3>
-  ${steps([["Reveal.", "Reveal Encounter Cards until the number of standard cards revealed equals the player count. Finish every mandatory effect."], ["Turns.", "The group chooses the order. Each player takes one turn of up to 4 Actions and may stop early."], ["End of round.", "Remove 1 timer from every active Arrival and resolve any that run out. End durations, refresh round effects and move the Round marker."]])}
+  ${steps([["Reveal.", "Reveal Encounter Cards until the number of standard cards revealed equals the player count. Finish every mandatory effect."], ["Turns.", "The group chooses the order. Each player takes one turn of up to 4 Actions (3 with 4 or 5 players) and may stop early."], ["End of round.", "Remove 1 timer from every active Arrival and resolve any that run out. End durations, refresh round effects and move the Round marker."]])}
   <h3 class="sub">Four Actions (repeat any)</h3>
   <div class="actions">
     <div><b>Place</b>Put an available Tile on a legal, reachable empty hex and pay its cost.</div>

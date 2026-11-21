@@ -2,7 +2,7 @@ import { arrivals, boons, burdens, goldenBoons } from "../data/encounters";
 import { createWarehouse } from "../data/resources";
 import { stewards } from "../data/stewards";
 import { coreTiles, specialTiles } from "../data/tiles";
-import { getSeasonForRound } from "./season";
+import { actionsPerTurn, getSeasonForRound } from "./season";
 import { createLedgerRunState } from "./ledger";
 import { createQuestRun } from "./quests";
 import { createTargetCardDeckState } from "./targetCards";
@@ -199,7 +199,7 @@ export function createNewGame(
     season: getSeasonForRound(1),
     round: 1,
     phase: "setup",
-    actionsRemaining: 4,
+    actionsRemaining: actionsPerTurn(playerCount),
     playersActedThisRound: [],
     seasonSeededPlayerIds: [],
     warehouse: startingWarehouse,

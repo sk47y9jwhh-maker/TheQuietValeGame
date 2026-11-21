@@ -116,7 +116,7 @@ const rules: RuleReferenceCard[] = [
         title: "Every round",
         bullets: [
           "Reveal until the number of standard Encounters revealed equals the player count. Resolve every mandatory reveal effect before turns begin.",
-          "The group chooses player order. Every player takes exactly one turn with up to 4 Actions and may end their turn early.",
+          "The group chooses player order. Every player takes exactly one turn with up to 4 Actions (3 Actions with 4 or 5 players) and may end their turn early.",
           "After all turns, remove 1 timer from every active Arrival and resolve each expiry.",
           "Discard effects whose duration ends, refresh round-based effects, and advance the Round marker."
         ]
@@ -127,8 +127,8 @@ const rules: RuleReferenceCard[] = [
   {
     category: "Actions",
     page: "8–10",
-    title: "Your turn and four Actions",
-    summary: "Spend up to 4 Actions to Place, Upgrade, Activate, or Interact. Repeat any Action while it remains legal.",
+    title: "Your turn and your Actions",
+    summary: "Spend up to 4 Actions (3 with 4 or 5 players) to Place, Upgrade, Activate, or Interact. Repeat any Action while it remains legal.",
     sections: [
       {
         title: "The four Actions",
@@ -408,11 +408,11 @@ const rules: RuleReferenceCard[] = [
       {
         title: "Teach in layers",
         bullets: [
-          "Orient: show the shared score, Warehouse, and four Actions.",
+          "Orient: show the shared score, Warehouse, and Actions per turn (4, or 3 with 4 or 5 players).",
           "Choose Stewards: identify each Token, Starting Terrain, Power, and Objective.",
           "Seed: each player chooses one hidden card for the top, middle, and bottom.",
           "Reveal: show the required standard Encounters and finish every mandatory effect.",
-          "Order and play: the group chooses order. Each player takes one turn with up to 4 Actions.",
+          "Order and play: the group chooses order. Each player takes one turn with up to 4 Actions, or 3 with 4 or 5 players.",
           "Upkeep: resolve Arrival timers and failures, clean up, refresh, and advance the Round marker."
         ]
       }
@@ -605,7 +605,7 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
                 <strong>Choose order and take turns</strong>
                 <p>
                   Choose player order anew each round. In that order, every player takes one turn of
-                  up to 4 Actions: Place, Upgrade, Activate, or Interact.
+                  up to 4 Actions (3 with 4 or 5 players): Place, Upgrade, Activate, or Interact.
                 </p>
               </div>
             </article>

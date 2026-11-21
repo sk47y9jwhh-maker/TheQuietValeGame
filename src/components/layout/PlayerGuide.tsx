@@ -4,6 +4,7 @@ import { CircleHelp } from "lucide-react";
 import { stewardById } from "../../data/stewards";
 import type { GameState } from "../../engine/types";
 import { selectCurrentPlayer } from "../../engine/selectors";
+import { actionsPerTurn } from "../../engine/season";
 
 export function getPlayerGuidance(state: GameState) {
   if (state.pendingGoldenEffect || state.pendingCostChoice || state.pendingDeckReorder || state.pendingEffects.length) {
@@ -38,7 +39,7 @@ export function PlayerGuide({ state }: { state: GameState }) {
         <p>{guide.detail}</p>
         {(state.bonusTurnsPending || state.bonusTurnsActive) && <details className="golden-turn-order">
           <summary>{state.bonusTurnsActive ? "Golden bonus turn order" : "Golden bonus turns follow this round"}</summary>
-          <p>The Golden-Eyed Traveller grants every Steward one extra turn with 4 actions. {state.bonusTurnsActive ? "Normal turns are complete." : "Finish normal turns first."} This is still round {state.round}, with no new encounters or timer changes. Once-per-round and once-per-season uses stay spent.</p>
+          <p>The Golden-Eyed Traveller grants every Steward one extra turn with {actionsPerTurn(state.playerCount)} actions. {state.bonusTurnsActive ? "Normal turns are complete." : "Finish normal turns first."} This is still round {state.round}, with no new encounters or timer changes. Once-per-round and once-per-season uses stay spent.</p>
           <ol aria-label="Golden bonus turn order">{state.players.map((player) => <li key={player.id} aria-current={state.bonusTurnsActive && player.id === state.currentPlayerId ? "step" : undefined}><span>{stewardById[player.stewardId].name}</span><strong>{!state.bonusTurnsActive ? "After normal turns" : player.id === state.currentPlayerId ? "Playing now" : state.playersActedThisRound.includes(player.id) ? "Bonus turn taken" : "Next in order"}</strong></li>)}</ol>
         </details>}
       </div>

@@ -21,3 +21,8 @@ export function revealCountForPlayers(playerCount: number): number {
 
   return playerCount;
 }
+
+/** Actions per turn: 4 at 1 to 3 players, 3 at 4 to 5 players. */
+export function actionsPerTurn(playerCount: number): number {
+  return playerCount >= 4 ? 3 : 4;
+}

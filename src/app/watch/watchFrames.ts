@@ -10,6 +10,7 @@ import { preparePendingEffectQueueHead } from "../../engine/manualEffects";
 import { getHexNeighbors } from "../../engine/hex";
 import { encounterById } from "../../data/encounters";
 import type { DemoPause, WatchDemoData } from "./watchTypes";
+import { actionsPerTurn } from "../../engine/season";
 
 /** A close-up of what a step is about: the card or tile whose text matters. */
 export type WatchSpotlight =
@@ -97,8 +98,8 @@ export function displayState(state: GameState): GameState {
     ...state,
     phase: "turns",
     round: Math.min(12, state.round),
-    // Before a round's turns, the first Steward has all four actions to come; after them, none.
-    actionsRemaining: state.phase === "turns" ? state.actionsRemaining : state.phase === "seeding" || state.phase === "reveal" ? 4 : 0,
+    // Before a round's turns, the first Steward has a full turn of actions to come; after them, none.
+    actionsRemaining: state.phase === "turns" ? state.actionsRemaining : state.phase === "seeding" || state.phase === "reveal" ? actionsPerTurn(state.playerCount) : 0,
     pendingEffects: [],
     pendingCostChoice: null,
     pendingDeckReorder: null,

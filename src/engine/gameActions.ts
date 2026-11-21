@@ -53,7 +53,7 @@ import {
   getPlacedTileName,
   isPlacedTileAdjacentToCategory as isAdjacentToCategory
 } from "./placedTiles";
-import { getSeasonForRound, isSeasonStartRound, revealCountForPlayers } from "./season";
+import { actionsPerTurn, getSeasonForRound, isSeasonStartRound, revealCountForPlayers } from "./season";
 import { isTileReachable } from "./reachability";
 import { refreshPassiveSupported } from "./strainRules";
 import {
@@ -1242,7 +1242,7 @@ export function revealEncounters(state: GameState): GameState {
     ...state,
     phase: "turns",
     currentPlayerId: state.players[0].id,
-    actionsRemaining: 4,
+    actionsRemaining: actionsPerTurn(state.playerCount),
     playersActedThisRound: [],
     encounters: {
       ...state.encounters,
@@ -2662,7 +2662,7 @@ export function endCurrentTurn(state: GameState): GameState {
           players: playersWithExpiredReach,
           currentPlayerId: state.players[0].id,
           playersActedThisRound: [],
-          actionsRemaining: 4,
+          actionsRemaining: actionsPerTurn(state.playerCount),
           bonusTurnsPending: false,
           bonusTurnsActive: true
         },
@@ -2690,7 +2690,7 @@ export function endCurrentTurn(state: GameState): GameState {
       players: playersWithExpiredReach,
       currentPlayerId: nextPlayer.id,
       playersActedThisRound: acted,
-      actionsRemaining: 4
+      actionsRemaining: actionsPerTurn(state.playerCount)
     },
     `${nextPlayer.name}’s turn begins.`
   );
@@ -2726,7 +2726,7 @@ export function resolveEndRound(state: GameState): GameState {
       ...player,
       temporaryReachHexId: undefined
     })),
-    actionsRemaining: 4,
+    actionsRemaining: actionsPerTurn(state.playerCount),
     playersActedThisRound: [],
     seasonSeededPlayerIds: [],
     bonusTurnsPending: false,
