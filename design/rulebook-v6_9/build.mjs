@@ -125,7 +125,7 @@ P.push(page("The shortest route into the Vale", "The shortest route into the Val
   <div class="ideas">
     <div><b>Reach</b>You can only act where your meeple can reach through the settlement. Every Place, Upgrade and Activate moves it.</div>
     <div><b>The Warehouse</b>All resources are shared. Production fills the Warehouse; every cost comes out of it.</div>
-    <div><b>Strain</b>Burdens and failed Arrivals put Strain on Tiles. At 3 Strain a Tile stops working, spreads Strain and every Strain costs points.</div>
+    <div><b>Strain</b>Burdens and failed Arrivals put Strain on Tiles. At 3 Strain a Tile stops working and spreads 1 Strain to one neighbour. Every Strain costs points.</div>
   </div>
   ${note("Score together", "Population and Renown from your Tiles, plus Steward Objectives and the Quest Card, minus 10 for each active Burden, failed Arrival and Strain on the map.")}
   <p class="small">The next pages show what is in the box and how to set up. Pages {{p:round1}} and {{p:round1b}} then play a first round with you.</p>`, "routep"));
@@ -501,21 +501,25 @@ P.push(page("11 · Strain and Supported", "Strain and Supported", `
 
 // 21 Overstrained and chains
 P.push(page("12 · Overstrain chains", "Overstrained Tiles and chains", `
-  <p class="lead">A Tile becomes Overstrained when it goes from fewer than 3 Strain to 3. Leave it on the map. It cannot be activated or upgraded, gives no passive effects, does not join the network, scores no Population or Renown and meets no positive requirement. As soon as it drops below 3 it works again. Reaching 3 again later is a new Overstrain.</p>
+  <p class="lead">A Tile becomes Overstrained when it goes from fewer than 3 Strain to 3. Leave it on the map. It cannot be activated or upgraded, gives no passive effects, does not join the network, scores no Population or Renown and meets no positive requirement. As soon as it drops below 3 it works again.</p>
+  <div class="spreadrule">
+    <h3>The spread rule</h3>
+    <p class="big">When a Tile becomes Overstrained, it spreads <b>1 Strain</b> to <b>one</b> adjacent Tile, never more, after the effect that caused it has finished.</p>
+    <ul>
+      <li><b>Which Tile:</b> draw a fresh Target Card. It chooses from the placed Tiles that share a side with the Overstrained Tile and have fewer than 3 Strain.</li>
+      <li><b>No eligible neighbour:</b> nothing spreads.</li>
+      <li><b>Stopped:</b> if Supported or another prevention stops that Strain, the spread ends there.</li>
+      <li><b>Once each time:</b> a Tile spreads when it reaches 3, not while it stays at 3. If it drops below 3 and reaches 3 again later, it spreads again.</li>
+      <li><b>Chains:</b> if the spread brings the chosen Tile to 3, that Tile spreads in turn.</li>
+    </ul>
+  </div>
   <h3>Resolving a chain</h3>
-  ${steps([
-    "Finish the original effect, including every printed Strain and Strain Cascade.",
-    "Find every Tile that went from fewer than 3 Strain to 3.",
-    "If there are several, choose the order in which they spread.",
-    "For each spread, draw a fresh Target Card. The eligible Tiles are the placed Tiles adjacent to the spreading Tile with fewer than 3 Strain.",
-    "Put 1 Strain on the chosen Tile, after Supported and any other prevention.",
-    "If that Tile becomes Overstrained, it spreads too. Carry on until no new spread remains.",
-  ], 1, "12.")}
+  <p>Finish the whole original effect first, including every printed Strain and Strain Cascade. Then list every Tile that reached 3 and choose the order they spread in. Resolve one spread at a time, each with its own Target Card. A Tile that reaches 3 from a spread joins the end of the list. The chain ends when every Tile on the list has spread.</p>
   <div class="cols2 figs">
     ${fig("fig-chain-a", [["ring", "I3", "red"], ["badge", "I3", "+1", -0.6, -0.6, "red"]], "Before: the Cottage and the Path beside it both hold 2 Strain. An effect adds 1 Strain to the Cottage.")}
-    ${fig("fig-chain-b", [["arrow", "I3", "J3", 0.45, "red"], ["arrow", "J3", "J4", 0.45, "red"], ["badge", "I3", "1", 0.4, -0.75, "red"], ["badge", "J3", "2", 0.4, -0.75, "red"]], "After: the Cottage reaches 3. Its spread draws a Target Card, which picks the Path (1). The Path reaches 3 and spreads in the same chain; its card picks the Apothecary (2).")}
+    ${fig("fig-chain-b", [["arrow", "I3", "J3", 0.45, "red"], ["arrow", "J3", "J4", 0.45, "red"], ["badge", "I3", "1", 0.4, -0.75, "red"], ["badge", "J3", "2", 0.4, -0.75, "red"]], "After: the Cottage reaches 3 and spreads 1 Strain. Its Target Card picks the Path (1). The Path reaches 3 and spreads 1 Strain in turn; its card picks the Apothecary (2), which goes to 1 Strain, so the chain stops.")}
   </div>
-  <p class="small">A Tile already at 3 does not spread just because another effect targets it. A printed Strain Cascade belongs to the effect that caused it: resolve every printed placement and Cascade before starting any chain they create. There is no automatic spread at the end of a Season.</p>`, "chain"));
+  <p class="small">A Tile already at 3 does not spread again when another effect targets it; the extra Strain is simply not added. A printed Strain Cascade is part of the effect that caused it, not a spread. Nothing spreads at the end of a Season.</p>`, "chain"));
 
 // 22 Target deck
 P.push(page("13 · The Target Deck", "Choosing where Strain lands", `
@@ -750,7 +754,7 @@ P.push(page("20 · Quick reference", "Quick reference", `
   <div class="qr3"><div><span>1</span>Reveal and resolve Encounters</div><div><span>2</span>Clockwise from the first player (one seat left each round), each player takes one turn of up to 4 Actions (3 with 4 or 5 players)</div><div><span>3</span>Remove Arrival timers, resolve failures, remove X tokens, tidy up, move the Round marker</div></div>
 
   <h3>Placing Strain</h3>
-  <div class="qr4"><div><b>Select</b>Find the eligible Tiles, then draw a Target Card</div><div><b>Prevent</b>Supported and other prevention first</div><div><b>Check</b>At 3 Strain the Tile is Overstrained</div><div><b>Chain</b>After the effect, each newly Overstrained Tile spreads 1 Strain</div></div>
+  <div class="qr4"><div><b>Select</b>Find the eligible Tiles, then draw a Target Card</div><div><b>Prevent</b>Supported and other prevention first</div><div><b>Check</b>At 3 Strain the Tile is Overstrained</div><div><b>Chain</b>After the effect, each newly Overstrained Tile spreads 1 Strain to one adjacent Tile (Target Card)</div></div>
   <h3>Season transition, after Rounds 4 and 8</h3>
   <ol class="mini"><li>Finish Arrival failures.</li><li>Discard Boons that end with the Season.</li><li>Neighbourly Support: 1 Supported per 3 Housing Tiles in a cluster.</li><li>Apply every Burden again with the new row.</li><li>Refresh every Steward Power.</li><li>Seed the Encounter deck.</li></ol>
   <div class="status"><b>Watch a Tile&rsquo;s Strain</b><span><em>1 or 2</em> It still works normally.</span><span><em>3</em> Overstrained: no effects, no connection, no score, and it spread 1 Strain when it got there.</span><span><em>Bronze shield</em> Supported: the next Strain is stopped.</span></div>
@@ -787,8 +791,8 @@ const gloss = [
   ["Housing cluster", "A group of non-Overstrained Housing Tiles joined side to side."],
   ["Linked Production", "The first activation of a Resource Tile each round, with every adjacent copy from the same stack producing too. It does not chain outward."],
   ["Network", "Every placed, non-Overstrained Tile joined side to side."],
-  ["Overstrain chain", "The spreads caused by newly Overstrained Tiles after the original effect."],
-  ["Overstrained", "A Tile at 3 Strain. It does nothing positive until it drops below 3."],
+  ["Overstrain chain", "After an effect, each newly Overstrained Tile spreads 1 Strain to one adjacent Tile chosen by a Target Card; any Tile that reaches 3 that way spreads in turn."],
+  ["Overstrained", "A Tile at 3 Strain. It does nothing positive until it drops below 3. Reaching 3 spreads 1 Strain to one adjacent Tile."],
   ["Passive Effect", "A Tile effect that works without an Action while its condition holds."],
   ["Pending effect", "A mandatory choice, payment, placement, Strain, chain or other instruction already started but not finished."],
   ["Quest Card", "This game&rsquo;s shared challenge. Complete either half for +20 Renown."],

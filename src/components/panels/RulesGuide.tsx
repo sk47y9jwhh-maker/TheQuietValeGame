@@ -263,8 +263,18 @@ const rules: RuleReferenceCard[] = [
     category: "Strain",
     page: "17–18",
     title: "Overstrain chains",
-    summary: "A newly Overstrained Tile spreads after the full effect that caused it has finished.",
+    summary: "When a Tile becomes Overstrained, it spreads 1 Strain to one adjacent Tile, after the effect that caused it has finished.",
     sections: [
+      {
+        title: "The spread rule",
+        bullets: [
+          "Which Tile: draw a fresh Target Card. It chooses from the placed Tiles that share a side with the Overstrained Tile and have fewer than 3 Strain.",
+          "Only one Tile, and only 1 Strain. With no eligible neighbour, nothing spreads.",
+          "If Supported or another prevention stops that Strain, the spread ends there.",
+          "A Tile spreads when it reaches 3, not while it stays at 3. If it drops below 3 and reaches 3 again later, it spreads again.",
+          "If the spread brings the chosen Tile to 3, that Tile spreads in turn."
+        ]
+      },
       {
         title: "Resolve a chain",
         bullets: [

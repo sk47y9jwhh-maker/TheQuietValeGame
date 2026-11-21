@@ -365,7 +365,7 @@ def map_figures():
         sc.tile("I3", "c06_cottage", strain=a).tile("J3", "c15_path", strain=b2)
         sc.tile("I2", "c05_cabin").tile("H3", "c10_eatery", strain=1 if nm.endswith("b") else 1)
         sc.tile("J4", "c12_apothecary", strain=1 if nm.endswith("b") else 0)
-        map_fig(nm, sc, ["H2", "J4"], margin=2, aspect=1.15)
+        map_fig(nm, sc, ["H2", "J4"], margin=2, aspect=1.7)
 
     # Neighbourly Support: a cluster of six Housing Tiles gains 2 Supported.
     sc = Scene()
