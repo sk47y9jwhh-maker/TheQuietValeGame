@@ -77,16 +77,16 @@ describe("complete tile effect audit", () => {
   );
 
   it.each([
-    ["special_shrine_of_renewal", "c01_lumber_yard", "basic", { wood: 4 }, { wood: 6 }],
-    ["special_shrine_of_renewal", "c01_lumber_yard", "upgraded", { wood: 5, food: 2 }, { wood: 8, food: 4 }],
-    ["special_shrine_of_depths", "c02_mine_tunnel", "basic", { stone: 4 }, { stone: 6 }],
-    ["special_shrine_of_depths", "c02_mine_tunnel", "upgraded", { stone: 5, metal: 2 }, { stone: 8, metal: 4 }],
-    ["special_shrine_of_ancients", "c03_gathering_outpost", "basic", { herbs: 4 }, { herbs: 6 }],
-    ["special_shrine_of_ancients", "c03_gathering_outpost", "upgraded", { herbs: 5, food: 2 }, { herbs: 8, food: 4 }],
-    ["special_shrine_of_bounty", "c04_farmstead", "basic", { food: 4 }, { food: 6 }],
-    ["special_shrine_of_bounty", "c04_farmstead", "upgraded", { food: 5, goods: 2 }, { food: 8, goods: 4 }],
-    ["special_shrine_of_ancestors", "c20_dig_site", "basic", { metal: 4 }, { metal: 6 }],
-    ["special_shrine_of_ancestors", "c20_dig_site", "upgraded", { metal: 5, goods: 2 }, { metal: 8, goods: 4 }]
+    ["special_shrine_of_renewal", "c01_lumber_yard", "basic", { wood: 4 }, { wood: 8 }],
+    ["special_shrine_of_renewal", "c01_lumber_yard", "upgraded", { wood: 5, food: 2 }, { wood: 10, food: 4 }],
+    ["special_shrine_of_depths", "c02_mine_tunnel", "basic", { stone: 4 }, { stone: 8 }],
+    ["special_shrine_of_depths", "c02_mine_tunnel", "upgraded", { stone: 5, metal: 2 }, { stone: 10, metal: 4 }],
+    ["special_shrine_of_ancients", "c03_gathering_outpost", "basic", { herbs: 4 }, { herbs: 8 }],
+    ["special_shrine_of_ancients", "c03_gathering_outpost", "upgraded", { herbs: 5, food: 2 }, { herbs: 10, food: 4 }],
+    ["special_shrine_of_bounty", "c04_farmstead", "basic", { food: 4 }, { food: 8 }],
+    ["special_shrine_of_bounty", "c04_farmstead", "upgraded", { food: 5, goods: 2 }, { food: 10, goods: 4 }],
+    ["special_shrine_of_ancestors", "c20_dig_site", "basic", { metal: 4 }, { metal: 8 }],
+    ["special_shrine_of_ancestors", "c20_dig_site", "upgraded", { metal: 5, goods: 2 }, { metal: 10, goods: 4 }]
   ] as const)(
     "%s triggers passively from its matching %s production tile",
     (shrineId, productionTileId, side, firstExpected, secondExpected) => {
@@ -99,7 +99,8 @@ describe("complete tile effect audit", () => {
       const first = activateTile(state, "player_1", "producer");
       expect(first.warehouse).toEqual(expectedResources(firstExpected));
       expect(first.pendingEffects).toHaveLength(0);
-      expect(first.tileActivationRecords.shrine.round).toBe(1);
+      // Shrines have no once-per-round limit: no X token, and the second production adds the gain again.
+      expect(first.tileActivationRecords.shrine).toBeUndefined();
 
       const second = activateTile(first, "player_1", "producer");
       expect(second.warehouse).toEqual(expectedResources(secondExpected));
