@@ -118,7 +118,7 @@ P.push(page("The shortest route into the Vale", "The shortest route into the Val
   <h3>Every round</h3>
   <div class="glance">
     <div><b><span>1</span>Encounters</b>Reveal one Encounter Card per player and resolve what they say.</div>
-    <div><b><span>2</span>Player turns</b>Choose the order. Each player takes one turn of up to 4 Actions (3 with 4 or 5 players): Place, Upgrade, Activate or Interact.</div>
+    <div><b><span>2</span>Player turns</b>Play goes clockwise from the first player, who moves one seat left each round. Each player takes one turn of up to 4 Actions (3 with 4 or 5 players): Place, Upgrade, Activate or Interact.</div>
     <div><b><span>3</span>End of the round</b>Arrivals lose a timer, short effects end, and the Round marker moves on.</div>
   </div>
   <h3>Keep three ideas in view</h3>
@@ -235,7 +235,7 @@ P.push(page("3 · Seasons and Encounter seeding", "Seeding the Encounter deck", 
 P.push(page("4 · The round", "How a round works", `
   ${table(["Phase", "What happens"], [
     ["<b>1. Reveal Encounters</b>", "Reveal cards until the number of standard Encounter Cards revealed equals the player count. Resolve every mandatory effect before turns begin. Put Arrivals and kept Boons and Burdens in the In play area."],
-    ["<b>2. Player turns</b>", "The group chooses the order. Each player then takes exactly one turn of up to 4 Actions, or 3 Actions with 4 or 5 players."],
+    ["<b>2. Player turns</b>", "In Round 1 the group chooses who goes first. Each new round, the first player is the next player to the left of the last one, so everyone takes a turn going first. Play goes clockwise, and each player takes exactly one turn of up to 4 Actions, or 3 Actions with 4 or 5 players."],
     ["<b>3. End of the round</b>", "Remove 1 timer from every active Arrival and resolve any that run out. Discard effects whose time is up, refresh effects used this round, then move the Round marker on."],
   ], "phase")}
   ${fig("fig-inplay", [["num", [0.075, 0.12], 1, 15], ["num", [0.31, 0.06], 2, 15], ["num", [0.56, 0.06], 3, 15], ["num", [0.81, 0.06], 4, 15]], "The Encounter board during Round 2 of a two-player game.")}
@@ -572,7 +572,7 @@ P.push(page("When effects meet", "When effects meet", `
   <div class="timeline">
     <div><b><span>1</span>Reveal</b>Reveal until the standard cards revealed equal the player count. Golden Boons do not count, so keep revealing.</div>
     <div><b><span>2</span>Resolve</b>Apply each revealed card&rsquo;s current Season row and finish every payment, choice and Strain it creates.</div>
-    <div><b><span>3</span>Play</b>Choose the order. Each player takes one turn of up to 4 Actions (3 with 4 or 5 players). Free effects can be used during your turn.</div>
+    <div><b><span>3</span>Play</b>Clockwise from this round&rsquo;s first player, each player takes one turn of up to 4 Actions (3 with 4 or 5 players). Free effects can be used during your turn.</div>
     <div><b><span>4</span>End</b>Arrivals lose a timer and failures are resolved one by one. Short effects end, round effects refresh, the Round marker moves on.</div>
   </div>
   <h3>When an effect would add Strain</h3>
@@ -728,7 +728,7 @@ P.push(page("19 · Twin Settlements", "Twin Settlements", `
     <div>
       <h3>Play</h3>
       <ul class="twin">
-        <li>Play 12 rounds as normal. Each round, both Vales reveal their own Encounters, then every player takes one turn of up to 4 Actions, in an order the whole table chooses.</li>
+        <li>Each round, both Vales reveal their Encounters, then every player takes one turn of up to 4 Actions (3 with four players), clockwise from the first player, who moves one seat left each round.</li>
         <li>Teammates share everything in their Vale: the Warehouse, the Tile supply, the network, unlocked Special Tiles, Encounters, Strain and Supported.</li>
         <li>Turns, Actions, meeples, Steward Powers and Objectives stay individual.</li>
         <li>A team may only use, upgrade, activate or count its own Tiles, resources and Encounters.</li>
@@ -747,7 +747,7 @@ P.push(page("19 · Twin Settlements", "Twin Settlements", `
 // 29 Quick reference
 P.push(page("20 · Quick reference", "Quick reference", `
   <h3>The round</h3>
-  <div class="qr3"><div><span>1</span>Reveal and resolve Encounters</div><div><span>2</span>Choose the order; each player takes one turn of up to 4 Actions (3 with 4 or 5 players)</div><div><span>3</span>Remove Arrival timers, resolve failures, tidy up, move the Round marker</div></div>
+  <div class="qr3"><div><span>1</span>Reveal and resolve Encounters</div><div><span>2</span>Clockwise from the first player (one seat left each round), each player takes one turn of up to 4 Actions (3 with 4 or 5 players)</div><div><span>3</span>Remove Arrival timers, resolve failures, tidy up, move the Round marker</div></div>
 
   <h3>Placing Strain</h3>
   <div class="qr4"><div><b>Select</b>Find the eligible Tiles, then draw a Target Card</div><div><b>Prevent</b>Supported and other prevention first</div><div><b>Check</b>At 3 Strain the Tile is Overstrained</div><div><b>Chain</b>After the effect, each newly Overstrained Tile spreads 1 Strain</div></div>

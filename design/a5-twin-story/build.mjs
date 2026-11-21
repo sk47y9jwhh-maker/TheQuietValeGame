@@ -102,7 +102,7 @@ const twin = `
     <div>
       <h3>Play</h3>
       <ul>
-        <li>Play 12 rounds as normal. Each round, both Vales reveal their own Encounters, then every player takes one turn of up to 4 Actions, in an order the whole table chooses.</li>
+        <li>Each round, both Vales reveal their Encounters, then every player takes one turn of up to 4 Actions (3 with four players), clockwise from the first player, who moves one seat left each round.</li>
         <li>Teammates share everything in their Vale: the Warehouse, the Tile supply, the network, unlocked Special Tiles, Encounters, Strain and Supported.</li>
         <li>Turns, Actions, meeples, Steward Powers and Objectives stay individual.</li>
         <li>A team may only use, upgrade, activate or count its own Tiles, resources and Encounters.</li>

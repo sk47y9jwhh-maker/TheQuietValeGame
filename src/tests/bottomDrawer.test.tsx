@@ -93,7 +93,7 @@ describe("bottom drawer", () => {
       "true"
     );
     expect(screen.getByText("The shape of the game")).toBeInTheDocument();
-    expect(screen.getByText("Choose order and take turns")).toBeInTheDocument();
+    expect(screen.getByText("Take turns round the table")).toBeInTheDocument();
     expect(screen.getByText(/In Seasons II and III, unresolved Burdens first reapply/)).toBeInTheDocument();
     expect(screen.queryByText("Season start: Burdens, then seed")).not.toBeInTheDocument();
     expect(screen.getByText("Example first turn")).toBeInTheDocument();

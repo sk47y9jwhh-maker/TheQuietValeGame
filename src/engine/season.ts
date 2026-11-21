@@ -26,3 +26,19 @@ export function revealCountForPlayers(playerCount: number): number {
 export function actionsPerTurn(playerCount: number): number {
   return playerCount >= 4 ? 3 : 4;
 }
+
+/**
+ * Turn order for a round. Seats stay in setup order; the first player moves
+ * one seat along each round, so Round 1 starts with seat 1, Round 2 with
+ * seat 2, and so on, wrapping round the table.
+ */
+export function turnOrderForRound<T>(players: readonly T[], round: number): T[] {
+  if (!players.length) return [];
+  const start = (((round - 1) % players.length) + players.length) % players.length;
+  return [...players.slice(start), ...players.slice(0, start)];
+}
+
+/** The player who goes first in a round. */
+export function firstPlayerForRound<T>(players: readonly T[], round: number): T {
+  return turnOrderForRound(players, round)[0];
+}

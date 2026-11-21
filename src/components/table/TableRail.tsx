@@ -21,7 +21,7 @@ import type { EncounterData } from "../../engine/types";
 import { categoryNames, seatColors } from "./boardGeometry";
 import { tileArtworkUrl } from "../common/TileArtwork";
 import { GameIcon, categoryIcon } from "../common/GameIcon";
-import { actionsPerTurn } from "../../engine/season";
+import { actionsPerTurn, turnOrderForRound } from "../../engine/season";
 
 interface TableRailProps {
   state: GameState;
@@ -62,7 +62,7 @@ export function TableRail(props: TableRailProps) {
   const playerIndex = state.players.findIndex((player) => player.id === state.currentPlayerId);
   const player = state.players[playerIndex];
   const steward = player ? stewardById[player.stewardId] : undefined;
-  const nextPlayer = state.players.find((candidate) => candidate.id !== player?.id && !state.playersActedThisRound.includes(candidate.id));
+  const nextPlayer = turnOrderForRound(state.players, state.round).find((candidate) => candidate.id !== player?.id && !state.playersActedThisRound.includes(candidate.id));
   const power = player ? canUseStewardPower(state, player.id) : { ok: false, reasons: [] };
   const powerUsed = player ? (player.stewardPowerUsesBySeason[state.season] ?? 0) >= 1 : true;
   const usableBoons = new Set(getUsableFaceUpBoonIds(state));
@@ -101,6 +101,7 @@ export function TableRail(props: TableRailProps) {
     {state.phase === "reveal" && <section className="rail-phase">
       <h2>Round {state.round}</h2>
       <p>Revealing this round’s encounters…</p>
+      {state.players.length > 1 && <p>{stewardById[turnOrderForRound(state.players, state.round)[0].stewardId].name} goes first this round. The first player moves one seat along every round.</p>}
       <button type="button" className="rail-primary" onClick={props.onReveal}>Reveal encounters</button>
     </section>}
     {state.phase === "endRound" && <section className="rail-phase">

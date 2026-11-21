@@ -115,7 +115,8 @@ function caption(beat: RecordedBeat): string {
     case "reveal": {
       const ids = revealedIds(before, after);
       const opening = `Round ${after.round}${after.round % 4 === 1 ? `: Season ${seasonName(after.season)} begins` : ""}.`;
-      return `${opening} ${ids.length ? `Revealed: ${list(ids.map((id) => `${cardName(id)} (${encounterById[id]?.type ?? "card"})`))}.` : "No new encounters."}`;
+      const goesFirst = after.round > 1 ? ` ${who(after, after.currentPlayerId)} goes first.` : "";
+      return `${opening} ${ids.length ? `Revealed: ${list(ids.map((id) => `${cardName(id)} (${encounterById[id]?.type ?? "card"})`))}.` : "No new encounters."}${goesFirst}`;
     }
     case "endRound": {
       if (after.phase === "gameEnd") return "The twelfth round ends, and with it the game.";
@@ -278,7 +279,7 @@ function introPause(start: GameState): DemoPause {
     at: "before",
     kind: "rule",
     title: "Two Stewards, one settlement",
-    text: `The Quiet Vale is co-operative: the Vanguard and the Knight build one settlement and share one Warehouse, which starts with ${start.warehouse.wood} of each resource. Twelve rounds make three Seasons. Each turn a Steward has four actions.${quest ? ` This game’s Quest Card is ${quest.card.theme}: complete either half for +20 Renown.` : ""} The game plays straight through. Key decisions stay on screen longer, with the options the players had; pause, step back or skip ahead at any time.`,
+    text: `The Quiet Vale is co-operative: the Vanguard and the Knight build one settlement and share one Warehouse, which starts with ${start.warehouse.wood} of each resource. Twelve rounds make three Seasons. Each turn a Steward has four actions, and the first player moves one seat along every round, so the Stewards take turns going first.${quest ? ` This game’s Quest Card is ${quest.card.theme}: complete either half for +20 Renown.` : ""} The game plays straight through. Key decisions stay on screen longer, with the options the players had; pause, step back or skip ahead at any time.`,
     options: start.players.map((player) => {
       const steward = stewardById[player.stewardId];
       return { label: steward.name, lines: [shortPower(steward.id), `Objective: ${shortObjective(steward.id)} (+${steward.objectiveRenown})`] };

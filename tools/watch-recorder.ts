@@ -5,7 +5,7 @@
  * so the recording replays exactly in the browser.
  */
 import { canUseStewardPower, getActivatableTileIds, getCompletableArrivalIds, getResolvableBurdenIds, getUpgradeableTileIds, getUsableFaceUpBoonIds } from "../src/engine/gameActions";
-import { getAlternativeEffectRule, preparePendingEffectQueueHead, resolvePendingEffect } from "../src/engine/manualEffects";
+import { getAlternativeEffectRule, getStrainCascadeAnchorTargets, getStrainCascadeRule, getStrainCascadeSpreadTargets, preparePendingEffectQueueHead, resolvePendingEffect } from "../src/engine/manualEffects";
 import { getLegalPlacementHexes, getTileFootprintKind } from "../src/engine/placementRules";
 import { getPlaceTileChoices } from "../src/components/actions/placeTileChoices";
 import { encounterById } from "../src/data/encounters";
@@ -78,6 +78,12 @@ export function effectChoices(state: GameState, preferPayments: boolean): Effect
   }
   choices.push({});
   if (pending.suggestedAdjustment) choices.push(pending.suggestedAdjustment);
+  // A Strain cascade needs its anchor named: each legal anchor, spreading to its first legal neighbours.
+  const cascade = getStrainCascadeRule(state, pending.ruleId);
+  if (cascade) for (const anchor of getStrainCascadeAnchorTargets(state, pending.ruleId)) {
+    const spread = getStrainCascadeSpreadTargets(state, pending.ruleId, anchor.instanceId).slice(0, cascade.maxSpreadTargets);
+    choices.push({ strainCascadeAnchorTileId: anchor.instanceId, tileStrainDeltas: Object.fromEntries(spread.map((tile) => [tile.instanceId, cascade.spreadStrain])) });
+  }
   for (const tile of state.map.placedTiles) for (const delta of [-1, 1, -2, 2, -3, 3]) choices.push({ tileStrainDeltas: { [tile.instanceId]: delta } });
   for (const resource of resources) for (let amount = 1; amount <= 5; amount++) choices.push({ resourceDeltas: { [resource]: -amount } });
   for (const first of state.map.placedTiles) for (const second of state.map.placedTiles) if (first !== second) choices.push({ tileStrainDeltas: { [first.instanceId]: 1, [second.instanceId]: 1 } });

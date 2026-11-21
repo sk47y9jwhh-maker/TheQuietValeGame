@@ -10,7 +10,7 @@ import {
   commitStewardPlacement,
   validateStewardPlacement
 } from "../engine/gameActions";
-import { actionsPerTurn, getSeasonForRound, revealCountForPlayers } from "../engine/season";
+import { actionsPerTurn, firstPlayerForRound, getSeasonForRound, revealCountForPlayers, turnOrderForRound } from "../engine/season";
 import {
   supportedPlayerCounts,
   type EncounterData
@@ -161,6 +161,16 @@ describe("setup and round authority", () => {
       const state = createNewGame(count, stewardIds.slice(0, count), { encounterSeed: `QV-ACTIONS-${count}` });
       expect(state.actionsRemaining).toBe(count >= 4 ? 3 : 4);
     }
+  });
+
+  it("moves the first player one seat along every round", () => {
+    const seats = ["a", "b", "c"];
+    expect(turnOrderForRound(seats, 1)).toEqual(["a", "b", "c"]);
+    expect(turnOrderForRound(seats, 2)).toEqual(["b", "c", "a"]);
+    expect(turnOrderForRound(seats, 3)).toEqual(["c", "a", "b"]);
+    expect(turnOrderForRound(seats, 4)).toEqual(["a", "b", "c"]);
+    expect([1, 2, 3, 4, 5].map((round) => firstPlayerForRound(["a", "b"], round))).toEqual(["a", "b", "a", "b", "a"]);
+    expect(firstPlayerForRound(["solo"], 7)).toBe("solo");
   });
 
   it("builds repeatable shuffled Encounter pools from a setup seed", () => {

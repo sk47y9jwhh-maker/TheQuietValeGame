@@ -110,13 +110,13 @@ const rules: RuleReferenceCard[] = [
     category: "Flow",
     page: "7–8",
     title: "Round sequence",
-    summary: "Reveal Encounters, choose player order, take one turn each, then complete upkeep.",
+    summary: "Reveal Encounters, take one turn each starting with this round’s first player, then complete upkeep.",
     sections: [
       {
         title: "Every round",
         bullets: [
           "Reveal until the number of standard Encounters revealed equals the player count. Resolve every mandatory reveal effect before turns begin.",
-          "The group chooses player order. Every player takes exactly one turn with up to 4 Actions (3 Actions with 4 or 5 players) and may end their turn early.",
+          "Turns go round the table from the first player, who moves one seat along every round, so everyone takes a turn going first. Every player takes exactly one turn with up to 4 Actions (3 Actions with 4 or 5 players) and may end their turn early.",
           "After all turns, remove 1 timer from every active Arrival and resolve each expiry.",
           "Discard effects whose duration ends, refresh round-based effects, and advance the Round marker."
         ]
@@ -412,7 +412,7 @@ const rules: RuleReferenceCard[] = [
           "Choose Stewards: identify each Token, Starting Terrain, Power, and Objective.",
           "Seed: each player chooses one hidden card for the top, middle, and bottom.",
           "Reveal: show the required standard Encounters and finish every mandatory effect.",
-          "Order and play: the group chooses order. Each player takes one turn with up to 4 Actions, or 3 with 4 or 5 players.",
+          "Order and play: the first player moves one seat along each round. Each player takes one turn with up to 4 Actions, or 3 with 4 or 5 players.",
           "Upkeep: resolve Arrival timers and failures, clean up, refresh, and advance the Round marker."
         ]
       }
@@ -428,7 +428,7 @@ const rules: RuleReferenceCard[] = [
       {
         title: "Round and Actions",
         bullets: [
-          "Round: reveal and resolve Encounters → choose player order → each player takes one turn → Arrival upkeep and cleanup.",
+          "Round: reveal and resolve Encounters → each player takes one turn, starting with the first player → Arrival upkeep and cleanup.",
           "Actions: Place a legal Tile, Upgrade a basic Core Tile, Activate an Activated Effect, or Interact with an Arrival or Burden.",
           "Steward movement: Place, Upgrade, and Activate move the Token. Interact does not."
         ]
@@ -594,7 +594,7 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
                 <strong>Start each round</strong>
                 <p>
                   Reveal standard Encounters until the number revealed equals the player count.
-                  Finish every required revealed effect and choice before selecting player order.
+                  Finish every required revealed effect and choice before turns begin.
                 </p>
               </div>
             </article>
@@ -602,9 +602,9 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
             <article className="mini-card how-to-card">
               <span className="how-to-step-number">4</span>
               <div>
-                <strong>Choose order and take turns</strong>
+                <strong>Take turns round the table</strong>
                 <p>
-                  Choose player order anew each round. In that order, every player takes one turn of
+                  The first player moves one seat along each round, so everyone gets to go first. Going round from them, every player takes one turn of
                   up to 4 Actions (3 with 4 or 5 players): Place, Upgrade, Activate, or Interact.
                 </p>
               </div>

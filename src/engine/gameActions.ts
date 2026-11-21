@@ -53,7 +53,7 @@ import {
   getPlacedTileName,
   isPlacedTileAdjacentToCategory as isAdjacentToCategory
 } from "./placedTiles";
-import { actionsPerTurn, getSeasonForRound, isSeasonStartRound, revealCountForPlayers } from "./season";
+import { actionsPerTurn, firstPlayerForRound, getSeasonForRound, isSeasonStartRound, revealCountForPlayers, turnOrderForRound } from "./season";
 import { isTileReachable } from "./reachability";
 import { refreshPassiveSupported } from "./strainRules";
 import {
@@ -1241,7 +1241,7 @@ export function revealEncounters(state: GameState): GameState {
   let nextState: GameState = {
     ...state,
     phase: "turns",
-    currentPlayerId: state.players[0].id,
+    currentPlayerId: firstPlayerForRound(state.players, state.round).id,
     actionsRemaining: actionsPerTurn(state.playerCount),
     playersActedThisRound: [],
     encounters: {
@@ -2648,7 +2648,7 @@ export function endCurrentTurn(state: GameState): GameState {
   if (state.phase !== "turns") return state;
 
   const acted = [...new Set([...state.playersActedThisRound, state.currentPlayerId])];
-  const nextPlayer = state.players.find((player) => !acted.includes(player.id));
+  const nextPlayer = turnOrderForRound(state.players, state.round).find((player) => !acted.includes(player.id));
   const playersWithExpiredReach = state.players.map((player) =>
     player.id === state.currentPlayerId
       ? { ...player, temporaryReachHexId: undefined }
@@ -2660,7 +2660,7 @@ export function endCurrentTurn(state: GameState): GameState {
         {
           ...state,
           players: playersWithExpiredReach,
-          currentPlayerId: state.players[0].id,
+          currentPlayerId: firstPlayerForRound(state.players, state.round).id,
           playersActedThisRound: [],
           actionsRemaining: actionsPerTurn(state.playerCount),
           bonusTurnsPending: false,
@@ -2721,7 +2721,7 @@ export function resolveEndRound(state: GameState): GameState {
     round: gameEnd ? state.round : nextRound,
     season: nextSeason,
     phase: gameEnd ? "gameEnd" : shouldSeed ? "seeding" : "reveal",
-    currentPlayerId: state.players[0].id,
+    currentPlayerId: firstPlayerForRound(state.players, gameEnd ? state.round : nextRound).id,
     players: state.players.map((player) => ({
       ...player,
       temporaryReachHexId: undefined
