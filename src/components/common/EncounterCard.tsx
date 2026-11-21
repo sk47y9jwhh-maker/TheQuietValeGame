@@ -5,6 +5,7 @@ import burdenArtwork from "../../assets/encounter-cards/burden.png";
 import goldenBoonArtwork from "../../assets/encounter-cards/golden-boon.png";
 import { responsiveEncounterArtwork } from "../../assets/encounter-cards/web/responsive/artwork.generated";
 import type { EncounterData, Season } from "../../engine/types";
+import { FaceText } from "./FaceText";
 import {
   getArrivalRewardText,
   getBoonLifecycleText,
@@ -80,7 +81,7 @@ function PhysicalSeasonRows({
                 101
               )}`}
             >
-              {effect}
+              <FaceText text={effect} />
             </p>
             {lifecycle && (
               <p
@@ -90,7 +91,7 @@ function PhysicalSeasonRows({
                   61
                 )}`}
               >
-                {lifecycle}
+                <FaceText text={lifecycle} />
               </p>
             )}
           </section>
@@ -114,7 +115,7 @@ function PhysicalArrival({ card }: { card: Extract<EncounterData, { type: "arriv
           57
         )}`}
       >
-        {card.requirementText}
+        <FaceText text={card.requirementText} />
       </p>
       <p className="physical-card-section-label physical-card-reward-label">
         Reward
@@ -126,7 +127,7 @@ function PhysicalArrival({ card }: { card: Extract<EncounterData, { type: "arriv
           58
         )}`}
       >
-        {rewardText}
+        <FaceText text={rewardText} />
       </p>
     </>
   );
@@ -149,7 +150,7 @@ function PhysicalGoldenBoon({
           385
         )}`}
       >
-        {card.effectText}
+        <FaceText text={card.effectText} />
       </p>
       <p className="physical-card-golden-lifecycle">{card.lifecycle}</p>
     </>

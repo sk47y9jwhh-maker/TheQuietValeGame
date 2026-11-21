@@ -10,6 +10,11 @@ for(const name of ['tiles-print','tiles-web'])fs.mkdirSync(path.join(dir,name),{
 const ts=require('typescript');const moduleRecord={exports:{}};
 new Function('exports','module',ts.transpileModule(fs.readFileSync(path.join(repositoryRoot,'src/data/tiles.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(moduleRecord.exports,moduleRecord);
 const data=moduleRecord.exports;
+// Face wording (21 Nov): + for gains, − for losses; Strain and Supported drawn as icons by the renderer.
+const compactRecord={exports:{}};
+new Function('exports','module',ts.transpileModule(fs.readFileSync(path.join(repositoryRoot,'src/data/compactText.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(compactRecord.exports,compactRecord);
+const {compactRulesText}=compactRecord.exports;
+for(const t of [...data.coreTiles,...data.specialTiles,...data.goldenTiles])for(const d of [t,t.basic,t.upgraded])if(d?.effectText)d.effectText=compactRulesText(d.effectText);
 const samples=[];
 for(const t of data.coreTiles)for(const face of ['basic','upgraded'])samples.push({id:t.id+'-'+face,kind:'core',face,t,name:t[face].name,group:face==='basic'?'Core Basic':'Core Upgraded',quantity:t.count});
 for(const t of data.specialTiles)samples.push({id:t.id,kind:'special',t,name:t.name,group:'Special',quantity:t.count*(t.footprint==='detached'?t.size:1)});

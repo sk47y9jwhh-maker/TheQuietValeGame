@@ -147,7 +147,7 @@ P.push(page("1 · Components", "What is in the box", `
     ["Target Cards", "30 poker-size cards with silver backs (page {{p:target}}).", at(5)],
     ["Stewards", "6 Steward Guides and 6 matching wooden Steward meeples (page {{p:stewardsp}}).", at(2) + at(10)],
     ["Resources", "90 wooden pieces in six colours: 15 each of Wood, Stone, Metal, Food, Herbs and Goods.", at(6)],
-    ["Tokens", "Black wooden Strain tokens; 20 bronze shields for Supported; 20 bronze discs for Arrival timers; 20 small natural wooden X tokens for once-per-round uses; the Round marker.", at(3) + at(7)],
+    ["Tokens", "Black wooden Strain tokens; 20 bronze shields for Supported; 20 bronze discs for Arrival timers and 1 bronze disc for the Round marker; 20 small natural wooden X tokens for once-per-round uses.", at(3) + at(7)],
   ], "comp")}
   ${note("Before your first game", "Leave the Golden Tiles and Golden Boons in the box. They enter play only once the Steward&rsquo;s Ledger unlocks them (page {{p:quest}}).")}`, "comp1"));
 

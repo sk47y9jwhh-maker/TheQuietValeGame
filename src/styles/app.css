@@ -6881,3 +6881,13 @@ input,
   border-radius: 9px;
 }
 
+
+/* Card and tile face text: resources as the artist's symbols, Strain as a black circle, Supported as a bronze shield. */
+.face-text { display: inline; }
+.face-text-unit { white-space: nowrap; }
+.face-icon { display: inline-block; vertical-align: -0.16em; margin: 0 0.06em; }
+.face-icon-resource { width: 1.12em; height: 1.02em; object-fit: contain; }
+.face-icon-strain { width: 0.8em; height: 0.8em; vertical-align: -0.06em; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #4a4a4a 0, #151515 58%, #050505 100%); box-shadow: 0 0.04em 0.08em rgba(0, 0, 0, 0.35); }
+.face-icon-supported { width: 0.92em; height: 1.02em; vertical-align: -0.18em; overflow: visible; }
+.face-icon-supported path { fill: #b07c3e; stroke: #6e4a22; stroke-width: 0.5; stroke-linejoin: round; }
+.face-icon-supported path.face-icon-supported-shine { fill: rgba(255, 226, 170, 0.3); stroke: none; }

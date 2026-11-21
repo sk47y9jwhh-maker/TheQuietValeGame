@@ -8,7 +8,7 @@ export type GameIconName =
   | "population" | "renown"
   | "type-resource" | "type-housing" | "type-travel" | "type-merchant" | "type-crafting" | "type-social" | "type-wellbeing" | "type-golden";
 
-export const gameIconUrl = (name: GameIconName) => `${import.meta.env.BASE_URL}icons/${name}.webp`;
+export const gameIconUrl = (name: GameIconName) => `${import.meta.env?.BASE_URL ?? "/"}icons/${name}.webp`;
 
 /** A tile category's icon. Special tiles have no type of their own. */
 export const categoryIcon = (category: string): GameIconName | undefined =>
