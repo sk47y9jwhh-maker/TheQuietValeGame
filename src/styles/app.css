@@ -6885,6 +6885,7 @@ input,
 /* Card and tile face text: resources as the artist's symbols, Strain as a black circle, Supported as a bronze shield. */
 .face-text { display: inline; }
 .face-text-unit { white-space: nowrap; }
+.face-text-words { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .face-icon { display: inline-block; vertical-align: -0.16em; margin: 0 0.06em; }
 .face-icon-resource { width: 1.12em; height: 1.02em; object-fit: contain; }
 .face-icon-strain { width: 0.8em; height: 0.8em; vertical-align: -0.06em; border-radius: 50%; background: radial-gradient(circle at 34% 30%, #4a4a4a 0, #151515 58%, #050505 100%); box-shadow: 0 0.04em 0.08em rgba(0, 0, 0, 0.35); }

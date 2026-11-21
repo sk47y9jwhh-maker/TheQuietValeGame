@@ -5,11 +5,12 @@ import { gameIconUrl, type GameIconName } from "./GameIcon";
 /**
  * Rules text as printed on a card or tile face: the short wording ("+2 Food",
  * "−1 Strain") with resources drawn as the artist's symbols, Strain as a black
- * circle and Supported as a bronze shield. The word stays available to screen
- * readers through each icon's label.
+ * circle and Supported as a bronze shield. A hidden copy in words is what
+ * screen readers read.
  */
 export function FaceText({ text, compact = true }: { text: string; compact?: boolean }) {
-  const parts = splitFaceText(compact ? compactRulesText(text) : text);
+  const shown = compact ? compactRulesText(text) : text;
+  const parts = splitFaceText(shown);
   const nodes: JSX.Element[] = [];
   parts.forEach((part, index) => {
     if (!("icon" in part)) {
@@ -24,7 +25,13 @@ export function FaceText({ text, compact = true }: { text: string; compact?: boo
     }
     nodes.push(<span className="face-text-unit" key={index}>{lead}<FaceIcon word={part.icon} /></span>);
   });
-  return <span className="face-text">{nodes}</span>;
+  // Screen readers (and text searches) get the words; the icon version is for the eye.
+  return (
+    <span className="face-text">
+      <span className="face-text-words">{shown}</span>
+      <span aria-hidden="true">{nodes}</span>
+    </span>
+  );
 }
 
 export function FaceIcon({ word }: { word: FaceIconWord }) {
