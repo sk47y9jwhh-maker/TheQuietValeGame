@@ -137,7 +137,8 @@ describe("Golden opportunities during play", () => {
     expect(screen.getByRole("region", { name: "After this turn" })).toHaveTextContent("Next · Golden bonus turns");
     fireEvent.click(screen.getByRole("button", { name: "End Player 2's Turn" }));
     expect(saved().bonusTurnsActive).toBe(true);
-    expect(saved().currentPlayerId).toBe("player_1");
+    // Round 2: bonus turns start with the round's first player, seat 2.
+    expect(saved().currentPlayerId).toBe("player_2");
     expect(saved().actionsRemaining).toBe(4);
     expect(saved().encounters).toEqual(encounters);
     expect(screen.getByText("Your Golden bonus turn")).toBeVisible();
@@ -147,7 +148,7 @@ describe("Golden opportunities during play", () => {
     view.unmount(); render(<App initialPreview={traveller} />);
     expect(saved().bonusTurnsActive).toBe(true);
     expect(screen.getByText("Your Golden bonus turn")).toBeVisible();
-    pass(); expect(saved().currentPlayerId).toBe("player_2");
+    pass(); expect(saved().currentPlayerId).toBe("player_1");
     pass(); expect(saved().phase).toBe("endRound");
     expect(saved().encounters).toEqual(encounters);
     fireEvent.click(screen.getByRole("button", { name: "Resolve End Round" }));
