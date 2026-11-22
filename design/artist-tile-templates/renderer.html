@@ -63,25 +63,26 @@ window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind
  // outside the frame is lightly tinted in the tile type's colour (multiply,
  // 45%). It runs out through the bleed, so the cut position does not matter.
  // Core faces and Travel extensions only.
- const edgeColour={resource:'#4e6748',housing:'#9a5b3c',travel:'#7a6f58',merchant:'#8a6d2b',crafting:'#4f6b7a',social:'#7a4f6b',wellbeing:'#3f7a6e'};
+ // Robert, 22 Nov: tile types were too hard to tell apart at the table. Seven clearly different hues, laid on more strongly.
+ const edgeColour={resource:'#3f7f2c',housing:'#b8432a',travel:'#6c665e',merchant:'#cf9614',crafting:'#2c62a0',social:'#8c3a8c',wellbeing:'#16897a'};
  const edgeCategory=kind==='core'||kind==='special'?t.category:kind==='extension'?'travel':null;
  // Special tiles (30 Oct 2026): the black margin is replaced by the Core
  // parchment margin, then given the stronger wash (option B, 80%).
  const strong=kind==='special';
  if(strong&&edgeColour[edgeCategory]){const parchment=await img('Quiet Valley Tile Core Basic-managed.png');const c30=Math.cos(Math.PI/6);ctx.save();ctx.beginPath();for(const R of [709+90/c30,709-52/c30])for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx[k?'lineTo':'moveTo'](780+R*Math.cos(a),685+R*Math.sin(a))}ctx.closePath();ctx.clip('evenodd');ctx.drawImage(parchment,0,0);ctx.restore()}
- if(edgeCategory&&edgeColour[edgeCategory]){const ring=(R)=>{for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx[k?'lineTo':'moveTo'](780+R*Math.cos(a),685+R*Math.sin(a))}ctx.closePath()};const c30=Math.cos(Math.PI/6);ctx.save();ctx.beginPath();ctx.moveTo(390,10);ctx.lineTo(1170,10);ctx.lineTo(1560,685);ctx.lineTo(1170,1360);ctx.lineTo(390,1360);ctx.lineTo(0,685);ctx.closePath();ctx.clip();ctx.beginPath();ring(709+90/c30);ring(709-52/c30);ctx.filter='blur(2px)';ctx.globalCompositeOperation='multiply';ctx.globalAlpha=strong?0.8:0.45;ctx.fillStyle=edgeColour[edgeCategory];ctx.fill('evenodd');ctx.restore();audit.push({field:'Edge wash',text:edgeCategory,colour:edgeColour[edgeCategory],strength:strong?0.8:0.45})}
+ if(edgeCategory&&edgeColour[edgeCategory]){const ring=(R)=>{for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx[k?'lineTo':'moveTo'](780+R*Math.cos(a),685+R*Math.sin(a))}ctx.closePath()};const c30=Math.cos(Math.PI/6);ctx.save();ctx.beginPath();ctx.moveTo(390,10);ctx.lineTo(1170,10);ctx.lineTo(1560,685);ctx.lineTo(1170,1360);ctx.lineTo(390,1360);ctx.lineTo(0,685);ctx.closePath();ctx.clip();ctx.beginPath();ring(709+90/c30);ring(709-52/c30);ctx.filter='blur(2px)';ctx.globalCompositeOperation='multiply';ctx.globalAlpha=strong?1:0.85;ctx.fillStyle=edgeColour[edgeCategory];ctx.fill('evenodd');ctx.restore();audit.push({field:'Edge wash',text:edgeCategory,colour:edgeColour[edgeCategory],strength:strong?1:0.85})}
  // The Golden back is the Special back artwork with no number.
  if(kind==='golden-back')return audit;
  if(kind==='back'){block(String(item.number),{x:780,y:445,width:700,height:500,size:580,min:480,label:'Back number',colour:'#d8caaa'});return audit}
  if(kind==='extension'){block('Travel Extension',{y:151,width:650,height:147,size:83,style:'smallcaps',label:'Title'});for(const [a,b,y] of [['STREET','Use 1 travel extension hex',711],['TRACK','Use 2 travel extension hexes',794]]){block(a,{x:426,y,width:220,height:51,size:42,label:'Assembly label'});block(b,{x:894,y,width:620,height:51,size:46,label:'Assembly guide'})}return audit}
  const td=kind==='core'?{...t,...t[face]}:t;await heading(td,kind,face);if(kind!=='golden')await scores(td);
  if(kind==='core'){
- if(face==='basic'){block('PLACE',{x:426,y:711,width:220,height:53,size:42,label:'Cost label'});block('UPGRADE',{x:426,y:794,width:220,height:53,size:42,label:'Cost label'});await costRow(t.basic,738);await costRow(t.upgraded,815)}else{block('UPGRADED FROM',{y:712,width:790,height:55,size:42,label:'Lineage label'});block(t.basic.name,{y:775,width:920,height:66,size:57,label:'Lineage name'})}
+ if(face==='basic'){block('PLACE',{x:426,y:711,width:220,height:53,size:42,label:'Cost label'});block('UPGRADE',{x:426,y:794,width:220,height:53,size:42,label:'Cost label'});await costRow(t.basic,738);await costRow(t.upgraded,815)}else{block('UPGRADED FROM',{y:712,width:790,height:55,size:42,style:'bold',label:'Lineage label'});block(t.basic.name,{y:775,width:920,height:66,size:57,style:'bold',label:'Lineage name'})}
  }
  if(kind==='special'){block('UNLOCKED BY ARRIVAL',{y:712,width:880,height:55,size:42,label:'Unlock label'});block(t.unlockSource,{y:775,width:920,height:66,size:55,label:'Arrival name'})}
  if(kind==='golden'){
  block('LEDGER UNLOCK',{x:578,y:712,width:350,height:57,size:42,label:'Ledger label'});block(t.unlockAt+' Entries',{x:952,y:712,width:345,height:57,size:52,label:'Ledger threshold'});
- const ge=timing({text:t.effectText,heading:'PERSISTENT EFFECT'});block(ge.heading,{y:807,width:900,height:54,size:49,style:'bold',label:'Effect heading'});await resourceBlock(ge.text,{y:866,width:800,height:155,size:64,min:26,style:'italic',label:'Persistent effect',taper:true});
+ const ge=timing({text:t.effectText,heading:'PASSIVE'});block(ge.heading,{y:807,width:900,height:54,size:49,style:'bold',label:'Effect heading'});await resourceBlock(ge.text,{y:866,width:800,height:155,size:64,min:26,style:'italic',label:'Persistent effect',taper:true});
  if(t.placement?.text)block(t.id==='golden_tile_the_golden_cairn'?t.placement.text.replace(' Not Grasslands or River/Water.',''):t.placement.text,{y:1040,width:600,height:150,size:42,min:30,style:'regular',label:'Placement rule',taper:true});
 
  }else{const e=effect(td);block(e.heading,{y:878,width:800,height:58,size:50,style:'bold',label:'Effect heading'});await resourceBlock(e.text,{y:948,width:710,height:245,size:64,min:28,style:'italic',label:'Rules',taper:true})}

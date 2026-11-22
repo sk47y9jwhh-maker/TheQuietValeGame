@@ -33,12 +33,11 @@ installed runtime locations used on the production workstation.
 - Activated Special tiles retain timing restrictions in their effect text.
 - Stables has two detached full fronts per physical copy; no Travel extension.
 - Empty illustration windows are intentional and match the approved sample set.
-- Tile-type edge wash (30 Oct 2026): Core faces and Travel extensions have the
-  parchment margin outside the frame lightly tinted in their category colour
-  (multiply, 45%), running out through the bleed. Special fronts swap their
-  black margin for the Core parchment margin with the stronger wash (80%) in
-  their type colour. Golden and back faces are unchanged. Colours match the
-  online board.
+- Tile-type edge wash (30 Oct 2026, strengthened 22 Nov 2026): Core faces and
+  Travel extensions have the parchment margin outside the frame tinted in their
+  type colour (multiply, 85%), running out through the bleed. Special fronts
+  swap their black margin for the Core parchment margin with the full wash
+  (100%). Golden and back faces are unchanged. See the locked section below.
 
 ## Original layer treatment
 
@@ -65,10 +64,32 @@ Web faces remove 71 px per edge and use a transparent finished hex boundary,
 text below the illustrated inspector faces, including Golden scoring and the
 full Linked Production explanation.
 
-## Tile-type edge colour — approved and locked, 30 October 2026
+## Tile-type edge colour — strengthened 22 November 2026
 
-Approved by Robert on 30 October 2026. Do not change these values without a
-new, recorded approval.
+Robert, 22 November 2026: "make the tile type colours more pronounced, many
+was too hard to differentiate at the table." The muted colours below (locked
+30 October) were replaced by seven clearly different hues, laid on more
+strongly:
+
+| Type | Colour |
+| --- | --- |
+| Resource | #3f7f2c green |
+| Housing | #b8432a brick red |
+| Travel | #6c665e warm grey |
+| Merchant | #cf9614 gold |
+| Crafting | #2c62a0 blue |
+| Social | #8c3a8c purple |
+| Wellbeing | #16897a teal |
+
+Core Basic, Upgraded and Travel extensions: multiply at 85% (was 45%).
+Special fronts: multiply at 100% (was 80%). The online game's own type chips
+keep the earlier muted colours. Also 22 November: "UPGRADED FROM" and the
+basic tile's name are bold on upgraded faces, and Golden tiles' heading reads
+PASSIVE (was PERSISTENT EFFECT).
+
+## Tile-type edge colour — approved and locked, 30 October 2026 (superseded 22 November)
+
+Approved by Robert on 30 October 2026. Superseded by the section above.
 
 | Faces | Treatment |
 | --- | --- |

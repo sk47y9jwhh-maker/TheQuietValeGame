@@ -629,7 +629,7 @@ export const specialTiles: SpecialTileData[] = [
     unlockSource: "Remnants of the Fleet",
     placement: { terrain: ["water"], text: "Place on Water/River terrain." },
     effectText:
-      "Passive: Every non-Water hex beside Water/River is reachable from this tile, and tiles there join its settlement network.",
+      "Passive: Treat every hex beside Water/River as adjacent to this tile for settlement networks.",
     population: 5,
     renown: 5
   },
