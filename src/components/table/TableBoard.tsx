@@ -548,7 +548,6 @@ function StrainTokens({ x, y, count, latest }: { x: number; y: number; count: nu
 }
 
 /** The bronze Supported shield, about 9 units tall. */
-const shieldPath = "M0 -4.9 L4.3 -3.3 L4.3 0.2 C4.3 2.9 2.3 4.4 0 5.2 C-2.3 4.4 -4.3 2.9 -4.3 0.2 L-4.3 -3.3 Z";
 
 /**
  * The small natural wooden X set on a tile when its once-per-round ability or
@@ -642,11 +641,7 @@ function TileToken({ state, tile, hexId, x, y, motion, sharp = false }: { state:
     {arriving && <polygon className="tile-token-land" points={hexPoints(x, y, hexRadius - 0.6)} style={{ transformOrigin: `${x}px ${y}px` }} />}
     {gainedSupport && anchor && <polygon className="tile-token-ring" points={hexPoints(x, y, hexRadius - 1.6)} pathLength={1} />}
     {anchor && hasRoundUseToken(state, tile) && <RoundUseToken x={x + 20} y={windowTop + 4} />}
-    {/* Supported: a bronze shield token. */}
-    {supported && <g className="tile-token-support" transform={`translate(${x - 20} ${windowTop + 4})`}>
-      <path className="tile-token-support-shadow" transform="translate(0.6 0.9)" d={shieldPath} />
-      <path className="tile-token-support-body" d={shieldPath} />
-      <path className="tile-token-support-shine" d="M-2.6 -3.1 L0 -4 L0 3.2 C-1.6 2.6 -2.9 1.4 -2.9 -0.4 Z" />
-    </g>}
+    {/* Supported: a bronze shield token, the same ink-and-bronze shield as the printed tiles. */}
+    {supported && <image className="tile-token-support" href={gameIconUrl("supported")} x={x - 25} y={windowTop - 1.8} width={10} height={11.4} preserveAspectRatio="xMidYMid meet" />}
   </g>;
 }

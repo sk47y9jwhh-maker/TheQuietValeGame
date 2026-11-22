@@ -163,3 +163,22 @@ upgraded faces: one each side of UNLOCKED BY ARRIVAL and the Arrival's name,
 108 px tall (the door is narrow), centred at x 340 and 1218, y 774; the two
 text lines narrowed to 600 and 640 px. The longest name, Transmutation
 Traveller, still fits at full size.
+
+## Arrival band shading — 22 November 2026
+
+On Special faces the two soft grey shading clouds in the lower band are
+recoloured lavender to suit the Arrival door (Robert: "purple instead of
+grey"). `make-arrival-band.py` measures how much the artist's shading darkens
+each spot (ink lines ignored) and re-tints that darkening towards violet,
+writing `assets/arrival-band.png`, which the renderer draws over the band
+before the text. The parchment and frame lines are unchanged. Rerun the script
+with a strength argument (default 1.5) to make it lighter or deeper.
+
+## Supported icon — 22 November 2026
+
+`assets/icon-Supported.png` (online `public/icons/supported.webp`) is redrawn
+to match the artist's ink icons (metal bars, crate): a bronze heater shield with
+a heavy black outline, a riveted rim, a raised centre ridge, the left face lit
+with pale streaks and the right face shaded with ink hatching. Drawn by
+`make-supported-icon.py`. The online cards and the Supported token on the online
+board use the same picture in place of the old flat vector shield.

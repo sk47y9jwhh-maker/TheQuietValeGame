@@ -45,13 +45,8 @@ export function FaceIcon({ word }: { word: FaceIconWord }) {
     return <span className="face-icon face-icon-strain" role="img" aria-label="Strain" title="Strain" />;
   }
   if (word === "Supported") {
-    return (
-      <svg className="face-icon face-icon-supported" viewBox="-5 -5.4 10 11" role="img" aria-label="Supported">
-        <title>Supported</title>
-        <path d="M0 -4.9 L4.3 -3.3 L4.3 0.2 C4.3 2.9 2.3 4.4 0 5.2 C-2.3 4.4 -4.3 2.9 -4.3 0.2 L-4.3 -3.3 Z" />
-        <path className="face-icon-supported-shine" d="M-2.6 -3.1 L0 -4 L0 3.2 C-1.6 2.6 -2.9 1.4 -2.9 -0.4 Z" />
-      </svg>
-    );
+    // The same ink-and-bronze shield as the printed tiles (make-supported-icon.py).
+    return <img className="face-icon face-icon-supported" src={gameIconUrl("supported")} alt="Supported" title="Supported" decoding="async" />;
   }
   const type = tileTypeIcons[word];
   if (type) {
