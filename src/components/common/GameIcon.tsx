@@ -5,7 +5,7 @@
  */
 export type GameIconName =
   | "wood" | "stone" | "metal" | "food" | "herbs" | "goods"
-  | "population" | "renown" | "supported"
+  | "population" | "renown" | "supported" | "strain"
   | "type-resource" | "type-housing" | "type-travel" | "type-merchant" | "type-crafting" | "type-social" | "type-wellbeing" | "type-golden";
 
 export const gameIconUrl = (name: GameIconName) => `${import.meta.env?.BASE_URL ?? "/"}icons/${name}.webp`;

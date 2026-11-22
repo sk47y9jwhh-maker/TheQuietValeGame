@@ -5,7 +5,7 @@ import { gameIconUrl, type GameIconName } from "./GameIcon";
 /**
  * Rules text as printed on a card or tile face: the short wording ("+2 Food",
  * "−1 Strain") with resources drawn as the artist's symbols, Strain as a black
- * circle and Supported as a bronze shield. A hidden copy in words is what
+ * circle (an inked token) and Supported as a bronze shield. A hidden copy in words is what
  * screen readers read.
  */
 export function FaceText({ text, compact = true }: { text: string; compact?: boolean }) {
@@ -42,7 +42,8 @@ const tileTypeIcons: Partial<Record<FaceIconWord, GameIconName>> = {
 
 export function FaceIcon({ word }: { word: FaceIconWord }) {
   if (word === "Strain") {
-    return <span className="face-icon face-icon-strain" role="img" aria-label="Strain" title="Strain" />;
+    // The same scribbled ink token as the printed tiles (make-strain-icon.py).
+    return <img className="face-icon face-icon-strain" src={gameIconUrl("strain")} alt="Strain" title="Strain" decoding="async" />;
   }
   if (word === "Supported") {
     // The same ink-and-bronze shield as the printed tiles (make-supported-icon.py).

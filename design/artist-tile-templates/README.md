@@ -184,3 +184,13 @@ a heavy black outline, a riveted rim, a raised centre ridge, the left face lit
 with pale streaks and the right face shaded with ink hatching. Drawn by
 `make-supported-icon.py`. The online cards and the Supported token on the online
 board use the same picture in place of the old flat vector shield.
+
+## Strain icon — 22 November 2026
+
+`assets/icon-Strain.png` (online `public/icons/strain.webp`) is redrawn to read
+like the artist's Population figure (Robert: "it should visually read like the
+population icon"): cream paper densely scribbled with tapered black ink strokes
+on a diagonal, a few cream glints showing, and a heavy black outline; no grey
+gradients. Drawn by `make-strain-icon.py`. The online card text and the online
+board's Strain tokens use the same picture. The rulebook figures still show the
+physical black Strain discs and bronze shield tokens as components.
