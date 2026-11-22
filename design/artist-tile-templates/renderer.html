@@ -19,7 +19,7 @@ async function resourceBlock(text,{x=780,y,width,height,size=50,min=28,label='Ru
  const names=['Wood','Stone','Food','Metal','Herbs','Goods','Population','Renown','Strain','Supported','Housing','Social','Wellbeing','Crafting','Merchant','Travel','Resource'];
  const images=Object.fromEntries(await Promise.all(names.map(async n=>[n,await img('icon-'+(['Population','Renown','Strain','Supported'].includes(n)?n:['Housing','Social','Wellbeing','Crafting','Merchant','Travel','Resource'].includes(n)?'Type '+(n==='Housing'?'House':n):'Resource '+n)+'.png')])));
  const words=text.match(/(?:(?:up to )?[+−]?[0-9]+\s+(?:more\s+)?)?\S+/g)||[];
- function parts(word,s){return word.split(/\b(Wood|Stone|Food|Metal|Herbs|Goods|Population|Renown|Strain|Supported|Housing|Social|Wellbeing|Crafting|Merchant|Travel|Resource)\b/g).filter(Boolean).map(v=>images[v]?{im:images[v],w:s*(v==='Strain'?0.82:v==='Supported'?0.95:1.15),h:s*(v==='Strain'?0.82:1.05)}:{text:v,w:measure(v,s,'italic')})}
+ function parts(word,s){return word.split(/(?<!non-)\b(Wood|Stone|Food|Metal|Herbs|Goods|Population|Renown|Strain|Supported|Housing|Social|Wellbeing|Crafting|Merchant|Travel|Resource)\b/g).filter(Boolean).map(v=>images[v]?{im:images[v],w:s*(v==='Strain'?0.82:v==='Supported'?0.95:1.15),h:s*(v==='Strain'?0.82:1.05)}:{text:v,w:measure(v,s,'italic')})}
  let lines,s=size;
  for(;s>=min;s--){font(s,'italic');const gap=measure(' ',s,'italic');lines=[];let line={items:[],w:0};
   for(const word of words){const ps=parts(word,s),w=ps.reduce((a,p)=>a+p.w,0);const available=Math.min(width,Math.max(340,860-(y+s*.85+lines.length*s*1.24-950)*1.85));

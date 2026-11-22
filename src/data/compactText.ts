@@ -34,7 +34,7 @@ const rules: Rule[] = [
   [/\b([Rr])emove up to (\d+) Strain\b/g, (_m, r, n) => `${r === "R" ? "Up" : "up"} to ${MINUS}${n} Strain`],
   // "1 additional Strain" → "+1 Strain"; "1 additional Player Turns phase" → "+1 Player Turns phase".
   [/\b(\d+) additional\b/g, "+$1"],
-  [/ once extra\b/g, " +1 time"],
+  [/ apply once extra\b/g, " apply twice"],
   // Costs: "costs 1 fewer resource", "cost 2 fewer resources each", "pay up to 2 fewer Food".
   [new RegExp(`\\bpay up to (\\d+) fewer (${RES})`, "g"), (_m, n, what) => `up to ${MINUS}${n} ${what}`],
   [new RegExp(`\\b(costs?) (\\d+) fewer (resources?|Requirement resources?|${RES})`, "g"), (_m, verb, n, what) => `${verb} ${MINUS}${n} ${what}`],
@@ -52,7 +52,8 @@ export function compactRulesText(text: string): string {
   for (const [pattern, replacement] of rules) {
     out = out.replace(pattern, replacement as never);
   }
-  out = out.replace(new RegExp(`\\b(${TYPES}) [Tt]iles?\\b`, "g"), "$1");
+  // "non-Travel Tiles" stays in words: an icon after "non-" would not read clearly.
+  out = out.replace(new RegExp(`(?<!non-)\\b(${TYPES}) [Tt]iles?\\b`, "g"), "$1");
   // A "+" or "−" that now opens a sentence keeps the sentence readable.
   return out.replace(/\s{2,}/g, " ");
 }
@@ -64,7 +65,7 @@ export type FaceIconWord = (typeof faceIconWords)[number];
 /** Split face text into plain runs and icon words ("Overstrained" stays a word). */
 export function splitFaceText(text: string): Array<{ text: string } | { icon: FaceIconWord }> {
   const parts: Array<{ text: string } | { icon: FaceIconWord }> = [];
-  const pattern = new RegExp(`\\b(${faceIconWords.join("|")})\\b`, "g");
+  const pattern = new RegExp(`(?<!non-)\\b(${faceIconWords.join("|")})\\b`, "g");
   let last = 0;
   for (const match of text.matchAll(pattern)) {
     const index = match.index ?? 0;
