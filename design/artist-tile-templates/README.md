@@ -97,11 +97,15 @@ PASSIVE (was PERSISTENT EFFECT).
 Robert: "add a colour wash in the picture area too, like the border but for
 the gathering tiles do the matching terrain for its placement. also any other
 tiles that feel like a different colour would better represent them use that
-instead." The empty illustration window (y 324–663, 60° sides) gets a watercolour
-ink wash (`watercolour()` in renderer.html, Robert: "much more subtle … like
-water colour ink wash"): uneven pigment with darker and paler blooms, a
-slightly ragged outline, a darker dried rim and fine granulation, seeded per
-face so it is repeatable, multiplied onto the parchment:
+instead." The illustration window gets a watercolour ink wash (`watercolour()`
+in renderer.html, Robert: "much more subtle … like water colour ink wash" and
+"keep it exactly inside the picture area right up to the edge"): uneven
+pigment with darker and paler blooms, a darker dried rim along the window's
+edge and fine granulation, seeded per face so it is repeatable, multiplied onto
+the parchment and clipped to the window exactly. The window (same on every
+template): frame lines at y 309–312 and 673–676, inner sides at 60°, x = 377 −
+tan30·(y−330) on the left and 1181 + tan30·(y−330) on the right; the wash runs
+onto the frame lines by a pixel. Colours:
 
 - Tiles placed on one terrain take that terrain's map colour (strength 0.55):
   woodland #819e60, mountains #98a088, heaths #b7aeb0, arable #d6c375,
@@ -135,3 +139,11 @@ Approved by Robert on 30 October 2026. Superseded by the section above.
 - Options tried and not chosen: a thin line at or inside the cut (cut
   tolerance made it uneven), and a stronger wash on Core tiles.
 - Locked renderer: `renderer.html` SHA-256 `2726245b4510e158ceed779d22e9914f13329280f80faf4dde9e4fc335105633`.
+
+## Upgrade icon — 22 November 2026
+
+`assets/icon-Upgrade.png` (online `public/icons/upgrade.webp`): a hex tile tipped
+up mid-turn, showing its edge, with a brass arrow sweeping over it, inked to
+match the artist's icons (rough double black outline, cross-hatched shading,
+parchment and brass fills). Drawn by `make-upgrade-icon.py` (Pillow; rerun to
+regenerate). Not yet placed on any face.
