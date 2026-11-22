@@ -50,7 +50,7 @@ def project(p3, tilt, turn, cx, cy, sc):
 R, T = 1.0, 0.075                        # a thin tile
 hexp = [(R * math.cos(k * math.pi / 3), R * math.sin(k * math.pi / 3)) for k in range(6)]
 tilt, turn = math.radians(58), math.radians(-16)
-cx, cy, sc = W * 0.47, H * 0.71, 98 * S
+cx, cy, sc = W * 0.47, H * 0.635, 98 * S
 top = project([(x, y, T / 2) for x, y in hexp], tilt, turn, cx, cy, sc)
 bot = project([(x, y, -T / 2) for x, y in hexp], tilt, turn, cx, cy, sc)
 
