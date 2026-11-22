@@ -121,7 +121,7 @@ window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind
    // 22 Nov: smaller, so it sits inside the lower band's frame lines.
    await bandIcons('icon-Upgrade.png',100,'Upgrade icon')}
  }
- if(kind==='special'){ctx.drawImage(await img('arrival-band.png'),170,700);/* Robert, 22 Nov: purple band shading to suit the Arrival door (make-arrival-band.py) */block('UNLOCKED BY ARRIVAL',{y:712,width:600,height:55,size:42,label:'Unlock label'});block(t.unlockSource,{y:775,width:640,height:66,size:55,label:'Arrival name'});
+ if(kind==='special'){ctx.drawImage(await img('arrival-band.png'),170,700);{/* Robert, 22 Nov: a soft lavender watercolour wash in place of the grey band shading, to suit the Arrival door (make-arrival-band.py lifts the grey) */const k=Math.tan(Math.PI/6),bl=y=>185+k*(y-705),br=y=>1372-k*(y-705),bt=699,bb=849;watercolour('#8566aa',0.3,(t?.id??'special')+':arrival',[[bl(bt),bt],[br(bt),bt],[br(bb),bb],[bl(bb),bb]]);audit.push({field:'Arrival band wash',text:'lavender',style:'watercolour'})}block('UNLOCKED BY ARRIVAL',{y:712,width:600,height:55,size:42,label:'Unlock label'});block(t.unlockSource,{y:775,width:640,height:66,size:55,label:'Arrival name'});
    // Robert, 22 Nov: the Arrival door (from the Arrival card art) placed the same way as the Upgrade icon.
    await bandIcons('icon-Arrival.png',108,'Arrival icon')}
  if(kind==='golden'){

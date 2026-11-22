@@ -1,6 +1,8 @@
-# Arrival band: the grey shading clouds in the Special template's lower band, recoloured purple
-# to sit with the Arrival door icon (Robert, 22 Nov). Writes a band-sized overlay the renderer
-# draws over the template on Special faces only; the parchment and frame lines are untouched.
+# Arrival band: lifts the grey shading clouds out of the Special template's lower band so the
+# renderer can lay a soft lavender watercolour wash there instead, to sit with the Arrival door
+# (Robert, 22 Nov: the first, re-tinted version was too strong; "use the colourwash style").
+# Writes a band-sized overlay drawn over the template on Special faces only; the parchment
+# texture and frame lines are untouched.
 #   python3 make-arrival-band.py
 import sys
 import numpy as np
@@ -17,9 +19,8 @@ L = np.where(L < 185, np.median(L), L)        # ignore ink lines so they do not 
 Lb = np.asarray(Image.fromarray(L.astype(np.uint8)).filter(ImageFilter.GaussianBlur(18))).astype(float)
 ref = np.percentile(Lb, 92)
 D = np.clip(ref - Lb, 0, None)                   # how much the shading darkens each spot
-# Grey darkening lowers R, G and B alike; re-tint it so it darkens mostly green: lavender.
-STRENGTH = float(sys.argv[1]) if len(sys.argv) > 1 else 1.5
-shift = np.stack([D * 0.02, -D * 0.40, D * 0.42], 2) * STRENGTH
+# Grey darkening lowers R, G and B alike: add it back to every channel to return to clean parchment.
+shift = np.stack([D, D, D], 2)
 out = np.clip(a + shift, 0, 255).astype(np.uint8)
 
 # keep strictly inside the frame lines (slanted sides at 30 degrees)

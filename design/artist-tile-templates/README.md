@@ -166,13 +166,14 @@ Traveller, still fits at full size.
 
 ## Arrival band shading — 22 November 2026
 
-On Special faces the two soft grey shading clouds in the lower band are
-recoloured lavender to suit the Arrival door (Robert: "purple instead of
-grey"). `make-arrival-band.py` measures how much the artist's shading darkens
-each spot (ink lines ignored) and re-tints that darkening towards violet,
-writing `assets/arrival-band.png`, which the renderer draws over the band
-before the text. The parchment and frame lines are unchanged. Rerun the script
-with a strength argument (default 1.5) to make it lighter or deeper.
+On Special faces the lower band behind UNLOCKED BY ARRIVAL carries a soft
+lavender watercolour wash (`#8566aa`, strength 0.3, the same `watercolour()`
+style as the picture area) to suit the Arrival door. A first version re-tinted
+the template's grey clouds purple, which Robert found too strong. Now
+`make-arrival-band.py` lifts the artist's grey shading clouds back to clean
+parchment (ink lines ignored), writing `assets/arrival-band.png`, which the
+renderer draws over the band before the wash and the text. The wash stays inside
+the frame lines; the other tile types keep their grey shading.
 
 ## Supported icon — 22 November 2026
 
