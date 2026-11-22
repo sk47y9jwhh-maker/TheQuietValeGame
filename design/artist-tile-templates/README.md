@@ -72,18 +72,22 @@ strongly:
 
 | Type | Colour |
 | --- | --- |
-| Resource | #2e9a35 green |
-| Housing | #c62828 red |
-| Travel | #33312e charcoal |
-| Merchant | #f0bf16 gold |
-| Crafting | #1f4fd1 royal blue |
-| Social | #7e3bc4 violet |
-| Wellbeing | #00a3a6 teal |
+| Resource | #62803c moss green |
+| Housing | #9c4a2e rust |
+| Travel | #a8a393 pale stone |
+| Merchant | #b48a2c ochre |
+| Crafting | #3d5a7a slate blue |
+| Social | #6a3f63 plum |
+| Wellbeing | #6a9c90 sage teal |
 
-Painted solid at 90% (not multiplied into the parchment, which pulled every
-colour towards brown) on Core, Travel and Special faces. A first stronger
-multiply version the same day was still too alike: Gathering/Workshops,
-Housing/Social and Path/Market Stalls (Robert). The online game's own type chips
+Muted colours from the game's own palette (woodland, rust, brass, river blue,
+heath), spread across hue and lightness so neighbours differ: pale Travel
+against ochre Merchant, rust Housing against dark plum Social, moss Resource
+against slate Crafting. Painted solid at 90% (not multiplied into the
+parchment, which pulled every colour towards brown) on Core, Travel and
+Special faces. Earlier the same day: a stronger multiply wash was still too
+alike (Gathering/Workshops, Housing/Social, Path/Market Stalls), and bright
+saturated colours were too bright (Robert). The online game's own type chips
 keep the earlier muted colours. Also 22 November: "UPGRADED FROM" and the
 basic tile's name are bold on upgraded faces, and Golden tiles' heading reads
 PASSIVE (was PERSISTENT EFFECT).
