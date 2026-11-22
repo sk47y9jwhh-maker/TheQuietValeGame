@@ -393,7 +393,7 @@ P.push(page("8 · Placing Tiles", "Terrain, placement and adjacency", `
 // 15 Reach and rivers
 P.push(page("8 · Placing Tiles", "Reach, rivers and Bridges", `
   <h3>Reachability</h3>
-  <p>A Tile or empty hex is reachable when you can reach it from your meeple through the shared settlement network, or when a card, Tile or Steward rule says it is reachable. The network is every placed, non-Overstrained Tile joined side to side. Every Steward uses the same network, and an empty hex is reachable when it is next to a Tile you can reach.</p>
+  <p>A Tile or empty hex is reachable when you can reach it from your meeple through the shared settlement network, or when a card, Tile or Steward rule says it is reachable. The network is every placed, non-Overstrained Tile joined side to side; the Docks and Stables extend it, but never to an Overstrained Tile. Every Steward uses the same network, and an empty hex is reachable when it is next to a Tile you can reach.</p>
   <h3>Rivers and Bridges</h3>
   <p>River/Water is a barrier. Tiles on opposite banks do not connect, and you cannot reach across, unless a Bridge or another rule allows the crossing.</p>
   <div class="cols2 figs">
@@ -423,7 +423,7 @@ P.push(page("9 · Special Tiles", "Unlocking and placing Special Tiles", `
   ], "spec")}
   <h3>Special Tile numbers</h3>
   <div class="specials">${specials.map(([n, name]) => `<div><span>${n}</span>${esc(name)}</div>`).join("")}</div>
-  <p class="small">Remnants of the Cavalry unlocks Stables (17 and 18): two separate hexes, placed by its printed rule. Tiles connected to either Stables share one settlement network. An Overstrained tile never joins a settlement network, including through the Docks or the Stables.</p>`, "special"));
+  <p class="small">Remnants of the Cavalry unlocks Stables (17 and 18): two separate hexes, placed by its printed rule.</p>`, "special"));
 
 // 17 Encounter overview
 P.push(page("10 · Encounter Cards", "Encounter Cards at a glance", `
