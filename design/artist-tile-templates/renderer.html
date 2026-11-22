@@ -71,6 +71,23 @@ window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind
  const strong=kind==='special';
  if(strong&&edgeColour[edgeCategory]){const parchment=await img('Quiet Valley Tile Core Basic-managed.png');const c30=Math.cos(Math.PI/6);ctx.save();ctx.beginPath();for(const R of [709+90/c30,709-52/c30])for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx[k?'lineTo':'moveTo'](780+R*Math.cos(a),685+R*Math.sin(a))}ctx.closePath();ctx.clip('evenodd');ctx.drawImage(parchment,0,0);ctx.restore()}
  if(edgeCategory&&edgeColour[edgeCategory]){const ring=(R)=>{for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx[k?'lineTo':'moveTo'](780+R*Math.cos(a),685+R*Math.sin(a))}ctx.closePath()};const c30=Math.cos(Math.PI/6);ctx.save();ctx.beginPath();ctx.moveTo(390,10);ctx.lineTo(1170,10);ctx.lineTo(1560,685);ctx.lineTo(1170,1360);ctx.lineTo(390,1360);ctx.lineTo(0,685);ctx.closePath();ctx.clip();ctx.beginPath();ring(709+90/c30);ring(709-52/c30);ctx.filter='blur(2px)';ctx.globalCompositeOperation='source-over';ctx.globalAlpha=0.9;ctx.fillStyle=edgeColour[edgeCategory];ctx.fill('evenodd');ctx.restore();audit.push({field:'Edge wash',text:edgeCategory,colour:edgeColour[edgeCategory],strength:0.9,blend:'solid'})}
+ // Picture wash (Robert, 22 Nov): the picture window is tinted like the border. Tiles placed on one
+ // terrain take that terrain's map colour; a few take a colour that suits them better; the rest a soft
+ // version of their type colour. Golden tiles are gold.
+ if(['core','special','golden','extension'].includes(kind)){
+  const terrainColour={woodland:'#819e60',mountains:'#98a088',heaths:'#b7aeb0',arable:'#d6c375',ruins:'#cc9c7c',water:'#a9bfc0',grasslands:'#c9c8a0'};
+  const suits={c11_washhouse:'water',c21_the_vaults:'ruins',c18_common_land:'grasslands',special_hearth_garden:'woodland'};
+  const placedOn=t?.placement?.terrain?.length===1?t.placement.terrain[0]:null;
+  const terrain=suits[t?.id]??placedOn;
+  let colour,strength,source;
+  if(kind==='golden'){colour='#d9b44a';strength=0.45;source='golden'}
+  else if(terrain){colour=terrainColour[terrain];strength=0.8;source='terrain '+terrain}
+  else{colour=edgeColour[edgeCategory];strength=0.42;source='type '+edgeCategory}
+  if(colour){const k=Math.tan(Math.PI/6);const top=318,bottom=669,edgeAt=(y)=>377-k*(y-330)+6;
+   ctx.save();ctx.beginPath();ctx.moveTo(edgeAt(top),top);ctx.lineTo(1560-edgeAt(top),top);ctx.lineTo(1560-edgeAt(bottom),bottom);ctx.lineTo(edgeAt(bottom),bottom);ctx.closePath();
+   ctx.filter='blur(5px)';ctx.globalCompositeOperation='multiply';ctx.globalAlpha=strength;ctx.fillStyle=colour;ctx.fill();ctx.restore();
+   audit.push({field:'Picture wash',text:source,colour,strength})}
+ }
  // The Golden back is the Special back artwork with no number.
  if(kind==='golden-back')return audit;
  if(kind==='back'){block(String(item.number),{x:780,y:445,width:700,height:500,size:580,min:480,label:'Back number',colour:'#d8caaa'});return audit}

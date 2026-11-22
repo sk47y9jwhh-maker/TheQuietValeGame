@@ -92,6 +92,23 @@ keep the earlier muted colours. Also 22 November: "UPGRADED FROM" and the
 basic tile's name are bold on upgraded faces, and Golden tiles' heading reads
 PASSIVE (was PERSISTENT EFFECT).
 
+## Picture wash — 22 November 2026
+
+Robert: "add a colour wash in the picture area too, like the border but for
+the gathering tiles do the matching terrain for its placement. also any other
+tiles that feel like a different colour would better represent them use that
+instead." The empty illustration window (y 318–669, 60° sides) is tinted
+(multiply, 5 px feather):
+
+- Tiles placed on one terrain take that terrain's map colour at 80%:
+  woodland #819e60, mountains #98a088, heaths #b7aeb0, arable #d6c375,
+  ruins #cc9c7c, water #a9bfc0, grasslands #c9c8a0. That covers the Resource
+  tiles, Salvage Camp, Bridge, Docks, the Shrines and the Respites.
+- Chosen to suit: Washhouse water, The Vaults ruins, Common Land grasslands,
+  Hearth Garden woodland (`suits` in renderer.html).
+- Golden tiles: gold #d9b44a at 45%.
+- Everything else: its type colour at 42%.
+
 ## Tile-type edge colour — approved and locked, 30 October 2026 (superseded 22 November)
 
 Approved by Robert on 30 October 2026. Superseded by the section above.
