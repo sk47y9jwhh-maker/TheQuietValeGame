@@ -167,8 +167,9 @@ Traveller, still fits at full size.
 ## Arrival band shading — 22 November 2026
 
 On Special faces the lower band behind UNLOCKED BY ARRIVAL carries a soft
-lavender watercolour wash (`#8566aa`, strength 0.3, the same `watercolour()`
-style as the picture area) to suit the Arrival door. A first version re-tinted
+lavender watercolour wash (`#8566aa`, strength 0.2, the same `watercolour()`
+style as the picture area, its left half mirrored onto the right so it is
+symmetrical; Robert: "a little lighter", "a bit more symmetrical") to suit the Arrival door. A first version re-tinted
 the template's grey clouds purple, which Robert found too strong. Now
 `make-arrival-band.py` lifts the artist's grey shading clouds back to clean
 parchment (ink lines ignored), writing `assets/arrival-band.png`, which the

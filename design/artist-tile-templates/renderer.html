@@ -58,7 +58,7 @@ function effect(t){let text=t.effectText,heading='PASSIVE';if(text.startsWith('A
 function timing({text,heading}){const m=/^Once per (round|Season|turn)[,:]\s*/i.exec(text);if(!m)return {text,heading};const rest=text.slice(m[0].length);return {text:rest[0].toUpperCase()+rest.slice(1),heading:heading+': ONCE PER '+m[1].toUpperCase()}}
 // A watercolour ink wash (Robert, 22 Nov): uneven pigment, paler and darker blooms, a darker
 // dried rim along the window's edge and fine granulation; it fills the picture window exactly. Seeded per face, so it is repeatable.
-function watercolour(colour,strength,key,poly){
+function watercolour(colour,strength,key,poly,mirrorX){
  let seed=0;for(const ch of key)seed=Math.imul(seed^ch.charCodeAt(0),2654435761)>>>0;
  const rnd=()=>{seed=(seed+0x6D2B79F5)>>>0;let z=seed;z=Math.imul(z^z>>>15,1|z);z^=z+Math.imul(z^z>>>7,61|z);return ((z^z>>>14)>>>0)/4294967296};
  const off=document.createElement('canvas');off.width=W;off.height=H;const o=off.getContext('2d');
@@ -72,6 +72,8 @@ function watercolour(colour,strength,key,poly){
  o.fillStyle=colour;for(let i=0;i<2600;i++){o.globalAlpha=0.08+rnd()*0.22;const r=0.8+rnd()*1.8;o.beginPath();o.arc(x0+rnd()*(x1-x0),y0+rnd()*(y1-y0),r,0,7);o.fill()}
  path();o.lineWidth=16;o.strokeStyle=colour;o.globalAlpha=0.5;o.filter='blur(3px)';o.stroke();
  o.restore();
+ // mirrorX: copy the left half onto the right, for a symmetrical wash (Arrival band).
+ if(mirrorX){const m=document.createElement('canvas');m.width=W;m.height=H;m.getContext('2d').drawImage(off,0,0);o.save();o.beginPath();o.rect(mirrorX,0,W-mirrorX,H);o.clip();o.clearRect(0,0,W,H);o.translate(2*mirrorX,0);o.scale(-1,1);o.drawImage(m,0,0);o.restore()}
  ctx.save();ctx.beginPath();poly.forEach(([x,y],i)=>ctx[i?'lineTo':'moveTo'](x,y));ctx.closePath();ctx.clip();ctx.globalCompositeOperation='multiply';ctx.globalAlpha=strength;ctx.drawImage(off,0,0);ctx.restore();
 }
 window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind,face,t}=item;const type=kind==='core'?(face==='basic'?'Core Basic':'Core Upgrade'):kind==='special'?'Special':kind==='golden'?'Golden':kind==='extension'?'Travel Extension':'Special back';const bg=await img('Quiet Valley Tile '+type+'-managed.png');
@@ -121,7 +123,7 @@ window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind
    // 22 Nov: smaller, so it sits inside the lower band's frame lines.
    await bandIcons('icon-Upgrade.png',100,'Upgrade icon')}
  }
- if(kind==='special'){ctx.drawImage(await img('arrival-band.png'),170,700);{/* Robert, 22 Nov: a soft lavender watercolour wash in place of the grey band shading, to suit the Arrival door (make-arrival-band.py lifts the grey) */const k=Math.tan(Math.PI/6),bl=y=>185+k*(y-705),br=y=>1372-k*(y-705),bt=699,bb=849;watercolour('#8566aa',0.3,(t?.id??'special')+':arrival',[[bl(bt),bt],[br(bt),bt],[br(bb),bb],[bl(bb),bb]]);audit.push({field:'Arrival band wash',text:'lavender',style:'watercolour'})}block('UNLOCKED BY ARRIVAL',{y:712,width:600,height:55,size:42,label:'Unlock label'});block(t.unlockSource,{y:775,width:640,height:66,size:55,label:'Arrival name'});
+ if(kind==='special'){ctx.drawImage(await img('arrival-band.png'),170,700);{/* Robert, 22 Nov: a soft lavender watercolour wash in place of the grey band shading, to suit the Arrival door (make-arrival-band.py lifts the grey) */const k=Math.tan(Math.PI/6),bl=y=>185+k*(y-705),br=y=>1372-k*(y-705),bt=699,bb=849;watercolour('#8566aa',0.2,(t?.id??'special')+':arrival',[[bl(bt),bt],[br(bt),bt],[br(bb),bb],[bl(bb),bb]],778.5);audit.push({field:'Arrival band wash',text:'lavender',style:'watercolour'})}block('UNLOCKED BY ARRIVAL',{y:712,width:600,height:55,size:42,label:'Unlock label'});block(t.unlockSource,{y:775,width:640,height:66,size:55,label:'Arrival name'});
    // Robert, 22 Nov: the Arrival door (from the Arrival card art) placed the same way as the Upgrade icon.
    await bandIcons('icon-Arrival.png',108,'Arrival icon')}
  if(kind==='golden'){
