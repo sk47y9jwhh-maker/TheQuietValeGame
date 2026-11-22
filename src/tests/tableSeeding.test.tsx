@@ -40,11 +40,11 @@ describe("Living Table deliberate seeding", () => {
     render(<TableSeeding state={state} onConfirm={vi.fn()} />);
     const burden = screen.getByRole("article", { name: "Smoke over Hearths" });
     expect(burden).toHaveTextContent("Spend 1 Action, pay 4 Goods, discard.");
-    expect(burden).not.toHaveTextContent("Spend 1 Action, pay 2 Goods, discard.");
+    expect(burden).not.toHaveTextContent("Spend 1 Action, −2 Goods, discard.");
     const read = within(burden).getByRole("button", { name: "Read Smoke over Hearths" });
     fireEvent.click(read);
     expect(screen.getByRole("heading", { name: "Smoke over Hearths", level: 1 })).toHaveFocus();
-    expect(screen.getByText("Spend 1 Action, pay 2 Goods, discard.")).toBeVisible();
+    expect(screen.getByText("Spend 1 Action, −2 Goods, discard.")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Back to your hand" }));
     expect(screen.getByRole("button", { name: "Read Smoke over Hearths" })).toHaveFocus();
     fireEvent.click(screen.getByRole("button", { name: "Read A Little Time" }));
