@@ -126,7 +126,7 @@ describe("Season III Burden payment", () => {
   it("keeps a selected passive discount when the Food/Goods mix changes", () => {
     const state = questState(special("learning", "special_house_of_learning"));
     state.season = 3; state.encounters.activeBurdens = [houses];
-    state.warehouse.food = 3; state.warehouse.goods = 1;
+    state.warehouse.food = 3; state.warehouse.goods = 2;
     const review = resolveBurden(state, houses); const onConfirm = vi.fn();
     render(<CostChoicePanel state={review} pending={review.pendingCostChoice!} onConfirm={onConfirm} onCancel={vi.fn()} />);
     const learning = screen.getByRole("button", { name: /House of Learning/ });
@@ -134,7 +134,8 @@ describe("Season III Burden payment", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "Food in this payment" }), { target: { value: "3" } });
     expect(learning).toHaveAttribute("aria-pressed", "true");
     const preview = screen.getByRole("region", { name: "Payment preview" });
-    expect(preview).toHaveTextContent("Pay 3"); expect(preview).toHaveTextContent("Pay 1");
+    // Season III costs 7 (22 Nov); House of Learning takes 2 off.
+    expect(preview).toHaveTextContent("Pay 3"); expect(preview).toHaveTextContent("Pay 2");
     fireEvent.click(screen.getByRole("button", { name: "Resolve Burden" }));
     const selection = onConfirm.mock.calls[0][0];
     expect(selection.selectedOptionIds).toHaveLength(4);
@@ -146,16 +147,17 @@ describe("Season III Burden payment", () => {
 
   it("replaces six repeated switches with one reversible mix and charges exactly the preview", () => {
     const state = fresh(); state.season = 3;
-    state.encounters.activeBurdens = [houses]; state.warehouse.food = 3; state.warehouse.goods = 3;
+    state.encounters.activeBurdens = [houses]; state.warehouse.food = 3; state.warehouse.goods = 4;
     const review = resolveBurden(state, houses); const onConfirm = vi.fn();
     render(<CostChoicePanel state={review} pending={review.pendingCostChoice!} onConfirm={onConfirm} onCancel={vi.fn()} />);
-    expect(screen.queryByText("Flexible payment 1/6")).not.toBeInTheDocument();
+    expect(screen.queryByText("Flexible payment 1/7")).not.toBeInTheDocument();
     const mix = screen.getByRole("combobox", { name: "Food in this payment" });
     fireEvent.change(mix, { target: { value: "6" } });
     expect(screen.getByRole("status")).toHaveTextContent("Need 3 more Food");
     fireEvent.change(mix, { target: { value: "3" } });
     const preview = screen.getByRole("region", { name: "Payment preview" });
-    expect(within(preview).getAllByText("Pay 3")).toHaveLength(2);
+    expect(within(preview).getAllByText("Pay 3")).toHaveLength(1);
+    expect(within(preview).getAllByText("Pay 4")).toHaveLength(1);
     expect(preview).toHaveTextContent("Earlier Strain stays");
     expect(screen.getByRole("button", { name: "Resolve Burden" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "Resolve Burden" }));

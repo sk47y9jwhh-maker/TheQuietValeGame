@@ -388,8 +388,8 @@ describe("action console", () => {
     expect(arrivalButton).toHaveTextContent("Requirement: Pay 4 Wood and 4 Metal.");
     expect(arrivalButton).toHaveTextContent("Need 4 more Wood.");
     expect(burdenButton).toBeDisabled();
-    expect(burdenButton).toHaveTextContent("Spend 1 Action, pay 2 Goods, discard.");
-    expect(burdenButton).toHaveTextContent("Need 2 more Goods.");
+    expect(burdenButton).toHaveTextContent("Spend 1 Action, pay 3 Goods, discard.");
+    expect(burdenButton).toHaveTextContent("Need 3 more Goods.");
   });
 
   it("resolves a valid Burden from the interact list", () => {
@@ -397,7 +397,7 @@ describe("action console", () => {
     const state = {
       ...createNewGame(1, ["vanguard"]),
       phase: "turns" as const,
-      warehouse: { wood: 0, stone: 0, metal: 0, food: 0, herbs: 0, goods: 2 },
+      warehouse: { wood: 0, stone: 0, metal: 0, food: 0, herbs: 0, goods: 3 },
       encounters: {
         ...createNewGame(1, ["vanguard"]).encounters,
         activeBurdens: ["burden_smoke_over_hearths"]

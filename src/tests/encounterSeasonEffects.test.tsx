@@ -43,8 +43,8 @@ describe("encounter season effects", () => {
       />
     );
 
-    expect(screen.getByText("Spend 1 Action, pay 2 Goods, discard.")).toBeInTheDocument();
-    expect(screen.getByText("Spend 1 Action, pay 4 Goods, discard.")).toBeInTheDocument();
-    expect(screen.getByText("Spend 1 Action, pay 6 Goods, discard.")).toBeInTheDocument();
+    expect(screen.getByText("Spend 1 Action, pay 3 Goods, discard.")).toBeInTheDocument();
+    expect(screen.getByText("Spend 1 Action, pay 5 Goods, discard.")).toBeInTheDocument();
+    expect(screen.getByText("Spend 1 Action, pay 7 Goods, discard.")).toBeInTheDocument();
   });
 });
