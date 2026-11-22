@@ -364,7 +364,7 @@ export const burdens: BurdenData[] = [
       "Choose 2 Housing Tiles with fewer than 3 Strain each adjacent to a Crafting Tile. Place 1 Strain on each.",
       "Choose 3 Housing Tiles with fewer than 3 Strain each adjacent to a Crafting Tile. Place 1 Strain on each. If none, choose 1 Crafting Tile with fewer than 3 Strain instead."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Goods by Season. Then discard."
   },
   {
     id: "burden_forest_s_grudge",
@@ -375,7 +375,7 @@ export const burdens: BurdenData[] = [
       "Choose 1 Lumber Yard / Sustainable Lumber Yard with fewer than 3 Strain and place 2 Strain on it.",
       "Choose 1 Lumber Yard / Sustainable Lumber Yard with fewer than 3 Strain and place 2 Strain on it. Then choose 1 adjacent placed tile with fewer than 3 Strain and place 1 Strain on it."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Wood by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Wood by Season. Then discard."
   },
   {
     id: "burden_blighted_lands",
@@ -386,7 +386,7 @@ export const burdens: BurdenData[] = [
       "Choose 1 Farmstead / Artisan Farm with fewer than 3 Strain and place 2 Strain on it.",
       "Choose 1 Farmstead / Artisan Farm with fewer than 3 Strain and place 2 Strain on it. Then choose 1 adjacent placed tile with fewer than 3 Strain and place 1 Strain on it."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Food by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Food by Season. Then discard."
   },
   {
     id: "burden_awoken_in_the_deep",
@@ -397,7 +397,7 @@ export const burdens: BurdenData[] = [
       "Choose 1 Mine Tunnel / Mine Shaft tile with fewer than 3 Strain and place 2 Strain on it.",
       "Choose 1 Mine Tunnel / Mine Shaft tile with fewer than 3 Strain and place 2 Strain on it. Then choose 1 adjacent Travel or Resource Tile with fewer than 3 Strain and place 1 Strain on it."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Food by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Food by Season. Then discard."
   },
   {
     id: "burden_stampede",
@@ -408,7 +408,7 @@ export const burdens: BurdenData[] = [
       "Choose 1 Gathering Outpost / Gathering Lodge with fewer than 3 Strain and place 2 Strain on it.",
       "Choose 1 Gathering Outpost / Gathering Lodge with fewer than 3 Strain and place 2 Strain on it. Then choose 1 adjacent Housing or Travel Tile with fewer than 3 Strain and place 1 Strain on it."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Metal by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Metal by Season. Then discard."
   },
   {
     id: "burden_return_to_the_trenches",
@@ -419,7 +419,7 @@ export const burdens: BurdenData[] = [
       "Choose 2 Travel Tiles with fewer than 3 Strain each adjacent to a Resource Tile. Place 1 Strain on each.",
       "Choose 3 Travel Tiles with fewer than 3 Strain each adjacent to a Resource Tile. Place 1 Strain on each. If none, choose 1 Resource Tile with fewer than 3 Strain instead."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Metal by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Metal by Season. Then discard."
   },
   {
     id: "burden_wares_of_war",
@@ -430,7 +430,7 @@ export const burdens: BurdenData[] = [
       "Choose 2 Housing Tiles with fewer than 3 Strain each adjacent to a Merchant Tile. Place 1 Strain on each.",
       "Choose 3 Housing Tiles with fewer than 3 Strain each adjacent to a Merchant Tile. Place 1 Strain on each. If none, choose 1 Merchant Tile with fewer than 3 Strain instead."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Metal by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Metal by Season. Then discard."
   },
   {
     id: "burden_old_names_old_debts",
@@ -441,7 +441,7 @@ export const burdens: BurdenData[] = [
       "Choose 2 tiles with Renown and fewer than 3 Strain. Place 1 Strain on each.",
       "Choose 3 tiles with Renown and fewer than 3 Strain. Place 1 Strain on each."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Goods by Season. Then discard."
   },
   {
     id: "burden_the_quiet_fractures",
@@ -452,7 +452,7 @@ export const burdens: BurdenData[] = [
       "Choose 1 tile with 1-2 Strain and place 1 Strain on it. Then place 1 Strain on 1 adjacent placed tile with 0 Strain.",
       "Choose 1 Overstrained tile. Then place 1 Strain on each of 2 adjacent placed tiles with 0 Strain. If none, choose 1 tile with 1-2 Strain and place 1 Strain on it, then place 1 Strain on 1 adjacent placed tile with 0 Strain instead."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Goods by Season. Then discard."
   },
   {
     id: "burden_tools_left_to_rust",
@@ -463,7 +463,7 @@ export const burdens: BurdenData[] = [
       "Choose 1 Crafting or Merchant Tile with fewer than 3 Strain and place 1 Strain on it. Then lose 1 Metal if able.",
       "Choose 2 Crafting and/or Merchant Tiles with fewer than 3 Strain. Place 1 Strain on each. Then lose 2 Metal if able."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Metal by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Metal by Season. Then discard."
   },
   {
     id: "burden_the_long_cough",
@@ -474,7 +474,7 @@ export const burdens: BurdenData[] = [
       "Choose 1 Social Tile and 1 Wellbeing Tile, each with fewer than 3 Strain, if possible. Place 1 Strain on each chosen tile.",
       "Choose up to 3 Social and/or Wellbeing Tiles with fewer than 3 Strain. Place 1 Strain on each."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Herbs by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Herbs by Season. Then discard."
   },
   {
     id: "burden_the_storehouses_disagree",
@@ -485,7 +485,7 @@ export const burdens: BurdenData[] = [
       "Choose Wood, Stone, Metal, Food, or Herbs. If the Warehouse has at least 3 of it, lose 3. Otherwise, place 2 Strain on 1 Resource Tile with fewer than 3 Strain.",
       "Choose any non-Goods resource. If the Warehouse has at least 5 of it, lose 5. Otherwise, place 2 Strain on each of 2 Resource Tiles with fewer than 3 Strain."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Goods by Season. Then discard."
   },
   {
     id: "burden_bare_walls",
@@ -496,7 +496,7 @@ export const burdens: BurdenData[] = [
       "Choose up to 2 Housing Tiles with fewer than 3 Strain that are not adjacent to Social or Wellbeing. Place 1 Strain on each. If none are valid, lose 2 Goods.",
       "Choose up to 3 Housing Tiles with fewer than 3 Strain that are not adjacent to Social or Wellbeing. Place 1 Strain on each. If none are valid, lose 3 Goods."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Wood by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Wood by Season. Then discard."
   },
   {
     id: "burden_empty_shelves",
@@ -507,7 +507,7 @@ export const burdens: BurdenData[] = [
       "Choose 2 Social Tiles with fewer than 3 Strain. For each, pay 1 Goods or place 1 Strain on it.",
       "Choose 3 Social Tiles with fewer than 3 Strain. For each, pay 1 Goods or place 1 Strain on it. If none, choose 1 Housing Tile with fewer than 3 Strain instead."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Goods by Season. Then discard."
   },
   {
     id: "burden_promises_overstretched",
@@ -518,7 +518,7 @@ export const burdens: BurdenData[] = [
       "Choose up to 2 active Arrivals. For each, pay 1 Goods or remove 1 timer token. If there are none, no effect.",
       "Choose up to 3 active Arrivals. For each, pay 1 Goods or remove 1 timer token. If there are none, place 1 Strain on each of 2 placed tiles with fewer than 3 Strain."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Goods by Season. Then discard."
   },
   {
     id: "burden_welcome_wears_thin",
@@ -529,7 +529,7 @@ export const burdens: BurdenData[] = [
       "Choose up to 2 active Arrivals. For each, pay 1 Herbs or remove 1 timer token. If there are none, no effect.",
       "Choose up to 3 active Arrivals. For each, pay 1 Herbs or remove 1 timer token. If there are none, place 1 Strain on each of 2 placed tiles with fewer than 3 Strain."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Herbs by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Herbs by Season. Then discard."
   },
   {
     id: "burden_coin_before_craft",
@@ -540,7 +540,7 @@ export const burdens: BurdenData[] = [
       "Choose 1 Merchant Tile and 1 Crafting Tile, each with fewer than 3 Strain and adjacent to the other type. Place 1 Strain on each.",
       "Choose up to 2 Merchant Tiles and up to 2 Crafting Tiles, each with fewer than 3 Strain and adjacent to the other type. Place 1 Strain on each. If none, choose 1 Merchant or Crafting Tile with fewer than 3 Strain instead."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Goods by Season. Then discard."
   },
   {
     id: "burden_foundations_remember_war",
@@ -551,7 +551,7 @@ export const burdens: BurdenData[] = [
       "Choose 1 upgraded Core Tile with fewer than 3 Strain and place 1 Strain on it. Then place 1 Strain on 1 adjacent placed tile with fewer than 3 Strain.",
       "Choose 1 upgraded Core Tile with fewer than 3 Strain and place 2 Strain on it. Then place 2 Strain on 1 adjacent placed tile with fewer than 3 Strain."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Stone by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Stone by Season. Then discard."
   },
   {
     id: "burden_ill_omen_of_discontent",
@@ -562,7 +562,7 @@ export const burdens: BurdenData[] = [
       "Choose 2 Travel Tiles with fewer than 3 Strain each adjacent to a Housing Tile with 1+ Strain. Place 1 Strain on each.",
       "Choose 3 Travel Tiles with fewer than 3 Strain each adjacent to a Housing Tile with 1+ Strain. Place 1 Strain on each. If none, choose 1 Travel Tile with fewer than 3 Strain instead."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Herbs by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Herbs by Season. Then discard."
   },
   {
     id: "burden_old_wounds_reopen",
@@ -573,7 +573,7 @@ export const burdens: BurdenData[] = [
       "Choose 2 Social and/or Wellbeing Tiles with fewer than 3 Strain. Pay 4 Herbs total, or place 1 Strain on each.",
       "Choose 3 Social and/or Wellbeing Tiles with fewer than 3 Strain. Pay 6 Herbs total, or place 1 Strain on each."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Herbs by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Herbs by Season. Then discard."
   },
   {
     id: "burden_only_road_in",
@@ -584,7 +584,7 @@ export const burdens: BurdenData[] = [
       "Choose 2 Merchant and/or Crafting Tiles with fewer than 3 Strain that are each adjacent to exactly 1 Travel Tile. Place 1 Strain on each.",
       "Choose 3 Merchant and/or Crafting Tiles with fewer than 3 Strain that are each adjacent to exactly 1 Travel Tile. Place 1 Strain on each."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Goods by Season. Then discard."
   },
   {
     id: "burden_roads_carry_needs",
@@ -595,7 +595,7 @@ export const burdens: BurdenData[] = [
       "Choose 1 Travel Tile with fewer than 3 Strain that is adjacent to at least 3 placed tiles. Place 2 Strain on it.",
       "Choose 2 Travel Tiles with fewer than 3 Strain that are each adjacent to at least 3 placed tiles. Place 1 Strain on each."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Goods by Season. Then discard."
   },
   {
     id: "burden_roads_too_far_from_home",
@@ -606,7 +606,7 @@ export const burdens: BurdenData[] = [
       "Choose 2 Travel Tiles with fewer than 3 Strain not adjacent to any Housing Tile. Place 1 Strain on each.",
       "Choose 3 Travel Tiles with fewer than 3 Strain not adjacent to any Housing Tile. Place 1 Strain on each."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Wood by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Wood by Season. Then discard."
   },
   {
     id: "burden_stores_run_thin",
@@ -617,7 +617,7 @@ export const burdens: BurdenData[] = [
       "Identify the most-stocked resource type. If tied, players choose. Lose 4 of it. If fewer than 4 are lost, place 1 Strain on each of 2 placed tiles with fewer than 3 Strain.",
       "Identify the most-stocked resource type. If tied, players choose. Lose 6 of it. If fewer than 6 are lost, place 2 Strain on each of 2 placed tiles with fewer than 3 Strain."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Goods by Season. Then discard."
   },
   {
     id: "burden_the_burden_of_command",
@@ -628,7 +628,7 @@ export const burdens: BurdenData[] = [
       "Choose up to 2 Steward-occupied tiles with fewer than 3 Strain. Place 1 Strain on each. Then place 1 Strain on 1 adjacent tile with fewer than 3 Strain, if any.",
       "Choose up to 3 Steward-occupied tiles with fewer than 3 Strain. Place 1 Strain on each. Then place 1 Strain on each of up to 2 adjacent tiles with fewer than 3 Strain."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Goods by Season. Then discard."
   },
   {
     id: "burden_the_rot_within_the_vault",
@@ -639,7 +639,7 @@ export const burdens: BurdenData[] = [
       "Choose 1 Salvage Camp / Reclamation Works with fewer than 3 Strain and place 2 Strain on it.",
       "Choose 1 Salvage Camp / Reclamation Works with fewer than 3 Strain and place 2 Strain on it. Then choose 1 adjacent placed tile with fewer than 3 Strain and place 1 Strain on it."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Herbs by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Herbs by Season. Then discard."
   },
   {
     id: "burden_too_many_houses_too_little_homes",
@@ -651,7 +651,7 @@ export const burdens: BurdenData[] = [
       "Choose 3 Housing Tiles with fewer than 3 Strain. For each, pay 1 Food or 1 Goods, or place 1 Strain on it."
     ),
     resolutionText:
-      "Spend 1 Action and pay 2/4/6 Food and/or Goods by Season. Then discard."
+      "Spend 1 Action and pay 3/5/7 Food and/or Goods by Season. Then discard."
   },
   {
     id: "burden_river_breaks_its_banks",
@@ -662,7 +662,7 @@ export const burdens: BurdenData[] = [
       "Choose 2 Tiles beside Water/River: +1 Strain each. If none, lose 2 Wood.",
       "Choose 3 Tiles beside Water/River: +1 Strain each. If none, lose 3 Wood."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Wood by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Wood by Season. Then discard."
   },
   {
     id: "burden_the_road_takes_its_share",
@@ -673,7 +673,7 @@ export const burdens: BurdenData[] = [
       "Next 2 Resource Tile Productions this round: −2 resources each.",
       "Each Resource Tile Production this round: −2 resources."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Goods by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Goods by Season. Then discard."
   },
   {
     id: "burden_plans_left_waiting",
@@ -684,7 +684,7 @@ export const burdens: BurdenData[] = [
       "Next 2 Tiles placed/upgraded this round cost 2 more resources each.",
       "Each Tile placed/upgraded this round costs 2 more resources."
     ),
-    resolutionText: "Spend 1 Action and pay 2/4/6 Food by Season. Then discard."
+    resolutionText: "Spend 1 Action and pay 3/5/7 Food by Season. Then discard."
   }
 ];
 

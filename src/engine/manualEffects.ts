@@ -3,6 +3,8 @@ import { resources, warehouseCap } from "../data/resources";
 import { encounterById } from "../data/encounters";
 import { mapById } from "../data/map";
 import {
+  burdenFollowUpRuleId,
+  burdenOverflowRuleId,
   cardEffectRuleId,
   getActiveEffectRule,
   getEffectRule,
@@ -1221,6 +1223,14 @@ export function effectHasNoValidChoiceTargets(
       getValidEffectStrainTargets(state, ruleId, sourceTile).length === 0 &&
       getEffectSupportTargets(state, ruleId, sourceTile).length === 0 &&
       !rule.fixedResources && !rule.resourceGainChoice) return true;
+  // A Burden row with no tile left to hit and nothing left to lose (e.g. Tools
+  // Left to Rust with no Metal) has no choice to make; its overflow follows.
+  if ((rule.tileAdjustment?.strain || rule.strainCascade) &&
+      rule.fixedResources && !rule.resourceGainChoice &&
+      (rule.strainCascade
+        ? getStrainCascadeAnchorTargets(state, ruleId, sourceTile).length === 0
+        : getValidEffectStrainTargets(state, ruleId, sourceTile).length === 0) &&
+      Object.values(fixedResourceDeltas(state, rule)).every((delta) => !delta)) return true;
   return false;
 }
 
@@ -1338,7 +1348,7 @@ export function suggestEffectAdjustment(
   return { adjustment: finalAdjustment, requiresManualChoice };
 }
 
-function getPendingEffectSourceTile(
+export function getPendingEffectSourceTile(
   state: GameState,
   pendingEffect: PendingEffectState
 ): PlacedTile | undefined {
@@ -2293,6 +2303,127 @@ export function queueRestingHallBurdenPassive(state: GameState): GameState {
     : queued;
 }
 
+// ---------------------------------------------------------------------------
+// Burden overflow and follow-up (Robert, 22 Nov: "Burdens: making them bite").
+// A Burden row first fills its own targets. Strain it could not place goes to
+// the row's overflow group as a separate step, so the Target Deck chooses it.
+// After the whole effect, a row with a follow-up hits 1 Social/Wellbeing Tile
+// beside a Tile the effect hit.
+
+function burdenOverflowShortfall(
+  state: GameState,
+  pendingEffect: PendingEffectState,
+  rule: EffectRule,
+  adjustment: EffectAdjustment
+): number {
+  const strainRule = rule.tileAdjustment?.strain;
+  if (!rule.overflow || !strainRule || strainRule.direction !== "place") return 0;
+  if (adjustment.ignoredBurdenIds?.length || adjustment.resolvedBurdenIds?.length) return 0;
+  const strainEntries = Object.values(adjustment.tileStrainDeltas ?? {}).filter((delta) => delta > 0);
+  const placedTotal = strainEntries.reduce((sum, delta) => sum + delta, 0);
+  const printed = rule.alternative;
+  if (printed?.kind === "pay_or_strain") {
+    const paid = printed.resources.reduce((sum, resource) => sum + resourceSpend(adjustment, resource), 0);
+    const paidChoices = Math.floor(paid / printed.resourceStep);
+    return Math.max(0, printed.requiredChoices - paidChoices - strainEntries.length) * printed.strainPerChoice;
+  }
+  if (printed?.kind === "pay_total_or_strain") {
+    const paid = printed.resources.reduce((sum, resource) => sum + resourceSpend(adjustment, resource), 0);
+    if (paid >= printed.resourceStep) return 0;
+    return Math.max(0, printed.requiredStrainTotal - placedTotal);
+  }
+  if (printed) return 0;
+  void state;
+  void pendingEffect;
+  const required = strainRule.requiredTotal ?? strainRule.maxTotal;
+  return Math.max(0, required - placedTotal);
+}
+
+function hitTileIds(adjustment: EffectAdjustment): string[] {
+  return Object.entries(adjustment.tileStrainDeltas ?? {})
+    .filter(([, delta]) => delta > 0)
+    .map(([tileId]) => tileId);
+}
+
+function queueBurdenFollowUp(
+  state: GameState,
+  pendingEffect: PendingEffectState,
+  followUpRuleId: string,
+  hitIds: string[]
+): GameState {
+  const parentRuleId = followUpRuleId.replace(/:protector$/, "");
+  const followUp = getEffectRule(parentRuleId).followUp;
+  if (!followUp) return state;
+  const anchors = hitIds
+    .map((tileId) => state.map.placedTiles.find((tile) => tile.instanceId === tileId))
+    .filter((tile): tile is PlacedTile => Boolean(tile))
+    .filter((tile) =>
+      !followUp.anchorCategories ||
+      followUp.anchorCategories.includes(getPlacedTileCategory(tile))
+    );
+  const anchor = anchors.find(
+    (tile) => getValidEffectStrainTargets(state, followUpRuleId, tile).length > 0
+  );
+  if (!anchor) return state;
+  const anchorName = getPlacedTileName(anchor);
+  const suggestion = suggestEffectAdjustment(state, followUpRuleId, anchor);
+  return queuePendingEffectFirst(state, {
+    sourceType: "tile",
+    ruleId: followUpRuleId,
+    sourceId: anchor.instanceId,
+    sourceName: pendingEffect.sourceName,
+    title: `${pendingEffect.sourceName}: beside ${anchorName}`,
+    effectText: `1 Social/Wellbeing Tile beside ${anchorName}: +${followUp.strain} Strain.`,
+    resolutionLogMessage: `${pendingEffect.sourceName} reached a Social/Wellbeing Tile beside ${anchorName}.`,
+    suggestedAdjustment: suggestion.adjustment,
+    requiresManualChoice: suggestion.requiresManualChoice
+  });
+}
+
+function queueBurdenOverflowAndFollowUp(
+  before: GameState,
+  state: GameState,
+  pendingEffect: PendingEffectState,
+  rule: EffectRule,
+  adjustment: EffectAdjustment
+  , sourceTile?: PlacedTile
+): GameState {
+  void sourceTile;
+  const isOverflowStep = /:overflow\d+$/.test(pendingEffect.ruleId);
+  const hits = [...(pendingEffect.carriedHitTileIds ?? []), ...hitTileIds(adjustment)];
+  const followUpRuleId =
+    pendingEffect.carriedFollowUpRuleId ??
+    (rule.followUp ? burdenFollowUpRuleId(rule.id) : undefined);
+  if (isOverflowStep) {
+    return followUpRuleId ? queueBurdenFollowUp(state, pendingEffect, followUpRuleId, hits) : state;
+  }
+  const shortfall = burdenOverflowShortfall(before, pendingEffect, rule, adjustment);
+  if (shortfall > 0 && rule.overflow) {
+    const overflowRuleId = burdenOverflowRuleId(rule.id, Math.min(shortfall, 8));
+    const isResourceLoss = "resourceLoss" in rule.overflow;
+    if (isResourceLoss || getValidEffectStrainTargets(state, overflowRuleId).length > 0) {
+      const suggestion = suggestEffectAdjustment(state, overflowRuleId);
+      const text = isResourceLoss
+        ? `${shortfall} Strain could not be placed: pay the resources for each one missing.`
+        : `${shortfall} Strain could not be placed on its own targets. It goes to this card's overflow group.`;
+      return queuePendingEffectFirst(state, {
+        sourceType: pendingEffect.sourceType,
+        ruleId: overflowRuleId,
+        sourceId: pendingEffect.sourceId,
+        sourceName: pendingEffect.sourceName,
+        title: `${pendingEffect.sourceName}: the rest of its Strain`,
+        effectText: text,
+        resolutionLogMessage: `${pendingEffect.sourceName}: ${shortfall} Strain overflowed.`,
+        suggestedAdjustment: suggestion.adjustment,
+        requiresManualChoice: isResourceLoss ? false : suggestion.requiresManualChoice,
+        carriedHitTileIds: hits,
+        carriedFollowUpRuleId: followUpRuleId
+      });
+    }
+  }
+  return followUpRuleId ? queueBurdenFollowUp(state, pendingEffect, followUpRuleId, hits) : state;
+}
+
 export function resolvePendingEffect(
   state: GameState,
   adjustment: EffectAdjustment = {}
@@ -2702,7 +2833,10 @@ export function resolvePendingEffect(
               (cardId) => !nextState.encounters.discardPile.includes(cardId)
             )
           ]
-        }
+        },
+        boonModifiers: nextState.boonModifiers.filter(
+          (modifier) => !modifier.sourceCardId || !resolvedIdSet.has(modifier.sourceCardId)
+        )
       };
       nextState = queueRestingHallBurdenPassive(nextState);
     }
@@ -2729,6 +2863,14 @@ export function resolvePendingEffect(
     nextState,
     newlyOverstrainedTileIds,
     pendingEffect.id
+  );
+  nextState = queueBurdenOverflowAndFollowUp(
+    state,
+    nextState,
+    pendingEffect,
+    activeEffectRule,
+    effectiveAdjustment,
+    sourceTile
   );
   return refreshPendingEffectQueueHead(
     discardBlockedOverstrainSpreadEffects(nextState)

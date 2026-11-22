@@ -458,238 +458,238 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
     "name": "Awoken Below",
     "flavorText": "The miners heard something deep within the seam. Whatever hid beneath the earth during the war may still be wounded. Wounded things do not always recognise kindness.",
     "effects": {
-      "season1": "Choose 1 Mine Tile: +1 Strain.",
-      "season2": "Choose 1 Mine Tile: +2 Strain.",
-      "season3": "Choose 1 Mine Tile: +2 Strain. Then choose 1 adjacent Travel/Resource Tile: +1 Strain."
+      "season1": "Choose 1 Mine Tile: +1 Strain. If none, 1 Resource Tile.",
+      "season2": "Choose 1 Mine Tile: +2 Strain. If none, 1 Resource Tile.",
+      "season3": "Choose 1 Mine Tile: +2 Strain. Then 1 adjacent Travel/Resource Tile: +1 Strain. No Mine: use a Resource Tile."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Food, discard.",
-      "season2": "Spend 1 Action, pay 4 Food, discard.",
-      "season3": "Spend 1 Action, pay 6 Food, discard."
+      "season1": "Spend 1 Action, pay 3 Food, discard.",
+      "season2": "Spend 1 Action, pay 5 Food, discard.",
+      "season3": "Spend 1 Action, pay 7 Food, discard."
     }
   },
   "burden_bare_walls": {
     "name": "Bare Walls",
     "flavorText": "The houses keep out wind and rain, but little else. Bare timber, cold rooms, and empty shelves make shelter feel unfinished. Settlement comes slowly when homes still look temporary.",
     "effects": {
-      "season1": "Choose 1 Housing Tile not adjacent to Social/Wellbeing: +1 Strain. If none, lose 1 Goods.",
-      "season2": "Choose up to 2 Housing Tiles not adjacent to Social/Wellbeing: +1 Strain each. If none, lose 2 Goods.",
-      "season3": "Choose up to 3 Housing Tiles not adjacent to Social/Wellbeing: +1 Strain each. If none, lose 3 Goods."
+      "season1": "Choose 1 Housing Tile not adjacent to Social/Wellbeing: +1 Strain. If none, lose 2 Goods.",
+      "season2": "Choose 2 Housing Tiles not adjacent to Social/Wellbeing: +1 Strain each. Lose 2 Goods for each one missing.",
+      "season3": "Choose 3 Housing Tiles not adjacent to Social/Wellbeing: +1 Strain each. Lose 2 Goods for each one missing."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Wood, discard.",
-      "season2": "Spend 1 Action, pay 4 Wood, discard.",
-      "season3": "Spend 1 Action, pay 6 Wood, discard."
+      "season1": "Spend 1 Action, pay 3 Wood, discard.",
+      "season2": "Spend 1 Action, pay 5 Wood, discard.",
+      "season3": "Spend 1 Action, pay 7 Wood, discard."
     }
   },
   "burden_blighted_lands": {
     "name": "Blighted Lands",
     "flavorText": "I marked the first spoiled field at dawn and the second before noon. Farmers say the soil was driven too hard in the years of war. Now it answers every seed with a little less mercy.",
     "effects": {
-      "season1": "Choose 1 Farm Tile: +1 Strain.",
-      "season2": "Choose 1 Farm Tile: +2 Strain.",
-      "season3": "Choose 1 Farm Tile: +2 Strain. Then choose 1 adjacent Tile: +1 Strain."
+      "season1": "Choose 1 Farm Tile: +1 Strain. If none, 1 Resource Tile.",
+      "season2": "Choose 1 Farm Tile: +2 Strain. If none, 1 Resource Tile.",
+      "season3": "Choose 1 Farm Tile: +2 Strain. Then choose 1 adjacent Tile: +1 Strain. No Farm: use a Resource Tile."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Food, discard.",
-      "season2": "Spend 1 Action, pay 4 Food, discard.",
-      "season3": "Spend 1 Action, pay 6 Food, discard."
+      "season1": "Spend 1 Action, pay 3 Food, discard.",
+      "season2": "Spend 1 Action, pay 5 Food, discard.",
+      "season3": "Spend 1 Action, pay 7 Food, discard."
     }
   },
   "burden_coin_before_craft": {
     "name": "Coin Before Craft",
     "flavorText": "The markets have grown faster than the workshops can sustain. Good hands set down precious tools to argue over time, price, and fairness. Even after compromise, resentment remains on the bench.",
     "effects": {
-      "season1": "Choose 1 Merchant/Crafting Tile adjacent to the other type: +1 Strain.",
-      "season2": "Choose 1 Merchant and 1 Crafting Tile adjacent to each other: +1 Strain each.",
-      "season3": "Up to 2 Merchant and 2 Crafting, adjacent across types: +1 Strain each. If none, 1 of either: +1 Strain."
+      "season1": "Choose 1 Merchant/Crafting Tile adjacent to the other type: +1 Strain. If none, 1 of either.",
+      "season2": "1 Merchant + 1 Crafting, adjacent: +1 Strain each. Rest on either. 1 adjacent Social/Wellbeing: +1 Strain.",
+      "season3": "2 Merchant + 2 Crafting, adjacent: first +2 Strain, rest +1. Rest on either. 1 adjacent Social/Wellbeing: +1."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Goods, discard."
     }
   },
   "burden_empty_shelves": {
     "name": "Empty Shelves",
     "flavorText": "These warm halls were built for music and shared meals. Now bowls are half-filled, ale watered, and singers leave early. Fellowship falters when shelves cannot support generosity.",
     "effects": {
-      "season1": "Choose 1 Social Tile: pay 1 Goods or +1 Strain.",
-      "season2": "Choose 2 Social Tiles. Each: pay 1 Goods or +1 Strain.",
-      "season3": "Choose 3 Social Tiles. Each: pay 1 Goods or +1 Strain. If none, choose 1 Housing Tile: +1 Strain."
+      "season1": "Choose 1 Social Tile: pay 2 Goods or +1 Strain. If none, 1 Merchant Tile: +1 Strain.",
+      "season2": "Choose 2 Social Tiles. Each: pay 2 Goods or +1 Strain. If fewer, rest on Merchant Tiles.",
+      "season3": "Choose 3 Social Tiles: pay 8 Goods total, or first +2 Strain, others +1. If fewer, rest on Merchant Tiles."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Goods, discard."
     }
   },
   "burden_forest_s_grudge": {
     "name": "Forest’s Grudge",
     "flavorText": "Whole hillsides were stripped bare for war. Since then, the forest has grown watchful and angry. Paths vanish, branches fall, and each axe stroke seems to wake something deeper.",
     "effects": {
-      "season1": "Choose 1 Lumber Tile: +1 Strain.",
-      "season2": "Choose 1 Lumber Tile: +2 Strain.",
-      "season3": "Choose 1 Lumber Tile: +2 Strain. Then choose 1 adjacent Tile: +1 Strain."
+      "season1": "Choose 1 Lumber Tile: +1 Strain. If none, 1 Resource Tile.",
+      "season2": "Choose 1 Lumber Tile: +2 Strain. If none, 1 Resource Tile.",
+      "season3": "Choose 1 Lumber Tile: +2 Strain. Then choose 1 adjacent Tile: +1 Strain. No Lumber: use a Resource Tile."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Wood, discard.",
-      "season2": "Spend 1 Action, pay 4 Wood, discard.",
-      "season3": "Spend 1 Action, pay 6 Wood, discard."
+      "season1": "Spend 1 Action, pay 3 Wood, discard.",
+      "season2": "Spend 1 Action, pay 5 Wood, discard.",
+      "season3": "Spend 1 Action, pay 7 Wood, discard."
     }
   },
   "burden_foundations_remember_war": {
     "name": "Foundations Remember War",
     "flavorText": "Beneath the new walls, the mason found old iron set for a harder purpose than housing. Rust had split the footing, and with it the confidence that peaceful homes could stand there.",
     "effects": {
-      "season1": "Choose 1 upgraded Core Tile: +1 Strain.",
-      "season2": "Choose 1 upgraded Core Tile: +1 Strain. Then 1 adjacent Tile: +1 Strain.",
-      "season3": "Choose 1 upgraded Core Tile: +2 Strain. Then 1 adjacent Tile: +2 Strain."
+      "season1": "Choose 1 upgraded Core Tile: +1 Strain. If none, 1 Core Tile.",
+      "season2": "Choose 1 upgraded Core Tile: +1 Strain. Then 1 adjacent Tile: +1 Strain. If none upgraded, use a Core Tile.",
+      "season3": "Choose 1 upgraded Core Tile: +2 Strain. Then 1 adjacent Tile: +2 Strain. If none upgraded, use a Core Tile."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Stone, discard.",
-      "season2": "Spend 1 Action, pay 4 Stone, discard.",
-      "season3": "Spend 1 Action, pay 6 Stone, discard."
+      "season1": "Spend 1 Action, pay 3 Stone, discard.",
+      "season2": "Spend 1 Action, pay 5 Stone, discard.",
+      "season3": "Spend 1 Action, pay 7 Stone, discard."
     }
   },
   "burden_ill_omen_of_discontent": {
     "name": "Omen of Discontent",
     "flavorText": "The signs were nothing at first: cracked paving, a twisted tree, a rumour carried from a tired doorstep. By dusk, every weary household had given them meaning, and the route lay empty.",
     "effects": {
-      "season1": "Choose 1 Travel Tile adjacent to Housing with 1+ Strain: +1 Strain.",
-      "season2": "Choose 2 Travel Tiles, each adjacent to Housing with 1+ Strain: +1 Strain each.",
-      "season3": "Choose 3 Travel Tiles beside Housing with 1+ Strain: +1 Strain each. If none, 1 Travel: +1 Strain."
+      "season1": "Choose 1 Travel Tile adjacent to Housing with 1+ Strain: +1 Strain. If fewer, rest on Travel Tiles.",
+      "season2": "Choose 2 Travel Tiles, each adjacent to Housing with 1+ Strain: +1 Strain each. If fewer, rest on Travel.",
+      "season3": "Choose 3 Travel Tiles beside Housing with 1+ Strain: +1 Strain each. If fewer, rest on Travel."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Herbs, discard.",
-      "season2": "Spend 1 Action, pay 4 Herbs, discard.",
-      "season3": "Spend 1 Action, pay 6 Herbs, discard."
+      "season1": "Spend 1 Action, pay 3 Herbs, discard.",
+      "season2": "Spend 1 Action, pay 5 Herbs, discard.",
+      "season3": "Spend 1 Action, pay 7 Herbs, discard."
     }
   },
   "burden_old_names_old_debts": {
     "name": "Old Names, Old Debts",
     "flavorText": "Not every welcome is easily given. The past is not so simple to extinguish, and old loyalties can flare from a single careless name. Some embers remain dangerous long after the fire is gone.",
     "effects": {
-      "season1": "Choose 1 Tile with Renown: +1 Strain.",
-      "season2": "Choose 2 Tiles with Renown: +1 Strain each.",
-      "season3": "Choose 3 Tiles with Renown: +1 Strain each."
+      "season1": "Choose 1 Tile with Renown: +1 Strain. If fewer, rest on Housing Tiles.",
+      "season2": "Choose 2 Tiles with Renown: +1 Strain each. If fewer, rest on Housing Tiles.",
+      "season3": "Choose 3 Tiles with Renown: +1 Strain each. If fewer, rest on Housing Tiles."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Goods, discard."
     }
   },
   "burden_old_wounds_reopen": {
     "name": "Old Wounds Reopen",
     "flavorText": "Peace does not close every hurt. A song, a sigil, a name spoken too lightly can uncover wounds only just beginning to heal. Afterwards, silence does the damage words began.",
     "effects": {
-      "season1": "Choose 1 Social/Wellbeing Tile: pay 2 Herbs or +1 Strain.",
-      "season2": "Choose 2 Social/Wellbeing Tiles: pay 4 Herbs total or +1 Strain each.",
-      "season3": "Choose 3 Social/Wellbeing Tiles: pay 6 Herbs total or +1 Strain each."
+      "season1": "Choose 1 Social/Wellbeing Tile: pay 2 Herbs or +1 Strain. If none, 1 Housing Tile.",
+      "season2": "Choose 2 Social/Wellbeing Tiles: pay 4 Herbs total or +1 Strain each. If fewer, rest on Merchant/Crafting.",
+      "season3": "Choose 3 Social/Wellbeing Tiles: pay 8 Herbs total, or first +2 Strain, others +1. Rest on Merchant/Crafting."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Herbs, discard.",
-      "season2": "Spend 1 Action, pay 4 Herbs, discard.",
-      "season3": "Spend 1 Action, pay 6 Herbs, discard."
+      "season1": "Spend 1 Action, pay 3 Herbs, discard.",
+      "season2": "Spend 1 Action, pay 5 Herbs, discard.",
+      "season3": "Spend 1 Action, pay 7 Herbs, discard."
     }
   },
   "burden_only_road_in": {
     "name": "Only Road In",
     "flavorText": "Every cart and errand passed through the same narrow way until they did not. One broken wheel, one flooded rut, and the whole settlement remembered how fragile a single road can be.",
     "effects": {
-      "season1": "Choose 1 Merchant/Crafting Tile adjacent to exactly 1 Travel Tile: +1 Strain.",
-      "season2": "Choose 2 Merchant/Crafting Tiles, each adjacent to exactly 1 Travel Tile: +1 Strain each.",
-      "season3": "Choose 3 Merchant/Crafting Tiles, each adjacent to exactly 1 Travel Tile: +1 Strain each."
+      "season1": "Choose 1 Merchant/Crafting Tile adjacent to exactly 1 Travel Tile: +1 Strain. If none, 1 Merchant/Crafting.",
+      "season2": "2 Merchant/Crafting by exactly 1 Travel: +1 Strain each. Rest on either. 1 adjacent Social/Wellbeing: +1.",
+      "season3": "3 Merchant/Crafting by 1 Travel only: +2, +1, +1 Strain. Rest on either. 1 adjacent Social/Wellbeing: +1."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Goods, discard."
     }
   },
   "burden_promises_overstretched": {
     "name": "Promises Overstretched",
     "flavorText": "Word travels faster than preparation. The settlement’s welcome is now spoken of beyond the hills, but open doors require more than roofs and food. Every promise made must still be carried.",
     "effects": {
-      "season1": "Choose 1 active Arrival, if any: pay 1 Goods or remove 1 timer. If none, no effect.",
-      "season2": "Choose up to 2 active Arrivals. Each: pay 1 Goods or remove 1 timer. If none, no effect.",
-      "season3": "Up to 3 active Arrivals. Each: pay 1 Goods or remove 1 timer. If none, 2 Tiles: +1 Strain each."
+      "season1": "Choose 1 active Arrival: pay 2 Goods or remove 1 timer. If none, 1 Housing Tile: +1 Strain.",
+      "season2": "Choose up to 2 active Arrivals. Each: pay 2 Goods or remove 1 timer. If none, 1 Housing Tile: +1 Strain.",
+      "season3": "Up to 3 active Arrivals. Each: pay 2 Goods or remove 1 timer. If none, 2 Tiles: +1 Strain each."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Goods, discard."
     }
   },
   "burden_return_to_the_trenches": {
     "name": "Old Trenches Return",
     "flavorText": "No one ordered the ditches dug that way, yet the old shapes returned to the earth. Roads meant to connect us began tracing defensive lines, and the settlement remembered tactics we had tried to bury.",
     "effects": {
-      "season1": "Choose 1 Travel Tile adjacent to Resource: +1 Strain.",
-      "season2": "Choose 2 Travel Tiles adjacent to Resource: +1 Strain each.",
-      "season3": "Choose 3 Travel Tiles adjacent to Resource: +1 Strain each. If none, 1 Resource Tile: +1 Strain."
+      "season1": "Choose 1 Travel Tile adjacent to Resource: +1 Strain. If fewer, rest on Resource Tiles.",
+      "season2": "Choose 2 Travel Tiles adjacent to Resource: +1 Strain each. If fewer, rest on Resource Tiles.",
+      "season3": "Choose 3 Travel Tiles adjacent to Resource: +1 Strain each. If fewer, rest on Resource Tiles."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Metal, discard.",
-      "season2": "Spend 1 Action, pay 4 Metal, discard.",
-      "season3": "Spend 1 Action, pay 6 Metal, discard."
+      "season1": "Spend 1 Action, pay 3 Metal, discard.",
+      "season2": "Spend 1 Action, pay 5 Metal, discard.",
+      "season3": "Spend 1 Action, pay 7 Metal, discard."
     }
   },
   "burden_roads_carry_needs": {
     "name": "Roads Carry Needs",
     "flavorText": "The busiest paths became the hungriest ones, worn down by every errand, repair, and request. A road can serve everyone and still be neglected by all.",
     "effects": {
-      "season1": "Choose 1 Travel Tile adjacent to 2+ Tiles: +1 Strain.",
-      "season2": "Choose 1 Travel Tile adjacent to 3+ Tiles: +2 Strain.",
-      "season3": "Choose 2 Travel Tiles, each adjacent to 3+ Tiles: +1 Strain each."
+      "season1": "Choose 1 Travel Tile adjacent to 2+ Tiles: +1 Strain. If none, 1 Travel Tile.",
+      "season2": "Choose 1 Travel Tile adjacent to 3+ Tiles: +2 Strain. If none, 1 Travel Tile.",
+      "season3": "Choose 2 Travel Tiles, each adjacent to 3+ Tiles: +1 Strain each. If fewer, rest on Travel Tiles."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Goods, discard."
     }
   },
   "burden_roads_too_far_from_home": {
     "name": "Roads Too Far",
     "flavorText": "We laid roads farther than our hands could maintain. Mud fills the ruts, lanterns go unlit, and travellers reach the Vale already wondering whether the journey was worth it.",
     "effects": {
-      "season1": "Choose 1 Travel Tile not adjacent to Housing: +1 Strain.",
-      "season2": "Choose 2 Travel Tiles not adjacent to Housing: +1 Strain each.",
-      "season3": "Choose 3 Travel Tiles not adjacent to Housing: +1 Strain each."
+      "season1": "Choose 1 Travel Tile not adjacent to Housing: +1 Strain. If fewer, rest on Travel Tiles.",
+      "season2": "Choose 2 Travel Tiles not adjacent to Housing: +1 Strain each. If fewer, rest on Travel Tiles.",
+      "season3": "Choose 3 Travel Tiles not adjacent to Housing: +1 Strain each. If fewer, rest on Travel Tiles."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Wood, discard.",
-      "season2": "Spend 1 Action, pay 4 Wood, discard.",
-      "season3": "Spend 1 Action, pay 6 Wood, discard."
+      "season1": "Spend 1 Action, pay 3 Wood, discard.",
+      "season2": "Spend 1 Action, pay 5 Wood, discard.",
+      "season3": "Spend 1 Action, pay 7 Wood, discard."
     }
   },
   "burden_smoke_over_hearths": {
     "name": "Smoke over Hearths",
     "flavorText": "The workshops burned day and night, filling nearby homes with sound and smoke. Children coughed behind shuttered windows while neighbours tried to keep out the very labour meant to sustain them.",
     "effects": {
-      "season1": "Choose 1 Housing Tile adjacent to Crafting: +1 Strain.",
-      "season2": "Choose 2 Housing Tiles adjacent to Crafting: +1 Strain each.",
-      "season3": "Choose 3 Housing Tiles adjacent to Crafting: +1 Strain each. If none, 1 Crafting Tile: +1 Strain."
+      "season1": "Choose 1 Housing Tile adjacent to Crafting: +1 Strain. If fewer, rest on Crafting Tiles.",
+      "season2": "Choose 2 Housing Tiles adjacent to Crafting: +1 Strain each. If fewer, rest on Crafting Tiles.",
+      "season3": "3 Housing adjacent to Crafting: +1 Strain each. Rest on Crafting. 1 adjacent Social/Wellbeing: +2 Strain."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Goods, discard."
     }
   },
   "burden_stampede": {
     "name": "Stampede",
     "flavorText": "When armies retreated, they left beasts too frightened to command. We found fences burst and tracks deep in the mud. They may settle, but today every sound sends them running.",
     "effects": {
-      "season1": "Choose 1 Gathering Tile: +1 Strain.",
-      "season2": "Choose 1 Gathering Tile: +2 Strain.",
-      "season3": "Choose 1 Gathering Tile: +2 Strain. Then choose 1 adjacent Housing/Travel Tile: +1 Strain."
+      "season1": "Choose 1 Gathering Tile: +1 Strain. If none, 1 Resource Tile.",
+      "season2": "Choose 1 Gathering Tile: +2 Strain. If none, 1 Resource Tile.",
+      "season3": "Choose 1 Gathering Tile: +2 Strain. Then 1 adjacent Housing/Travel Tile: +1 Strain. None: use a Resource Tile."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Metal, discard.",
-      "season2": "Spend 1 Action, pay 4 Metal, discard.",
-      "season3": "Spend 1 Action, pay 6 Metal, discard."
+      "season1": "Spend 1 Action, pay 3 Metal, discard.",
+      "season2": "Spend 1 Action, pay 5 Metal, discard.",
+      "season3": "Spend 1 Action, pay 7 Metal, discard."
     }
   },
   "burden_stores_run_thin": {
@@ -701,9 +701,9 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
       "season3": "Choose a most-stocked resource. Lose 6. If fewer than 6 are lost, choose 2 Tiles: +2 Strain each."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Goods, discard."
     }
   },
   "burden_the_burden_of_command": {
@@ -715,51 +715,51 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
       "season3": "Choose up to 3 Steward-occupied Tiles: +1 Strain each. Then up to 2 adjacent Tiles: +1 Strain each."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Goods, discard."
     }
   },
   "burden_the_long_cough": {
     "name": "The Long Cough",
     "flavorText": "The halls are still crowded, though laughter now breaks beneath a spreading cough. Warmth draws people together, and the sickness follows wherever they gather.",
     "effects": {
-      "season1": "Choose 1 Social/Wellbeing Tile: +1 Strain.",
-      "season2": "Choose 1 Social and 1 Wellbeing Tile, if possible: +1 Strain each.",
-      "season3": "Choose up to 3 Social/Wellbeing Tiles: +1 Strain each."
+      "season1": "Choose 1 Social/Wellbeing Tile: +1 Strain. If none, 1 Housing Tile.",
+      "season2": "Choose 1 Social and 1 Wellbeing Tile: +1 Strain each. If fewer, rest on Merchant/Crafting Tiles.",
+      "season3": "Choose 3 Social/Wellbeing Tiles: first +2 Strain, others +1. If fewer, rest on Merchant/Crafting Tiles."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Herbs, discard.",
-      "season2": "Spend 1 Action, pay 4 Herbs, discard.",
-      "season3": "Spend 1 Action, pay 6 Herbs, discard."
+      "season1": "Spend 1 Action, pay 3 Herbs, discard.",
+      "season2": "Spend 1 Action, pay 5 Herbs, discard.",
+      "season3": "Spend 1 Action, pay 7 Herbs, discard."
     }
   },
   "burden_the_quiet_fractures": {
     "name": "The Quiet Fractures",
     "flavorText": "The Vale rarely announces that it is breaking. It shows itself in the missed greeting, the empty market, the kindness withheld. Small fractures need tending before they learn to widen.",
     "effects": {
-      "season1": "Choose 1 Tile with 1–2 Strain: +1 Strain.",
-      "season2": "Choose 1 Tile with 1–2 Strain: +1 Strain. Then 1 adjacent Tile with 0 Strain: +1 Strain.",
+      "season1": "Choose 1 Tile with 1–2 Strain: +1 Strain. If none, 1 Tile with 0 Strain.",
+      "season2": "Choose 1 Tile with 1–2 Strain: +1 Strain. Then 1 adjacent Tile with 0 Strain: +1. If none, start at 0 Strain.",
       "season3": "Choose 1 Overstrained Tile. 2 adjacent Tiles with 0 Strain: +1 Strain each. If none, use Season II."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Goods, discard."
     }
   },
   "burden_the_rot_within_the_vault": {
     "name": "Rot in the Vault",
     "flavorText": "The vault opened cleanly, but damp had worked there for centuries. Pages clung together like old wounds, and ink bled where hope had been stored. Care may save some of it. Haste will ruin the rest.",
     "effects": {
-      "season1": "Choose 1 Salvage Tile: +1 Strain.",
-      "season2": "Choose 1 Salvage Tile: +2 Strain.",
-      "season3": "Choose 1 Salvage Tile: +2 Strain. Then choose 1 adjacent Tile: +1 Strain."
+      "season1": "Choose 1 Salvage Tile: +1 Strain. If none, 1 Resource Tile.",
+      "season2": "Choose 1 Salvage Tile: +2 Strain. If none, 1 Resource Tile.",
+      "season3": "Choose 1 Salvage Tile: +2 Strain. Then choose 1 adjacent Tile: +1 Strain. No Salvage: use a Resource Tile."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Herbs, discard.",
-      "season2": "Spend 1 Action, pay 4 Herbs, discard.",
-      "season3": "Spend 1 Action, pay 6 Herbs, discard."
+      "season1": "Spend 1 Action, pay 3 Herbs, discard.",
+      "season2": "Spend 1 Action, pay 5 Herbs, discard.",
+      "season3": "Spend 1 Action, pay 7 Herbs, discard."
     }
   },
   "burden_the_storehouses_disagree": {
@@ -771,65 +771,65 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
       "season3": "Choose a non-Goods resource. If 5+ stored, lose 5. Otherwise, 2 Resource Tiles: +2 Strain each."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Goods, discard."
     }
   },
   "burden_welcome_wears_thin": {
     "name": "Welcome Wears Thin",
     "flavorText": "Kind words fade when action can no longer follow. Provisions are scarce, and hands now pause at once-welcoming doors. Shame gathers on both sides of the threshold.",
     "effects": {
-      "season1": "Choose 1 active Arrival, if any: pay 1 Herbs or remove 1 timer. If none, no effect.",
-      "season2": "Choose up to 2 active Arrivals. Each: pay 1 Herbs or remove 1 timer. If none, no effect.",
-      "season3": "Up to 3 active Arrivals. Each: pay 1 Herbs or remove 1 timer. If none, 2 Tiles: +1 Strain each."
+      "season1": "Choose 1 active Arrival: pay 2 Herbs or remove 1 timer. If none, 1 Housing Tile: +1 Strain.",
+      "season2": "Choose up to 2 active Arrivals. Each: pay 2 Herbs or remove 1 timer. If none, 1 Housing Tile: +1 Strain.",
+      "season3": "Up to 3 active Arrivals. Each: pay 2 Herbs or remove 1 timer. If none, 2 Tiles: +1 Strain each."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Herbs, discard.",
-      "season2": "Spend 1 Action, pay 4 Herbs, discard.",
-      "season3": "Spend 1 Action, pay 6 Herbs, discard."
+      "season1": "Spend 1 Action, pay 3 Herbs, discard.",
+      "season2": "Spend 1 Action, pay 5 Herbs, discard.",
+      "season3": "Spend 1 Action, pay 7 Herbs, discard."
     }
   },
   "burden_too_many_houses_too_little_homes": {
     "name": "Houses, Not Homes",
     "flavorText": "New houses rise quickly, but walls alone are not enough. I counted roofs fit for shelter, yet too few warm meals, blankets, and outstretched hands to make those roofs feel like home.",
     "effects": {
-      "season1": "Choose 1 Housing Tile: pay 1 Food or 1 Goods, or +1 Strain.",
-      "season2": "Choose 2 Housing Tiles. Each: pay 1 Food or 1 Goods, or +1 Strain.",
-      "season3": "Choose 3 Housing Tiles. Each: pay 1 Food or 1 Goods, or +1 Strain."
+      "season1": "Choose 1 Housing Tile: pay 2 Food or 2 Goods, or +1 Strain.",
+      "season2": "Choose 2 Housing Tiles. Each: pay 2 Food or 2 Goods, or +1 Strain.",
+      "season3": "Choose 3 Housing Tiles. Each: pay 2 Food or 2 Goods, or +1 Strain."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Food/Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Food/Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Food/Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Food/Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Food/Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Food/Goods, discard."
     }
   },
   "burden_tools_left_to_rust": {
     "name": "Tools Left to Rust",
     "flavorText": "A tool unused becomes another thing to mend. Good blades dull orange, handles split, and hinges stiffen with neglect. Waste is quieter than theft, but it robs the settlement all the same.",
     "effects": {
-      "season1": "Choose 1 Crafting/Merchant Tile: +1 Strain.",
-      "season2": "Choose 1 Crafting/Merchant Tile: +1 Strain. Then lose 1 Metal if able.",
-      "season3": "Choose 2 Crafting/Merchant Tiles: +1 Strain each. Then lose 2 Metal if able."
+      "season1": "Choose 1 Crafting/Merchant Tile: +1 Strain. If none, 1 Resource Tile.",
+      "season2": "1 Crafting/Merchant Tile: +1 Strain (none: 1 Resource Tile). 1 adjacent Social/Wellbeing: +1. Lose 1 Metal.",
+      "season3": "2 Crafting/Merchant: +2 and +1 Strain. Rest on Resource. 1 adjacent Social/Wellbeing: +1. Lose 2 Metal."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Metal, discard.",
-      "season2": "Spend 1 Action, pay 4 Metal, discard.",
-      "season3": "Spend 1 Action, pay 6 Metal, discard."
+      "season1": "Spend 1 Action, pay 3 Metal, discard.",
+      "season2": "Spend 1 Action, pay 5 Metal, discard.",
+      "season3": "Spend 1 Action, pay 7 Metal, discard."
     }
   },
   "burden_wares_of_war": {
     "name": "Wares of War",
     "flavorText": "Merchants still trade from the old war stores: dented shields, boiled leather, hole-ridden breastplates, and blades worn too thin by use. After each bargain, silence lingers over the table.",
     "effects": {
-      "season1": "Choose 1 Housing Tile adjacent to Merchant: +1 Strain.",
-      "season2": "Choose 2 Housing Tiles adjacent to Merchant: +1 Strain each.",
-      "season3": "Choose 3 Housing Tiles adjacent to Merchant: +1 Strain each. If none, 1 Merchant Tile: +1 Strain."
+      "season1": "Choose 1 Housing Tile adjacent to Merchant: +1 Strain. If fewer, rest on Merchant Tiles.",
+      "season2": "Choose 2 Housing Tiles adjacent to Merchant: +1 Strain each. If fewer, rest on Merchant Tiles.",
+      "season3": "3 Housing adjacent to Merchant: +1 Strain each. Rest on Merchant. 1 adjacent Social/Wellbeing: +2 Strain."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Metal, discard.",
-      "season2": "Spend 1 Action, pay 4 Metal, discard.",
-      "season3": "Spend 1 Action, pay 6 Metal, discard."
+      "season1": "Spend 1 Action, pay 3 Metal, discard.",
+      "season2": "Spend 1 Action, pay 5 Metal, discard.",
+      "season3": "Spend 1 Action, pay 7 Metal, discard."
     }
   },
   "burden_river_breaks_its_banks": {
@@ -841,37 +841,37 @@ export const canonicalBurdenText: Record<string, CanonicalBurdenText> = {
       "season3": "Choose 3 Tiles beside Water/River: +1 Strain each. If none, lose 3 Wood."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Wood, discard.",
-      "season2": "Spend 1 Action, pay 4 Wood, discard.",
-      "season3": "Spend 1 Action, pay 6 Wood, discard."
+      "season1": "Spend 1 Action, pay 3 Wood, discard.",
+      "season2": "Spend 1 Action, pay 5 Wood, discard.",
+      "season3": "Spend 1 Action, pay 7 Wood, discard."
     }
   },
   "burden_the_road_takes_its_share": {
     "name": "The Road Takes Its Share",
     "flavorText": "Sacks split, barrels leaked, and poorly fastened loads worked loose. By dusk, every cart returned lighter, though the labour had taken just as long.",
     "effects": {
-      "season1": "Next Resource Tile Production this round: −2 resources.",
-      "season2": "Next 2 Resource Tile Productions this round: −2 resources each.",
-      "season3": "Each Resource Tile Production this round: −2 resources."
+      "season1": "While active: next Resource Tile Production each round: −2 resources.",
+      "season2": "While active: next 2 Resource Tile Productions each round: −2 resources each.",
+      "season3": "While active: each Resource Tile Production: −2 resources."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Goods, discard.",
-      "season2": "Spend 1 Action, pay 4 Goods, discard.",
-      "season3": "Spend 1 Action, pay 6 Goods, discard."
+      "season1": "Spend 1 Action, pay 3 Goods, discard.",
+      "season2": "Spend 1 Action, pay 5 Goods, discard.",
+      "season3": "Spend 1 Action, pay 7 Goods, discard."
     }
   },
   "burden_plans_left_waiting": {
     "name": "Plans Left Waiting",
     "flavorText": "Every beam called for yet another brace, every footing needed another cart of stone. Dusk came as the work was finally finished, draining stores and resolve alike.",
     "effects": {
-      "season1": "Next Tile placed/upgraded this round costs 2 more resources.",
-      "season2": "Next 2 Tiles placed/upgraded this round cost 2 more resources each.",
-      "season3": "Each Tile placed/upgraded this round costs 2 more resources."
+      "season1": "While active: next Tile placed/upgraded each round costs 2 more resources.",
+      "season2": "While active: next 2 Tiles placed/upgraded each round cost 2 more resources each.",
+      "season3": "While active: each Tile placed/upgraded costs 2 more resources."
     },
     "resolutions": {
-      "season1": "Spend 1 Action, pay 2 Food, discard.",
-      "season2": "Spend 1 Action, pay 4 Food, discard.",
-      "season3": "Spend 1 Action, pay 6 Food, discard."
+      "season1": "Spend 1 Action, pay 3 Food, discard.",
+      "season2": "Spend 1 Action, pay 5 Food, discard.",
+      "season3": "Spend 1 Action, pay 7 Food, discard."
     }
   }
 };

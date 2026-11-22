@@ -477,7 +477,7 @@ describe("formerly physical-only Encounter Cards", () => {
       tile("home", "c05_cabin", "I1")
     ]);
     state.season = 2;
-    state.warehouse = { ...emptyWarehouse(), herbs: 4, wood: 3, food: 1 };
+    state.warehouse = { ...emptyWarehouse(), herbs: 4, wood: 3, food: 2 };
 
     const wounds = cardEffectRuleId("burden_old_wounds_reopen", 2);
     expect(isAlternativeEffectAdjustmentValid(state, wounds, {
@@ -502,8 +502,9 @@ describe("formerly physical-only Encounter Cards", () => {
       "burden_too_many_houses_too_little_homes",
       1
     );
+    // 2 Food or 2 Goods per Strain avoided (22 Nov).
     expect(isAlternativeEffectAdjustmentValid(state, homes, {
-      resourceDeltas: { food: -1 }
+      resourceDeltas: { food: -2 }
     })).toBe(true);
     expect(isAlternativeEffectAdjustmentValid(state, homes, {
       tileStrainDeltas: { home: 1 }
@@ -538,8 +539,12 @@ describe("formerly physical-only Encounter Cards", () => {
     expect(isTileAdjustmentValid(state, ruleId, {
       tileStrainDeltas: { craft_a: 1, merchant: 1 }
     })).toBe(false);
+    // Season III: first Tile +2, others +1 (22 Nov).
     expect(isTileAdjustmentValid(state, ruleId, {
       tileStrainDeltas: { craft_a: 1, merchant: 1, craft_b: 1 }
+    })).toBe(false);
+    expect(isTileAdjustmentValid(state, ruleId, {
+      tileStrainDeltas: { craft_a: 2, merchant: 1, craft_b: 1 }
     })).toBe(true);
   });
 
@@ -662,11 +667,12 @@ describe("formerly physical-only Encounter Cards", () => {
       "burden_too_many_houses_too_little_homes",
       3 as Season
     );
-    expect(options).toHaveLength(6);
-    const baseCost = { ...emptyWarehouse(), goods: 6 };
+    // 3/5/7 by Season (22 Nov).
+    expect(options).toHaveLength(7);
+    const baseCost = { ...emptyWarehouse(), goods: 7 };
     const adjusted = applyCostChoice(state, baseCost, options, {
       selectedOptionIds: options.slice(0, 4).map((option) => option.id)
     });
-    expect(adjusted).toEqual({ ...emptyWarehouse(), food: 4, goods: 2 });
+    expect(adjusted).toEqual({ ...emptyWarehouse(), food: 4, goods: 3 });
   });
 });

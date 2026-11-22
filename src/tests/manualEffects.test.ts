@@ -199,7 +199,13 @@ describe("structured effect rules", () => {
       title: "Coin Before Craft",
       effectText: "Display text only"
     }];
-    expect(resolvePendingEffect(state).pendingEffects).toHaveLength(0);
+    // No pair: its Strain overflows to any Merchant/Crafting Tile (22 Nov).
+    const resolved = resolvePendingEffect(state);
+    if (tiles.length === 0) {
+      expect(resolved.pendingEffects).toHaveLength(0);
+    } else {
+      expect(resolved.pendingEffects.map((effect) => effect.ruleId)).toEqual([`${ruleId}:overflow2`]);
+    }
   });
 
   it("requires both halves of an available Coin Before Craft pair", () => {
@@ -230,7 +236,7 @@ describe("structured effect rules", () => {
     expect(resolved.pendingEffects).toHaveLength(0);
   });
 
-  it("rebases a stale deterministic suggestion onto the active fallback", () => {
+  it("sends a stale Omen of Discontent strike to its Travel overflow", () => {
     const state = stateWith([
       placed("home", "c05_cabin", "G1", 1),
       placed("old_target", "c15_path", "H1"),
@@ -252,16 +258,12 @@ describe("structured effect rules", () => {
     }];
 
     state.map.placedTiles[1].strain = 3;
-    const refreshed = refreshPendingEffectForCurrentState(
-      state,
-      state.pendingEffects[0]
-    );
-    expect(refreshed.suggestedAdjustment?.tileStrainDeltas).toEqual({
-      fallback_target: 1
-    });
     const resolved = resolvePendingEffect(state);
-    expect(resolved.map.placedTiles[2].strain).toBe(1);
-    expect(resolved.pendingEffects).toHaveLength(0);
+    // All 3 Strain overflow to Travel; only one Travel Tile can take it.
+    expect(resolved.pendingEffects.map((effect) => effect.ruleId)).toEqual([`${ruleId}:overflow3`]);
+    const overflowed = resolvePendingEffect(resolved);
+    expect(overflowed.map.placedTiles[2].strain).toBe(1);
+    expect(overflowed.pendingEffects).toHaveLength(0);
   });
 
   it("rebases a stale Strain cascade after its spread target changes", () => {
@@ -335,6 +337,7 @@ describe("structured effect rules", () => {
     ["Arrival expiry", systemEffectRuleId("arrival-expired")]
   ])("turns a vanished %s choice into a legal acknowledgement", (_label, ruleId) => {
     const state = stateWith();
+    state.warehouse.metal = 0;
     state.pendingEffects = [{
       id: "effect_vanished_choice",
       ruleId,
@@ -677,7 +680,7 @@ describe("structured effect rules", () => {
     ["burden_wares_of_war", 3, 3, 3],
     ["burden_old_names_old_debts", 2, 2, 2],
     ["burden_old_names_old_debts", 3, 3, 3],
-    ["burden_tools_left_to_rust", 3, 2, 2]
+    ["burden_tools_left_to_rust", 3, 3, 2]
   ] as const)(
     "marks %s Season %i's printed Strain as required",
     (cardId, season, requiredTotal, requiredTargets) => {
@@ -686,10 +689,12 @@ describe("structured effect rules", () => {
     }
   );
 
-  it("uses the typed fallback when a primary category has no targets", () => {
+  it("overflows to the named group when a primary category has no targets", () => {
     const state = stateWith([placed("merchant", "c14_market_stalls", "G1")]);
+    const ruleId = cardEffectRuleId("burden_wares_of_war", 3);
+    expect(getEffectTileTargets(state, ruleId)).toEqual([]);
     expect(
-      getEffectTileTargets(state, cardEffectRuleId("burden_wares_of_war", 3))
+      getEffectTileTargets(state, `${ruleId}:overflow3`)
         .map((tile) => tile.instanceId)
     ).toEqual(["merchant"]);
   });
@@ -714,8 +719,9 @@ describe("structured effect rules", () => {
       kind: "pay_or_strain",
       requiredChoices: 2
     });
+    // 2 Goods per Strain avoided (22 Nov).
     expect(isAlternativeEffectAdjustmentValid(state, ruleId, {
-      resourceDeltas: { goods: -1 },
+      resourceDeltas: { goods: -2 },
       tileStrainDeltas: { social_a: 1 }
     })).toBe(true);
   });

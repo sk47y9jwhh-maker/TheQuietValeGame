@@ -52,7 +52,7 @@ export function getBurdenResolutionCurrentText(
   const resourceText = choices.length === 1
     ? resourceLabels[choices[0]]
     : choices.map((resource) => resourceLabels[resource]).join(" and/or ");
-  return `Spend 1 Action and pay ${season * 2} ${resourceText}. Then discard.`;
+  return `Spend 1 Action and pay ${season * 2 + 1} ${resourceText}. Then discard.`;
 }
 
 export function getBurdenResolutionFullText(

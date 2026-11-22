@@ -467,12 +467,13 @@ describe("Target Cards", () => {
 
     expect(prepared.pendingEffects[0].targetCardTargetTileIds).toHaveLength(2);
     expect(prepared.pendingEffects[0].requiresManualChoice).toBe(true);
+    // 2 Goods per Strain avoided (22 Nov): both choices cost 4 Goods.
     const paid = resolvePendingEffect(prepared, {
-      resourceDeltas: { goods: -2 },
+      resourceDeltas: { goods: -4 },
       tileStrainDeltas: {}
     });
     expect(paid.pendingEffects).toHaveLength(0);
-    expect(paid.warehouse.goods).toBe(prepared.warehouse.goods - 2);
+    expect(paid.warehouse.goods).toBe(prepared.warehouse.goods - 4);
     expect(paid.map.placedTiles.every((tile) => tile.strain === 0)).toBe(true);
     expect(paid.targetCards.history.every((entry) => entry.strainApplied === false)).toBe(true);
   });
@@ -527,7 +528,7 @@ describe("Target Cards", () => {
     expect(resolvePendingEffect(prepared).pendingEffects).toHaveLength(0);
   });
 
-  it("determines printed fallback eligibility before drawing", () => {
+  it("draws for the overflow group only after the primary pool is empty", () => {
     const crafting = placed("crafting", "c13_workshops", "G1");
     const prepared = pendingBurden(
       targetCardState([crafting], [1]),
@@ -535,10 +536,12 @@ describe("Target Cards", () => {
       3
     );
 
-    expect(prepared.targetCards.drawCount).toBe(1);
-    expect(prepared.pendingEffects[0].targetCardDiagnostics?.[0]).toMatchObject({
-      selectedTileId: "crafting",
-      printedFallbackUsed: true
+    expect(prepared.targetCards.drawCount).toBe(0);
+    const overflow = resolvePendingEffect(prepared);
+    expect(overflow.pendingEffects[0].ruleId).toBe("burden_smoke_over_hearths:s3:overflow3");
+    expect(overflow.targetCards.drawCount).toBe(1);
+    expect(overflow.pendingEffects[0].targetCardDiagnostics?.[0]).toMatchObject({
+      selectedTileId: "crafting"
     });
   });
 

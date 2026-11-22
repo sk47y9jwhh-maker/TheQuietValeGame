@@ -1120,7 +1120,11 @@ function queueEncounterCardEffectPrompt(
   const resolvedDetailText = [
     options.detailPrefix,
     detailText,
-    noValidTarget ? `No valid target. No effect ${noEffectContext}.` : undefined
+    noValidTarget
+      ? rule.overflow
+        ? "No eligible Tile of its own. Its Strain overflows to the group named on the card."
+        : `No valid target. No effect ${noEffectContext}.`
+      : undefined
   ]
     .filter(Boolean)
     .join(" ");
@@ -1136,7 +1140,7 @@ function queueEncounterCardEffectPrompt(
     detailText: resolvedDetailText || undefined,
     resolutionLogMessage: acknowledgeOnlyBoon
       ? `Acknowledged Boon: ${card.name}.`
-      : noValidTarget
+      : noValidTarget && !rule.overflow
         ? `No effect ${noEffectContext}: ${card.name}.`
         : undefined,
     suggestedAdjustment: suggestion.adjustment,
@@ -2594,7 +2598,11 @@ export function resolveBurden(
         (activeBurdenId) => activeBurdenId !== burdenCardId
       ),
       discardPile: [...state.encounters.discardPile, burdenCardId]
-    }
+    },
+    // A "while active" Burden modifier ends when its Burden is resolved.
+    boonModifiers: state.boonModifiers.filter(
+      (modifier) => modifier.sourceCardId !== burdenCardId
+    )
   };
 
   nextState = log(nextState, `Resolved Burden: ${card.name}.`);
@@ -2769,6 +2777,15 @@ export function resolveEndRound(state: GameState): GameState {
           )
     }
   };
+
+  // Plans Left Waiting and The Road Takes Its Share last while their Burden is
+  // active: their modifier refreshes every round (Robert, 22 Nov). Season
+  // starts already re-prepare them when Burdens reapply.
+  if (!gameEnd && !shouldSeed) {
+    for (const burdenCardId of nextState.encounters.activeBurdens) {
+      nextState = prepareTemporaryEncounterModifier(nextState, burdenCardId);
+    }
+  }
 
   for (const expiredArrival of expiredArrivals) {
     const card = encounterById[expiredArrival.cardId];

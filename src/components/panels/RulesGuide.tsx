@@ -219,7 +219,10 @@ const rules: RuleReferenceCard[] = [
           "Boons resolve immediately unless their italic instruction keeps them face up for a duration or number of uses.",
           "A kept Boon costs no Action to use unless it says otherwise. Only one Boon may modify a single Action unless a rule permits more.",
           "A Burden applies its current-Season reveal effect, stays active, and reapplies with the new row at the start of Seasons II and III.",
-          "Resolve an active Burden with an Interact Action and its current-Season resolution, or with an effect that explicitly resolves it. Existing Strain remains."
+          "Resolve an active Burden with an Interact Action and its current-Season resolution, or with an effect that explicitly resolves it. Existing Strain remains.",
+          "If a Burden cannot place all of its Strain, the rest goes to the group named on the card (\u201cIf fewer, rest on \u2026\u201d). Bare Walls instead costs 2 Goods for each Strain missing.",
+          "\u201c1 adjacent Social/Wellbeing\u201d means 1 Social or Wellbeing Tile beside any Tile the card just hit, after its overflow.",
+          "Plans Left Waiting and The Road Takes Its Share apply every round while the Burden is active."
         ]
       },
       {

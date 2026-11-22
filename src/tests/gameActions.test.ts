@@ -1121,7 +1121,8 @@ describe("game actions", () => {
       requiresManualChoice: false,
       confirmLabel: "Acknowledge"
     });
-    expect(revealed.pendingEffects[0].effectText).toMatch(/if none, no effect/i);
+    // Since 22 Nov the row falls back to 1 Housing Tile; this board has none.
+    expect(revealed.pendingEffects[0].effectText).toMatch(/if none, 1 Housing Tile/i);
     expect(revealed.pendingEffects[0].suggestedAdjustment).toBeUndefined();
 
     const acknowledged = resolvePendingEffect(revealed);
@@ -1862,7 +1863,8 @@ describe("game actions", () => {
       ...state,
       phase: "turns" as const,
       season: 2 as const,
-      warehouse: { ...state.warehouse, goods: 0 },
+      // Resolution is 5 Goods in Season II (22 Nov); the Boon takes off 4.
+      warehouse: { ...state.warehouse, goods: 1 },
       encounters: {
         ...state.encounters,
         activeBurdens: ["burden_smoke_over_hearths"],
@@ -2167,7 +2169,7 @@ describe("game actions", () => {
       ...state,
       phase: "turns" as const,
       season: 2 as const,
-      warehouse: { ...state.warehouse, goods: 4 },
+      warehouse: { ...state.warehouse, goods: 5 },
       encounters: {
         ...state.encounters,
         activeBurdens: ["burden_smoke_over_hearths"]
@@ -2178,14 +2180,14 @@ describe("game actions", () => {
 
     expect(prompted.pendingCostChoice?.title).toBe("Resolve Smoke over Hearths");
     expect(prompted.encounters.activeBurdens).toHaveLength(1);
-    expect(prompted.warehouse.goods).toBe(4);
+    expect(prompted.warehouse.goods).toBe(5);
     expect(prompted.actionsRemaining).toBe(4);
 
     const canceled = cancelCostChoice(prompted);
 
     expect(canceled.pendingCostChoice).toBeNull();
     expect(canceled.encounters.activeBurdens).toHaveLength(1);
-    expect(canceled.warehouse.goods).toBe(4);
+    expect(canceled.warehouse.goods).toBe(5);
     expect(canceled.actionsRemaining).toBe(4);
 
     const next = confirmCostChoice(prompted, { selectedOptionIds: [] });
@@ -2205,7 +2207,7 @@ describe("game actions", () => {
       season: 1 as const,
       warehouse: {
         ...state.warehouse,
-        wood: 1,
+        wood: 2,
         goods: 1
       },
       encounters: {
@@ -2252,7 +2254,7 @@ describe("game actions", () => {
       season: 1 as const,
       warehouse: {
         ...state.warehouse,
-        wood: 0,
+        wood: 1,
         goods: 1
       },
       encounters: {
@@ -2294,7 +2296,7 @@ describe("game actions", () => {
       ...state,
       phase: "turns" as const,
       season: 1 as const,
-      warehouse: { ...state.warehouse, goods: 2 },
+      warehouse: { ...state.warehouse, goods: 3 },
       encounters: {
         ...state.encounters,
         activeBurdens: ["burden_smoke_over_hearths"]
