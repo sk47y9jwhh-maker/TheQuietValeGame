@@ -114,12 +114,16 @@ window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind
  if(kind==='back'){block(String(item.number),{x:780,y:445,width:700,height:500,size:580,min:480,label:'Back number',colour:'#d8caaa'});return audit}
  if(kind==='extension'){block('Travel Extension',{y:151,width:650,height:147,size:83,style:'smallcaps',label:'Title'});for(const [a,b,y] of [['STREET','Use 1 travel extension hex',711],['TRACK','Use 2 travel extension hexes',794]]){block(a,{x:426,y,width:220,height:51,size:42,label:'Assembly label'});block(b,{x:894,y,width:620,height:51,size:46,label:'Assembly guide'})}return audit}
  const td=kind==='core'?{...t,...t[face]}:t;await heading(td,kind,face);if(kind!=='golden')await scores(td);
+ async function bandIcons(file,h,field){const ic=await img(file);const w=h*ic.width/ic.height;for(const x of [340,1218])ctx.drawImage(ic,x-w/2,774-h/2,w,h);audit.push({field,text:'both sides'})}
  if(kind==='core'){
  if(face==='basic'){block('PLACE',{x:426,y:711,width:220,height:53,size:42,label:'Cost label'});block('UPGRADE',{x:426,y:794,width:220,height:53,size:42,label:'Cost label'});await costRow(t.basic,738);await costRow(t.upgraded,815)}else{block('UPGRADED FROM',{y:712,width:600,height:55,size:42,style:'bold',label:'Lineage label'});block(t.basic.name,{y:775,width:640,height:66,size:57,style:'bold',label:'Lineage name'});
    // Robert, 22 Nov: the Upgrade icon beside UPGRADED FROM, on both sides, so upgraded tiles stand out on the table.
-   const up=await img('icon-Upgrade.png');const uh=132,uw=uh*up.width/up.height;for(const ux of [318,1242])ctx.drawImage(up,ux-uw/2,746-uh/2,uw,uh);audit.push({field:'Upgrade icon',text:'both sides'})}
+   // 22 Nov: smaller, so it sits inside the lower band's frame lines.
+   await bandIcons('icon-Upgrade.png',100,'Upgrade icon')}
  }
- if(kind==='special'){block('UNLOCKED BY ARRIVAL',{y:712,width:880,height:55,size:42,label:'Unlock label'});block(t.unlockSource,{y:775,width:920,height:66,size:55,label:'Arrival name'})}
+ if(kind==='special'){block('UNLOCKED BY ARRIVAL',{y:712,width:600,height:55,size:42,label:'Unlock label'});block(t.unlockSource,{y:775,width:640,height:66,size:55,label:'Arrival name'});
+   // Robert, 22 Nov: the Arrival door (from the Arrival card art) placed the same way as the Upgrade icon.
+   await bandIcons('icon-Arrival.png',108,'Arrival icon')}
  if(kind==='golden'){
  block('LEDGER UNLOCK',{x:578,y:712,width:350,height:57,size:42,label:'Ledger label'});block(t.unlockAt+' Entries',{x:952,y:712,width:345,height:57,size:52,label:'Ledger threshold'});
  const ge=timing({text:t.effectText,heading:'PASSIVE'});block(ge.heading,{y:807,width:900,height:54,size:49,style:'bold',label:'Effect heading'});await resourceBlock(ge.text,{y:866,width:800,height:155,size:64,min:26,style:'italic',label:'Persistent effect',taper:true});

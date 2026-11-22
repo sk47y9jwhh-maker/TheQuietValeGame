@@ -150,5 +150,16 @@ a fine inner rim line and a brass band shaded with streaks that follow the
 curve; a crisp triangular head. Drawn by `make-upgrade-icon.py` (Pillow; rerun
 to regenerate). Placed on every upgraded face (Robert, 22 Nov: "to help see
 these tiles on the table"): one each side of UPGRADED FROM and the basic tile's
-name (132 px tall, centred at x 318 and 1242, y 746); the two text lines narrowed
+name, 100 px tall, centred at x 340 and 1218, y 774, so it sits inside the lower
+band's frame lines (Robert asked for it smaller); the two text lines narrowed
 to 600 and 640 px to make room.
+
+## Arrival icon — 22 November 2026
+
+`assets/icon-Arrival.png`: the artist's open arched door, cut out of the Arrival
+card frame (`src/assets/encounter-cards/arrival.png`) so the tile icon matches
+the card. Placed on every Special face exactly as the Upgrade icon is placed on
+upgraded faces: one each side of UNLOCKED BY ARRIVAL and the Arrival's name,
+108 px tall (the door is narrow), centred at x 340 and 1218, y 774; the two
+text lines narrowed to 600 and 640 px. The longest name, Transmutation
+Traveller, still fits at full size.
