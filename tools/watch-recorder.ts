@@ -9,11 +9,13 @@ import { getAlternativeEffectRule, getStrainCascadeAnchorTargets, getStrainCasca
 import { getLegalPlacementHexes, getTileFootprintKind } from "../src/engine/placementRules";
 import { getPlaceTileChoices } from "../src/components/actions/placeTileChoices";
 import { encounterById } from "../src/data/encounters";
-import { calculateFinalScore } from "../src/engine/scoring";
+import { calculateFinalScore, evaluateStewardObjectives } from "../src/engine/scoring";
+import { getHexNeighbors } from "../src/engine/hex";
+import { getPlacedTileCategory } from "../src/engine/placedTiles";
 import { resources } from "../src/data/resources";
 import { coreTileById } from "../src/data/tiles";
 import { applyWatchMove, type WatchMove } from "../src/app/watch/watchMoves";
-import type { EffectAdjustment, GameState, HexDirection, ResourceType } from "../src/engine/types";
+import type { EffectAdjustment, GameState, HexDirection, PlacedTile, ResourceType } from "../src/engine/types";
 
 /** Moves applied together, and the state they lead to. */
 export interface Played { moves: WatchMove[]; state: GameState }
@@ -160,10 +162,70 @@ export function candidates(state: GameState): WatchMove[][] {
   return list;
 }
 
+/** The placed tiles that touch this one. */
+function neighboursOf(state: GameState, tile: PlacedTile): PlacedTile[] {
+  const around = new Set(tile.hexIds.flatMap((hex) => getHexNeighbors(hex)));
+  return state.map.placedTiles.filter((other) => other !== tile && other.hexIds.some((hex) => around.has(hex)));
+}
+
+const costTotal = (cost: Partial<Record<ResourceType, number>>) => resources.reduce((total, resource) => total + (cost[resource] ?? 0), 0);
+
+/**
+ * Tiles that are doing nothing for the settlement, as a thoughtful player
+ * would see them: a Common Land with no Housing beside it to support, a
+ * Workshops with no neighbour whose upgrade it would make cheaper, and a
+ * Path, Street or Track that leads nowhere (it touches one tile at most and
+ * earns no Renown). The penalty lifts as soon as the tile has a purpose, so
+ * the players either build with a plan or finish the plan they started.
+ */
+export function idleTilePenalty(state: GameState): number {
+  let penalty = 0;
+  for (const tile of state.map.placedTiles) {
+    if (tile.kind !== "core") continue;
+    const around = neighboursOf(state, tile);
+    if (tile.tileId === "c18_common_land") {
+      if (!around.some((other) => getPlacedTileCategory(other) === "housing")) penalty += 9;
+    } else if (tile.tileId === "c13_workshops") {
+      // Basic Workshops help adjacent upgrades; the Conclave reaches further.
+      const pool = tile.side === "upgraded" ? state.map.placedTiles : around;
+      const helps = pool.some((other) => other.kind === "core" && other.side === "basic" && costTotal(coreTileById[other.tileId]?.upgraded.cost ?? {}) > 0);
+      if (!helps) penalty += 9;
+    } else if (["c15_path", "c16_street", "c17_track"].includes(tile.tileId) && tile.side === "basic") {
+      const nonTravel = around.filter((other) => getPlacedTileCategory(other) !== "travel").length;
+      if (around.length <= 1 && nonTravel < 3) penalty += 6;
+    }
+  }
+  return penalty;
+}
+
+/**
+ * What the settlement can make with one action at each producer, counted per
+ * resource with diminishing returns: the first producer of a resource is
+ * worth most, a second one still helps.
+ */
+function engineValue(state: GameState): number {
+  let value = 0;
+  for (const resource of resources) {
+    const amounts = state.map.placedTiles.filter((tile) => tile.strain < 3).map((tile) => {
+      const core = coreTileById[tile.tileId];
+      const production = core ? (tile.side === "upgraded" ? core.upgraded.production : core.basic.production) : undefined;
+      return production?.[resource] ?? 0;
+    }).filter(Boolean).sort((a, b) => b - a);
+    if (amounts.length) value += amounts[0] * 1.5 + amounts.slice(1).reduce((total, amount) => total + amount * 0.5, 0);
+  }
+  return value;
+}
+
+/** Part credit for a Steward objective that is on its way but not yet met. */
+function objectiveProgress(state: GameState): number {
+  return evaluateStewardObjectives(state).reduce((total, objective) => objective.met ? total : total + Math.min(1, objective.current / Math.max(1, objective.target)) * 6, 0);
+}
+
 /**
  * How good a position looks to the demo's players: the score if the game
- * ended now, a healthy Warehouse, Arrivals welcomed before they leave and
- * Strain kept off the tiles.
+ * ended now, a healthy Warehouse, producers that keep it filling, Arrivals
+ * welcomed before they leave, Strain kept off the tiles, Steward objectives
+ * on their way, and no tiles placed without a purpose.
  */
 export function watchValueOf(state: GameState): number {
   if (state.round >= 12) return lastRoundValueOf(state);
@@ -182,8 +244,8 @@ export function watchValueOf(state: GameState): number {
   const strain = state.map.placedTiles.reduce((total, tile) => total + tile.strain * tile.strain, 0);
   const burdens = state.encounters.activeBurdens.length * 3;
   return calculateFinalScore(state).finalScore
-    + late * (stock - scarce * 4 + makes.size * 6)
-    - waiting - strain * 2 - burdens;
+    + late * (stock - scarce * 4 + makes.size * 6 + engineValue(state) * 2 + objectiveProgress(state))
+    - waiting - strain * 2 - burdens - idleTilePenalty(state);
 }
 
 /**
@@ -200,7 +262,7 @@ export function lastRoundValueOf(state: GameState): number {
   const placed = new Set(state.map.placedTiles.map((tile) => tile.tileId));
   const unbuilt = state.encounters.completedArrivals.flatMap((arrival) => arrival.specialTileIds).filter((id) => !placed.has(id)).length;
   const leaving = state.phase === "gameEnd" ? 0 : state.encounters.activeArrivals.filter((arrival) => arrival.timerTokens <= 1).length * 20;
-  return calculateFinalScore(state).finalScore - leaving + (laterTurn ? stock * 0.25 + unbuilt * 4 : 0);
+  return calculateFinalScore(state).finalScore - leaving - idleTilePenalty(state) * 0.25 + (laterTurn ? stock * 0.25 + unbuilt * 4 : 0);
 }
 
 export interface TurnPlan { actions: WatchMove[][]; value: number }
