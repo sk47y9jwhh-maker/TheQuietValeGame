@@ -97,17 +97,22 @@ PASSIVE (was PERSISTENT EFFECT).
 Robert: "add a colour wash in the picture area too, like the border but for
 the gathering tiles do the matching terrain for its placement. also any other
 tiles that feel like a different colour would better represent them use that
-instead." The empty illustration window (y 318–669, 60° sides) is tinted
-(multiply, 5 px feather):
+instead." The empty illustration window (y 324–663, 60° sides) gets a watercolour
+ink wash (`watercolour()` in renderer.html, Robert: "much more subtle … like
+water colour ink wash"): uneven pigment with darker and paler blooms, a
+slightly ragged outline, a darker dried rim and fine granulation, seeded per
+face so it is repeatable, multiplied onto the parchment:
 
-- Tiles placed on one terrain take that terrain's map colour at 80%:
+- Tiles placed on one terrain take that terrain's map colour (strength 0.55):
   woodland #819e60, mountains #98a088, heaths #b7aeb0, arable #d6c375,
   ruins #cc9c7c, water #a9bfc0, grasslands #c9c8a0. That covers the Resource
   tiles, Salvage Camp, Bridge, Docks, the Shrines and the Respites.
 - Chosen to suit: Washhouse water, The Vaults ruins, Common Land grasslands,
   Hearth Garden woodland (`suits` in renderer.html).
-- Golden tiles: gold #d9b44a at 45%.
-- Everything else: its type colour at 42%.
+- Golden tiles: gold #d9b44a (0.35).
+- Everything else: its type colour (0.28).
+- The wash itself lays the colour at about half strength with blooms, so the
+  result is far lighter than the first flat version (80% / 45% / 42%).
 
 ## Tile-type edge colour — approved and locked, 30 October 2026 (superseded 22 November)
 

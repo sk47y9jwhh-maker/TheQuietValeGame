@@ -56,6 +56,24 @@ async function costRow(d,y){let values=Object.entries(d.cost).filter(([r,n])=>n)
 function effect(t){let text=t.effectText,heading='PASSIVE';if(text.startsWith('Activate:')){heading='ACTIVATE';text=text.slice(9).trim()}else if(/^Activated Effect,/.test(text)){heading='ACTIVATE';text=text.replace(/^Activated Effect,\s*/, '');text=text[0].toUpperCase()+text.slice(1)}else if(text.startsWith('When placed or activated:')){heading='PLACE / ACTIVATE';text=text.replace(/^When placed or activated:\s*/, '')}else if(text.startsWith('Activated Effect:')){heading='ACTIVATE';text=text.slice(17).trim()}else if(text.startsWith('Passive:'))text=text.slice(8).trim();if(text.includes('Passive: Linked Production'))text=text.split('Passive: Linked Production')[0].trim()+' Linked Production (once per round).';return timing({text,heading})}
 // Robert, 22 Nov: "Once per round" (or Season, turn) moves into the heading: PASSIVE: ONCE PER ROUND.
 function timing({text,heading}){const m=/^Once per (round|Season|turn)[,:]\s*/i.exec(text);if(!m)return {text,heading};const rest=text.slice(m[0].length);return {text:rest[0].toUpperCase()+rest.slice(1),heading:heading+': ONCE PER '+m[1].toUpperCase()}}
+// A watercolour ink wash (Robert, 22 Nov): uneven pigment, paler and darker blooms, a slightly
+// ragged outline, a darker dried rim and fine granulation. Seeded per face, so it is repeatable.
+function watercolour(colour,strength,key,poly){
+ let seed=0;for(const ch of key)seed=Math.imul(seed^ch.charCodeAt(0),2654435761)>>>0;
+ const rnd=()=>{seed=(seed+0x6D2B79F5)>>>0;let z=seed;z=Math.imul(z^z>>>15,1|z);z^=z+Math.imul(z^z>>>7,61|z);return ((z^z>>>14)>>>0)/4294967296};
+ const off=document.createElement('canvas');off.width=W;off.height=H;const o=off.getContext('2d');
+ const pts=[];for(let i=0;i<poly.length;i++){const [x1,y1]=poly[i],[x2,y2]=poly[(i+1)%poly.length];const n=Math.max(2,Math.ceil(Math.hypot(x2-x1,y2-y1)/36));for(let j=0;j<n;j++){const q=j/n;pts.push([x1+(x2-x1)*q+(rnd()-0.5)*12,y1+(y2-y1)*q+(rnd()-0.5)*12])}}
+ const path=()=>{o.beginPath();pts.forEach(([x,y],i)=>o[i?'lineTo':'moveTo'](x,y));o.closePath()};
+ const xs=poly.map(p=>p[0]),ys=poly.map(p=>p[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+ o.save();path();o.clip();
+ o.globalAlpha=0.5;o.fillStyle=colour;o.fillRect(x0-20,y0-20,x1-x0+40,y1-y0+40);
+ for(let i=0;i<34;i++){const x=x0+rnd()*(x1-x0),y=y0+rnd()*(y1-y0),r=50+rnd()*200,dark=rnd()<0.5;const g=o.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,dark?colour:'#ffffff');g.addColorStop(1,dark?colour+'00':'#ffffff00');o.globalAlpha=dark?0.2+rnd()*0.3:0.25+rnd()*0.35;o.fillStyle=g;o.fillRect(x-r,y-r,2*r,2*r)}
+ o.fillStyle=colour;for(let i=0;i<2600;i++){o.globalAlpha=0.08+rnd()*0.22;const r=0.8+rnd()*1.8;o.beginPath();o.arc(x0+rnd()*(x1-x0),y0+rnd()*(y1-y0),r,0,7);o.fill()}
+ path();o.lineWidth=9;o.strokeStyle=colour;o.globalAlpha=0.55;o.filter='blur(3px)';o.stroke();
+ o.restore();
+ ctx.save();ctx.filter='blur(1.2px)';ctx.globalCompositeOperation='multiply';ctx.globalAlpha=strength;ctx.drawImage(off,0,0);ctx.restore();
+}
 window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind,face,t}=item;const type=kind==='core'?(face==='basic'?'Core Basic':'Core Upgrade'):kind==='special'?'Special':kind==='golden'?'Golden':kind==='extension'?'Travel Extension':'Special back';const bg=await img('Quiet Valley Tile '+type+'-managed.png');
  // Clip only the outside-canvas background to the delivered artwork silhouette.
  ctx.save();ctx.beginPath();ctx.moveTo(390,10);ctx.lineTo(1170,10);ctx.lineTo(1560,685);ctx.lineTo(1170,1360);ctx.lineTo(390,1360);ctx.lineTo(0,685);ctx.closePath();ctx.clip();ctx.drawImage(bg,0,0);ctx.restore();
@@ -80,13 +98,13 @@ window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind
   const placedOn=t?.placement?.terrain?.length===1?t.placement.terrain[0]:null;
   const terrain=suits[t?.id]??placedOn;
   let colour,strength,source;
-  if(kind==='golden'){colour='#d9b44a';strength=0.45;source='golden'}
-  else if(terrain){colour=terrainColour[terrain];strength=0.8;source='terrain '+terrain}
-  else{colour=edgeColour[edgeCategory];strength=0.42;source='type '+edgeCategory}
-  if(colour){const k=Math.tan(Math.PI/6);const top=318,bottom=669,edgeAt=(y)=>377-k*(y-330)+6;
-   ctx.save();ctx.beginPath();ctx.moveTo(edgeAt(top),top);ctx.lineTo(1560-edgeAt(top),top);ctx.lineTo(1560-edgeAt(bottom),bottom);ctx.lineTo(edgeAt(bottom),bottom);ctx.closePath();
-   ctx.filter='blur(5px)';ctx.globalCompositeOperation='multiply';ctx.globalAlpha=strength;ctx.fillStyle=colour;ctx.fill();ctx.restore();
-   audit.push({field:'Picture wash',text:source,colour,strength})}
+  if(kind==='golden'){colour='#d9b44a';strength=0.35;source='golden'}
+  else if(terrain){colour=terrainColour[terrain];strength=0.55;source='terrain '+terrain}
+  else{colour=edgeColour[edgeCategory];strength=0.28;source='type '+edgeCategory}
+  if(colour){const k=Math.tan(Math.PI/6);const top=324,bottom=663,edgeAt=(y)=>377-k*(y-330)+12;
+   const poly=[[edgeAt(top),top],[1560-edgeAt(top),top],[1560-edgeAt(bottom),bottom],[edgeAt(bottom),bottom]];
+   watercolour(colour,strength,(t?.id??kind)+':'+face,poly);
+   audit.push({field:'Picture wash',text:source,colour,strength,style:'watercolour'})}
  }
  // The Golden back is the Special back artwork with no number.
  if(kind==='golden-back')return audit;
