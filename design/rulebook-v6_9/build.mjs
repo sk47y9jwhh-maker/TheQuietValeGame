@@ -423,7 +423,7 @@ P.push(page("9 · Special Tiles", "Unlocking and placing Special Tiles", `
   ], "spec")}
   <h3>Special Tile numbers</h3>
   <div class="specials">${specials.map(([n, name]) => `<div><span>${n}</span>${esc(name)}</div>`).join("")}</div>
-  <p class="small">Remnants of the Cavalry unlocks Stables (17 and 18): two separate hexes, placed by its printed rule.</p>`, "special"));
+  <p class="small">Remnants of the Cavalry unlocks Stables (17 and 18): two separate hexes, placed by its printed rule. Tiles connected to either Stables share one settlement network. An Overstrained tile never joins a settlement network, including through the Docks or the Stables.</p>`, "special"));
 
 // 17 Encounter overview
 P.push(page("10 · Encounter Cards", "Encounter Cards at a glance", `

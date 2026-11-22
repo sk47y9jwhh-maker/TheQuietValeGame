@@ -315,21 +315,21 @@
 }
 
 .physical-card-arrival-requirement {
-  top: 58.2%;
-  left: 14.5%;
-  width: 71%;
-  height: 8.8%;
-  font-size: calc(3.15cqw * var(--face-text-scale, 1.25));
+  top: 57.2%;
+  left: 12.5%;
+  width: 75%;
+  height: 11.4%;
+  font-size: calc(5cqw * var(--face-text-scale, 1.25));
   line-height: 1.18;
   text-wrap: balance;
 }
 
 .physical-card-arrival-requirement.copy-medium {
-  font-size: calc(2.9cqw * var(--face-text-scale, 1.25));
+  font-size: calc(4.2cqw * var(--face-text-scale, 1.25));
 }
 
 .physical-card-arrival-requirement.copy-dense {
-  font-size: calc(2.65cqw * var(--face-text-scale, 1.25));
+  font-size: calc(3.5cqw * var(--face-text-scale, 1.25));
 }
 
 .physical-card-reward-label {

@@ -629,7 +629,7 @@ export const specialTiles: SpecialTileData[] = [
     unlockSource: "Remnants of the Fleet",
     placement: { terrain: ["water"], text: "Place on Water/River terrain." },
     effectText:
-      "Passive: Every non-Water hex adjacent to Water/River terrain is reachable from this tile. Non-Overstrained tiles on those hexes join this tile’s settlement network.",
+      "Passive: Every non-Water hex beside Water/River is reachable from this tile, and tiles there join its settlement network.",
     population: 5,
     renown: 5
   },
@@ -791,7 +791,7 @@ export const specialTiles: SpecialTileData[] = [
       text: "Place one Stables tile connected to the acting Steward’s settlement network. Place the other on any valid hex."
     },
     effectText:
-      "Passive: Treat the two Stables tiles as adjacent when determining settlement networks. Tiles connected to either Stables are part of the same settlement network.",
+      "Passive: Treat the two Stables tiles as adjacent for settlement networks.",
     population: 0,
     renown: 5
   },

@@ -51,7 +51,7 @@ interface EncounterCardProps
 const sizeBands = {
   effect: [62, 78],
   lifecycle: [44, 56],
-  requirement: [42, 52],
+  requirement: [18, 30],
   reward: [42, 52],
   golden: [270, 345]
 } as const;

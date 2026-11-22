@@ -15,8 +15,8 @@ type Rule = [RegExp, string | ((...groups: string[]) => string)];
 const rules: Rule[] = [
   // Paying reads as a loss: "pay 2 Herbs, 2 Stone and 2 Metal" → "−2 Herbs, −2 Stone, −2 Metal";
   // "pay 1 Food or 1 Goods" → "−1 Food or −1 Goods"; "You may pay 4 Metal to remove…" → "You may −4 Metal to remove…".
-  [new RegExp(`\\b([Pp])ay (\\d+ (?:${RES})(?:(?:, | and | or )\\d+ (?:${RES}))*)`, "g"),
-    (_m, _p, list) => list.replace(/ and (?=\d)/g, ", ").replace(/(^|, | or )(\d+)/g, `$1${MINUS}$2`)],
+  [new RegExp(`\\b([Pp])ay (\\d+ (?:${RES})(?:(?:, and |, | and | or )\\d+ (?:${RES}))*)`, "g"),
+    (_m, _p, list) => list.replace(/,? and (?=\d)/g, ", ").replace(/(^|, | or )(\d+)/g, `$1${MINUS}$2`)],
   // "remove 1 additional Strain" → "−1 more Strain".
   [/\b[Rr]emove (\d+) additional Strain\b/g, (_m, n) => `${MINUS}${n} more Strain`],
   // "... costs 2 fewer Food and gains Supported" → "... costs −2 Food and +Supported".
