@@ -148,4 +148,7 @@ the artist's cart wheel (Robert: the first version's tile was too thick and its
 arrow too messy): smooth arcs, a heavy black outer line, a thinner inner line,
 a fine inner rim line and a brass band shaded with streaks that follow the
 curve; a crisp triangular head. Drawn by `make-upgrade-icon.py` (Pillow; rerun
-to regenerate). Not yet placed on any face.
+to regenerate). Placed on every upgraded face (Robert, 22 Nov: "to help see
+these tiles on the table"): one each side of UPGRADED FROM and the basic tile's
+name (132 px tall, centred at x 318 and 1242, y 746); the two text lines narrowed
+to 600 and 640 px to make room.

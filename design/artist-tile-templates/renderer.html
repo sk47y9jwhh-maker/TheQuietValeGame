@@ -115,7 +115,9 @@ window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind
  if(kind==='extension'){block('Travel Extension',{y:151,width:650,height:147,size:83,style:'smallcaps',label:'Title'});for(const [a,b,y] of [['STREET','Use 1 travel extension hex',711],['TRACK','Use 2 travel extension hexes',794]]){block(a,{x:426,y,width:220,height:51,size:42,label:'Assembly label'});block(b,{x:894,y,width:620,height:51,size:46,label:'Assembly guide'})}return audit}
  const td=kind==='core'?{...t,...t[face]}:t;await heading(td,kind,face);if(kind!=='golden')await scores(td);
  if(kind==='core'){
- if(face==='basic'){block('PLACE',{x:426,y:711,width:220,height:53,size:42,label:'Cost label'});block('UPGRADE',{x:426,y:794,width:220,height:53,size:42,label:'Cost label'});await costRow(t.basic,738);await costRow(t.upgraded,815)}else{block('UPGRADED FROM',{y:712,width:790,height:55,size:42,style:'bold',label:'Lineage label'});block(t.basic.name,{y:775,width:920,height:66,size:57,style:'bold',label:'Lineage name'})}
+ if(face==='basic'){block('PLACE',{x:426,y:711,width:220,height:53,size:42,label:'Cost label'});block('UPGRADE',{x:426,y:794,width:220,height:53,size:42,label:'Cost label'});await costRow(t.basic,738);await costRow(t.upgraded,815)}else{block('UPGRADED FROM',{y:712,width:600,height:55,size:42,style:'bold',label:'Lineage label'});block(t.basic.name,{y:775,width:640,height:66,size:57,style:'bold',label:'Lineage name'});
+   // Robert, 22 Nov: the Upgrade icon beside UPGRADED FROM, on both sides, so upgraded tiles stand out on the table.
+   const up=await img('icon-Upgrade.png');const uh=132,uw=uh*up.width/up.height;for(const ux of [318,1242])ctx.drawImage(up,ux-uw/2,746-uh/2,uw,uh);audit.push({field:'Upgrade icon',text:'both sides'})}
  }
  if(kind==='special'){block('UNLOCKED BY ARRIVAL',{y:712,width:880,height:55,size:42,label:'Unlock label'});block(t.unlockSource,{y:775,width:920,height:66,size:55,label:'Arrival name'})}
  if(kind==='golden'){
