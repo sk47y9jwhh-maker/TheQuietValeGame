@@ -33,11 +33,10 @@ installed runtime locations used on the production workstation.
 - Activated Special tiles retain timing restrictions in their effect text.
 - Stables has two detached full fronts per physical copy; no Travel extension.
 - Empty illustration windows are intentional and match the approved sample set.
-- Tile-type edge wash (30 Oct 2026, strengthened 22 Nov 2026): Core faces and
-  Travel extensions have the parchment margin outside the frame tinted in their
-  type colour (multiply, 85%), running out through the bleed. Special fronts
-  swap their black margin for the Core parchment margin with the full wash
-  (100%). Golden and back faces are unchanged. See the locked section below.
+- Tile-type edge colour (30 Oct 2026, made solid 22 Nov 2026): the margin
+  outside the frame on Core, Travel extension and Special faces is painted in
+  the tile type colour (solid, 90%), running out through the bleed. Golden and
+  back faces are unchanged. See the section below.
 
 ## Original layer treatment
 
@@ -73,16 +72,18 @@ strongly:
 
 | Type | Colour |
 | --- | --- |
-| Resource | #3f7f2c green |
-| Housing | #b8432a brick red |
-| Travel | #6c665e warm grey |
-| Merchant | #cf9614 gold |
-| Crafting | #2c62a0 blue |
-| Social | #8c3a8c purple |
-| Wellbeing | #16897a teal |
+| Resource | #2e9a35 green |
+| Housing | #c62828 red |
+| Travel | #33312e charcoal |
+| Merchant | #f0bf16 gold |
+| Crafting | #1f4fd1 royal blue |
+| Social | #7e3bc4 violet |
+| Wellbeing | #00a3a6 teal |
 
-Core Basic, Upgraded and Travel extensions: multiply at 85% (was 45%).
-Special fronts: multiply at 100% (was 80%). The online game's own type chips
+Painted solid at 90% (not multiplied into the parchment, which pulled every
+colour towards brown) on Core, Travel and Special faces. A first stronger
+multiply version the same day was still too alike: Gathering/Workshops,
+Housing/Social and Path/Market Stalls (Robert). The online game's own type chips
 keep the earlier muted colours. Also 22 November: "UPGRADED FROM" and the
 basic tile's name are bold on upgraded faces, and Golden tiles' heading reads
 PASSIVE (was PERSISTENT EFFECT).
