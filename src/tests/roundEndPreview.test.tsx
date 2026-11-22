@@ -29,8 +29,14 @@ describe("public round-end preview", () => {
     fireEvent.click(screen.getByRole("button", { name: "Resolve End Round" }));
     expect(screen.getByText("Season transition")).toBeVisible();
     expect(screen.queryByRole("button", { name: "Reveal Vanguard’s hand" })).not.toBeInTheDocument();
-    // This existing fixture has no strained Housing beside Travel, so its Omen has no target.
+    // This existing fixture has no strained Housing beside Travel, so its Omen has no
+    // target of its own; since 22 Nov its Strain then overflows to Travel Tiles.
     fireEvent.click(screen.getByRole("button", { name: "Acknowledge" }));
+    for (let step = 0; step < 4; step += 1) {
+      const next = screen.queryByRole("button", { name: "Apply effect" }) ?? screen.queryByRole("button", { name: "Acknowledge" });
+      if (!next || next.hasAttribute("disabled")) break;
+      fireEvent.click(next);
+    }
     expect(screen.getByRole("heading", { name: "Pass to Player 1." })).toHaveFocus();
     expect(readSavedGame()?.state.season).toBe(2);
     expect(readSavedGame()?.state.pendingEffects).toHaveLength(0);

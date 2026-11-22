@@ -176,11 +176,11 @@ describe("30-card Boon and Burden pool expansion", () => {
     }
 
     expect(getBurdenResolutionCost("burden_river_breaks_its_banks", 3))
-      .toEqual({ ...emptyWarehouse(), wood: 6 });
+      .toEqual({ ...emptyWarehouse(), wood: 7 });
     expect(getBurdenResolutionCost("burden_the_road_takes_its_share", 3))
-      .toEqual({ ...emptyWarehouse(), goods: 6 });
+      .toEqual({ ...emptyWarehouse(), goods: 7 });
     expect(getBurdenResolutionCost("burden_plans_left_waiting", 3))
-      .toEqual({ ...emptyWarehouse(), food: 6 });
+      .toEqual({ ...emptyWarehouse(), food: 7 });
   });
 
   it.each([
@@ -309,7 +309,8 @@ describe("30-card Boon and Burden pool expansion", () => {
     );
 
     expect(burdenResolved.actionsRemaining).toBe(0);
-    expect(burdenResolved.warehouse.wood).toBe(2);
+    // Season III resolution is 7 Wood (22 Nov), 2 cheaper with the Boon.
+    expect(burdenResolved.warehouse.wood).toBe(1);
     expect(burdenResolved.encounters.activeBurdens).toHaveLength(0);
     expect(burdenResolved.encounters.faceUpBoons).toHaveLength(0);
   });

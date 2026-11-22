@@ -376,6 +376,10 @@ export interface PendingEffectState {
   allowRootWeaversPreventionTileId?: string;
   /** Set once the opt-in Target Card system has considered this effect. */
   targetCardPrepared?: boolean;
+  /** Tiles hit earlier in this Burden effect, carried to its overflow step. */
+  carriedHitTileIds?: string[];
+  /** Follow-up still owed once the Burden's overflow step resolves. */
+  carriedFollowUpRuleId?: string;
   /** The automatic draw-selected tiles, plus the eligible pool for an Open card. */
   targetCardTargetTileIds?: string[];
   targetCardPlannedStrainByTileId?: Record<string, number>;

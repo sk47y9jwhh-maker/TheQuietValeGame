@@ -96,7 +96,8 @@ export function getBurdenResolutionCost(
   season: Season
 ): ResourceCost | undefined {
   const resource = burdenResolutionResources[cardId];
-  return resource ? cost({ [resource]: season * 2 }) : undefined;
+  // 3/5/7 by Season (Robert, 22 Nov; was 2/4/6).
+  return resource ? cost({ [resource]: season * 2 + 1 }) : undefined;
 }
 
 export function getBurdenResolutionCostOptions(
@@ -104,11 +105,11 @@ export function getBurdenResolutionCostOptions(
   season: Season
 ): PassiveCostOption[] {
   if (cardId !== "burden_too_many_houses_too_little_homes") return [];
-  return Array.from({ length: season * 2 }, (_, index) => ({
+  return Array.from({ length: season * 2 + 1 }, (_, index) => ({
     id: `burden-flex:${cardId}:${index + 1}`,
     sourceTileId: cardId,
     sourceKind: "boon" as const,
-    sourceName: `Flexible payment ${index + 1}/${season * 2}`,
+    sourceName: `Flexible payment ${index + 1}/${season * 2 + 1}`,
     effectText: "Pay this part of the resolution cost with Food instead of Goods.",
     kind: "substitute" as const,
     cadence: "round" as const,

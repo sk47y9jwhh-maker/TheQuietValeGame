@@ -42,7 +42,7 @@ describe("focused resolution review", () => {
     expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Cabin (H1): +1 Strain");
     expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Cabin (A7): +1 Strain");
     expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Cabin (A5): +1 Strain");
-    fireEvent.click(screen.getByRole("button", { name: /^Pay 3 Goods/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Pay 6 Goods/ }));
     toggle("Read the full card");
     expect(printedCard).toBeVisible();
     toggle("Why card 16"); expect(targetCard).toBeVisible();
@@ -50,12 +50,12 @@ describe("focused resolution review", () => {
     toggle("Table references"); toggle(/^View resolution order/); toggle("Review active encounters");
     expect(screen.getByRole("heading", { name: "Encounters" })).toBeVisible();
     expect(saved()).toEqual(before);
-    expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Lose 3 Goods");
+    expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Lose 6 Goods");
     expect(screen.getByLabelText("Effect preview")).not.toHaveTextContent("Strain");
     expect(screen.getAllByText("Draw suggests +1 Strain")).toHaveLength(3);
     expect(screen.getByText(/Payments or prevention can change the outcome/)).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Apply effect" }));
-    expect(saved().warehouse.goods).toBe(before.warehouse.goods - 3);
+    expect(saved().warehouse.goods).toBe(before.warehouse.goods - 6);
     expect(saved().map).toEqual(before.map);
     expect(saved().pendingEffects[0].sourceId).toBe("burden_river_breaks_its_banks");
     expect(view.container.querySelector(".effect-source-card")).not.toHaveAttribute("open");
@@ -77,12 +77,12 @@ describe("focused resolution review", () => {
       expect(screen.getByRole("button", { name: `Decrease Strain adjustment for Cabin at ${hex}` })).toBeEnabled();
     }
     fireEvent.click(screen.getByRole("button", { name: "Decrease Strain adjustment for Cabin at A7" }));
-    fireEvent.click(screen.getByRole("button", { name: "Spend 1 Goods" }));
+    fireEvent.click(screen.getByRole("button", { name: "Spend 2 Goods" }));
     expect(screen.getByLabelText("Effect preview")).not.toHaveTextContent("Cabin (A7)");
     expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Cabin (H1): +1 Strain");
     expect(saved()).toEqual(before);
     fireEvent.click(screen.getByRole("button", { name: "Apply effect" }));
-    expect(saved().warehouse.goods).toBe(before.warehouse.goods - 1);
+    expect(saved().warehouse.goods).toBe(before.warehouse.goods - 2);
     for (const hex of ["A7", "H1", "A5"]) {
       const oldTile = before.map.placedTiles.find(tile => tile.hexIds.includes(hex))!;
       const newTile = saved().map.placedTiles.find(tile => tile.instanceId === oldTile.instanceId)!;

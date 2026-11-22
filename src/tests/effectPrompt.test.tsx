@@ -625,7 +625,7 @@ describe("effect prompt controls", () => {
 
     render(<EffectPrompt state={state} effect={effect} onApply={() => {}} />);
 
-    const spendGoods = screen.getByRole("button", { name: "Spend 1 Goods" });
+    const spendGoods = screen.getByRole("button", { name: "Spend 2 Goods" });
     fireEvent.click(spendGoods);
     expect(screen.getByText("1/2 outcomes selected")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /apply effect/i })).toBeDisabled();

@@ -1125,7 +1125,7 @@ export function App({ initialPreview, simulateSaveFailure = false }: { initialPr
             content: costChoicePanel
           } : headEffect ? {
             key: headEffect.id,
-            eyebrow: headEffect.ruleId === "system:overstrain-spread" ? "Overstrain chain" : headEffect.sourceType === "card" ? "Encounter" : headEffect.sourceType === "tile" ? "Tile effect" : "Resolution",
+            eyebrow: headEffect.ruleId === "system:overstrain-spread" ? "Overstrain chain" : headEffect.sourceType === "card" || headEffect.ruleId.endsWith(":protector") ? "Encounter" : headEffect.sourceType === "tile" ? "Tile effect" : "Resolution",
             title: displayEffectTitle(headEffect.title),
             steps: state.pendingEffects.length,
             content: effectPanel,

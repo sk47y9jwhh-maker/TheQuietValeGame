@@ -188,4 +188,26 @@ export interface EffectRule {
     when: "noTileTarget" | "noArrival";
     rule: EffectRule;
   };
+  /**
+   * Burden overflow (22 Nov): Strain this row cannot place on its own targets
+   * goes to this group instead, or costs resources for each Strain missing.
+   * Overflow rules are registered as `<ruleId>:overflow<N>`.
+   */
+  overflow?: BurdenOverflowRule;
+  /**
+   * After the whole effect (including overflow), 1 Tile of `target` beside a
+   * Tile this effect hit takes `strain`. Registered as `<ruleId>:protector`.
+   */
+  followUp?: BurdenFollowUpRule;
+}
+
+export type BurdenOverflowRule =
+  | { target: TileTargetRule; maxPerTile?: number; maxTargets?: number }
+  | { resourceLoss: { resource: ResourceType; perStrain: number } };
+
+export interface BurdenFollowUpRule {
+  /** Only Tiles of these categories that were hit can anchor the follow-up. */
+  anchorCategories?: TileCategory[];
+  target: TileTargetRule;
+  strain: number;
 }
