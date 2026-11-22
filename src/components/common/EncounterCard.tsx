@@ -6,6 +6,7 @@ import goldenBoonArtwork from "../../assets/encounter-cards/golden-boon.png";
 import { responsiveEncounterArtwork } from "../../assets/encounter-cards/web/responsive/artwork.generated";
 import type { EncounterData, Season } from "../../engine/types";
 import { FaceText } from "./FaceText";
+import { faceTextLength } from "../../data/compactText";
 import {
   getArrivalRewardText,
   getBoonLifecycleText,
@@ -42,6 +43,24 @@ interface EncounterCardProps
   timers?: number;
 }
 
+/**
+ * Where each printed text box drops to its medium and dense size, by length as
+ * printed (faceTextLength). Tuned so every card fits at the current text scale:
+ * check with design/rulebook-v6_9/cards/measure-fit.mjs after changing either.
+ */
+const sizeBands = {
+  effect: [62, 78],
+  lifecycle: [44, 56],
+  requirement: [42, 52],
+  reward: [42, 52],
+  golden: [270, 345]
+} as const;
+
+function band(kind: keyof typeof sizeBands, text: string): string {
+  const [medium, dense] = sizeBands[kind];
+  return densityClass(faceTextLength(text), medium, dense);
+}
+
 function densityClass(length: number, medium: number, dense: number): string {
   if (length >= dense) return "copy-dense";
   if (length >= medium) return "copy-medium";
@@ -75,21 +94,13 @@ function PhysicalSeasonRows({
               {seasonNumerals[season]}
             </span>
             <p
-              className={`physical-card-effect ${densityClass(
-                effect.length,
-                82,
-                101
-              )}`}
+              className={`physical-card-effect ${band("effect", effect)}`}
             >
               <FaceText text={effect} />
             </p>
             {lifecycle && (
               <p
-                className={`physical-card-lifecycle ${densityClass(
-                  lifecycle.length,
-                  50,
-                  61
-                )}`}
+                className={`physical-card-lifecycle ${band("lifecycle", lifecycle)}`}
               >
                 <FaceText text={lifecycle} />
               </p>
@@ -109,11 +120,7 @@ function PhysicalArrival({ card }: { card: Extract<EncounterData, { type: "arriv
         Requirements
       </p>
       <p
-        className={`physical-card-arrival-requirement ${densityClass(
-          card.requirementText.length,
-          48,
-          57
-        )}`}
+        className={`physical-card-arrival-requirement ${band("requirement", card.requirementText)}`}
       >
         <FaceText text={card.requirementText} />
       </p>
@@ -121,11 +128,7 @@ function PhysicalArrival({ card }: { card: Extract<EncounterData, { type: "arriv
         Reward
       </p>
       <p
-        className={`physical-card-arrival-reward ${densityClass(
-          rewardText.length,
-          48,
-          58
-        )}`}
+        className={`physical-card-arrival-reward ${band("reward", rewardText)}`}
       >
         <FaceText text={rewardText} />
       </p>
@@ -144,11 +147,7 @@ function PhysicalGoldenBoon({
         Effect
       </p>
       <p
-        className={`physical-card-golden-effect ${densityClass(
-          card.effectText.length,
-          300,
-          385
-        )}`}
+        className={`physical-card-golden-effect ${band("golden", card.effectText)}`}
       >
         <FaceText text={card.effectText} />
       </p>

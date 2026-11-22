@@ -258,34 +258,34 @@
 .physical-card-effect {
   top: 0;
   height: 49%;
-  font-size: 3cqw;
+  font-size: calc(3cqw * var(--face-text-scale, 1.25));
   line-height: 1.16;
 }
 
 .physical-card-effect.copy-medium {
-  font-size: 2.7cqw;
+  font-size: calc(2.7cqw * var(--face-text-scale, 1.25));
   line-height: 1.14;
 }
 
 .physical-card-effect.copy-dense {
-  font-size: 2.45cqw;
+  font-size: calc(2.45cqw * var(--face-text-scale, 1.25));
   line-height: 1.12;
 }
 
 .physical-card-lifecycle {
   top: 53.2%;
   height: 38.5%;
-  font-size: 2.55cqw;
+  font-size: calc(2.55cqw * var(--face-text-scale, 1.25));
   font-style: italic;
   line-height: 1.17;
 }
 
 .physical-card-lifecycle.copy-medium {
-  font-size: 2.35cqw;
+  font-size: calc(2.35cqw * var(--face-text-scale, 1.25));
 }
 
 .physical-card-lifecycle.copy-dense {
-  font-size: 2.15cqw;
+  font-size: calc(2.15cqw * var(--face-text-scale, 1.25));
   line-height: 1.12;
 }
 
@@ -319,17 +319,17 @@
   left: 14.5%;
   width: 71%;
   height: 8.8%;
-  font-size: 3.15cqw;
+  font-size: calc(3.15cqw * var(--face-text-scale, 1.25));
   line-height: 1.18;
   text-wrap: balance;
 }
 
 .physical-card-arrival-requirement.copy-medium {
-  font-size: 2.9cqw;
+  font-size: calc(2.9cqw * var(--face-text-scale, 1.25));
 }
 
 .physical-card-arrival-requirement.copy-dense {
-  font-size: 2.65cqw;
+  font-size: calc(2.65cqw * var(--face-text-scale, 1.25));
 }
 
 .physical-card-reward-label {
@@ -341,17 +341,17 @@
   left: 17%;
   width: 66%;
   height: 4.2%;
-  font-size: 2.85cqw;
+  font-size: calc(2.85cqw * var(--face-text-scale, 1.25));
   line-height: 1.12;
   text-wrap: balance;
 }
 
 .physical-card-arrival-reward.copy-medium {
-  font-size: 2.65cqw;
+  font-size: calc(2.65cqw * var(--face-text-scale, 1.25));
 }
 
 .physical-card-arrival-reward.copy-dense {
-  font-size: 2.45cqw;
+  font-size: calc(2.45cqw * var(--face-text-scale, 1.25));
 }
 
 .physical-card-golden-effect-label {
@@ -363,17 +363,17 @@
   left: 12.7%;
   width: 74.6%;
   height: 30.25%;
-  font-size: 3.05cqw;
+  font-size: calc(3.05cqw * var(--face-text-scale, 1.25));
   line-height: 1.22;
   text-wrap: pretty;
 }
 
 .physical-card-golden-effect.copy-medium {
-  font-size: 2.75cqw;
+  font-size: calc(2.75cqw * var(--face-text-scale, 1.25));
 }
 
 .physical-card-golden-effect.copy-dense {
-  font-size: 2.5cqw;
+  font-size: calc(2.5cqw * var(--face-text-scale, 1.25));
   line-height: 1.18;
 }
 

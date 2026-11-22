@@ -79,10 +79,10 @@ window.renderTile=async function(item){audit=[];ctx.clearRect(0,0,W,H);let {kind
  if(kind==='special'){block('UNLOCKED BY ARRIVAL',{y:712,width:880,height:55,size:42,label:'Unlock label'});block(t.unlockSource,{y:775,width:920,height:66,size:55,label:'Arrival name'})}
  if(kind==='golden'){
  block('LEDGER UNLOCK',{x:578,y:712,width:350,height:57,size:42,label:'Ledger label'});block(t.unlockAt+' Entries',{x:952,y:712,width:345,height:57,size:52,label:'Ledger threshold'});
- block('PERSISTENT EFFECT',{y:807,width:900,height:54,size:49,style:'bold',label:'Effect heading'});await resourceBlock(t.effectText,{y:866,width:800,height:155,size:50,min:26,style:'italic',label:'Persistent effect',taper:true});
+ block('PERSISTENT EFFECT',{y:807,width:900,height:54,size:49,style:'bold',label:'Effect heading'});await resourceBlock(t.effectText,{y:866,width:800,height:155,size:64,min:26,style:'italic',label:'Persistent effect',taper:true});
  if(t.placement?.text)block(t.id==='golden_tile_the_golden_cairn'?t.placement.text.replace(' Not Grasslands or River/Water.',''):t.placement.text,{y:1040,width:600,height:150,size:42,min:30,style:'regular',label:'Placement rule',taper:true});
 
- }else{const e=effect(td);block(e.heading,{y:878,width:800,height:58,size:50,style:'bold',label:'Effect heading'});await resourceBlock(e.text,{y:948,width:710,height:245,size:50,min:28,style:'italic',label:'Rules',taper:true})}
+ }else{const e=effect(td);block(e.heading,{y:878,width:800,height:58,size:50,style:'bold',label:'Effect heading'});await resourceBlock(e.text,{y:948,width:710,height:245,size:64,min:28,style:'italic',label:'Rules',taper:true})}
  return audit;
 };
 window.ready=Promise.all([document.fonts.load('400 50px Alegreya'),document.fonts.load('700 50px Alegreya'),document.fonts.load('italic 50px Alegreya')]);

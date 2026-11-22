@@ -13,8 +13,10 @@ const MINUS = "−";
 type Rule = [RegExp, string | ((...groups: string[]) => string)];
 
 const rules: Rule[] = [
-  // "You may pay 2 Metal to remove 1 Strain" → "You may pay 2 Metal: −1 Strain".
-  [new RegExp(`\\b(pay \\d+ (?:${RES})) to remove\\b`, "g"), "$1: remove"],
+  // Paying reads as a loss: "pay 2 Herbs, 2 Stone and 2 Metal" → "−2 Herbs, −2 Stone, −2 Metal";
+  // "pay 1 Food or 1 Goods" → "−1 Food or −1 Goods"; "You may pay 4 Metal to remove…" → "You may −4 Metal to remove…".
+  [new RegExp(`\\b([Pp])ay (\\d+ (?:${RES})(?:(?:, | and | or )\\d+ (?:${RES}))*)`, "g"),
+    (_m, _p, list) => list.replace(/ and (?=\d)/g, ", ").replace(/(^|, | or )(\d+)/g, `$1${MINUS}$2`)],
   // "remove 1 additional Strain" → "−1 more Strain".
   [/\b[Rr]emove (\d+) additional Strain\b/g, (_m, n) => `${MINUS}${n} more Strain`],
   // "... costs 2 fewer Food and gains Supported" → "... costs −2 Food and +Supported".
@@ -36,7 +38,11 @@ const rules: Rule[] = [
   [/\b(\d+) additional\b/g, "+$1"],
   [/ apply once extra\b/g, " apply twice"],
   // Costs: "costs 1 fewer resource", "cost 2 fewer resources each", "pay up to 2 fewer Food".
+  // "when paying a cost, pay up to 2 fewer Food" → "one cost: −2 Food" (a cost never goes below 0).
+  [new RegExp(`\\bwhen paying a cost, pay up to (\\d+) fewer (${RES})`, "g"), (_m, n, what) => `one cost: ${MINUS}${n} ${what}`],
   [new RegExp(`\\bpay up to (\\d+) fewer (${RES})`, "g"), (_m, n, what) => `up to ${MINUS}${n} ${what}`],
+  // "remove 1 timer" → "−1 timer".
+  [/\b[Rr]emove (\d+) (timers?)\b/g, (_m, n, what) => `${MINUS}${n} ${what}`],
   [new RegExp(`\\b(costs?) (\\d+) fewer (resources?|Requirement resources?|${RES})`, "g"), (_m, verb, n, what) => `${verb} ${MINUS}${n} ${what}`],
   [/\bcosts? (\d+) more resources?/g, (m, n) => m.replace(`${n} more`, `+${n}`)],
   // "reduce its cost by 1 resource" → "its cost −1 resource"; "reduce the resource cost of X by 2" → "X costs −2 resources".
@@ -51,6 +57,16 @@ export function compactRulesText(text: string): string {
   let out = text;
   for (const [pattern, replacement] of rules) {
     out = out.replace(pattern, replacement as never);
+  }
+  // Strain never goes below 0, so "up to −2 Strain from 1 Tile" is just "−2 Strain from 1 Tile".
+  // ("Up to −2 Strain among them" keeps "up to": it is shared out.)
+  out = out.replace(/\b[Uu]p to (−\d+ Strain from (?:1 |it\b|any |an? ))/g, "$1");
+  // In an optional payment, the tile that lost Strain gains Supported: "If so, +Supported".
+  if (/^You may −/.test(out)) {
+    out = out
+      .replace(/ to up to (−\d+ Strain) from up to (\d+)/g, " to $1 across up to $2")
+      .replace(/\. It: \+Supported/g, ". If so, +Supported")
+      .replace(/\. Each: \+Supported/g, ". If so, each: +Supported");
   }
   // "non-Travel Tiles" stays in words: an icon after "non-" would not read clearly.
   out = out.replace(new RegExp(`(?<!non-)\\b(${TYPES}) [Tt]iles?\\b`, "g"), "$1");
@@ -75,4 +91,12 @@ export function splitFaceText(text: string): Array<{ text: string } | { icon: Fa
   }
   if (last < text.length) parts.push({ text: text.slice(last) });
   return parts;
+}
+
+/**
+ * How long a face text looks once printed: the short wording, with each icon
+ * counted as the width of about 2.5 letters. Card text sizes are chosen from this.
+ */
+export function faceTextLength(text: string): number {
+  return splitFaceText(compactRulesText(text)).reduce((sum, part) => sum + ("icon" in part ? 2.5 : part.text.length), 0);
 }
