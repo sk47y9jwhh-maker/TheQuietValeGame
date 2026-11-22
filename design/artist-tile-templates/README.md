@@ -142,8 +142,10 @@ Approved by Robert on 30 October 2026. Superseded by the section above.
 
 ## Upgrade icon — 22 November 2026
 
-`assets/icon-Upgrade.png` (online `public/icons/upgrade.webp`): a hex tile tipped
-up mid-turn, showing its edge, with a brass arrow sweeping over it, inked to
-match the artist's icons (rough double black outline, cross-hatched shading,
-parchment and brass fills). Drawn by `make-upgrade-icon.py` (Pillow; rerun to
-regenerate). Not yet placed on any face.
+`assets/icon-Upgrade.png` (online `public/icons/upgrade.webp`): a thin hex tile
+under a clean brass arrow that arcs over it and turns down, drawn to sit with
+the artist's cart wheel (Robert: the first version's tile was too thick and its
+arrow too messy): smooth arcs, a heavy black outer line, a thinner inner line,
+a fine inner rim line and a brass band shaded with streaks that follow the
+curve; a crisp triangular head. Drawn by `make-upgrade-icon.py` (Pillow; rerun
+to regenerate). Not yet placed on any face.
