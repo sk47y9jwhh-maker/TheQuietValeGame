@@ -238,7 +238,7 @@ function robustSettle(input: GameState): GameState {
     for (const first of tiles) for (const second of tiles) if (first !== second) choices.push({ tileStrainDeltas: { [first.instanceId]: 1, [second.instanceId]: 1 } });
     // "first +2, others +1" rows (22 Nov) need uneven splits.
     for (const first of tiles) for (const second of tiles) if (first !== second) { choices.push({ tileStrainDeltas: { [first.instanceId]: 2, [second.instanceId]: 1 } }); choices.push({ tileStrainDeltas: { [first.instanceId]: 2, [second.instanceId]: 2 } }); }
-    for (const a of tiles) for (const b of tiles) for (const c of tiles) if (a !== b && a !== c && b < c && choices.length < 90000) choices.push({ tileStrainDeltas: { [a.instanceId]: 2, [b.instanceId]: 1, [c.instanceId]: 1 } });
+    for (const a of tiles) for (let bi = 0; bi < tiles.length; bi++) for (let ci = bi + 1; ci < tiles.length; ci++) { const b = tiles[bi], c = tiles[ci]; if (a !== b && a !== c && choices.length < 90000) choices.push({ tileStrainDeltas: { [a.instanceId]: 2, [b.instanceId]: 1, [c.instanceId]: 1 } }); }
     for (let a = 0; a < tiles.length; a++) for (let b = a + 1; b < tiles.length; b++) for (let c = b + 1; c < tiles.length && choices.length < 60000; c++) choices.push({ tileStrainDeltas: { [tiles[a].instanceId]: 1, [tiles[b].instanceId]: 1, [tiles[c].instanceId]: 1 } });
     for (const resource of resources) for (let amount = 1; amount <= 6; amount++) choices.push({ resourceDeltas: { [resource]: amount } });
     const arrivals = state.encounters.activeArrivals.map((a) => a.cardId);
@@ -318,7 +318,8 @@ export function playGame(players: PlayerCount, seed: string, vow?: string) {
 }
 
 const [count, games, prefix, mode] = process.argv.slice(2);
-for (let i = 0; i < Number(games); i++) {
+const firstGame = Number(process.env.FIRST_GAME ?? 0);
+for (let i = firstGame; i < firstGame + Number(games); i++) {
   const seed = `${prefix}-${count}p-${i}`;
   const vow = mode?.startsWith("vow:") ? mode.slice(4) : undefined;
   const t0 = Date.now();

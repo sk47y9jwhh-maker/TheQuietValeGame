@@ -1077,12 +1077,18 @@ export function getAlternativeEffectRule(
       : rule.alternative;
   const tileRule = rule.tileAdjustment?.strain;
   const legalTargets = getValidEffectStrainTargets(state, ruleId, sourceTile);
+  // What the Strain branch must place: the printed total, or less when the
+  // legal targets cannot hold it. With +2 per Tile (22 Nov) the targets' room
+  // can exceed the printed total, so cap it there.
   const requiredStrainTotal = tileRule
-    ? legalTargets
-        .map((tile) => getStrainPlacementCapacity(state, tile, tileRule.maxPerTile))
-        .sort((a, b) => b - a)
-        .slice(0, tileRule.maxTargets)
-        .reduce((total, capacity) => total + capacity, 0)
+    ? Math.min(
+        legalTargets
+          .map((tile) => getStrainPlacementCapacity(state, tile, tileRule.maxPerTile))
+          .sort((a, b) => b - a)
+          .slice(0, tileRule.maxTargets)
+          .reduce((total, capacity) => total + capacity, 0),
+        tileRule.maxTotal
+      )
     : alternative.requiredStrainTotal;
   return { ...alternative, requiredStrainTotal };
 }
@@ -2184,10 +2190,19 @@ export function canResolvePendingEffectWithoutAdjustment(
     pendingEffect.allowBurdenResolve &&
     state.encounters.activeBurdens.length === 0
   ) return true;
+  const sourceTile = getPendingEffectSourceTile(state, pendingEffect);
+  // A pay-or-Strain Burden row with nothing of its own to hit may decline to
+  // pay: its Strain then overflows to the group on the card (22 Nov).
+  const rule = activeRule(state, pendingEffect.ruleId, sourceTile);
+  if (
+    rule.overflow &&
+    (rule.alternative?.kind === "pay_total_or_strain" || rule.alternative?.kind === "pay_or_strain") &&
+    getValidEffectStrainTargets(state, pendingEffect.ruleId, sourceTile).length === 0
+  ) return true;
   return effectHasNoValidChoiceTargets(
     state,
     pendingEffect.ruleId,
-    getPendingEffectSourceTile(state, pendingEffect)
+    sourceTile
   );
 }
 

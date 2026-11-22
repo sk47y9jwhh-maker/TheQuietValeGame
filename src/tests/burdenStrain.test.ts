@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { cardEffectRuleId } from "../data/effectRules";
 import { getBurdenResolutionCost } from "../data/contentRules";
-import { resolvePendingEffect } from "../engine/manualEffects";
+import { preparePendingEffectQueueHead, resolvePendingEffect } from "../engine/manualEffects";
 import { resolveBurden, resolveEndRound } from "../engine/gameActions";
 import { getHexNeighbors } from "../engine/hex";
 import { createNewGame } from "../engine/setup";
@@ -148,5 +148,37 @@ describe("Burden resolution and modifiers", () => {
     expect(resolved.encounters.activeBurdens).toHaveLength(0);
     expect(resolved.boonModifiers.some((modifier) => modifier.sourceCardId === "burden_plans_left_waiting"))
       .toBe(false);
+  });
+});
+
+describe("Burden payment choices with nothing to hit", () => {
+  it("lets Old Wounds Reopen decline to pay and overflow when no Social/Wellbeing Tile is out", () => {
+    const state = pending(stateWith([placed("craft", "c13_workshops", "G1")], 3), "burden_old_wounds_reopen", 3);
+    state.warehouse.herbs = 15;
+    const declined = resolvePendingEffect(state, {});
+    expect(declined.warehouse.herbs).toBe(15);
+    expect(declined.pendingEffects.map((effect) => effect.ruleId)).toEqual(["burden_old_wounds_reopen:s3:overflow4"]);
+    const paid = resolvePendingEffect(state, { resourceDeltas: { herbs: -8 } });
+    expect(paid.warehouse.herbs).toBe(7);
+    expect(paid.pendingEffects).toHaveLength(0);
+  });
+});
+
+describe("Season III pay-total-or-Strain rows with +2 on the first Tile", () => {
+  it.each(["burden_old_wounds_reopen", "burden_empty_shelves"])("lets %s take exactly its printed 4 Strain instead of paying", (cardId) => {
+    const state = pending(stateWith([
+      placed("a", "c09_tavern", "A1"),
+      placed("b", "c10_eatery", "E1"),
+      placed("c", "c09_tavern", "J1")
+    ], 3), cardId, 3);
+    state.warehouse.herbs = 10;
+    state.warehouse.goods = 10;
+    // Take the Strain on the Tiles the Target Deck chose (+2, +1, +1).
+    const prepared = preparePendingEffectQueueHead(state);
+    const planned = prepared.pendingEffects[0].targetCardPlannedStrainByTileId ?? {};
+    expect(Object.values(planned).sort()).toEqual([1, 1, 2]);
+    const done = resolvePendingEffect(prepared, { tileStrainDeltas: planned });
+    expect(done.pendingEffects.filter((effect) => effect.ruleId.startsWith(cardId))).toHaveLength(0);
+    expect(done.map.placedTiles.reduce((sum, tile) => sum + tile.strain, 0)).toBe(4);
   });
 });
