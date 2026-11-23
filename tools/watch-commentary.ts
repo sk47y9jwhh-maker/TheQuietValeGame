@@ -439,7 +439,7 @@ function pauseFor(beat: RecordedBeat, index: number, context: Context): DemoPaus
       at: "before",
       kind: "decision",
       title: "Season III prices",
-      text: `Burdens now cost three times their Season I price to resolve. With the game nearly over, they will not get another Season to strike, but each one still costs 10 points at the end. ${who(before, beat.player)} has the resources${second ? " for both" : ""}, and no other action this late adds 10 points.`,
+      text: `Burdens now cost 7 to resolve, against 3 in Season I. With the game nearly over, they will not get another Season to strike, but each one still costs 10 points at the end. ${who(before, beat.player)} has the resources${second ? " for both" : ""}, and no other action this late adds 10 points.`,
       target: { ui: "encounters" },
       options: [
         { label: second ? "Resolve both" : `Resolve ${cardName(first.id)}`, chosen: true, lines: [`Costs ${list([cost, secondCost].filter(Boolean).map((entry) => amounts(entry!)))}${second ? " and two actions" : ""}`, `+${10 * ids.length} at the end`] },

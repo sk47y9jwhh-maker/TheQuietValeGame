@@ -173,7 +173,7 @@ const costTotal = (cost: Partial<Record<ResourceType, number>>) => resources.red
 /**
  * Tiles that are doing nothing for the settlement, as a thoughtful player
  * would see them: a Common Land with no Housing beside it to support, a
- * Workshops with no neighbour whose upgrade it would make cheaper, and a
+ * Workshops with no neighbour (other than a road) whose upgrade it would make cheaper, and a
  * Path, Street or Track that leads nowhere (it touches one tile at most and
  * earns no Renown). The penalty lifts as soon as the tile has a purpose, so
  * the players either build with a plan or finish the plan they started.
@@ -188,7 +188,7 @@ export function idleTilePenalty(state: GameState): number {
     } else if (tile.tileId === "c13_workshops") {
       // Basic Workshops help adjacent upgrades; the Conclave reaches further.
       const pool = tile.side === "upgraded" ? state.map.placedTiles : around;
-      const helps = pool.some((other) => other.kind === "core" && other.side === "basic" && costTotal(coreTileById[other.tileId]?.upgraded.cost ?? {}) > 0);
+      const helps = pool.some((other) => other.kind === "core" && other.side === "basic" && !["travel", "crafting"].includes(getPlacedTileCategory(other)) && costTotal(coreTileById[other.tileId]?.upgraded.cost ?? {}) > 0);
       if (!helps) penalty += 9;
     } else if (["c15_path", "c16_street", "c17_track"].includes(tile.tileId) && tile.side === "basic") {
       const nonTravel = around.filter((other) => getPlacedTileCategory(other) !== "travel").length;
@@ -214,6 +214,23 @@ function engineValue(state: GameState): number {
     if (amounts.length) value += amounts[0] * 1.5 + amounts.slice(1).reduce((total, amount) => total + amount * 0.5, 0);
   }
   return value;
+}
+
+const cleanerTileIds = new Set(["c09_tavern", "c10_eatery", "c11_washhouse", "c12_apothecary", "c21_the_vaults"]);
+
+/**
+ * How much of the settlement a Strain remover can reach: Season III Burdens
+ * spread Strain that cannot be paid away, and each token left is −10 at the
+ * end. Counts the producers, Housing and upgraded tiles (where Burdens strike)
+ * that sit beside a working Tavern, Eatery, Washhouse, Apothecary or Vaults.
+ */
+function careCoverage(state: GameState): number {
+  const covered = new Set<string>();
+  for (const tile of state.map.placedTiles) {
+    if (!cleanerTileIds.has(tile.tileId) || tile.strain >= 3) continue;
+    for (const other of neighboursOf(state, tile)) if (getPlacedTileCategory(other) !== "travel") covered.add(other.instanceId);
+  }
+  return Math.min(covered.size, 10);
 }
 
 /** Part credit for a Steward objective that is on its way but not yet met. */
@@ -243,8 +260,13 @@ export function watchValueOf(state: GameState): number {
   const waiting = state.encounters.activeArrivals.reduce((total, arrival) => total + (arrival.timerTokens <= 1 ? 14 : arrival.timerTokens === 2 ? 8 : 4), 0) ;
   const strain = state.map.placedTiles.reduce((total, tile) => total + tile.strain * tile.strain, 0);
   const burdens = state.encounters.activeBurdens.length * 3;
+  // Resources still matter late: Season III Burdens and Arrivals are paid from the Warehouse.
+  const keep = Math.max(late, 0.4);
+  const care = state.round >= 4 ? careCoverage(state) * 1.5 : 0;
   return calculateFinalScore(state).finalScore
-    + late * (stock - scarce * 4 + makes.size * 6 + engineValue(state) * 2 + objectiveProgress(state))
+    + keep * (stock - scarce * 4)
+    + late * (makes.size * 6 + engineValue(state) * 2 + objectiveProgress(state))
+    + care
     - waiting - strain * 2 - burdens - idleTilePenalty(state);
 }
 
@@ -262,7 +284,11 @@ export function lastRoundValueOf(state: GameState): number {
   const placed = new Set(state.map.placedTiles.map((tile) => tile.tileId));
   const unbuilt = state.encounters.completedArrivals.flatMap((arrival) => arrival.specialTileIds).filter((id) => !placed.has(id)).length;
   const leaving = state.phase === "gameEnd" ? 0 : state.encounters.activeArrivals.filter((arrival) => arrival.timerTokens <= 1).length * 20;
-  return calculateFinalScore(state).finalScore - leaving - idleTilePenalty(state) * 0.25 + (laterTurn ? stock * 0.25 + unbuilt * 4 : 0);
+  // Workshops, Market Stalls and Common Land are for the rounds ahead; built
+  // now they would only be placed for their printed Renown, which looks like
+  // filler to anyone watching. A constant per tile, so only new ones cost.
+  const forLater = state.map.placedTiles.filter((tile) => ["c13_workshops", "c14_market_stalls", "c18_common_land"].includes(tile.tileId)).length * 7;
+  return calculateFinalScore(state).finalScore - leaving - idleTilePenalty(state) - forLater + (laterTurn ? stock * 0.25 + unbuilt * 4 : 0);
 }
 
 export interface TurnPlan { actions: WatchMove[][]; value: number }
