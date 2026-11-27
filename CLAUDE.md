@@ -14,3 +14,9 @@ Run `npm test` and `npm run build` after application changes. Downloads,
 checksums, document tooling, known limits and the recommended next work are
 documented in the handoff. Historical holiday notes describe earlier candidates
 and a completed automation; they are evidence, not an active work schedule.
+
+## Multi-Agent Collaboration (Claude, Codex & Antigravity)
+
+Robert has added **Antigravity** to collaborate alongside **Claude** and **Codex**
+on this repository. See [AGENTS.md](AGENTS.md) for the shared branch, worktree,
+and handoff conventions (`claude/*`, `codex/*`, `agy/*`).
