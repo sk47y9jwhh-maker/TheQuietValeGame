@@ -23,7 +23,7 @@ function path(id: string, hex: string, supported = false): PlacedTile {
 function expiry(cardId = 3, tiles = [path("other", "A1"), path("protected", "C1", true)]) {
   const state = createNewGame(1, ["vanguard"], { encounterSeed: "resolution-review" });
   state.map.placedTiles = tiles;
-  state.targetCards = { ...createTargetCardDeckState("resolution-review"), drawPile: [cardId, ...Array.from({ length: 30 }, (_, i) => i + 1).filter(id => id !== cardId)] };
+  state.targetCards = { ...createTargetCardDeckState("resolution-review"), drawPile: [cardId, ...Array.from({ length: 15 }, (_, i) => i + 1).filter(id => id !== cardId)] };
   state.pendingEffects = [{ id: "expiry", ruleId: systemEffectRuleId("arrival-expired"), sourceType: "system", sourceName: "Expired Arrival", title: "Expired Arrival", effectText: "Place 1 Strain", requiresManualChoice: true }];
   return preparePendingEffectQueueHead(state);
 }
@@ -36,7 +36,7 @@ describe("focused resolution review", () => {
     const view = render(<StrictMode><App initialPreview={thirdSeason} /></StrictMode>);
     const before = saved();
     const printedCard = view.container.querySelector(".effect-source-card .encounter-card-shell")!;
-    const targetCard = within(screen.getByRole("region", { name: "Target Card resolution" })).getByText("Card 16");
+    const targetCard = within(screen.getByRole("region", { name: "Target Card resolution" })).getByText("Card 04");
     expect(printedCard).not.toBeVisible(); expect(targetCard).not.toBeVisible();
     expect(screen.getByText("Choose 3 Housing Tiles. Each: pay 1 Food or 1 Goods, or +1 Strain.", { selector: ".effect-rule-text" })).toBeVisible();
     expect(screen.getByLabelText("Effect preview")).toHaveTextContent("Cabin (H1): +1 Strain");
@@ -45,7 +45,7 @@ describe("focused resolution review", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Pay 6 Goods/ }));
     toggle("Read the full card");
     expect(printedCard).toBeVisible();
-    toggle("Why card 16"); expect(targetCard).toBeVisible();
+    toggle("Why card 04"); expect(targetCard).toBeVisible();
     expect(within(targetCard.closest(".target-draw-explanation")!).getByText("Stop as soon as 1 tile remains. Skip a row if none match.")).toBeInTheDocument();
     toggle("Table references"); toggle(/^View resolution order/); toggle("Review active encounters");
     expect(screen.getByRole("heading", { name: "Encounters" })).toBeVisible();
@@ -93,17 +93,17 @@ describe("focused resolution review", () => {
   });
 
   it("keeps Open targeting actionable without opening an explanation or widening its pool", () => {
-    const state = expiry(25); const original = structuredClone(state); const onApply = vi.fn();
+    const state = expiry(13); const original = structuredClone(state); const onApply = vi.fn();
     render(<EffectPrompt state={state} effect={state.pendingEffects[0]} onApply={onApply} />);
     expect(screen.getByText(/An Open Target Card lets you choose/)).toBeVisible();
     expect(screen.getByText(/An Open card needs your choice from the eligible tiles/)).toBeVisible();
     expect(screen.queryByText(/The draw selected these targets/)).not.toBeInTheDocument();
-    expect(screen.getByText("Card 25")).not.toBeVisible();
+    expect(screen.getByText("Card 13")).not.toBeVisible();
     expect(screen.getByRole("button", { name: "Apply effect" })).toBeDisabled();
     expect(screen.getAllByRole("button", { name: /^Increase Strain adjustment for Path at / })).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: "Increase Strain adjustment for Path at A1" }));
-    toggle("Why card 25");
-    expect(screen.getByText("Card 25")).toBeVisible();
+    toggle("Why card 13");
+    expect(screen.getByText("Card 13")).toBeVisible();
     expect(screen.getByRole("button", { name: "Apply effect" })).toBeEnabled();
     expect(state).toEqual(original);
     fireEvent.click(screen.getByRole("button", { name: "Apply effect" }));

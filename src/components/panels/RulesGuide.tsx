@@ -299,16 +299,16 @@ const rules: RuleReferenceCard[] = [
       {
         title: "Resolve one Target Card",
         bullets: [
-          "Start with only the Tiles made eligible by the effect, including any printed fallback. Draw one card for each different target.",
-          "Check the two rows in order: Tile (Basic, Upgraded, or Special / Golden), then Current Strain (Already Strained or Unstrained).",
+          "Start with only the Tiles made eligible by the triggering effect, including any printed fallback. Draw one card for each different target.",
+          "Check the two rows in order (unless already set by the triggering effect): 1. Tile (Basic, Upgraded, or Special / Golden), then 2. Current Strain (Already Strained or Unstrained).",
           "Stop as soon as 1 Tile remains. At each row, keep the matches if at least one current candidate matches. Otherwise skip that row. Never restore a removed Tile.",
           "Any neither narrows nor widens the pool. An Open card lets the players choose any remaining candidate.",
-          "If 2 or more Tiles still remain on a structured card, use its compass arrow, then fixed map-coordinate order only for an exact directional tie.",
+          "If 2 or more Tiles still remain on a structured card, take the tied Tile closest to the compass direction. If still tied, players choose.",
           "Return the card face down to the deck bottom, then resolve Supported and prevention."
         ]
       }
     ],
-    note: "Shuffle the 30-card Target Deck once during setup. Do not discard or reshuffle cards during play."
+    note: "Shuffle the 15-card Target Deck once during setup. Do not discard or reshuffle cards during play."
   },
   {
     category: "Roles",

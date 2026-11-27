@@ -118,6 +118,7 @@ describe("Burden follow-up on the protecting Social/Wellbeing Tile", () => {
       placed("eatery", "c10_eatery", "E1"),
       placed("apothecary", "c12_apothecary", "J1")
     ], 3), "burden_the_long_cough", 3);
+    state.targetCards.drawPile = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     // The Target Deck picks which Tile takes the +2.
     const done = resolvePendingEffect(state);
     expect(done.map.placedTiles.map((tile) => tile.strain).sort()).toEqual([1, 1, 2]);
@@ -171,6 +172,7 @@ describe("Season III pay-total-or-Strain rows with +2 on the first Tile", () => 
       placed("b", "c10_eatery", "E1"),
       placed("c", "c09_tavern", "J1")
     ], 3), cardId, 3);
+    state.targetCards.drawPile = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     state.warehouse.herbs = 10;
     state.warehouse.goods = 10;
     // Take the Strain on the Tiles the Target Deck chose (+2, +1, +1).

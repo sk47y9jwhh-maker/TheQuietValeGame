@@ -53,21 +53,22 @@ describe("Target Card UI", () => {
     expect(screen.getByText("Stop as soon as 1 tile remains. Skip a row if none match.")).toBeInTheDocument();
     expect(screen.getByText("SE")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Arrow pointing south-east" })).toBeInTheDocument();
-    expect(screen.getByText("Take the tile the arrow points to")).toBeInTheDocument();
+    expect(screen.getByText("Closest to South-East")).toBeInTheDocument();
+    expect(screen.getByText("Still tied? Players choose.")).toBeInTheDocument();
   });
 
-  it("renders Special / Golden on cards 9–12 and 21–24", () => {
+  it("renders Special / Golden on cards 9–12", () => {
     render(<TargetCard card={targetCardById[11]} />);
 
     expect(screen.getByText("Special / Golden")).toBeInTheDocument();
   });
 
   it("renders Open cards without a tie arrow", () => {
-    render(<TargetCard card={targetCardById[25]} />);
+    render(<TargetCard card={targetCardById[13]} />);
 
-    expect(screen.getByRole("heading", { name: /card 25/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /card 13/i })).toBeInTheDocument();
     expect(screen.getAllByText(/^any$/i)).toHaveLength(2);
-    expect(screen.getByText(/choose any eligible tile/i)).toBeInTheDocument();
+    expect(screen.getByText(/players choose any eligible tile/i)).toBeInTheDocument();
     expect(screen.queryByRole("img", { name: /Arrow pointing/ })).not.toBeInTheDocument();
   });
 
@@ -117,7 +118,7 @@ describe("Target Card UI", () => {
       { ...tile("crafting", "H1"), tileId: "c13_workshops" },
       tile("unrelated", "J1")
     ];
-    state.targetCards.drawPile = [25, ...state.targetCards.drawPile.filter((id) => id !== 25)];
+    state.targetCards.drawPile = [13, ...state.targetCards.drawPile.filter((id) => id !== 13)];
     state.pendingEffects = [{
       id: "coin_any",
       ruleId: cardEffectRuleId("burden_coin_before_craft", 2),

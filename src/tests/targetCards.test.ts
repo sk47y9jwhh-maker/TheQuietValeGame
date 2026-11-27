@@ -89,7 +89,7 @@ function pendingBurden(
 }
 
 describe("Target Cards", () => {
-  it("contains the 30-card distribution with six Open cards", () => {
+  it("contains the 15-card distribution with three Open cards", () => {
     expect(targetCards).toEqual([
       { id: 1, tile: "basic", strain: "strained", direction: "N" },
       { id: 2, tile: "basic", strain: "unstrained", direction: "S" },
@@ -103,59 +103,28 @@ describe("Target Cards", () => {
       { id: 10, tile: "specialOrGolden", strain: "unstrained", direction: "NE" },
       { id: 11, tile: "specialOrGolden", strain: "strained", direction: "NW" },
       { id: 12, tile: "specialOrGolden", strain: "unstrained", direction: "SE" },
-      { id: 13, tile: "basic", strain: "strained", direction: "S" },
-      { id: 14, tile: "basic", strain: "unstrained", direction: "N" },
-      { id: 15, tile: "basic", strain: "strained", direction: "SW" },
-      { id: 16, tile: "basic", strain: "unstrained", direction: "NE" },
-      { id: 17, tile: "upgraded", strain: "strained", direction: "NW" },
-      { id: 18, tile: "upgraded", strain: "unstrained", direction: "SE" },
-      { id: 19, tile: "upgraded", strain: "strained", direction: "N" },
-      { id: 20, tile: "upgraded", strain: "unstrained", direction: "S" },
-      { id: 21, tile: "specialOrGolden", strain: "strained", direction: "NE" },
-      { id: 22, tile: "specialOrGolden", strain: "unstrained", direction: "SW" },
-      { id: 23, tile: "specialOrGolden", strain: "strained", direction: "SE" },
-      { id: 24, tile: "specialOrGolden", strain: "unstrained", direction: "NW" },
-      { id: 25, tile: "any", strain: "any" },
-      { id: 26, tile: "any", strain: "any" },
-      { id: 27, tile: "any", strain: "any" },
-      { id: 28, tile: "any", strain: "any" },
-      { id: 29, tile: "any", strain: "any" },
-      { id: 30, tile: "any", strain: "any" }
+      { id: 13, tile: "any", strain: "any" },
+      { id: 14, tile: "any", strain: "any" },
+      { id: 15, tile: "any", strain: "any" }
     ]);
-    expect(new Set(targetCards.map((card) => card.id)).size).toBe(30);
-    expect(targetCards.filter((card) => card.tile === "basic")).toHaveLength(8);
-    expect(targetCards.filter((card) => card.tile === "upgraded")).toHaveLength(8);
-    expect(targetCards.filter((card) => card.tile === "specialOrGolden")).toHaveLength(8);
-    expect(targetCards.filter((card) => card.tile === "any")).toHaveLength(6);
-    expect(targetCards.filter((card) => card.strain === "strained")).toHaveLength(12);
-    expect(targetCards.filter((card) => card.strain === "unstrained")).toHaveLength(12);
-    expect(targetCards.filter((card) => card.strain === "any")).toHaveLength(6);
+    expect(new Set(targetCards.map((card) => card.id)).size).toBe(15);
+    expect(targetCards.filter((card) => card.tile === "basic")).toHaveLength(4);
+    expect(targetCards.filter((card) => card.tile === "upgraded")).toHaveLength(4);
+    expect(targetCards.filter((card) => card.tile === "specialOrGolden")).toHaveLength(4);
+    expect(targetCards.filter((card) => card.tile === "any")).toHaveLength(3);
+    expect(targetCards.filter((card) => card.strain === "strained")).toHaveLength(6);
+    expect(targetCards.filter((card) => card.strain === "unstrained")).toHaveLength(6);
+    expect(targetCards.filter((card) => card.strain === "any")).toHaveLength(3);
     for (const direction of ["N", "NE", "SE", "S", "SW", "NW"] as const) {
       const directionalCards = targetCards.filter(
         (card) => card.direction === direction
       );
-      expect(directionalCards).toHaveLength(4);
+      expect(directionalCards).toHaveLength(2);
       expect(new Set(directionalCards.map((card) => card.strain))).toEqual(
         new Set(["strained", "unstrained"])
       );
     }
-    const opposite = {
-      N: "S",
-      NE: "SW",
-      SE: "NW",
-      S: "N",
-      SW: "NE",
-      NW: "SE"
-    } as const;
-    for (let index = 0; index < 12; index += 1) {
-      const original = targetCards[index];
-      const partner = targetCards[index + 12];
-      expect({ ...partner, id: original.id, direction: original.direction }).toEqual(
-        original
-      );
-      expect(partner.direction).toBe(opposite[original.direction!]);
-    }
-    expect(targetCards.slice(24).every((card) =>
+    expect(targetCards.slice(12).every((card) =>
       card.tile === "any" &&
       card.strain === "any" &&
       card.direction === undefined
@@ -166,18 +135,18 @@ describe("Target Cards", () => {
     let deck = createTargetCardDeckState("CONTINUOUS-DECK");
     const startingOrder = [...deck.drawPile];
     const firstCycle: number[] = [];
-    for (let index = 0; index < 30; index += 1) {
+    for (let index = 0; index < 15; index += 1) {
       const drawn = drawTargetCard(deck);
       deck = drawn.deckState;
       firstCycle.push(drawn.card.id);
     }
     expect(new Set(firstCycle)).toEqual(new Set(targetCards.map((card) => card.id)));
     expect(deck.drawPile).toEqual(startingOrder);
-    const thirtyFirst = drawTargetCard(deck);
-    expect(thirtyFirst.card.id).toBe(firstCycle[0]);
-    expect(thirtyFirst.deckState.drawPile).toHaveLength(30);
-    expect(thirtyFirst.deckState.drawPile.at(-1)).toBe(firstCycle[0]);
-    expect(thirtyFirst.deckState.drawCount).toBe(31);
+    const sixteenth = drawTargetCard(deck);
+    expect(sixteenth.card.id).toBe(firstCycle[0]);
+    expect(sixteenth.deckState.drawPile).toHaveLength(15);
+    expect(sixteenth.deckState.drawPile.at(-1)).toBe(firstCycle[0]);
+    expect(sixteenth.deckState.drawCount).toBe(16);
   });
 
   it("hands Open cards to the player without widening the trigger pool", () => {
@@ -188,8 +157,8 @@ describe("Target Cards", () => {
         side: "special"
       })
     ];
-    const state = targetCardState(tiles, [25]);
-    const card = targetCardById[25];
+    const state = targetCardState(tiles, [13]);
+    const card = targetCardById[13];
     expect(isOpenTargetCard(card)).toBe(true);
 
     const planned = drawTargetCardForPlanning(state, tiles, {
@@ -203,14 +172,14 @@ describe("Target Cards", () => {
       "special"
     ]);
     expect(planned.diagnostic).toMatchObject({
-      cardId: 25,
+      cardId: 13,
       manualChoice: true
     });
     expect(planned.diagnostic.direction).toBeUndefined();
     expect(planned.state.targetCards.drawCount).toBe(1);
-    expect(planned.state.targetCards.drawPile.at(-1)).toBe(25);
+    expect(planned.state.targetCards.drawPile.at(-1)).toBe(13);
 
-    const preparedState = targetCardState(tiles, [25]);
+    const preparedState = targetCardState(tiles, [13]);
     preparedState.pendingEffects = [{
       id: "open-effect",
       ruleId: systemEffectRuleId("arrival-expired"),
@@ -229,7 +198,7 @@ describe("Target Cards", () => {
     });
   });
 
-  it("migrates the old draw and discard piles into one 30-card queue", () => {
+  it("migrates the old draw and discard piles into one 15-card queue", () => {
     const legacy = {
       ...createTargetCardDeckState("LEGACY-DECK"),
       enabled: false,
@@ -242,8 +211,7 @@ describe("Target Cards", () => {
 
     expect(migrated.drawPile).toEqual([
       3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2,
-      13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
-      25, 26, 27, 28, 29, 30
+      13, 14, 15
     ]);
     expect(migrated).not.toHaveProperty("discardPile");
     expect(migrated).not.toHaveProperty("enabled");
@@ -416,7 +384,7 @@ describe("Target Cards", () => {
     expect(resolvePendingEffect(prepared).pendingEffects).toHaveLength(0);
   });
 
-  it.each([[25, 1], [1, 25]])(
+  it.each([[13, 1], [1, 13]])(
     "finishes Coin Before Craft Season II with target draws %s, %s",
     (firstCard, secondCard) => {
       const prepared = pendingBurden(
