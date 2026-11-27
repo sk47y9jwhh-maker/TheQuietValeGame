@@ -105,12 +105,9 @@ describe("passive Supported rules", () => {
     expect(next.map.placedTiles[1].support.passive).toBe(false);
   });
 
-  it.each([
-    ["basic", 1],
-    ["upgraded", 3]
-  ] as const)(
-    "%s Common Land automatically supports %i adjacent Housing",
-    (side, expectedSupported) => {
+  it.each(["basic", "upgraded"] as const)(
+    "does not grant passive Supported for %s Common Land",
+    (side) => {
       const state = createNewGame(1, ["vanguard"]);
       state.map.placedTiles = [
         {
@@ -136,7 +133,7 @@ describe("passive Supported rules", () => {
       const next = recalculatePassiveSupported(state);
       expect(
         next.map.placedTiles.slice(1).filter((tile) => tile.support.passive)
-      ).toHaveLength(expectedSupported);
+      ).toHaveLength(0);
     }
   );
 

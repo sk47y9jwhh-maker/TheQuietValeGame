@@ -90,4 +90,96 @@ describe("strain, Supported, and Overstrained", () => {
     const second = applyStrainToState(first, "path", 1);
     expect(second.map.placedTiles[0].strain).toBe(1);
   });
+
+  it("lets Common Land prevent 1 Strain on 1 adjacent Housing Tile once per round", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [
+      { ...baseTile, instanceId: "common", tileId: "c18_common_land", hexIds: ["G5"] },
+      { ...baseTile, instanceId: "home_1", tileId: "c05_cabin", hexIds: ["F4"] },
+      { ...baseTile, instanceId: "home_2", tileId: "c05_cabin", hexIds: ["F5"] }
+    ];
+
+    const first = applyStrainToState(state, "home_1", 1);
+    expect(first.map.placedTiles[1].strain).toBe(0);
+    expect(first.tileActivationRecords.common.round).toBe(1);
+
+    const second = applyStrainToState(first, "home_2", 1);
+    expect(second.map.placedTiles[2].strain).toBe(1);
+  });
+
+  it("lets The Pleasance prevent 1 Strain on up to 3 distinct adjacent Housing Tiles once per round", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [
+      { ...baseTile, instanceId: "pleasance", tileId: "c18_common_land", side: "upgraded", hexIds: ["G5"] },
+      { ...baseTile, instanceId: "home_1", tileId: "c05_cabin", hexIds: ["F4"] },
+      { ...baseTile, instanceId: "home_2", tileId: "c05_cabin", hexIds: ["F5"] },
+      { ...baseTile, instanceId: "home_3", tileId: "c05_cabin", hexIds: ["G4"] },
+      { ...baseTile, instanceId: "home_4", tileId: "c05_cabin", hexIds: ["G6"] }
+    ];
+
+    let next = applyStrainToState(state, "home_1", 1);
+    expect(next.map.placedTiles[1].strain).toBe(0);
+    // A second hit on the same Housing Tile in the same round is not prevented again by The Pleasance.
+    next = applyStrainToState(next, "home_1", 1);
+    expect(next.map.placedTiles[1].strain).toBe(1);
+
+    next = applyStrainToState(next, "home_2", 1);
+    next = applyStrainToState(next, "home_3", 1);
+    expect(next.map.placedTiles[2].strain).toBe(0);
+    expect(next.map.placedTiles[3].strain).toBe(0);
+
+    // Fourth distinct adjacent Housing exceeds the 3-tile limit.
+    next = applyStrainToState(next, "home_4", 1);
+    expect(next.map.placedTiles[4].strain).toBe(1);
+  });
+
+  it("lets Stone Bridge prevent 1 Strain on itself once per round and fires before spending single-use Supported", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [
+      {
+        ...baseTile,
+        instanceId: "bridge",
+        tileId: "c19_bridge",
+        side: "upgraded",
+        hexIds: ["D1"],
+        support: { passive: false, singleUse: true, preventedThisRound: false }
+      }
+    ];
+
+    const first = applyStrainToState(state, "bridge", 1);
+    expect(first.map.placedTiles[0].strain).toBe(0);
+    expect(first.map.placedTiles[0].support.singleUse).toBe(true);
+    expect(first.tileActivationRecords.bridge.round).toBe(1);
+
+    const second = applyStrainToState(first, "bridge", 1);
+    expect(second.map.placedTiles[0].strain).toBe(0);
+    expect(second.map.placedTiles[0].support.singleUse).toBe(false);
+
+    const third = applyStrainToState(second, "bridge", 1);
+    expect(third.map.placedTiles[0].strain).toBe(1);
+  });
+
+  it("lets The Golden Hearth prevent 1 Strain on each adjacent Housing Tile once per round", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    state.map.placedTiles = [
+      {
+        ...baseTile,
+        instanceId: "hearth",
+        tileId: "golden_tile_the_golden_hearth",
+        kind: "special",
+        side: "special",
+        hexIds: ["G5"]
+      },
+      { ...baseTile, instanceId: "home_1", tileId: "c05_cabin", hexIds: ["F4"] },
+      { ...baseTile, instanceId: "home_2", tileId: "c05_cabin", hexIds: ["F5"] }
+    ];
+
+    let next = applyStrainToState(state, "home_1", 1);
+    next = applyStrainToState(next, "home_2", 1);
+    expect(next.map.placedTiles[1].strain).toBe(0);
+    expect(next.map.placedTiles[2].strain).toBe(0);
+
+    next = applyStrainToState(next, "home_1", 1);
+    expect(next.map.placedTiles[1].strain).toBe(1);
+  });
 });

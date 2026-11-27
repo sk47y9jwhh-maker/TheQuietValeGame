@@ -25,6 +25,7 @@ import { selectReachablePlacedTileIds } from "../engine/reachability";
 import { neighbourlySupportEffectRuleId } from "../data/effectRules";
 import { ruinsHexIds } from "../data/map";
 import { createNewGame } from "../engine/setup";
+import { applyStrainToState } from "../engine/strainRules";
 import type { GameState, PlacedTile, ResourceType } from "../engine/types";
 
 function placedHousing(instanceId: string, hexId: string, strain = 0): PlacedTile {
@@ -1508,7 +1509,14 @@ describe("game actions", () => {
     const next = upgradeTile(ready, "player_1", "tile_1");
 
     expect(next.map.placedTiles[0].side).toBe("upgraded");
-    expect(next.map.placedTiles[0].support.passive).toBe(true);
+    expect(next.map.placedTiles[0].support.passive).toBe(false);
+
+    const firstHit = applyStrainToState(next, "tile_1", 1);
+    expect(firstHit.map.placedTiles[0].strain).toBe(0);
+    expect(hasRoundUseToken(firstHit, firstHit.map.placedTiles[0])).toBe(true);
+
+    const secondHit = applyStrainToState(firstHit, "tile_1", 1);
+    expect(secondHit.map.placedTiles[0].strain).toBe(1);
   });
 
   it("uses Sentinel's Steward Power for a 0 Action upgrade with conditional support", () => {

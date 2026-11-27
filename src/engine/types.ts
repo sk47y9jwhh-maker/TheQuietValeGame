@@ -499,6 +499,7 @@ export interface TileActivationRecord {
   round?: number;
   season?: Season;
   linkedProductionRound?: number;
+  preventedTargetIds?: string[];
 }
 
 export interface LedgerSeasonSnapshot {

@@ -113,7 +113,7 @@ describe("bottom drawer", () => {
     fireEvent.click(
       screen.getByRole("button", { name: "9. Strain and Supported" })
     );
-    expect(screen.getByText(/Supported prevents 1 Strain before checking for Overstrain/)).toBeInTheDocument();
+    expect(screen.getByText(/Supported \(a bronze shield\) prevents 1 Strain before checking for Overstrain/)).toBeInTheDocument();
     expect(screen.getByText(/At 3 Strain, a Tile cannot activate/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "11. The Target Deck" }));

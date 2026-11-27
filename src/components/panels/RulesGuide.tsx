@@ -253,8 +253,8 @@ const rules: RuleReferenceCard[] = [
       {
         title: "Supported and Overstrained",
         bullets: [
-          "Supported prevents 1 Strain before checking for Overstrain. Passive and single-use Supported do not stack.",
-          "Passive Supported refreshes each round while its condition remains true. Single-use Supported is spent when it prevents Strain.",
+          "Supported (a bronze shield) prevents 1 Strain before checking for Overstrain, then the shield is removed. Supported does not stack on the same Tile.",
+          "Once-per-round Strain prevention (Common Land, The Pleasance, Stone Bridge, Lantern Roadhouse, Golden Hearth, Golden Garden) is marked with an X token when used and refreshes at round end.",
           "At 3 Strain, a Tile cannot activate, upgrade, provide passive effects, connect the network, score, or satisfy positive requirements.",
           "As soon as a Tile falls below 3 Strain it works normally again. Prevented Strain is not redirected."
         ]

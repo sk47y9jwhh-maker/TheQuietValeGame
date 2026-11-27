@@ -221,4 +221,4 @@ export const tileScoringRules: Record<string, Partial<Record<"basic" | "upgraded
   c17_track: { basic: { adjacentNonTravelRenown: 1 }, upgraded: { connectedTravelRenownMax: 4 } }
 };
 
-export const intrinsicallySupportedTileSides = new Set(["c19_bridge:upgraded"]);
+export const intrinsicallySupportedTileSides = new Set<string>();
