@@ -14,6 +14,9 @@
     "preview:scenarios": "vite-node tools/build-comparison-scenarios.ts",
     "preview:watch": "vite-node tools/build-watch-demo.ts",
     "simulate:target-cards": "vite-node tools/target-card-simulation.ts",
+    "tts:assets": "node tools/tts/render-assets.mjs",
+    "tts:build": "node tools/tts/build-tts-mod.mjs",
+    "tts:verify": "node tools/tts/verify-tts-mod.mjs",
     "loc": "node tools/loc-report.mjs"
   },
   "dependencies": {
