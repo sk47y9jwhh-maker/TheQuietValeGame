@@ -148,9 +148,7 @@ function onObjectDrop(_, obj)
         if not state.pawnLastHex then state.pawnLastHex = {} end
         local prevHex = state.pawnLastHex[st.id]
         if prevHex and prevHex ~= hex.id then
-          if not state.placedTileGuids or not state.placedTileGuids[tileObj.getGUID()] then
-    spendAction(1)
-  end
+          spendAction(1)
           broadcastToAll(string.format("Moved %s to %s (%s) — -1 Action (%d left).", st.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, state.actionsLeft or 0), {0.82, 0.92, 0.98})
         end
         state.pawnLastHex[st.id] = hex.id
@@ -176,9 +174,7 @@ function onObjectDrop(_, obj)
     if not state.placedTileGuids[guid] then
       state.placedTileGuids[guid] = hex.id
       if rule.kind == "core" then
-        if not state.placedTileGuids or not state.placedTileGuids[tileObj.getGUID()] then
-    spendAction(1)
-  end
+        spendAction(1)
         local extra = (hex.t == "ruins") and " [Shelter in the Ruins: Wood/Stone/Metal ignored!]" or ""
         broadcastToAll(
           string.format("Placed %s on %s (%s) — -1 Action (%d left). Right-click tile to Pay Cost / Activate.%s",
@@ -491,9 +487,7 @@ function activateTile(tileObj)
   end
 
   local addedParts = addWarehouseResources(gains)
-  if not state.placedTileGuids or not state.placedTileGuids[tileObj.getGUID()] then
-    spendAction(1)
-  end
+  spendAction(1)
 
   local msg = "Activated " .. faceName
   if linkedCount > 0 then
@@ -554,9 +548,7 @@ function upgradeTile(tileObj)
     return
   end
   tileObj.flip()
-  if not state.placedTileGuids or not state.placedTileGuids[tileObj.getGUID()] then
-    spendAction(1)
-  end
+  spendAction(1)
   local msg = "Upgraded to " .. rule.upgraded.name
   if #details > 0 then msg = msg .. " (" .. table.concat(details, ", ") .. ")" end
   broadcastToAll(msg .. "!", {0.94, 0.86, 0.56})
@@ -706,9 +698,7 @@ function spendAction(n)
 end
 
 function onHudActMinus()
-  if not state.placedTileGuids or not state.placedTileGuids[tileObj.getGUID()] then
-    spendAction(1)
-  end
+  spendAction(1)
 end
 
 function onHudActPlus()
