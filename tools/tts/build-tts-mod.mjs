@@ -507,7 +507,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   const arrivalsGuid = nextGuid();
   const goldenBoonsGuid = nextGuid();
 
-  const tarotScale = [1.26, 1.0, 1.52];
+  const tarotScale = [1.46, 1.0, 1.50];
   objects.push(
     makeDeck({
       guid: boonsGuid,
@@ -641,7 +641,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     ["Strain Tokens", "Place on tiles for Strain. 3 Strain = Overstrained.", "tokens/strain.png", { r: 0.16, g: 0.15, b: 0.15 }, -20, -24, 0.42],
     ["Supported Shields", "Single-use bronze shield: prevents the next 1 Strain on this tile.", "tokens/supported.png", { r: 0.72, g: 0.54, b: 0.24 }, 20, -24, 0.44],
     ["Cooldown X", "Marks a tile activated this round. Cleared by End Round button.", "tokens/cooldown-x.png", { r: 0.48, g: 0.24, b: 0.22 }, -20, 24, 0.40],
-    ["Arrival Timers", "Place 3 timers on a revealed Arrival; remove 1 each round.", "tokens/arrival-timer.png", { r: 0.24, g: 0.36, b: 0.44 }, 20, 24, 0.38]
+    ["Arrival Timers", "Place 3 timers on a revealed Arrival; remove 1 each round.", "tokens/arrival-timer.png", { r: 0.24, g: 0.36, b: 0.44 }, 20, 24, 0.30]
   ];
   for (const [bagName, desc, imgRel, col, dxMm, dyMm, tokScale] of tokenBagSpecs) {
     const [bx, bz] = boardMmToWorld(POS.logisticsBoard, LONG_BOARD_MM, tokWellX + dxMm, 73 + dyMm);
@@ -988,7 +988,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   // 5 evenly spaced IN PLAY slots across the Encounter Board center recess
   const inPlaySlots = [];
   for (let i = 0; i < 5; i++) {
-    const xMm = 128 + i * 78;
+    const xMm = 124 + i * 80;
     const [sx, sz] = boardMmToWorld(POS.encounterBoard, LONG_BOARD_MM, xMm, 73);
     inPlaySlots.push([sx, 1.22, sz]);
   }
