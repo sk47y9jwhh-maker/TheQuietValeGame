@@ -556,12 +556,12 @@ describe("game actions", () => {
     const firstActivation = activateTile(ready, "player_1", "farm_1");
     const secondActivation = activateTile(firstActivation, "player_1", "farm_1");
 
-    // Linked: both Farmsteads produce (4 Food); the Shrine beside farm_2 adds 2.
-    expect(firstActivation.warehouse.food).toBe(6);
+    // Linked: both Farmsteads produce (4 Food); the Shrine adds +2 for each producing Farmstead (+4 = 8 Food).
+    expect(firstActivation.warehouse.food).toBe(8);
     // Shrines have no once-per-round limit, so they never take an X token.
     expect(firstActivation.tileActivationRecords.shrine).toBeUndefined();
-    // Only farm_1 produces now, and the Shrine is not beside it.
-    expect(secondActivation.warehouse.food).toBe(8);
+    // Only farm_1 produces now, and the settlement-wide Shrine adds +2 again (+4 = 12 Food).
+    expect(secondActivation.warehouse.food).toBe(12);
     // Both Farmsteads took part in Linked Production, so both carry an X token; the Shrine does not.
     const tileById = (id: string) => firstActivation.map.placedTiles.find((tile) => tile.instanceId === id)!;
     expect(hasRoundUseToken(firstActivation, tileById("farm_1"))).toBe(true);

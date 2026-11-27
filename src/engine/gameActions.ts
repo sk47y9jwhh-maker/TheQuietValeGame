@@ -546,17 +546,22 @@ function shouldProductionPassiveTrigger(
   activatedTile: PlacedTile
 ): boolean {
   if (passiveTile.kind !== "special" || passiveTile.strain >= 3) return false;
+  const rule = productionPassiveRules[passiveTile.tileId];
+  if (!rule || rule.sourceTileId !== activatedTile.tileId) return false;
   if (
-    productionPassiveRules[passiveTile.tileId]?.oncePerRound !== false &&
+    rule.oncePerRound !== false &&
     state.tileActivationRecords[passiveTile.instanceId]?.round === state.round
   ) {
     return false;
   }
-  if (!passiveTile.hexIds.some((hexId) => getHexNeighbors(hexId).some((neighborId) => activatedTile.hexIds.includes(neighborId)))) {
+  if (
+    rule.scope !== "global" &&
+    !passiveTile.hexIds.some((hexId) => getHexNeighbors(hexId).some((neighborId) => activatedTile.hexIds.includes(neighborId)))
+  ) {
     return false;
   }
 
-  return productionPassiveRules[passiveTile.tileId]?.sourceTileId === activatedTile.tileId;
+  return true;
 }
 
 function applyResourceGain(
