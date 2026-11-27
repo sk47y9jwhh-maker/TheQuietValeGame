@@ -489,7 +489,75 @@ function activateTile(tileObj)
   local addedParts = addWarehouseResources(gains)
   spendAction(1)
 
-  local msg = "Activated " .. faceName
+  -- Smart auto-effects for Wellbeing strain-clearing tiles (Tavern, Eatery, Washhouse, Apothecary, Vaults)
+  local strainClearMap = {
+    c09_tavern = { basic = 1, upgraded = 2, maxPerTile = 1 },
+    c10_eatery = { basic = 1, upgraded = 2, maxPerTile = 1 },
+    c11_washhouse = { basic = 1, upgraded = 2, maxPerTile = 1 },
+    c12_apothecary = { basic = 1, upgraded = 2, maxPerTile = 2 },
+    c21_the_vaults = { basic = 1, upgraded = 2, maxPerTile = 2 }
+  }
+  local scRule = strainClearMap[id]
+  if scRule and isOnMapBoard(tileObj.getPosition()) then
+    local p1 = tileObj.getPosition()
+    local strainedAdj = {}
+    for _, other in ipairs(getAllObjects()) do
+      if other ~= tileObj and CONFIG.tileRules[other.getGMNotes() or ""] and isOnMapBoard(other.getPosition()) then
+        local p2 = other.getPosition()
+        if math.sqrt((p1.x - p2.x)^2 + (p1.z - p2.z)^2) <= 2.65 then
+          local oToks = getTokensOnTile(other)
+          if #oToks.strain > 0 then table.insert(strainedAdj, { obj = other, toks = oToks.strain }) end
+        end
+      end
+    end
+    local limit = upgraded and scRule.upgraded or scRule.basic
+    if #strainedAdj == 1 then
+      local target = strainedAdj[1]
+      local removeN = math.min(limit, scRule.maxPerTile, #target.toks)
+      for k = 1, removeN do target.toks[k].destruct() end
+      broadcastToAll(string.format("[AUTO] Activated %s: removed %d Strain from adjacent %s!", faceName, removeN, target.obj.getName()), {0.78, 0.96, 0.80})
+      return
+    elseif #strainedAdj == 0 then
+      broadcastToAll("[AUTO] Activated " .. faceName .. " (no adjacent tiles have Strain).", {0.88, 0.88, 0.78})
+      return
+    else
+      broadcastToAll(string.format("[MANUAL] Activated %s: %d adjacent tiles have Strain — right-click chosen tile(s) -> -1 Strain (up to %d).", faceName, #strainedAdj, limit), {0.96, 0.82, 0.48})
+      return
+    end
+  end
+
+  -- Smart auto-effect for Inn / Dawn Break Inn (+1 / +2 Arrival Timer)
+  if id == "c08_inn" then
+    local addAmt = upgraded and 2 or 1
+    local candidates = {}
+    for _, slot in ipairs(CONFIG.positions.inPlaySlots) do
+      local hits = Physics.cast({ origin = {slot[1], slot[2] + 3, slot[3]}, direction = {0, -1, 0}, type = 3, size = {2.2, 3, 3.4}, max_distance = 5 })
+      local cardObj, tCount = nil, 0
+      for _, h in ipairs(hits) do
+        local o = h.hit_object
+        if o and not o.getLock() then
+          if o.getName() == "Arrival Timer" then tCount = tCount + 1
+          elseif o.tag == "Card" and CONFIG.encounterRules[o.getGMNotes() or ""] and CONFIG.encounterRules[o.getGMNotes() or ""].type == "arrival" then cardObj = o end
+        end
+      end
+      if cardObj and tCount < 3 then table.insert(candidates, { card = cardObj, timers = tCount }) end
+    end
+    if #candidates == 1 then
+      local c = candidates[1]
+      local toAdd = math.min(addAmt, 3 - c.timers)
+      for _ = 1, toAdd do addTimerToArrivalCard(c.card) end
+      broadcastToAll(string.format("[AUTO] Activated %s: added +%d Arrival Timer to %s!", faceName, toAdd, c.card.getName()), {0.74, 0.94, 0.98})
+      return
+    elseif #candidates > 1 then
+      broadcastToAll(string.format("[MANUAL] Activated %s: right-click an active Arrival -> +1 Arrival Timer (up to +%d).", faceName, addAmt), {0.96, 0.82, 0.48})
+      return
+    else
+      broadcastToAll("[AUTO] Activated " .. faceName .. " (no active Arrivals with <3 timers).", {0.88, 0.88, 0.78})
+      return
+    end
+  end
+
+  local msg = "[AUTO] Activated " .. faceName
   if linkedCount > 0 then
     msg = msg .. " (+Linked x" .. tostring(linkedCount) .. ")"
   elseif rule.linked and hasCooldown then
@@ -498,10 +566,10 @@ function activateTile(tileObj)
   if #addedParts > 0 then
     msg = msg .. ": " .. table.concat(addedParts, ", ")
   else
-    msg = msg .. " (resolve printed effect manually)"
+    msg = "[MANUAL] Activated " .. faceName .. " — resolve its printed effect manually."
   end
   if #shrineNotes > 0 then msg = msg .. " [" .. table.concat(shrineNotes, ", ") .. "]" end
-  broadcastToAll(msg, {0.82, 0.95, 0.76})
+  broadcastToAll(msg, #addedParts > 0 and {0.82, 0.95, 0.76} or {0.96, 0.82, 0.48})
 end
 
 function payPlaceTile(tileObj)
@@ -542,16 +610,52 @@ function upgradeTile(tileObj)
     broadcastToAll(rule.upgraded.name .. " is already Upgraded!", {0.96, 0.78, 0.44})
     return
   end
-  local ok, details = payCost(rule.upgraded.cost or {})
+
+  -- Auto-detect Workshops (-1 adjacent) or Makers Conclave (-2 settlement-wide) once-per-round discount!
+  local costMap = {}
+  for res, amt in pairs(rule.upgraded.cost or {}) do costMap[res] = amt end
+  local discountAmt, discountObj, discountLabel = 0, nil, nil
+  local p1 = tileObj.getPosition()
+  for _, other in ipairs(getAllObjects()) do
+    if other ~= tileObj and (other.getGMNotes() or "") == "c13_workshops" and isOnMapBoard(other.getPosition()) then
+      local oToks = getTokensOnTile(other)
+      if #oToks.strain < 3 and #oToks.cooldown == 0 then
+        local oUp = isTileUpgraded(other)
+        local dist = math.sqrt((p1.x - other.getPosition().x)^2 + (p1.z - other.getPosition().z)^2)
+        if oUp and discountAmt < 2 then
+          discountAmt, discountObj, discountLabel = 2, other, "Makers Conclave (-2)"
+        elseif (not oUp) and dist <= 2.65 and discountAmt < 1 then
+          discountAmt, discountObj, discountLabel = 1, other, "Workshops (-1)"
+        end
+      end
+    end
+  end
+
+  local discounted = 0
+  while discounted < discountAmt do
+    local bestRes, bestAmt = nil, 0
+    for res, amt in pairs(costMap) do
+      if amt > bestAmt then bestRes, bestAmt = res, amt end
+    end
+    if not bestRes then break end
+    costMap[bestRes] = costMap[bestRes] - 1
+    discounted = discounted + 1
+  end
+
+  local ok, details = payCost(costMap)
   if not ok then
     broadcastToAll("Cannot upgrade to " .. rule.upgraded.name .. " — missing: " .. table.concat(details, ", "), {0.96, 0.48, 0.44})
     return
   end
+  if discounted > 0 and discountObj then
+    spawnTokenOnTile(CONFIG.guids.cooldownXBag, discountObj, 0.55, -0.45)
+  end
   tileObj.flip()
   spendAction(1)
-  local msg = "Upgraded to " .. rule.upgraded.name
-  if #details > 0 then msg = msg .. " (" .. table.concat(details, ", ") .. ")" end
-  broadcastToAll(msg .. "!", {0.94, 0.86, 0.56})
+  local msg = "[AUTO] Upgraded to " .. rule.upgraded.name
+  if #details > 0 then msg = msg .. " (" .. table.concat(details, ", ") .. ")" else msg = msg .. " (Free!)" end
+  if discounted > 0 and discountLabel then msg = msg .. " [" .. discountLabel .. " applied!]" end
+  broadcastToAll(msg, {0.94, 0.86, 0.56})
 end
 
 function addStrainToTile(tileObj)
@@ -609,14 +713,14 @@ function addTimerToArrivalCard(cardObj)
   end
   local bag = getObjectFromGUID(CONFIG.guids.arrivalTimerBag)
   if not bag then return end
-  local offsets = { {-0.62, 0.55, 0.95}, {0.0, 0.55, 0.95}, {0.62, 0.55, 0.95} }
-  local off = offsets[count + 1] or {0, 0.55, 0.95}
+  local offsets = { {-0.66, 0.50, -1.78}, {0.0, 0.50, -1.78}, {0.66, 0.50, -1.78} }
+  local off = offsets[count + 1] or {0, 0.50, -1.78}
   bag.takeObject({
     position = {p.x + off[1], p.y + off[2], p.z + off[3]},
     rotation = {0, 180, 0},
     smooth = true
   })
-  broadcastToAll("+1 Arrival Timer on " .. cardObj.getName() .. " (" .. tostring(count + 1) .. "/3).", {0.72, 0.92, 0.98})
+  broadcastToAll("[AUTO] +1 Arrival Timer on " .. cardObj.getName() .. " (" .. tostring(count + 1) .. "/3).", {0.72, 0.92, 0.98})
 end
 
 function clearTimersOnCard(cardObj)
@@ -782,6 +886,7 @@ end
 
 function scanTableScore()
   local popTotal, renownTotal, strainTotal, workingTiles, overstrainedTiles, activeBurdens = 0, 0, 0, 0, 0, 0
+  local workingList = {}
   for _, obj in ipairs(getAllObjects()) do
     local p = obj.getPosition()
     local id = obj.getGMNotes() or ""
@@ -792,9 +897,11 @@ function scanTableScore()
         overstrainedTiles = overstrainedTiles + 1
       else
         workingTiles = workingTiles + 1
-        local face = (rule.kind == "core" and isTileUpgraded(obj)) and rule.upgraded or rule.basic
+        local upgraded = (rule.kind == "core") and isTileUpgraded(obj)
+        local face = upgraded and rule.upgraded or rule.basic
         popTotal = popTotal + ((face and face.pop) or rule.pop or 0)
         renownTotal = renownTotal + ((face and face.renown) or rule.renown or 0)
+        table.insert(workingList, { obj = obj, id = id, rule = rule, up = upgraded, p = p })
       end
     elseif obj.getName() == "Strain Token" and not obj.getLock() and isOnMapBoard(p) then
       strainTotal = strainTotal + 1
@@ -807,6 +914,31 @@ function scanTableScore()
       end
     end
   end
+
+  -- Auto-add Housing cluster Population bonus & Upgraded Housing Travel-adjacent Renown (v7.0)
+  local housingBonus = {
+    c05_cabin = { bPop = 2, uPop = 3, uRen = 2 },
+    c06_cottage = { bPop = 3, uPop = 5, uRen = 3 },
+    c07_stedding = { bPop = 5, uPop = 7, uRen = 5 }
+  }
+  for _, w in ipairs(workingList) do
+    local hb = housingBonus[w.id]
+    if hb then
+      local adjHousing, adjTravel = false, false
+      for _, o in ipairs(workingList) do
+        if o ~= w then
+          local dist = math.sqrt((w.p.x - o.p.x)^2 + (w.p.z - o.p.z)^2)
+          if dist <= 2.65 then
+            if o.rule.category == "housing" then adjHousing = true end
+            if o.rule.category == "travel" then adjTravel = true end
+          end
+        end
+      end
+      if adjHousing then popTotal = popTotal + (w.up and hb.uPop or hb.bPop) end
+      if w.up and adjTravel then renownTotal = renownTotal + hb.uRen end
+    end
+  end
+
   return {
     working = workingTiles, overstrained = overstrainedTiles,
     pop = popTotal, renown = renownTotal,
@@ -1170,7 +1302,8 @@ end
 function spawnArrivalTimers(cardPos)
   local bag = getObjectFromGUID(CONFIG.guids.arrivalTimerBag)
   if not bag then return end
-  local offsets = { {-0.62, 0.55, 0.95}, {0.0, 0.55, 0.95}, {0.62, 0.55, 0.95} }
+  -- Seated cleanly in the 3 printed circles at the base (-Z) of the Arrival card
+  local offsets = { {-0.66, 0.50, -1.78}, {0.0, 0.50, -1.78}, {0.66, 0.50, -1.78} }
   for _, off in ipairs(offsets) do
     bag.takeObject({ position = {cardPos[1] + off[1], cardPos[2] + off[2], cardPos[3] + off[3]}, rotation = {0, 180, 0}, smooth = true })
   end
@@ -1196,11 +1329,11 @@ function revealEncounters()
     local desc = cardObj.getDescription() or ""
     if string.sub(desc, 1, 7) == "Arrival" then
       Wait.time(function() spawnArrivalTimers(slotPos) end, 0.45)
-      broadcastToAll("ARRIVAL: " .. name .. " (+3 Timers! Right-click card to Welcome & Unlock)", {0.68, 0.88, 0.98})
+      broadcastToAll("[AUTO] ARRIVAL: " .. name .. " — placed 3 Timers. (Right-click card -> Welcome Arrival when ready)", {0.68, 0.88, 0.98})
     elseif string.sub(desc, 1, 6) == "Burden" then
-      broadcastToAll(string.format("BURDEN: %s (Season %s cost: %d — Right-click card to Resolve)", name, seasonRoman, burdenCost), {0.98, 0.62, 0.56})
+      broadcastToAll(string.format("[MANUAL] BURDEN: %s — Apply its Season %s reveal effect now! (Right-click -> Resolve for %d)", name, seasonRoman, burdenCost), {0.98, 0.62, 0.56})
     else
-      broadcastToAll("BOON: " .. name .. " (Right-click card to Discard when done)", {0.78, 0.95, 0.72})
+      broadcastToAll(string.format("[MANUAL] BOON: %s — Apply its Season %s text, then right-click -> Discard.", name, seasonRoman), {0.78, 0.95, 0.72})
     end
   end
 
