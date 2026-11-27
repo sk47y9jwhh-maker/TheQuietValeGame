@@ -117,7 +117,7 @@ export function TabletopWelcome(props: SetupPanelProps) {
           <p>The full rulebook from the box: setup, a guided first round, every rule with worked examples, and the Twin Settlements mode. 36 pages.</p>
           <div className="welcome-rulebook-actions">
             <a className="studio-primary" href={rulebookPdfHref} target="_blank" rel="noopener"><BookOpen size={18} aria-hidden="true" />Open the rulebook</a>
-            <a className="welcome-rulebook-download" href={rulebookPdfHref} download="The Quiet Vale Rulebook.pdf"><Download size={16} aria-hidden="true" />Download PDF (10 MB)</a>
+            <a className="welcome-rulebook-download" href={rulebookPdfHref} download="The Quiet Vale Rulebook.pdf"><Download size={16} aria-hidden="true" />Download PDF (13 MB)</a>
           </div>
         </div>
       </section>

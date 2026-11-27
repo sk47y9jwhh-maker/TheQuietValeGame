@@ -118,7 +118,7 @@ P.push(page("The shortest route into the Vale", "The shortest route into the Val
   <h3>Every round</h3>
   <div class="glance">
     <div><b><span>1</span>Encounters</b>Reveal one Encounter Card per player and resolve what they say.</div>
-    <div><b><span>2</span>Player turns</b>Play goes clockwise from the first player, who moves one seat left each round. Each player takes one turn of up to 4 Actions (3 with 4 or 5 players): Place, Upgrade, Activate or Interact.</div>
+    <div><b><span>2</span>Player turns</b>Play goes clockwise from the first player, who moves one seat left each round. Each player takes one turn of up to 4 Actions (1–2p), 3 (3–4p) or 2 (5p): Place, Upgrade, Activate or Interact.</div>
     <div><b><span>3</span>End of the round</b>Arrivals lose a timer, X tokens come off, short effects end, and the Round marker moves on.</div>
   </div>
   <h3>Keep three ideas in view</h3>
@@ -188,13 +188,13 @@ P.push(page("2 · Setup", "Setup step by step", `
       <h3>Choose Stewards</h3>
       <p>Each player chooses a different Steward and takes its Steward Guide and meeple. Read each Steward&rsquo;s Starting Terrain, Power and Objective aloud. For 1 player, choose 1 Steward and use the 1-player values wherever they are shown. For 5 players, return the sixth Steward to the box.</p>
       <h3>Fill the Warehouse</h3>
-      ${table(["Players", "1", "2", "3", "4", "5"], [["Each resource", "15", "10", "5", "0", "0"]], "wh")}
+      ${table(["Players", "1", "2", "3", "4", "5"], [["Each resource", "15", "10", "8", "0", "0"]], "wh")}
       <p class="small">The Warehouse holds at most 15 of each resource unless an effect changes the limit. All resources are shared. Resources never go below zero: losing a resource you do not have has no effect.</p>
     </div>
     <div>
       <h3>Build the Encounter material</h3>
       ${steps([
-        "Sort the standard Encounter Cards by type and shuffle each type. For each player, take 4 Boons, 4 Burdens and 4 Arrivals: a pool of 12 cards per player. For 5 players, take 20 of each type, 60 cards in all.",
+        "Sort the standard Encounter Cards by type and shuffle each type. Select 12 cards per player: 1p takes 5 Boons, 3 Burdens and 4 Arrivals; 2p takes 8 / 8 / 8; 3p takes 12 / 12 / 12; 4p takes 16 / 16 / 16; 5p takes 26 Boons, 14 Burdens and 20 Arrivals (60 cards in all).",
         "Shuffle the pool and deal 9 hidden cards to each player.",
         "Put the remaining 3 cards per player face down in the Encounter well as the starting deck. For 5 players that is the last 15 cards.",
         "Return every unselected standard card to the box as the reserve. Keep it apart and do not look through it unless an effect tells you to.",
@@ -235,7 +235,7 @@ P.push(page("3 · Seasons and Encounter seeding", "Seeding the Encounter deck", 
 P.push(page("4 · The round", "How a round works", `
   ${table(["Phase", "What happens"], [
     ["<b>1. Reveal Encounters</b>", "Reveal cards until the number of standard Encounter Cards revealed equals the player count. Resolve every mandatory effect before turns begin. Put Arrivals and kept Boons and Burdens in the In play area."],
-    ["<b>2. Player turns</b>", "In Round 1 the group chooses who goes first. Each new round, the first player is the next player to the left of the last one, so everyone takes a turn going first. Play goes clockwise, and each player takes exactly one turn of up to 4 Actions, or 3 Actions with 4 or 5 players."],
+    ["<b>2. Player turns</b>", "In Round 1 the group chooses who goes first. Each new round, the first player is the next player to the left of the last one, so everyone takes a turn going first. Play goes clockwise, and each player takes exactly one turn of up to 4 Actions at 1–2 players, 3 Actions at 3–4 players, or 2 Actions at 5 players."],
     ["<b>3. End of the round</b>", "Remove 1 timer from every active Arrival and resolve any that run out. Discard effects whose time is up, remove every X token, then move the Round marker on."],
   ], "phase")}
   ${fig("fig-inplay", [["num", [0.075, 0.12], 1, 15], ["num", [0.31, 0.06], 2, 15], ["num", [0.56, 0.06], 3, 15], ["num", [0.81, 0.06], 4, 15]], "The Encounter board during Round 2 of a two-player game.")}
@@ -294,7 +294,7 @@ P.push(page("Your first round", "Your first round, continued", `
 
 // 10 Your turn
 P.push(page("5 · Your turn", "The four Actions", `
-  <p class="lead">On your turn, take up to 4 Actions with 1 to 3 players, or up to 3 Actions with 4 or 5 players. You may repeat an Action as often as each use is legal. Unused Actions are lost when your turn ends.</p>
+  <p class="lead">On your turn, take up to 4 Actions with 1 or 2 players, up to 3 Actions with 3 or 4 players, or up to 2 Actions with 5 players. You may repeat an Action as often as each use is legal. Unused Actions are lost when your turn ends.</p>
   <div class="actions">
     <div><b>Place</b>Put an available Tile on a legal, reachable empty hex and pay its cost.</div>
     <div><b>Upgrade</b>Pay the upgraded cost and flip a reachable basic Core Tile.</div>
@@ -576,7 +576,7 @@ P.push(page("When effects meet", "When effects meet", `
   <div class="timeline">
     <div><b><span>1</span>Reveal</b>Reveal until the standard cards revealed equal the player count. Golden Boons do not count, so keep revealing.</div>
     <div><b><span>2</span>Resolve</b>Apply each revealed card&rsquo;s current Season row and finish every payment, choice and Strain it creates.</div>
-    <div><b><span>3</span>Play</b>Clockwise from this round&rsquo;s first player, each player takes one turn of up to 4 Actions (3 with 4 or 5 players). Free effects can be used during your turn.</div>
+    <div><b><span>3</span>Play</b>Clockwise from this round&rsquo;s first player, each player takes one turn of up to 4 Actions (1–2p), 3 (3–4p) or 2 (5p). Free effects can be used during your turn.</div>
     <div><b><span>4</span>End</b>Arrivals lose a timer and failures are resolved one by one. Short effects end, X tokens come off, the Round marker moves on.</div>
   </div>
   <h3>When an effect would add Strain</h3>
@@ -751,7 +751,7 @@ P.push(page("19 · Twin Settlements", "Twin Settlements", `
 // 29 Quick reference
 P.push(page("20 · Quick reference", "Quick reference", `
   <h3>The round</h3>
-  <div class="qr3"><div><span>1</span>Reveal and resolve Encounters</div><div><span>2</span>Clockwise from the first player (one seat left each round), each player takes one turn of up to 4 Actions (3 with 4 or 5 players)</div><div><span>3</span>Remove Arrival timers, resolve failures, remove X tokens, tidy up, move the Round marker</div></div>
+  <div class="qr3"><div><span>1</span>Reveal and resolve Encounters</div><div><span>2</span>Clockwise from the first player (one seat left each round), each player takes one turn of up to 4 Actions (1–2p), 3 (3–4p) or 2 (5p)</div><div><span>3</span>Remove Arrival timers, resolve failures, remove X tokens, tidy up, move the Round marker</div></div>
 
   <h3>Placing Strain</h3>
   <div class="qr4"><div><b>Select</b>Find the eligible Tiles, then draw a Target Card</div><div><b>Prevent</b>Supported and other prevention first</div><div><b>Check</b>At 3 Strain the Tile is Overstrained</div><div><b>Chain</b>After the effect, each newly Overstrained Tile spreads 1 Strain to one adjacent Tile (Target Card)</div></div>
@@ -760,7 +760,7 @@ P.push(page("20 · Quick reference", "Quick reference", `
   <div class="status"><b>Watch a Tile&rsquo;s Strain</b><span><em>1 or 2</em> It still works normally.</span><span><em>3</em> Overstrained: no effects, no connection, no score, and it spread 1 Strain when it got there.</span><span><em>Bronze shield</em> Supported: the next Strain is stopped.</span></div>
   <h3>Costs and limits</h3>
   ${table(["Rule", "Remember"], [
-    ["Warehouse", "At most 15 of each. Start with 15, 10, 5, 0 or 0 of each for 1 to 5 players. Never below zero."],
+    ["Warehouse", "At most 15 of each. Start with 15, 10, 8, 0 or 0 of each for 1 to 5 players. Never below zero."],
     ["Special Tile", "Once unlocked: 1 Place Action, its placement rule, no resources."],
     ["0 Actions", "Only the Action is free. Pay the resource cost unless the effect changes it."],
     ["Steward meeple", "Place, Upgrade and Activate move it. Interact does not."],
