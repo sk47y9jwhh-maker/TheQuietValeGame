@@ -942,12 +942,23 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     );
   });
 
-  // 8. Rulebook v7.0 PDF (centered cleanly in bottom-right quadrant beside Tiles Board)
+  // 8. Rulebook v7.0 PDF + Steward's Core Tile Reference Sheet (side-by-side beside Tiles Board)
   objects.push(
     makePdf({
       name: "The Quiet Vale — Rulebook v7.0 (36 pages)",
       pdfUrl,
-      pos: [20.0, 1.25, -5.2]
+      pos: [17.4, 1.25, -5.2]
+    }),
+    makeCustomTile({
+      name: "Steward's Guide — Core Tile Menu (v7.0)",
+      description: "Hover & press Alt to inspect all 21 Core Tiles (Basic & Upgraded costs, terrain, effects, and scoring).",
+      pos: [23.0, 1.18, -5.2],
+      scale: [3.2, 1.0, 3.2],
+      imageUrl: asset("stewards/tile-reference-sheet.jpg"),
+      secondaryUrl: asset("stewards/steward-back.jpg"),
+      type: 0,
+      thickness: 0.1,
+      stretch: true
     })
   );
 
@@ -1108,6 +1119,54 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
 
   const globalLua = globalLuaTemplate.replace("__QV_TTS_CONFIG__", toLua(luaConfig));
 
+  // Build scrollable Steward's Core Tile Menu XML rows for XmlUI modal
+  const escXml = (s) =>
+    String(s)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  const fmtRes = (c) => {
+    const map = [["wood", "W"], ["stone", "St"], ["metal", "M"], ["food", "F"], ["herbs", "H"], ["goods", "G"]];
+    const parts = map.filter(([k]) => (c?.[k] || 0) > 0).map(([k, lbl]) => `${c[k]}${lbl}`);
+    return parts.length ? parts.join(" ") : "Free";
+  };
+  const catalogIdxByName = Object.fromEntries(coreCatalog.map((e, i) => [e.name, i + 1]));
+  const menuCats = [
+    ["resource", "RESOURCE TILES (Linked Production)", "#355430"],
+    ["housing", "HOUSING TILES", "#7c472e"],
+    ["social", "SOCIAL & WELLBEING TILES", "#643e58"],
+    ["merchant", "MERCHANT & CRAFTING TILES", "#735a22"],
+    ["travel", "TRAVEL TILES", "#4c4538"]
+  ];
+  const groupKey = (c) => (c === "wellbeing" ? "social" : c === "crafting" ? "merchant" : c);
+  const xmlRows = [];
+  let menuHeight = 24;
+  for (const [key, title, bg] of menuCats) {
+    xmlRows.push(`      <Text text="${escXml(title)}" color="#f8f2e2" fontSize="11" fontStyle="Bold" minHeight="22" preferredHeight="22" alignment="MiddleLeft" />`);
+    menuHeight += 26;
+    for (const t of coreTiles.filter((x) => groupKey(x.category) === key)) {
+      const idx = catalogIdxByName[t.basic.name] || 1;
+      const bScore = [t.basic.population ? `${t.basic.population}P` : "", t.basic.renown ? `${t.basic.renown}R` : ""].filter(Boolean).join("/");
+      const uScore = [t.upgraded.population ? `${t.upgraded.population}P` : "", t.upgraded.renown ? `${t.upgraded.renown}R` : ""].filter(Boolean).join("/");
+      const bLine = `${t.basic.name} (x${t.count}) — ${fmtRes(t.basic.cost)}${bScore ? ` [${bScore}]` : ""}`;
+      const uLine = `Up: ${t.upgraded.name} — ${fmtRes(t.upgraded.cost)}${uScore ? ` [${uScore}]` : ""}`;
+      const terrain = (t.placement?.text || "").replace(/^Place on /, "").replace(/\.$/, "");
+      xmlRows.push(
+        `      <HorizontalLayout minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="${bg}99">` +
+        `<Text text="${escXml(bLine)}" preferredWidth="235" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />` +
+        `<Text text="${escXml(uLine)}" preferredWidth="245" fontSize="11" color="#e8d8b0" alignment="MiddleLeft" />` +
+        `<Text text="${escXml(terrain)}" flexibleWidth="1" fontSize="10" color="#d4ccb8" alignment="MiddleLeft" />` +
+        `<Button text="PULL" preferredWidth="58" minWidth="58" fontSize="10" color="#3b5e36" onClick="onHudPullCoreByIdx(${idx})" />` +
+        `</HorizontalLayout>`
+      );
+      menuHeight += 38;
+    }
+  }
+  const compiledHudXml = hudXml
+    .replace("__QV_TILE_MENU_HEIGHT__", String(menuHeight))
+    .replace("__QV_TILE_MENU_ROWS__", xmlRows.join("\n"));
+
   return {
     SaveName: "The Quiet Vale: Seasons of Settlement (v7.0)",
     GameMode: "The Quiet Vale v7.0",
@@ -1122,11 +1181,11 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     PlayArea: 0.5,
     Table: "Table_RPG",
     Sky: "Sky_Museum",
-    Note: "The Quiet Vale: Seasons of Settlement (v7.0). Use the left HUD panel for 1-click Setup (auto-places Stewards & deals hands), Reveal Encounters (+3 Arrival Timers), Draw Target Card, Warehouse tracking, Core Tile Quick-Pull, and End Round cleanup.",
+    Note: "The Quiet Vale: Seasons of Settlement (v7.0). Use the left HUD panel for 1-click Setup (auto-places Stewards & deals hands), Reveal Encounters (+3 Arrival Timers), Draw Target Card, Warehouse tracking, Core Tile Menu, and End Round cleanup.",
     Rules: "",
     LuaScript: globalLua,
     LuaScriptState: "",
-    XmlUI: hudXml,
+    XmlUI: compiledHudXml,
     TabStates: {},
     Grid: {
       Type: 0,

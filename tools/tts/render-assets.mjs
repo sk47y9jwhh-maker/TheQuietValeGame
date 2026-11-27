@@ -472,7 +472,92 @@ async function renderStewardMats(browser) {
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: path.join(stewardsOut, "steward-back.jpg"), type: "jpeg", quality: 86 });
   await page.close();
-  console.log(`rendered ${stewards.length} steward mats + back`);
+
+  // Core Tile Reference Sheet (Steward's Guide Tile Menu — portrait 1400x1980)
+  const { coreTiles } = loadTs("src/data/tiles.ts");
+  const { compactRulesText } = loadTs("src/data/compactText.ts");
+  const fmtCost = (c) => {
+    const map = [["wood", "W"], ["stone", "St"], ["metal", "M"], ["food", "F"], ["herbs", "H"], ["goods", "G"]];
+    const parts = map.filter(([k]) => (c?.[k] || 0) > 0).map(([k, lbl]) => `${c[k]}${lbl}`);
+    return parts.length ? parts.join(" ") : "Free";
+  };
+  const fmtScore = (f) => {
+    const p = [];
+    if (f.population) p.push(`${f.population} Pop`);
+    if (f.renown) p.push(`${f.renown} Ren`);
+    return p.length ? p.join(" · ") : "—";
+  };
+  const catOrder = [
+    ["resource", "Resource Tiles (Linked Production)", "#3f6239"],
+    ["housing", "Housing Tiles", "#9a5b3c"],
+    ["social", "Social & Wellbeing Tiles", "#7a4f6b"],
+    ["merchant", "Merchant & Crafting Tiles", "#8a6d2b"],
+    ["travel", "Travel Tiles", "#5e5645"]
+  ];
+  const groupKey = (c) => (c === "wellbeing" ? "social" : c === "crafting" ? "merchant" : c);
+  const rowsHtml = catOrder
+    .map(([key, title, col]) => {
+      const list = coreTiles.filter((t) => groupKey(t.category) === key);
+      const trs = list
+        .map((t) => {
+          const bEff = compactRulesText(t.basic.effectText).replace(/Passive: Linked Production.*$/, "Linked Production.");
+          const uEff = compactRulesText(t.upgraded.effectText).replace(/Passive: Linked Production.*$/, "Linked Production.");
+          return `<tr>
+            <td><b>${esc(t.basic.name)}</b> <span class="cnt">×${t.count}</span><div class="sub">${esc(t.placement?.text || "Any legal hex")}</div></td>
+            <td class="cost">${esc(fmtCost(t.basic.cost))}</td>
+            <td class="eff">${esc(bEff)}<div class="sc">${esc(fmtScore(t.basic))}</div></td>
+            <td><b>${esc(t.upgraded.name)}</b></td>
+            <td class="cost">${esc(fmtCost(t.upgraded.cost))}</td>
+            <td class="eff">${esc(uEff)}<div class="sc">${esc(fmtScore(t.upgraded))}</div></td>
+          </tr>`;
+        })
+        .join("");
+      return `<tr class="cat"><td colspan="6" style="background:${col}">${esc(title)}</td></tr>${trs}`;
+    })
+    .join("");
+
+  const refPage = await browser.newPage({ viewport: { width: 1400, height: 1980 }, deviceScaleFactor: 1 });
+  const refHtml = `<!doctype html><html><head><meta charset="utf-8"><style>
+    @font-face { font-family: Almendra; font-weight: 700; src: url(${font("almendra-latin-bold.woff2")}); }
+    @font-face { font-family: Alegreya; font-weight: 400 700; src: url(${font("alegreya-latin-variable.woff2")}); }
+    @font-face { font-family: "Alegreya Sans"; font-weight: 500; src: url(${font("alegreya-sans-latin-medium.woff2")}); }
+    @font-face { font-family: "Alegreya Sans"; font-weight: 700; src: url(${font("alegreya-sans-latin-bold.woff2")}); }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 1400px; height: 1980px; overflow: hidden; }
+    body { background: #f3ead4; color: #24201a; font-family: Alegreya, serif; padding: 26px 30px; border: 12px solid #26211b; }
+    header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px solid #9c7b38; padding-bottom: 8px; margin-bottom: 10px; }
+    h1 { margin: 0; font: 700 40px/1 Almendra, serif; color: #221d16; }
+    .legend { font: 700 16px/1 "Alegreya Sans", sans-serif; color: #524738; }
+    table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.22; }
+    th { background: #2d261e; color: #f2dfb2; font: 700 14px/1 "Alegreya Sans", sans-serif; text-transform: uppercase; letter-spacing: 0.06em; padding: 7px 8px; text-align: left; }
+    tr.cat td { color: #faf6ec; font: 700 15px/1 "Alegreya Sans", sans-serif; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; }
+    td { padding: 5px 8px; border-bottom: 1px solid rgba(40,34,26,0.18); vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(255,252,244,0.45); }
+    .cnt { font: 700 13px/1 "Alegreya Sans", sans-serif; color: #7a6332; }
+    .sub { font: 500 12px/1.15 "Alegreya Sans", sans-serif; color: #665b4a; margin-top: 2px; }
+    .cost { font: 700 14px/1.2 "Alegreya Sans", sans-serif; white-space: nowrap; color: #3a3126; width: 102px; }
+    .eff { width: 325px; }
+    .sc { font: 700 12.5px/1.1 "Alegreya Sans", sans-serif; color: #8a5e18; margin-top: 2px; }
+    footer { margin-top: 8px; font: 500 14px/1.2 "Alegreya Sans", sans-serif; color: #4e4436; display: flex; justify-content: space-between; }
+  </style></head><body>
+    <header>
+      <h1>Steward&rsquo;s Guide — Core Tile Menu (v7.0)</h1>
+      <div class="legend">W: Wood · St: Stone · M: Metal · F: Food · H: Herbs · G: Goods</div>
+    </header>
+    <table>
+      <thead><tr><th>Basic Tile &amp; Terrain</th><th>Place</th><th>Basic Effect &amp; Score</th><th>Upgraded Tile</th><th>Upgrade</th><th>Upgraded Effect &amp; Score</th></tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+    <footer>
+      <div><b>Shelter in the Ruins:</b> Placing a Core Tile on Ruins ignores Wood, Stone, and Metal costs.</div>
+      <div><b>Unlocked Special Tiles:</b> 0 Actions to place · <b>Shrines:</b> Settlement-wide +2 on activation.</div>
+    </footer>
+  </body></html>`;
+  await refPage.setContent(refHtml, { waitUntil: "load" });
+  await refPage.evaluate(() => document.fonts.ready);
+  await refPage.screenshot({ path: path.join(stewardsOut, "tile-reference-sheet.jpg"), type: "jpeg", quality: 86 });
+  await refPage.close();
+  console.log(`rendered ${stewards.length} steward mats + back + Core Tile Reference Sheet`);
 }
 
 // ---------------------------------------------------------------------------
