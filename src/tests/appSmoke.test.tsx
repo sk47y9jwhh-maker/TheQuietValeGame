@@ -36,8 +36,8 @@ describe("app smoke flow", () => {
     expect(screen.getByRole("heading", { name: "Components" })).toBeInTheDocument();
     expect(screen.getByText("Main Rulebook v6.5. Choose one of 18 chapters.")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "2. Setup" }));
-    expect(screen.getByText(/Start with 15 \/ 10 \/ 5 \/ 0 \/ 0/)).toBeInTheDocument();
-    expect(screen.getByText(/At five players, select 20 cards of each standard type/)).toBeInTheDocument();
+    expect(screen.getByText(/Start with 15 \/ 10 \/ 8 \/ 0 \/ 0/)).toBeInTheDocument();
+    expect(screen.getByText(/5p: 26 Boons, 14 Burdens, 20 Arrivals/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Close rules drawer" }));
 
