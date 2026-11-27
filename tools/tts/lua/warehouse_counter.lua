@@ -37,7 +37,9 @@ function adjust(delta)
   updateDisplay()
   if value ~= prev then
     broadcastToAll(resourceName .. ": " .. tostring(value) .. " / 15", {0.9, 0.84, 0.68})
+    Global.call("syncWarehouseHud")
   end
+  return value
 end
 
 function onPlus(_, _, alt)

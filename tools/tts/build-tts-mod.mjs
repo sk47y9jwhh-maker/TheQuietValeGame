@@ -54,6 +54,7 @@ const { specialTileBackNumbers } = loadTs("src/data/specialTileNumbers.ts");
 
 const warehouseCounterLua = fs.readFileSync(path.join(here, "lua/warehouse_counter.lua"), "utf8");
 const globalLuaTemplate = fs.readFileSync(path.join(here, "lua/global.lua"), "utf8");
+const hudXml = fs.readFileSync(path.join(here, "lua/hud.xml"), "utf8");
 
 // ---------------------------------------------------------------------------
 // Exact physical-to-TTS scale: 1 mm = 0.04 TTS units
@@ -627,6 +628,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
 
   // Infinite Token Bags on the right side of the Logistics Board (TOKENS well)
   const tokWellX = LONG_BOARD_MM.w - 6 - 40;
+  let arrivalTimerBagGuid = "";
   const tokenBagSpecs = [
     ["Strain Tokens", "Place on tiles for Strain. 2 Strain = Overstrained.", "tokens/strain.png", { r: 0.16, g: 0.15, b: 0.15 }, -20, -24, 0.42],
     ["Supported Shields", "Single-use bronze shield: prevents the next 1 Strain on this tile.", "tokens/supported.png", { r: 0.72, g: 0.54, b: 0.24 }, 20, -24, 0.44],
@@ -635,6 +637,8 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   ];
   for (const [bagName, desc, imgRel, col, dxMm, dyMm, tokScale] of tokenBagSpecs) {
     const [bx, bz] = boardMmToWorld(POS.logisticsBoard, LONG_BOARD_MM, tokWellX + dxMm, 73 + dyMm);
+    const bagGuid = nextGuid();
+    if (bagName === "Arrival Timers") arrivalTimerBagGuid = bagGuid;
     const tokenItem = makeCustomTile({
       name: bagName === "Cooldown X" ? "Cooldown X" : bagName.replace(/s$/, ""),
       description: desc,
@@ -647,6 +651,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     });
     objects.push(
       makeBag({
+        guid: bagGuid,
         name: bagName,
         description: desc,
         pos: [bx, 1.08, bz],
@@ -712,12 +717,15 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   const tileInnerR = TILES_BOARD_MM.w - 10;
   const bayW = (tileInnerR - tileInnerL) / 5;
 
+  const coreCatalog = [];
   bayBuckets.forEach((bucket, bayIdx) => {
     const bxMm = tileInnerL + bayW * (bayIdx + 0.5);
     const [wx, wz] = boardMmToWorld(POS.tilesBoard, TILES_BOARD_MM, bxMm, 168);
     const [bagTitle, bagColor] = bayNames[bayIdx];
+    const bagGuid = nextGuid();
     const contained = [];
     for (const tile of bucket) {
+      coreCatalog.push({ name: tile.basic.name, bagGuid });
       for (let c = 0; c < tile.count; c++) {
         contained.push(
           makeCustomTile({
@@ -736,6 +744,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     }
     objects.push(
       makeBag({
+        guid: bagGuid,
         name: `${bagTitle} (${contained.length})`,
         description: bucket.map((t) => `${t.basic.name} (×${t.count})`).join(", "),
         pos: [wx, 1.18, wz],
@@ -870,9 +879,31 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     warden: { r: 0.55, g: 0.24, b: 0.28 },
     quartermaster: { r: 0.61, g: 0.49, b: 0.20 }
   };
+  // Default Starting Terrain hex IDs matching src/engine/setup.ts
+  const defaultStewardStartHex = {
+    vanguard: "G1",
+    knight: "A6",
+    sentinel: "A1",
+    ranger: "A3",
+    warden: "F4",
+    quartermaster: "B8"
+  };
+  const hexById = Object.fromEntries(hexSnaps.map((h) => [h.id, h.Position]));
+  const stewardConfigs = [];
   stewards.forEach((s, idx) => {
     const sx = -22.0 + idx * 6.4;
     const sz = -14.8;
+    const pawnGuid = nextGuid();
+    const startHexId = defaultStewardStartHex[s.id] || "G1";
+    const startHexPos = hexById[startHexId];
+    stewardConfigs.push({
+      id: s.id,
+      name: s.name,
+      pawnGuid,
+      startHexId,
+      startHexPos: [startHexPos.x, startHexPos.y, startHexPos.z],
+      homePawnPos: [sx, 1.5, sz + 1.3]
+    });
     objects.push(
       makeCustomTile({
         name: `Steward: ${s.name}`,
@@ -886,6 +917,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
         stretch: true
       }),
       makePawn({
+        guid: pawnGuid,
         name: `${s.name} Meeple`,
         description: `Place on starting terrain (${s.startingTerrains.join(", ")}).`,
         pos: [sx, 1.5, sz + 1.3],
@@ -937,6 +969,15 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     { Position: { x: activeQuestX, y: 1.08, z: activeQuestZ }, Rotation: { x: 0, y: 180, z: 0 }, RotationSnap: true }
   ];
 
+  // 5 evenly spaced IN PLAY slots across the Encounter Board center recess
+  const inPlaySlots = [];
+  for (let i = 0; i < 5; i++) {
+    const xMm = 128 + i * 78;
+    const [sx, sz] = boardMmToWorld(POS.encounterBoard, LONG_BOARD_MM, xMm, 73);
+    inPlaySlots.push([sx, 1.22, sz]);
+  }
+  const [activeTargetX, activeTargetZ] = boardMmToWorld(POS.logisticsBoard, LONG_BOARD_MM, 6 + 40, -18);
+
   // 11. Inject exact GUIDs & coordinates into global.lua
   const luaConfig = {
     guids: {
@@ -950,13 +991,20 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       arrivalsDeck: arrivalsGuid,
       goldenBoonsDeck: goldenBoonsGuid,
       specialBag: specialBagGuid,
+      arrivalTimerBag: arrivalTimerBagGuid,
       roundMarker: roundMarkerGuid,
       player1Marker: player1MarkerGuid
     },
+    stewards: stewardConfigs,
+    coreCatalog,
     positions: {
       encounterDraw: [encDrawX, 1.25, encDrawZ],
+      inPlaySlots,
+      targetWell: [targetX, 1.25, targetZ],
+      activeTarget: [activeTargetX, 1.3, activeTargetZ],
       activeQuest: [activeQuestX, 1.35, activeQuestZ],
       unlockedSpecial: [unlockedSpecX, 1.25, unlockedSpecZ],
+      coreStaging: [15.2, 1.25, -10.0],
       roundSockets,
       seatMarkers: seatMarkerPositions
     },
@@ -984,11 +1032,11 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     PlayArea: 0.5,
     Table: "Table_RPG",
     Sky: "Sky_Museum",
-    Note: "The Quiet Vale: Seasons of Settlement (v7.0). Click 1P–5P on the left Control Plaque to auto-setup Warehouse, Encounters, Target Deck, and Quest Card.",
+    Note: "The Quiet Vale: Seasons of Settlement (v7.0). Use the left HUD panel for 1-click Setup (auto-places Stewards & deals hands), Reveal Encounters (+3 Arrival Timers), Draw Target Card, Warehouse tracking, Core Tile Quick-Pull, and End Round cleanup.",
     Rules: "",
     LuaScript: globalLua,
     LuaScriptState: "",
-    XmlUI: "",
+    XmlUI: hudXml,
     TabStates: {},
     Grid: {
       Type: 0,
