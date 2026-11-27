@@ -188,7 +188,7 @@ P.push(page("1 · Components &amp; Setup", "Setup step by step", `
       ], 1, "")}
       <h3>2. Pick Stewards &amp; Player 1</h3>
       ${steps([
-        "Each player picks a different Steward and takes its Guide and meeple. Read your Starting Terrain, Power and Objective aloud.",
+        "Each player picks a different Steward and takes its Guide and meeple (see all six Stewards on page {{p:stewardsp}}). Read your Starting Terrain, Power and Objective aloud.",
         "Choose who starts Round 1 and give them the <b>Player 1 marker</b>. (It passes one seat clockwise each round.)",
       ], 5, "")}
     </div>
@@ -320,18 +320,17 @@ P.push(page("4 · Your turn", "The four Actions", `
 // 11 Activate, Interact, meeple movement
 
 
-// 12 Production
+// 13 Production
 P.push(page("5 · Production and the Warehouse", "Production", `
-  <p class="lead">Production is an Activated Effect on Resource Tiles. Spend an Activate Action, then add the Tile&rsquo;s printed resources to the Warehouse, up to its limit.</p>
+  <p class="lead">Production is an Activated Effect on Resource Tiles. Spend 1 Activate Action to add the Tile&rsquo;s printed resources to the shared Warehouse (up to 15 of each).</p>
   <h3>Linked Production</h3>
-  <p>The first time each round you activate a Resource Tile, check it and every <b>immediately adjacent</b> copy from the same Tile stack. If none of them has produced this round, the chosen Tile and all its immediately adjacent, non-Overstrained copies produce for that one Activate Action, each using its current side.</p>
-  <p>Linked Production never continues outward through a chain: only copies touching the chosen Tile join in. Put an X token on the chosen Tile and on every copy that produced with it. If the chosen Tile or an adjacent copy already has an X token, only the chosen Tile produces; put an X on it too. A separate group of copies elsewhere may still use Linked Production. Every X token comes off at the end of the round.</p>
-  ${fig("fig-linked", [["ring", "A1"], ["ring", "B1"], ["ring", "C1"], ["badge", "B1", "1", -0.05, 0.62]], "Three upgraded Mine Shafts on the Mountains, each producing 3 Stone and 2 Metal. The Sentinel activates the middle one (1): it and both copies touching it produce, 9 Stone and 6 Metal for one Action. Activating any of them again this round produces only from the Tile chosen: 3 Stone and 2 Metal.")}
-  ${note("Example", "Had the Sentinel activated the left Mine Shaft instead, only it and the middle one would touch, giving 6 Stone and 4 Metal. The right one does not touch the left one and has not taken part, but its neighbour the middle one has, so it could later produce only alone that round.")}
+  <p>The first time each round you Activate a Resource Tile, it and every <b>immediately adjacent</b> working copy of the same Resource Tile all produce together for that single Action (each using its current basic or upgraded side).</p>
+  <p><b>Mark with X tokens:</b> Put a wooden <b>X token</b> on every Tile that took part. Those Tiles cannot trigger Linked Production again this round—you may still Activate any of them individually later this round, but only the Tile you Activate will produce. Remove all X tokens at the end of the round. A separate group of matching Resource Tiles elsewhere on the map gets its own Linked Production once per round.</p>
+  ${fig("fig-linked", [["ring", "A1"], ["ring", "B1"], ["ring", "C1"], ["badge", "B1", "1", -0.05, 0.62]], "Three upgraded Mine Shafts on the Mountains (3 Stone and 2 Metal each). Activating the middle one (1) triggers all three together for 1 Action (9 Stone, 6 Metal) and places an X token on each. Activating any of them again this round produces only from that single Tile (3 Stone, 2 Metal).")}
   <h3>The Warehouse</h3>
-  <p>All resources are shared and kept on the Logistics board: pieces above the stitch are in the Warehouse, spares sit below. Each resource holds at most 15 unless an effect changes the limit. Any gain beyond the limit is lost. Resources never go below zero.</p>`, "prod"));
+  <p>All resources are shared on the Logistics board: pieces above the stitch are in the Warehouse, spares sit below. Each resource caps at 15 (any extra is lost) and never drops below 0.</p>`, "prod"));
 
-// 13 Reading a Tile
+// 14 Reading a Tile
 const tileCall = (n, x, y) => `<span class="tc" style="left:${x}%;top:${y}%">${n}</span>`;
 P.push(page("6 · Reading a Tile", "Reading a Tile", `
   <div class="anat">
@@ -339,56 +338,55 @@ P.push(page("6 · Reading a Tile", "Reading a Tile", `
     <figure><div class="tw">${tileImg("c06_cottage-upgraded", "big")}${tileCall(8, 24, 52.5)}</div>${caption("Fine Cottage: the upgraded side")}</figure>
   </div>
   <ol class="legend two">
-    <li><b>Category.</b> The symbol beside the name: Resource, Housing, Travel, Merchant, Crafting, Social or Wellbeing.</li>
+    <li><b>Category.</b> Resource, Housing, Travel, Merchant, Crafting, Social or Wellbeing.</li>
     <li><b>Name.</b></li>
-    <li><b>Placement symbol.</b> A terrain symbol means place on that terrain; a symbol in a hexagon means place beside that terrain or Tile category. Here: beside a Housing Tile.</li>
+    <li><b>Placement rule.</b> A terrain icon means build on that terrain; an icon inside a hexagon means build next to that terrain or category (here: next to Housing).</li>
     <li><b>Printed scores.</b> Population on the left, Renown on the right.</li>
-    <li><b>Place.</b> The cost to place the basic side.</li>
-    <li><b>Upgrade.</b> The cost to flip it to the upgraded side.</li>
-    <li><b>Effect.</b> Activate needs an Activate Action. Passive works by itself, at the printed timing.</li>
-    <li><b>Upgraded side.</b> A silver frame and the name of the basic side it came from.</li>
+    <li><b>Place cost.</b> Resources paid to build the basic side.</li>
+    <li><b>Upgrade cost.</b> Resources paid to flip to the upgraded side.</li>
+    <li><b>Effect.</b> <i>Activate</i> costs 1 Action; <i>Passive</i> works automatically.</li>
+    <li><b>Upgraded side.</b> Silver frame showing the basic Tile it upgraded from.</li>
   </ol>
   <div class="symbols">${[["Resource Wood", "Wood"], ["Resource Stone", "Stone"], ["Resource Metal", "Metal"], ["Resource Food", "Food"], ["Resource Herbs", "Herbs"], ["Resource Goods", "Goods"], ["Population", "Population"], ["Renown", "Renown"]].map(([f, n]) => `<div>${icon(f)}<span>${n}</span></div>`).join("")}</div>
-  <p>Read a number beside a symbol as that amount. Two costs separated by &ldquo;or&rdquo; mean pay either one. When a Tile uses an ability marked once per round, put an X token on it: it cannot use that ability again until the X comes off at the end of the round. Once per Season refreshes when the next Season starts. Special Tiles have a coloured margin and a numbered back. Golden Tiles have a gold frame and print their placement rule in the effect box.</p>`, "anatomy"));
+  <p>Two costs separated by &ldquo;or&rdquo; mean pay either one. Whenever you use a <b>once-per-round</b> ability, place a wooden <b>X token</b> on that Tile so everyone knows it is spent; clear all X tokens at the end of the round. <b>Once-per-Season</b> abilities refresh at the start of the next Season. Special Tiles have a coloured border and numbered back; Golden Tiles have a gold frame.</p>`, "anatomy"));
 
-// 14 Placing Tiles
+// 15 Placing Tiles
 P.push(page("7 · Placing Tiles", "Terrain, placement and adjacency", `
-  <p>The Vale has seven terrains: Grasslands, Woodland, Arable Land, Mountains, Heaths, Ruins and River/Water. Read each placement rule exactly: the Mine Tunnel goes on Mountains, the Farmstead on Arable Land, the Salvage Camp on Ruins and the Bridge on River/Water. A Tile with no placement symbol may go on any land hex.</p>
+  <p>The Vale has seven terrains: Grasslands, Woodland, Arable Land, Mountains, Heaths, Ruins and River/Water. Follow the placement icon in the Tile&rsquo;s top-right corner (for example, Mine Tunnel on Mountains, Bridge on River/Water). A Tile with no placement icon may go on any land hex.</p>
   <div class="terrains">${[["Placement Woodland", "Woodland"], ["Placement Mountains", "Mountains"], ["Placement Heath", "Heaths"], ["Placement Arable Land", "Arable Land"], ["Placement Ruins", "Ruins"], ["Placement Water", "River/Water"]].map(([f, n]) => `<div>${icon(f)}<span>${n}</span></div>`).join("")}<div><span class="grass"></span><span>Grasslands</span></div></div>
   <h3>Adjacency</h3>
-  <p>Tiles are adjacent when their hexes share a side. Requirements such as beside Housing, beside Travel and beside River/Water all use this rule.</p>
-  ${fig("fig-adjacency", [["ring", "I2"], ["ring", "I4"], ["ring", "H2"], ["ring", "H3"], ["ring", "J2"], ["ring", "J3"], ["cross", "K3"]], "The six hexes ringed in gold are adjacent to the Cabin. The Path and the Cottage are adjacent to it; the Eatery is not, though it touches the Cottage.", "side")}
-  ${note("Shelter in the Ruins", "When you place or upgrade a Tile whose whole footprint lies on Ruins, ignore all Stone in that cost. If any part of it lies outside the Ruins, pay the full cost.")}
-  <h3>Workshops and Market Stalls</h3>
+  <p>Two Tiles are adjacent when their hexes share a side. Rules like &ldquo;adjacent to Housing&rdquo; or &ldquo;adjacent to River/Water&rdquo; always use side-sharing adjacency.</p>
+  ${fig("fig-adjacency", [["ring", "I2"], ["ring", "I4"], ["ring", "H2"], ["ring", "H3"], ["ring", "J2"], ["ring", "J3"], ["cross", "K3"]], "The six gold-ringed hexes are adjacent to the Cabin. The Path and Cottage touch it; the Eatery does not.", "side")}
+  ${note("Shelter in the Ruins", "When a Tile&rsquo;s entire footprint lies on Ruins, ignore all Stone in its Place or Upgrade cost. If any part lies outside Ruins, pay the full cost.")}
+  <h3>Workshops &amp; Market Stalls (mark with an X token when used)</h3>
   <div class="cols2 tilepair">
-    <div>${tileImg("c13_workshops-basic", "mini")}<p>Workshops and The Makers Conclave are Passive. Once per round, <b>Workshops</b> takes 1 resource off the cost to upgrade an adjacent Core Tile. <b>The Makers Conclave</b> instead takes up to 2 off the cost to upgrade any reachable Core Tile.</p></div>
-    <div>${tileImg("c14_market_stalls-basic", "mini")}<p>Market Stalls and The Seldes are Passive. Once per round while paying a cost, <b>Market Stalls</b> lets you spend 1 Goods as 1 resource of any type. <b>The Seldes</b> lets you spend 1 Goods as up to 2 resources of one type. Neither replaces Goods printed in the cost.</p></div>
+    <div>${tileImg("c13_workshops-basic", "mini")}<p><b>Workshops / Makers Conclave (Passive, once/round):</b> Reduce an adjacent Core upgrade cost by 1 resource (Makers Conclave: any reachable Core upgrade by up to 2). Place an <b>X token</b> when used; remove it at round end.</p></div>
+    <div>${tileImg("c14_market_stalls-basic", "mini")}<p><b>Market Stalls / The Seldes (Passive, once/round):</b> Spend 1 Goods as 1 resource of any other type (The Seldes: up to 2 of one type). Place an <b>X token</b> when used; remove it at round end.</p></div>
   </div>`, "place"));
 
-// 15 Reach and rivers
+// 16 Reach and rivers
 P.push(page("7 · Placing Tiles", "Reach, rivers and Bridges", `
-  <h3>Reachability</h3>
-  <p>A Tile or empty hex is reachable when you can reach it from your meeple through the shared settlement network, or when a card, Tile or Steward rule says it is reachable. The network is every placed, non-Overstrained Tile joined side to side; the Docks and Stables extend it, but never to an Overstrained Tile. Every Steward uses the same network, and an empty hex is reachable when it is next to a Tile you can reach.</p>
+  <h3>Reach &amp; the connected network</h3>
+  <p>You can only Place, Upgrade or Activate where your Steward meeple can reach. You can reach <b>any working Tile connected to your meeple by an unbroken chain of side-adjacent working Tiles</b>, plus any empty hex touching a Tile you can reach. All Stewards share the same network (and Docks or Stables extend it further).</p>
+  ${note("Important: Overstrained Tiles break the network", "After your first placement, your meeple moves onto every Tile you Place, Upgrade or Activate, and your next reach starts from there. <b>Overstrained Tiles (3 Strain) disconnect the network</b>—if a Bridge or bottleneck Tile becomes Overstrained, everything past it is cut off until you clear Strain or build another route.")}
   <h3>Rivers and Bridges</h3>
-  <p>River/Water is a barrier. Tiles on opposite banks do not connect, and you cannot reach across, unless a Bridge or another rule allows the crossing.</p>
+  <p>River/Water blocks connection. Tiles on opposite banks do not connect until you place a working <b>Bridge</b> (or another crossing rule applies).</p>
   <div class="cols2 figs">
-    ${fig("fig-river-a", [["cross", "E5"], ["label", "D5", "Not connected", 0.95, -0.8, 26]], "Without a Bridge the Cabin and the Salvage Camp are on opposite banks and do not connect.")}
-    ${fig("fig-river-b", [["ring", "E5"], ["arrow", "D5", "E5", 0.5], ["arrow", "E5", "F5", 0.5]], "A Bridge on the river joins the two banks into one network.")}
-  </div>
-  ${story("One roof became three. A path reached the workshop, another reached the river, and neighbours carried tools between them. Nobody planned the whole shape alone; the settlement grew wherever one piece of work made the next possible.")}
-  ${note("Steward meeples and reach", "After your first placement, your meeple moves whenever you Place, Upgrade or Activate. Your next reach starts from the Tile it is on. Overstrained Tiles do not join the network, so a settlement split by one may leave some Tiles out of reach.")}`, "rivers"));
+    ${fig("fig-river-a", [["cross", "E5"], ["label", "D5", "Not connected", 0.95, -0.8, 26]], "Without a Bridge, the Cabin and Salvage Camp sit on opposite banks and do not connect.")}
+    ${fig("fig-river-b", [["ring", "E5"], ["arrow", "D5", "E5", 0.5], ["arrow", "E5", "F5", 0.5]], "A working Bridge joins both banks into one connected network.")}
+  </div>`, "rivers"));
 
-// 16 Special Tiles
+// 17 Special Tiles (0 Actions and 0 resources to place once unlocked!)
 const specials = specialTiles.map((t) => [(specialTileBackNumbers[t.id] || []).join(" and "), t.name]).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
 P.push(page("8 · Special Tiles", "Unlocking and placing Special Tiles", `
-  <p class="lead">Completing an Arrival unlocks the Special Tile whose back number matches its reward. Unlocking does not place it. Later, any player may place it with a normal Place Action for no resources, following its printed placement rule.</p>
+  <p class="lead">Spending 1 Interact Action to complete an Arrival unlocks its matching Special Tile onto the Tiles board. Later, on any player&rsquo;s turn, placing an unlocked Special Tile costs <b>0 Actions and 0 resources</b> (it still must go on a reachable hex following its printed placement rule, and moves your meeple onto it).</p>
   <div class="match">
     <figure>${cardImg("card-arrival-blade-to-herb.webp")}${caption("Blade to Herb unlocks Special Tile 23")}</figure>
-    <figure class="hexes">${tileImg("special-back-23", "mid")}${tileImg("special_the_root_weavers_respite", "mid")}${caption("The back numbered 23, and its front: The Root Weavers Respite")}</figure>
-    ${fig("fig-special", [["ring", "M4"]], "Placed later on a reachable Heaths hex.", "small")}
+    <figure class="hexes">${tileImg("special-back-23", "mid")}${tileImg("special_the_root_weavers_respite", "mid")}${caption("Back number 23 and front: The Root Weavers Respite")}</figure>
+    ${fig("fig-special", [["ring", "M4"]], "Placed for 0 Actions &amp; 0 resources on a reachable Heaths hex.", "small")}
   </div>
-  <h3>Special Tiles on their terrain</h3>
-  <p>These Special Tiles go on the listed terrain. They need no adjacent Resource Tile. Their effects still apply exactly as written, and any other printed requirement still uses side-sharing adjacency. The five Shrines have no once-per-round limit: a Shrine adds its gain every time an adjacent matching producer produces, and never takes an X token.</p>
+  <h3>Terrain-only Special Tiles &amp; Shrines</h3>
+  <p>The Shrines and Respites below only need their listed terrain (no adjacent Resource Tile required). The five <b>Shrines</b> have no once-per-round limit—each adds its bonus every time an adjacent matching producer produces and never takes an X token.</p>
   ${table(["Place on", "Special Tiles"], [
     ["Heaths", "13 Shrine of Ancients, 23 The Root Weavers Respite"],
     ["Mountains", "15 Shrine of Depths, 19 The Iron Roots Respite"],
@@ -398,81 +396,79 @@ P.push(page("8 · Special Tiles", "Unlocking and placing Special Tiles", `
   ], "spec")}
   <h3>Special Tile numbers</h3>
   <div class="specials">${specials.map(([n, name]) => `<div><span>${n}</span>${esc(name)}</div>`).join("")}</div>
-  <p class="small">Remnants of the Cavalry unlocks Stables (17 and 18): two separate hexes, placed by its printed rule.</p>`, "special"));
+  <p class="small">Remnants of the Cavalry unlocks Stables (17 and 18): two separate hexes placed together.</p>`, "special"));
 
-// 17 Encounter overview
-P.push(page("9 · Encounter Cards", "Encounter Cards at a glance", `
-  <p class="lead">Read every Encounter from top to bottom. The title and the italic story text set the scene; the rules are in the sections below them. A specific card rule overrides a general rule only for the situation it names.</p>
+// 18 Encounter overview (streamlined — no Season duplication with Page 8)
+P.push(page("9 · Encounter Cards", "Reading Encounter Cards", `
+  <p class="lead">Read every revealed Encounter from top to bottom and resolve the row for the current Season (page {{p:seeding}}). The top italic blurb is story flavour; italic lines inside a Season row or at the bottom are rules.</p>
   <div class="enc4 grid2">
-    <figure>${cardImg("card-boon-a-little-time.webp")}<figcaption><b>Boon</b>Use the row for the current Season. The italic line under it says whether the card is used at once, stays face up, has limited uses or ends with the Season.</figcaption></figure>
-    <figure>${cardImg("card-burden-old-wounds.webp")}<figcaption><b>Burden</b>Apply the current row when it is revealed and leave the card active. Its italic line gives the Action and payment that resolve and discard it.</figcaption></figure>
-    <figure>${cardImg("card-arrival-quiet-quest.webp")}<figcaption><b>Arrival</b>Put a bronze timer disc in each of the three circles. Meet its Requirements with an Interact Action to unlock the Special Tile named in its Reward.</figcaption></figure>
-    <figure>${cardImg("card-golden-scroll.webp")}<figcaption><b>Golden Boon</b>No Season rows and no timers. Resolve it free when revealed; it does not count towards the cards revealed each round.</figcaption></figure>
-  </div>
-  ${note("Current Season", "Use row I in Foundations (Rounds 1 to 4), II in Growth (Rounds 5 to 8) and III in Maturity (Rounds 9 to 12).")}
-  <p class="small">The story text is narrative only. The italic line inside a Boon or Burden row is a rule, and so is the italic line at the foot of a Golden Boon.</p>`, "enc"));
+    <figure>${cardImg("card-boon-a-little-time.webp")}<figcaption><b>Boon</b>Resolve the current Season row immediately unless its italic line says to keep it face up.</figcaption></figure>
+    <figure>${cardImg("card-burden-old-wounds.webp")}<figcaption><b>Burden</b>Apply the current row on reveal and leave it active until resolved via its bottom italic line.</figcaption></figure>
+    <figure>${cardImg("card-arrival-quiet-quest.webp")}<figcaption><b>Arrival</b>Enters play with 3 bronze timer discs. Complete it with 1 Interact Action to unlock its Special Tile.</figcaption></figure>
+    <figure>${cardImg("card-golden-scroll.webp")}<figcaption><b>Golden Boon</b>Optional advanced card. Resolves free and does not count toward the round&rsquo;s reveal total.</figcaption></figure>
+  </div>`, "enc"));
 
-// 18 Boons and Burdens
-P.push(page("9 · Encounter Cards", "Boons and Burdens", `
+// 19 Boons and Burdens in play (streamlined)
+P.push(page("9 · Encounter Cards", "Boons and Burdens in play", `
   <div class="side-card">
     ${cardImg("card-boon-a-little-time.webp")}
     <div>
-      <h3>Boons: help for the settlement</h3>
-      <p>Read the current Season row and resolve it at once, unless its italic line says to keep the card face up. A kept Boon stays in play until it is used or its time runs out; then discard it. Using a face-up Boon costs no Action unless its text says so. Only one Boon may change a single Action unless a rule says otherwise.</p>
-      <p>For example, <i>A Little Time</i> adds 1 timer to an active Arrival in Season I, up to 3. Its later rows add up to 2 or 3 timers. It is kept until used or until the Season ends.</p>
+      <h3>Using kept Boons</h3>
+      <p>If a Boon stays face up, use it on any player&rsquo;s turn for <b>0 Actions</b> (unless its text says otherwise) before its uses or duration run out, then discard it. Only one Boon may modify a single Action unless a card says otherwise.</p>
+      <p>For example, <i>A Little Time</i> stays face up until used or until the Season ends, adding 1, 2 or 3 timers to an active Arrival depending on the Season.</p>
     </div>
   </div>
   <div class="side-card">
     ${cardImg("card-burden-old-wounds.webp")}
     <div>
-      <h3>Burdens: pressure that stays</h3>
-      <p>When a Burden is revealed, apply its current row and leave it face up as an active Burden. At the start of Seasons II and III, apply every unresolved Burden again using its new row.</p>
-      <p>Resolve a Burden by carrying out its printed resolution, usually with an Interact Action, or with an effect that resolves it. <i>Old Wounds Reopen</i> in Season I asks you to choose 1 Social or Wellbeing Tile, then pay 2 Herbs or take 1 Strain there. To discard it, spend 1 Action and pay 2 Herbs.</p>
-      <p>When a Burden offers payment or Strain, choose before drawing a Target Card, and draw only for the Strain. Resolving a Burden stops it from applying again; Strain it has already placed stays.</p>
+      <h3>Managing active Burdens</h3>
+      <p>Every unresolved Burden stays face up in play and <b>triggers again at the start of Seasons II and III</b> using the new Season row. Spend 1 Interact Action and pay its current-Season resolution cost to discard it (any Strain already placed stays on the map).</p>
+      <p>When a Burden offers a choice between paying resources or taking Strain, decide first—only draw a Target Card if you take Strain.</p>
     </div>
   </div>
-  ${note("Active Burdens score against you", "Each Burden still active at the end of the game costs 10 points.")}`, "boons"));
+  ${note("Unresolved Burdens hurt your score", "Every Burden still active at the end of Round 12 subtracts <b>&minus;10 points</b> from your final score.")}`, "boons"));
 
-// 19 Arrivals
+// 20 Arrivals (prominent Failed Arrival + Strain callout)
 P.push(page("9 · Encounter Cards", "Arrivals", `
   <div class="side-card">
     ${cardImg("card-arrival-quiet-quest.webp")}
     <div>
-      <p class="lead">Arrivals are timed goals that unlock Special Tiles. When one is revealed, put it in play with a bronze timer disc in each of its 3 circles.</p>
-      <p><i>Quiet Quest</i> asks for 4 Goods and 2 Herbs and unlocks Special Tile 1, the Adventurers&rsquo; Guild.</p>
-      <p>To complete an Arrival, meet its Requirements and spend 1 Interact Action before its last timer is removed. Remove the timers, discard the card and set the unlocked Special Tile on the Tiles board.</p>
+      <p class="lead">Arrivals are timed goals that unlock Special Tiles. When revealed, place 3 bronze timer discs on the card.</p>
+      <p>Spend <b>1 Interact Action</b> and pay its Requirements before its last timer runs out to discard it and unlock its Special Tile (which can then be placed for <b>0 Actions and 0 resources</b>).</p>
     </div>
   </div>
   <div class="tilepair cols2">
-    <div>${tileImg("c08_inn-basic", "mini")}<p><b>More time.</b> An activated Inn adds 1 timer to an active Arrival.</p></div>
-    <div>${tileImg("c08_inn-upgraded", "mini")}<p>The Dawn Break Inn adds up to 2. An Arrival never holds more than 3 timers.</p></div>
+    <div>${tileImg("c08_inn-basic", "mini")}<p><b>Buy more time:</b> Activating an Inn adds 1 timer to an active Arrival (max 3).</p></div>
+    <div>${tileImg("c08_inn-upgraded", "mini")}<p>The upgraded Dawn Break Inn adds up to 2 timers (still max 3).</p></div>
   </div>
-  <h3>Arrival timing</h3>
+  <h3>What happens to Arrival timers</h3>
   ${table(["When", "What happens"], [
-    ["End of each round", "Remove 1 timer from every active Arrival."],
-    ["Its last timer is removed", "The Arrival fails. Discard it and record one failed Arrival. Then make every placed Tile with fewer than 3 Strain eligible and draw a Target Card to choose one of them for 1 Strain. If there is no such Tile, place no Strain."],
-    ["Still active after Round 12", "It stays active. It does not fail, place Strain or cost points."],
+    ["End of every round", "Remove 1 timer disc from every active Arrival."],
+    ["Last timer removed (Failure!)", "<b>1. Set aside face down</b> as a failed Arrival (<b>&minus;10 points</b> at game end).<br><b>2. Place 1 Strain</b> on any placed Tile with fewer than 3 Strain using a Target Card."],
+    ["Still active after Round 12", "It stays active—<b>no failure, no Strain, no point penalty</b>."],
   ], "arr")}
-  ${note("Several Arrivals fail together", "Resolve each failure on its own. For each one, work out the eligible Tiles again and draw a fresh Target Card, returning it to the bottom of the deck before the next.")}
-  <p class="small">An easy way to count failures at the end: keep failed Arrivals face down in the discard well, apart from the other cards.</p>`, "arrivals"));
+  ${note("Do not miss the Strain on failure!", "When an Arrival runs out of timers, it does <b>two</b> things: it counts as a failed Arrival (&minus;10 points) <b>and immediately adds 1 Strain</b> to the map. Keep failed Arrivals face down in a separate pile so they are easy to count at final scoring.")}`, "arrivals"));
 
-// 20 Strain and Supported
+// 21 Strain and Supported (clear thresholds + cascade preview + Passive vs Single-Use tokens)
 P.push(page("10 · Strain and Supported", "Strain and Supported", `
   <div class="cols2">
     <div>
-      <h3>Strain</h3>
-      <p>Strain is shown with black wooden tokens on the Tile. A Tile holds at most 3 Strain. At 1 or 2 Strain it works normally unless a rule says otherwise. If an effect would add Strain to a Tile already at 3, add nothing.</p>
-      ${note("Partial resolution", "If the full amount or number of targets is not available, place as much Strain as possible on as many eligible Tiles as possible. &ldquo;If none&rdquo; means no legal target exists; it never lets you choose zero while a legal target remains.")}
+      <h3>Strain (1, 2, and 3 = Overstrained)</h3>
+      <p>Black wooden tokens mark Strain on a Tile (max 3 per Tile):</p>
+      <ul class="twin">
+        <li><b>1 or 2 Strain:</b> The Tile still works normally, but every Strain token costs <b>&minus;10 points</b> at game end.</li>
+        <li><b>3 Strain (Overstrained!):</b> The Tile shuts down (no effects, no score, <b>breaks network connection</b>) AND immediately <b>cascades 1 Strain to 1 adjacent Tile</b> (page {{p:chain}}).</li>
+      </ul>
+      ${note("Partial resolution", "If fewer legal targets exist than an effect asks for, place as much Strain as you can on the legal targets that remain.")}
     </div>
     <div>
-      <h3>Supported</h3>
-      <p>A bronze shield on a Tile shows Supported. Supported stops 1 Strain before you check whether the Tile becomes Overstrained. A Tile either has Supported or does not: it never stacks.</p>
-      <p><b>Passive Supported</b> lasts while its source&rsquo;s condition holds and stops the first Strain on that Tile each round. Common Land gives it to 1 adjacent Housing Tile; The Pleasance to up to 3. Choose them when the effect starts and keep them until the eligible Tiles change or the source becomes Overstrained. You cannot move it in answer to incoming Strain.</p>
-      <p><b>Single-use Supported</b>, from placement, activation or another effect, stops 1 Strain and is then removed.</p>
+      <h3>Supported (Bronze Shield)</h3>
+      <p>A bronze shield blocks the next <b>1 Strain</b> that would hit that Tile (preventing it before checking Overstrain). Supported never stacks.</p>
+      <p><b>Single-use Supported:</b> When it blocks 1 Strain, remove the bronze shield—it is spent.</p>
+      <p><b>Passive Supported</b> (from Common Land, The Pleasance, Stone Bridge, etc.): Protects the first Strain on that Tile <b>each round</b>. When it blocks Strain, take the shield off for the rest of the round, then <b>put it back on at the start of the next round</b> as long as its source Tile is still working.</p>
     </div>
   </div>
-  ${fig("fig-strain", [["badge", "G5", "0", 0.55, -0.45], ["badge", "I6", "1", 0.55, -0.45], ["badge", "H6", "2", 0.55, -0.45], ["badge", "G6", "3", 0.55, -0.45, "red"], ["arrow", "H7", "H6", 0.62]], "The Eatery has no Strain, the Cottage 1 and the Cabin 2. The Common Land gives the Cabin passive Supported (the bronze shield), so the next Strain that reaches it this round is stopped. The Path holds 3 Strain and is Overstrained.", "side")}
-  <p class="small">The Golden Garden and every other prevention apply at the same step as Supported. Prevented Strain is not placed, moved elsewhere or able to start a spread.</p>`, "strain"));
+  ${fig("fig-strain", [["badge", "G5", "0", 0.55, -0.45], ["badge", "I6", "1", 0.55, -0.45], ["badge", "H6", "2", 0.55, -0.45], ["badge", "G6", "3", 0.55, -0.45, "red"], ["arrow", "H7", "H6", 0.62]], "Eatery (0), Cottage (1), Cabin (2, with Passive Supported from Common Land), and Path (3 = Overstrained).", "side")}`, "strain"));
 
 // 21 Overstrained and chains
 P.push(page("11 · Overstrain chains", "Overstrained Tiles and chains", `
@@ -687,7 +683,7 @@ P.push(page("18 · Twin Settlements", "Twin Settlements", `
     <div class="map"><img src="${A("twin-map.jpg")}" alt=""><span class="tag" style="left:${twinLab.B5[0] * 100}%;top:${twinLab.B5[1] * 100}%">West Vale</span><span class="tag" style="left:${twinLab.J3[0] * 100}%;top:${twinLab.J3[1] * 100}%">East Vale</span></div>
     <div class="maptext">
       <p><b>The West Vale</b> is the land west of the river&rsquo;s western channel, shaded blue.</p>
-      <p><b>The East Vale</b> is all the other land, shaded gold, including both Ruins.</p>
+      <p><b>The East Vale</b> is all the land east of the western channel, including both Ruins.</p>
       <p class="small">A team may cross the river to build, but its Tiles always belong to its own Vale.</p>
     </div>
   </div>
@@ -736,7 +732,7 @@ P.push(page("19 · Quick reference", "Quick reference", `
   <h3>Costs and limits</h3>
   ${table(["Rule", "Remember"], [
     ["Warehouse", "At most 15 of each. Start with 15, 10, 8, 0 or 0 of each for 1 to 5 players. Never below zero."],
-    ["Special Tile", "Once unlocked: 1 Place Action, its placement rule, no resources."],
+    ["Special Tile", "Once unlocked: <b>0 Actions and 0 resources</b> to place (must still be reachable and follow its placement rule)."],
     ["0 Actions", "Only the Action is free. Pay the resource cost unless the effect changes it."],
     ["Steward meeple", "Place, Upgrade and Activate move it. Interact does not."],
     ["Arrival", "Starts with 3 timers, never more. Remove 1 from each at the end of every round."],
@@ -745,57 +741,50 @@ P.push(page("19 · Quick reference", "Quick reference", `
   ], "qrt")}
   <div class="scoregrid"><div class="plus"><b>Add</b>Population and Renown on non-Overstrained Tiles, +15 each Steward Objective met, +20 Quest Card, +5 each Golden condition met</div><div class="minus"><b>Take away 10</b>for each active Burden, each failed Arrival and each Strain on the map</div></div>`, "qr"));
 
-// Questions at the table
-P.push(page("Questions at the table", "Questions at the table", `
-  <div class="faq"><div><span>01</span><div><b>Does &ldquo;0 Actions&rdquo; also waive the resources?</b><p>No. Only the Action is free. Pay the normal cost unless the effect also changes it. <em>Page {{p:turn}}.</em></p></div></div><div><span>02</span><div><b>Is an unlocked Special Tile free to place?</b><p>It costs no resources, but it still takes a Place Action, a reachable hex and its printed placement rule. <em>Page {{p:special}}.</em></p></div></div><div><span>03</span><div><b>Does Linked Production run down a line of copies?</b><p>No. Only copies touching the chosen Tile join in, and only the first time that group produces each round. <em>Page {{p:prod}}.</em></p></div></div><div><span>04</span><div><b>Does a Tile already at 3 Strain spread again when it is targeted?</b><p>No. It spreads only when it goes from fewer than 3 to 3. If it is relieved and later reaches 3 again, it spreads again. <em>Page {{p:chain}}.</em></p></div></div><div><span>05</span><div><b>A Burden says pay or take Strain. When do we draw the Target Card?</b><p>Choose first. Draw a Target Card only if you take the Strain. <em>Page {{p:boons}}.</em></p></div></div><div><span>06</span><div><b>Can an Arrival still be active after Round 12?</b><p>Yes. It does not fail, place Strain or cost points. <em>Page {{p:arrivals}}.</em></p></div></div><div><span>07</span><div><b>Two Tiles are exactly level in the arrow&rsquo;s direction. Which one?</b><p>The one nearer the top of the map; if still level, the one further left. <em>Page {{p:target}}.</em></p></div></div><div><span>08</span><div><b>Does Interact move my meeple?</b><p>No. Only Place, Upgrade and Activate move it. <em>Page {{p:turn}}.</em></p></div></div><div><span>09</span><div><b>The Warehouse is full and a Tile produces more. What happens?</b><p>The extra is lost. The Warehouse holds at most 15 of each resource, and never goes below zero. <em>Page {{p:prod}}.</em></p></div></div><div><span>10</span><div><b>Can we complete both halves of the Quest Card for 40 Renown?</b><p>No. Either half completes the card, for +20 Renown once. <em>Page {{p:quest}}.</em></p></div></div><div><span>11</span><div><b>Do Golden Boons count towards the cards revealed each round?</b><p>No. Resolve one free and keep revealing until enough standard cards are out. <em>Page {{p:goldenp}}.</em></p></div></div><div><span>12</span><div><b>What happens to a failed Quest Card?</b><p>It goes to the bottom of the Quest deck. A completed card goes into the Steward&rsquo;s Ledger. <em>Page {{p:quest}}.</em></p></div></div></div>`, "faqp"));
+// Questions at the table (sharper, aligned with v7.0)
+P.push(page("19 · Quick reference", "Questions at the table", `
+  <div class="faq"><div><span>01</span><div><b>Does &ldquo;0 Actions&rdquo; also waive resources?</b><p>No. Only the Action is free; pay the normal resource cost unless the card or Tile says otherwise. <em>p. {{p:turn}}</em></p></div></div><div><span>02</span><div><b>Is an unlocked Special Tile free to place?</b><p>Yes: <b>0 Actions and 0 resources</b>. It still needs a reachable hex and its printed placement rule. <em>p. {{p:special}}</em></p></div></div><div><span>03</span><div><b>Can I use Linked Production twice in one round?</b><p>No. Place an X token on each Tile that produced. You can still Activate any of them individually that round, just not as Linked Production. <em>p. {{p:prod}}</em></p></div></div><div><span>04</span><div><b>Does a Tile already at 3 Strain cascade again?</b><p>No. It spreads 1 Strain only when crossing from fewer than 3 to 3. <em>p. {{p:chain}}</em></p></div></div><div><span>05</span><div><b>A Burden says pay or take Strain—when do we draw the Target Card?</b><p>Decide first. Only draw a Target Card if you take Strain. <em>p. {{p:boons}}</em></p></div></div><div><span>06</span><div><b>What happens when an Arrival runs out of timers?</b><p>Set it aside face down as a failed Arrival (&minus;10 points) <b>and</b> place 1 Strain on an eligible Tile. <em>p. {{p:arrivals}}</em></p></div></div><div><span>07</span><div><b>Can an Arrival stay active after Round 12?</b><p>Yes—no failure, no Strain, no point penalty. <em>p. {{p:arrivals}}</em></p></div></div><div><span>08</span><div><b>How do Passive vs Single-Use Supported tokens work?</b><p>Remove the bronze shield when it blocks 1 Strain. For Passive Supported, put the shield back on next round while its source Tile still works. <em>p. {{p:strain}}</em></p></div></div><div><span>09</span><div><b>Does Interact move my meeple?</b><p>No. Only Place, Upgrade and Activate move your Steward meeple. <em>p. {{p:turn}}</em></p></div></div><div><span>10</span><div><b>What if the Warehouse is full when we produce?</b><p>Resources cap at 15 (extra is lost) and never drop below 0. <em>p. {{p:prod}}</em></p></div></div></div>`, "faqp"));
 
-// 30 Glossary
+// 30 Glossary (with integrated page references!)
 const gloss = [
-  ["Action", "One of up to 4 things you do on your turn: Place, Upgrade, Activate or Interact."],
-  ["Activated Effect", "A Tile effect used by spending an Activate Action."],
-  ["Active Burden", "A revealed Burden that has not been resolved."],
-  ["Adjacent", "Sharing a hex side."],
-  ["Arrival", "A timed Encounter completed with an Interact Action to unlock its Special Tile."],
-  ["Available Tile", "A Core Tile still in the supply, or an unlocked Special Tile ready to place."],
-  ["Boon", "A helpful Encounter, used at once or kept face up for its printed time."],
-  ["Burden", "An Encounter that applies its current row and stays active until resolved."],
-  ["Core Tile", "A double-sided Tile with a basic side and an upgraded side."],
-  ["Eligible", "A Tile an effect says Strain may land on. A Target Card chooses only among eligible Tiles."],
-  ["Failed Arrival", "An Arrival whose last timer was removed during play."],
-  ["Golden Tile", "Optional advanced content unlocked through the Steward&rsquo;s Ledger and placed at setup."],
-  ["Housing cluster", "A group of non-Overstrained Housing Tiles joined side to side."],
-  ["Linked Production", "The first activation of a Resource Tile each round, with every adjacent copy from the same stack producing too. It does not chain outward."],
-  ["Network", "Every placed, non-Overstrained Tile joined side to side."],
-  ["Overstrain chain", "After an effect, each newly Overstrained Tile spreads 1 Strain to one adjacent Tile chosen by a Target Card; any Tile that reaches 3 that way spreads in turn."],
-  ["Overstrained", "A Tile at 3 Strain. It does nothing positive until it drops below 3. Reaching 3 spreads 1 Strain to one adjacent Tile."],
-  ["Passive Effect", "A Tile effect that works without an Action while its condition holds."],
-  ["Pending effect", "A mandatory choice, payment, placement, Strain, chain or other instruction already started but not finished."],
-  ["Quest Card", "This game&rsquo;s shared challenge. Complete either half for +20 Renown."],
-  ["Reachable", "A Tile or empty hex your meeple can reach through the network or by a specific rule."],
-  ["Round", "Reveal Encounters, one turn per player, then the end of the round."],
-  ["Season", "Four rounds: Foundations (1 to 4), Growth (5 to 8) or Maturity (9 to 12)."],
-  ["Special Tile", "A Tile unlocked by an Arrival and placed later with a Place Action for no resources."],
-  ["Steward meeple", "Your wooden piece on the map. Your reach starts from the Tile it stands on."],
-  ["Steward&rsquo;s Ledger", "Your group&rsquo;s pile of completed Quest Cards. It unlocks the Golden pairs."],
-  ["Strain Cascade", "Card-specific Strain placements resolved inside the original effect."],
-  ["Supported", "A bronze shield that stops 1 Strain. Passive or single-use; never stacks."],
-  ["X token", "A small natural wooden X on a Tile whose once-per-round ability or Linked Production was used this round. All come off at the end of the round."],
-  ["Vow", "A Quest Card half whose rule must hold all game."],
-  ["Warehouse", "The shared supply of resources, normally at most 15 of each."],
-  ["River/Water", "The map&rsquo;s water. It blocks connection unless a Bridge or another rule allows the crossing."],
+  ["Action", "One of the four things you do on your turn: Place, Upgrade, Activate or Interact. (p. {{p:turn}})"],
+  ["Activated Effect", "A Tile effect used by spending 1 Activate Action. (p. {{p:turn}})"],
+  ["Active Burden", "A revealed Burden not yet resolved (&minus;10 points if left at game end). (p. {{p:boons}})"],
+  ["Adjacent", "Sharing a hex side. (p. {{p:place}})"],
+  ["Arrival", "A timed Encounter completed with 1 Interact Action to unlock a Special Tile. (p. {{p:arrivals}})"],
+  ["Boon", "A helpful Encounter, resolved at once or kept face up for its duration. (p. {{p:boons}})"],
+  ["Burden", "An Encounter that applies its current row, stays active, and reapplies in new Seasons until resolved. (p. {{p:boons}})"],
+  ["Core Tile", "A double-sided Tile with a basic front and an upgraded back. (p. {{p:anatomy}})"],
+  ["Eligible", "A Tile an effect says Strain may land on. Target Cards choose only among eligible Tiles. (p. {{p:target}})"],
+  ["Failed Arrival", "An Arrival whose last timer ran out: &minus;10 points and immediately adds 1 Strain. (p. {{p:arrivals}})"],
+  ["Golden Tile", "Optional advanced Tile unlocked through the Steward&rsquo;s Ledger. (p. {{p:goldenp}})"],
+  ["Housing cluster", "Working Housing Tiles joined side to side (triggers Neighbourly Support). (p. {{p:seasonend}})"],
+  ["Linked Production", "First activation each round of a Resource Tile triggers all immediately adjacent working copies too; mark with X tokens. (p. {{p:prod}})"],
+  ["Network", "All working (non-Overstrained) Tiles joined side to side. (p. {{p:rivers}})"],
+  ["Overstrain chain", "Each Tile newly hitting 3 Strain spreads 1 Strain to 1 adjacent Tile; any neighbour hitting 3 spreads in turn. (p. {{p:chain}})"],
+  ["Overstrained", "A Tile at 3 Strain: shuts down, breaks the network, stops scoring, and spreads 1 Strain when it hits 3. (p. {{p:strain}})"],
+  ["Passive Effect", "A Tile effect that works automatically without spending an Action. (p. {{p:anatomy}})"],
+  ["Player 1 marker", "Marks who goes first each round; passes one seat clockwise at round end. (p. {{p:round}})"],
+  ["Quest Card", "This game&rsquo;s shared challenge (+20 Renown for completing either half). (p. {{p:quest}})"],
+  ["Reachable", "Any working Tile connected to your meeple through the network, or any empty hex beside one. (p. {{p:rivers}})"],
+  ["River/Water", "Blocks connection until crossed by a working Bridge or special rule. (p. {{p:rivers}})"],
+  ["Round", "Reveal Encounters, take turns clockwise from Player 1, then end-of-round upkeep. (p. {{p:round}})"],
+  ["Season", "Four rounds: Foundations (1–4), Growth (5–8) or Maturity (9–12). (p. {{p:seeding}})"],
+  ["Special Tile", "Unlocked by an Arrival; placed later for 0 Actions and 0 resources following its placement rule. (p. {{p:special}})"],
+  ["Steward meeple", "Your wooden piece on the map; moves on Place, Upgrade and Activate. (p. {{p:turn}})"],
+  ["Steward&rsquo;s Ledger", "Completed Quest Cards kept in the box to unlock Golden pairs. (p. {{p:quest}})"],
+  ["Supported", "Bronze shield blocking 1 Strain (Passive returns next round; Single-Use stays off). (p. {{p:strain}})"],
+  ["Target Card", "Chooses which eligible Tile takes incoming Strain. (p. {{p:target}})"],
+  ["Twin Settlements", "Optional two-Vale team mode for 2–4 players. (p. {{p:twinp}})"],
+  ["Vow", "A Quest Card half whose rule must hold all game. (p. {{p:quest}})"],
+  ["Warehouse", "Shared supply of all 6 resources (max 15 each, never below 0). (p. {{p:prod}})"],
+  ["X token", "Wooden X marking a spent once-per-round ability or Linked Production; cleared at round end. (p. {{p:prod}})"],
 ];
 gloss.sort((a, b) => a[0].replace("&rsquo;", "'").localeCompare(b[0].replace("&rsquo;", "'")));
 const glossDl = (rows) => `<dl class="gloss">${rows.map(([t, d]) => `<dt>${t}</dt><dd>${d}</dd>`).join("")}</dl>`;
-const GSPLIT = 22;
-P.push(page("20 · Glossary", "Glossary", glossDl(gloss.slice(0, GSPLIT)), "glossary"));
-
-// 31 Index
-const where = [["Arrivals", "arrivals"], ["Boons and Burdens", "boons"], ["Components", "comp1"], ["End of a Season", "seasonend"], ["Final scoring", "scoring"], ["First round, guided", "round1"], ["Four Actions", "turn"], ["Golden content", "goldenp"], ["Linked Production", "prod"], ["Neighbourly Support", "seasonend"], ["Overstrain chains", "chain"], ["Quest Cards", "quest"], ["Questions at the table", "faqp"], ["Reachability", "rivers"], ["Reading a Tile", "anatomy"], ["Rivers and Bridges", "rivers"], ["Round sequence", "round"], ["Seeding", "seeding"], ["Setup", "setupfig"], ["Shelter in the Ruins", "place"], ["Special Tile numbers", "special"], ["Steward meeple movement", "turn"], ["Stewards", "stewardsp"], ["Strain and Supported", "strain"], ["Target Cards", "target"], ["Timing", "timing"], ["Twin Settlements", "twinp"], ["Warehouse", "prod"], ["X tokens", "prod"]].map(([t, id]) => [t, `{{p:${id}}}`]);
-P.push(page("20 · Glossary", "Glossary, continued", `
-  ${glossDl(gloss.slice(GSPLIT))}
-  <h3>Where to look</h3>
-  <div class="index">${where.map(([t, n]) => `<div><span>${t}</span><span class="dots"></span><span>${n}</span></div>`).join("")}</div>
-`, "indexp"));
+const GSPLIT = 17;
+P.push(page("20 · Glossary &amp; Index", "Glossary &amp; Page Index", glossDl(gloss.slice(0, GSPLIT)), "glossary"));
+P.push(page("20 · Glossary &amp; Index", "Glossary &amp; Page Index, continued", glossDl(gloss.slice(GSPLIT)), "indexp"));
 
 // ---------------------------------------------------------------- render
 function pageHtml(p, n) {
