@@ -500,25 +500,23 @@ P.push(page("12 · The Target Deck", "Choosing where Strain lands", `
       ${steps([
         "Start with only the Tiles the effect made eligible. Apply any printed fallback first.",
         "Draw the top card for each separate target, even if only 1 Tile is eligible. Several Strain on the same Tile use one card.",
-        "Work down the four rows: Tile class, Tile side, Adjacency, then Current Strain.",
-        "At each row, keep the Tiles that match. <b>If none match, skip that row</b> and keep them all. Any changes nothing. Never bring back a Tile already ruled out.",
-        "If more than one Tile is left, take the one the arrow points to: the tied Tile furthest in that direction on the map.",
+        "Check the two rows in order: <b>Tile</b>, then <b>Current Strain</b>. <b>Stop as soon as only 1 Tile remains</b>&mdash;do not keep reading.",
+        "At each row, keep the Tiles that match. <b>If none match, skip that row</b> and keep them all. Never bring back a Tile already ruled out.",
+        "If 2 or more Tiles are still left, take the one the compass arrow points to: the tied Tile furthest in that direction on the map.",
         "Return the card face down to the bottom of the deck. Then apply Supported and other prevention. Prevented Strain is not moved elsewhere.",
       ])}
     </div>
   </div>
   <div class="trows">
-    <div><b>Tile class</b>Core, Special or Golden, or Any</div>
-    <div><b>Tile side</b>Basic, Upgraded, Either or Any</div>
-    <div><b>Adjacency</b>3 or more neighbours, 0 to 2 neighbours, or Any</div>
-    <div><b>Current Strain</b>Already strained, Unstrained or Any</div>
+    <div><b>1. Tile</b>Basic, Upgraded, Special / Golden, or Any</div>
+    <div><b>2. Current Strain</b>Already strained, Unstrained, or Any</div>
   </div>
   <div class="side-card poker">
     ${cardImg("card-target-25.webp")}
     <div>
       <h3>Open cards</h3>
-      <p>Cards 25 to 30 say Any on every row. Keep the eligible Tiles, then the players choose any one of them. No arrow is used.</p>
-      <h3>Tie directions</h3>
+      <p>Cards 25 to 30 say Any on both rows. Keep the eligible Tiles, then the players choose any one of them. No compass arrow is used.</p>
+      <h3>Compass tie-breaker</h3>
       <p>The arrows follow the map&rsquo;s flat-top hexes: N, NE, SE, S, SW and NW, with north at the top of the map board. Each direction is on 4 cards. Hold the card the same way up as the board. If two Tiles are exactly level in that direction, take the one nearer the top of the map, then the one further left.</p>
     </div>
   </div>`, "target"));
@@ -527,17 +525,15 @@ P.push(page("12 · The Target Deck", "Choosing where Strain lands", `
 P.push(page("12 · The Target Deck", "A Target Card at work", `
   <p class="lead">A Burden places 1 Strain on a Housing Tile. The four Housing Tiles are eligible. The players draw Target Card 05.</p>
   <div class="worked">
-    ${fig("fig-target", [["ring", "J6", "dim"], ["ring", "I6", "dim"], ["ring", "I7"], ["ring", "J7", "red"], ["label", "J6", "Basic: out at row 2", 0, -0.55, 21], ["label", "I6", "No Strain: out at row 4", 0, -0.55, 21], ["label", "J7", "Takes the Strain", 0, 0.6, 21]], "")}
+    ${fig("fig-target", [["ring", "J6", "dim"], ["ring", "I6", "dim"], ["ring", "I7"], ["ring", "J7", "red"], ["label", "J6", "Basic: out at row 1", 0, -0.55, 21], ["label", "I6", "No Strain: out at row 2", 0, -0.55, 21], ["label", "J7", "Takes the Strain", 0, 0.6, 21]], "")}
     <div class="poker">${cardImg("card-target-05.webp")}</div>
   </div>
-  ${table(["Row", "Card 05 says", "Tiles left"], [
-    ["Tile class", "Core", "All four are Core Tiles: all four stay."],
-    ["Tile side", "Upgraded", "The Cabin is basic, so it goes. The Fine Cabin and both Fine Cottages stay."],
-    ["Adjacency", "3 or more neighbours", "All three have at least 3 neighbouring Tiles: all stay."],
-    ["Current Strain", "Already strained", "The Fine Cabin has no Strain, so it goes. Both Fine Cottages stay."],
-    ["If still tied", "Arrow to SE", "The Fine Cottage further to the south-east, ringed in red, takes the Strain."],
+  ${table(["Step", "Card 05 says", "Tiles left"], [
+    ["1. Tile", "Upgraded", "The Cabin is Basic, so it goes. The Fine Cabin and both Fine Cottages stay."],
+    ["2. Current Strain", "Already strained", "The Fine Cabin has no Strain, so it goes. Both Fine Cottages stay."],
+    ["If still tied", "Compass arrow to SE", "The Fine Cottage further to the south-east, ringed in red, takes the Strain."],
   ], "wtab")}
-  <p class="small">The card goes face down to the bottom of the deck. Had that Fine Cottage been Supported, the Strain would have been stopped there and not moved to another Tile.</p>`, "target2"));
+  <p class="small">Stop as soon as 1 Tile remains&mdash;if only one Upgraded Housing Tile had been on the board, you would stop right after Step 1. The card goes face down to the bottom of the deck. Had that Fine Cottage been Supported, the Strain would have been stopped there and not moved to another Tile.</p>`, "target2"));
 
 // When effects meet
 P.push(page("When effects meet", "When effects meet", `

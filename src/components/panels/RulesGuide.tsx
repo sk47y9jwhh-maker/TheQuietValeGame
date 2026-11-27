@@ -300,10 +300,10 @@ const rules: RuleReferenceCard[] = [
         title: "Resolve one Target Card",
         bullets: [
           "Start with only the Tiles made eligible by the effect, including any printed fallback. Draw one card for each different target.",
-          "Read preferences in order: Tile Class, Tile Side, Adjacency, then Current Strain.",
-          "At each preference, keep the matches if at least one current candidate matches. Otherwise ignore that preference. Never restore a removed Tile.",
+          "Check the two rows in order: Tile (Basic, Upgraded, or Special / Golden), then Current Strain (Already Strained or Unstrained).",
+          "Stop as soon as 1 Tile remains. At each row, keep the matches if at least one current candidate matches. Otherwise skip that row. Never restore a removed Tile.",
           "Any neither narrows nor widens the pool. An Open card lets the players choose any remaining candidate.",
-          "If several remain on a structured card, use its arrow, then fixed map-coordinate order only for an exact directional tie.",
+          "If 2 or more Tiles still remain on a structured card, use its compass arrow, then fixed map-coordinate order only for an exact directional tie.",
           "Return the card face down to the deck bottom, then resolve Supported and prevention."
         ]
       }

@@ -4,43 +4,44 @@ import type {
 } from "../engine/types";
 
 /**
- * The physical deck. Cards 13–24 repeat the preference profiles
- * of cards 1–12 with the opposite direction. Tie directions are the six
- * flat-top hex directions (N, NE, SE, S, SW, NW). Cards 25–30 are Open cards: all
- * four preferences read Any and they have no tie direction. Keep this list
- * explicit: the physical deck order and balance are product data.
+ * The physical 30-card Target Deck. Cards 1–24 cover the 6 combinations of
+ * Tile (Basic, Upgraded, Special / Golden) and Strain (Already Strained,
+ * Unstrained), four copies each, with each of the six flat-top hex directions
+ * (N, NE, SE, S, SW, NW) appearing four times (cards 13–24 mirror 1–12 with
+ * opposite directions). Cards 25–30 are Open cards: both rows read Any and
+ * they have no tie direction.
  */
 export const targetCards: TargetCardDefinition[] = [
-  { id: 1, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "strained", direction: "N" },
-  { id: 2, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "unstrained", direction: "S" },
-  { id: 3, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "strained", direction: "NE" },
-  { id: 4, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "unstrained", direction: "SW" },
-  { id: 5, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "strained", direction: "SE" },
-  { id: 6, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "unstrained", direction: "NW" },
-  { id: 7, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "strained", direction: "S" },
-  { id: 8, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "unstrained", direction: "N" },
-  { id: 9, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "strained", direction: "SW" },
-  { id: 10, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "unstrained", direction: "NE" },
-  { id: 11, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "strained", direction: "NW" },
-  { id: 12, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "unstrained", direction: "SE" },
-  { id: 13, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "strained", direction: "S" },
-  { id: 14, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "unstrained", direction: "N" },
-  { id: 15, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "strained", direction: "SW" },
-  { id: 16, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "unstrained", direction: "NE" },
-  { id: 17, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "strained", direction: "NW" },
-  { id: 18, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "unstrained", direction: "SE" },
-  { id: 19, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "strained", direction: "N" },
-  { id: 20, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "unstrained", direction: "S" },
-  { id: 21, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "strained", direction: "NE" },
-  { id: 22, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "unstrained", direction: "SW" },
-  { id: 23, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "strained", direction: "SE" },
-  { id: 24, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "unstrained", direction: "NW" },
-  { id: 25, tileClass: "any", side: "any", adjacency: "any", strain: "any" },
-  { id: 26, tileClass: "any", side: "any", adjacency: "any", strain: "any" },
-  { id: 27, tileClass: "any", side: "any", adjacency: "any", strain: "any" },
-  { id: 28, tileClass: "any", side: "any", adjacency: "any", strain: "any" },
-  { id: 29, tileClass: "any", side: "any", adjacency: "any", strain: "any" },
-  { id: 30, tileClass: "any", side: "any", adjacency: "any", strain: "any" }
+  { id: 1, tile: "basic", strain: "strained", direction: "N" },
+  { id: 2, tile: "basic", strain: "unstrained", direction: "S" },
+  { id: 3, tile: "basic", strain: "strained", direction: "NE" },
+  { id: 4, tile: "basic", strain: "unstrained", direction: "SW" },
+  { id: 5, tile: "upgraded", strain: "strained", direction: "SE" },
+  { id: 6, tile: "upgraded", strain: "unstrained", direction: "NW" },
+  { id: 7, tile: "upgraded", strain: "strained", direction: "S" },
+  { id: 8, tile: "upgraded", strain: "unstrained", direction: "N" },
+  { id: 9, tile: "specialOrGolden", strain: "strained", direction: "SW" },
+  { id: 10, tile: "specialOrGolden", strain: "unstrained", direction: "NE" },
+  { id: 11, tile: "specialOrGolden", strain: "strained", direction: "NW" },
+  { id: 12, tile: "specialOrGolden", strain: "unstrained", direction: "SE" },
+  { id: 13, tile: "basic", strain: "strained", direction: "S" },
+  { id: 14, tile: "basic", strain: "unstrained", direction: "N" },
+  { id: 15, tile: "basic", strain: "strained", direction: "SW" },
+  { id: 16, tile: "basic", strain: "unstrained", direction: "NE" },
+  { id: 17, tile: "upgraded", strain: "strained", direction: "NW" },
+  { id: 18, tile: "upgraded", strain: "unstrained", direction: "SE" },
+  { id: 19, tile: "upgraded", strain: "strained", direction: "N" },
+  { id: 20, tile: "upgraded", strain: "unstrained", direction: "S" },
+  { id: 21, tile: "specialOrGolden", strain: "strained", direction: "NE" },
+  { id: 22, tile: "specialOrGolden", strain: "unstrained", direction: "SW" },
+  { id: 23, tile: "specialOrGolden", strain: "strained", direction: "SE" },
+  { id: 24, tile: "specialOrGolden", strain: "unstrained", direction: "NW" },
+  { id: 25, tile: "any", strain: "any" },
+  { id: 26, tile: "any", strain: "any" },
+  { id: 27, tile: "any", strain: "any" },
+  { id: 28, tile: "any", strain: "any" },
+  { id: 29, tile: "any", strain: "any" },
+  { id: 30, tile: "any", strain: "any" }
 ];
 
 export const targetCardById = Object.fromEntries(
@@ -49,46 +50,33 @@ export const targetCardById = Object.fromEntries(
 
 export function isOpenTargetCard(card: TargetCardDefinition): boolean {
   return card.direction === undefined &&
-    card.tileClass === "any" &&
-    card.side === "any" &&
-    card.adjacency === "any" &&
+    card.tile === "any" &&
     card.strain === "any";
 }
 
 export const targetCardRulesText =
-  "Target Cards: Shuffle the 30-card deck once during setup. Start with the tiles eligible under the effect causing the Strain. Draw the top card and read it from top to bottom. Apply each preference if at least one currently considered tile matches it. Otherwise ignore it. Any leaves the current candidates unchanged and never widens the eligible pool set by the triggering effect. Open cards have no tie direction: choose any remaining eligible target. Return each resolved card face down to the bottom of the deck. Resolve Supported and other prevention normally. Prevented Strain is not redirected.";
+  "Target Cards: Shuffle the 30-card deck once during setup. Start with the tiles eligible under the effect causing the Strain. Draw the top card and check Tile, then Current Strain. Stop as soon as 1 tile remains. Skip a row if no remaining tile matches it. If 2 or more tiles still remain, take the one furthest in the card's compass direction. Open cards have no direction: choose any eligible target. Return each resolved card face down to the bottom of the deck. Resolve Supported and other prevention normally. Prevented Strain is not redirected.";
 
 export const targetCardFilterLabels: Record<TargetCardFilterName, string> = {
+  tile: "Tile",
+  strain: "Strain",
   class: "Class",
   side: "Side",
-  adjacency: "Adjacency",
-  strain: "Strain"
+  adjacency: "Adjacency"
 };
 
 export function describeTargetCard(card: TargetCardDefinition): {
-  tileClass: string;
-  side: string;
-  adjacency: string;
+  tile: string;
   strain: string;
 } {
   return {
-    tileClass: card.tileClass === "any"
+    tile: card.tile === "any"
       ? "Any"
-      : card.tileClass === "core"
-        ? "Core"
-        : "Special / Golden",
-    side: card.side === "any"
-      ? "Any"
-      : card.side === "either"
-        ? "Either"
-        : card.side === "basic"
-          ? "Basic"
-          : "Upgraded",
-    adjacency: card.adjacency === "any"
-      ? "Any"
-      : card.adjacency === "threePlus"
-        ? "3+ Neighbours"
-        : "0–2 Neighbours",
+      : card.tile === "basic"
+        ? "Basic"
+        : card.tile === "upgraded"
+          ? "Upgraded"
+          : "Special / Golden",
     strain: card.strain === "any"
       ? "Any"
       : card.strain === "strained"

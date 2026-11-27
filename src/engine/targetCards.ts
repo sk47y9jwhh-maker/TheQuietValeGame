@@ -132,32 +132,20 @@ export function countAdjacentPlacedTiles(
   ).length;
 }
 
+const activeTargetFilters = ["tile", "strain"] as const;
+
 function preferenceLabel(
-  filter: TargetCardFilterName,
+  filter: (typeof activeTargetFilters)[number],
   card: TargetCardDefinition
 ): string {
-  if (filter === "class") {
-    return card.tileClass === "any"
+  if (filter === "tile") {
+    return card.tile === "any"
       ? "Any"
-      : card.tileClass === "core"
-        ? "Core"
-        : "Special / Golden";
-  }
-  if (filter === "side") {
-    return card.side === "any"
-      ? "Any"
-      : card.side === "either"
-        ? "Either"
-        : card.side === "basic"
-          ? "Basic"
-          : "Upgraded";
-  }
-  if (filter === "adjacency") {
-    return card.adjacency === "any"
-      ? "Any"
-      : card.adjacency === "threePlus"
-        ? "3+"
-        : "0–2";
+      : card.tile === "basic"
+        ? "Basic"
+        : card.tile === "upgraded"
+          ? "Upgraded"
+          : "Special / Golden";
   }
   return card.strain === "any"
     ? "Any"
@@ -167,23 +155,14 @@ function preferenceLabel(
 }
 
 function matchesPreference(
-  state: Pick<GameState, "map">,
   tile: PlacedTile,
-  filter: TargetCardFilterName,
+  filter: (typeof activeTargetFilters)[number],
   card: TargetCardDefinition
 ): boolean {
-  if (filter === "class") {
-    return card.tileClass === "any" || (card.tileClass === "core"
-      ? tile.kind === "core"
-      : tile.kind === "special");
-  }
-  if (filter === "side") {
-    return card.side === "any" || card.side === "either" || tile.side === card.side;
-  }
-  if (filter === "adjacency") {
-    const count = countAdjacentPlacedTiles(state, tile);
-    return card.adjacency === "any" ||
-      (card.adjacency === "threePlus" ? count >= 3 : count <= 2);
+  if (filter === "tile") {
+    if (card.tile === "any") return true;
+    if (card.tile === "specialOrGolden") return tile.kind === "special";
+    return tile.kind === "core" && tile.side === card.tile;
   }
   return card.strain === "any" ||
     (card.strain === "strained" ? tile.strain > 0 : tile.strain === 0);
@@ -266,15 +245,14 @@ export function selectTargetWithCard(
   const originalEligibleCount = considered.length;
   const filters: TargetCardFilterDiagnostic[] = [];
 
-  for (const filter of ["class", "side", "adjacency", "strain"] as const) {
+  for (const filter of activeTargetFilters) {
+    if (considered.length <= 1) break;
     const beforeCount = considered.length;
     const matches = considered.filter((tile) =>
-      matchesPreference(state, tile, filter, card)
+      matchesPreference(tile, filter, card)
     );
     const isAnyPreference =
-      (filter === "class" && card.tileClass === "any") ||
-      (filter === "side" && card.side === "any") ||
-      (filter === "adjacency" && card.adjacency === "any") ||
+      (filter === "tile" && card.tile === "any") ||
       (filter === "strain" && card.strain === "any");
     const applied = matches.length > 0 && !isAnyPreference;
     if (applied) considered = matches;
@@ -340,7 +318,7 @@ export interface TargetSelectionTrace {
 }
 
 export function traceTargetSelection(
-  state: GameState,
+  _state: GameState,
   candidates: PlacedTile[],
   card: TargetCardDefinition
 ): TargetSelectionTrace | null {
@@ -348,13 +326,12 @@ export function traceTargetSelection(
   if (considered.length === 0) return null;
   const eligible = considered.map((tile) => tile.instanceId);
   const filters: TargetSelectionTrace["filters"] = [];
-  for (const filter of ["class", "side", "adjacency", "strain"] as const) {
+  for (const filter of activeTargetFilters) {
+    if (considered.length <= 1) break;
     const any =
-      (filter === "class" && card.tileClass === "any") ||
-      (filter === "side" && card.side === "any") ||
-      (filter === "adjacency" && card.adjacency === "any") ||
+      (filter === "tile" && card.tile === "any") ||
       (filter === "strain" && card.strain === "any");
-    const matches = considered.filter((tile) => matchesPreference(state, tile, filter, card));
+    const matches = considered.filter((tile) => matchesPreference(tile, filter, card));
     const applied = matches.length > 0 && !any;
     if (applied) considered = matches;
     filters.push({ filter, preference: preferenceLabel(filter, card), any, applied, remaining: considered.map((tile) => tile.instanceId) });
@@ -405,7 +382,7 @@ export function drawTargetCardForPlanning(
       role: context.role ?? "target",
       cardId: drawn.card.id,
       originalEligibleCount: candidates.length,
-      filters: (["class", "side", "adjacency", "strain"] as const).map((filter) => ({
+      filters: activeTargetFilters.map((filter) => ({
         filter,
         preference: "Any",
         applied: false,

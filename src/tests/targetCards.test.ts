@@ -91,48 +91,42 @@ function pendingBurden(
 describe("Target Cards", () => {
   it("contains the 30-card distribution with six Open cards", () => {
     expect(targetCards).toEqual([
-      { id: 1, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "strained", direction: "N" },
-      { id: 2, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "unstrained", direction: "S" },
-      { id: 3, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "strained", direction: "NE" },
-      { id: 4, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "unstrained", direction: "SW" },
-      { id: 5, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "strained", direction: "SE" },
-      { id: 6, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "unstrained", direction: "NW" },
-      { id: 7, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "strained", direction: "S" },
-      { id: 8, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "unstrained", direction: "N" },
-      { id: 9, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "strained", direction: "SW" },
-      { id: 10, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "unstrained", direction: "NE" },
-      { id: 11, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "strained", direction: "NW" },
-      { id: 12, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "unstrained", direction: "SE" },
-      { id: 13, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "strained", direction: "S" },
-      { id: 14, tileClass: "core", side: "basic", adjacency: "threePlus", strain: "unstrained", direction: "N" },
-      { id: 15, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "strained", direction: "SW" },
-      { id: 16, tileClass: "core", side: "basic", adjacency: "zeroToTwo", strain: "unstrained", direction: "NE" },
-      { id: 17, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "strained", direction: "NW" },
-      { id: 18, tileClass: "core", side: "upgraded", adjacency: "threePlus", strain: "unstrained", direction: "SE" },
-      { id: 19, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "strained", direction: "N" },
-      { id: 20, tileClass: "core", side: "upgraded", adjacency: "zeroToTwo", strain: "unstrained", direction: "S" },
-      { id: 21, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "strained", direction: "NE" },
-      { id: 22, tileClass: "specialOrGolden", side: "either", adjacency: "threePlus", strain: "unstrained", direction: "SW" },
-      { id: 23, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "strained", direction: "SE" },
-      { id: 24, tileClass: "specialOrGolden", side: "either", adjacency: "zeroToTwo", strain: "unstrained", direction: "NW" },
-      { id: 25, tileClass: "any", side: "any", adjacency: "any", strain: "any" },
-      { id: 26, tileClass: "any", side: "any", adjacency: "any", strain: "any" },
-      { id: 27, tileClass: "any", side: "any", adjacency: "any", strain: "any" },
-      { id: 28, tileClass: "any", side: "any", adjacency: "any", strain: "any" },
-      { id: 29, tileClass: "any", side: "any", adjacency: "any", strain: "any" },
-      { id: 30, tileClass: "any", side: "any", adjacency: "any", strain: "any" }
+      { id: 1, tile: "basic", strain: "strained", direction: "N" },
+      { id: 2, tile: "basic", strain: "unstrained", direction: "S" },
+      { id: 3, tile: "basic", strain: "strained", direction: "NE" },
+      { id: 4, tile: "basic", strain: "unstrained", direction: "SW" },
+      { id: 5, tile: "upgraded", strain: "strained", direction: "SE" },
+      { id: 6, tile: "upgraded", strain: "unstrained", direction: "NW" },
+      { id: 7, tile: "upgraded", strain: "strained", direction: "S" },
+      { id: 8, tile: "upgraded", strain: "unstrained", direction: "N" },
+      { id: 9, tile: "specialOrGolden", strain: "strained", direction: "SW" },
+      { id: 10, tile: "specialOrGolden", strain: "unstrained", direction: "NE" },
+      { id: 11, tile: "specialOrGolden", strain: "strained", direction: "NW" },
+      { id: 12, tile: "specialOrGolden", strain: "unstrained", direction: "SE" },
+      { id: 13, tile: "basic", strain: "strained", direction: "S" },
+      { id: 14, tile: "basic", strain: "unstrained", direction: "N" },
+      { id: 15, tile: "basic", strain: "strained", direction: "SW" },
+      { id: 16, tile: "basic", strain: "unstrained", direction: "NE" },
+      { id: 17, tile: "upgraded", strain: "strained", direction: "NW" },
+      { id: 18, tile: "upgraded", strain: "unstrained", direction: "SE" },
+      { id: 19, tile: "upgraded", strain: "strained", direction: "N" },
+      { id: 20, tile: "upgraded", strain: "unstrained", direction: "S" },
+      { id: 21, tile: "specialOrGolden", strain: "strained", direction: "NE" },
+      { id: 22, tile: "specialOrGolden", strain: "unstrained", direction: "SW" },
+      { id: 23, tile: "specialOrGolden", strain: "strained", direction: "SE" },
+      { id: 24, tile: "specialOrGolden", strain: "unstrained", direction: "NW" },
+      { id: 25, tile: "any", strain: "any" },
+      { id: 26, tile: "any", strain: "any" },
+      { id: 27, tile: "any", strain: "any" },
+      { id: 28, tile: "any", strain: "any" },
+      { id: 29, tile: "any", strain: "any" },
+      { id: 30, tile: "any", strain: "any" }
     ]);
     expect(new Set(targetCards.map((card) => card.id)).size).toBe(30);
-    expect(targetCards.filter((card) => card.tileClass === "core")).toHaveLength(16);
-    expect(targetCards.filter((card) => card.tileClass === "specialOrGolden")).toHaveLength(8);
-    expect(targetCards.filter((card) => card.tileClass === "any")).toHaveLength(6);
-    expect(targetCards.filter((card) => card.side === "basic")).toHaveLength(8);
-    expect(targetCards.filter((card) => card.side === "upgraded")).toHaveLength(8);
-    expect(targetCards.filter((card) => card.side === "either")).toHaveLength(8);
-    expect(targetCards.filter((card) => card.side === "any")).toHaveLength(6);
-    expect(targetCards.filter((card) => card.adjacency === "threePlus")).toHaveLength(12);
-    expect(targetCards.filter((card) => card.adjacency === "zeroToTwo")).toHaveLength(12);
-    expect(targetCards.filter((card) => card.adjacency === "any")).toHaveLength(6);
+    expect(targetCards.filter((card) => card.tile === "basic")).toHaveLength(8);
+    expect(targetCards.filter((card) => card.tile === "upgraded")).toHaveLength(8);
+    expect(targetCards.filter((card) => card.tile === "specialOrGolden")).toHaveLength(8);
+    expect(targetCards.filter((card) => card.tile === "any")).toHaveLength(6);
     expect(targetCards.filter((card) => card.strain === "strained")).toHaveLength(12);
     expect(targetCards.filter((card) => card.strain === "unstrained")).toHaveLength(12);
     expect(targetCards.filter((card) => card.strain === "any")).toHaveLength(6);
@@ -162,9 +156,7 @@ describe("Target Cards", () => {
       expect(partner.direction).toBe(opposite[original.direction!]);
     }
     expect(targetCards.slice(24).every((card) =>
-      card.tileClass === "any" &&
-      card.side === "any" &&
-      card.adjacency === "any" &&
+      card.tile === "any" &&
       card.strain === "any" &&
       card.direction === undefined
     )).toBe(true);
@@ -259,7 +251,7 @@ describe("Target Cards", () => {
     expect(migrated).not.toHaveProperty("reshuffleCount");
   });
 
-  it("narrows sequentially and never restores an eliminated candidate", () => {
+  it("narrows sequentially, stops as soon as 1 tile remains, and never restores an eliminated candidate", () => {
     const tiles = [
       placed("basic", "c15_path", "A1"),
       placed("upgraded", "c15_path", "B1", { side: "upgraded", strain: 1 }),
@@ -280,11 +272,9 @@ describe("Target Cards", () => {
       applied: filter.applied,
       after: filter.afterCount
     }))).toEqual([
-      { filter: "class", applied: true, after: 2 },
-      { filter: "side", applied: true, after: 1 },
-      { filter: "adjacency", applied: false, after: 1 },
-      { filter: "strain", applied: false, after: 1 }
+      { filter: "tile", applied: true, after: 1 }
     ]);
+    expect(selected?.diagnostic.directionRequired).toBe(false);
   });
 
   it("counts distinct adjacent tiles across an entire multi-hex footprint", () => {
@@ -301,7 +291,7 @@ describe("Target Cards", () => {
     const westFootprint = placed("west", "c05_cabin", "E1");
     const eastCard: TargetCardDefinition = {
       ...targetCardById[10],
-      tileClass: "core"
+      tile: "basic"
     };
     const extentSelection = selectTargetWithCard(
       targetCardState([eastFootprint, westFootprint]),

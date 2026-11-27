@@ -290,18 +290,23 @@ export interface EffectControlHints {
   tileChoice: boolean;
 }
 
-export type TargetCardTileClass = "core" | "specialOrGolden" | "any";
-export type TargetCardSidePreference = "basic" | "upgraded" | "either" | "any";
-export type TargetCardAdjacencyPreference = "threePlus" | "zeroToTwo" | "any";
+export type TargetCardTilePreference =
+  | "basic"
+  | "upgraded"
+  | "specialOrGolden"
+  | "any";
 export type TargetCardStrainPreference = "strained" | "unstrained" | "any";
 export type TargetCardDirection = "N" | "NE" | "SE" | "S" | "SW" | "NW";
-export type TargetCardFilterName = "class" | "side" | "adjacency" | "strain";
+export type TargetCardFilterName =
+  | "tile"
+  | "strain"
+  | "class"
+  | "side"
+  | "adjacency";
 
 export interface TargetCardDefinition {
   id: number;
-  tileClass: TargetCardTileClass;
-  side: TargetCardSidePreference;
-  adjacency: TargetCardAdjacencyPreference;
+  tile: TargetCardTilePreference;
   strain: TargetCardStrainPreference;
   direction?: TargetCardDirection;
 }
