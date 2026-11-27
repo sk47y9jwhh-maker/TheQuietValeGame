@@ -101,14 +101,17 @@
       <Button id="btnHudUnlock" text="UNLOCK" preferredWidth="90" flexibleWidth="1" color="#7d5c20" onClick="onHudUnlockTile" />
     </HorizontalLayout>
 
-    <!-- Quick Pull Core Tile -->
-    <Text text="QUICK-PULL CORE TILE" fontSize="10" fontStyle="Bold" color="#c9a862" minHeight="14" preferredHeight="14" />
+    <!-- Quick Pull Core Tile & Tile Menu Modal -->
+    <Text text="CORE TILES (STEWARD'S TILE MENU)" fontSize="10" fontStyle="Bold" color="#c9a862" minHeight="14" preferredHeight="14" />
     <HorizontalLayout minHeight="24" preferredHeight="24" spacing="4">
       <Button text="&lt;" preferredWidth="26" minWidth="26" color="#342d24" onClick="onHudCorePrev" />
       <Text id="hudCoreName" text="Lumber Yard" flexibleWidth="1" fontSize="11" alignment="MiddleCenter" color="#f2ead4" />
       <Button text="&gt;" preferredWidth="26" minWidth="26" color="#342d24" onClick="onHudCoreNext" />
     </HorizontalLayout>
-    <Button text="PULL CORE TILE NEXT TO MAP" minHeight="26" preferredHeight="26" fontSize="11" color="#3b4d38" onClick="onHudPullCoreTile" tooltip="Pull the selected Core Tile from its bag right beside the Map Board" />
+    <HorizontalLayout minHeight="26" preferredHeight="26" spacing="4">
+      <Button text="PULL TILE" flexibleWidth="1" fontSize="11" color="#3b4d38" onClick="onHudPullCoreTile" tooltip="Pull the selected Core Tile next to the Map Board" />
+      <Button text="TILE MENU" preferredWidth="104" minWidth="104" fontSize="11" color="#6c5222" onClick="onHudToggleTileMenu" tooltip="Open full Steward's Core Tile Menu with costs, effects &amp; 1-click Pull" />
+    </HorizontalLayout>
 
     <!-- Live Score Calculator & Reset Game -->
     <HorizontalLayout minHeight="28" preferredHeight="28" spacing="4">
@@ -117,4 +120,26 @@
     </HorizontalLayout>
 
   </VerticalLayout>
+</Panel>
+
+<!-- Scrollable Steward's Core Tile Menu Modal (toggled via TILE MENU button) -->
+<Panel id="qvTileMenuModal"
+       active="false"
+       rectAlignment="MiddleCenter"
+       width="760"
+       height="620"
+       color="#181512F6"
+       outline="#c89e4c"
+       outlineSize="2 -2"
+       allowDragging="true"
+       returnToOriginalPositionWhenReleased="false">
+  <HorizontalLayout rectAlignment="UpperCenter" height="36" padding="12 8 6 6" color="#282118FF">
+    <Text text="STEWARD'S GUIDE — CORE TILE MENU (v7.0)   |   W:Wood  St:Stone  M:Metal  F:Food  H:Herbs  G:Goods" fontSize="12" fontStyle="Bold" color="#ecd084" alignment="MiddleLeft" flexibleWidth="1" />
+    <Button text="CLOSE" preferredWidth="68" minWidth="68" color="#6a2a24" onClick="onHudToggleTileMenu" />
+  </HorizontalLayout>
+  <VerticalScrollView rectAlignment="UpperCenter" offsetXY="0 -38" height="578" color="#18151200" scrollSensitivity="35">
+    <VerticalLayout padding="8 8 8 8" spacing="4" childForceExpandHeight="false" childControlHeight="true" height="__QV_TILE_MENU_HEIGHT__">
+__QV_TILE_MENU_ROWS__
+    </VerticalLayout>
+  </VerticalScrollView>
 </Panel>

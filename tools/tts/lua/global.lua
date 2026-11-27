@@ -584,6 +584,18 @@ function onHudEndRound() onEndRound() end
 function onHudUnlockPrev() onUnlockPrev(nil, nil, false) end
 function onHudUnlockNext() onUnlockNext(nil, nil, false) end
 function onHudUnlockTile() onUnlockTile() end
+local tileMenuOpen = false
+
+function onHudToggleTileMenu()
+  tileMenuOpen = not tileMenuOpen
+  UI.setAttribute("qvTileMenuModal", "active", tileMenuOpen and "true" or "false")
+end
+
+function onHudPullCoreByIdx(_, idxStr)
+  local idx = tonumber(idxStr)
+  if idx then pullCoreTile(idx) end
+end
+
 function onHudPullCoreTile() pullCoreTile(state.coreIdx) end
 
 function onHudWhPlus(_, idxStr)
