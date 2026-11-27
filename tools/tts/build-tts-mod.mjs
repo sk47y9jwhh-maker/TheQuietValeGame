@@ -882,14 +882,14 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     makePlaque({
       guid: controlPlaqueGuid,
       name: "Game Setup & Round Control",
-      pos: [17.6, 1.12, -4.4],
-      scale: [5.4, 0.24, 3.6]
+      pos: [17.6, 1.12, -4.2],
+      scale: [5.6, 0.24, 3.8]
     }),
     makePlaque({
       guid: unlockPlaqueGuid,
       name: "Special Tile Unlock Helper",
-      pos: [17.6, 1.12, -7.5],
-      scale: [5.0, 0.24, 2.2]
+      pos: [17.6, 1.12, -7.7],
+      scale: [5.6, 0.24, 2.5]
     }),
     makePdf({
       name: "The Quiet Vale — Rulebook v7.0 (36 pages)",
