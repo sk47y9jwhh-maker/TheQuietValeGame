@@ -628,7 +628,7 @@ function refreshHud()
   local _, seasonRoman = getSeason(state.round)
   local rules = SETUP_RULES[state.playerCount] or SETUP_RULES[2]
   UI.setAttribute("qvHudBody", "active", state.hudCollapsed and "false" or "true")
-  UI.setAttribute("qvHudRoot", "height", state.hudCollapsed and "36" or "642")
+  UI.setAttribute("qvHudRoot", "height", state.hudCollapsed and "36" or "672")
   UI.setAttribute("qvToggleBtn", "text", state.hudCollapsed and "+" or "-")
   UI.setAttribute(
     "qvStatus",
@@ -1100,4 +1100,161 @@ function onUnlockTile()
   else
     broadcastToAll("Special Tile #" .. tostring(state.unlockNum) .. " is already unlocked.", {0.95, 0.72, 0.42})
   end
+end
+
+-- ---------------------------------------------------------------------------
+-- Two-Click Full Table Reset (returns all tiles, cards, meeples, tokens & counters)
+-- ---------------------------------------------------------------------------
+local resetArmed = false
+local resetTimerId = nil
+
+function onHudResetClick()
+  if not resetArmed then
+    resetArmed = true
+    UI.setAttribute("btnResetGame", "text", "CONFIRM?")
+    UI.setAttribute("btnResetGame", "color", "#b82824")
+    broadcastToAll("Click CONFIRM? within 5 seconds to reset the entire table.", {0.98, 0.62, 0.48})
+    if resetTimerId then Wait.stop(resetTimerId) end
+    resetTimerId = Wait.time(function()
+      resetArmed = false
+      UI.setAttribute("btnResetGame", "text", "RESET GAME")
+      UI.setAttribute("btnResetGame", "color", "#5a2422")
+    end, 5.0)
+    return
+  end
+  resetArmed = false
+  if resetTimerId then Wait.stop(resetTimerId) end
+  UI.setAttribute("btnResetGame", "text", "RESET GAME")
+  UI.setAttribute("btnResetGame", "color", "#5a2422")
+  resetTable()
+end
+
+function resetTable()
+  -- Build lookup from core tile basic name -> category bag GUID
+  local coreBagById = {}
+  for _, entry in ipairs(CONFIG.coreCatalog) do
+    for id, r in pairs(CONFIG.tileRules) do
+      if r.kind == "core" and r.name == entry.name then
+        coreBagById[id] = entry.bagGuid
+      end
+    end
+  end
+
+  local specialBag = getObjectFromGUID(CONFIG.guids.specialBag)
+  local goldenBag = getObjectFromGUID(CONFIG.guids.goldenBag)
+  local travelExtBag = getObjectFromGUID(CONFIG.guids.travelExtBag)
+  local reservePosByType = {
+    boon = CONFIG.positions.boonsReserve,
+    burden = CONFIG.positions.burdensReserve,
+    arrival = CONFIG.positions.arrivalsReserve,
+    goldenBoon = CONFIG.positions.goldenBoonsReserve
+  }
+  local stackBump = { boon = 0, burden = 0, arrival = 0, goldenBoon = 0, quest = 0, target = 0 }
+
+  local function routeCard(cardObj)
+    local note = cardObj.getGMNotes() or ""
+    local name = cardObj.getName() or ""
+    local erule = CONFIG.encounterRules[note]
+    if erule and reservePosByType[erule.type] then
+      local p = reservePosByType[erule.type]
+      stackBump[erule.type] = stackBump[erule.type] + 1
+      cardObj.setRotation({0, 180, 180})
+      cardObj.setPosition({p[1], p[2] + 0.6 + stackBump[erule.type] * 0.03, p[3]})
+      return true
+    elseif string.sub(name, 1, 6) == "Quest " then
+      local p = CONFIG.positions.questDeckWell
+      stackBump.quest = stackBump.quest + 1
+      cardObj.setRotation({0, 180, 180})
+      cardObj.setPosition({p[1], p[2] + 0.6 + stackBump.quest * 0.03, p[3]})
+      return true
+    elseif string.sub(name, 1, 12) == "Target Card " then
+      local p = CONFIG.positions.targetWell
+      stackBump.target = stackBump.target + 1
+      cardObj.setRotation({0, 180, 180})
+      cardObj.setPosition({p[1], p[2] + 0.6 + stackBump.target * 0.03, p[3]})
+      return true
+    end
+    return false
+  end
+
+  -- 1. Sweep loose tokens, return loose tiles to bags, return loose cards & Encounter/Discard decks
+  local protectedDeckGuids = {
+    [CONFIG.guids.boonsDeck] = true,
+    [CONFIG.guids.burdensDeck] = true,
+    [CONFIG.guids.arrivalsDeck] = true,
+    [CONFIG.guids.goldenBoonsDeck] = true,
+    [CONFIG.guids.questDeck] = true,
+    [CONFIG.guids.targetDeck] = true
+  }
+
+  for _, obj in ipairs(getAllObjects()) do
+    if not obj.getLock() then
+      local name = obj.getName() or ""
+      local note = obj.getGMNotes() or ""
+      if name == "Strain Token" or name == "Supported Shield" or name == "Cooldown X" or name == "Arrival Timer" then
+        obj.destruct()
+      elseif name == "Travel Extension" and travelExtBag then
+        if obj.is_face_down then obj.flip() end
+        travelExtBag.putObject(obj)
+      elseif CONFIG.tileRules[note] then
+        local r = CONFIG.tileRules[note]
+        if obj.is_face_down then obj.flip() end
+        if r.kind == "core" and coreBagById[note] then
+          local b = getObjectFromGUID(coreBagById[note])
+          if b then b.putObject(obj) end
+        elseif r.kind == "special" and specialBag then
+          specialBag.putObject(obj)
+        elseif r.kind == "golden" and goldenBag then
+          goldenBag.putObject(obj)
+        end
+      elseif obj.tag == "Card" then
+        routeCard(obj)
+      elseif obj.tag == "Deck" and not protectedDeckGuids[obj.getGUID()] then
+        -- Unpack any built Encounter Deck or Discard pile back to its reserve stacks
+        local items = obj.getObjects()
+        for i = 1, #items do
+          local item = items[i]
+          local erule = CONFIG.encounterRules[item.gm_notes or ""]
+          local dest = erule and reservePosByType[erule.type]
+          if dest then
+            stackBump[erule.type] = stackBump[erule.type] + 1
+            local targetP = {dest[1], dest[2] + 0.6 + stackBump[erule.type] * 0.03, dest[3]}
+            if obj.getQuantity() > 1 then
+              obj.takeObject({ guid = item.guid, position = targetP, rotation = {0, 180, 180}, smooth = false })
+            else
+              obj.setRotation({0, 180, 180})
+              obj.setPosition(targetP)
+              break
+            end
+          end
+        end
+      end
+    end
+  end
+
+  -- 2. Return all Steward Meeples to their home Steward mats
+  for _, st in ipairs(CONFIG.stewards) do
+    local pawn = getObjectFromGUID(st.pawnGuid)
+    if pawn then
+      pawn.setPositionSmooth({st.homePawnPos[1], st.homePawnPos[2], st.homePawnPos[3]}, false, true)
+      pawn.setRotationSmooth({0, 180, 0}, false, true)
+    end
+  end
+
+  -- 3. Reset Warehouse counters to 0, Round Marker to 1, P1 Marker to Seat 1
+  for _, guid in ipairs(CONFIG.guids.warehouseCounters) do
+    local c = getObjectFromGUID(guid)
+    if c then c.call("setValue", 0) end
+  end
+  state.round = 1
+  state.firstPlayerIdx = 1
+  state.currentTurnIdx = 1
+  state.actionsLeft = (SETUP_RULES[state.playerCount] or SETUP_RULES[2]).actions
+  state.activeTargetGuid = ""
+  moveRoundMarker(1)
+  movePlayer1Marker(1)
+  buildControlPlaqueUI()
+  refreshHud()
+
+  broadcastToAll("Table reset complete! Click 1P–5P in the HUD to start a fresh game.", {0.86, 0.94, 0.78})
 end
