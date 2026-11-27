@@ -407,7 +407,7 @@ export const coreTiles: CoreTileData[] = [
       name: "Common Land",
       cost: cost({ metal: 2, herbs: 2 }),
       effectText:
-        "Passive: 1 adjacent Housing Tile has Supported while this tile is not Overstrained.",
+        "Passive, once per round: Prevent 1 Strain on an adjacent Housing Tile.",
       effectType: "passive",
       population: 0,
       renown: 5
@@ -416,7 +416,7 @@ export const coreTiles: CoreTileData[] = [
       name: "The Pleasance",
       cost: cost({ metal: 2, herbs: 2 }),
       effectText:
-        "Passive: Up to 3 adjacent Housing Tiles have Supported while this tile is not Overstrained.",
+        "Passive, once per round: Prevent 1 Strain on up to 3 adjacent Housing Tiles.",
       effectType: "passive",
       population: 0,
       renown: 5
@@ -492,7 +492,7 @@ export const coreTiles: CoreTileData[] = [
       name: "Stone Bridge",
       cost: cost({ stone: 2 }),
       effectText:
-        "Passive: Connect the settlement network across this river. Supported.",
+        "Passive: Connect the settlement network across this river. Once per round, prevent 1 Strain on this Tile.",
       effectType: "passive",
       population: 0,
       renown: 5
@@ -955,7 +955,7 @@ export const goldenTiles: GoldenTileData[] = [
       notAdjacentToTerrain: ["water"],
       text: "Place on Grasslands, Woodland, or Arable Land. Not adjacent to River/Water."
     },
-    effectText: "Adjacent Housing Tiles have Passive: Supported.",
+    effectText: "Passive, once per round: Prevent 1 Strain on each adjacent Housing Tile.",
     scoringText:
       "+5 Renown if this tile is surrounded by six non-Overstrained placed tiles.",
     layoutIncentive: "Central ring or dense village core.",

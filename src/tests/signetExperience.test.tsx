@@ -163,15 +163,13 @@ describe("guided Golden Signet planning", () => {
     expect(resolveGoldenSignet(state, resolve.mock.calls[0][0]).map.placedTiles[0].hexIds).toEqual(["G1", "B8"]);
   });
 
-  it("shows support lost by an unselected neighbour in the engine preview", () => {
+  it("does not flag passive support loss when moving Common Land away from a neighbour", () => {
     let state = fresh(); const common = placed("common", "c18_common_land", ["G1"]); const cabin = placed("home", "c05_cabin", ["H1"]); cabin.support.singleUse = false;
     state.map.placedTiles = [common, cabin]; state = recalculatePassiveSupported(state);
-    expect(state.map.placedTiles[1].support.passive).toBe(true);
+    expect(state.map.placedTiles[1].support.passive).toBe(false);
     panel(state); choose("Move Common Land at G1"); fireEvent.click(screen.getByRole("button", { name: "Plan 1 tile" })); destination("N9");
     fireEvent.click(screen.getByRole("button", { name: "Review settlement plan" }));
-    expect(screen.getByRole("heading", { name: "Other support changes" })).toBeVisible();
-    expect(screen.getByText("Cabin at H1: Unsupported")).toBeVisible();
-    expect(state.map.placedTiles[1].support.passive).toBe(true);
+    expect(screen.queryByRole("heading", { name: "Other support changes" })).not.toBeInTheDocument();
   });
 
   it("browses the map with one Tab stop and only chooses a destination on explicit activation", () => {

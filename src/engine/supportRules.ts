@@ -1,5 +1,3 @@
-import { getHexNeighbors } from "./hex";
-import { intrinsicallySupportedTileSides } from "../data/contentRules";
 import { arePlacedTilesAdjacent, getPlacedTileCategory } from "./placedTiles";
 import type { GameState, PlacedTile } from "./types";
 
@@ -109,101 +107,19 @@ export function isNeighbourlySupportSelectionValid(
   );
 }
 
-function hasPrintedPassiveSupport(tile: PlacedTile): boolean {
-  return intrinsicallySupportedTileSides.has(`${tile.tileId}:${tile.side}`);
-}
-
-function getGoldenHearthSupportedTileIds(state: GameState): Set<string> {
-  const supportedIds = new Set<string>();
-  const hearths = state.map.placedTiles.filter(
-    (tile) => tile.tileId === "golden_tile_the_golden_hearth" && tile.strain < 3
-  );
-
-  for (const tile of state.map.placedTiles) {
-    if (tile.strain >= 3 || getPlacedTileCategory(tile) !== "housing") continue;
-    if (
-      hearths.some((hearth) =>
-        hearth.hexIds.some((hexId) =>
-          getHexNeighbors(hexId).some((neighborId) => tile.hexIds.includes(neighborId))
-        )
-      )
-    ) {
-      supportedIds.add(tile.instanceId);
-    }
-  }
-  return supportedIds;
-}
-
-function getCommonLandSupportedTileIds(
-  state: GameState,
-  alreadySupportedIds: Set<string>
-): Set<string> {
-  const supportedIds = new Set<string>();
-  const commonLands = state.map.placedTiles.filter(
-    (tile) =>
-      tile.kind === "core" &&
-      tile.tileId === "c18_common_land" &&
-      tile.strain < 3
-  );
-
-  for (const source of commonLands) {
-    const capacity = source.side === "upgraded" ? 3 : 1;
-    const candidates = state.map.placedTiles
-      .filter(
-        (tile) =>
-          tile.instanceId !== source.instanceId &&
-          tile.strain < 3 &&
-          getPlacedTileCategory(tile) === "housing" &&
-          source.hexIds.some((hexId) =>
-            getHexNeighbors(hexId).some((neighborId) => tile.hexIds.includes(neighborId))
-          )
-      )
-      .sort((a, b) => {
-        const aAlreadySupported =
-          alreadySupportedIds.has(a.instanceId) || supportedIds.has(a.instanceId);
-        const bAlreadySupported =
-          alreadySupportedIds.has(b.instanceId) || supportedIds.has(b.instanceId);
-        return Number(aAlreadySupported) - Number(bAlreadySupported);
-      });
-
-    for (const tile of candidates.slice(0, capacity)) {
-      supportedIds.add(tile.instanceId);
-    }
-  }
-
-  return supportedIds;
-}
-
 export function recalculatePassiveSupported(state: GameState): GameState {
-  const goldenHearthSupportedIds = getGoldenHearthSupportedTileIds(state);
-  const intrinsicSupportedIds = new Set(
-    state.map.placedTiles
-      .filter(hasPrintedPassiveSupport)
-      .map((tile) => tile.instanceId)
-  );
-  const alreadySupportedIds = new Set([
-    ...intrinsicSupportedIds,
-    ...goldenHearthSupportedIds
-  ]);
-  const commonLandSupportedIds = getCommonLandSupportedTileIds(
-    state,
-    alreadySupportedIds
-  );
+  // Supported is single-use only (bronze shield). Common Land, The Pleasance,
+  // Stone Bridge, and The Golden Hearth use once-per-round Strain prevention
+  // tracked in tileActivationRecords instead of Passive Supported.
   let changed = false;
-
   const placedTiles = state.map.placedTiles.map((tile) => {
-    const passive =
-      intrinsicSupportedIds.has(tile.instanceId) ||
-      goldenHearthSupportedIds.has(tile.instanceId) ||
-      commonLandSupportedIds.has(tile.instanceId);
-    if (tile.support.passive === passive) return tile;
-
+    if (!tile.support.passive) return tile;
     changed = true;
     return {
       ...tile,
       support: {
         ...tile.support,
-        passive
+        passive: false
       }
     };
   });

@@ -185,7 +185,12 @@ describe("Golden Legacy", () => {
     expect(options.some((option) => option.sourceTileId === "charter" && option.required)).toBe(true);
 
     const supported = recalculatePassiveSupported(base);
-    expect(supported.map.placedTiles.find((tile) => tile.instanceId === "home")?.support.passive).toBe(true);
+    expect(supported.map.placedTiles.find((tile) => tile.instanceId === "home")?.support.passive).toBe(false);
+
+    const hearthFirst = applyStrainToState(base, "home", 1);
+    expect(hearthFirst.map.placedTiles.find((tile) => tile.instanceId === "home")?.strain).toBe(0);
+    const hearthSecond = applyStrainToState(hearthFirst, "home", 1);
+    expect(hearthSecond.map.placedTiles.find((tile) => tile.instanceId === "home")?.strain).toBe(1);
 
     const first = applyStrainToState(base, "target", 1);
     expect(first.map.placedTiles.find((tile) => tile.instanceId === "target")?.strain).toBe(0);
