@@ -23,11 +23,11 @@
   "PlayArea": 0.5,
   "Table": "Table_RPG",
   "Sky": "Sky_Museum",
-  "Note": "The Quiet Vale: Seasons of Settlement (v7.0). Click 1P–5P on the left Control Plaque to auto-setup Warehouse, Encounters, Target Deck, and Quest Card.",
+  "Note": "The Quiet Vale: Seasons of Settlement (v7.0). Use the left HUD panel for 1-click Setup (auto-places Stewards & deals hands), Reveal Encounters (+3 Arrival Timers), Draw Target Card, Warehouse tracking, Core Tile Quick-Pull, and End Round cleanup.",
   "Rules": "",
-  "LuaScript": "-- The Quiet Vale: Seasons of Settlement (v7.0) — Enhanced Helper Global Script\n-- Provides:\n--   1. 1-5 Player Setup buttons (starting Warehouse 15/10/8/0/0, exact v7.0 Encounter split,\n--      Target Deck shuffle, Quest Card draw, Round 1 placement, Actions/Turn announcement)\n--   2. End-of-Round Cleanup button (clears X cooldown tokens from Map Board, advances Round\n--      & announces Season II/III/Final Scoring, rotates Player 1 marker)\n--   3. Special Tile #1-#26 Unlock Helper (pulls exact numbered Special Tile onto Tiles Board)\n\nlocal CONFIG = {\n  guids = {\n    controlPlaque = \"100122\",\n    unlockPlaque = \"100123\",\n    warehouseCounters = { \"100073\", \"100074\", \"100075\", \"100076\", \"100077\", \"100078\" },\n    targetDeck = \"100063\",\n    questDeck = \"100081\",\n    boonsDeck = \"100005\",\n    burdensDeck = \"100006\",\n    arrivalsDeck = \"100007\",\n    goldenBoonsDeck = \"100008\",\n    specialBag = \"1000f1\",\n    roundMarker = \"100114\",\n    player1Marker = \"100115\"\n  },\n  positions = {\n    encounterDraw = { 4.81, 1.25, 8.45 },\n    activeQuest = { 7.69, 1.35, -4.1384 },\n    unlockedSpecial = { 12.26, 1.25, -4.1384 },\n    roundSockets = { { -22.7533, 1.06, -10.5809 }, { -21.3733, 1.06, -10.5809 }, { -19.9933, 1.06, -10.5809 }, { -18.6133, 1.06, -10.5809 }, { -13.44, 1.06, -10.5809 }, { -12.06, 1.06, -10.5809 }, { -10.68, 1.06, -10.5809 }, { -9.3, 1.06, -10.5809 }, { -4.1267, 1.06, -10.5809 }, { -2.7467, 1.06, -10.5809 }, { -1.3667, 1.06, -10.5809 }, { 0.0133, 1.06, -10.5809 } },\n    seatMarkers = { { -20, 1.25, -18.6 }, { -8, 1.25, -18.6 }, { 4, 1.25, -18.6 }, { 16, 1.25, -18.6 }, { -12, 1.25, 14.6 } }\n  },\n  mapBounds = {\n    minX = -25.97,\n    maxX = 1.97,\n    minZ = -11.37,\n    maxZ = 11.37\n  }\n}\n\nstate = {\n  playerCount = 2,\n  round = 1,\n  firstPlayerIdx = 1,\n  unlockNum = 1\n}\n\nlocal SETUP_RULES = {\n  [1] = { actions = 4, warehouse = 15, boons = 5,  burdens = 3,  arrivals = 4  },\n  [2] = { actions = 4, warehouse = 10, boons = 8,  burdens = 8,  arrivals = 8  },\n  [3] = { actions = 3, warehouse = 8,  boons = 12, burdens = 12, arrivals = 12 },\n  [4] = { actions = 3, warehouse = 0,  boons = 16, burdens = 16, arrivals = 16 },\n  [5] = { actions = 2, warehouse = 0,  boons = 26, burdens = 14, arrivals = 20 },\n}\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, decoded = pcall(JSON.decode, saved_data)\n    if ok and type(decoded) == \"table\" then\n      state.playerCount = decoded.playerCount or state.playerCount\n      state.round = decoded.round or state.round\n      state.firstPlayerIdx = decoded.firstPlayerIdx or state.firstPlayerIdx\n      state.unlockNum = decoded.unlockNum or state.unlockNum\n    end\n  end\n  Wait.frames(function()\n    buildControlPlaqueUI()\n    buildUnlockPlaqueUI()\n  end, 5)\nend\n\nfunction onSave()\n  return JSON.encode(state)\nend\n\n-- ---------------------------------------------------------------------------\n-- Control Plaque UI (Setup 1-5P + End Round)\n-- ---------------------------------------------------------------------------\nfunction buildControlPlaqueUI()\n  local plaque = getObjectFromGUID(CONFIG.guids.controlPlaque)\n  if not plaque then return end\n  plaque.clearButtons()\n\n  plaque.createButton({\n    click_function = \"noop\",\n    function_owner = Global,\n    label = \"THE QUIET VALE v7.0\\nSETUP BY PLAYER COUNT\",\n    position = {0, 0.56, -0.34},\n    width = 0,\n    height = 0,\n    font_size = 70,\n    font_color = {0.94, 0.80, 0.46}\n  })\n\n  for p = 1, 5 do\n    local x = -0.38 + (p - 1) * 0.19\n    local fnName = \"setupPlayers_\" .. tostring(p)\n    _G[fnName] = function() runSetup(p) end\n    plaque.createButton({\n      click_function = fnName,\n      function_owner = Global,\n      label = tostring(p) .. \"P\",\n      position = {x, 0.56, -0.10},\n      width = 90,\n      height = 90,\n      font_size = 64,\n      color = (state.playerCount == p) and {0.68, 0.52, 0.22} or {0.26, 0.24, 0.22},\n      font_color = {0.98, 0.94, 0.84},\n      tooltip = \"Setup \" .. tostring(p) .. \"-Player Game (Actions: \" .. tostring(SETUP_RULES[p].actions) .. \", Warehouse: \" .. tostring(SETUP_RULES[p].warehouse) .. \")\"\n    })\n  end\n\n  plaque.createButton({\n    click_function = \"onEndRound\",\n    function_owner = Global,\n    label = \"END ROUND \" .. tostring(state.round) .. \" -> NEXT\",\n    position = {0, 0.56, 0.14},\n    width = 450,\n    height = 96,\n    font_size = 52,\n    color = {0.26, 0.44, 0.30},\n    font_color = {0.96, 0.94, 0.88},\n    tooltip = \"Clear X tokens from Map, advance Round Marker, and rotate Player 1 marker.\"\n  })\n\n  plaque.createButton({\n    click_function = \"onRotateP1\",\n    function_owner = Global,\n    label = \"ROTATE PLAYER 1 MARKER\",\n    position = {0, 0.56, 0.35},\n    width = 450,\n    height = 78,\n    font_size = 44,\n    color = {0.32, 0.28, 0.24},\n    font_color = {0.94, 0.86, 0.68},\n    tooltip = \"Move Player 1 marker to the next player seat.\"\n  })\nend\n\nfunction noop() end\n\n-- ---------------------------------------------------------------------------\n-- 1-5P Setup Automation\n-- ---------------------------------------------------------------------------\nfunction runSetup(playerCount)\n  local rules = SETUP_RULES[playerCount]\n  if not rules then return end\n  state.playerCount = playerCount\n  state.round = 1\n  state.firstPlayerIdx = 1\n\n  -- 1. Set all 6 Warehouse counters\n  for _, guid in ipairs(CONFIG.guids.warehouseCounters) do\n    local c = getObjectFromGUID(guid)\n    if c then\n      c.call(\"setValue\", rules.warehouse)\n    end\n  end\n\n  -- 2. Shuffle Target Deck\n  local targetDeck = getObjectFromGUID(CONFIG.guids.targetDeck)\n  if targetDeck then\n    targetDeck.shuffle()\n  end\n\n  -- 3. Shuffle Quest Deck and deal 1 Quest Card face up onto the Tiles Board\n  local questDeck = getObjectFromGUID(CONFIG.guids.questDeck)\n  if questDeck then\n    questDeck.shuffle()\n    questDeck.takeObject({\n      position = CONFIG.positions.activeQuest,\n      rotation = {0, 180, 0},\n      smooth = true\n    })\n  end\n\n  -- 4. Build the exact v7.0 Encounter Deck from Boons, Burdens, and Arrivals\n  local drawPos = CONFIG.positions.encounterDraw\n  local pulled = {}\n  local function takeCards(deckGuid, count)\n    local deck = getObjectFromGUID(deckGuid)\n    if not deck then return end\n    deck.shuffle()\n    for i = 1, count do\n      if deck.getQuantity() > 1 then\n        local card = deck.takeObject({\n          position = {drawPos[1], drawPos[2] + 0.3 + (#pulled * 0.04), drawPos[3]},\n          rotation = {0, 180, 180},\n          smooth = false\n        })\n        if card then table.insert(pulled, card) end\n      elseif deck.getQuantity() == 1 then\n        deck.setPosition({drawPos[1], drawPos[2] + 0.3 + (#pulled * 0.04), drawPos[3]})\n        deck.setRotation({0, 180, 180})\n        table.insert(pulled, deck)\n        break\n      end\n    end\n  end\n\n  takeCards(CONFIG.guids.boonsDeck, rules.boons)\n  takeCards(CONFIG.guids.burdensDeck, rules.burdens)\n  takeCards(CONFIG.guids.arrivalsDeck, rules.arrivals)\n\n  Wait.time(function()\n    -- Find newly formed deck at Encounter Draw well and shuffle it\n    local hits = Physics.cast({\n      origin = {drawPos[1], drawPos[2] + 4, drawPos[3]},\n      direction = {0, -1, 0},\n      type = 3,\n      size = {2.2, 4, 3.2},\n      max_distance = 6\n    })\n    for _, hit in ipairs(hits) do\n      if hit.hit_object and hit.hit_object.tag == \"Deck\" then\n        hit.hit_object.setName(\"Encounter Deck (\" .. tostring(playerCount) .. \"P)\")\n        hit.hit_object.shuffle()\n        break\n      end\n    end\n  end, 0.9)\n\n  -- 5. Place Round Marker on Round 1 & Player 1 Marker at Seat 1\n  moveRoundMarker(1)\n  movePlayer1Marker(1)\n\n  buildControlPlaqueUI()\n  broadcastToAll(\n    string.format(\n      \"Setup complete for %dP! Actions/turn: %d | Starting Warehouse: %d each | Encounters: %d Boons, %d Burdens, %d Arrivals.\",\n      playerCount, rules.actions, rules.warehouse, rules.boons, rules.burdens, rules.arrivals\n    ),\n    {0.94, 0.84, 0.56}\n  )\nend\n\n-- ---------------------------------------------------------------------------\n-- End-of-Round Cleanup, Round Marker & Player 1 Rotation\n-- ---------------------------------------------------------------------------\nfunction moveRoundMarker(roundNum)\n  local marker = getObjectFromGUID(CONFIG.guids.roundMarker)\n  local pos = CONFIG.positions.roundSockets[roundNum]\n  if marker and pos then\n    marker.setPositionSmooth({pos[1], pos[2] + 0.25, pos[3]}, false, true)\n    marker.setRotationSmooth({0, 180, 0}, false, true)\n  end\nend\n\nfunction movePlayer1Marker(seatIdx)\n  local marker = getObjectFromGUID(CONFIG.guids.player1Marker)\n  local pos = CONFIG.positions.seatMarkers[seatIdx]\n  if marker and pos then\n    marker.setPositionSmooth({pos[1], pos[2] + 0.3, pos[3]}, false, true)\n    marker.setRotationSmooth({0, 180, 0}, false, true)\n  end\nend\n\nfunction onRotateP1()\n  state.firstPlayerIdx = (state.firstPlayerIdx % state.playerCount) + 1\n  movePlayer1Marker(state.firstPlayerIdx)\n  broadcastToAll(\"Player 1 marker rotated to Seat \" .. tostring(state.firstPlayerIdx) .. \".\", {0.92, 0.84, 0.62})\nend\n\nfunction onEndRound()\n  -- 1. Sweep all X Cooldown tokens off the Map Board\n  local bounds = CONFIG.mapBounds\n  local cleared = 0\n  for _, obj in ipairs(getAllObjects()) do\n    if obj.getName() == \"Cooldown X\" and not obj.getLock() then\n      local p = obj.getPosition()\n      if p.x >= bounds.minX and p.x <= bounds.maxX and p.z >= bounds.minZ and p.z <= bounds.maxZ then\n        obj.destruct()\n        cleared = cleared + 1\n      end\n    end\n  end\n\n  -- 2. Advance Round & rotate Player 1 marker\n  if state.round < 12 then\n    state.round = state.round + 1\n    moveRoundMarker(state.round)\n    state.firstPlayerIdx = (state.firstPlayerIdx % state.playerCount) + 1\n    movePlayer1Marker(state.firstPlayerIdx)\n    buildControlPlaqueUI()\n\n    local seasonMsg = \"\"\n    if state.round == 5 then\n      seasonMsg = \" — SEASON II BEGINS! Refresh Steward powers.\"\n    elseif state.round == 9 then\n      seasonMsg = \" — SEASON III BEGINS! Refresh Steward powers.\"\n    end\n    broadcastToAll(\n      string.format(\"Round %d begins (cleared %d X tokens, Player 1 -> Seat %d)%s\",\n        state.round, cleared, state.firstPlayerIdx, seasonMsg),\n      {0.84, 0.94, 0.78}\n    )\n  else\n    broadcastToAll(\n      string.format(\"Round 12 complete (cleared %d X tokens)! Proceed to Final Scoring.\", cleared),\n      {0.98, 0.84, 0.44}\n    )\n  end\nend\n\n-- ---------------------------------------------------------------------------\n-- Special Tile #1-#26 Unlock Helper Plaque\n-- ---------------------------------------------------------------------------\nfunction buildUnlockPlaqueUI()\n  local plaque = getObjectFromGUID(CONFIG.guids.unlockPlaque)\n  if not plaque then return end\n  plaque.clearButtons()\n\n  plaque.createButton({\n    click_function = \"noop\",\n    function_owner = Global,\n    label = \"UNLOCK SPECIAL TILE\",\n    position = {0, 0.56, -0.34},\n    width = 0,\n    height = 0,\n    font_size = 64,\n    font_color = {0.94, 0.80, 0.46}\n  })\n\n  plaque.createButton({\n    click_function = \"onUnlockPrev\",\n    function_owner = Global,\n    label = \"<\",\n    position = {-0.30, 0.56, -0.04},\n    width = 100,\n    height = 100,\n    font_size = 86,\n    color = {0.28, 0.26, 0.24},\n    font_color = {0.95, 0.90, 0.80}\n  })\n\n  plaque.createButton({\n    click_function = \"noop\",\n    function_owner = Global,\n    label = \"#\" .. tostring(state.unlockNum),\n    position = {0, 0.56, -0.04},\n    width = 175,\n    height = 100,\n    font_size = 86,\n    color = {0.10, 0.09, 0.08},\n    font_color = {0.96, 0.88, 0.64}\n  })\n\n  plaque.createButton({\n    click_function = \"onUnlockNext\",\n    function_owner = Global,\n    label = \">\",\n    position = {0.30, 0.56, -0.04},\n    width = 100,\n    height = 100,\n    font_size = 86,\n    color = {0.28, 0.26, 0.24},\n    font_color = {0.95, 0.90, 0.80}\n  })\n\n  plaque.createButton({\n    click_function = \"onUnlockTile\",\n    function_owner = Global,\n    label = \"UNLOCK #\" .. tostring(state.unlockNum),\n    position = {0, 0.56, 0.28},\n    width = 420,\n    height = 100,\n    font_size = 58,\n    color = {0.60, 0.46, 0.18},\n    font_color = {0.98, 0.95, 0.86},\n    tooltip = \"Pull Special Tile #\" .. tostring(state.unlockNum) .. \" from the reserve bag onto the Tiles Board (0 Actions to place).\"\n  })\nend\n\nfunction onUnlockPrev(_, _, alt)\n  local step = alt and 5 or 1\n  state.unlockNum = ((state.unlockNum - 1 - step) % 26) + 1\n  buildUnlockPlaqueUI()\nend\n\nfunction onUnlockNext(_, _, alt)\n  local step = alt and 5 or 1\n  state.unlockNum = ((state.unlockNum - 1 + step) % 26) + 1\n  buildUnlockPlaqueUI()\nend\n\nfunction onUnlockTile()\n  local bag = getObjectFromGUID(CONFIG.guids.specialBag)\n  if not bag then\n    broadcastToAll(\"Special Tiles reserve bag not found.\", {0.95, 0.45, 0.45})\n    return\n  end\n  local prefix = \"#\" .. tostring(state.unlockNum) .. \" \"\n  local targetPos = CONFIG.positions.unlockedSpecial\n  for _, entry in ipairs(bag.getObjects()) do\n    if string.sub(entry.name, 1, #prefix) == prefix then\n      bag.takeObject({\n        guid = entry.guid,\n        position = {targetPos[1] + math.random(-8, 8) * 0.08, targetPos[2] + 0.6, targetPos[3] + math.random(-5, 5) * 0.08},\n        rotation = {0, 180, 0},\n        smooth = true\n      })\n      broadcastToAll(\"Unlocked Special Tile \" .. entry.name .. \" (0 Actions to place)!\", {0.94, 0.84, 0.52})\n      return\n    end\n  end\n  broadcastToAll(\"Special Tile #\" .. tostring(state.unlockNum) .. \" is already unlocked (not in reserve bag).\", {0.95, 0.72, 0.42})\nend\n",
+  "LuaScript": "-- The Quiet Vale: Seasons of Settlement (v7.0) — Automated Tabletop Assistant\n-- Features:\n--   1. Collapsible XmlUI HUD + synced 3D board plaques & Warehouse counters\n--   2. One-click 1-5P Setup: auto-places Steward meeples on legal Starting Terrain hexes,\n--      sets Warehouse (15/10/8/0/0), builds exact v7.0 Encounter pool, deals 9-card seeding\n--      hands to active seats (+ 3*P to Encounter draw well), deals Quest Card, shuffles Target Deck\n--   3. Quick-Seed button: gathers dealt hands + draw pile into one shuffled Encounter Deck\n--   4. Reveal Encounters (P cards): flips P Encounters into open In Play slots, auto-places\n--      3 Arrival Timer tokens on any revealed Arrival, announces Burden season resolution costs\n--   5. Draw Target Card: returns previous Target Card face-down to bottom, flips next Target Card,\n--      and broadcasts its exact 2-row + compass criteria to chat\n--   6. Smart End Round: sweeps Cooldown X tokens off Map Board, ticks Arrival Timers (-1 per\n--      active Arrival with expiry alert), advances Round/Season marker, rotates Player 1 marker\n--   7. Unlock Special Tile (#1-#26) & Quick-Pull Core Tile (21 Core types)\n\nlocal CONFIG = {\n  guids = {\n    controlPlaque = \"100122\",\n    unlockPlaque = \"100123\",\n    warehouseCounters = { \"100073\", \"100074\", \"100075\", \"100076\", \"100077\", \"100078\" },\n    targetDeck = \"100063\",\n    questDeck = \"100081\",\n    boonsDeck = \"100005\",\n    burdensDeck = \"100006\",\n    arrivalsDeck = \"100007\",\n    goldenBoonsDeck = \"100008\",\n    specialBag = \"1000f1\",\n    arrivalTimerBag = \"10007f\",\n    roundMarker = \"100114\",\n    player1Marker = \"100115\"\n  },\n  stewards = { {\n      id = \"vanguard\",\n      name = \"Vanguard\",\n      pawnGuid = \"100116\",\n      startHexId = \"G1\",\n      startHexPos = { -12.9182, 1.06, 9.3659 },\n      homePawnPos = { -22, 1.5, -13.5 }\n    }, {\n      id = \"knight\",\n      name = \"Knight\",\n      pawnGuid = \"100118\",\n      startHexId = \"A6\",\n      startHexPos = { -23.7182, 1.06, -1.0264 },\n      homePawnPos = { -15.6, 1.5, -13.5 }\n    }, {\n      id = \"sentinel\",\n      name = \"Sentinel\",\n      pawnGuid = \"10011a\",\n      startHexId = \"A1\",\n      startHexPos = { -23.7182, 1.06, 9.3659 },\n      homePawnPos = { -9.2, 1.5, -13.5 }\n    }, {\n      id = \"ranger\",\n      name = \"Ranger\",\n      pawnGuid = \"10011c\",\n      startHexId = \"A3\",\n      startHexPos = { -23.7182, 1.06, 5.2089 },\n      homePawnPos = { -2.799999999999997, 1.5, -13.5 }\n    }, {\n      id = \"warden\",\n      name = \"Warden\",\n      pawnGuid = \"10011e\",\n      startHexId = \"F4\",\n      startHexPos = { -14.7182, 1.06, 2.0912 },\n      homePawnPos = { 3.6000000000000014, 1.5, -13.5 }\n    }, {\n      id = \"quartermaster\",\n      name = \"Quartermaster\",\n      pawnGuid = \"100120\",\n      startHexId = \"B8\",\n      startHexPos = { -21.9182, 1.06, -6.2226 },\n      homePawnPos = { 10, 1.5, -13.5 }\n    } },\n  coreCatalog = { {\n      name = \"Lumber Yard\",\n      bagGuid = \"100097\"\n    }, {\n      name = \"Mine Tunnel\",\n      bagGuid = \"100097\"\n    }, {\n      name = \"Gathering Outpost\",\n      bagGuid = \"100097\"\n    }, {\n      name = \"Farmstead\",\n      bagGuid = \"100097\"\n    }, {\n      name = \"Salvage Camp\",\n      bagGuid = \"100097\"\n    }, {\n      name = \"Workshops\",\n      bagGuid = \"1000ac\"\n    }, {\n      name = \"Market Stalls\",\n      bagGuid = \"1000ac\"\n    }, {\n      name = \"Tavern\",\n      bagGuid = \"1000b1\"\n    }, {\n      name = \"Eatery\",\n      bagGuid = \"1000b1\"\n    }, {\n      name = \"Washhouse\",\n      bagGuid = \"1000b1\"\n    }, {\n      name = \"Apothecary\",\n      bagGuid = \"1000b1\"\n    }, {\n      name = \"The Vaults\",\n      bagGuid = \"1000b1\"\n    }, {\n      name = \"Cabin\",\n      bagGuid = \"1000bc\"\n    }, {\n      name = \"Cottage\",\n      bagGuid = \"1000bc\"\n    }, {\n      name = \"Inn\",\n      bagGuid = \"1000bc\"\n    }, {\n      name = \"Stedding\",\n      bagGuid = \"1000bc\"\n    }, {\n      name = \"Path\",\n      bagGuid = \"1000c9\"\n    }, {\n      name = \"Common Land\",\n      bagGuid = \"1000c9\"\n    }, {\n      name = \"Street\",\n      bagGuid = \"1000c9\"\n    }, {\n      name = \"Track\",\n      bagGuid = \"1000c9\"\n    }, {\n      name = \"Bridge\",\n      bagGuid = \"1000c9\"\n    } },\n  positions = {\n    encounterDraw = { 4.81, 1.25, 8.45 },\n    inPlaySlots = { { 8.09, 1.22, 8.45 }, { 11.21, 1.22, 8.45 }, { 14.33, 1.22, 8.45 }, { 17.45, 1.22, 8.45 }, { 20.57, 1.22, 8.45 } },\n    targetWell = { 4.81, 1.25, 1.65 },\n    activeTarget = { 4.81, 1.3, 5.29 },\n    activeQuest = { 7.69, 1.35, -4.1384 },\n    unlockedSpecial = { 12.26, 1.25, -4.1384 },\n    coreStaging = { 15.2, 1.25, -10 },\n    roundSockets = { { -22.7533, 1.06, -10.5809 }, { -21.3733, 1.06, -10.5809 }, { -19.9933, 1.06, -10.5809 }, { -18.6133, 1.06, -10.5809 }, { -13.44, 1.06, -10.5809 }, { -12.06, 1.06, -10.5809 }, { -10.68, 1.06, -10.5809 }, { -9.3, 1.06, -10.5809 }, { -4.1267, 1.06, -10.5809 }, { -2.7467, 1.06, -10.5809 }, { -1.3667, 1.06, -10.5809 }, { 0.0133, 1.06, -10.5809 } },\n    seatMarkers = { { -20, 1.25, -18.6 }, { -8, 1.25, -18.6 }, { 4, 1.25, -18.6 }, { 16, 1.25, -18.6 }, { -12, 1.25, 14.6 } }\n  },\n  mapBounds = {\n    minX = -25.97,\n    maxX = 1.97,\n    minZ = -11.37,\n    maxZ = 11.37\n  }\n}\n\nstate = {\n  playerCount = 2,\n  round = 1,\n  firstPlayerIdx = 1,\n  unlockNum = 1,\n  coreIdx = 1,\n  hudCollapsed = false,\n  activeTargetGuid = \"\"\n}\n\nlocal SETUP_RULES = {\n  [1] = { actions = 4, warehouse = 15, boons = 5,  burdens = 3,  arrivals = 4  },\n  [2] = { actions = 4, warehouse = 10, boons = 8,  burdens = 8,  arrivals = 8  },\n  [3] = { actions = 3, warehouse = 8,  boons = 12, burdens = 12, arrivals = 12 },\n  [4] = { actions = 3, warehouse = 0,  boons = 16, burdens = 16, arrivals = 16 },\n  [5] = { actions = 2, warehouse = 0,  boons = 26, burdens = 14, arrivals = 20 },\n}\n\nlocal SEAT_COLORS = { \"White\", \"Red\", \"Blue\", \"Green\", \"Yellow\" }\n\nfunction getSeason(r)\n  if r <= 4 then return 1, \"I\" end\n  if r <= 8 then return 2, \"II\" end\n  return 3, \"III\"\nend\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, decoded = pcall(JSON.decode, saved_data)\n    if ok and type(decoded) == \"table\" then\n      state.playerCount = decoded.playerCount or state.playerCount\n      state.round = decoded.round or state.round\n      state.firstPlayerIdx = decoded.firstPlayerIdx or state.firstPlayerIdx\n      state.unlockNum = decoded.unlockNum or state.unlockNum\n      state.coreIdx = decoded.coreIdx or state.coreIdx\n      state.hudCollapsed = decoded.hudCollapsed or false\n      state.activeTargetGuid = decoded.activeTargetGuid or \"\"\n    end\n  end\n  Wait.frames(function()\n    buildControlPlaqueUI()\n    buildUnlockPlaqueUI()\n    refreshHud()\n  end, 8)\nend\n\nfunction onSave()\n  return JSON.encode(state)\nend\n\n-- ---------------------------------------------------------------------------\n-- XmlUI HUD Handlers\n-- ---------------------------------------------------------------------------\nfunction onHudToggle()\n  state.hudCollapsed = not state.hudCollapsed\n  refreshHud()\nend\n\nfunction onHudSetup(_, playerCountStr)\n  local p = tonumber(playerCountStr)\n  if p then runSetup(p) end\nend\n\nfunction onHudQuickSeed()\n  runQuickSeed()\nend\n\nfunction onHudRevealEncounters()\n  revealEncounters()\nend\n\nfunction onHudDrawTarget()\n  drawTargetCard()\nend\n\nfunction onHudEndRound()\n  onEndRound()\nend\n\nfunction onHudWhPlus(_, idxStr)\n  local idx = tonumber(idxStr)\n  local guid = idx and CONFIG.guids.warehouseCounters[idx]\n  local c = guid and getObjectFromGUID(guid)\n  if c then c.call(\"adjust\", 1) end\n  syncWarehouseHud()\nend\n\nfunction onHudWhMinus(_, idxStr)\n  local idx = tonumber(idxStr)\n  local guid = idx and CONFIG.guids.warehouseCounters[idx]\n  local c = guid and getObjectFromGUID(guid)\n  if c then c.call(\"adjust\", -1) end\n  syncWarehouseHud()\nend\n\nfunction onHudUnlockPrev()\n  onUnlockPrev(nil, nil, false)\nend\n\nfunction onHudUnlockNext()\n  onUnlockNext(nil, nil, false)\nend\n\nfunction onHudUnlockTile()\n  onUnlockTile()\nend\n\nfunction onHudCorePrev()\n  local n = #CONFIG.coreCatalog\n  state.coreIdx = ((state.coreIdx - 2) % n) + 1\n  refreshHud()\nend\n\nfunction onHudCoreNext()\n  local n = #CONFIG.coreCatalog\n  state.coreIdx = (state.coreIdx % n) + 1\n  refreshHud()\nend\n\nfunction onHudPullCoreTile()\n  pullCoreTile(state.coreIdx)\nend\n\nfunction syncWarehouseHud()\n  for i, guid in ipairs(CONFIG.guids.warehouseCounters) do\n    local c = getObjectFromGUID(guid)\n    if c then\n      local v = c.call(\"getValue\") or 0\n      UI.setAttribute(\"whVal\" .. tostring(i), \"text\", tostring(v))\n    end\n  end\nend\n\nfunction refreshHud()\n  local _, seasonRoman = getSeason(state.round)\n  local rules = SETUP_RULES[state.playerCount] or SETUP_RULES[2]\n  UI.setAttribute(\"qvHudBody\", \"active\", state.hudCollapsed and \"false\" or \"true\")\n  UI.setAttribute(\"qvHudRoot\", \"height\", state.hudCollapsed and \"36\" or \"548\")\n  UI.setAttribute(\"qvToggleBtn\", \"text\", state.hudCollapsed and \"+\" or \"-\")\n  UI.setAttribute(\n    \"qvStatus\",\n    \"text\",\n    string.format(\"Season %s  |  Round %d/12  |  %dP (%d Act)\", seasonRoman, state.round, state.playerCount, rules.actions)\n  )\n  for p = 1, 5 do\n    UI.setAttribute(\"btnSetup\" .. tostring(p), \"color\", (state.playerCount == p) and \"#8a6624\" or \"#2e2922\")\n  end\n  UI.setAttribute(\n    \"btnRevealEnc\",\n    \"text\",\n    string.format(\"REVEAL ENCOUNTERS (%d %s)\", state.playerCount, state.playerCount == 1 and \"CARD\" or \"CARDS\")\n  )\n  UI.setAttribute(\n    \"btnEndRound\",\n    \"text\",\n    state.round < 12 and string.format(\"END ROUND %d -> %d\", state.round, state.round + 1) or \"FINISH ROUND 12\"\n  )\n  UI.setAttribute(\"hudUnlockNum\", \"text\", \"#\" .. tostring(state.unlockNum))\n  local entry = CONFIG.coreCatalog[state.coreIdx]\n  if entry then\n    UI.setAttribute(\"hudCoreName\", \"text\", entry.name)\n  end\n  syncWarehouseHud()\nend\n\n-- ---------------------------------------------------------------------------\n-- 3D Control Plaque UI (Synced with HUD)\n-- ---------------------------------------------------------------------------\nfunction buildControlPlaqueUI()\n  local plaque = getObjectFromGUID(CONFIG.guids.controlPlaque)\n  if not plaque then return end\n  plaque.clearButtons()\n\n  plaque.createButton({\n    click_function = \"noop\",\n    function_owner = Global,\n    label = \"THE QUIET VALE v7.0\\nSETUP BY PLAYER COUNT\",\n    position = {0, 0.56, -0.34},\n    width = 0,\n    height = 0,\n    font_size = 70,\n    font_color = {0.94, 0.80, 0.46}\n  })\n\n  for p = 1, 5 do\n    local x = -0.38 + (p - 1) * 0.19\n    local fnName = \"setupPlayers_\" .. tostring(p)\n    _G[fnName] = function() runSetup(p) end\n    plaque.createButton({\n      click_function = fnName,\n      function_owner = Global,\n      label = tostring(p) .. \"P\",\n      position = {x, 0.56, -0.10},\n      width = 90,\n      height = 90,\n      font_size = 64,\n      color = (state.playerCount == p) and {0.68, 0.52, 0.22} or {0.26, 0.24, 0.22},\n      font_color = {0.98, 0.94, 0.84},\n      tooltip = \"Setup \" .. tostring(p) .. \"-Player Game (auto-places Stewards, Warehouse & Encounters)\"\n    })\n  end\n\n  plaque.createButton({\n    click_function = \"revealEncounters\",\n    function_owner = Global,\n    label = \"REVEAL \" .. tostring(state.playerCount) .. \" ENCOUNTERS\",\n    position = {0, 0.56, 0.14},\n    width = 450,\n    height = 88,\n    font_size = 50,\n    color = {0.56, 0.40, 0.14},\n    font_color = {0.98, 0.94, 0.84},\n    tooltip = \"Flip P Encounter cards into In Play and auto-place 3 Timers on Arrivals.\"\n  })\n\n  plaque.createButton({\n    click_function = \"onEndRound\",\n    function_owner = Global,\n    label = \"END ROUND \" .. tostring(state.round) .. \" -> NEXT\",\n    position = {0, 0.56, 0.35},\n    width = 450,\n    height = 84,\n    font_size = 48,\n    color = {0.26, 0.44, 0.30},\n    font_color = {0.96, 0.94, 0.88},\n    tooltip = \"Clear X tokens, tick Arrival timers, advance Round Marker, rotate Player 1.\"\n  })\nend\n\nfunction noop() end\n\n-- ---------------------------------------------------------------------------\n-- 1-5P Automated Setup (Stewards on Starting Terrain + Seeding Hands)\n-- ---------------------------------------------------------------------------\nfunction runSetup(playerCount)\n  local rules = SETUP_RULES[playerCount]\n  if not rules then return end\n  state.playerCount = playerCount\n  state.round = 1\n  state.firstPlayerIdx = 1\n\n  -- 1. Set all 6 Warehouse counters\n  for _, guid in ipairs(CONFIG.guids.warehouseCounters) do\n    local c = getObjectFromGUID(guid)\n    if c then c.call(\"setValue\", rules.warehouse) end\n  end\n\n  -- 2. Auto-place active Steward meeples onto their legal Starting Terrain hexes\n  local placedStewards = {}\n  for i = 1, 6 do\n    local st = CONFIG.stewards[i]\n    local pawn = st and getObjectFromGUID(st.pawnGuid)\n    if pawn then\n      if i <= playerCount then\n        local hp = st.startHexPos\n        pawn.setPositionSmooth({hp[1], hp[2] + 0.5, hp[3]}, false, true)\n        pawn.setRotationSmooth({0, 180, 0}, false, true)\n        table.insert(placedStewards, st.name .. \" (\" .. st.startHexId .. \")\")\n      else\n        local home = st.homePawnPos\n        pawn.setPositionSmooth({home[1], home[2], home[3]}, false, true)\n      end\n    end\n  end\n\n  -- 3. Shuffle Target Deck\n  local targetDeck = getObjectFromGUID(CONFIG.guids.targetDeck)\n  if targetDeck then targetDeck.shuffle() end\n\n  -- 4. Shuffle Quest Deck and deal 1 Quest Card face up onto the Tiles Board\n  local questDeck = getObjectFromGUID(CONFIG.guids.questDeck)\n  if questDeck then\n    questDeck.shuffle()\n    questDeck.takeObject({\n      position = CONFIG.positions.activeQuest,\n      rotation = {0, 180, 0},\n      smooth = true\n    })\n  end\n\n  -- 5. Build the exact v7.0 Encounter Pool onto the Encounter draw well\n  local drawPos = CONFIG.positions.encounterDraw\n  local pulledCount = 0\n  local function takeCards(deckGuid, count)\n    local deck = getObjectFromGUID(deckGuid)\n    if not deck then return end\n    deck.shuffle()\n    for _ = 1, count do\n      if deck.getQuantity() > 1 then\n        deck.takeObject({\n          position = {drawPos[1], drawPos[2] + 0.3 + (pulledCount * 0.035), drawPos[3]},\n          rotation = {0, 180, 180},\n          smooth = false\n        })\n        pulledCount = pulledCount + 1\n      elseif deck.getQuantity() == 1 then\n        deck.setPosition({drawPos[1], drawPos[2] + 0.3 + (pulledCount * 0.035), drawPos[3]})\n        deck.setRotation({0, 180, 180})\n        pulledCount = pulledCount + 1\n        break\n      end\n    end\n  end\n\n  takeCards(CONFIG.guids.boonsDeck, rules.boons)\n  takeCards(CONFIG.guids.burdensDeck, rules.burdens)\n  takeCards(CONFIG.guids.arrivalsDeck, rules.arrivals)\n\n  -- Wait for cards to stack into a Deck, shuffle, and deal 9-card seeding hands to active seats\n  Wait.time(function()\n    local encDeck = findEncounterDrawDeck()\n    if encDeck and encDeck.tag == \"Deck\" then\n      encDeck.setName(\"Encounter Deck (\" .. tostring(playerCount) .. \"P)\")\n      encDeck.shuffle()\n      -- Deal 9 cards to each active seat that has a seated player; otherwise keep ready for Quick-Seed\n      local seatedCount = 0\n      for i = 1, playerCount do\n        local color = SEAT_COLORS[i]\n        if Player[color] and Player[color].seated then\n          encDeck.deal(9, color)\n          seatedCount = seatedCount + 1\n        end\n      end\n      if seatedCount > 0 then\n        broadcastToAll(\n          string.format(\"Dealt 9-card seeding hands to %d seated player(s). Seed cards onto Encounter well or click QUICK-SEED!\", seatedCount),\n          {0.82, 0.92, 0.98}\n        )\n      else\n        broadcastToAll(\n          \"Encounter Deck is shuffled and ready in the ENCOUNTER well! Click REVEAL ENCOUNTERS to start Round 1.\",\n          {0.82, 0.92, 0.98}\n        )\n      end\n    end\n  end, 1.0)\n\n  -- 6. Place Round Marker on Round 1 & Player 1 Marker at Seat 1\n  moveRoundMarker(1)\n  movePlayer1Marker(1)\n\n  buildControlPlaqueUI()\n  refreshHud()\n  broadcastToAll(\n    string.format(\n      \"Setup %dP complete! Stewards placed: %s | Actions/turn: %d | Warehouse: %d each.\",\n      playerCount, table.concat(placedStewards, \", \"), rules.actions, rules.warehouse\n    ),\n    {0.94, 0.84, 0.56}\n  )\nend\n\n-- Gather any dealt seeding hands back onto the Encounter Draw well and shuffle\nfunction runQuickSeed()\n  local drawPos = CONFIG.positions.encounterDraw\n  local moved = 0\n  for i = 1, state.playerCount do\n    local color = SEAT_COLORS[i]\n    if Player[color] and Player[color].seated then\n      local hand = Player[color].getHandObjects()\n      for _, card in ipairs(hand) do\n        card.setPosition({drawPos[1], drawPos[2] + 0.8 + moved * 0.04, drawPos[3]})\n        card.setRotation({0, 180, 180})\n        moved = moved + 1\n      end\n    end\n  end\n  Wait.time(function()\n    local encDeck = findEncounterDrawDeck()\n    if encDeck and encDeck.tag == \"Deck\" then\n      encDeck.shuffle()\n      broadcastToAll(\"Quick-Seed complete (\" .. tostring(moved) .. \" hand cards merged). Encounter Deck shuffled & ready for Round 1!\", {0.84, 0.95, 0.78})\n    else\n      broadcastToAll(\"Encounter Deck is ready in the ENCOUNTER well!\", {0.84, 0.95, 0.78})\n    end\n  end, 0.8)\nend\n\n-- ---------------------------------------------------------------------------\n-- Reveal Encounters (P cards) + Auto-Place 3 Timers on Arrivals\n-- ---------------------------------------------------------------------------\nfunction findEncounterDrawDeck()\n  local p = CONFIG.positions.encounterDraw\n  local hits = Physics.cast({\n    origin = {p[1], p[2] + 4, p[3]},\n    direction = {0, -1, 0},\n    type = 3,\n    size = {2.4, 4, 3.6},\n    max_distance = 6\n  })\n  for _, hit in ipairs(hits) do\n    local obj = hit.hit_object\n    if obj and (obj.tag == \"Deck\" or obj.tag == \"Card\") then\n      return obj\n    end\n  end\n  return nil\nend\n\nfunction isSlotOccupied(pos)\n  local hits = Physics.cast({\n    origin = {pos[1], pos[2] + 3, pos[3]},\n    direction = {0, -1, 0},\n    type = 3,\n    size = {1.8, 3, 2.8},\n    max_distance = 5\n  })\n  for _, hit in ipairs(hits) do\n    local obj = hit.hit_object\n    if obj and (obj.tag == \"Card\" or obj.tag == \"Deck\") then\n      return true\n    end\n  end\n  return false\nend\n\nfunction spawnArrivalTimers(cardPos)\n  local bag = getObjectFromGUID(CONFIG.guids.arrivalTimerBag)\n  if not bag then return end\n  local offsets = { {-0.62, 0.55, 0.95}, {0.0, 0.55, 0.95}, {0.62, 0.55, 0.95} }\n  for _, off in ipairs(offsets) do\n    bag.takeObject({\n      position = {cardPos[1] + off[1], cardPos[2] + off[2], cardPos[3] + off[3]},\n      rotation = {0, 180, 0},\n      smooth = true\n    })\n  end\nend\n\nfunction revealEncounters()\n  local encDeck = findEncounterDrawDeck()\n  if not encDeck then\n    broadcastToAll(\"No Encounter Deck found in the ENCOUNTER draw well! Click 1P–5P Setup first.\", {0.96, 0.52, 0.45})\n    return\n  end\n\n  local slots = CONFIG.positions.inPlaySlots\n  local openSlots = {}\n  for _, s in ipairs(slots) do\n    if not isSlotOccupied(s) then\n      table.insert(openSlots, s)\n    end\n  end\n\n  local seasonNum, seasonRoman = getSeason(state.round)\n  local burdenCost = seasonNum * 2 + 1\n  local toDraw = state.playerCount\n\n  local function announceCard(cardObj, slotPos)\n    local name = cardObj.getName()\n    local desc = cardObj.getDescription() or \"\"\n    if string.sub(desc, 1, 7) == \"Arrival\" then\n      Wait.time(function() spawnArrivalTimers(slotPos) end, 0.45)\n      broadcastToAll(\"ARRIVAL revealed: \" .. name .. \" (+3 Arrival Timers placed!)\", {0.68, 0.88, 0.98})\n    elseif string.sub(desc, 1, 6) == \"Burden\" then\n      broadcastToAll(string.format(\"BURDEN revealed: %s (Season %s resolve cost: %d)\", name, seasonRoman, burdenCost), {0.98, 0.62, 0.56})\n    else\n      broadcastToAll(\"BOON revealed: \" .. name, {0.78, 0.95, 0.72})\n    end\n  end\n\n  for i = 1, toDraw do\n    local slotPos = openSlots[i] or slots[((i - 1) % #slots) + 1]\n    local targetPos = {slotPos[1], slotPos[2] + 0.25, slotPos[3]}\n    if encDeck.tag == \"Deck\" then\n      if encDeck.getQuantity() > 1 then\n        local card = encDeck.takeObject({\n          position = targetPos,\n          rotation = {0, 180, 0},\n          smooth = true\n        })\n        if card then announceCard(card, targetPos) end\n      else\n        -- Last card in deck\n        encDeck.setPositionSmooth(targetPos, false, true)\n        encDeck.setRotationSmooth({0, 180, 0}, false, true)\n        announceCard(encDeck, targetPos)\n        break\n      end\n    elseif encDeck.tag == \"Card\" then\n      encDeck.setPositionSmooth(targetPos, false, true)\n      encDeck.setRotationSmooth({0, 180, 0}, false, true)\n      announceCard(encDeck, targetPos)\n      break\n    end\n  end\nend\n\n-- ---------------------------------------------------------------------------\n-- Draw Target Card (auto-returns previous Target Card to bottom of deck)\n-- ---------------------------------------------------------------------------\nfunction drawTargetCard()\n  local deck = getObjectFromGUID(CONFIG.guids.targetDeck)\n  if not deck then\n    -- Check if deck got recreated in Target well\n    local tp = CONFIG.positions.targetWell\n    local hits = Physics.cast({\n      origin = {tp[1], tp[2] + 4, tp[3]},\n      direction = {0, -1, 0},\n      type = 3,\n      size = {2.2, 4, 3.2},\n      max_distance = 6\n    })\n    for _, hit in ipairs(hits) do\n      if hit.hit_object and hit.hit_object.tag == \"Deck\" then\n        deck = hit.hit_object\n        CONFIG.guids.targetDeck = deck.getGUID()\n        break\n      end\n    end\n  end\n\n  if not deck then\n    broadcastToAll(\"Target Deck not found in the TARGET CARDS well.\", {0.96, 0.52, 0.45})\n    return\n  end\n\n  -- Return previous face-up Target Card face-down to the bottom of the Target Deck\n  if state.activeTargetGuid ~= \"\" then\n    local prev = getObjectFromGUID(state.activeTargetGuid)\n    if prev then\n      local dp = deck.getPosition()\n      prev.setRotation({0, 180, 180})\n      prev.setPosition({dp.x, dp.y - 0.15, dp.z})\n      deck.setPosition({dp.x, dp.y + 0.35, dp.z})\n    end\n    state.activeTargetGuid = \"\"\n  end\n\n  Wait.time(function()\n    local disp = CONFIG.positions.activeTarget\n    local card = deck.takeObject({\n      position = {disp[1], disp[2] + 0.35, disp[3]},\n      rotation = {0, 180, 0},\n      smooth = true\n    })\n    if card then\n      state.activeTargetGuid = card.getGUID()\n      broadcastToAll(\"TARGET: \" .. card.getName() .. \" — \" .. (card.getDescription() or \"\"), {0.82, 0.90, 0.98})\n    end\n  end, 0.25)\nend\n\n-- ---------------------------------------------------------------------------\n-- End-of-Round Cleanup: X Tokens + Arrival Timer Tick + Round + Player 1\n-- ---------------------------------------------------------------------------\nfunction moveRoundMarker(roundNum)\n  local marker = getObjectFromGUID(CONFIG.guids.roundMarker)\n  local pos = CONFIG.positions.roundSockets[roundNum]\n  if marker and pos then\n    marker.setPositionSmooth({pos[1], pos[2] + 0.25, pos[3]}, false, true)\n    marker.setRotationSmooth({0, 180, 0}, false, true)\n  end\nend\n\nfunction movePlayer1Marker(seatIdx)\n  local marker = getObjectFromGUID(CONFIG.guids.player1Marker)\n  local pos = CONFIG.positions.seatMarkers[seatIdx]\n  if marker and pos then\n    marker.setPositionSmooth({pos[1], pos[2] + 0.3, pos[3]}, false, true)\n    marker.setRotationSmooth({0, 180, 0}, false, true)\n  end\nend\n\nfunction onRotateP1()\n  state.firstPlayerIdx = (state.firstPlayerIdx % state.playerCount) + 1\n  movePlayer1Marker(state.firstPlayerIdx)\n  broadcastToAll(\"Player 1 marker rotated to Seat \" .. tostring(state.firstPlayerIdx) .. \".\", {0.92, 0.84, 0.62})\nend\n\nfunction tickArrivalTimers()\n  local slots = CONFIG.positions.inPlaySlots\n  local ticked = 0\n  local expired = {}\n  for _, slot in ipairs(slots) do\n    local hits = Physics.cast({\n      origin = {slot[1], slot[2] + 3, slot[3]},\n      direction = {0, -1, 0},\n      type = 3,\n      size = {2.1, 3, 3.2},\n      max_distance = 5\n    })\n    local timers = {}\n    local cardName = \"Arrival\"\n    for _, hit in ipairs(hits) do\n      local o = hit.hit_object\n      if o and not o.getLock() then\n        if o.getName() == \"Arrival Timer\" then\n          table.insert(timers, o)\n        elseif o.tag == \"Card\" then\n          cardName = o.getName()\n        end\n      end\n    end\n    if #timers > 0 then\n      timers[1].destruct()\n      ticked = ticked + 1\n      if #timers == 1 then\n        table.insert(expired, cardName)\n      end\n    end\n  end\n  return ticked, expired\nend\n\nfunction onEndRound()\n  -- 1. Sweep all X Cooldown tokens off the Map Board\n  local bounds = CONFIG.mapBounds\n  local cleared = 0\n  for _, obj in ipairs(getAllObjects()) do\n    if obj.getName() == \"Cooldown X\" and not obj.getLock() then\n      local p = obj.getPosition()\n      if p.x >= bounds.minX and p.x <= bounds.maxX and p.z >= bounds.minZ and p.z <= bounds.maxZ then\n        obj.destruct()\n        cleared = cleared + 1\n      end\n    end\n  end\n\n  -- 2. Tick down 1 Arrival Timer per active Arrival in In Play\n  local ticked, expired = tickArrivalTimers()\n\n  -- 3. Advance Round & rotate Player 1 marker\n  if state.round < 12 then\n    state.round = state.round + 1\n    moveRoundMarker(state.round)\n    state.firstPlayerIdx = (state.firstPlayerIdx % state.playerCount) + 1\n    movePlayer1Marker(state.firstPlayerIdx)\n    buildControlPlaqueUI()\n    refreshHud()\n\n    local seasonMsg = \"\"\n    if state.round == 5 then\n      seasonMsg = \" — SEASON II BEGINS! Refresh Steward powers (Burden cost now 5).\"\n    elseif state.round == 9 then\n      seasonMsg = \" — SEASON III BEGINS! Refresh Steward powers (Burden cost now 7).\"\n    end\n    broadcastToAll(\n      string.format(\"Round %d begins (cleared %d X, ticked %d Arrival timer(s), P1 -> Seat %d)%s\",\n        state.round, cleared, ticked, state.firstPlayerIdx, seasonMsg),\n      {0.84, 0.94, 0.78}\n    )\n  else\n    broadcastToAll(\n      string.format(\"Round 12 complete (cleared %d X, ticked %d timer(s))! Proceed to Final Scoring.\", cleared, ticked),\n      {0.98, 0.84, 0.44}\n    )\n  end\n\n  if #expired > 0 then\n    broadcastToAll(\n      \"ARRIVAL EXPIRED (0 timers left): \" .. table.concat(expired, \", \") .. \" — Resolve Failure (-10 VP & Strain)!\",\n      {0.98, 0.44, 0.40}\n    )\n  end\nend\n\n-- ---------------------------------------------------------------------------\n-- Quick-Pull Core Tile from Category Bag\n-- ---------------------------------------------------------------------------\nfunction pullCoreTile(idx)\n  local entry = CONFIG.coreCatalog[idx]\n  if not entry then return end\n  local bag = getObjectFromGUID(entry.bagGuid)\n  if not bag then\n    broadcastToAll(\"Core tile bag not found for \" .. entry.name, {0.95, 0.48, 0.44})\n    return\n  end\n  local prefix = entry.name .. \" /\"\n  local sp = CONFIG.positions.coreStaging\n  for _, item in ipairs(bag.getObjects()) do\n    if string.sub(item.name, 1, #prefix) == prefix then\n      bag.takeObject({\n        guid = item.guid,\n        position = {sp[1] + math.random(-4, 4) * 0.12, sp[2] + 0.6, sp[3] + math.random(-4, 4) * 0.12},\n        rotation = {0, 180, 0},\n        smooth = true\n      })\n      broadcastToAll(\"Pulled Core Tile: \" .. entry.name .. \" (Basic side up, press F to upgrade).\", {0.86, 0.94, 0.80})\n      return\n    end\n  end\n  broadcastToAll(\"No copies of \" .. entry.name .. \" remain in supply.\", {0.95, 0.72, 0.42})\nend\n\n-- ---------------------------------------------------------------------------\n-- Special Tile #1-#26 Unlock Helper Plaque\n-- ---------------------------------------------------------------------------\nfunction buildUnlockPlaqueUI()\n  local plaque = getObjectFromGUID(CONFIG.guids.unlockPlaque)\n  if not plaque then return end\n  plaque.clearButtons()\n\n  plaque.createButton({\n    click_function = \"noop\",\n    function_owner = Global,\n    label = \"UNLOCK SPECIAL TILE\",\n    position = {0, 0.56, -0.34},\n    width = 0,\n    height = 0,\n    font_size = 64,\n    font_color = {0.94, 0.80, 0.46}\n  })\n\n  plaque.createButton({\n    click_function = \"onUnlockPrev\",\n    function_owner = Global,\n    label = \"<\",\n    position = {-0.30, 0.56, -0.04},\n    width = 100,\n    height = 100,\n    font_size = 86,\n    color = {0.28, 0.26, 0.24},\n    font_color = {0.95, 0.90, 0.80}\n  })\n\n  plaque.createButton({\n    click_function = \"noop\",\n    function_owner = Global,\n    label = \"#\" .. tostring(state.unlockNum),\n    position = {0, 0.56, -0.04},\n    width = 175,\n    height = 100,\n    font_size = 86,\n    color = {0.10, 0.09, 0.08},\n    font_color = {0.96, 0.88, 0.64}\n  })\n\n  plaque.createButton({\n    click_function = \"onUnlockNext\",\n    function_owner = Global,\n    label = \">\",\n    position = {0.30, 0.56, -0.04},\n    width = 100,\n    height = 100,\n    font_size = 86,\n    color = {0.28, 0.26, 0.24},\n    font_color = {0.95, 0.90, 0.80}\n  })\n\n  plaque.createButton({\n    click_function = \"onUnlockTile\",\n    function_owner = Global,\n    label = \"UNLOCK #\" .. tostring(state.unlockNum),\n    position = {0, 0.56, 0.28},\n    width = 420,\n    height = 100,\n    font_size = 58,\n    color = {0.60, 0.46, 0.18},\n    font_color = {0.98, 0.95, 0.86},\n    tooltip = \"Pull Special Tile #\" .. tostring(state.unlockNum) .. \" from the reserve bag onto the Tiles Board (0 Actions to place).\"\n  })\nend\n\nfunction onUnlockPrev(_, _, alt)\n  local step = alt and 5 or 1\n  state.unlockNum = ((state.unlockNum - 1 - step) % 26) + 1\n  buildUnlockPlaqueUI()\n  refreshHud()\nend\n\nfunction onUnlockNext(_, _, alt)\n  local step = alt and 5 or 1\n  state.unlockNum = ((state.unlockNum - 1 + step) % 26) + 1\n  buildUnlockPlaqueUI()\n  refreshHud()\nend\n\nfunction onUnlockTile()\n  local bag = getObjectFromGUID(CONFIG.guids.specialBag)\n  if not bag then\n    broadcastToAll(\"Special Tiles reserve bag not found.\", {0.95, 0.45, 0.45})\n    return\n  end\n  local prefix = \"#\" .. tostring(state.unlockNum) .. \" \"\n  local targetPos = CONFIG.positions.unlockedSpecial\n  for _, entry in ipairs(bag.getObjects()) do\n    if string.sub(entry.name, 1, #prefix) == prefix then\n      bag.takeObject({\n        guid = entry.guid,\n        position = {targetPos[1] + math.random(-6, 6) * 0.08, targetPos[2] + 0.6, targetPos[3] + math.random(-4, 4) * 0.08},\n        rotation = {0, 180, 0},\n        smooth = true\n      })\n      broadcastToAll(\"Unlocked Special Tile \" .. entry.name .. \" (0 Actions to place)!\", {0.94, 0.84, 0.52})\n      return\n    end\n  end\n  broadcastToAll(\"Special Tile #\" .. tostring(state.unlockNum) .. \" is already unlocked (not in reserve bag).\", {0.95, 0.72, 0.42})\nend\n",
   "LuaScriptState": "",
-  "XmlUI": "",
+  "XmlUI": "<Defaults>\n  <Button fontStyle=\"Bold\" fontSize=\"12\" textColor=\"#f8f2e2\" />\n  <Text color=\"#f0e4c8\" fontSize=\"12\" />\n</Defaults>\n\n<Panel id=\"qvHudRoot\"\n       rectAlignment=\"MiddleLeft\"\n       offsetXY=\"14 24\"\n       width=\"276\"\n       height=\"566\"\n       color=\"#181512F0\"\n       outline=\"#b89248\"\n       outlineSize=\"2 -2\"\n       allowDragging=\"true\"\n       returnToOriginalPositionWhenReleased=\"false\">\n\n  <!-- Header bar -->\n  <HorizontalLayout rectAlignment=\"UpperCenter\" height=\"34\" padding=\"10 6 5 5\" spacing=\"4\" color=\"#262018FF\">\n    <Text id=\"qvTitle\" text=\"THE QUIET VALE v7.0\" fontSize=\"13\" fontStyle=\"Bold\" color=\"#e8c474\" alignment=\"MiddleLeft\" flexibleWidth=\"1\" />\n    <Button id=\"qvToggleBtn\" text=\"-\" preferredWidth=\"28\" minWidth=\"28\" color=\"#3a3126\" onClick=\"onHudToggle\" tooltip=\"Collapse / Expand Control Panel\" />\n  </HorizontalLayout>\n\n  <!-- Main collapsible body -->\n  <VerticalLayout id=\"qvHudBody\" rectAlignment=\"UpperCenter\" offsetXY=\"0 -36\" height=\"526\" padding=\"8 8 6 8\" spacing=\"6\" childForceExpandHeight=\"false\" childControlHeight=\"true\">\n\n    <!-- Status Banner -->\n    <Text id=\"qvStatus\" text=\"Season I  |  Round 1/12  |  2P (4 Act)\" fontSize=\"11\" fontStyle=\"Bold\" color=\"#d8e6c8\" alignment=\"MiddleCenter\" minHeight=\"20\" preferredHeight=\"20\" />\n\n    <!-- 1-5P Setup -->\n    <Text text=\"SETUP (STEWARDS + WAREHOUSE + HANDS)\" fontSize=\"10\" fontStyle=\"Bold\" color=\"#c9a862\" minHeight=\"14\" preferredHeight=\"14\" />\n    <HorizontalLayout minHeight=\"28\" preferredHeight=\"28\" spacing=\"4\">\n      <Button id=\"btnSetup1\" text=\"1P\" color=\"#2e2922\" onClick=\"onHudSetup(1)\" tooltip=\"1P: 4 Actions, 15 Warehouse, 5/3/4 Encounters\" />\n      <Button id=\"btnSetup2\" text=\"2P\" color=\"#7a5d26\" onClick=\"onHudSetup(2)\" tooltip=\"2P: 4 Actions, 10 Warehouse, 8/8/8 Encounters\" />\n      <Button id=\"btnSetup3\" text=\"3P\" color=\"#2e2922\" onClick=\"onHudSetup(3)\" tooltip=\"3P: 3 Actions, 8 Warehouse, 12/12/12 Encounters\" />\n      <Button id=\"btnSetup4\" text=\"4P\" color=\"#2e2922\" onClick=\"onHudSetup(4)\" tooltip=\"4P: 3 Actions, 0 Warehouse, 16/16/16 Encounters\" />\n      <Button id=\"btnSetup5\" text=\"5P\" color=\"#2e2922\" onClick=\"onHudSetup(5)\" tooltip=\"5P: 2 Actions, 0 Warehouse, 26/14/20 Encounters\" />\n    </HorizontalLayout>\n    <Button id=\"btnQuickSeed\" text=\"QUICK-SEED ENCOUNTER DECK\" minHeight=\"26\" preferredHeight=\"26\" fontSize=\"11\" color=\"#3c3428\" onClick=\"onHudQuickSeed\" tooltip=\"Gather dealt seeding hands + draw pile into one shuffled Encounter Deck to start Round 1 immediately\" />\n\n    <!-- Round Flow Actions -->\n    <Text text=\"ROUND FLOW\" fontSize=\"10\" fontStyle=\"Bold\" color=\"#c9a862\" minHeight=\"14\" preferredHeight=\"14\" />\n    <Button id=\"btnRevealEnc\" text=\"REVEAL ENCOUNTERS (2 CARDS)\" minHeight=\"32\" preferredHeight=\"32\" fontSize=\"12\" color=\"#8c6320\" onClick=\"onHudRevealEncounters\" tooltip=\"Flip P Encounter cards into open In Play slots &amp; auto-place 3 Timers on Arrivals\" />\n    <Button id=\"btnDrawTarget\" text=\"DRAW TARGET CARD\" minHeight=\"28\" preferredHeight=\"28\" fontSize=\"11\" color=\"#32485a\" onClick=\"onHudDrawTarget\" tooltip=\"Return previous Target Card to bottom, flip next card, and broadcast target rules\" />\n    <Button id=\"btnEndRound\" text=\"END ROUND 1 -> 2\" minHeight=\"32\" preferredHeight=\"32\" fontSize=\"12\" color=\"#2d5a36\" onClick=\"onHudEndRound\" tooltip=\"Clear X tokens, tick Arrival timers (-1), advance Round Marker, rotate Player 1\" />\n\n    <!-- Warehouse Live Counters -->\n    <Text text=\"WAREHOUSE (CAP 15)\" fontSize=\"10\" fontStyle=\"Bold\" color=\"#c9a862\" minHeight=\"14\" preferredHeight=\"14\" />\n    <GridLayout cellSize=\"124 24\" spacing=\"8 4\" minHeight=\"84\" preferredHeight=\"84\">\n      <HorizontalLayout spacing=\"2\">\n        <Text text=\"Wood\" preferredWidth=\"44\" fontSize=\"11\" color=\"#a6c890\" />\n        <Button text=\"-\" preferredWidth=\"22\" color=\"#4a2a26\" onClick=\"onHudWhMinus(4)\" />\n        <Text id=\"whVal4\" text=\"0\" preferredWidth=\"26\" alignment=\"MiddleCenter\" fontStyle=\"Bold\" />\n        <Button text=\"+\" preferredWidth=\"22\" color=\"#2a4a2e\" onClick=\"onHudWhPlus(4)\" />\n      </HorizontalLayout>\n      <HorizontalLayout spacing=\"2\">\n        <Text text=\"Stone\" preferredWidth=\"44\" fontSize=\"11\" color=\"#b6c0c6\" />\n        <Button text=\"-\" preferredWidth=\"22\" color=\"#4a2a26\" onClick=\"onHudWhMinus(1)\" />\n        <Text id=\"whVal1\" text=\"0\" preferredWidth=\"26\" alignment=\"MiddleCenter\" fontStyle=\"Bold\" />\n        <Button text=\"+\" preferredWidth=\"22\" color=\"#2a4a2e\" onClick=\"onHudWhPlus(1)\" />\n      </HorizontalLayout>\n      <HorizontalLayout spacing=\"2\">\n        <Text text=\"Metal\" preferredWidth=\"44\" fontSize=\"11\" color=\"#9ab8ca\" />\n        <Button text=\"-\" preferredWidth=\"22\" color=\"#4a2a26\" onClick=\"onHudWhMinus(2)\" />\n        <Text id=\"whVal2\" text=\"0\" preferredWidth=\"26\" alignment=\"MiddleCenter\" fontStyle=\"Bold\" />\n        <Button text=\"+\" preferredWidth=\"22\" color=\"#2a4a2e\" onClick=\"onHudWhPlus(2)\" />\n      </HorizontalLayout>\n      <HorizontalLayout spacing=\"2\">\n        <Text text=\"Food\" preferredWidth=\"44\" fontSize=\"11\" color=\"#d8c66e\" />\n        <Button text=\"-\" preferredWidth=\"22\" color=\"#4a2a26\" onClick=\"onHudWhMinus(5)\" />\n        <Text id=\"whVal5\" text=\"0\" preferredWidth=\"26\" alignment=\"MiddleCenter\" fontStyle=\"Bold\" />\n        <Button text=\"+\" preferredWidth=\"22\" color=\"#2a4a2e\" onClick=\"onHudWhPlus(5)\" />\n      </HorizontalLayout>\n      <HorizontalLayout spacing=\"2\">\n        <Text text=\"Herbs\" preferredWidth=\"44\" fontSize=\"11\" color=\"#bfa0d0\" />\n        <Button text=\"-\" preferredWidth=\"22\" color=\"#4a2a26\" onClick=\"onHudWhMinus(6)\" />\n        <Text id=\"whVal6\" text=\"0\" preferredWidth=\"26\" alignment=\"MiddleCenter\" fontStyle=\"Bold\" />\n        <Button text=\"+\" preferredWidth=\"22\" color=\"#2a4a2e\" onClick=\"onHudWhPlus(6)\" />\n      </HorizontalLayout>\n      <HorizontalLayout spacing=\"2\">\n        <Text text=\"Goods\" preferredWidth=\"44\" fontSize=\"11\" color=\"#d69676\" />\n        <Button text=\"-\" preferredWidth=\"22\" color=\"#4a2a26\" onClick=\"onHudWhMinus(3)\" />\n        <Text id=\"whVal3\" text=\"0\" preferredWidth=\"26\" alignment=\"MiddleCenter\" fontStyle=\"Bold\" />\n        <Button text=\"+\" preferredWidth=\"22\" color=\"#2a4a2e\" onClick=\"onHudWhPlus(3)\" />\n      </HorizontalLayout>\n    </GridLayout>\n\n    <!-- Unlock Special Tile -->\n    <Text text=\"UNLOCK SPECIAL TILE (0 ACTIONS)\" fontSize=\"10\" fontStyle=\"Bold\" color=\"#c9a862\" minHeight=\"14\" preferredHeight=\"14\" />\n    <HorizontalLayout minHeight=\"28\" preferredHeight=\"28\" spacing=\"4\">\n      <Button text=\"&lt;\" preferredWidth=\"30\" minWidth=\"30\" color=\"#342d24\" onClick=\"onHudUnlockPrev\" />\n      <Text id=\"hudUnlockNum\" text=\"#1\" preferredWidth=\"42\" minWidth=\"42\" alignment=\"MiddleCenter\" fontStyle=\"Bold\" color=\"#f5dc9c\" />\n      <Button text=\"&gt;\" preferredWidth=\"30\" minWidth=\"30\" color=\"#342d24\" onClick=\"onHudUnlockNext\" />\n      <Button id=\"btnHudUnlock\" text=\"UNLOCK\" flexibleWidth=\"1\" color=\"#7d5c20\" onClick=\"onHudUnlockTile\" />\n    </HorizontalLayout>\n\n    <!-- Quick Pull Core Tile -->\n    <Text text=\"QUICK-PULL CORE TILE\" fontSize=\"10\" fontStyle=\"Bold\" color=\"#c9a862\" minHeight=\"14\" preferredHeight=\"14\" />\n    <HorizontalLayout minHeight=\"26\" preferredHeight=\"26\" spacing=\"4\">\n      <Button text=\"&lt;\" preferredWidth=\"28\" minWidth=\"28\" color=\"#342d24\" onClick=\"onHudCorePrev\" />\n      <Text id=\"hudCoreName\" text=\"Lumber Yard\" flexibleWidth=\"1\" fontSize=\"11\" alignment=\"MiddleCenter\" color=\"#f2ead4\" />\n      <Button text=\"&gt;\" preferredWidth=\"28\" minWidth=\"28\" color=\"#342d24\" onClick=\"onHudCoreNext\" />\n    </HorizontalLayout>\n    <Button text=\"PULL CORE TILE NEXT TO MAP\" minHeight=\"28\" preferredHeight=\"28\" fontSize=\"11\" color=\"#3b4d38\" onClick=\"onHudPullCoreTile\" tooltip=\"Pull the selected Core Tile from its bag right beside the Map Board\" />\n\n  </VerticalLayout>\n</Panel>\n",
   "TabStates": {},
   "Grid": {
     "Type": 0,
@@ -7391,7 +7391,7 @@
           "Stretch": false
         }
       },
-      "LuaScript": "-- Clickable 0-15 Warehouse Resource Counter for The Quiet Vale (v7.0)\nlocal MIN_VAL = 0\nlocal MAX_VAL = 15\n\nvalue = 0\nresourceName = \"\"\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, data = pcall(JSON.decode, saved_data)\n    if ok and type(data) == \"table\" and type(data.value) == \"number\" then\n      value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(data.value)))\n    end\n  end\n  resourceName = self.getName()\n  buildUI()\nend\n\nfunction onSave()\n  return JSON.encode({ value = value })\nend\n\nfunction setValue(newVal)\n  local n = tonumber(newVal) or 0\n  value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(n)))\n  updateDisplay()\n  return value\nend\n\nfunction getValue()\n  return value\nend\n\nfunction adjust(delta)\n  local prev = value\n  value = math.max(MIN_VAL, math.min(MAX_VAL, value + delta))\n  updateDisplay()\n  if value ~= prev then\n    broadcastToAll(resourceName .. \": \" .. tostring(value) .. \" / 15\", {0.9, 0.84, 0.68})\n  end\nend\n\nfunction onPlus(_, _, alt)\n  adjust(alt and 5 or 1)\nend\n\nfunction onMinus(_, _, alt)\n  adjust(alt and -5 or -1)\nend\n\nfunction onCenterClick(_, _, alt)\n  adjust(alt and -1 or 1)\nend\n\nfunction updateDisplay()\n  self.editButton({ index = 0, label = tostring(value) })\nend\n\nfunction buildUI()\n  self.clearButtons()\n  self.createButton({\n    click_function = \"onCenterClick\",\n    function_owner = self,\n    label = tostring(value),\n    position = {0, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 620,\n    height = 560,\n    font_size = 420,\n    color = {0.14, 0.12, 0.10, 0.92},\n    font_color = {0.96, 0.90, 0.72},\n    tooltip = resourceName .. \" (Left-click +1, Right-click -1, Cap 15)\"\n  })\n  self.createButton({\n    click_function = \"onMinus\",\n    function_owner = self,\n    label = \"-\",\n    position = {-0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.36, 0.22, 0.20},\n    font_color = {0.98, 0.92, 0.84},\n    tooltip = \"-1 (Right-click -5)\"\n  })\n  self.createButton({\n    click_function = \"onPlus\",\n    function_owner = self,\n    label = \"+\",\n    position = {0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.22, 0.36, 0.24},\n    font_color = {0.94, 0.98, 0.90},\n    tooltip = \"+1 (Right-click +5)\"\n  })\nend\n",
+      "LuaScript": "-- Clickable 0-15 Warehouse Resource Counter for The Quiet Vale (v7.0)\nlocal MIN_VAL = 0\nlocal MAX_VAL = 15\n\nvalue = 0\nresourceName = \"\"\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, data = pcall(JSON.decode, saved_data)\n    if ok and type(data) == \"table\" and type(data.value) == \"number\" then\n      value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(data.value)))\n    end\n  end\n  resourceName = self.getName()\n  buildUI()\nend\n\nfunction onSave()\n  return JSON.encode({ value = value })\nend\n\nfunction setValue(newVal)\n  local n = tonumber(newVal) or 0\n  value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(n)))\n  updateDisplay()\n  return value\nend\n\nfunction getValue()\n  return value\nend\n\nfunction adjust(delta)\n  local prev = value\n  value = math.max(MIN_VAL, math.min(MAX_VAL, value + delta))\n  updateDisplay()\n  if value ~= prev then\n    broadcastToAll(resourceName .. \": \" .. tostring(value) .. \" / 15\", {0.9, 0.84, 0.68})\n    Global.call(\"syncWarehouseHud\")\n  end\n  return value\nend\n\nfunction onPlus(_, _, alt)\n  adjust(alt and 5 or 1)\nend\n\nfunction onMinus(_, _, alt)\n  adjust(alt and -5 or -1)\nend\n\nfunction onCenterClick(_, _, alt)\n  adjust(alt and -1 or 1)\nend\n\nfunction updateDisplay()\n  self.editButton({ index = 0, label = tostring(value) })\nend\n\nfunction buildUI()\n  self.clearButtons()\n  self.createButton({\n    click_function = \"onCenterClick\",\n    function_owner = self,\n    label = tostring(value),\n    position = {0, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 620,\n    height = 560,\n    font_size = 420,\n    color = {0.14, 0.12, 0.10, 0.92},\n    font_color = {0.96, 0.90, 0.72},\n    tooltip = resourceName .. \" (Left-click +1, Right-click -1, Cap 15)\"\n  })\n  self.createButton({\n    click_function = \"onMinus\",\n    function_owner = self,\n    label = \"-\",\n    position = {-0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.36, 0.22, 0.20},\n    font_color = {0.98, 0.92, 0.84},\n    tooltip = \"-1 (Right-click -5)\"\n  })\n  self.createButton({\n    click_function = \"onPlus\",\n    function_owner = self,\n    label = \"+\",\n    position = {0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.22, 0.36, 0.24},\n    font_color = {0.94, 0.98, 0.90},\n    tooltip = \"+1 (Right-click +5)\"\n  })\nend\n",
       "LuaScriptState": "",
       "XmlUI": ""
     },
@@ -7443,7 +7443,7 @@
           "Stretch": false
         }
       },
-      "LuaScript": "-- Clickable 0-15 Warehouse Resource Counter for The Quiet Vale (v7.0)\nlocal MIN_VAL = 0\nlocal MAX_VAL = 15\n\nvalue = 0\nresourceName = \"\"\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, data = pcall(JSON.decode, saved_data)\n    if ok and type(data) == \"table\" and type(data.value) == \"number\" then\n      value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(data.value)))\n    end\n  end\n  resourceName = self.getName()\n  buildUI()\nend\n\nfunction onSave()\n  return JSON.encode({ value = value })\nend\n\nfunction setValue(newVal)\n  local n = tonumber(newVal) or 0\n  value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(n)))\n  updateDisplay()\n  return value\nend\n\nfunction getValue()\n  return value\nend\n\nfunction adjust(delta)\n  local prev = value\n  value = math.max(MIN_VAL, math.min(MAX_VAL, value + delta))\n  updateDisplay()\n  if value ~= prev then\n    broadcastToAll(resourceName .. \": \" .. tostring(value) .. \" / 15\", {0.9, 0.84, 0.68})\n  end\nend\n\nfunction onPlus(_, _, alt)\n  adjust(alt and 5 or 1)\nend\n\nfunction onMinus(_, _, alt)\n  adjust(alt and -5 or -1)\nend\n\nfunction onCenterClick(_, _, alt)\n  adjust(alt and -1 or 1)\nend\n\nfunction updateDisplay()\n  self.editButton({ index = 0, label = tostring(value) })\nend\n\nfunction buildUI()\n  self.clearButtons()\n  self.createButton({\n    click_function = \"onCenterClick\",\n    function_owner = self,\n    label = tostring(value),\n    position = {0, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 620,\n    height = 560,\n    font_size = 420,\n    color = {0.14, 0.12, 0.10, 0.92},\n    font_color = {0.96, 0.90, 0.72},\n    tooltip = resourceName .. \" (Left-click +1, Right-click -1, Cap 15)\"\n  })\n  self.createButton({\n    click_function = \"onMinus\",\n    function_owner = self,\n    label = \"-\",\n    position = {-0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.36, 0.22, 0.20},\n    font_color = {0.98, 0.92, 0.84},\n    tooltip = \"-1 (Right-click -5)\"\n  })\n  self.createButton({\n    click_function = \"onPlus\",\n    function_owner = self,\n    label = \"+\",\n    position = {0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.22, 0.36, 0.24},\n    font_color = {0.94, 0.98, 0.90},\n    tooltip = \"+1 (Right-click +5)\"\n  })\nend\n",
+      "LuaScript": "-- Clickable 0-15 Warehouse Resource Counter for The Quiet Vale (v7.0)\nlocal MIN_VAL = 0\nlocal MAX_VAL = 15\n\nvalue = 0\nresourceName = \"\"\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, data = pcall(JSON.decode, saved_data)\n    if ok and type(data) == \"table\" and type(data.value) == \"number\" then\n      value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(data.value)))\n    end\n  end\n  resourceName = self.getName()\n  buildUI()\nend\n\nfunction onSave()\n  return JSON.encode({ value = value })\nend\n\nfunction setValue(newVal)\n  local n = tonumber(newVal) or 0\n  value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(n)))\n  updateDisplay()\n  return value\nend\n\nfunction getValue()\n  return value\nend\n\nfunction adjust(delta)\n  local prev = value\n  value = math.max(MIN_VAL, math.min(MAX_VAL, value + delta))\n  updateDisplay()\n  if value ~= prev then\n    broadcastToAll(resourceName .. \": \" .. tostring(value) .. \" / 15\", {0.9, 0.84, 0.68})\n    Global.call(\"syncWarehouseHud\")\n  end\n  return value\nend\n\nfunction onPlus(_, _, alt)\n  adjust(alt and 5 or 1)\nend\n\nfunction onMinus(_, _, alt)\n  adjust(alt and -5 or -1)\nend\n\nfunction onCenterClick(_, _, alt)\n  adjust(alt and -1 or 1)\nend\n\nfunction updateDisplay()\n  self.editButton({ index = 0, label = tostring(value) })\nend\n\nfunction buildUI()\n  self.clearButtons()\n  self.createButton({\n    click_function = \"onCenterClick\",\n    function_owner = self,\n    label = tostring(value),\n    position = {0, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 620,\n    height = 560,\n    font_size = 420,\n    color = {0.14, 0.12, 0.10, 0.92},\n    font_color = {0.96, 0.90, 0.72},\n    tooltip = resourceName .. \" (Left-click +1, Right-click -1, Cap 15)\"\n  })\n  self.createButton({\n    click_function = \"onMinus\",\n    function_owner = self,\n    label = \"-\",\n    position = {-0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.36, 0.22, 0.20},\n    font_color = {0.98, 0.92, 0.84},\n    tooltip = \"-1 (Right-click -5)\"\n  })\n  self.createButton({\n    click_function = \"onPlus\",\n    function_owner = self,\n    label = \"+\",\n    position = {0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.22, 0.36, 0.24},\n    font_color = {0.94, 0.98, 0.90},\n    tooltip = \"+1 (Right-click +5)\"\n  })\nend\n",
       "LuaScriptState": "",
       "XmlUI": ""
     },
@@ -7495,7 +7495,7 @@
           "Stretch": false
         }
       },
-      "LuaScript": "-- Clickable 0-15 Warehouse Resource Counter for The Quiet Vale (v7.0)\nlocal MIN_VAL = 0\nlocal MAX_VAL = 15\n\nvalue = 0\nresourceName = \"\"\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, data = pcall(JSON.decode, saved_data)\n    if ok and type(data) == \"table\" and type(data.value) == \"number\" then\n      value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(data.value)))\n    end\n  end\n  resourceName = self.getName()\n  buildUI()\nend\n\nfunction onSave()\n  return JSON.encode({ value = value })\nend\n\nfunction setValue(newVal)\n  local n = tonumber(newVal) or 0\n  value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(n)))\n  updateDisplay()\n  return value\nend\n\nfunction getValue()\n  return value\nend\n\nfunction adjust(delta)\n  local prev = value\n  value = math.max(MIN_VAL, math.min(MAX_VAL, value + delta))\n  updateDisplay()\n  if value ~= prev then\n    broadcastToAll(resourceName .. \": \" .. tostring(value) .. \" / 15\", {0.9, 0.84, 0.68})\n  end\nend\n\nfunction onPlus(_, _, alt)\n  adjust(alt and 5 or 1)\nend\n\nfunction onMinus(_, _, alt)\n  adjust(alt and -5 or -1)\nend\n\nfunction onCenterClick(_, _, alt)\n  adjust(alt and -1 or 1)\nend\n\nfunction updateDisplay()\n  self.editButton({ index = 0, label = tostring(value) })\nend\n\nfunction buildUI()\n  self.clearButtons()\n  self.createButton({\n    click_function = \"onCenterClick\",\n    function_owner = self,\n    label = tostring(value),\n    position = {0, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 620,\n    height = 560,\n    font_size = 420,\n    color = {0.14, 0.12, 0.10, 0.92},\n    font_color = {0.96, 0.90, 0.72},\n    tooltip = resourceName .. \" (Left-click +1, Right-click -1, Cap 15)\"\n  })\n  self.createButton({\n    click_function = \"onMinus\",\n    function_owner = self,\n    label = \"-\",\n    position = {-0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.36, 0.22, 0.20},\n    font_color = {0.98, 0.92, 0.84},\n    tooltip = \"-1 (Right-click -5)\"\n  })\n  self.createButton({\n    click_function = \"onPlus\",\n    function_owner = self,\n    label = \"+\",\n    position = {0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.22, 0.36, 0.24},\n    font_color = {0.94, 0.98, 0.90},\n    tooltip = \"+1 (Right-click +5)\"\n  })\nend\n",
+      "LuaScript": "-- Clickable 0-15 Warehouse Resource Counter for The Quiet Vale (v7.0)\nlocal MIN_VAL = 0\nlocal MAX_VAL = 15\n\nvalue = 0\nresourceName = \"\"\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, data = pcall(JSON.decode, saved_data)\n    if ok and type(data) == \"table\" and type(data.value) == \"number\" then\n      value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(data.value)))\n    end\n  end\n  resourceName = self.getName()\n  buildUI()\nend\n\nfunction onSave()\n  return JSON.encode({ value = value })\nend\n\nfunction setValue(newVal)\n  local n = tonumber(newVal) or 0\n  value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(n)))\n  updateDisplay()\n  return value\nend\n\nfunction getValue()\n  return value\nend\n\nfunction adjust(delta)\n  local prev = value\n  value = math.max(MIN_VAL, math.min(MAX_VAL, value + delta))\n  updateDisplay()\n  if value ~= prev then\n    broadcastToAll(resourceName .. \": \" .. tostring(value) .. \" / 15\", {0.9, 0.84, 0.68})\n    Global.call(\"syncWarehouseHud\")\n  end\n  return value\nend\n\nfunction onPlus(_, _, alt)\n  adjust(alt and 5 or 1)\nend\n\nfunction onMinus(_, _, alt)\n  adjust(alt and -5 or -1)\nend\n\nfunction onCenterClick(_, _, alt)\n  adjust(alt and -1 or 1)\nend\n\nfunction updateDisplay()\n  self.editButton({ index = 0, label = tostring(value) })\nend\n\nfunction buildUI()\n  self.clearButtons()\n  self.createButton({\n    click_function = \"onCenterClick\",\n    function_owner = self,\n    label = tostring(value),\n    position = {0, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 620,\n    height = 560,\n    font_size = 420,\n    color = {0.14, 0.12, 0.10, 0.92},\n    font_color = {0.96, 0.90, 0.72},\n    tooltip = resourceName .. \" (Left-click +1, Right-click -1, Cap 15)\"\n  })\n  self.createButton({\n    click_function = \"onMinus\",\n    function_owner = self,\n    label = \"-\",\n    position = {-0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.36, 0.22, 0.20},\n    font_color = {0.98, 0.92, 0.84},\n    tooltip = \"-1 (Right-click -5)\"\n  })\n  self.createButton({\n    click_function = \"onPlus\",\n    function_owner = self,\n    label = \"+\",\n    position = {0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.22, 0.36, 0.24},\n    font_color = {0.94, 0.98, 0.90},\n    tooltip = \"+1 (Right-click +5)\"\n  })\nend\n",
       "LuaScriptState": "",
       "XmlUI": ""
     },
@@ -7547,7 +7547,7 @@
           "Stretch": false
         }
       },
-      "LuaScript": "-- Clickable 0-15 Warehouse Resource Counter for The Quiet Vale (v7.0)\nlocal MIN_VAL = 0\nlocal MAX_VAL = 15\n\nvalue = 0\nresourceName = \"\"\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, data = pcall(JSON.decode, saved_data)\n    if ok and type(data) == \"table\" and type(data.value) == \"number\" then\n      value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(data.value)))\n    end\n  end\n  resourceName = self.getName()\n  buildUI()\nend\n\nfunction onSave()\n  return JSON.encode({ value = value })\nend\n\nfunction setValue(newVal)\n  local n = tonumber(newVal) or 0\n  value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(n)))\n  updateDisplay()\n  return value\nend\n\nfunction getValue()\n  return value\nend\n\nfunction adjust(delta)\n  local prev = value\n  value = math.max(MIN_VAL, math.min(MAX_VAL, value + delta))\n  updateDisplay()\n  if value ~= prev then\n    broadcastToAll(resourceName .. \": \" .. tostring(value) .. \" / 15\", {0.9, 0.84, 0.68})\n  end\nend\n\nfunction onPlus(_, _, alt)\n  adjust(alt and 5 or 1)\nend\n\nfunction onMinus(_, _, alt)\n  adjust(alt and -5 or -1)\nend\n\nfunction onCenterClick(_, _, alt)\n  adjust(alt and -1 or 1)\nend\n\nfunction updateDisplay()\n  self.editButton({ index = 0, label = tostring(value) })\nend\n\nfunction buildUI()\n  self.clearButtons()\n  self.createButton({\n    click_function = \"onCenterClick\",\n    function_owner = self,\n    label = tostring(value),\n    position = {0, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 620,\n    height = 560,\n    font_size = 420,\n    color = {0.14, 0.12, 0.10, 0.92},\n    font_color = {0.96, 0.90, 0.72},\n    tooltip = resourceName .. \" (Left-click +1, Right-click -1, Cap 15)\"\n  })\n  self.createButton({\n    click_function = \"onMinus\",\n    function_owner = self,\n    label = \"-\",\n    position = {-0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.36, 0.22, 0.20},\n    font_color = {0.98, 0.92, 0.84},\n    tooltip = \"-1 (Right-click -5)\"\n  })\n  self.createButton({\n    click_function = \"onPlus\",\n    function_owner = self,\n    label = \"+\",\n    position = {0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.22, 0.36, 0.24},\n    font_color = {0.94, 0.98, 0.90},\n    tooltip = \"+1 (Right-click +5)\"\n  })\nend\n",
+      "LuaScript": "-- Clickable 0-15 Warehouse Resource Counter for The Quiet Vale (v7.0)\nlocal MIN_VAL = 0\nlocal MAX_VAL = 15\n\nvalue = 0\nresourceName = \"\"\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, data = pcall(JSON.decode, saved_data)\n    if ok and type(data) == \"table\" and type(data.value) == \"number\" then\n      value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(data.value)))\n    end\n  end\n  resourceName = self.getName()\n  buildUI()\nend\n\nfunction onSave()\n  return JSON.encode({ value = value })\nend\n\nfunction setValue(newVal)\n  local n = tonumber(newVal) or 0\n  value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(n)))\n  updateDisplay()\n  return value\nend\n\nfunction getValue()\n  return value\nend\n\nfunction adjust(delta)\n  local prev = value\n  value = math.max(MIN_VAL, math.min(MAX_VAL, value + delta))\n  updateDisplay()\n  if value ~= prev then\n    broadcastToAll(resourceName .. \": \" .. tostring(value) .. \" / 15\", {0.9, 0.84, 0.68})\n    Global.call(\"syncWarehouseHud\")\n  end\n  return value\nend\n\nfunction onPlus(_, _, alt)\n  adjust(alt and 5 or 1)\nend\n\nfunction onMinus(_, _, alt)\n  adjust(alt and -5 or -1)\nend\n\nfunction onCenterClick(_, _, alt)\n  adjust(alt and -1 or 1)\nend\n\nfunction updateDisplay()\n  self.editButton({ index = 0, label = tostring(value) })\nend\n\nfunction buildUI()\n  self.clearButtons()\n  self.createButton({\n    click_function = \"onCenterClick\",\n    function_owner = self,\n    label = tostring(value),\n    position = {0, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 620,\n    height = 560,\n    font_size = 420,\n    color = {0.14, 0.12, 0.10, 0.92},\n    font_color = {0.96, 0.90, 0.72},\n    tooltip = resourceName .. \" (Left-click +1, Right-click -1, Cap 15)\"\n  })\n  self.createButton({\n    click_function = \"onMinus\",\n    function_owner = self,\n    label = \"-\",\n    position = {-0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.36, 0.22, 0.20},\n    font_color = {0.98, 0.92, 0.84},\n    tooltip = \"-1 (Right-click -5)\"\n  })\n  self.createButton({\n    click_function = \"onPlus\",\n    function_owner = self,\n    label = \"+\",\n    position = {0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.22, 0.36, 0.24},\n    font_color = {0.94, 0.98, 0.90},\n    tooltip = \"+1 (Right-click +5)\"\n  })\nend\n",
       "LuaScriptState": "",
       "XmlUI": ""
     },
@@ -7599,7 +7599,7 @@
           "Stretch": false
         }
       },
-      "LuaScript": "-- Clickable 0-15 Warehouse Resource Counter for The Quiet Vale (v7.0)\nlocal MIN_VAL = 0\nlocal MAX_VAL = 15\n\nvalue = 0\nresourceName = \"\"\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, data = pcall(JSON.decode, saved_data)\n    if ok and type(data) == \"table\" and type(data.value) == \"number\" then\n      value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(data.value)))\n    end\n  end\n  resourceName = self.getName()\n  buildUI()\nend\n\nfunction onSave()\n  return JSON.encode({ value = value })\nend\n\nfunction setValue(newVal)\n  local n = tonumber(newVal) or 0\n  value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(n)))\n  updateDisplay()\n  return value\nend\n\nfunction getValue()\n  return value\nend\n\nfunction adjust(delta)\n  local prev = value\n  value = math.max(MIN_VAL, math.min(MAX_VAL, value + delta))\n  updateDisplay()\n  if value ~= prev then\n    broadcastToAll(resourceName .. \": \" .. tostring(value) .. \" / 15\", {0.9, 0.84, 0.68})\n  end\nend\n\nfunction onPlus(_, _, alt)\n  adjust(alt and 5 or 1)\nend\n\nfunction onMinus(_, _, alt)\n  adjust(alt and -5 or -1)\nend\n\nfunction onCenterClick(_, _, alt)\n  adjust(alt and -1 or 1)\nend\n\nfunction updateDisplay()\n  self.editButton({ index = 0, label = tostring(value) })\nend\n\nfunction buildUI()\n  self.clearButtons()\n  self.createButton({\n    click_function = \"onCenterClick\",\n    function_owner = self,\n    label = tostring(value),\n    position = {0, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 620,\n    height = 560,\n    font_size = 420,\n    color = {0.14, 0.12, 0.10, 0.92},\n    font_color = {0.96, 0.90, 0.72},\n    tooltip = resourceName .. \" (Left-click +1, Right-click -1, Cap 15)\"\n  })\n  self.createButton({\n    click_function = \"onMinus\",\n    function_owner = self,\n    label = \"-\",\n    position = {-0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.36, 0.22, 0.20},\n    font_color = {0.98, 0.92, 0.84},\n    tooltip = \"-1 (Right-click -5)\"\n  })\n  self.createButton({\n    click_function = \"onPlus\",\n    function_owner = self,\n    label = \"+\",\n    position = {0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.22, 0.36, 0.24},\n    font_color = {0.94, 0.98, 0.90},\n    tooltip = \"+1 (Right-click +5)\"\n  })\nend\n",
+      "LuaScript": "-- Clickable 0-15 Warehouse Resource Counter for The Quiet Vale (v7.0)\nlocal MIN_VAL = 0\nlocal MAX_VAL = 15\n\nvalue = 0\nresourceName = \"\"\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, data = pcall(JSON.decode, saved_data)\n    if ok and type(data) == \"table\" and type(data.value) == \"number\" then\n      value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(data.value)))\n    end\n  end\n  resourceName = self.getName()\n  buildUI()\nend\n\nfunction onSave()\n  return JSON.encode({ value = value })\nend\n\nfunction setValue(newVal)\n  local n = tonumber(newVal) or 0\n  value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(n)))\n  updateDisplay()\n  return value\nend\n\nfunction getValue()\n  return value\nend\n\nfunction adjust(delta)\n  local prev = value\n  value = math.max(MIN_VAL, math.min(MAX_VAL, value + delta))\n  updateDisplay()\n  if value ~= prev then\n    broadcastToAll(resourceName .. \": \" .. tostring(value) .. \" / 15\", {0.9, 0.84, 0.68})\n    Global.call(\"syncWarehouseHud\")\n  end\n  return value\nend\n\nfunction onPlus(_, _, alt)\n  adjust(alt and 5 or 1)\nend\n\nfunction onMinus(_, _, alt)\n  adjust(alt and -5 or -1)\nend\n\nfunction onCenterClick(_, _, alt)\n  adjust(alt and -1 or 1)\nend\n\nfunction updateDisplay()\n  self.editButton({ index = 0, label = tostring(value) })\nend\n\nfunction buildUI()\n  self.clearButtons()\n  self.createButton({\n    click_function = \"onCenterClick\",\n    function_owner = self,\n    label = tostring(value),\n    position = {0, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 620,\n    height = 560,\n    font_size = 420,\n    color = {0.14, 0.12, 0.10, 0.92},\n    font_color = {0.96, 0.90, 0.72},\n    tooltip = resourceName .. \" (Left-click +1, Right-click -1, Cap 15)\"\n  })\n  self.createButton({\n    click_function = \"onMinus\",\n    function_owner = self,\n    label = \"-\",\n    position = {-0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.36, 0.22, 0.20},\n    font_color = {0.98, 0.92, 0.84},\n    tooltip = \"-1 (Right-click -5)\"\n  })\n  self.createButton({\n    click_function = \"onPlus\",\n    function_owner = self,\n    label = \"+\",\n    position = {0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.22, 0.36, 0.24},\n    font_color = {0.94, 0.98, 0.90},\n    tooltip = \"+1 (Right-click +5)\"\n  })\nend\n",
       "LuaScriptState": "",
       "XmlUI": ""
     },
@@ -7651,12 +7651,12 @@
           "Stretch": false
         }
       },
-      "LuaScript": "-- Clickable 0-15 Warehouse Resource Counter for The Quiet Vale (v7.0)\nlocal MIN_VAL = 0\nlocal MAX_VAL = 15\n\nvalue = 0\nresourceName = \"\"\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, data = pcall(JSON.decode, saved_data)\n    if ok and type(data) == \"table\" and type(data.value) == \"number\" then\n      value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(data.value)))\n    end\n  end\n  resourceName = self.getName()\n  buildUI()\nend\n\nfunction onSave()\n  return JSON.encode({ value = value })\nend\n\nfunction setValue(newVal)\n  local n = tonumber(newVal) or 0\n  value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(n)))\n  updateDisplay()\n  return value\nend\n\nfunction getValue()\n  return value\nend\n\nfunction adjust(delta)\n  local prev = value\n  value = math.max(MIN_VAL, math.min(MAX_VAL, value + delta))\n  updateDisplay()\n  if value ~= prev then\n    broadcastToAll(resourceName .. \": \" .. tostring(value) .. \" / 15\", {0.9, 0.84, 0.68})\n  end\nend\n\nfunction onPlus(_, _, alt)\n  adjust(alt and 5 or 1)\nend\n\nfunction onMinus(_, _, alt)\n  adjust(alt and -5 or -1)\nend\n\nfunction onCenterClick(_, _, alt)\n  adjust(alt and -1 or 1)\nend\n\nfunction updateDisplay()\n  self.editButton({ index = 0, label = tostring(value) })\nend\n\nfunction buildUI()\n  self.clearButtons()\n  self.createButton({\n    click_function = \"onCenterClick\",\n    function_owner = self,\n    label = tostring(value),\n    position = {0, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 620,\n    height = 560,\n    font_size = 420,\n    color = {0.14, 0.12, 0.10, 0.92},\n    font_color = {0.96, 0.90, 0.72},\n    tooltip = resourceName .. \" (Left-click +1, Right-click -1, Cap 15)\"\n  })\n  self.createButton({\n    click_function = \"onMinus\",\n    function_owner = self,\n    label = \"-\",\n    position = {-0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.36, 0.22, 0.20},\n    font_color = {0.98, 0.92, 0.84},\n    tooltip = \"-1 (Right-click -5)\"\n  })\n  self.createButton({\n    click_function = \"onPlus\",\n    function_owner = self,\n    label = \"+\",\n    position = {0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.22, 0.36, 0.24},\n    font_color = {0.94, 0.98, 0.90},\n    tooltip = \"+1 (Right-click +5)\"\n  })\nend\n",
+      "LuaScript": "-- Clickable 0-15 Warehouse Resource Counter for The Quiet Vale (v7.0)\nlocal MIN_VAL = 0\nlocal MAX_VAL = 15\n\nvalue = 0\nresourceName = \"\"\n\nfunction onLoad(saved_data)\n  if saved_data and saved_data ~= \"\" then\n    local ok, data = pcall(JSON.decode, saved_data)\n    if ok and type(data) == \"table\" and type(data.value) == \"number\" then\n      value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(data.value)))\n    end\n  end\n  resourceName = self.getName()\n  buildUI()\nend\n\nfunction onSave()\n  return JSON.encode({ value = value })\nend\n\nfunction setValue(newVal)\n  local n = tonumber(newVal) or 0\n  value = math.max(MIN_VAL, math.min(MAX_VAL, math.floor(n)))\n  updateDisplay()\n  return value\nend\n\nfunction getValue()\n  return value\nend\n\nfunction adjust(delta)\n  local prev = value\n  value = math.max(MIN_VAL, math.min(MAX_VAL, value + delta))\n  updateDisplay()\n  if value ~= prev then\n    broadcastToAll(resourceName .. \": \" .. tostring(value) .. \" / 15\", {0.9, 0.84, 0.68})\n    Global.call(\"syncWarehouseHud\")\n  end\n  return value\nend\n\nfunction onPlus(_, _, alt)\n  adjust(alt and 5 or 1)\nend\n\nfunction onMinus(_, _, alt)\n  adjust(alt and -5 or -1)\nend\n\nfunction onCenterClick(_, _, alt)\n  adjust(alt and -1 or 1)\nend\n\nfunction updateDisplay()\n  self.editButton({ index = 0, label = tostring(value) })\nend\n\nfunction buildUI()\n  self.clearButtons()\n  self.createButton({\n    click_function = \"onCenterClick\",\n    function_owner = self,\n    label = tostring(value),\n    position = {0, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 620,\n    height = 560,\n    font_size = 420,\n    color = {0.14, 0.12, 0.10, 0.92},\n    font_color = {0.96, 0.90, 0.72},\n    tooltip = resourceName .. \" (Left-click +1, Right-click -1, Cap 15)\"\n  })\n  self.createButton({\n    click_function = \"onMinus\",\n    function_owner = self,\n    label = \"-\",\n    position = {-0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.36, 0.22, 0.20},\n    font_color = {0.98, 0.92, 0.84},\n    tooltip = \"-1 (Right-click -5)\"\n  })\n  self.createButton({\n    click_function = \"onPlus\",\n    function_owner = self,\n    label = \"+\",\n    position = {0.72, 0.25, 0},\n    rotation = {0, 0, 0},\n    width = 240,\n    height = 360,\n    font_size = 280,\n    color = {0.22, 0.36, 0.24},\n    font_color = {0.94, 0.98, 0.90},\n    tooltip = \"+1 (Right-click +5)\"\n  })\nend\n",
       "LuaScriptState": "",
       "XmlUI": ""
     },
     {
-      "GUID": "10007a",
+      "GUID": "100079",
       "Name": "Infinite_Bag",
       "Transform": {
         "posX": 23.07,
@@ -7692,7 +7692,7 @@
       },
       "ContainedObjects": [
         {
-          "GUID": "100079",
+          "GUID": "10007a",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 23.07,
@@ -7749,7 +7749,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "10007c",
+      "GUID": "10007b",
       "Name": "Infinite_Bag",
       "Transform": {
         "posX": 24.67,
@@ -7785,7 +7785,7 @@
       },
       "ContainedObjects": [
         {
-          "GUID": "10007b",
+          "GUID": "10007c",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 24.67,
@@ -7842,7 +7842,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "10007e",
+      "GUID": "10007d",
       "Name": "Infinite_Bag",
       "Transform": {
         "posX": 23.07,
@@ -7878,7 +7878,7 @@
       },
       "ContainedObjects": [
         {
-          "GUID": "10007d",
+          "GUID": "10007e",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 23.07,
@@ -7935,7 +7935,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "100080",
+      "GUID": "10007f",
       "Name": "Infinite_Bag",
       "Transform": {
         "posX": 24.67,
@@ -7971,7 +7971,7 @@
       },
       "ContainedObjects": [
         {
-          "GUID": "10007f",
+          "GUID": "100080",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 24.67,
@@ -9086,7 +9086,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "1000ab",
+      "GUID": "100097",
       "Name": "Bag",
       "Transform": {
         "posX": 4.427,
@@ -9122,63 +9122,11 @@
       },
       "ContainedObjects": [
         {
-          "GUID": "100097",
-          "Name": "Custom_Tile",
-          "Transform": {
-            "posX": 4.427,
-            "posY": 1.3,
-            "posZ": -8.7784,
-            "rotX": 0,
-            "rotY": 180,
-            "rotZ": 0,
-            "scaleX": 1.2,
-            "scaleY": 1,
-            "scaleZ": 1.2
-          },
-          "Nickname": "Lumber Yard / Sustainable Lumber Yard",
-          "Description": "Basic: Activate: Gain 2 Wood. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.\nUpgraded: Activate: Gain 3 Wood and 2 Food. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.",
-          "GMNotes": "",
-          "ColorDiffuse": {
-            "r": 1,
-            "g": 1,
-            "b": 1
-          },
-          "LayoutGroupSortIndex": 0,
-          "Value": 0,
-          "Locked": false,
-          "Grid": false,
-          "Snap": true,
-          "IgnoreFoW": false,
-          "MeasureMovement": false,
-          "DragSelectable": true,
-          "Autoraise": true,
-          "Sticky": true,
-          "Tooltip": true,
-          "GridProjection": false,
-          "HideWhenFaceDown": false,
-          "Hands": false,
-          "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c01_lumber_yard-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c01_lumber_yard-upgraded.jpg",
-            "ImageScalar": 1,
-            "WidthScale": 0,
-            "CustomTile": {
-              "Type": 1,
-              "Thickness": 0.12,
-              "Stackable": true,
-              "Stretch": false
-            }
-          },
-          "LuaScript": "",
-          "LuaScriptState": "",
-          "XmlUI": ""
-        },
-        {
           "GUID": "100098",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9230,7 +9178,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.56,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9282,7 +9230,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.69,
+            "posY": 1.56,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9334,7 +9282,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.3,
+            "posY": 1.69,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9343,8 +9291,8 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Mine Tunnel / Mine Shaft",
-          "Description": "Basic: Activate: Gain 2 Stone. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.\nUpgraded: Activate: Gain 3 Stone and 2 Metal. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.",
+          "Nickname": "Lumber Yard / Sustainable Lumber Yard",
+          "Description": "Basic: Activate: Gain 2 Wood. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.\nUpgraded: Activate: Gain 3 Wood and 2 Food. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.",
           "GMNotes": "",
           "ColorDiffuse": {
             "r": 1,
@@ -9366,8 +9314,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c02_mine_tunnel-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c02_mine_tunnel-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c01_lumber_yard-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c01_lumber_yard-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -9386,7 +9334,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9438,7 +9386,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.56,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9490,7 +9438,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.69,
+            "posY": 1.56,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9542,7 +9490,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.3,
+            "posY": 1.69,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9551,8 +9499,8 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Gathering Outpost / Gathering Lodge",
-          "Description": "Basic: Activate: Gain 2 Herbs. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.\nUpgraded: Activate: Gain 3 Herbs and 2 Food. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.",
+          "Nickname": "Mine Tunnel / Mine Shaft",
+          "Description": "Basic: Activate: Gain 2 Stone. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.\nUpgraded: Activate: Gain 3 Stone and 2 Metal. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.",
           "GMNotes": "",
           "ColorDiffuse": {
             "r": 1,
@@ -9574,8 +9522,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c03_gathering_outpost-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c03_gathering_outpost-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c02_mine_tunnel-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c02_mine_tunnel-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -9594,7 +9542,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9646,7 +9594,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.56,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9698,7 +9646,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.69,
+            "posY": 1.56,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9750,7 +9698,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.3,
+            "posY": 1.69,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9759,8 +9707,8 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Farmstead / Artisan Farm",
-          "Description": "Basic: Activate: Gain 2 Food. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.\nUpgraded: Activate: Gain 3 Food and 2 Goods. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.",
+          "Nickname": "Gathering Outpost / Gathering Lodge",
+          "Description": "Basic: Activate: Gain 2 Herbs. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.\nUpgraded: Activate: Gain 3 Herbs and 2 Food. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.",
           "GMNotes": "",
           "ColorDiffuse": {
             "r": 1,
@@ -9782,8 +9730,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c04_farmstead-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c04_farmstead-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c03_gathering_outpost-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c03_gathering_outpost-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -9802,7 +9750,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9854,7 +9802,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.56,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9906,7 +9854,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.69,
+            "posY": 1.56,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9958,7 +9906,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.3,
+            "posY": 1.69,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -9967,8 +9915,8 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Salvage Camp / Reclamation Works",
-          "Description": "Basic: Activate: Gain 2 Metal. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.\nUpgraded: Activate: Gain 3 Metal and 2 Goods. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.",
+          "Nickname": "Farmstead / Artisan Farm",
+          "Description": "Basic: Activate: Gain 2 Food. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.\nUpgraded: Activate: Gain 3 Food and 2 Goods. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.",
           "GMNotes": "",
           "ColorDiffuse": {
             "r": 1,
@@ -9990,8 +9938,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c20_dig_site-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c20_dig_site-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c04_farmstead-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c04_farmstead-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -10010,7 +9958,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -10062,7 +10010,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
-            "posY": 1.56,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -10111,6 +10059,58 @@
         },
         {
           "GUID": "1000aa",
+          "Name": "Custom_Tile",
+          "Transform": {
+            "posX": 4.427,
+            "posY": 1.56,
+            "posZ": -8.7784,
+            "rotX": 0,
+            "rotY": 180,
+            "rotZ": 0,
+            "scaleX": 1.2,
+            "scaleY": 1,
+            "scaleZ": 1.2
+          },
+          "Nickname": "Salvage Camp / Reclamation Works",
+          "Description": "Basic: Activate: Gain 2 Metal. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.\nUpgraded: Activate: Gain 3 Metal and 2 Goods. Passive: Linked Production — the first time this linked group is activated each round, every immediately adjacent, non-Overstrained producer from the same tile stack also activates for no additional action. Later activations that round produce only from the chosen tile.",
+          "GMNotes": "",
+          "ColorDiffuse": {
+            "r": 1,
+            "g": 1,
+            "b": 1
+          },
+          "LayoutGroupSortIndex": 0,
+          "Value": 0,
+          "Locked": false,
+          "Grid": false,
+          "Snap": true,
+          "IgnoreFoW": false,
+          "MeasureMovement": false,
+          "DragSelectable": true,
+          "Autoraise": true,
+          "Sticky": true,
+          "Tooltip": true,
+          "GridProjection": false,
+          "HideWhenFaceDown": false,
+          "Hands": false,
+          "CustomImage": {
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c20_dig_site-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c20_dig_site-upgraded.jpg",
+            "ImageScalar": 1,
+            "WidthScale": 0,
+            "CustomTile": {
+              "Type": 1,
+              "Thickness": 0.12,
+              "Stackable": true,
+              "Stretch": false
+            }
+          },
+          "LuaScript": "",
+          "LuaScriptState": "",
+          "XmlUI": ""
+        },
+        {
+          "GUID": "1000ab",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 4.427,
@@ -10167,7 +10167,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "1000b0",
+      "GUID": "1000ac",
       "Name": "Bag",
       "Transform": {
         "posX": 6.541,
@@ -10203,63 +10203,11 @@
       },
       "ContainedObjects": [
         {
-          "GUID": "1000ac",
-          "Name": "Custom_Tile",
-          "Transform": {
-            "posX": 6.541,
-            "posY": 1.3,
-            "posZ": -8.7784,
-            "rotX": 0,
-            "rotY": 180,
-            "rotZ": 0,
-            "scaleX": 1.2,
-            "scaleY": 1,
-            "scaleZ": 1.2
-          },
-          "Nickname": "Workshops / The Makers Conclave",
-          "Description": "Basic: Passive: Once per round, when upgrading an adjacent Core Tile, reduce its cost by 1 resource.\nUpgraded: Passive: Once per round, when upgrading a reachable Core Tile, reduce its cost by up to 2 resources.",
-          "GMNotes": "",
-          "ColorDiffuse": {
-            "r": 1,
-            "g": 1,
-            "b": 1
-          },
-          "LayoutGroupSortIndex": 0,
-          "Value": 0,
-          "Locked": false,
-          "Grid": false,
-          "Snap": true,
-          "IgnoreFoW": false,
-          "MeasureMovement": false,
-          "DragSelectable": true,
-          "Autoraise": true,
-          "Sticky": true,
-          "Tooltip": true,
-          "GridProjection": false,
-          "HideWhenFaceDown": false,
-          "Hands": false,
-          "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c13_workshops-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c13_workshops-upgraded.jpg",
-            "ImageScalar": 1,
-            "WidthScale": 0,
-            "CustomTile": {
-              "Type": 1,
-              "Thickness": 0.12,
-              "Stackable": true,
-              "Stretch": false
-            }
-          },
-          "LuaScript": "",
-          "LuaScriptState": "",
-          "XmlUI": ""
-        },
-        {
           "GUID": "1000ad",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 6.541,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -10311,6 +10259,58 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 6.541,
+            "posY": 1.43,
+            "posZ": -8.7784,
+            "rotX": 0,
+            "rotY": 180,
+            "rotZ": 0,
+            "scaleX": 1.2,
+            "scaleY": 1,
+            "scaleZ": 1.2
+          },
+          "Nickname": "Workshops / The Makers Conclave",
+          "Description": "Basic: Passive: Once per round, when upgrading an adjacent Core Tile, reduce its cost by 1 resource.\nUpgraded: Passive: Once per round, when upgrading a reachable Core Tile, reduce its cost by up to 2 resources.",
+          "GMNotes": "",
+          "ColorDiffuse": {
+            "r": 1,
+            "g": 1,
+            "b": 1
+          },
+          "LayoutGroupSortIndex": 0,
+          "Value": 0,
+          "Locked": false,
+          "Grid": false,
+          "Snap": true,
+          "IgnoreFoW": false,
+          "MeasureMovement": false,
+          "DragSelectable": true,
+          "Autoraise": true,
+          "Sticky": true,
+          "Tooltip": true,
+          "GridProjection": false,
+          "HideWhenFaceDown": false,
+          "Hands": false,
+          "CustomImage": {
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c13_workshops-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c13_workshops-upgraded.jpg",
+            "ImageScalar": 1,
+            "WidthScale": 0,
+            "CustomTile": {
+              "Type": 1,
+              "Thickness": 0.12,
+              "Stackable": true,
+              "Stretch": false
+            }
+          },
+          "LuaScript": "",
+          "LuaScriptState": "",
+          "XmlUI": ""
+        },
+        {
+          "GUID": "1000af",
+          "Name": "Custom_Tile",
+          "Transform": {
+            "posX": 6.541,
             "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
@@ -10359,7 +10359,7 @@
           "XmlUI": ""
         },
         {
-          "GUID": "1000af",
+          "GUID": "1000b0",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 6.541,
@@ -10416,7 +10416,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "1000bb",
+      "GUID": "1000b1",
       "Name": "Bag",
       "Transform": {
         "posX": 8.655,
@@ -10452,63 +10452,11 @@
       },
       "ContainedObjects": [
         {
-          "GUID": "1000b1",
-          "Name": "Custom_Tile",
-          "Transform": {
-            "posX": 8.655,
-            "posY": 1.3,
-            "posZ": -8.7784,
-            "rotX": 0,
-            "rotY": 180,
-            "rotZ": 0,
-            "scaleX": 1.2,
-            "scaleY": 1,
-            "scaleZ": 1.2
-          },
-          "Nickname": "Tavern / The Steward's Arms",
-          "Description": "Basic: Activate: Remove 1 Strain from an adjacent tile.\nUpgraded: Activate: Remove 1 Strain from up to 2 adjacent tiles.",
-          "GMNotes": "",
-          "ColorDiffuse": {
-            "r": 1,
-            "g": 1,
-            "b": 1
-          },
-          "LayoutGroupSortIndex": 0,
-          "Value": 0,
-          "Locked": false,
-          "Grid": false,
-          "Snap": true,
-          "IgnoreFoW": false,
-          "MeasureMovement": false,
-          "DragSelectable": true,
-          "Autoraise": true,
-          "Sticky": true,
-          "Tooltip": true,
-          "GridProjection": false,
-          "HideWhenFaceDown": false,
-          "Hands": false,
-          "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c09_tavern-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c09_tavern-upgraded.jpg",
-            "ImageScalar": 1,
-            "WidthScale": 0,
-            "CustomTile": {
-              "Type": 1,
-              "Thickness": 0.12,
-              "Stackable": true,
-              "Stretch": false
-            }
-          },
-          "LuaScript": "",
-          "LuaScriptState": "",
-          "XmlUI": ""
-        },
-        {
           "GUID": "1000b2",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 8.655,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -10560,7 +10508,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 8.655,
-            "posY": 1.3,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -10569,7 +10517,7 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Eatery / The Crock and Ladle",
+          "Nickname": "Tavern / The Steward's Arms",
           "Description": "Basic: Activate: Remove 1 Strain from an adjacent tile.\nUpgraded: Activate: Remove 1 Strain from up to 2 adjacent tiles.",
           "GMNotes": "",
           "ColorDiffuse": {
@@ -10592,8 +10540,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c10_eatery-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c10_eatery-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c09_tavern-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c09_tavern-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -10612,7 +10560,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 8.655,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -10664,7 +10612,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 8.655,
-            "posY": 1.3,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -10673,7 +10621,7 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Washhouse / Sweet Flag Bathhouse",
+          "Nickname": "Eatery / The Crock and Ladle",
           "Description": "Basic: Activate: Remove 1 Strain from an adjacent tile.\nUpgraded: Activate: Remove 1 Strain from up to 2 adjacent tiles.",
           "GMNotes": "",
           "ColorDiffuse": {
@@ -10696,8 +10644,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c11_washhouse-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c11_washhouse-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c10_eatery-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c10_eatery-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -10716,7 +10664,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 8.655,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -10768,7 +10716,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 8.655,
-            "posY": 1.3,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -10777,8 +10725,8 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Apothecary / Amaryllis Bloom",
-          "Description": "Basic: Activate: Remove 1 Strain from an adjacent tile.\nUpgraded: Activate: Remove up to 2 Strain from 1 adjacent tile.",
+          "Nickname": "Washhouse / Sweet Flag Bathhouse",
+          "Description": "Basic: Activate: Remove 1 Strain from an adjacent tile.\nUpgraded: Activate: Remove 1 Strain from up to 2 adjacent tiles.",
           "GMNotes": "",
           "ColorDiffuse": {
             "r": 1,
@@ -10800,8 +10748,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c12_apothecary-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c12_apothecary-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c11_washhouse-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c11_washhouse-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -10820,7 +10768,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 8.655,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -10872,6 +10820,58 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 8.655,
+            "posY": 1.43,
+            "posZ": -8.7784,
+            "rotX": 0,
+            "rotY": 180,
+            "rotZ": 0,
+            "scaleX": 1.2,
+            "scaleY": 1,
+            "scaleZ": 1.2
+          },
+          "Nickname": "Apothecary / Amaryllis Bloom",
+          "Description": "Basic: Activate: Remove 1 Strain from an adjacent tile.\nUpgraded: Activate: Remove up to 2 Strain from 1 adjacent tile.",
+          "GMNotes": "",
+          "ColorDiffuse": {
+            "r": 1,
+            "g": 1,
+            "b": 1
+          },
+          "LayoutGroupSortIndex": 0,
+          "Value": 0,
+          "Locked": false,
+          "Grid": false,
+          "Snap": true,
+          "IgnoreFoW": false,
+          "MeasureMovement": false,
+          "DragSelectable": true,
+          "Autoraise": true,
+          "Sticky": true,
+          "Tooltip": true,
+          "GridProjection": false,
+          "HideWhenFaceDown": false,
+          "Hands": false,
+          "CustomImage": {
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c12_apothecary-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c12_apothecary-upgraded.jpg",
+            "ImageScalar": 1,
+            "WidthScale": 0,
+            "CustomTile": {
+              "Type": 1,
+              "Thickness": 0.12,
+              "Stackable": true,
+              "Stretch": false
+            }
+          },
+          "LuaScript": "",
+          "LuaScriptState": "",
+          "XmlUI": ""
+        },
+        {
+          "GUID": "1000ba",
+          "Name": "Custom_Tile",
+          "Transform": {
+            "posX": 8.655,
             "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
@@ -10920,7 +10920,7 @@
           "XmlUI": ""
         },
         {
-          "GUID": "1000ba",
+          "GUID": "1000bb",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 8.655,
@@ -10977,7 +10977,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "1000c8",
+      "GUID": "1000bc",
       "Name": "Bag",
       "Transform": {
         "posX": 10.769,
@@ -11013,63 +11013,11 @@
       },
       "ContainedObjects": [
         {
-          "GUID": "1000bc",
-          "Name": "Custom_Tile",
-          "Transform": {
-            "posX": 10.769,
-            "posY": 1.3,
-            "posZ": -8.7784,
-            "rotX": 0,
-            "rotY": 180,
-            "rotZ": 0,
-            "scaleX": 1.2,
-            "scaleY": 1,
-            "scaleZ": 1.2
-          },
-          "Nickname": "Cabin / Fine Cabin",
-          "Description": "Basic: Passive: +2 Population if part of a Housing cluster.\nUpgraded: Passive: +3 Population if part of a Housing cluster. +2 Renown if adjacent to Travel.",
-          "GMNotes": "",
-          "ColorDiffuse": {
-            "r": 1,
-            "g": 1,
-            "b": 1
-          },
-          "LayoutGroupSortIndex": 0,
-          "Value": 0,
-          "Locked": false,
-          "Grid": false,
-          "Snap": true,
-          "IgnoreFoW": false,
-          "MeasureMovement": false,
-          "DragSelectable": true,
-          "Autoraise": true,
-          "Sticky": true,
-          "Tooltip": true,
-          "GridProjection": false,
-          "HideWhenFaceDown": false,
-          "Hands": false,
-          "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c05_cabin-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c05_cabin-upgraded.jpg",
-            "ImageScalar": 1,
-            "WidthScale": 0,
-            "CustomTile": {
-              "Type": 1,
-              "Thickness": 0.12,
-              "Stackable": true,
-              "Stretch": false
-            }
-          },
-          "LuaScript": "",
-          "LuaScriptState": "",
-          "XmlUI": ""
-        },
-        {
           "GUID": "1000bd",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 10.769,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11121,7 +11069,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 10.769,
-            "posY": 1.56,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11173,7 +11121,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 10.769,
-            "posY": 1.69,
+            "posY": 1.56,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11225,7 +11173,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 10.769,
-            "posY": 1.3,
+            "posY": 1.69,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11234,8 +11182,8 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Cottage / Fine Cottage",
-          "Description": "Basic: Passive: +3 Population if part of a Housing cluster.\nUpgraded: Passive: +5 Population if part of a Housing cluster. +3 Renown if adjacent to Travel.",
+          "Nickname": "Cabin / Fine Cabin",
+          "Description": "Basic: Passive: +2 Population if part of a Housing cluster.\nUpgraded: Passive: +3 Population if part of a Housing cluster. +2 Renown if adjacent to Travel.",
           "GMNotes": "",
           "ColorDiffuse": {
             "r": 1,
@@ -11257,8 +11205,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c06_cottage-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c06_cottage-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c05_cabin-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c05_cabin-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -11277,7 +11225,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 10.769,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11329,7 +11277,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 10.769,
-            "posY": 1.56,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11381,7 +11329,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 10.769,
-            "posY": 1.69,
+            "posY": 1.56,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11433,7 +11381,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 10.769,
-            "posY": 1.3,
+            "posY": 1.69,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11442,8 +11390,8 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Inn / Dawn Break Inn",
-          "Description": "Basic: Activate: Add 1 timer token to an active Arrival (max 3).\nUpgraded: Activate: Add up to 2 timer tokens to an active Arrival (max 3).",
+          "Nickname": "Cottage / Fine Cottage",
+          "Description": "Basic: Passive: +3 Population if part of a Housing cluster.\nUpgraded: Passive: +5 Population if part of a Housing cluster. +3 Renown if adjacent to Travel.",
           "GMNotes": "",
           "ColorDiffuse": {
             "r": 1,
@@ -11465,8 +11413,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c08_inn-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c08_inn-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c06_cottage-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c06_cottage-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -11485,7 +11433,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 10.769,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11537,6 +11485,58 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 10.769,
+            "posY": 1.43,
+            "posZ": -8.7784,
+            "rotX": 0,
+            "rotY": 180,
+            "rotZ": 0,
+            "scaleX": 1.2,
+            "scaleY": 1,
+            "scaleZ": 1.2
+          },
+          "Nickname": "Inn / Dawn Break Inn",
+          "Description": "Basic: Activate: Add 1 timer token to an active Arrival (max 3).\nUpgraded: Activate: Add up to 2 timer tokens to an active Arrival (max 3).",
+          "GMNotes": "",
+          "ColorDiffuse": {
+            "r": 1,
+            "g": 1,
+            "b": 1
+          },
+          "LayoutGroupSortIndex": 0,
+          "Value": 0,
+          "Locked": false,
+          "Grid": false,
+          "Snap": true,
+          "IgnoreFoW": false,
+          "MeasureMovement": false,
+          "DragSelectable": true,
+          "Autoraise": true,
+          "Sticky": true,
+          "Tooltip": true,
+          "GridProjection": false,
+          "HideWhenFaceDown": false,
+          "Hands": false,
+          "CustomImage": {
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c08_inn-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c08_inn-upgraded.jpg",
+            "ImageScalar": 1,
+            "WidthScale": 0,
+            "CustomTile": {
+              "Type": 1,
+              "Thickness": 0.12,
+              "Stackable": true,
+              "Stretch": false
+            }
+          },
+          "LuaScript": "",
+          "LuaScriptState": "",
+          "XmlUI": ""
+        },
+        {
+          "GUID": "1000c7",
+          "Name": "Custom_Tile",
+          "Transform": {
+            "posX": 10.769,
             "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
@@ -11585,7 +11585,7 @@
           "XmlUI": ""
         },
         {
-          "GUID": "1000c7",
+          "GUID": "1000c8",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 10.769,
@@ -11642,7 +11642,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "1000e1",
+      "GUID": "1000c9",
       "Name": "Bag",
       "Transform": {
         "posX": 12.883,
@@ -11678,63 +11678,11 @@
       },
       "ContainedObjects": [
         {
-          "GUID": "1000c9",
-          "Name": "Custom_Tile",
-          "Transform": {
-            "posX": 12.883,
-            "posY": 1.3,
-            "posZ": -8.7784,
-            "rotX": 0,
-            "rotY": 180,
-            "rotZ": 0,
-            "scaleX": 1.2,
-            "scaleY": 1,
-            "scaleZ": 1.2
-          },
-          "Nickname": "Path / Improved Path",
-          "Description": "Basic: Passive: +1 Renown if adjacent to 3 or more non-Travel Tiles.\nUpgraded: Passive: +1 bonus Renown for each other Travel Tile in this connected Travel group, max +4.",
-          "GMNotes": "",
-          "ColorDiffuse": {
-            "r": 1,
-            "g": 1,
-            "b": 1
-          },
-          "LayoutGroupSortIndex": 0,
-          "Value": 0,
-          "Locked": false,
-          "Grid": false,
-          "Snap": true,
-          "IgnoreFoW": false,
-          "MeasureMovement": false,
-          "DragSelectable": true,
-          "Autoraise": true,
-          "Sticky": true,
-          "Tooltip": true,
-          "GridProjection": false,
-          "HideWhenFaceDown": false,
-          "Hands": false,
-          "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c15_path-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c15_path-upgraded.jpg",
-            "ImageScalar": 1,
-            "WidthScale": 0,
-            "CustomTile": {
-              "Type": 1,
-              "Thickness": 0.12,
-              "Stackable": true,
-              "Stretch": false
-            }
-          },
-          "LuaScript": "",
-          "LuaScriptState": "",
-          "XmlUI": ""
-        },
-        {
           "GUID": "1000ca",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11786,7 +11734,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.56,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11838,7 +11786,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.69,
+            "posY": 1.56,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11890,7 +11838,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.82,
+            "posY": 1.69,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11942,7 +11890,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.95,
+            "posY": 1.82,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -11994,7 +11942,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 2.08,
+            "posY": 1.95,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12046,7 +11994,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 2.21,
+            "posY": 2.08,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12098,7 +12046,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.3,
+            "posY": 2.21,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12107,8 +12055,8 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Common Land / The Pleasance",
-          "Description": "Basic: Passive, once per round: Prevent 1 Strain on an adjacent Housing Tile.\nUpgraded: Passive, once per round: Prevent 1 Strain on up to 3 adjacent Housing Tiles.",
+          "Nickname": "Path / Improved Path",
+          "Description": "Basic: Passive: +1 Renown if adjacent to 3 or more non-Travel Tiles.\nUpgraded: Passive: +1 bonus Renown for each other Travel Tile in this connected Travel group, max +4.",
           "GMNotes": "",
           "ColorDiffuse": {
             "r": 1,
@@ -12130,8 +12078,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c18_common_land-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c18_common_land-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c15_path-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c15_path-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -12150,7 +12098,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12202,7 +12150,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.3,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12211,8 +12159,8 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Street / Improved Street",
-          "Description": "Basic: Passive: +1 Renown if adjacent to 3 or more non-Travel Tiles.\nUpgraded: Passive: +1 bonus Renown for each other Travel Tile in this connected Travel group, max +4.",
+          "Nickname": "Common Land / The Pleasance",
+          "Description": "Basic: Passive, once per round: Prevent 1 Strain on an adjacent Housing Tile.\nUpgraded: Passive, once per round: Prevent 1 Strain on up to 3 adjacent Housing Tiles.",
           "GMNotes": "",
           "ColorDiffuse": {
             "r": 1,
@@ -12234,8 +12182,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c16_street-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c16_street-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c18_common_land-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c18_common_land-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -12254,7 +12202,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12306,7 +12254,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.56,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12358,7 +12306,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.69,
+            "posY": 1.56,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12410,7 +12358,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.82,
+            "posY": 1.69,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12462,7 +12410,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.95,
+            "posY": 1.82,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12514,7 +12462,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.3,
+            "posY": 1.95,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12523,7 +12471,7 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Track / Improved Track",
+          "Nickname": "Street / Improved Street",
           "Description": "Basic: Passive: +1 Renown if adjacent to 3 or more non-Travel Tiles.\nUpgraded: Passive: +1 bonus Renown for each other Travel Tile in this connected Travel group, max +4.",
           "GMNotes": "",
           "ColorDiffuse": {
@@ -12546,8 +12494,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c17_track-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c17_track-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c16_street-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c16_street-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -12566,7 +12514,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12618,7 +12566,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.56,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12670,7 +12618,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.69,
+            "posY": 1.56,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12722,7 +12670,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.3,
+            "posY": 1.69,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12731,8 +12679,8 @@
             "scaleY": 1,
             "scaleZ": 1.2
           },
-          "Nickname": "Bridge / Stone Bridge",
-          "Description": "Basic: Passive: Connect the settlement network across this river.\nUpgraded: Passive: Connect the settlement network across this river. Once per round, prevent 1 Strain on this Tile.",
+          "Nickname": "Track / Improved Track",
+          "Description": "Basic: Passive: +1 Renown if adjacent to 3 or more non-Travel Tiles.\nUpgraded: Passive: +1 bonus Renown for each other Travel Tile in this connected Travel group, max +4.",
           "GMNotes": "",
           "ColorDiffuse": {
             "r": 1,
@@ -12754,8 +12702,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tiles/c19_bridge-basic.jpg",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c19_bridge-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c17_track-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c17_track-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -12774,7 +12722,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.43,
+            "posY": 1.3,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12826,7 +12774,7 @@
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
-            "posY": 1.56,
+            "posY": 1.43,
             "posZ": -8.7784,
             "rotX": 0,
             "rotY": 180,
@@ -12875,6 +12823,58 @@
         },
         {
           "GUID": "1000e0",
+          "Name": "Custom_Tile",
+          "Transform": {
+            "posX": 12.883,
+            "posY": 1.56,
+            "posZ": -8.7784,
+            "rotX": 0,
+            "rotY": 180,
+            "rotZ": 0,
+            "scaleX": 1.2,
+            "scaleY": 1,
+            "scaleZ": 1.2
+          },
+          "Nickname": "Bridge / Stone Bridge",
+          "Description": "Basic: Passive: Connect the settlement network across this river.\nUpgraded: Passive: Connect the settlement network across this river. Once per round, prevent 1 Strain on this Tile.",
+          "GMNotes": "",
+          "ColorDiffuse": {
+            "r": 1,
+            "g": 1,
+            "b": 1
+          },
+          "LayoutGroupSortIndex": 0,
+          "Value": 0,
+          "Locked": false,
+          "Grid": false,
+          "Snap": true,
+          "IgnoreFoW": false,
+          "MeasureMovement": false,
+          "DragSelectable": true,
+          "Autoraise": true,
+          "Sticky": true,
+          "Tooltip": true,
+          "GridProjection": false,
+          "HideWhenFaceDown": false,
+          "Hands": false,
+          "CustomImage": {
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/c19_bridge-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c19_bridge-upgraded.jpg",
+            "ImageScalar": 1,
+            "WidthScale": 0,
+            "CustomTile": {
+              "Type": 1,
+              "Thickness": 0.12,
+              "Stackable": true,
+              "Stretch": false
+            }
+          },
+          "LuaScript": "",
+          "LuaScriptState": "",
+          "XmlUI": ""
+        },
+        {
+          "GUID": "1000e1",
           "Name": "Custom_Tile",
           "Transform": {
             "posX": 12.883,
@@ -15602,7 +15602,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "100116",
+      "GUID": "100117",
       "Name": "Custom_Tile",
       "Transform": {
         "posX": -22,
@@ -15654,7 +15654,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "100117",
+      "GUID": "100116",
       "Name": "PlayerPawn",
       "Transform": {
         "posX": -22,
@@ -15687,7 +15687,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "100118",
+      "GUID": "100119",
       "Name": "Custom_Tile",
       "Transform": {
         "posX": -15.6,
@@ -15739,7 +15739,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "100119",
+      "GUID": "100118",
       "Name": "PlayerPawn",
       "Transform": {
         "posX": -15.6,
@@ -15772,7 +15772,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "10011a",
+      "GUID": "10011b",
       "Name": "Custom_Tile",
       "Transform": {
         "posX": -9.2,
@@ -15824,7 +15824,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "10011b",
+      "GUID": "10011a",
       "Name": "PlayerPawn",
       "Transform": {
         "posX": -9.2,
@@ -15857,7 +15857,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "10011c",
+      "GUID": "10011d",
       "Name": "Custom_Tile",
       "Transform": {
         "posX": -2.8,
@@ -15909,7 +15909,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "10011d",
+      "GUID": "10011c",
       "Name": "PlayerPawn",
       "Transform": {
         "posX": -2.8,
@@ -15942,7 +15942,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "10011e",
+      "GUID": "10011f",
       "Name": "Custom_Tile",
       "Transform": {
         "posX": 3.6,
@@ -15994,7 +15994,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "10011f",
+      "GUID": "10011e",
       "Name": "PlayerPawn",
       "Transform": {
         "posX": 3.6,
@@ -16027,7 +16027,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "100120",
+      "GUID": "100121",
       "Name": "Custom_Tile",
       "Transform": {
         "posX": 10,
@@ -16079,7 +16079,7 @@
       "XmlUI": ""
     },
     {
-      "GUID": "100121",
+      "GUID": "100120",
       "Name": "PlayerPawn",
       "Transform": {
         "posX": 10,
