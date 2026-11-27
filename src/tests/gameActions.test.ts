@@ -78,8 +78,8 @@ describe("game actions", () => {
       phase: "turns" as const,
       warehouse: {
         wood: 2,
-        stone: 0,
-        metal: 0,
+        stone: 2,
+        metal: 2,
         food: 0,
         herbs: 5,
         goods: 0
@@ -100,7 +100,7 @@ describe("game actions", () => {
     );
 
     expect(placed.map.placedTiles[0]?.tileId).toBe("c12_apothecary");
-    expect(placed.warehouse).toMatchObject({ wood: 0, stone: 0, herbs: 0 });
+    expect(placed.warehouse).toMatchObject({ wood: 2, stone: 2, metal: 2, herbs: 0 });
 
     const upgradeState = createNewGame(1, ["warden"]);
     const readyToUpgrade = {

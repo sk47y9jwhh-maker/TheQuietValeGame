@@ -44,7 +44,7 @@ export function applyShelterInTheRuins(
     return cost;
   }
 
-  return { ...cost, stone: 0 };
+  return { ...cost, wood: 0, stone: 0, metal: 0 };
 }
 
 export function getTileData(

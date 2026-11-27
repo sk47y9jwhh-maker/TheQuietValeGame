@@ -191,7 +191,7 @@ const rules: RuleReferenceCard[] = [
         bullets: [
           "Every placement checks availability, an empty reachable hex, terrain, adjacency, the printed placement rule, and cost.",
           "Any Land means an empty non-Water/River hex unless the Tile says otherwise. Only a specific rule permits placement on Water/River.",
-          "When a Tile’s entire footprint lies on Ruins, ignore all Stone in its placement or upgrade cost. Otherwise pay the full cost.",
+          "When a Tile’s entire footprint lies on Ruins, ignore all Wood, Stone, and Metal in its placement or upgrade cost. Otherwise pay the full cost.",
           "Street and Track occupy a straight line. For Stables, place the connected half first and the second half on any valid remote hex."
         ]
       },
