@@ -227,7 +227,7 @@ const rules: RuleReferenceCard[] = [
       {
         title: "Arrivals and Golden Boons",
         bullets: [
-          "An Arrival enters with 3 timers. Spend 1 Interact Action and meet its Requirements to unlock the named Special Tile for later 0-resource placement.",
+          "An Arrival enters with 3 timers. Spend 1 Interact Action and meet its Requirements to unlock the named Special Tile for later 0-Action, 0-resource placement.",
           "At round end, remove 1 timer from every active Arrival. At 0 it fails, is discarded, records one failure, and places 1 Strain through the Target Deck when possible.",
           "An Arrival still active after Round 12 remains active. It does not fail, place Strain, or reduce the final score.",
           "Golden Boons resolve free, never enter player hands or seeding, and do not count toward the standard reveal total."
@@ -465,7 +465,7 @@ const rules: RuleReferenceCard[] = [
         title: "Limits and penalties",
         bullets: [
           "Warehouse maximum: 15 of each resource. Starting amounts: 15 / 10 / 8 / 0 / 0 for 1–5 players.",
-          "Unlocked Special Tiles use a normal Place Action, follow their placement rule, and cost 0 resources.",
+          "Unlocked Special Tiles cost 0 Actions and 0 resources to place, and follow their placement rule.",
           "Each active Burden, failed Arrival, and Strain token costs 10 Renown. Active Arrivals do not reduce the final score."
         ]
       }

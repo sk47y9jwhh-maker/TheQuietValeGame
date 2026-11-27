@@ -1922,7 +1922,49 @@ describe("game actions", () => {
 
     expect(next.map.placedTiles[0].kind).toBe("special");
     expect(next.tileSupply.special.special_alms_house).toBe(0);
+    expect(next.actionsRemaining).toBe(4);
     expect(next.pendingEffects).toHaveLength(0);
+  });
+
+  it("places an unlocked Special Tile for 0 actions even with 0 actions remaining and preserves prepared 0-action powers", () => {
+    const state = createNewGame(1, ["vanguard"]);
+    const withPower = useStewardPower(
+      {
+        ...state,
+        phase: "turns" as const,
+        actionsRemaining: 0,
+        players: [{ ...state.players[0], hasPlacedFirstTile: true }],
+        tileSupply: {
+          ...state.tileSupply,
+          special: { ...state.tileSupply.special, special_stables: 2 }
+        },
+        map: {
+          placedTiles: [
+            {
+              instanceId: "tile_1",
+              tileId: "c15_path",
+              kind: "core" as const,
+              side: "basic" as const,
+              hexIds: ["G1"],
+              strain: 0,
+              support: { passive: false, singleUse: false, preventedThisRound: false }
+            }
+          ]
+        }
+      },
+      "player_1"
+    );
+
+    const next = placeTile(withPower, "player_1", "special_stables", {
+      anchorHexId: "H1",
+      secondaryHexIds: ["N7"]
+    });
+
+    expect(next.map.placedTiles).toHaveLength(3);
+    expect(next.tileSupply.special.special_stables).toBe(0);
+    expect(next.actionsRemaining).toBe(0);
+    // Vanguard's prepared 0-action Travel modifier was not consumed by the intrinsically 0-action Special Tile.
+    expect(next.boonModifiers.some((m) => m.zeroAction && m.remainingUses > 0)).toBe(true);
   });
 
   it("places a multi-hex Street as one tile", () => {
@@ -1941,7 +1983,7 @@ describe("game actions", () => {
     expect(next.pendingEffects).toHaveLength(0);
   });
 
-  it("places Stables as two separate single-hex tiles in one action", () => {
+  it("places Stables as two separate single-hex tiles for 0 actions", () => {
     const state = createNewGame(1, ["vanguard"]);
     const ready = {
       ...state,
@@ -1980,7 +2022,7 @@ describe("game actions", () => {
       new Set(next.map.placedTiles.map((tile) => tile.instanceId))
     );
     expect(next.tileSupply.special.special_stables).toBe(0);
-    expect(next.actionsRemaining).toBe(3);
+    expect(next.actionsRemaining).toBe(4);
     expect(next.pendingEffects).toHaveLength(0);
   });
 
