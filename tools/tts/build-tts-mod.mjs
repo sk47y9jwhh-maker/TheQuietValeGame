@@ -51,6 +51,7 @@ const { questCards } = loadTs("src/data/questCards.ts");
 const { stewards } = loadTs("src/data/stewards.ts");
 const { coreTiles, specialTiles, goldenTiles } = loadTs("src/data/tiles.ts");
 const { specialTileBackNumbers } = loadTs("src/data/specialTileNumbers.ts");
+const { arrivalRequirementRules, burdenResolutionResources } = loadTs("src/data/contentRules.ts");
 
 const warehouseCounterLua = fs.readFileSync(path.join(here, "lua/warehouse_counter.lua"), "utf8");
 const globalLuaTemplate = fs.readFileSync(path.join(here, "lua/global.lua"), "utf8");
@@ -164,6 +165,7 @@ function makeCustomTile({
   guid = nextGuid(),
   name,
   description = "",
+  gmNotes = "",
   pos,
   rot = [0, 180, 0],
   scale = [1, 1, 1],
@@ -183,7 +185,7 @@ function makeCustomTile({
     Transform: makeTransform(pos, rot, scale),
     Nickname: name,
     Description: description,
-    GMNotes: "",
+    GMNotes: gmNotes,
     ColorDiffuse: colorDiffuse,
     LayoutGroupSortIndex: 0,
     Value: 0,
@@ -253,7 +255,7 @@ function makeDeck({
       Transform: makeTransform(pos, rot, scale),
       Nickname: c.nickname,
       Description: c.description || "",
-      GMNotes: "",
+      GMNotes: c.gmNotes || "",
       ColorDiffuse: { r: 0.7132, g: 0.7132, b: 0.7132 },
       Locked: false,
       Grid: false,
@@ -515,7 +517,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       backUrl: asset("decks/encounter-back.jpg"),
       numWidth: 6,
       numHeight: 5,
-      cards: boons.map((c) => ({ nickname: c.name, description: `Boon — ${c.effects?.season1 || ""}` })),
+      cards: boons.map((c) => ({ nickname: c.name, description: `Boon — ${c.effects?.season1 || ""}`, gmNotes: c.id })),
       pos: [6.8, 1.35, 14.6],
       rot: [0, 180, 180],
       scale: tarotScale
@@ -528,7 +530,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       backUrl: asset("decks/encounter-back.jpg"),
       numWidth: 6,
       numHeight: 5,
-      cards: burdens.map((c) => ({ nickname: c.name, description: `Burden — ${c.effects?.season1 || ""}` })),
+      cards: burdens.map((c) => ({ nickname: c.name, description: `Burden — ${c.effects?.season1 || ""}`, gmNotes: c.id })),
       pos: [11.8, 1.35, 14.6],
       rot: [0, 180, 180],
       scale: tarotScale
@@ -543,7 +545,8 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       numHeight: 5,
       cards: arrivals.map((c) => ({
         nickname: c.name,
-        description: `Arrival — Req: ${c.requirementText || ""} | Reward: ${c.rewardText || ""}`
+        description: `Arrival — Req: ${c.requirementText || ""} | Reward: ${c.rewardText || ""}`,
+        gmNotes: c.id
       })),
       pos: [16.8, 1.35, 14.6],
       rot: [0, 180, 180],
@@ -557,7 +560,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       backUrl: asset("decks/encounter-back.jpg"),
       numWidth: 5,
       numHeight: 2,
-      cards: goldenBoons.map((c) => ({ nickname: c.name, description: c.effectText || "Golden Boon" })),
+      cards: goldenBoons.map((c) => ({ nickname: c.name, description: c.effectText || "Golden Boon", gmNotes: c.id })),
       pos: [21.8, 1.35, 14.6],
       rot: [0, 180, 180],
       scale: tarotScale
@@ -628,9 +631,12 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
 
   // Infinite Token Bags on the right side of the Logistics Board (TOKENS well)
   const tokWellX = LONG_BOARD_MM.w - 6 - 40;
+  let strainBagGuid = "";
+  let supportedBagGuid = "";
+  let cooldownXBagGuid = "";
   let arrivalTimerBagGuid = "";
   const tokenBagSpecs = [
-    ["Strain Tokens", "Place on tiles for Strain. 2 Strain = Overstrained.", "tokens/strain.png", { r: 0.16, g: 0.15, b: 0.15 }, -20, -24, 0.42],
+    ["Strain Tokens", "Place on tiles for Strain. 3 Strain = Overstrained.", "tokens/strain.png", { r: 0.16, g: 0.15, b: 0.15 }, -20, -24, 0.42],
     ["Supported Shields", "Single-use bronze shield: prevents the next 1 Strain on this tile.", "tokens/supported.png", { r: 0.72, g: 0.54, b: 0.24 }, 20, -24, 0.44],
     ["Cooldown X", "Marks a tile activated this round. Cleared by End Round button.", "tokens/cooldown-x.png", { r: 0.48, g: 0.24, b: 0.22 }, -20, 24, 0.40],
     ["Arrival Timers", "Place 3 timers on a revealed Arrival; remove 1 each round.", "tokens/arrival-timer.png", { r: 0.24, g: 0.36, b: 0.44 }, 20, 24, 0.38]
@@ -638,6 +644,9 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   for (const [bagName, desc, imgRel, col, dxMm, dyMm, tokScale] of tokenBagSpecs) {
     const [bx, bz] = boardMmToWorld(POS.logisticsBoard, LONG_BOARD_MM, tokWellX + dxMm, 73 + dyMm);
     const bagGuid = nextGuid();
+    if (bagName === "Strain Tokens") strainBagGuid = bagGuid;
+    if (bagName === "Supported Shields") supportedBagGuid = bagGuid;
+    if (bagName === "Cooldown X") cooldownXBagGuid = bagGuid;
     if (bagName === "Arrival Timers") arrivalTimerBagGuid = bagGuid;
     const tokenItem = makeCustomTile({
       name: bagName === "Cooldown X" ? "Cooldown X" : bagName.replace(/s$/, ""),
@@ -731,6 +740,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
           makeCustomTile({
             name: `${tile.basic.name} / ${tile.upgraded.name}`,
             description: `Basic: ${tile.basic.effectText}\nUpgraded: ${tile.upgraded.effectText}`,
+            gmNotes: tile.id,
             pos: [wx, 1.3 + c * 0.13, wz],
             scale: HEX_SCALE,
             imageUrl: asset(`tiles/${tile.id}-basic.jpg`),
@@ -791,6 +801,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
           makeCustomTile({
             name: `#${num} ${t.name}`,
             description: `Special Tile #${num} (0 Actions to place once unlocked). ${t.effectText || ""}`,
+            gmNotes: t.id,
             pos: [20.0, 1.3, -10.0],
             scale: HEX_SCALE,
             imageUrl: asset(`tiles/${t.id}.jpg`),
@@ -818,6 +829,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     makeCustomTile({
       name: t.name,
       description: `Golden Legacy Tile #${i + 1}. ${t.effectText || ""}\nScoring: ${t.scoringText || ""}`,
+      gmNotes: t.id,
       pos: [23.0, 1.3, -10.0],
       scale: HEX_SCALE,
       imageUrl: asset(`tiles/${t.id}.jpg`),
@@ -978,6 +990,82 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   }
   const [activeTargetX, activeTargetZ] = boardMmToWorld(POS.logisticsBoard, LONG_BOARD_MM, 6 + 40, -18);
 
+  // Compact non-zero resource map helper for Lua config
+  const compactRes = (m) => {
+    const out = {};
+    if (!m) return out;
+    for (const [k, v] of Object.entries(m)) {
+      if (v && v > 0) out[k] = v;
+    }
+    return out;
+  };
+
+  // Export canonical v7.0 tile rules for right-click Activate / Pay / Upgrade / Score Lua
+  const tileRules = {};
+  for (const t of coreTiles) {
+    tileRules[t.id] = {
+      kind: "core",
+      name: t.basic.name,
+      linked: Boolean(t.basic.effectText && t.basic.effectText.includes("Linked Production")),
+      basic: {
+        name: t.basic.name,
+        cost: compactRes(t.basic.cost),
+        prod: compactRes(t.basic.production),
+        pop: t.basic.population || 0,
+        renown: t.basic.renown || 0
+      },
+      upgraded: {
+        name: t.upgraded.name,
+        cost: compactRes(t.upgraded.cost),
+        prod: compactRes(t.upgraded.production),
+        pop: t.upgraded.population || 0,
+        renown: t.upgraded.renown || 0
+      }
+    };
+  }
+  for (const t of specialTiles) {
+    tileRules[t.id] = {
+      kind: "special",
+      name: t.name,
+      pop: t.population || 0,
+      renown: t.renown || 0,
+      basic: { name: t.name, prod: compactRes(t.production), pop: t.population || 0, renown: t.renown || 0 }
+    };
+  }
+  for (const t of goldenTiles) {
+    tileRules[t.id] = {
+      kind: "golden",
+      name: t.name,
+      pop: t.population || 0,
+      renown: t.renown || 0,
+      basic: { name: t.name, prod: {}, pop: t.population || 0, renown: t.renown || 0 }
+    };
+  }
+
+  // Export canonical v7.0 encounter rules for right-click Welcome Arrival / Resolve Burden / Discard
+  const encounterRules = {};
+  for (const c of boons) encounterRules[c.id] = { type: "boon" };
+  for (const c of goldenBoons) encounterRules[c.id] = { type: "goldenBoon" };
+  for (const c of burdens) {
+    encounterRules[c.id] = {
+      type: "burden",
+      res: burdenResolutionResources[c.id] || "goods"
+    };
+  }
+  for (const c of arrivals) {
+    const req = arrivalRequirementRules[c.id];
+    const unlockNums = c.unlocksTileId ? [...(specialTileBackNumbers[c.unlocksTileId] || [])] : [];
+    encounterRules[c.id] = {
+      type: "arrival",
+      cost: compactRes(req?.cost),
+      unlockNums
+    };
+  }
+
+  const ruinsHexes = hexSnaps
+    .filter((h) => h.terrain === "ruins")
+    .map((h) => [h.Position.x, h.Position.y, h.Position.z]);
+
   // 11. Inject exact GUIDs & coordinates into global.lua
   const luaConfig = {
     guids: {
@@ -991,20 +1079,27 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       arrivalsDeck: arrivalsGuid,
       goldenBoonsDeck: goldenBoonsGuid,
       specialBag: specialBagGuid,
+      strainBag: strainBagGuid,
+      supportedBag: supportedBagGuid,
+      cooldownXBag: cooldownXBagGuid,
       arrivalTimerBag: arrivalTimerBagGuid,
       roundMarker: roundMarkerGuid,
       player1Marker: player1MarkerGuid
     },
     stewards: stewardConfigs,
     coreCatalog,
+    tileRules,
+    encounterRules,
     positions: {
       encounterDraw: [encDrawX, 1.25, encDrawZ],
+      encounterDiscard: [encDiscX, 1.25, encDiscZ],
       inPlaySlots,
       targetWell: [targetX, 1.25, targetZ],
       activeTarget: [activeTargetX, 1.3, activeTargetZ],
       activeQuest: [activeQuestX, 1.35, activeQuestZ],
       unlockedSpecial: [unlockedSpecX, 1.25, unlockedSpecZ],
       coreStaging: [15.2, 1.25, -10.0],
+      ruinsHexes,
       roundSockets,
       seatMarkers: seatMarkerPositions
     },
