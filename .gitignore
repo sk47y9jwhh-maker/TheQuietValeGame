@@ -9,6 +9,7 @@ coverage
 playwright-report
 test-results
 .codex-work
+.agy-work
 .pnpm-store
 __pycache__/
 *.py[cod]
