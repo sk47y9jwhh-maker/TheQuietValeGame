@@ -1002,13 +1002,20 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     return out;
   };
 
-  // Export canonical v7.0 tile rules for right-click Activate / Pay / Upgrade / Score Lua
+  // Export canonical v7.0 tile rules for right-click Activate / Pay / Upgrade / Score & Placement Validation Lua
   const tileRules = {};
   for (const t of coreTiles) {
     tileRules[t.id] = {
       kind: "core",
+      category: t.category,
       name: t.basic.name,
       linked: Boolean(t.basic.effectText && t.basic.effectText.includes("Linked Production")),
+      placement: {
+        terrain: t.placement?.terrain || [],
+        adjacentTerrain: t.placement?.adjacentTerrain || [],
+        adjacentCategory: t.placement?.adjacentCategory || [],
+        text: t.placement?.text || ""
+      },
       basic: {
         name: t.basic.name,
         cost: compactRes(t.basic.cost),
@@ -1028,18 +1035,32 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   for (const t of specialTiles) {
     tileRules[t.id] = {
       kind: "special",
+      category: t.category,
       name: t.name,
       pop: t.population || 0,
       renown: t.renown || 0,
+      placement: {
+        terrain: t.placement?.terrain || [],
+        adjacentTerrain: t.placement?.adjacentTerrain || [],
+        adjacentCategory: t.placement?.adjacentCategory || [],
+        text: t.placement?.text || ""
+      },
       basic: { name: t.name, prod: compactRes(t.production), pop: t.population || 0, renown: t.renown || 0 }
     };
   }
   for (const t of goldenTiles) {
     tileRules[t.id] = {
       kind: "golden",
+      category: "golden",
       name: t.name,
       pop: t.population || 0,
       renown: t.renown || 0,
+      placement: {
+        terrain: t.placement?.terrain || [],
+        adjacentTerrain: t.placement?.adjacentTerrain || [],
+        adjacentCategory: t.placement?.adjacentCategory || [],
+        text: t.placement?.text || ""
+      },
       basic: { name: t.name, prod: {}, pop: t.population || 0, renown: t.renown || 0 }
     };
   }
@@ -1068,6 +1089,13 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     .filter((h) => h.terrain === "ruins")
     .map((h) => [h.Position.x, h.Position.y, h.Position.z]);
 
+  const mapHexes = hexSnaps.map((h) => ({
+    id: h.id,
+    t: h.terrain,
+    x: h.Position.x,
+    z: h.Position.z
+  }));
+
   // 11. Inject exact GUIDs & coordinates into global.lua
   const luaConfig = {
     guids: {
@@ -1092,6 +1120,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     coreCatalog,
     tileRules,
     encounterRules,
+    mapHexes,
     positions: {
       encounterDraw: [encDrawX, 1.25, encDrawZ],
       encounterDiscard: [encDiscX, 1.25, encDiscZ],

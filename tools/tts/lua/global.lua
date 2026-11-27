@@ -27,8 +27,176 @@ state = {
   scoreQuest = false,
   scoreObj = 0,
   scoreGold = 0,
-  scoreFailedArrivals = 0
+  scoreFailedArrivals = 0,
+  placedTileGuids = {},
+  pawnLastHex = {}
 }
+
+local TERRAIN_LABEL = {
+  grasslands = "Grasslands",
+  woodland = "Woodland",
+  water = "Water/River",
+  mountains = "Mountains",
+  heaths = "Heaths",
+  arable = "Arable Land",
+  ruins = "Ruins"
+}
+
+local alertTimerId = nil
+
+function showAlert(title, body)
+  UI.setAttribute("qvAlertTitle", "text", title)
+  UI.setAttribute("qvAlertBody", "text", body)
+  UI.setAttribute("qvAlertBanner", "active", "true")
+  if alertTimerId then Wait.stop(alertTimerId) end
+  alertTimerId = Wait.time(function()
+    UI.setAttribute("qvAlertBanner", "active", "false")
+  end, 6.5)
+end
+
+function onHudDismissAlert()
+  if alertTimerId then Wait.stop(alertTimerId) end
+  UI.setAttribute("qvAlertBanner", "active", "false")
+end
+
+function findNearestHex(pos)
+  local best, bestD2 = nil, 2.25 -- within 1.5 TTS units of hex center
+  for _, h in ipairs(CONFIG.mapHexes) do
+    local dx = pos.x - h.x
+    local dz = pos.z - h.z
+    local d2 = dx * dx + dz * dz
+    if d2 < bestD2 then
+      bestD2 = d2
+      best = h
+    end
+  end
+  return best
+end
+
+function listContains(tbl, val)
+  if not tbl then return false end
+  for _, v in ipairs(tbl) do
+    if v == val then return true end
+  end
+  return false
+end
+
+function validateTilePlacement(tileObj, rule, hex)
+  local pl = rule.placement
+  if not pl then return true, nil end
+
+  -- 1. Terrain check
+  if pl.terrain and #pl.terrain > 0 then
+    if not listContains(pl.terrain, hex.t) then
+      local need = pl.text ~= "" and pl.text or ("Must be placed on: " .. table.concat(pl.terrain, " / "))
+      return false, string.format("%s on %s (%s): %s", rule.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, need)
+    end
+  elseif hex.t == "water" then
+    return false, string.format("%s cannot be placed on %s (Water/River).", rule.name, hex.id)
+  end
+
+  -- 2. Adjacent terrain check (e.g., Washhouse -> Water/River, The Vaults -> Ruins)
+  if pl.adjacentTerrain and #pl.adjacentTerrain > 0 then
+    local foundAdj = false
+    for _, h2 in ipairs(CONFIG.mapHexes) do
+      if h2.id ~= hex.id and listContains(pl.adjacentTerrain, h2.t) then
+        local dist = math.sqrt((h2.x - hex.x)^2 + (h2.z - hex.z)^2)
+        if dist <= 2.65 then foundAdj = true; break end
+      end
+    end
+    if not foundAdj then
+      local need = pl.text ~= "" and pl.text or ("Must be adjacent to: " .. table.concat(pl.adjacentTerrain, " / "))
+      return false, string.format("%s on %s: %s", rule.name, hex.id, need)
+    end
+  end
+
+  -- 3. Adjacent placed tile category check (e.g., Cottage -> Housing, Inn/Workshops -> Travel)
+  if pl.adjacentCategory and #pl.adjacentCategory > 0 then
+    local foundCat = false
+    for _, other in ipairs(getAllObjects()) do
+      if other ~= tileObj then
+        local oid = other.getGMNotes() or ""
+        local orule = CONFIG.tileRules[oid]
+        if orule and listContains(pl.adjacentCategory, orule.category) and isOnMapBoard(other.getPosition()) then
+          local op = other.getPosition()
+          local dist = math.sqrt((op.x - hex.x)^2 + (op.z - hex.z)^2)
+          if dist <= 2.65 then foundCat = true; break end
+        end
+      end
+    end
+    if not foundCat then
+      local need = pl.text ~= "" and pl.text or ("Must be adjacent to a " .. table.concat(pl.adjacentCategory, "/") .. " tile.")
+      return false, string.format("%s on %s: %s", rule.name, hex.id, need)
+    end
+  end
+
+  return true, nil
+end
+
+function onObjectDrop(_, obj)
+  if not obj or obj.getLock() then return end
+  Wait.frames(function()
+    if not obj then return end
+    local pos = obj.getPosition()
+    if not isOnMapBoard(pos) then return end
+    local hex = findNearestHex(pos)
+    if not hex then return end
+
+    -- Case A: Steward Meeple moved to a different hex -> auto-spend 1 Action
+    for _, st in ipairs(CONFIG.stewards) do
+      if obj.getGUID() == st.pawnGuid then
+        if not state.pawnLastHex then state.pawnLastHex = {} end
+        local prevHex = state.pawnLastHex[st.id]
+        if prevHex and prevHex ~= hex.id then
+          if not state.placedTileGuids or not state.placedTileGuids[tileObj.getGUID()] then
+    spendAction(1)
+  end
+          broadcastToAll(string.format("Moved %s to %s (%s) — -1 Action (%d left).", st.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, state.actionsLeft or 0), {0.82, 0.92, 0.98})
+        end
+        state.pawnLastHex[st.id] = hex.id
+        return
+      end
+    end
+
+    -- Case B: Tile dropped onto a Map Board hex -> validate placement & auto-count Action
+    local id = obj.getGMNotes() or ""
+    local rule = CONFIG.tileRules[id]
+    if not rule then return end
+
+    local legal, reason = validateTilePlacement(obj, rule, hex)
+    if not legal then
+      showAlert("INVALID PLACEMENT (!)", reason)
+      broadcastToAll("! PLACEMENT WARNING: " .. reason, {0.98, 0.56, 0.36})
+      return
+    end
+
+    onHudDismissAlert()
+    if not state.placedTileGuids then state.placedTileGuids = {} end
+    local guid = obj.getGUID()
+    if not state.placedTileGuids[guid] then
+      state.placedTileGuids[guid] = hex.id
+      if rule.kind == "core" then
+        if not state.placedTileGuids or not state.placedTileGuids[tileObj.getGUID()] then
+    spendAction(1)
+  end
+        local extra = (hex.t == "ruins") and " [Shelter in the Ruins: Wood/Stone/Metal ignored!]" or ""
+        broadcastToAll(
+          string.format("Placed %s on %s (%s) — -1 Action (%d left). Right-click tile to Pay Cost / Activate.%s",
+            rule.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, state.actionsLeft or 0, extra),
+          {0.82, 0.95, 0.78}
+        )
+        if (state.actionsLeft or 0) == 0 then
+          showAlert("0 ACTIONS REMAINING", "This player has used all Actions — click NEXT TURN when ready.")
+        end
+      elseif rule.kind == "special" then
+        broadcastToAll(
+          string.format("Placed Special Tile %s on %s (%s) — 0 Actions (v7.0 rule)!", rule.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t),
+          {0.94, 0.86, 0.56}
+        )
+      end
+    end
+  end, 8)
+end
 
 local SETUP_RULES = {
   [1] = { actions = 4, warehouse = 15, boons = 5,  burdens = 3,  arrivals = 4  },
@@ -323,7 +491,9 @@ function activateTile(tileObj)
   end
 
   local addedParts = addWarehouseResources(gains)
-  spendAction(1)
+  if not state.placedTileGuids or not state.placedTileGuids[tileObj.getGUID()] then
+    spendAction(1)
+  end
 
   local msg = "Activated " .. faceName
   if linkedCount > 0 then
@@ -361,7 +531,9 @@ function payPlaceTile(tileObj)
     broadcastToAll("Cannot place " .. rule.basic.name .. " — missing: " .. table.concat(details, ", "), {0.96, 0.48, 0.44})
     return
   end
-  spendAction(1)
+  if not state.placedTileGuids or not state.placedTileGuids[tileObj.getGUID()] then
+    spendAction(1)
+  end
   local msg = "Placed " .. rule.basic.name
   if #details > 0 then msg = msg .. " (" .. table.concat(details, ", ") .. ")" else msg = msg .. " (Free!)" end
   if #shelterIgnored > 0 then msg = msg .. " [Shelter in the Ruins ignored: " .. table.concat(shelterIgnored, ", ") .. "]" end
@@ -382,7 +554,9 @@ function upgradeTile(tileObj)
     return
   end
   tileObj.flip()
-  spendAction(1)
+  if not state.placedTileGuids or not state.placedTileGuids[tileObj.getGUID()] then
+    spendAction(1)
+  end
   local msg = "Upgraded to " .. rule.upgraded.name
   if #details > 0 then msg = msg .. " (" .. table.concat(details, ", ") .. ")" end
   broadcastToAll(msg .. "!", {0.94, 0.86, 0.56})
@@ -532,7 +706,9 @@ function spendAction(n)
 end
 
 function onHudActMinus()
-  spendAction(1)
+  if not state.placedTileGuids or not state.placedTileGuids[tileObj.getGUID()] then
+    spendAction(1)
+  end
 end
 
 function onHudActPlus()
@@ -863,6 +1039,8 @@ function runSetup(playerCount)
   state.scoreObj = 0
   state.scoreGold = 0
   state.scoreFailedArrivals = 0
+  state.placedTileGuids = {}
+  state.pawnLastHex = {}
 
   for _, guid in ipairs(CONFIG.guids.warehouseCounters) do
     local c = getObjectFromGUID(guid)
@@ -879,6 +1057,7 @@ function runSetup(playerCount)
         local hp = st.startHexPos
         pawn.setPositionSmooth({hp[1], hp[2] + 0.5, hp[3]}, false, true)
         pawn.setRotationSmooth({0, 180, 0}, false, true)
+        state.pawnLastHex[st.id] = st.startHexId
         table.insert(placedStewards, st.name .. " (" .. st.startHexId .. ")")
       else
         local home = st.homePawnPos
@@ -1407,8 +1586,11 @@ function resetTable()
   state.scoreObj = 0
   state.scoreGold = 0
   state.scoreFailedArrivals = 0
+  state.placedTileGuids = {}
+  state.pawnLastHex = {}
   UI.setAttribute("qvScoreModal", "active", "false")
   UI.setAttribute("qvTileMenuModal", "active", "false")
+  UI.setAttribute("qvAlertBanner", "active", "false")
   tileMenuOpen = false
   moveRoundMarker(1)
   movePlayer1Marker(1)
