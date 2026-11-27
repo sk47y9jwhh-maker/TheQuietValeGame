@@ -21,7 +21,7 @@
   ],
   "Gravity": 0.5,
   "PlayArea": 0.5,
-  "Table": "Table_Custom_Square",
+  "Table": "Table_RPG",
   "Sky": "Sky_Museum",
   "Note": "The Quiet Vale: Seasons of Settlement (v7.0). Click 1P–5P on the left Control Plaque to auto-setup Warehouse, Encounters, Target Deck, and Quest Card.",
   "Rules": "",
@@ -1850,7 +1850,7 @@
       "Name": "Custom_Tile",
       "Transform": {
         "posX": 0,
-        "posY": 0.96,
+        "posY": 1.04,
         "posZ": 0,
         "rotX": 0,
         "rotY": 180,
@@ -1882,8 +1882,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/boards/map-board.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/boards/map-board.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/boards/map-board.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/boards/map-board.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -1902,7 +1902,7 @@
       "Name": "Custom_Tile",
       "Transform": {
         "posX": -2.6,
-        "posY": 0.96,
+        "posY": 1.04,
         "posZ": 14.8,
         "rotX": 0,
         "rotY": 180,
@@ -1934,8 +1934,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/boards/encounter-board.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/boards/encounter-board.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/boards/encounter-board.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/boards/encounter-board.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -1954,7 +1954,7 @@
       "Name": "Custom_Tile",
       "Transform": {
         "posX": -2.6,
-        "posY": 0.96,
+        "posY": 1.04,
         "posZ": -14.8,
         "rotX": 0,
         "rotY": 180,
@@ -1986,8 +1986,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/boards/logistics-board.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/boards/logistics-board.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/boards/logistics-board.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/boards/logistics-board.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -2006,7 +2006,7 @@
       "Name": "Custom_Tile",
       "Transform": {
         "posX": 20.4,
-        "posY": 0.96,
+        "posY": 1.04,
         "posZ": 4.5,
         "rotX": 0,
         "rotY": 180,
@@ -2038,8 +2038,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/boards/tiles-board.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/boards/tiles-board.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/boards/tiles-board.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/boards/tiles-board.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -2118,8 +2118,8 @@
       ],
       "CustomDeck": {
         "1": {
-          "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-          "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+          "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+          "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
           "NumWidth": 6,
           "NumHeight": 5,
           "BackIsHidden": true,
@@ -2162,8 +2162,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2209,8 +2209,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2256,8 +2256,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2303,8 +2303,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2350,8 +2350,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2397,8 +2397,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2444,8 +2444,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2491,8 +2491,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2538,8 +2538,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2585,8 +2585,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2632,8 +2632,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2679,8 +2679,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2726,8 +2726,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2773,8 +2773,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2820,8 +2820,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2867,8 +2867,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2914,8 +2914,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -2961,8 +2961,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3008,8 +3008,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3055,8 +3055,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3102,8 +3102,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3149,8 +3149,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3196,8 +3196,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3243,8 +3243,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3290,8 +3290,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3337,8 +3337,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3384,8 +3384,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3431,8 +3431,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3478,8 +3478,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3525,8 +3525,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "1": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3608,8 +3608,8 @@
       ],
       "CustomDeck": {
         "2": {
-          "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-          "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+          "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+          "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
           "NumWidth": 6,
           "NumHeight": 5,
           "BackIsHidden": true,
@@ -3652,8 +3652,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3699,8 +3699,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3746,8 +3746,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3793,8 +3793,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3840,8 +3840,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3887,8 +3887,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3934,8 +3934,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -3981,8 +3981,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4028,8 +4028,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4075,8 +4075,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4122,8 +4122,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4169,8 +4169,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4216,8 +4216,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4263,8 +4263,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4310,8 +4310,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4357,8 +4357,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4404,8 +4404,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4451,8 +4451,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4498,8 +4498,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4545,8 +4545,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4592,8 +4592,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4639,8 +4639,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4686,8 +4686,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4733,8 +4733,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4780,8 +4780,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4827,8 +4827,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4874,8 +4874,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4921,8 +4921,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -4968,8 +4968,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5015,8 +5015,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "2": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/burdens-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/burdens-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 6,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5093,8 +5093,8 @@
       ],
       "CustomDeck": {
         "3": {
-          "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-          "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+          "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+          "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
           "NumWidth": 5,
           "NumHeight": 5,
           "BackIsHidden": true,
@@ -5137,8 +5137,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5184,8 +5184,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5231,8 +5231,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5278,8 +5278,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5325,8 +5325,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5372,8 +5372,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5419,8 +5419,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5466,8 +5466,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5513,8 +5513,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5560,8 +5560,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5607,8 +5607,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5654,8 +5654,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5701,8 +5701,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5748,8 +5748,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5795,8 +5795,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5842,8 +5842,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5889,8 +5889,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5936,8 +5936,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -5983,8 +5983,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -6030,8 +6030,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -6077,8 +6077,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -6124,8 +6124,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -6171,8 +6171,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -6218,8 +6218,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -6265,8 +6265,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "3": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/arrivals-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/arrivals-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 5,
               "BackIsHidden": true,
@@ -6323,8 +6323,8 @@
       ],
       "CustomDeck": {
         "4": {
-          "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/golden-boons-deck.jpg",
-          "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+          "FaceURL": "https://thequietvalegame.com/tts/decks/golden-boons-deck.jpg",
+          "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
           "NumWidth": 5,
           "NumHeight": 2,
           "BackIsHidden": true,
@@ -6367,8 +6367,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "4": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/golden-boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/golden-boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 2,
               "BackIsHidden": true,
@@ -6414,8 +6414,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "4": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/golden-boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/golden-boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 2,
               "BackIsHidden": true,
@@ -6461,8 +6461,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "4": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/golden-boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/golden-boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 2,
               "BackIsHidden": true,
@@ -6508,8 +6508,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "4": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/golden-boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/golden-boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 2,
               "BackIsHidden": true,
@@ -6555,8 +6555,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "4": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/golden-boons-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/encounter-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/golden-boons-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/encounter-back.jpg",
               "NumWidth": 5,
               "NumHeight": 2,
               "BackIsHidden": true,
@@ -6623,8 +6623,8 @@
       ],
       "CustomDeck": {
         "5": {
-          "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-          "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+          "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+          "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
           "NumWidth": 5,
           "NumHeight": 3,
           "BackIsHidden": true,
@@ -6667,8 +6667,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -6714,8 +6714,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -6761,8 +6761,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -6808,8 +6808,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -6855,8 +6855,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -6902,8 +6902,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -6949,8 +6949,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -6996,8 +6996,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -7043,8 +7043,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -7090,8 +7090,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -7137,8 +7137,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -7184,8 +7184,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -7231,8 +7231,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -7278,8 +7278,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -7325,8 +7325,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "5": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/target-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/target-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/target-back.jpg",
               "NumWidth": 5,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -7380,8 +7380,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/res-stone.png",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/res-stone.png",
+        "ImageURL": "https://thequietvalegame.com/tts/tokens/res-stone.png",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/res-stone.png",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -7432,8 +7432,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/res-metal.png",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/res-metal.png",
+        "ImageURL": "https://thequietvalegame.com/tts/tokens/res-metal.png",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/res-metal.png",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -7484,8 +7484,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/res-goods.png",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/res-goods.png",
+        "ImageURL": "https://thequietvalegame.com/tts/tokens/res-goods.png",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/res-goods.png",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -7536,8 +7536,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/res-wood.png",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/res-wood.png",
+        "ImageURL": "https://thequietvalegame.com/tts/tokens/res-wood.png",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/res-wood.png",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -7588,8 +7588,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/res-food.png",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/res-food.png",
+        "ImageURL": "https://thequietvalegame.com/tts/tokens/res-food.png",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/res-food.png",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -7640,8 +7640,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/res-herbs.png",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/res-herbs.png",
+        "ImageURL": "https://thequietvalegame.com/tts/tokens/res-herbs.png",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/res-herbs.png",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -7728,8 +7728,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/strain.png",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/strain.png",
+            "ImageURL": "https://thequietvalegame.com/tts/tokens/strain.png",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/strain.png",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -7821,8 +7821,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/supported.png",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/supported.png",
+            "ImageURL": "https://thequietvalegame.com/tts/tokens/supported.png",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/supported.png",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -7914,8 +7914,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/cooldown-x.png",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/cooldown-x.png",
+            "ImageURL": "https://thequietvalegame.com/tts/tokens/cooldown-x.png",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/cooldown-x.png",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -8007,8 +8007,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/arrival-timer.png",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/arrival-timer.png",
+            "ImageURL": "https://thequietvalegame.com/tts/tokens/arrival-timer.png",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/arrival-timer.png",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -8083,8 +8083,8 @@
       ],
       "CustomDeck": {
         "6": {
-          "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-          "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+          "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+          "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
           "NumWidth": 7,
           "NumHeight": 3,
           "BackIsHidden": true,
@@ -8127,8 +8127,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8174,8 +8174,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8221,8 +8221,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8268,8 +8268,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8315,8 +8315,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8362,8 +8362,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8409,8 +8409,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8456,8 +8456,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8503,8 +8503,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8550,8 +8550,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8597,8 +8597,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8644,8 +8644,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8691,8 +8691,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8738,8 +8738,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8785,8 +8785,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8832,8 +8832,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8879,8 +8879,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8926,8 +8926,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -8973,8 +8973,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -9020,8 +9020,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -9067,8 +9067,8 @@
           "SidewaysCard": false,
           "CustomDeck": {
             "6": {
-              "FaceURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-deck.jpg",
-              "BackURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/decks/quest-back.jpg",
+              "FaceURL": "https://thequietvalegame.com/tts/decks/quest-deck.jpg",
+              "BackURL": "https://thequietvalegame.com/tts/decks/quest-back.jpg",
               "NumWidth": 7,
               "NumHeight": 3,
               "BackIsHidden": true,
@@ -9122,8 +9122,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c01_lumber_yard-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c01_lumber_yard-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c01_lumber_yard-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c01_lumber_yard-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9174,8 +9174,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c01_lumber_yard-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c01_lumber_yard-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c01_lumber_yard-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c01_lumber_yard-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9226,8 +9226,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c01_lumber_yard-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c01_lumber_yard-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c01_lumber_yard-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c01_lumber_yard-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9278,8 +9278,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c01_lumber_yard-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c01_lumber_yard-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c01_lumber_yard-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c01_lumber_yard-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9330,8 +9330,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c02_mine_tunnel-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c02_mine_tunnel-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c02_mine_tunnel-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c02_mine_tunnel-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9382,8 +9382,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c02_mine_tunnel-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c02_mine_tunnel-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c02_mine_tunnel-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c02_mine_tunnel-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9434,8 +9434,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c02_mine_tunnel-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c02_mine_tunnel-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c02_mine_tunnel-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c02_mine_tunnel-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9486,8 +9486,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c02_mine_tunnel-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c02_mine_tunnel-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c02_mine_tunnel-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c02_mine_tunnel-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9538,8 +9538,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c03_gathering_outpost-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c03_gathering_outpost-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c03_gathering_outpost-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c03_gathering_outpost-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9590,8 +9590,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c03_gathering_outpost-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c03_gathering_outpost-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c03_gathering_outpost-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c03_gathering_outpost-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9642,8 +9642,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c03_gathering_outpost-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c03_gathering_outpost-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c03_gathering_outpost-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c03_gathering_outpost-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9694,8 +9694,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c03_gathering_outpost-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c03_gathering_outpost-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c03_gathering_outpost-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c03_gathering_outpost-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9746,8 +9746,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c04_farmstead-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c04_farmstead-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c04_farmstead-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c04_farmstead-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9798,8 +9798,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c04_farmstead-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c04_farmstead-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c04_farmstead-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c04_farmstead-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9850,8 +9850,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c04_farmstead-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c04_farmstead-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c04_farmstead-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c04_farmstead-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9902,8 +9902,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c04_farmstead-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c04_farmstead-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c04_farmstead-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c04_farmstead-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -9954,8 +9954,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c20_dig_site-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c20_dig_site-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c20_dig_site-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c20_dig_site-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10006,8 +10006,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c20_dig_site-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c20_dig_site-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c20_dig_site-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c20_dig_site-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10058,8 +10058,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c20_dig_site-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c20_dig_site-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c20_dig_site-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c20_dig_site-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10110,8 +10110,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c20_dig_site-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c20_dig_site-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c20_dig_site-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c20_dig_site-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10162,8 +10162,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c13_workshops-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c13_workshops-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c13_workshops-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c13_workshops-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10214,8 +10214,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c13_workshops-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c13_workshops-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c13_workshops-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c13_workshops-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10266,8 +10266,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c14_market_stalls-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c14_market_stalls-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c14_market_stalls-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c14_market_stalls-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10318,8 +10318,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c14_market_stalls-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c14_market_stalls-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c14_market_stalls-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c14_market_stalls-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10370,8 +10370,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c09_tavern-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c09_tavern-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c09_tavern-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c09_tavern-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10422,8 +10422,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c09_tavern-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c09_tavern-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c09_tavern-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c09_tavern-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10474,8 +10474,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c10_eatery-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c10_eatery-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c10_eatery-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c10_eatery-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10526,8 +10526,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c10_eatery-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c10_eatery-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c10_eatery-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c10_eatery-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10578,8 +10578,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c11_washhouse-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c11_washhouse-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c11_washhouse-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c11_washhouse-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10630,8 +10630,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c11_washhouse-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c11_washhouse-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c11_washhouse-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c11_washhouse-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10682,8 +10682,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c12_apothecary-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c12_apothecary-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c12_apothecary-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c12_apothecary-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10734,8 +10734,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c12_apothecary-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c12_apothecary-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c12_apothecary-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c12_apothecary-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10786,8 +10786,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c21_the_vaults-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c21_the_vaults-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c21_the_vaults-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c21_the_vaults-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10838,8 +10838,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c21_the_vaults-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c21_the_vaults-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c21_the_vaults-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c21_the_vaults-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10890,8 +10890,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c05_cabin-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c05_cabin-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c05_cabin-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c05_cabin-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10942,8 +10942,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c05_cabin-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c05_cabin-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c05_cabin-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c05_cabin-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -10994,8 +10994,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c05_cabin-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c05_cabin-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c05_cabin-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c05_cabin-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11046,8 +11046,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c05_cabin-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c05_cabin-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c05_cabin-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c05_cabin-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11098,8 +11098,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c06_cottage-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c06_cottage-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c06_cottage-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c06_cottage-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11150,8 +11150,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c06_cottage-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c06_cottage-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c06_cottage-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c06_cottage-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11202,8 +11202,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c06_cottage-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c06_cottage-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c06_cottage-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c06_cottage-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11254,8 +11254,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c06_cottage-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c06_cottage-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c06_cottage-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c06_cottage-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11306,8 +11306,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c08_inn-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c08_inn-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c08_inn-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c08_inn-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11358,8 +11358,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c08_inn-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c08_inn-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c08_inn-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c08_inn-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11410,8 +11410,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c07_stedding-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c07_stedding-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c07_stedding-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c07_stedding-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11462,8 +11462,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c07_stedding-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c07_stedding-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c07_stedding-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c07_stedding-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11514,8 +11514,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c15_path-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c15_path-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11566,8 +11566,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c15_path-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c15_path-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11618,8 +11618,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c15_path-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c15_path-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11670,8 +11670,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c15_path-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c15_path-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11722,8 +11722,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c15_path-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c15_path-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11774,8 +11774,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c15_path-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c15_path-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11826,8 +11826,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c15_path-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c15_path-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11878,8 +11878,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c15_path-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c15_path-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c15_path-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11930,8 +11930,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c18_common_land-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c18_common_land-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c18_common_land-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c18_common_land-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -11982,8 +11982,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c18_common_land-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c18_common_land-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c18_common_land-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c18_common_land-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12034,8 +12034,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c16_street-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c16_street-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c16_street-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c16_street-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12086,8 +12086,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c16_street-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c16_street-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c16_street-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c16_street-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12138,8 +12138,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c16_street-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c16_street-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c16_street-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c16_street-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12190,8 +12190,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c16_street-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c16_street-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c16_street-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c16_street-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12242,8 +12242,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c16_street-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c16_street-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c16_street-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c16_street-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12294,8 +12294,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c16_street-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c16_street-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c16_street-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c16_street-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12346,8 +12346,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c17_track-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c17_track-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c17_track-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c17_track-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12398,8 +12398,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c17_track-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c17_track-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c17_track-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c17_track-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12450,8 +12450,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c17_track-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c17_track-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c17_track-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c17_track-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12502,8 +12502,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c17_track-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c17_track-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c17_track-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c17_track-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12554,8 +12554,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c19_bridge-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c19_bridge-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c19_bridge-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c19_bridge-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12606,8 +12606,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c19_bridge-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c19_bridge-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c19_bridge-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c19_bridge-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12658,8 +12658,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c19_bridge-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c19_bridge-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c19_bridge-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c19_bridge-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12710,8 +12710,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c19_bridge-basic.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/c19_bridge-upgraded.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/tiles/c19_bridge-basic.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/c19_bridge-upgraded.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -12798,8 +12798,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -12850,8 +12850,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -12902,8 +12902,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -12954,8 +12954,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13006,8 +13006,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13058,8 +13058,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13110,8 +13110,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13162,8 +13162,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13214,8 +13214,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13266,8 +13266,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13318,8 +13318,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13370,8 +13370,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13422,8 +13422,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13474,8 +13474,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-basic.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/travel-extension-upgraded.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/travel-extension-basic.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/travel-extension-upgraded.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13567,8 +13567,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_adventurers_guild.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-1.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_adventurers_guild.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-1.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13619,8 +13619,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_alchemist_s_workshop.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-2.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_alchemist_s_workshop.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-2.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13671,8 +13671,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_alms_house.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-3.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_alms_house.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-3.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13723,8 +13723,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_atelier_workshop.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-4.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_atelier_workshop.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-4.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13775,8 +13775,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_brewery_of_legends.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-5.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_brewery_of_legends.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-5.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13827,8 +13827,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_docks.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-6.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_docks.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-6.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13879,8 +13879,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_hearth_garden.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-7.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_hearth_garden.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-7.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13931,8 +13931,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_house_of_learning.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-8.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_house_of_learning.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-8.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -13983,8 +13983,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_labourers_yard.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-9.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_labourers_yard.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-9.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14035,8 +14035,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_lantern_roadhouse.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-10.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_lantern_roadhouse.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-10.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14087,8 +14087,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_reliquary.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-11.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_reliquary.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-11.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14139,8 +14139,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_shrine_of_ancestors.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-12.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_shrine_of_ancestors.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-12.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14191,8 +14191,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_shrine_of_ancients.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-13.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_shrine_of_ancients.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-13.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14243,8 +14243,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_shrine_of_bounty.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-14.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_shrine_of_bounty.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-14.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14295,8 +14295,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_shrine_of_depths.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-15.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_shrine_of_depths.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-15.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14347,8 +14347,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_shrine_of_renewal.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-16.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_shrine_of_renewal.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-16.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14399,8 +14399,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_stables.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-17.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_stables.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-17.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14451,8 +14451,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_stables.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-17.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_stables.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-17.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14503,8 +14503,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_stables.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-18.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_stables.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-18.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14555,8 +14555,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_stables.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-18.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_stables.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-18.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14607,8 +14607,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_the_iron_roots_respite.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-19.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_the_iron_roots_respite.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-19.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14659,8 +14659,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_the_lorekeepers_respite.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-20.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_the_lorekeepers_respite.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-20.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14711,8 +14711,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_the_reavers_respite.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-21.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_the_reavers_respite.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-21.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14763,8 +14763,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_the_resting_hall.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-22.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_the_resting_hall.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-22.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14815,8 +14815,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_the_root_weavers_respite.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-23.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_the_root_weavers_respite.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-23.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14867,8 +14867,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_the_tamers_respite.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-24.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_the_tamers_respite.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-24.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14919,8 +14919,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_the_waystation.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-25.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_the_waystation.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-25.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -14971,8 +14971,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special_theater.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/special-back-26.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/special_theater.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/special-back-26.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -15064,8 +15064,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/golden_tile_the_golden_charter.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/golden-back.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/golden_tile_the_golden_charter.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/golden-back.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -15116,8 +15116,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/golden_tile_the_golden_hearth.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/golden-back.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/golden_tile_the_golden_hearth.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/golden-back.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -15168,8 +15168,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/golden_tile_the_golden_river_gate.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/golden-back.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/golden_tile_the_golden_river_gate.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/golden-back.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -15220,8 +15220,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/golden_tile_the_golden_cairn.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/golden-back.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/golden_tile_the_golden_cairn.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/golden-back.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -15272,8 +15272,8 @@
           "HideWhenFaceDown": false,
           "Hands": false,
           "CustomImage": {
-            "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/golden_tile_the_golden_garden.jpg",
-            "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tiles/golden-back.jpg",
+            "ImageURL": "https://thequietvalegame.com/tts/tiles/golden_tile_the_golden_garden.jpg",
+            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tiles/golden-back.jpg",
             "ImageScalar": 1,
             "WidthScale": 0,
             "CustomTile": {
@@ -15329,8 +15329,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/round-marker.png",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/round-marker.png",
+        "ImageURL": "https://thequietvalegame.com/tts/tokens/round-marker.png",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/round-marker.png",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -15381,8 +15381,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/player-1.png",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/tokens/player-1.png",
+        "ImageURL": "https://thequietvalegame.com/tts/tokens/player-1.png",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/player-1.png",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -15433,8 +15433,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/stewards/steward-vanguard.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/stewards/steward-back.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/stewards/steward-vanguard.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/stewards/steward-back.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -15518,8 +15518,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/stewards/steward-knight.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/stewards/steward-back.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/stewards/steward-knight.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/stewards/steward-back.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -15603,8 +15603,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/stewards/steward-sentinel.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/stewards/steward-back.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/stewards/steward-sentinel.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/stewards/steward-back.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -15688,8 +15688,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/stewards/steward-ranger.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/stewards/steward-back.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/stewards/steward-ranger.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/stewards/steward-back.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -15773,8 +15773,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/stewards/steward-warden.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/stewards/steward-back.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/stewards/steward-warden.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/stewards/steward-back.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -15858,8 +15858,8 @@
       "HideWhenFaceDown": false,
       "Hands": false,
       "CustomImage": {
-        "ImageURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/stewards/steward-quartermaster.jpg",
-        "ImageSecondaryURL": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/stewards/steward-back.jpg",
+        "ImageURL": "https://thequietvalegame.com/tts/stewards/steward-quartermaster.jpg",
+        "ImageSecondaryURL": "https://thequietvalegame.com/tts/stewards/steward-back.jpg",
         "ImageScalar": 1,
         "WidthScale": 0,
         "CustomTile": {
@@ -16002,7 +16002,7 @@
       "Tooltip": true,
       "Hands": false,
       "CustomPDF": {
-        "PDFUrl": "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/rulebook/The-Quiet-Vale-Rulebook.pdf",
+        "PDFUrl": "https://thequietvalegame.com/rulebook/The-Quiet-Vale-Rulebook.pdf",
         "PDFPassword": "",
         "PDFPage": 0,
         "PDFPageOffset": 0

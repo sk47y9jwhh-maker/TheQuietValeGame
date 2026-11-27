@@ -59,7 +59,7 @@ const globalLuaTemplate = fs.readFileSync(path.join(here, "lua/global.lua"), "ut
 // Exact physical-to-TTS scale: 1 mm = 0.04 TTS units
 // ---------------------------------------------------------------------------
 const MM = 0.04;
-const BOARD_Y = 0.96;
+const BOARD_Y = 1.04;
 
 // Board dimensions in mm (from design/boards-v4/build_leather_boards.py)
 const MAP_BOARD_MM = { w: 698.5, h: 568.5 };
@@ -956,7 +956,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     Tags: ["Board Games", "Cooperative", "Hex Grid", "Resource Management"],
     Gravity: 0.5,
     PlayArea: 0.5,
-    Table: "Table_Custom_Square",
+    Table: "Table_RPG",
     Sky: "Sky_Museum",
     Note: "The Quiet Vale: Seasons of Settlement (v7.0). Click 1P–5P on the left Control Plaque to auto-setup Warehouse, Encounters, Target Deck, and Quest Card.",
     Rules: "",
@@ -989,7 +989,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
 
 // CLI execution
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const pagesBase = "https://sk47y9jwhh-maker.github.io/TheQuietValeGame";
+  const pagesBase = "https://thequietvalegame.com";
   const customBaseIdx = process.argv.indexOf("--base-url");
   const hostedAssetBase =
     customBaseIdx !== -1 && process.argv[customBaseIdx + 1]

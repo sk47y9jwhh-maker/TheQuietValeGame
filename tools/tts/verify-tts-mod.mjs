@@ -83,7 +83,7 @@ assert(bagsByName["Golden Tiles Reserve (5)"] === 5, `Expected 5 Golden Tiles, g
 assert(bagsByName["Special Tiles Reserve (#1–#26)"] >= 26, `Expected >=26 Special Tiles, got ${bagsByName["Special Tiles Reserve (#1–#26)"]}`);
 
 // 3. Verify every hosted HTTPS URL maps to an existing file in public/
-const pagesPrefix = "https://sk47y9jwhh-maker.github.io/TheQuietValeGame/";
+const pagesPrefix = "https://thequietvalegame.com/";
 let checkedFiles = 0;
 for (const url of allUrls) {
   assert(url.startsWith(pagesPrefix), `Unexpected hosted URL: ${url}`);
