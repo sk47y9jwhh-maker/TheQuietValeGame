@@ -403,7 +403,7 @@ function makeHandZone(color, pos, rotY = 0) {
   return {
     GUID: nextGuid(),
     Name: "HandTrigger",
-    Transform: makeTransform(pos, [0, rotY, 0], [9.5, 4.0, 4.2]),
+    Transform: makeTransform(pos, [0, rotY, 0], [11.5, 4.0, 4.8]),
     Nickname: "",
     Description: "",
     GMNotes: "",
@@ -965,13 +965,13 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     })
   );
 
-  // 9. Five Player Hand Zones (White, Red, Blue, Green, Yellow)
+  // 9. Five Player Hand Zones (raised closer to the table edge so seeding cards are large & readable)
   objects.push(
-    makeHandZone("White", [-20.0, 3.0, -21.8], 0),
-    makeHandZone("Red", [-8.0, 3.0, -21.8], 0),
-    makeHandZone("Blue", [4.0, 3.0, -21.8], 0),
-    makeHandZone("Green", [16.0, 3.0, -21.8], 0),
-    makeHandZone("Yellow", [-12.0, 3.0, 18.2], 180)
+    makeHandZone("White", [-19.5, 3.0, -19.2], 0),
+    makeHandZone("Red", [-7.5, 3.0, -19.2], 0),
+    makeHandZone("Blue", [4.5, 3.0, -19.2], 0),
+    makeHandZone("Green", [16.5, 3.0, -19.2], 0),
+    makeHandZone("Yellow", [-12.0, 3.0, 17.5], 180)
   );
 
   // 10. World Snap Points (126 Map Hexes + 12 Round Sockets + Card Wells)
@@ -1014,8 +1014,8 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       linked: Boolean(t.basic.effectText && t.basic.effectText.includes("Linked Production")),
       placement: {
         terrain: t.placement?.terrain || [],
-        adjacentTerrain: t.placement?.adjacentTerrain || [],
-        adjacentCategory: t.placement?.adjacentCategory || [],
+        adjacentTerrain: t.placement?.adjacentToTerrain || [],
+        adjacentCategory: t.placement?.adjacentToCategory || [],
         text: t.placement?.text || ""
       },
       basic: {
@@ -1043,8 +1043,8 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       renown: t.renown || 0,
       placement: {
         terrain: t.placement?.terrain || [],
-        adjacentTerrain: t.placement?.adjacentTerrain || [],
-        adjacentCategory: t.placement?.adjacentCategory || [],
+        adjacentTerrain: t.placement?.adjacentToTerrain || [],
+        adjacentCategory: t.placement?.adjacentToCategory || [],
         text: t.placement?.text || ""
       },
       basic: { name: t.name, prod: compactRes(t.production), pop: t.population || 0, renown: t.renown || 0 }
@@ -1059,8 +1059,8 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       renown: t.renown || 0,
       placement: {
         terrain: t.placement?.terrain || [],
-        adjacentTerrain: t.placement?.adjacentTerrain || [],
-        adjacentCategory: t.placement?.adjacentCategory || [],
+        adjacentTerrain: t.placement?.adjacentToTerrain || [],
+        adjacentCategory: t.placement?.adjacentToCategory || [],
         text: t.placement?.text || ""
       },
       basic: { name: t.name, prod: {}, pop: t.population || 0, renown: t.renown || 0 }
@@ -1131,6 +1131,9 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       arrivalsReserve: [16.8, 1.35, 14.6],
       goldenBoonsReserve: [21.8, 1.35, 14.6],
       questDeckWell: [questDeckX, 1.25, questDeckZ],
+      seedS1: [-7.0, 1.35, 14.6],
+      seedS2: [-3.2, 1.35, 14.6],
+      seedS3: [0.6, 1.35, 14.6],
       inPlaySlots,
       targetWell: [targetX, 1.25, targetZ],
       activeTarget: [activeTargetX, 1.3, activeTargetZ],
