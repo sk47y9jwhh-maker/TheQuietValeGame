@@ -7,7 +7,7 @@
        rectAlignment="MiddleLeft"
        offsetXY="14 22"
        width="292"
-       height="642"
+       height="672"
        color="#181512F2"
        outline="#b89248"
        outlineSize="2 -2"
@@ -21,7 +21,7 @@
   </HorizontalLayout>
 
   <!-- Main collapsible body -->
-  <VerticalLayout id="qvHudBody" rectAlignment="UpperCenter" offsetXY="0 -34" height="602" padding="8 8 6 8" spacing="5" childForceExpandHeight="false" childControlHeight="true">
+  <VerticalLayout id="qvHudBody" rectAlignment="UpperCenter" offsetXY="0 -34" height="632" padding="8 8 6 8" spacing="5" childForceExpandHeight="false" childControlHeight="true">
 
     <!-- Status Banner -->
     <Text id="qvStatus" text="Season I  |  Round 1/12  |  2P (4 Act)" fontSize="11" fontStyle="Bold" color="#d8e6c8" alignment="MiddleCenter" minHeight="18" preferredHeight="18" />
@@ -110,8 +110,11 @@
     </HorizontalLayout>
     <Button text="PULL CORE TILE NEXT TO MAP" minHeight="26" preferredHeight="26" fontSize="11" color="#3b4d38" onClick="onHudPullCoreTile" tooltip="Pull the selected Core Tile from its bag right beside the Map Board" />
 
-    <!-- Live Score Calculator -->
-    <Button text="CALCULATE LIVE SCORE" minHeight="26" preferredHeight="26" fontSize="11" color="#523b5e" onClick="onHudCalcScore" tooltip="Scan Map Board and In Play to tally Pop + Renown - Strain - Burdens" />
+    <!-- Live Score Calculator & Reset Game -->
+    <HorizontalLayout minHeight="28" preferredHeight="28" spacing="4">
+      <Button text="LIVE SCORE" flexibleWidth="1" fontSize="11" color="#523b5e" onClick="onHudCalcScore" tooltip="Scan Map Board and In Play to tally Pop + Renown - Strain - Burdens" />
+      <Button id="btnResetGame" text="RESET GAME" preferredWidth="112" minWidth="112" fontSize="11" color="#5a2422" onClick="onHudResetClick" tooltip="Click twice to return all tiles, cards, meeples, tokens, and counters to starting positions" />
+    </HorizontalLayout>
 
   </VerticalLayout>
 </Panel>

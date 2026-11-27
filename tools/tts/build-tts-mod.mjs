@@ -779,8 +779,10 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       stackable: true
     })
   );
+  const travelExtBagGuid = nextGuid();
   objects.push(
     makeBag({
+      guid: travelExtBagGuid,
       name: `Travel Extensions (${extCount})`,
       description: "Double-sided Travel Extension hexes (Basic / Upgraded).",
       pos: [17.0, 1.15, -10.0],
@@ -839,8 +841,10 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       stackable: false
     })
   );
+  const goldenBagGuid = nextGuid();
   objects.push(
     makeBag({
+      guid: goldenBagGuid,
       name: "Golden Tiles Reserve (5)",
       description: "5 Golden Legacy hex tiles.",
       pos: [23.0, 1.15, -10.0],
@@ -1079,6 +1083,8 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       arrivalsDeck: arrivalsGuid,
       goldenBoonsDeck: goldenBoonsGuid,
       specialBag: specialBagGuid,
+      goldenBag: goldenBagGuid,
+      travelExtBag: travelExtBagGuid,
       strainBag: strainBagGuid,
       supportedBag: supportedBagGuid,
       cooldownXBag: cooldownXBagGuid,
@@ -1093,6 +1099,11 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     positions: {
       encounterDraw: [encDrawX, 1.25, encDrawZ],
       encounterDiscard: [encDiscX, 1.25, encDiscZ],
+      boonsReserve: [6.8, 1.35, 14.6],
+      burdensReserve: [11.8, 1.35, 14.6],
+      arrivalsReserve: [16.8, 1.35, 14.6],
+      goldenBoonsReserve: [21.8, 1.35, 14.6],
+      questDeckWell: [questDeckX, 1.25, questDeckZ],
       inPlaySlots,
       targetWell: [targetX, 1.25, targetZ],
       activeTarget: [activeTargetX, 1.3, activeTargetZ],
