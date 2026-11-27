@@ -60,8 +60,6 @@ function onLoad(saved_data)
     end
   end
   Wait.frames(function()
-    buildControlPlaqueUI()
-    buildUnlockPlaqueUI()
     for _, obj in ipairs(getAllObjects()) do
       attachObjectMenus(obj)
     end
@@ -661,43 +659,9 @@ function refreshHud()
   syncWarehouseHud()
 end
 
--- ---------------------------------------------------------------------------
--- 3D Control Plaque UI
--- ---------------------------------------------------------------------------
-function buildControlPlaqueUI()
-  local plaque = getObjectFromGUID(CONFIG.guids.controlPlaque)
-  if not plaque then return end
-  plaque.clearButtons()
-  plaque.createButton({
-    click_function = "noop", function_owner = Global,
-    label = "THE QUIET VALE v7.0\nSETUP BY PLAYER COUNT",
-    position = {0, 0.56, -0.34}, width = 0, height = 0, font_size = 70, font_color = {0.94, 0.80, 0.46}
-  })
-  for p = 1, 5 do
-    local x = -0.38 + (p - 1) * 0.19
-    local fnName = "setupPlayers_" .. tostring(p)
-    _G[fnName] = function() runSetup(p) end
-    plaque.createButton({
-      click_function = fnName, function_owner = Global, label = tostring(p) .. "P",
-      position = {x, 0.56, -0.10}, width = 90, height = 90, font_size = 64,
-      color = (state.playerCount == p) and {0.68, 0.52, 0.22} or {0.26, 0.24, 0.22},
-      font_color = {0.98, 0.94, 0.84}
-    })
-  end
-  plaque.createButton({
-    click_function = "revealEncounters", function_owner = Global,
-    label = "REVEAL " .. tostring(state.playerCount) .. " ENCOUNTERS",
-    position = {0, 0.56, 0.14}, width = 450, height = 88, font_size = 50,
-    color = {0.56, 0.40, 0.14}, font_color = {0.98, 0.94, 0.84}
-  })
-  plaque.createButton({
-    click_function = "onEndRound", function_owner = Global,
-    label = "END ROUND " .. tostring(state.round) .. " -> NEXT",
-    position = {0, 0.56, 0.35}, width = 450, height = 84, font_size = 48,
-    color = {0.26, 0.44, 0.30}, font_color = {0.96, 0.94, 0.88}
-  })
-end
-
+-- 3D Control Plaque UI removed (replaced by the collapsible XmlUI Control HUD)
+function buildControlPlaqueUI() end
+function buildUnlockPlaqueUI() end
 function noop() end
 
 -- ---------------------------------------------------------------------------
@@ -1049,17 +1013,6 @@ function pullCoreTile(idx)
     end
   end
   broadcastToAll("No copies of " .. entry.name .. " remain in supply.", {0.95, 0.72, 0.42})
-end
-
-function buildUnlockPlaqueUI()
-  local plaque = getObjectFromGUID(CONFIG.guids.unlockPlaque)
-  if not plaque then return end
-  plaque.clearButtons()
-  plaque.createButton({ click_function = "noop", function_owner = Global, label = "UNLOCK SPECIAL TILE", position = {0, 0.56, -0.34}, width = 0, height = 0, font_size = 64, font_color = {0.94, 0.80, 0.46} })
-  plaque.createButton({ click_function = "onUnlockPrev", function_owner = Global, label = "<", position = {-0.30, 0.56, -0.04}, width = 100, height = 100, font_size = 86, color = {0.28, 0.26, 0.24}, font_color = {0.95, 0.90, 0.80} })
-  plaque.createButton({ click_function = "noop", function_owner = Global, label = "#" .. tostring(state.unlockNum), position = {0, 0.56, -0.04}, width = 175, height = 100, font_size = 86, color = {0.10, 0.09, 0.08}, font_color = {0.96, 0.88, 0.64} })
-  plaque.createButton({ click_function = "onUnlockNext", function_owner = Global, label = ">", position = {0.30, 0.56, -0.04}, width = 100, height = 100, font_size = 86, color = {0.28, 0.26, 0.24}, font_color = {0.95, 0.90, 0.80} })
-  plaque.createButton({ click_function = "onUnlockTile", function_owner = Global, label = "UNLOCK #" .. tostring(state.unlockNum), position = {0, 0.56, 0.28}, width = 420, height = 100, font_size = 58, color = {0.60, 0.46, 0.18}, font_color = {0.98, 0.95, 0.86} })
 end
 
 function onUnlockPrev(_, _, alt)
