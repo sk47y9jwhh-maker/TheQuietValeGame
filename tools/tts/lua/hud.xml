@@ -5,79 +5,87 @@
 
 <Panel id="qvHudRoot"
        rectAlignment="MiddleLeft"
-       offsetXY="14 24"
-       width="276"
-       height="566"
-       color="#181512F0"
+       offsetXY="14 22"
+       width="292"
+       height="642"
+       color="#181512F2"
        outline="#b89248"
        outlineSize="2 -2"
        allowDragging="true"
        returnToOriginalPositionWhenReleased="false">
 
   <!-- Header bar -->
-  <HorizontalLayout rectAlignment="UpperCenter" height="34" padding="10 6 5 5" spacing="4" color="#262018FF">
+  <HorizontalLayout rectAlignment="UpperCenter" height="32" padding="10 6 4 4" spacing="4" color="#262018FF">
     <Text id="qvTitle" text="THE QUIET VALE v7.0" fontSize="13" fontStyle="Bold" color="#e8c474" alignment="MiddleLeft" flexibleWidth="1" />
     <Button id="qvToggleBtn" text="-" preferredWidth="28" minWidth="28" color="#3a3126" onClick="onHudToggle" tooltip="Collapse / Expand Control Panel" />
   </HorizontalLayout>
 
   <!-- Main collapsible body -->
-  <VerticalLayout id="qvHudBody" rectAlignment="UpperCenter" offsetXY="0 -36" height="526" padding="8 8 6 8" spacing="6" childForceExpandHeight="false" childControlHeight="true">
+  <VerticalLayout id="qvHudBody" rectAlignment="UpperCenter" offsetXY="0 -34" height="602" padding="8 8 6 8" spacing="5" childForceExpandHeight="false" childControlHeight="true">
 
     <!-- Status Banner -->
-    <Text id="qvStatus" text="Season I  |  Round 1/12  |  2P (4 Act)" fontSize="11" fontStyle="Bold" color="#d8e6c8" alignment="MiddleCenter" minHeight="20" preferredHeight="20" />
+    <Text id="qvStatus" text="Season I  |  Round 1/12  |  2P (4 Act)" fontSize="11" fontStyle="Bold" color="#d8e6c8" alignment="MiddleCenter" minHeight="18" preferredHeight="18" />
+
+    <!-- Turn & Actions Tracker -->
+    <HorizontalLayout minHeight="28" preferredHeight="28" spacing="4" color="#242019CC" padding="4 4 2 2">
+      <Text id="qvTurnInfo" text="Seat 1 · 4/4 Act" fontSize="11" fontStyle="Bold" color="#f5dc9c" flexibleWidth="1" alignment="MiddleLeft" />
+      <Button text="-" preferredWidth="24" minWidth="24" color="#4a2a26" onClick="onHudActMinus" tooltip="Spend 1 Action" />
+      <Button text="+" preferredWidth="24" minWidth="24" color="#2a4a2e" onClick="onHudActPlus" tooltip="Refund 1 Action" />
+      <Button text="NEXT TURN" preferredWidth="84" minWidth="84" fontSize="10" color="#3a4c62" onClick="onHudNextTurn" tooltip="Advance to next player seat and reset Actions" />
+    </HorizontalLayout>
 
     <!-- 1-5P Setup -->
     <Text text="SETUP (STEWARDS + WAREHOUSE + HANDS)" fontSize="10" fontStyle="Bold" color="#c9a862" minHeight="14" preferredHeight="14" />
-    <HorizontalLayout minHeight="28" preferredHeight="28" spacing="4">
+    <HorizontalLayout minHeight="26" preferredHeight="26" spacing="4">
       <Button id="btnSetup1" text="1P" color="#2e2922" onClick="onHudSetup(1)" tooltip="1P: 4 Actions, 15 Warehouse, 5/3/4 Encounters" />
       <Button id="btnSetup2" text="2P" color="#7a5d26" onClick="onHudSetup(2)" tooltip="2P: 4 Actions, 10 Warehouse, 8/8/8 Encounters" />
       <Button id="btnSetup3" text="3P" color="#2e2922" onClick="onHudSetup(3)" tooltip="3P: 3 Actions, 8 Warehouse, 12/12/12 Encounters" />
       <Button id="btnSetup4" text="4P" color="#2e2922" onClick="onHudSetup(4)" tooltip="4P: 3 Actions, 0 Warehouse, 16/16/16 Encounters" />
       <Button id="btnSetup5" text="5P" color="#2e2922" onClick="onHudSetup(5)" tooltip="5P: 2 Actions, 0 Warehouse, 26/14/20 Encounters" />
     </HorizontalLayout>
-    <Button id="btnQuickSeed" text="QUICK-SEED ENCOUNTER DECK" minHeight="26" preferredHeight="26" fontSize="11" color="#3c3428" onClick="onHudQuickSeed" tooltip="Gather dealt seeding hands + draw pile into one shuffled Encounter Deck to start Round 1 immediately" />
+    <Button id="btnQuickSeed" text="QUICK-SEED ENCOUNTER DECK" minHeight="24" preferredHeight="24" fontSize="11" color="#3c3428" onClick="onHudQuickSeed" tooltip="Gather dealt seeding hands + draw pile into one shuffled Encounter Deck" />
 
     <!-- Round Flow Actions -->
-    <Text text="ROUND FLOW" fontSize="10" fontStyle="Bold" color="#c9a862" minHeight="14" preferredHeight="14" />
-    <Button id="btnRevealEnc" text="REVEAL ENCOUNTERS (2 CARDS)" minHeight="32" preferredHeight="32" fontSize="12" color="#8c6320" onClick="onHudRevealEncounters" tooltip="Flip P Encounter cards into open In Play slots &amp; auto-place 3 Timers on Arrivals" />
-    <Button id="btnDrawTarget" text="DRAW TARGET CARD" minHeight="28" preferredHeight="28" fontSize="11" color="#32485a" onClick="onHudDrawTarget" tooltip="Return previous Target Card to bottom, flip next card, and broadcast target rules" />
-    <Button id="btnEndRound" text="END ROUND 1 -> 2" minHeight="32" preferredHeight="32" fontSize="12" color="#2d5a36" onClick="onHudEndRound" tooltip="Clear X tokens, tick Arrival timers (-1), advance Round Marker, rotate Player 1" />
+    <Text text="ROUND FLOW (RIGHT-CLICK TILES &amp; CARDS TO ACT)" fontSize="10" fontStyle="Bold" color="#c9a862" minHeight="14" preferredHeight="14" />
+    <Button id="btnRevealEnc" text="REVEAL ENCOUNTERS (2 CARDS)" minHeight="30" preferredHeight="30" fontSize="12" color="#8c6320" onClick="onHudRevealEncounters" tooltip="Flip P Encounter cards into In Play &amp; auto-place 3 Timers on Arrivals" />
+    <Button id="btnDrawTarget" text="DRAW TARGET CARD" minHeight="26" preferredHeight="26" fontSize="11" color="#32485a" onClick="onHudDrawTarget" tooltip="Return previous Target Card to bottom, flip next card, and broadcast criteria" />
+    <Button id="btnEndRound" text="END ROUND 1 -> 2" minHeight="30" preferredHeight="30" fontSize="12" color="#2d5a36" onClick="onHudEndRound" tooltip="Clear X tokens, tick Arrival timers (-1), advance Round, rotate Player 1" />
 
     <!-- Warehouse Live Counters -->
     <Text text="WAREHOUSE (CAP 15)" fontSize="10" fontStyle="Bold" color="#c9a862" minHeight="14" preferredHeight="14" />
-    <GridLayout cellSize="124 24" spacing="8 4" minHeight="84" preferredHeight="84">
+    <GridLayout cellSize="132 23" spacing="8 4" minHeight="80" preferredHeight="80">
       <HorizontalLayout spacing="2">
-        <Text text="Wood" preferredWidth="44" fontSize="11" color="#a6c890" />
+        <Text text="Wood" preferredWidth="46" fontSize="11" color="#a6c890" />
         <Button text="-" preferredWidth="22" color="#4a2a26" onClick="onHudWhMinus(4)" />
         <Text id="whVal4" text="0" preferredWidth="26" alignment="MiddleCenter" fontStyle="Bold" />
         <Button text="+" preferredWidth="22" color="#2a4a2e" onClick="onHudWhPlus(4)" />
       </HorizontalLayout>
       <HorizontalLayout spacing="2">
-        <Text text="Stone" preferredWidth="44" fontSize="11" color="#b6c0c6" />
+        <Text text="Stone" preferredWidth="46" fontSize="11" color="#b6c0c6" />
         <Button text="-" preferredWidth="22" color="#4a2a26" onClick="onHudWhMinus(1)" />
         <Text id="whVal1" text="0" preferredWidth="26" alignment="MiddleCenter" fontStyle="Bold" />
         <Button text="+" preferredWidth="22" color="#2a4a2e" onClick="onHudWhPlus(1)" />
       </HorizontalLayout>
       <HorizontalLayout spacing="2">
-        <Text text="Metal" preferredWidth="44" fontSize="11" color="#9ab8ca" />
+        <Text text="Metal" preferredWidth="46" fontSize="11" color="#9ab8ca" />
         <Button text="-" preferredWidth="22" color="#4a2a26" onClick="onHudWhMinus(2)" />
         <Text id="whVal2" text="0" preferredWidth="26" alignment="MiddleCenter" fontStyle="Bold" />
         <Button text="+" preferredWidth="22" color="#2a4a2e" onClick="onHudWhPlus(2)" />
       </HorizontalLayout>
       <HorizontalLayout spacing="2">
-        <Text text="Food" preferredWidth="44" fontSize="11" color="#d8c66e" />
+        <Text text="Food" preferredWidth="46" fontSize="11" color="#d8c66e" />
         <Button text="-" preferredWidth="22" color="#4a2a26" onClick="onHudWhMinus(5)" />
         <Text id="whVal5" text="0" preferredWidth="26" alignment="MiddleCenter" fontStyle="Bold" />
         <Button text="+" preferredWidth="22" color="#2a4a2e" onClick="onHudWhPlus(5)" />
       </HorizontalLayout>
       <HorizontalLayout spacing="2">
-        <Text text="Herbs" preferredWidth="44" fontSize="11" color="#bfa0d0" />
+        <Text text="Herbs" preferredWidth="46" fontSize="11" color="#bfa0d0" />
         <Button text="-" preferredWidth="22" color="#4a2a26" onClick="onHudWhMinus(6)" />
         <Text id="whVal6" text="0" preferredWidth="26" alignment="MiddleCenter" fontStyle="Bold" />
         <Button text="+" preferredWidth="22" color="#2a4a2e" onClick="onHudWhPlus(6)" />
       </HorizontalLayout>
       <HorizontalLayout spacing="2">
-        <Text text="Goods" preferredWidth="44" fontSize="11" color="#d69676" />
+        <Text text="Goods" preferredWidth="46" fontSize="11" color="#d69676" />
         <Button text="-" preferredWidth="22" color="#4a2a26" onClick="onHudWhMinus(3)" />
         <Text id="whVal3" text="0" preferredWidth="26" alignment="MiddleCenter" fontStyle="Bold" />
         <Button text="+" preferredWidth="22" color="#2a4a2e" onClick="onHudWhPlus(3)" />
@@ -86,21 +94,24 @@
 
     <!-- Unlock Special Tile -->
     <Text text="UNLOCK SPECIAL TILE (0 ACTIONS)" fontSize="10" fontStyle="Bold" color="#c9a862" minHeight="14" preferredHeight="14" />
-    <HorizontalLayout minHeight="28" preferredHeight="28" spacing="4">
-      <Button text="&lt;" preferredWidth="30" minWidth="30" color="#342d24" onClick="onHudUnlockPrev" />
-      <Text id="hudUnlockNum" text="#1" preferredWidth="42" minWidth="42" alignment="MiddleCenter" fontStyle="Bold" color="#f5dc9c" />
-      <Button text="&gt;" preferredWidth="30" minWidth="30" color="#342d24" onClick="onHudUnlockNext" />
-      <Button id="btnHudUnlock" text="UNLOCK" flexibleWidth="1" color="#7d5c20" onClick="onHudUnlockTile" />
+    <HorizontalLayout minHeight="26" preferredHeight="26" spacing="4">
+      <Button text="&lt;" preferredWidth="28" minWidth="28" color="#342d24" onClick="onHudUnlockPrev" />
+      <Text id="hudUnlockNum" text="#1" preferredWidth="40" minWidth="40" alignment="MiddleCenter" fontStyle="Bold" color="#f5dc9c" />
+      <Button text="&gt;" preferredWidth="28" minWidth="28" color="#342d24" onClick="onHudUnlockNext" />
+      <Button id="btnHudUnlock" text="UNLOCK" preferredWidth="90" flexibleWidth="1" color="#7d5c20" onClick="onHudUnlockTile" />
     </HorizontalLayout>
 
     <!-- Quick Pull Core Tile -->
     <Text text="QUICK-PULL CORE TILE" fontSize="10" fontStyle="Bold" color="#c9a862" minHeight="14" preferredHeight="14" />
-    <HorizontalLayout minHeight="26" preferredHeight="26" spacing="4">
-      <Button text="&lt;" preferredWidth="28" minWidth="28" color="#342d24" onClick="onHudCorePrev" />
+    <HorizontalLayout minHeight="24" preferredHeight="24" spacing="4">
+      <Button text="&lt;" preferredWidth="26" minWidth="26" color="#342d24" onClick="onHudCorePrev" />
       <Text id="hudCoreName" text="Lumber Yard" flexibleWidth="1" fontSize="11" alignment="MiddleCenter" color="#f2ead4" />
-      <Button text="&gt;" preferredWidth="28" minWidth="28" color="#342d24" onClick="onHudCoreNext" />
+      <Button text="&gt;" preferredWidth="26" minWidth="26" color="#342d24" onClick="onHudCoreNext" />
     </HorizontalLayout>
-    <Button text="PULL CORE TILE NEXT TO MAP" minHeight="28" preferredHeight="28" fontSize="11" color="#3b4d38" onClick="onHudPullCoreTile" tooltip="Pull the selected Core Tile from its bag right beside the Map Board" />
+    <Button text="PULL CORE TILE NEXT TO MAP" minHeight="26" preferredHeight="26" fontSize="11" color="#3b4d38" onClick="onHudPullCoreTile" tooltip="Pull the selected Core Tile from its bag right beside the Map Board" />
+
+    <!-- Live Score Calculator -->
+    <Button text="CALCULATE LIVE SCORE" minHeight="26" preferredHeight="26" fontSize="11" color="#523b5e" onClick="onHudCalcScore" tooltip="Scan Map Board and In Play to tally Pop + Renown - Strain - Burdens" />
 
   </VerticalLayout>
 </Panel>
