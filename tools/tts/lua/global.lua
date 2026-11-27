@@ -29,7 +29,8 @@ state = {
   scoreGold = 0,
   scoreFailedArrivals = 0,
   placedTileGuids = {},
-  pawnLastHex = {}
+  pawnLastHex = {},
+  activeTab = "play"
 }
 
 local TERRAIN_LABEL = {
@@ -169,6 +170,23 @@ function onObjectDrop(_, obj)
     end
 
     onHudDismissAlert()
+
+    -- Keep any Steward Meeple standing on this hex neatly ON TOP of the placed tile!
+    local tileY = 1.12
+    for _, st in ipairs(CONFIG.stewards) do
+      local pawn = getObjectFromGUID(st.pawnGuid)
+      if pawn then
+        local pp = pawn.getPosition()
+        local dist = math.sqrt((pp.x - hex.x)^2 + (pp.z - hex.z)^2)
+        if dist <= 1.35 then
+          obj.setPosition({hex.x, tileY, hex.z})
+          obj.setRotation({0, 180, obj.is_face_down and 180 or 0})
+          pawn.setPositionSmooth({hex.x, tileY + 0.48, hex.z}, false, true)
+          pawn.setRotationSmooth({0, 180, 0}, false, true)
+        end
+      end
+    end
+
     if not state.placedTileGuids then state.placedTileGuids = {} end
     local guid = obj.getGUID()
     if not state.placedTileGuids[guid] then
@@ -339,6 +357,9 @@ function attachObjectMenus(obj)
     elseif erule.type == "burden" then
       obj.addContextMenuItem("Resolve Burden (Pay Season Cost)", function() resolveBurdenCard(obj) end)
     end
+    obj.addContextMenuItem("Seed -> Season I (Top)", function() seedCardToBand(obj, 1) end)
+    obj.addContextMenuItem("Seed -> Season II (Middle)", function() seedCardToBand(obj, 2) end)
+    obj.addContextMenuItem("Seed -> Season III (Bottom)", function() seedCardToBand(obj, 3) end)
     obj.addContextMenuItem("Discard Encounter", function() discardEncounterCard(obj) end)
   end
 end
@@ -1019,6 +1040,78 @@ end
 -- ---------------------------------------------------------------------------
 -- XmlUI HUD Handlers
 -- ---------------------------------------------------------------------------
+function onHudTab(_, tabName)
+  state.activeTab = tabName or "play"
+  refreshHud()
+end
+
+function onHudBuildSeededDeck()
+  buildSeededDeck()
+end
+
+function seedCardToBand(cardObj, band)
+  local posMap = {
+    [1] = CONFIG.positions.seedS1,
+    [2] = CONFIG.positions.seedS2,
+    [3] = CONFIG.positions.seedS3
+  }
+  local p = posMap[band]
+  if not p then return end
+  cardObj.setRotation({0, 180, 180})
+  cardObj.setPositionSmooth({p[1], p[2] + 0.5, p[3]}, false, true)
+  local labels = { "Season I (Top)", "Season II (Middle)", "Season III (Bottom)" }
+  broadcastToAll("[AUTO] Seeded a card into " .. labels[band] .. ".", {0.82, 0.90, 0.98})
+end
+
+function findDeckOrCardAt(pos)
+  local hits = Physics.cast({
+    origin = {pos[1], pos[2] + 4, pos[3]},
+    direction = {0, -1, 0},
+    type = 3,
+    size = {2.2, 4, 3.2},
+    max_distance = 6
+  })
+  for _, h in ipairs(hits) do
+    local o = h.hit_object
+    if o and (o.tag == "Deck" or o.tag == "Card") then return o end
+  end
+  return nil
+end
+
+function buildSeededDeck()
+  local drawPos = CONFIG.positions.encounterDraw
+  -- Also fold any remaining un-seeded Encounter Deck cards into Season bands or keep at bottom,
+  -- then stack Season III (bottom) -> Season II (middle) -> Season I (top) cleanly!
+  local bands = {
+    { pos = CONFIG.positions.seedS3, label = "Season III" },
+    { pos = CONFIG.positions.seedS2, label = "Season II" },
+    { pos = CONFIG.positions.seedS1, label = "Season I" }
+  }
+  local foundAny = false
+  local yOffset = 0.5
+  for idx, b in ipairs(bands) do
+    local stack = findDeckOrCardAt(b.pos)
+    if stack then
+      foundAny = true
+      if stack.tag == "Deck" then stack.shuffle() end
+      local delay = (idx - 1) * 0.45
+      local myY = yOffset
+      yOffset = yOffset + 1.2
+      Wait.time(function()
+        stack.setRotation({0, 180, 180})
+        stack.setPosition({drawPos[1], drawPos[2] + myY, drawPos[3]})
+      end, delay)
+    end
+  end
+  if not foundAny then
+    broadcastToAll("No cards seeded in Season I/II/III stacks yet — right-click cards in your hand -> Seed -> Season I/II/III (or click QUICK-SEED).", {0.96, 0.78, 0.44})
+    return
+  end
+  state.activeTab = "play"
+  refreshHud()
+  broadcastToAll("[AUTO] Built Seeded Encounter Deck (Season I on top -> Season II -> Season III on bottom)! Ready for Round 1.", {0.80, 0.96, 0.78})
+end
+
 function onHudToggle()
   state.hudCollapsed = not state.hudCollapsed
   refreshHud()
@@ -1089,9 +1182,16 @@ end
 function refreshHud()
   local _, seasonRoman = getSeason(state.round)
   local rules = SETUP_RULES[state.playerCount] or SETUP_RULES[2]
+  local tab = state.activeTab or "play"
   UI.setAttribute("qvHudBody", "active", state.hudCollapsed and "false" or "true")
-  UI.setAttribute("qvHudRoot", "height", state.hudCollapsed and "36" or "712")
+  UI.setAttribute("qvHudRoot", "height", state.hudCollapsed and "36" or "488")
   UI.setAttribute("qvToggleBtn", "text", state.hudCollapsed and "+" or "-")
+  UI.setAttribute("panelPlay", "active", tab == "play" and "true" or "false")
+  UI.setAttribute("panelTiles", "active", tab == "tiles" and "true" or "false")
+  UI.setAttribute("panelSetup", "active", tab == "setup" and "true" or "false")
+  UI.setAttribute("tabPlay", "color", tab == "play" and "#8a6522" or "#2a241d")
+  UI.setAttribute("tabTiles", "color", tab == "tiles" and "#8a6522" or "#2a241d")
+  UI.setAttribute("tabSetup", "color", tab == "setup" and "#8a6522" or "#2a241d")
   UI.setAttribute(
     "qvStatus",
     "text",
