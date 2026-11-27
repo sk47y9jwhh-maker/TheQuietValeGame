@@ -33,11 +33,15 @@ const local = JSON.parse(fs.readFileSync(localPath, "utf8"));
 assert(hosted.SnapPoints.length === 143, `Expected 143 snap points, got ${hosted.SnapPoints.length}`);
 
 // Check first 126 hex snap points lie strictly inside Map Board bounds
+const mapBoard = hosted.ObjectStates.find((o) => o.Nickname === "The Quiet Vale — Map Board");
+assert(mapBoard, "Missing Map Board object");
+const mapCx = mapBoard.Transform.posX;
+const mapCz = mapBoard.Transform.posZ;
 const halfW = (698.5 * 0.04) / 2;
 const halfH = (568.5 * 0.04) / 2;
 for (let i = 0; i < 126; i++) {
   const { x, z } = hosted.SnapPoints[i].Position;
-  assert(Math.abs(x) < halfW && Math.abs(z) < halfH, `Hex snap #${i} out of map bounds: (${x}, ${z})`);
+  assert(Math.abs(x - mapCx) < halfW && Math.abs(z - mapCz) < halfH, `Hex snap #${i} out of map bounds: (${x}, ${z})`);
 }
 
 // 2. Collect all objects (including contained) and verify counts
