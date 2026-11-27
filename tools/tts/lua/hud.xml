@@ -137,8 +137,8 @@
     <Text text="STEWARD'S GUIDE — CORE TILE MENU (v7.0)   |   W:Wood  St:Stone  M:Metal  F:Food  H:Herbs  G:Goods" fontSize="12" fontStyle="Bold" color="#ecd084" alignment="MiddleLeft" flexibleWidth="1" />
     <Button text="CLOSE" preferredWidth="68" minWidth="68" color="#6a2a24" onClick="onHudToggleTileMenu" />
   </HorizontalLayout>
-  <VerticalScrollView rectAlignment="UpperCenter" offsetXY="0 -38" height="578" color="#18151200" scrollSensitivity="35">
-    <VerticalLayout padding="8 8 8 8" spacing="4" childForceExpandHeight="false" childControlHeight="true" height="__QV_TILE_MENU_HEIGHT__">
+  <VerticalScrollView rectAlignment="UpperCenter" offsetXY="0 -38" width="752" height="578" color="#18151200" scrollSensitivity="35" horizontalScrollbarVisibility="AutoHideAndExpandViewport">
+    <VerticalLayout width="722" padding="8 8 8 8" spacing="4" childForceExpandHeight="false" childControlHeight="true" childForceExpandWidth="true" height="__QV_TILE_MENU_HEIGHT__">
 __QV_TILE_MENU_ROWS__
     </VerticalLayout>
   </VerticalScrollView>
