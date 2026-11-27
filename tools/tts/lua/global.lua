@@ -55,26 +55,26 @@ function buildControlPlaqueUI()
     click_function = "noop",
     function_owner = Global,
     label = "THE QUIET VALE v7.0\nSETUP BY PLAYER COUNT",
-    position = {0, 0.25, -0.74},
+    position = {0, 0.56, -0.34},
     width = 0,
     height = 0,
-    font_size = 110,
-    font_color = {0.92, 0.78, 0.44}
+    font_size = 70,
+    font_color = {0.94, 0.80, 0.46}
   })
 
   for p = 1, 5 do
-    local x = -0.84 + (p - 1) * 0.42
+    local x = -0.38 + (p - 1) * 0.19
     local fnName = "setupPlayers_" .. tostring(p)
     _G[fnName] = function() runSetup(p) end
     plaque.createButton({
       click_function = fnName,
       function_owner = Global,
       label = tostring(p) .. "P",
-      position = {x, 0.25, -0.32},
-      width = 185,
-      height = 180,
-      font_size = 115,
-      color = (state.playerCount == p) and {0.68, 0.52, 0.22} or {0.22, 0.20, 0.18},
+      position = {x, 0.56, -0.10},
+      width = 90,
+      height = 90,
+      font_size = 64,
+      color = (state.playerCount == p) and {0.68, 0.52, 0.22} or {0.26, 0.24, 0.22},
       font_color = {0.98, 0.94, 0.84},
       tooltip = "Setup " .. tostring(p) .. "-Player Game (Actions: " .. tostring(SETUP_RULES[p].actions) .. ", Warehouse: " .. tostring(SETUP_RULES[p].warehouse) .. ")"
     })
@@ -84,11 +84,11 @@ function buildControlPlaqueUI()
     click_function = "onEndRound",
     function_owner = Global,
     label = "END ROUND " .. tostring(state.round) .. " -> NEXT",
-    position = {0, 0.25, 0.22},
-    width = 960,
-    height = 200,
-    font_size = 92,
-    color = {0.26, 0.42, 0.30},
+    position = {0, 0.56, 0.14},
+    width = 450,
+    height = 96,
+    font_size = 52,
+    color = {0.26, 0.44, 0.30},
     font_color = {0.96, 0.94, 0.88},
     tooltip = "Clear X tokens from Map, advance Round Marker, and rotate Player 1 marker."
   })
@@ -97,12 +97,12 @@ function buildControlPlaqueUI()
     click_function = "onRotateP1",
     function_owner = Global,
     label = "ROTATE PLAYER 1 MARKER",
-    position = {0, 0.25, 0.64},
-    width = 960,
-    height = 150,
-    font_size = 76,
-    color = {0.30, 0.26, 0.22},
-    font_color = {0.92, 0.84, 0.66},
+    position = {0, 0.56, 0.35},
+    width = 450,
+    height = 78,
+    font_size = 44,
+    color = {0.32, 0.28, 0.24},
+    font_color = {0.94, 0.86, 0.68},
     tooltip = "Move Player 1 marker to the next player seat."
   })
 end
@@ -284,22 +284,22 @@ function buildUnlockPlaqueUI()
     click_function = "noop",
     function_owner = Global,
     label = "UNLOCK SPECIAL TILE",
-    position = {0, 0.25, -0.58},
+    position = {0, 0.56, -0.34},
     width = 0,
     height = 0,
-    font_size = 105,
-    font_color = {0.92, 0.78, 0.44}
+    font_size = 64,
+    font_color = {0.94, 0.80, 0.46}
   })
 
   plaque.createButton({
     click_function = "onUnlockPrev",
     function_owner = Global,
     label = "<",
-    position = {-0.62, 0.25, -0.05},
-    width = 200,
-    height = 200,
-    font_size = 150,
-    color = {0.24, 0.22, 0.20},
+    position = {-0.30, 0.56, -0.04},
+    width = 100,
+    height = 100,
+    font_size = 86,
+    color = {0.28, 0.26, 0.24},
     font_color = {0.95, 0.90, 0.80}
   })
 
@@ -307,11 +307,11 @@ function buildUnlockPlaqueUI()
     click_function = "noop",
     function_owner = Global,
     label = "#" .. tostring(state.unlockNum),
-    position = {0, 0.25, -0.05},
-    width = 360,
-    height = 200,
-    font_size = 150,
-    color = {0.14, 0.12, 0.10},
+    position = {0, 0.56, -0.04},
+    width = 175,
+    height = 100,
+    font_size = 86,
+    color = {0.10, 0.09, 0.08},
     font_color = {0.96, 0.88, 0.64}
   })
 
@@ -319,11 +319,11 @@ function buildUnlockPlaqueUI()
     click_function = "onUnlockNext",
     function_owner = Global,
     label = ">",
-    position = {0.62, 0.25, -0.05},
-    width = 200,
-    height = 200,
-    font_size = 150,
-    color = {0.24, 0.22, 0.20},
+    position = {0.30, 0.56, -0.04},
+    width = 100,
+    height = 100,
+    font_size = 86,
+    color = {0.28, 0.26, 0.24},
     font_color = {0.95, 0.90, 0.80}
   })
 
@@ -331,11 +331,11 @@ function buildUnlockPlaqueUI()
     click_function = "onUnlockTile",
     function_owner = Global,
     label = "UNLOCK #" .. tostring(state.unlockNum),
-    position = {0, 0.25, 0.52},
-    width = 860,
-    height = 190,
-    font_size = 100,
-    color = {0.58, 0.44, 0.18},
+    position = {0, 0.56, 0.28},
+    width = 420,
+    height = 100,
+    font_size = 58,
+    color = {0.60, 0.46, 0.18},
     font_color = {0.98, 0.95, 0.86},
     tooltip = "Pull Special Tile #" .. tostring(state.unlockNum) .. " from the reserve bag onto the Tiles Board (0 Actions to place)."
   })
