@@ -198,7 +198,11 @@ export function getBoonActionPreview(
     target
   ).slice(0, 1);
   const costModifierIds = selectCostModifierIds(state, matchingModifiers, target);
-  const zeroActionModifier = matchingModifiers.find((modifier) => modifier.zeroAction);
+  const isIntrinsicZeroAction =
+    target.action === "place" && target.kind === "special";
+  const zeroActionModifier = isIntrinsicZeroAction
+    ? undefined
+    : matchingModifiers.find((modifier) => modifier.zeroAction);
   const zeroResourceModifier = matchingModifiers.find(
     (modifier) => modifier.zeroResourceCost
   );
@@ -228,7 +232,7 @@ export function getBoonActionPreview(
 
   return {
     cost,
-    actionCost: zeroActionModifier ? 0 : 1,
+    actionCost: isIntrinsicZeroAction || zeroActionModifier ? 0 : 1,
     appliedModifierIds: [
       ...costModifierIds,
       ...(zeroActionModifier ? [zeroActionModifier.id] : []),
