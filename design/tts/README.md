@@ -19,7 +19,7 @@ Open Tabletop Simulator → **Games → Save & Load → The Quiet Vale: Seasons 
 
 Once this branch is merged to `main`, GitHub Pages deploys `public/tts/` to:
 
-- `https://sk47y9jwhh-maker.github.io/TheQuietValeGame/tts/The_Quiet_Vale_v7_0.json`
+- `https://thequietvalegame.com/tts/The_Quiet_Vale_v7_0.json`
 
 Anyone can download that single JSON file into their TTS `Saves/` folder and load the complete mod with zero local assets required.
 
