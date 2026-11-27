@@ -250,7 +250,10 @@ function activateTile(tileObj)
     broadcastToAll(tileObj.getName() .. " is OVERSTRAINED (3+ Strain) and cannot activate!", {0.96, 0.44, 0.40})
     return
   end
-  if #toks.cooldown > 0 then
+  -- Resource tiles with Linked Production can ALWAYS be activated again; Cooldown X only
+  -- marks that their once-per-round Linked Production bonus has already been used!
+  local hasCooldown = #toks.cooldown > 0
+  if hasCooldown and not rule.linked then
     broadcastToAll(tileObj.getName() .. " already has a Cooldown X token this round!", {0.96, 0.72, 0.42})
     return
   end
@@ -281,37 +284,47 @@ function activateTile(tileObj)
   end
   applyShrinesFor(id)
 
-  -- Mark primary tile with Cooldown X
-  spawnTokenOnTile(CONFIG.guids.cooldownXBag, tileObj, 0.55, -0.45)
-
-  -- Check Linked Production (adjacent non-Overstrained producers from same Core tile stack without Cooldown X)
+  -- Check Linked Production (only if this tile has NOT used Linked Production this round)
   local linkedCount = 0
-  if rule.linked and isOnMapBoard(tileObj.getPosition()) then
-    local p1 = tileObj.getPosition()
-    for _, other in ipairs(getAllObjects()) do
-      if other ~= tileObj and (other.getGMNotes() or "") == id and isOnMapBoard(other.getPosition()) then
-        local p2 = other.getPosition()
-        local dist = math.sqrt((p1.x - p2.x)^2 + (p1.z - p2.z)^2)
-        if dist <= 2.65 then
-          local oToks = getTokensOnTile(other)
-          if #oToks.strain < 3 and #oToks.cooldown == 0 then
-            local oUp = isTileUpgraded(other)
-            local oFace = oUp and rule.upgraded or rule.basic
-            addProd(oFace and oFace.prod)
-            applyShrinesFor(id)
-            spawnTokenOnTile(CONFIG.guids.cooldownXBag, other, 0.55, -0.45)
-            linkedCount = linkedCount + 1
+  if rule.linked then
+    if not hasCooldown and isOnMapBoard(tileObj.getPosition()) then
+      local p1 = tileObj.getPosition()
+      for _, other in ipairs(getAllObjects()) do
+        if other ~= tileObj and (other.getGMNotes() or "") == id and isOnMapBoard(other.getPosition()) then
+          local p2 = other.getPosition()
+          local dist = math.sqrt((p1.x - p2.x)^2 + (p1.z - p2.z)^2)
+          if dist <= 2.65 then
+            local oToks = getTokensOnTile(other)
+            if #oToks.strain < 3 and #oToks.cooldown == 0 then
+              local oUp = isTileUpgraded(other)
+              local oFace = oUp and rule.upgraded or rule.basic
+              addProd(oFace and oFace.prod)
+              applyShrinesFor(id)
+              spawnTokenOnTile(CONFIG.guids.cooldownXBag, other, 0.55, -0.45)
+              linkedCount = linkedCount + 1
+            end
           end
         end
       end
+      -- Only place Cooldown X on a resource tile when Linked Production actually triggered
+      if linkedCount > 0 then
+        spawnTokenOnTile(CONFIG.guids.cooldownXBag, tileObj, 0.55, -0.45)
+      end
     end
+  else
+    -- Non-linked tile: place Cooldown X for once-per-round tracking
+    spawnTokenOnTile(CONFIG.guids.cooldownXBag, tileObj, 0.55, -0.45)
   end
 
   local addedParts = addWarehouseResources(gains)
   spendAction(1)
 
   local msg = "Activated " .. faceName
-  if linkedCount > 0 then msg = msg .. " (+Linked x" .. tostring(linkedCount) .. ")" end
+  if linkedCount > 0 then
+    msg = msg .. " (+Linked x" .. tostring(linkedCount) .. ")"
+  elseif rule.linked and hasCooldown then
+    msg = msg .. " (solo — Linked Production already used this round)"
+  end
   if #addedParts > 0 then
     msg = msg .. ": " .. table.concat(addedParts, ", ")
   else
