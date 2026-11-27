@@ -357,7 +357,7 @@ P.push(page("7 · Placing Tiles", "Terrain, placement and adjacency", `
   <h3>Adjacency</h3>
   <p>Two Tiles are adjacent when their hexes share a side. Rules like &ldquo;adjacent to Housing&rdquo; or &ldquo;adjacent to River/Water&rdquo; always use side-sharing adjacency.</p>
   ${fig("fig-adjacency", [["ring", "I2"], ["ring", "I4"], ["ring", "H2"], ["ring", "H3"], ["ring", "J2"], ["ring", "J3"], ["cross", "K3"]], "The six gold-ringed hexes are adjacent to the Cabin. The Path and Cottage touch it; the Eatery does not.", "side")}
-  ${note("Shelter in the Ruins", "When a Tile&rsquo;s entire footprint lies on Ruins, ignore all Stone in its Place or Upgrade cost. If any part lies outside Ruins, pay the full cost.")}
+  ${note("Shelter in the Ruins", "When a Tile&rsquo;s entire footprint lies on Ruins, ignore all <b>Wood, Stone and Metal</b> in its Place or Upgrade cost (you still pay Food, Herbs and Goods). If any part lies outside Ruins, pay the full cost.")}
   <h3>Workshops &amp; Market Stalls (mark with an X token when used)</h3>
   <div class="cols2 tilepair">
     <div>${tileImg("c13_workshops-basic", "mini")}<p><b>Workshops / Makers Conclave (Passive, once/round):</b> Reduce an adjacent Core upgrade cost by 1 resource (Makers Conclave: any reachable Core upgrade by up to 2). Place an <b>X token</b> when used; remove it at round end.</p></div>

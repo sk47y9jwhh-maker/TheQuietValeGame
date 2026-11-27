@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { mapCells, ruinsHexIds } from "../data/map";
 import { createNewGame } from "../engine/setup";
-import { canPlaceTile, hasPotentialPlacementOption } from "../engine/placementRules";
+import { applyShelterInTheRuins, canPlaceTile, hasPotentialPlacementOption } from "../engine/placementRules";
 
 describe("placement validation", () => {
   it("rejects River/Water placement unless the tile permits it", () => {
@@ -46,20 +46,26 @@ describe("placement validation", () => {
     expect(result.ok).toBe(true);
   });
 
-  it("applies Shelter in the Ruins to a placement cost", () => {
+  it("applies Shelter in the Ruins to ignore Wood, Stone, and Metal in placement cost", () => {
     const state = createNewGame(1, ["warden"]);
     const ruinsHexId = ruinsHexIds[0];
     state.players[0].stewardHexId = ruinsHexId;
     state.warehouse = {
-      wood: 2,
+      wood: 0,
       stone: 0,
       metal: 0,
-      food: 0,
+      food: 8,
       herbs: 5,
       goods: 0
     };
 
     expect(canPlaceTile(state, "player_1", "c12_apothecary", ruinsHexId).ok).toBe(true);
+    expect(
+      applyShelterInTheRuins(
+        { wood: 3, stone: 4, metal: 6, food: 8, herbs: 5, goods: 2 },
+        [ruinsHexId]
+      )
+    ).toEqual({ wood: 0, stone: 0, metal: 0, food: 8, herbs: 5, goods: 2 });
   });
 
   it("rejects first placement away from the Steward starting hex", () => {
