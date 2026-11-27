@@ -48,10 +48,7 @@
       <Button id="btnSetup4" text="4P" color="#2e2922" onClick="onHudSetup(4)" tooltip="4P: 3 Actions, 0 Warehouse, 16/16/16 Encounters" />
       <Button id="btnSetup5" text="5P" color="#2e2922" onClick="onHudSetup(5)" tooltip="5P: 2 Actions, 0 Warehouse, 26/14/20 Encounters" />
     </HorizontalLayout>
-    <HorizontalLayout minHeight="24" preferredHeight="24" spacing="4">
-      <Button id="btnQuickSeed" text="QUICK-SEED" flexibleWidth="1" fontSize="10" color="#3c3428" onClick="onHudQuickSeed" tooltip="Merge dealt hands + draw pile into shuffled Encounter Deck" />
-      <Button text="SHUFFLE STEWARDS" preferredWidth="128" minWidth="128" fontSize="10" color="#3a3242" onClick="onHudShuffleStewards" tooltip="Randomly assign Stewards to active seats and place their meeples on Starting Terrain" />
-    </HorizontalLayout>
+    <Button id="btnQuickSeed" text="QUICK-SEED ENCOUNTER DECK" minHeight="24" preferredHeight="24" fontSize="10" color="#3c3428" onClick="onHudQuickSeed" tooltip="Merge dealt hands + draw pile into shuffled Encounter Deck" />
 
     <!-- Round Flow Actions -->
     <Text text="ROUND FLOW (RIGHT-CLICK TILES &amp; CARDS)" fontSize="10" fontStyle="Bold" color="#c9a862" minHeight="14" preferredHeight="14" />
@@ -199,4 +196,26 @@ __QV_TILE_MENU_ROWS__
       <Button text="BROADCAST TO CHAT" flexibleWidth="1" color="#6c5222" onClick="onHudBroadcastScore" />
     </HorizontalLayout>
   </VerticalLayout>
+</Panel>
+
+<!-- Placement Warning / Alert Banner (! badge at top-center, auto-hides after 6s) -->
+<Panel id="qvAlertBanner"
+       active="false"
+       rectAlignment="UpperCenter"
+       offsetXY="0 -66"
+       width="540"
+       height="58"
+       color="#361814F5"
+       outline="#e89a38"
+       outlineSize="2 -2">
+  <HorizontalLayout padding="10 10 6 6" spacing="10" childForceExpandWidth="false">
+    <Panel preferredWidth="36" minWidth="36" preferredHeight="36" color="#d97a1e" outline="#f8d890" outlineSize="1 -1">
+      <Text text="!" fontSize="24" fontStyle="Bold" color="#18120c" alignment="MiddleCenter" />
+    </Panel>
+    <VerticalLayout flexibleWidth="1" spacing="2" childForceExpandHeight="false">
+      <Text id="qvAlertTitle" text="PLACEMENT WARNING" fontSize="12" fontStyle="Bold" color="#f5b858" alignment="MiddleLeft" />
+      <Text id="qvAlertBody" text="Tile cannot be placed here." fontSize="11" color="#f8eee0" alignment="MiddleLeft" />
+    </VerticalLayout>
+    <Button text="X" preferredWidth="28" minWidth="28" color="#5a2620" onClick="onHudDismissAlert" tooltip="Dismiss warning" />
+  </HorizontalLayout>
 </Panel>
