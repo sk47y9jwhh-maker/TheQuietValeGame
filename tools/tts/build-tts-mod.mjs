@@ -375,7 +375,7 @@ function makePdf({ guid = nextGuid(), name, pdfUrl, pos }) {
   return {
     GUID: guid,
     Name: "Custom_PDF",
-    Transform: makeTransform(pos, [0, 180, 0], [1.9, 1.0, 1.9]),
+    Transform: makeTransform(pos, [0, 180, 0], [2.25, 1.0, 2.25]),
     Nickname: name,
     Description: "Official 36-page Rulebook v7.0 (1–5 Players).",
     GMNotes: "",
@@ -942,26 +942,12 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     );
   });
 
-  // 8. Control Plaques (centered in bottom-right quadrant beside Tiles Board) + Rulebook PDF (bottom-right corner)
-  const controlPlaqueGuid = nextGuid();
-  const unlockPlaqueGuid = nextGuid();
+  // 8. Rulebook v7.0 PDF (centered cleanly in bottom-right quadrant beside Tiles Board)
   objects.push(
-    makePlaque({
-      guid: controlPlaqueGuid,
-      name: "Game Setup & Round Control",
-      pos: [20.0, 1.12, -3.9],
-      scale: [6.4, 0.24, 3.6]
-    }),
-    makePlaque({
-      guid: unlockPlaqueGuid,
-      name: "Special Tile Unlock Helper",
-      pos: [20.0, 1.12, -7.2],
-      scale: [6.4, 0.24, 2.3]
-    }),
     makePdf({
       name: "The Quiet Vale — Rulebook v7.0 (36 pages)",
       pdfUrl,
-      pos: [21.6, 1.25, -14.8]
+      pos: [20.0, 1.25, -5.2]
     })
   );
 
@@ -1073,8 +1059,6 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   // 11. Inject exact GUIDs & coordinates into global.lua
   const luaConfig = {
     guids: {
-      controlPlaque: controlPlaqueGuid,
-      unlockPlaque: unlockPlaqueGuid,
       warehouseCounters: warehouseCounterGuids,
       targetDeck: targetDeckGuid,
       questDeck: questDeckGuid,
