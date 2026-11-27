@@ -6,7 +6,8 @@ import {
   X
 } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { getStartingWarehouseAmount } from "../../engine/setup";
+import { getEncounterPoolCounts, getStartingWarehouseAmount } from "../../engine/setup";
+import { actionsPerTurn } from "../../engine/season";
 import { resourceLabels, resources, warehouseCap } from "../../data/resources";
 import { stewardById, stewards } from "../../data/stewards";
 import { terrainLabels } from "../../data/map";
@@ -68,6 +69,8 @@ export function SetupPanel({
     .map((stewardId) => stewardById[stewardId])
     .filter(Boolean);
   const startingResources = getStartingWarehouseAmount(playerCount);
+  const encounterCounts = getEncounterPoolCounts(playerCount);
+  const turnActions = actionsPerTurn(playerCount);
   const playerLabel = `${playerCount} Player${playerCount === 1 ? "" : "s"}`;
   const questCard = questCardNumber ? questCardByNumber[questCardNumber] : undefined;
   const selectedGoldenTile = availableGoldenTiles.find(
@@ -281,7 +284,9 @@ export function SetupPanel({
             </div>
             <div className="detail-stack">
               <strong>Encounter Deal</strong>
-              <span>4/4/4 cards per player</span>
+              <span>
+                {encounterCounts.boons} Boons / {encounterCounts.burdens} Burdens / {encounterCounts.arrivals} Arrivals · {turnActions} actions/turn
+              </span>
             </div>
           </div>
         </section>

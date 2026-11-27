@@ -18,10 +18,28 @@ import type {
 const startingWarehouseByPlayerCount: Record<PlayerCount, number> = {
   1: 15,
   2: 10,
-  3: 5,
+  3: 8,
   4: 0,
   5: 0
 };
+
+export interface EncounterPoolCounts {
+  boons: number;
+  burdens: number;
+  arrivals: number;
+}
+
+const encounterPoolCountsByPlayerCount: Record<PlayerCount, EncounterPoolCounts> = {
+  1: { boons: 5, burdens: 3, arrivals: 4 },
+  2: { boons: 8, burdens: 8, arrivals: 8 },
+  3: { boons: 12, burdens: 12, arrivals: 12 },
+  4: { boons: 16, burdens: 16, arrivals: 16 },
+  5: { boons: 26, burdens: 14, arrivals: 20 }
+};
+
+export function getEncounterPoolCounts(playerCount: PlayerCount): EncounterPoolCounts {
+  return encounterPoolCountsByPlayerCount[playerCount];
+}
 
 interface EncounterSetupOptions {
   encounterSeed?: string;
@@ -73,28 +91,31 @@ export function buildEncounterPool(
   playerCount: PlayerCount,
   encounterSeed?: string
 ): string[] {
-  const perType = playerCount * 4;
+  const counts = getEncounterPoolCounts(playerCount);
   const normalizedSeed = encounterSeed?.trim();
   const random = normalizedSeed
     ? createSeededRandom(`${normalizedSeed}:${playerCount}`)
     : null;
   const selectedBoons = random
-    ? shuffleWithSeed(boons.map((card) => card.id), random).slice(0, perType)
-    : boons.slice(0, perType).map((card) => card.id);
+    ? shuffleWithSeed(boons.map((card) => card.id), random).slice(0, counts.boons)
+    : boons.slice(0, counts.boons).map((card) => card.id);
   const selectedBurdens = random
-    ? shuffleWithSeed(burdens.map((card) => card.id), random).slice(0, perType)
-    : burdens.slice(0, perType).map((card) => card.id);
+    ? shuffleWithSeed(burdens.map((card) => card.id), random).slice(0, counts.burdens)
+    : burdens.slice(0, counts.burdens).map((card) => card.id);
   const selectedArrivals = random
-    ? shuffleWithSeed(arrivals.map((card) => card.id), random).slice(0, perType)
-    : arrivals.slice(0, perType).map((card) => card.id);
+    ? shuffleWithSeed(arrivals.map((card) => card.id), random).slice(0, counts.arrivals)
+    : arrivals.slice(0, counts.arrivals).map((card) => card.id);
   const pool: string[] = [];
 
   if (random) {
     return shuffleWithSeed([...selectedBoons, ...selectedBurdens, ...selectedArrivals], random);
   }
 
-  for (let index = 0; index < perType; index += 1) {
-    pool.push(selectedBoons[index], selectedBurdens[index], selectedArrivals[index]);
+  const maxCount = Math.max(counts.boons, counts.burdens, counts.arrivals);
+  for (let index = 0; index < maxCount; index += 1) {
+    if (index < selectedBoons.length) pool.push(selectedBoons[index]);
+    if (index < selectedBurdens.length) pool.push(selectedBurdens[index]);
+    if (index < selectedArrivals.length) pool.push(selectedArrivals[index]);
   }
 
   return pool;

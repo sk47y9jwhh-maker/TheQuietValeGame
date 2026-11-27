@@ -4,6 +4,7 @@ import {
   buildEncounterPool,
   createNewGame,
   dealEncounterSetup,
+  getEncounterPoolCounts,
   getStartingWarehouseAmount
 } from "../engine/setup";
 import {
@@ -72,7 +73,7 @@ describe("setup and round authority", () => {
   it("sets starting warehouse by player count", () => {
     expect(getStartingWarehouseAmount(1)).toBe(15);
     expect(getStartingWarehouseAmount(2)).toBe(10);
-    expect(getStartingWarehouseAmount(3)).toBe(5);
+    expect(getStartingWarehouseAmount(3)).toBe(8);
     expect(getStartingWarehouseAmount(4)).toBe(0);
     expect(getStartingWarehouseAmount(5)).toBe(0);
   });
@@ -84,23 +85,28 @@ describe("setup and round authority", () => {
   });
 
   it.each(supportedPlayerCounts)(
-    "builds a balanced 4/4/4 standard Encounter pool for %s player(s)",
+    "builds the balanced standard Encounter pool for %s player(s)",
     (playerCount) => {
-      const pool = buildEncounterPool(playerCount, `QV-AUTHORITY-${playerCount}`);
+      const expected = getEncounterPoolCounts(playerCount);
+      const seededPool = buildEncounterPool(playerCount, `QV-AUTHORITY-${playerCount}`);
+      const unseededPool = buildEncounterPool(playerCount);
 
-      expect(pool).toHaveLength(playerCount * 12);
-      expect(countEncounterTypes(pool)).toEqual({
-        boon: playerCount * 4,
-        burden: playerCount * 4,
-        arrival: playerCount * 4,
-        goldenBoon: 0
-      });
+      for (const pool of [seededPool, unseededPool]) {
+        expect(pool).toHaveLength(playerCount * 12);
+        expect(countEncounterTypes(pool)).toEqual({
+          boon: expected.boons,
+          burden: expected.burdens,
+          arrival: expected.arrivals,
+          goldenBoon: 0
+        });
+      }
     }
   );
 
   it.each(supportedPlayerCounts)(
     "deals every selected standard Encounter Card for %s player(s)",
     (playerCount) => {
+      const expected = getEncounterPoolCounts(playerCount);
       const playerIds = Array.from(
         { length: playerCount },
         (_, index) => `player_${index + 1}`
@@ -117,9 +123,9 @@ describe("setup and round authority", () => {
       expect(dealt).toHaveLength(playerCount * 12);
       expect(new Set(dealt).size).toBe(dealt.length);
       expect(countEncounterTypes(dealt)).toEqual({
-        boon: playerCount * 4,
-        burden: playerCount * 4,
-        arrival: playerCount * 4,
+        boon: expected.boons,
+        burden: expected.burdens,
+        arrival: expected.arrivals,
         goldenBoon: 0
       });
     }
@@ -154,12 +160,13 @@ describe("setup and round authority", () => {
     expect(Object.values(state.warehouse).every((amount) => amount === 0)).toBe(true);
   });
 
-  it("gives 4 actions per turn at 1 to 3 players and 3 at 4 to 5 players", () => {
-    expect(supportedPlayerCounts.map((count) => actionsPerTurn(count))).toEqual([4, 4, 4, 3, 3]);
+  it("gives 4 actions per turn at 1–2 players, 3 at 3–4 players, and 2 at 5 players", () => {
+    const expectedActions = [4, 4, 3, 3, 2];
+    expect(supportedPlayerCounts.map((count) => actionsPerTurn(count))).toEqual(expectedActions);
     const stewardIds = ["vanguard", "knight", "sentinel", "ranger", "warden"];
-    for (const count of supportedPlayerCounts) {
+    for (const [index, count] of supportedPlayerCounts.entries()) {
       const state = createNewGame(count, stewardIds.slice(0, count), { encounterSeed: `QV-ACTIONS-${count}` });
-      expect(state.actionsRemaining).toBe(count >= 4 ? 3 : 4);
+      expect(state.actionsRemaining).toBe(expectedActions[index]);
     }
   });
 

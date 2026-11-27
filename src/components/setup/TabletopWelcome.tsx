@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { ArrowRight, BookOpen, ChevronDown, Download, Play, Users, Youtube } from "lucide-react";
-import { getStartingWarehouseAmount } from "../../engine/setup";
+import { getEncounterPoolCounts, getStartingWarehouseAmount } from "../../engine/setup";
+import { actionsPerTurn } from "../../engine/season";
 import { terrainLabels } from "../../data/map";
 import { stewardById, stewards } from "../../data/stewards";
 import { LegacySetupOptions } from "./LegacySetupOptions";
@@ -36,6 +37,8 @@ export function TabletopWelcome(props: SetupPanelProps) {
     return () => window.clearTimeout(timer);
   }, []);
   const startingResources = getStartingWarehouseAmount(playerCount);
+  const encounterCounts = getEncounterPoolCounts(playerCount);
+  const turnActions = actionsPerTurn(playerCount);
   const selectedStewards = stewardIds.slice(0, playerCount).map((id) => stewardById[id]);
 
   return (
@@ -92,7 +95,9 @@ export function TabletopWelcome(props: SetupPanelProps) {
 
           <LegacySetupOptions {...props} />
           <div className="welcome-start">
-            <p>The Warehouse starts with {startingResources} of each resource. A game is 12 rounds over 3 Seasons.</p>
+            <p>
+              The Warehouse starts with {startingResources} of each resource, {turnActions} actions per turn, and {encounterCounts.boons} Boons / {encounterCounts.burdens} Burdens / {encounterCounts.arrivals} Arrivals. A game is 12 rounds over 3 Seasons.
+            </p>
             <button className="studio-primary" type="button" onClick={onStart}>Begin your settlement</button>
             <small>Next: choose a starting place on the map.</small>
           </div>

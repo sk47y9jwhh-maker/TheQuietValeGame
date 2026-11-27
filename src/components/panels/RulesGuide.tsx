@@ -66,15 +66,14 @@ const rules: RuleReferenceCard[] = [
           "Lay out the Game Map, Stewards Board, Warehouse, Core Tile supply basic-side up, Special Tiles, and tokens. Put the Round marker on 1.",
           "Shuffle all 30 Target Cards face down. Do not create a discard pile and do not reshuffle during play.",
           "Each player chooses a different Steward. At five players, choose any five of the six Stewards. The unchosen Steward is not used.",
-          "Start with 15 / 10 / 5 / 0 / 0 of every resource at 1 / 2 / 3 / 4 / 5 players. The normal Warehouse maximum is 15 of each."
+          "Start with 15 / 10 / 8 / 0 / 0 of every resource at 1 / 2 / 3 / 4 / 5 players. The normal Warehouse maximum is 15 of each."
         ]
       },
       {
         title: "Encounter material",
         bullets: [
-          "For each player, select 4 Boons, 4 Burdens, and 4 Arrivals. Shuffle them into one 12-card-per-player standard pool.",
-          "Deal 9 hidden cards to each player. The remaining 3 selected standard cards per player form the starting Encounter Deck.",
-          "At five players, select 20 cards of each standard type, deal 45 cards, and begin with a 15-card Encounter Deck.",
+          "Select standard Encounters by player count (12 cards per player): 1p: 5 Boons, 3 Burdens, 4 Arrivals · 2p: 8 / 8 / 8 · 3p: 12 / 12 / 12 · 4p: 16 / 16 / 16 · 5p: 26 Boons, 14 Burdens, 20 Arrivals.",
+          "Shuffle the selected cards into one standard pool. Deal 9 hidden cards to each player. The remaining 3 cards per player form the starting Encounter Deck.",
           "Return every unselected standard Encounter to the box as the reserve. Players may not inspect it unless an effect says so."
         ]
       },
@@ -116,7 +115,7 @@ const rules: RuleReferenceCard[] = [
         title: "Every round",
         bullets: [
           "Reveal until the number of standard Encounters revealed equals the player count. Resolve every mandatory reveal effect before turns begin.",
-          "Turns go round the table from the first player, who moves one seat along every round, so everyone takes a turn going first. Every player takes exactly one turn with up to 4 Actions (3 Actions with 4 or 5 players) and may end their turn early.",
+          "Turns go round the table from the first player, who moves one seat along every round, so everyone takes a turn going first. Every player takes exactly one turn with up to 4 Actions at 1–2 players, 3 Actions at 3–4 players, or 2 Actions at 5 players, and may end their turn early.",
           "After all turns, remove 1 timer from every active Arrival and resolve each expiry.",
           "Remove every X token, discard effects whose duration ends, refresh round-based effects, and advance the Round marker."
         ]
@@ -128,7 +127,7 @@ const rules: RuleReferenceCard[] = [
     category: "Actions",
     page: "8–10",
     title: "Your turn and your Actions",
-    summary: "Spend up to 4 Actions (3 with 4 or 5 players) to Place, Upgrade, Activate, or Interact. Repeat any Action while it remains legal.",
+    summary: "Spend up to 4 Actions at 1–2 players, 3 at 3–4 players, or 2 at 5 players to Place, Upgrade, Activate, or Interact. Repeat any Action while it remains legal.",
     sections: [
       {
         title: "The four Actions",
@@ -429,11 +428,11 @@ const rules: RuleReferenceCard[] = [
       {
         title: "Teach in layers",
         bullets: [
-          "Orient: show the shared score, Warehouse, and Actions per turn (4, or 3 with 4 or 5 players).",
+          "Orient: show the shared score, Warehouse, and Actions per turn (4 at 1–2 players, 3 at 3–4 players, 2 at 5 players).",
           "Choose Stewards: identify each Token, Starting Terrain, Power, and Objective.",
           "Seed: each player chooses one hidden card for the top, middle, and bottom.",
           "Reveal: show the required standard Encounters and finish every mandatory effect.",
-          "Order and play: the first player moves one seat along each round. Each player takes one turn with up to 4 Actions, or 3 with 4 or 5 players.",
+          "Order and play: the first player moves one seat along each round. Each player takes one turn with up to 4 Actions (1–2p), 3 Actions (3–4p), or 2 Actions (5p).",
           "Upkeep: resolve Arrival timers and failures, clean up, refresh, and advance the Round marker."
         ]
       }
@@ -465,7 +464,7 @@ const rules: RuleReferenceCard[] = [
       {
         title: "Limits and penalties",
         bullets: [
-          "Warehouse maximum: 15 of each resource. Starting amounts: 15 / 10 / 5 / 0 / 0 for 1–5 players.",
+          "Warehouse maximum: 15 of each resource. Starting amounts: 15 / 10 / 8 / 0 / 0 for 1–5 players.",
           "Unlocked Special Tiles use a normal Place Action, follow their placement rule, and cost 0 resources.",
           "Each active Burden, failed Arrival, and Strain token costs 10 Renown. Active Arrivals do not reduce the final score."
         ]
@@ -591,7 +590,7 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
                 <strong>Set up once</strong>
                 <p>
                   Choose unique Stewards, prepare the standard Encounter pool, and place each Token
-                  on its allowed terrain. Fill the Warehouse with 15 / 10 / 5 / 0 / 0 of each
+                  on its allowed terrain. Fill the Warehouse with 15 / 10 / 8 / 0 / 0 of each
                   resource for 1–5 players.
                 </p>
               </div>
@@ -626,7 +625,7 @@ export function RulesGuide({ gameStatus }: RulesGuideProps) {
                 <strong>Take turns round the table</strong>
                 <p>
                   The first player moves one seat along each round, so everyone gets to go first. Going round from them, every player takes one turn of
-                  up to 4 Actions (3 with 4 or 5 players): Place, Upgrade, Activate, or Interact.
+                  up to 4 Actions (1–2p), 3 Actions (3–4p), or 2 Actions (5p): Place, Upgrade, Activate, or Interact.
                 </p>
               </div>
             </article>
