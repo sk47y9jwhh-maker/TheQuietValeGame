@@ -372,7 +372,7 @@ function makePdf({ guid = nextGuid(), name, pdfUrl, pos }) {
   return {
     GUID: guid,
     Name: "Custom_PDF",
-    Transform: makeTransform(pos, [0, 180, 0], [2.4, 1.0, 2.4]),
+    Transform: makeTransform(pos, [0, 180, 0], [1.9, 1.0, 1.9]),
     Nickname: name,
     Description: "Official 36-page Rulebook v7.0 (1–5 Players).",
     GMNotes: "",
@@ -445,13 +445,15 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   const roundSockets = computeRoundSockets();
   const objects = [];
 
-  // 1. Four Leather-and-Brass Boards (locked, exact physical aspect ratios via stretch: true)
+  // 1. Four Leather-and-Brass Boards (locked)
+  // In TTS Custom_Tile Type 0 with Stretch: true, world height = 2*scaleZ and
+  // world width = 2*scaleX*(imgW/imgH), so scaleX = scaleZ = H_world/2 gives exact 1:1 physical proportions!
   objects.push(
     makeCustomTile({
       name: "The Quiet Vale — Map Board",
       description: "14x9 flat-top hex map with 3-Season / 12-Round tracker.",
       pos: POS.mapBoard,
-      scale: [(MAP_BOARD_MM.w * MM) / 2, 1.0, (MAP_BOARD_MM.h * MM) / 2],
+      scale: [(MAP_BOARD_MM.h * MM) / 2, 1.0, (MAP_BOARD_MM.h * MM) / 2],
       imageUrl: asset("boards/map-board.jpg"),
       type: 0,
       thickness: 0.14,
@@ -462,7 +464,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       name: "Encounter Board",
       description: "Encounter draw well, In Play tray, and Discard well.",
       pos: POS.encounterBoard,
-      scale: [(LONG_BOARD_MM.w * MM) / 2, 1.0, (LONG_BOARD_MM.h * MM) / 2],
+      scale: [(LONG_BOARD_MM.h * MM) / 2, 1.0, (LONG_BOARD_MM.h * MM) / 2],
       imageUrl: asset("boards/encounter-board.jpg"),
       type: 0,
       thickness: 0.14,
@@ -473,7 +475,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       name: "Logistics & Warehouse Board",
       description: "15-card Target Deck well, 6-resource Warehouse (cap 15), and Token tray.",
       pos: POS.logisticsBoard,
-      scale: [(LONG_BOARD_MM.w * MM) / 2, 1.0, (LONG_BOARD_MM.h * MM) / 2],
+      scale: [(LONG_BOARD_MM.h * MM) / 2, 1.0, (LONG_BOARD_MM.h * MM) / 2],
       imageUrl: asset("boards/logistics-board.jpg"),
       type: 0,
       thickness: 0.14,
@@ -484,7 +486,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       name: "Tiles & Quest Board",
       description: "Quest Card well, Unlocked Special Tiles tray, and 5 Core Tile bays.",
       pos: POS.tilesBoard,
-      scale: [(TILES_BOARD_MM.w * MM) / 2, 1.0, (TILES_BOARD_MM.h * MM) / 2],
+      scale: [(TILES_BOARD_MM.h * MM) / 2, 1.0, (TILES_BOARD_MM.h * MM) / 2],
       imageUrl: asset("boards/tiles-board.jpg"),
       type: 0,
       thickness: 0.14,
@@ -683,8 +685,16 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   // Hex tile scale: 60mm * 0.04 = 2.40 point-to-point -> scaleX = scaleZ = 1.20
   const HEX_SCALE = [(60 * MM) / 2, 1.0, (60 * MM) / 2];
 
-  // Organize Core Tiles into the 5 bays along the lower portion of Tiles Board
-  // Bays: 0=resource, 1=merchant+crafting, 2=social+wellbeing, 3=housing, 4=travel
+  // Organize Core Tiles into 5 clean category bags along the 5 bays of the Tiles Board
+  // (avoids 21 overlapping stacks colliding on spawn while keeping every category one click away,
+  // and keeps the top Quest + Unlocked Special Tiles areas completely clear!)
+  const bayNames = [
+    ["Resource Core Tiles", { r: 0.31, g: 0.41, b: 0.28 }],
+    ["Merchant & Crafting Tiles", { r: 0.54, g: 0.43, b: 0.17 }],
+    ["Social & Wellbeing Tiles", { r: 0.48, g: 0.31, b: 0.42 }],
+    ["Housing Core Tiles", { r: 0.60, g: 0.36, b: 0.24 }],
+    ["Travel Core Tiles", { r: 0.48, g: 0.44, b: 0.35 }]
+  ];
   const bayForCategory = {
     resource: 0,
     merchant: 1,
@@ -704,16 +714,16 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
 
   bayBuckets.forEach((bucket, bayIdx) => {
     const bxMm = tileInnerL + bayW * (bayIdx + 0.5);
-    bucket.forEach((tile, slotIdx) => {
-      // Arrange neatly in 1-2 sub-rows inside the bay (and overflow cleanly just right of board if needed)
-      const yMm = 118 + slotIdx * 24;
-      const [wx, wz] = boardMmToWorld(POS.tilesBoard, TILES_BOARD_MM, bxMm, Math.min(yMm, 212));
+    const [wx, wz] = boardMmToWorld(POS.tilesBoard, TILES_BOARD_MM, bxMm, 168);
+    const [bagTitle, bagColor] = bayNames[bayIdx];
+    const contained = [];
+    for (const tile of bucket) {
       for (let c = 0; c < tile.count; c++) {
-        objects.push(
+        contained.push(
           makeCustomTile({
             name: `${tile.basic.name} / ${tile.upgraded.name}`,
             description: `Basic: ${tile.basic.effectText}\nUpgraded: ${tile.upgraded.effectText}`,
-            pos: [wx, 1.12 + c * 0.13, wz],
+            pos: [wx, 1.3 + c * 0.13, wz],
             scale: HEX_SCALE,
             imageUrl: asset(`tiles/${tile.id}-basic.jpg`),
             secondaryUrl: asset(`tiles/${tile.id}-upgraded.jpg`),
@@ -723,7 +733,16 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
           })
         );
       }
-    });
+    }
+    objects.push(
+      makeBag({
+        name: `${bagTitle} (${contained.length})`,
+        description: bucket.map((t) => `${t.basic.name} (×${t.count})`).join(", "),
+        pos: [wx, 1.18, wz],
+        color: bagColor,
+        contained
+      })
+    );
   });
 
   // Travel Extension hex tiles bag (for size-2/size-3 travel tiles)
@@ -732,7 +751,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     makeCustomTile({
       name: "Travel Extension",
       description: "Multi-hex extension for Path, Street, Track, Road, or Bridge (Basic / Upgraded).",
-      pos: [16.4, 1.3, -9.8],
+      pos: [17.0, 1.3, -10.0],
       scale: HEX_SCALE,
       imageUrl: asset("tiles/travel-extension-basic.jpg"),
       secondaryUrl: asset("tiles/travel-extension-upgraded.jpg"),
@@ -745,7 +764,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     makeBag({
       name: `Travel Extensions (${extCount})`,
       description: "Double-sided Travel Extension hexes (Basic / Upgraded).",
-      pos: [16.4, 1.15, -9.8],
+      pos: [17.0, 1.15, -10.0],
       color: { r: 0.45, g: 0.42, b: 0.34 },
       contained: extItems
     })
@@ -763,7 +782,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
           makeCustomTile({
             name: `#${num} ${t.name}`,
             description: `Special Tile #${num} (0 Actions to place once unlocked). ${t.effectText || ""}`,
-            pos: [19.4, 1.3, -9.8],
+            pos: [20.0, 1.3, -10.0],
             scale: HEX_SCALE,
             imageUrl: asset(`tiles/${t.id}.jpg`),
             secondaryUrl: asset(`tiles/special-back-${num}.jpg`),
@@ -780,7 +799,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       guid: specialBagGuid,
       name: "Special Tiles Reserve (#1–#26)",
       description: "All 26 numbered Special Tiles. Use the Unlock Special Tile plaque to pull #N onto the Tiles Board.",
-      pos: [19.4, 1.15, -9.8],
+      pos: [20.0, 1.15, -10.0],
       color: { r: 0.20, g: 0.24, b: 0.32 },
       contained: specialContained
     })
@@ -790,7 +809,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     makeCustomTile({
       name: t.name,
       description: `Golden Legacy Tile #${i + 1}. ${t.effectText || ""}\nScoring: ${t.scoringText || ""}`,
-      pos: [22.4, 1.3, -9.8],
+      pos: [23.0, 1.3, -10.0],
       scale: HEX_SCALE,
       imageUrl: asset(`tiles/${t.id}.jpg`),
       secondaryUrl: asset("tiles/golden-back.jpg"),
@@ -803,7 +822,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     makeBag({
       name: "Golden Tiles Reserve (5)",
       description: "5 Golden Legacy hex tiles.",
-      pos: [22.4, 1.15, -9.8],
+      pos: [23.0, 1.15, -10.0],
       color: { r: 0.76, g: 0.60, b: 0.22 },
       contained: goldenContained
     })
@@ -852,14 +871,14 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     quartermaster: { r: 0.61, g: 0.49, b: 0.20 }
   };
   stewards.forEach((s, idx) => {
-    const sx = -22.5 + idx * 7.8;
-    const sz = -15.2;
+    const sx = -22.0 + idx * 6.4;
+    const sz = -14.8;
     objects.push(
       makeCustomTile({
         name: `Steward: ${s.name}`,
         description: `Start: ${s.startingTerrains.join(", ")}\nPower: ${s.powerText}\nObjective (+${s.objectiveRenown}): ${s.objectiveText}`,
         pos: [sx, 1.18, sz],
-        scale: [3.4, 1.0, 2.27],
+        scale: [1.85, 1.0, 1.85],
         imageUrl: asset(`stewards/steward-${s.id}.jpg`),
         secondaryUrl: asset("stewards/steward-back.jpg"),
         type: 0,
@@ -869,32 +888,32 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       makePawn({
         name: `${s.name} Meeple`,
         description: `Place on starting terrain (${s.startingTerrains.join(", ")}).`,
-        pos: [sx, 1.5, sz + 1.5],
+        pos: [sx, 1.5, sz + 1.3],
         color: stewardColors[s.id]
       })
     );
   });
 
-  // 8. Control Plaques + Rulebook v7.0 PDF (neatly filling bottom-right quadrant beside Tiles Board)
+  // 8. Control Plaques (centered in bottom-right quadrant beside Tiles Board) + Rulebook PDF (bottom-right corner)
   const controlPlaqueGuid = nextGuid();
   const unlockPlaqueGuid = nextGuid();
   objects.push(
     makePlaque({
       guid: controlPlaqueGuid,
       name: "Game Setup & Round Control",
-      pos: [17.6, 1.12, -4.2],
-      scale: [5.6, 0.24, 3.8]
+      pos: [20.0, 1.12, -3.9],
+      scale: [6.4, 0.24, 3.6]
     }),
     makePlaque({
       guid: unlockPlaqueGuid,
       name: "Special Tile Unlock Helper",
-      pos: [17.6, 1.12, -7.7],
-      scale: [5.6, 0.24, 2.5]
+      pos: [20.0, 1.12, -7.2],
+      scale: [6.4, 0.24, 2.3]
     }),
     makePdf({
       name: "The Quiet Vale — Rulebook v7.0 (36 pages)",
       pdfUrl,
-      pos: [23.6, 1.25, -5.6]
+      pos: [21.6, 1.25, -14.8]
     })
   );
 
