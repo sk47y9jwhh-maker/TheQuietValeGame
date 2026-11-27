@@ -117,8 +117,8 @@ describe("bottom drawer", () => {
     expect(screen.getByText(/At 3 Strain, a Tile cannot activate/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "11. The Target Deck" }));
-    expect(screen.getByText(/Read preferences in order: Tile Class, Tile Side/)).toBeInTheDocument();
-    expect(screen.getByText(/Shuffle the 30-card Target Deck once during setup/)).toBeInTheDocument();
+    expect(screen.getByText(/Check the two rows in order \(unless already set by the triggering effect\): 1\. Tile/)).toBeInTheDocument();
+    expect(screen.getByText(/Shuffle the 15-card Target Deck once during setup/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "13. End of a Season" }));
     expect(screen.getByText(/Each Housing cluster gains 1 single-use Supported/)).toBeInTheDocument();

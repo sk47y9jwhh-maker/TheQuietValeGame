@@ -17,24 +17,16 @@ const glyph = (children: ReactNode, viewBox = "0 0 100 100") => <svg viewBox={vi
 const outline = { fill: "none", stroke: ink, strokeWidth: 7 };
 
 const glyphs = {
-  core: glyph(<Hex r={40} {...outline} />),
-  specialOrGolden: glyph(<><Hex r={40} {...outline} /><path d="M50 27 L56 43 L73 43 L59 53 L64 70 L50 60 L36 70 L41 53 L27 43 L44 43 Z" fill={ink} /></>),
   basic: glyph(<Hex r={40} {...outline} />),
   upgraded: glyph(<><Hex r={42} fill="none" stroke={ink} strokeWidth={6} /><Hex r={26} fill="none" stroke={ink} strokeWidth={6} /></>),
-  either: glyph(<><Hex r={42} fill="none" stroke={ink} strokeWidth={6} /><Hex r={26} fill="none" stroke={ink} strokeWidth={5} strokeDasharray="8 7" /></>),
-  ring: (filled: number) => glyph(<>
-    <Hex cx={60} cy={60} r={16} fill="none" stroke={ink} strokeWidth={5} />
-    {[0, 1, 2, 3, 4, 5].map((i) => {
-      const a = -Math.PI / 2 + (Math.PI / 3) * i;
-      return <Hex key={i} cx={60 + 31 * Math.cos(a)} cy={60 + 31 * Math.sin(a)} r={15} {...(i < filled ? { fill: ink } : { fill: "none", stroke: ink, strokeWidth: 3, strokeOpacity: 0.45 })} />;
-    })}
-  </>, "0 0 120 120"),
+  specialOrGolden: glyph(<><Hex r={40} {...outline} /><path d="M50 27 L56 43 L73 43 L59 53 L64 70 L50 60 L36 70 L41 53 L27 43 L44 43 Z" fill={ink} /></>),
   strained: glyph(<><circle cx={50} cy={50} r={34} fill="#1d1d1f" /><ellipse cx={40} cy={38} rx={12} ry={7} fill="#fff" fillOpacity={0.28} /></>),
   unstrained: glyph(<circle cx={50} cy={50} r={32} fill="none" stroke={ink} strokeWidth={5} strokeDasharray="9 8" />)
 };
 
 const vectors: Record<TargetCardDirection, [number, number]> = { N: [0, -1], NE: [Math.sqrt(3) / 2, -0.5], SE: [Math.sqrt(3) / 2, 0.5], S: [0, 1], SW: [-Math.sqrt(3) / 2, 0.5], NW: [-Math.sqrt(3) / 2, -0.5] };
 export const directionNames: Record<TargetCardDirection, string> = { N: "north", NE: "north-east", SE: "south-east", S: "south", SW: "south-west", NW: "north-west" };
+const directionTitles: Record<TargetCardDirection, string> = { N: "North", NE: "North-East", SE: "South-East", S: "South", SW: "South-West", NW: "North-West" };
 
 /**
  * The tie, as on the printed card: a small board outline (N marked), one arrow
@@ -70,15 +62,13 @@ interface TargetCardProps {
   sizes?: string;
 }
 
-/** A Target Card as printed: the silver front, four preference rows and the tie. */
+/** A Target Card as printed: the silver front, two preference rows and the compass tie. */
 export function TargetCard({ card, className = "", sizes }: TargetCardProps) {
   const description = describeTargetCard(card);
   const open = isOpenTargetCard(card);
   const rows = [
-    ["Tile class", description.tileClass, card.tileClass === "any" ? null : glyphs[card.tileClass]],
-    ["Tile side", description.side, card.side === "any" ? null : glyphs[card.side]],
-    ["Adjacency", description.adjacency, card.adjacency === "any" ? null : glyphs.ring(card.adjacency === "threePlus" ? 3 : 2)],
-    ["Current Strain", description.strain, card.strain === "any" ? null : glyphs[card.strain]]
+    ["1. Tile", description.tile, card.tile === "any" ? null : glyphs[card.tile]],
+    ["2. Current Strain", description.strain, card.strain === "any" ? null : glyphs[card.strain]]
   ] as const;
   return <CardFace
     kind="target"
@@ -89,6 +79,7 @@ export function TargetCard({ card, className = "", sizes }: TargetCardProps) {
     <div className="tface-glow" aria-hidden="true" />
     <p className="tface-type">Target</p>
     <h3 className="tface-title">Card {String(card.id).padStart(2, "0")}</h3>
+    <p className="tface-scope">Check eligible tiles only (unless set by the effect)</p>
     <div className="tface-rows">
       {rows.map(([label, value, mark]) => <section className="tface-row" key={label}>
         <p className="tface-label">{label}</p>
@@ -96,10 +87,10 @@ export function TargetCard({ card, className = "", sizes }: TargetCardProps) {
       </section>)}
     </div>
     {open || !card.direction
-      ? <section className="tface-outcome"><p className="tface-label">Open target</p><strong className="tface-big">Choose any eligible tile</strong><small className="tface-small">Keep to any limits set by the effect.</small></section>
-      : <section className="tface-outcome is-tied"><p className="tface-label">If still tied</p>
-        <div className="tface-tie"><TieDiagram direction={card.direction} /><div className="tface-tie-words"><strong className="tface-big">Take the tile the arrow points to</strong><small className="tface-small">among the tied tiles, <span className="tface-direction">{card.direction}</span></small></div></div>
+      ? <section className="tface-outcome"><p className="tface-label">Open target</p><strong className="tface-big">Players choose any eligible tile</strong><small className="tface-small">Keep to any limits set by the effect.</small></section>
+      : <section className="tface-outcome is-tied"><p className="tface-label">3. If still tied</p>
+        <div className="tface-tie"><TieDiagram direction={card.direction} /><div className="tface-tie-words"><strong className="tface-big">Closest to {directionTitles[card.direction]}</strong><small className="tface-small">among tied tiles (<span className="tface-direction">{card.direction}</span>)</small><span className="tface-still-tied">Still tied? Players choose.</span></div></div>
       </section>}
-    <p className="tface-foot">Work down the rows. Skip any row no tile matches.</p>
+    <p className="tface-foot">Stop as soon as 1 tile remains. Skip a row if none match.</p>
   </CardFace>;
 }

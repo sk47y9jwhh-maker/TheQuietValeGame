@@ -44,29 +44,31 @@ describe("Target Card UI", () => {
     expect(screen.getByRole("button", { name: /start season i/i })).toBeEnabled();
   });
 
-  it("renders the printed card face: four preference rows and the tie arrow", () => {
+  it("renders the printed card face: two preference rows and the tie arrow", () => {
     render(<TargetCard card={targetCardById[5]} />);
 
     expect(screen.getByRole("heading", { name: /card 05/i })).toBeInTheDocument();
-    expect(screen.getByText("3+ Neighbours")).toBeInTheDocument();
-    expect(screen.getByText("Work down the rows. Skip any row no tile matches.")).toBeInTheDocument();
+    expect(screen.getByText("Upgraded")).toBeInTheDocument();
+    expect(screen.getByText("Already Strained")).toBeInTheDocument();
+    expect(screen.getByText("Stop as soon as 1 tile remains. Skip a row if none match.")).toBeInTheDocument();
     expect(screen.getByText("SE")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Arrow pointing south-east" })).toBeInTheDocument();
-    expect(screen.getByText("Take the tile the arrow points to")).toBeInTheDocument();
+    expect(screen.getByText("Closest to South-East")).toBeInTheDocument();
+    expect(screen.getByText("Still tied? Players choose.")).toBeInTheDocument();
   });
 
-  it("capitalises Neighbours in the zero-to-two adjacency answer", () => {
+  it("renders Special / Golden on cards 9–12", () => {
     render(<TargetCard card={targetCardById[11]} />);
 
-    expect(screen.getByText("0–2 Neighbours")).toBeInTheDocument();
+    expect(screen.getByText("Special / Golden")).toBeInTheDocument();
   });
 
   it("renders Open cards without a tie arrow", () => {
-    render(<TargetCard card={targetCardById[25]} />);
+    render(<TargetCard card={targetCardById[13]} />);
 
-    expect(screen.getByRole("heading", { name: /card 25/i })).toBeInTheDocument();
-    expect(screen.getAllByText(/^any$/i)).toHaveLength(4);
-    expect(screen.getByText(/choose any eligible tile/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /card 13/i })).toBeInTheDocument();
+    expect(screen.getAllByText(/^any$/i)).toHaveLength(2);
+    expect(screen.getByText(/players choose any eligible tile/i)).toBeInTheDocument();
     expect(screen.queryByRole("img", { name: /Arrow pointing/ })).not.toBeInTheDocument();
   });
 
@@ -101,10 +103,10 @@ describe("Target Card UI", () => {
     expect(screen.getByRole("region", { name: /target card resolution/i })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /card 03/i })).toBeInTheDocument();
     expect(screen.getByText(/target 1/i)).toBeInTheDocument();
-    expect(screen.getByText("Work down the rows. Skip any row no tile matches.")).toBeInTheDocument();
+    expect(screen.getByText("Stop as soon as 1 tile remains. Skip a row if none match.")).toBeInTheDocument();
     expect(screen.getByText(/selected: path/i)).toBeInTheDocument();
     expect(screen.getByText(/supported will prevent 1 strain after selection/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/applied|ignored/i)).toHaveLength(4);
+    expect(screen.getAllByText(/applied|ignored/i)).toHaveLength(2);
     expect(screen.getByText(/prevented strain is not redirected/i)).toBeInTheDocument();
   });
 
@@ -116,7 +118,7 @@ describe("Target Card UI", () => {
       { ...tile("crafting", "H1"), tileId: "c13_workshops" },
       tile("unrelated", "J1")
     ];
-    state.targetCards.drawPile = [25, ...state.targetCards.drawPile.filter((id) => id !== 25)];
+    state.targetCards.drawPile = [13, ...state.targetCards.drawPile.filter((id) => id !== 13)];
     state.pendingEffects = [{
       id: "coin_any",
       ruleId: cardEffectRuleId("burden_coin_before_craft", 2),

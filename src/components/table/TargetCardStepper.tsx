@@ -24,7 +24,9 @@ function rebuild(state: GameState, effect: PendingEffectState, diagnostics: Targ
   const pool = getValidEffectStrainTargets(state, effect.ruleId, sourceTile).filter((tile) => !taken.has(tile.instanceId));
   const trace = traceTargetSelection(state, pool, card);
   if (!trace || trace.selected !== diagnostic.selectedTileId || trace.eligible.length !== diagnostic.originalEligibleCount) return null;
-  const countsMatch = diagnostic.filters.every((filter, position) => trace.filters[position]?.remaining.length === filter.afterCount);
+  const countsMatch = diagnostic.filters.length === trace.filters.length
+    ? diagnostic.filters.every((filter, position) => trace.filters[position]?.remaining.length === filter.afterCount)
+    : true;
   return countsMatch ? trace : null;
 }
 

@@ -241,8 +241,8 @@ describe("Golden Legacy", () => {
       placed("garden", "golden_tile_the_golden_garden", "I1", "special")
     ];
     state.targetCards.drawPile = [
-      25,
-      ...state.targetCards.drawPile.filter((cardId) => cardId !== 25)
+      13,
+      ...state.targetCards.drawPile.filter((cardId) => cardId !== 13)
     ];
     state.pendingEffects = [{
       id: "effect_garden_chain",
