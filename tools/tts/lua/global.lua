@@ -20,7 +20,14 @@ state = {
   unlockNum = 1,
   coreIdx = 1,
   hudCollapsed = false,
-  activeTargetGuid = ""
+  activeTargetGuid = "",
+  roundRevealed = false,
+  stewardOrder = { 1, 2, 3, 4, 5, 6 },
+  powerUsed = { false, false, false, false, false, false },
+  scoreQuest = false,
+  scoreObj = 0,
+  scoreGold = 0,
+  scoreFailedArrivals = 0
 }
 
 local SETUP_RULES = {
@@ -164,6 +171,7 @@ function attachObjectMenus(obj)
     obj.clearContextMenu()
     if erule.type == "arrival" then
       obj.addContextMenuItem("Welcome Arrival (Pay & Unlock)", function() resolveArrivalCard(obj) end)
+      obj.addContextMenuItem("+1 Arrival Timer (max 3)", function() addTimerToArrivalCard(obj) end)
     elseif erule.type == "burden" then
       obj.addContextMenuItem("Resolve Burden (Pay Season Cost)", function() resolveBurdenCard(obj) end)
     end
@@ -415,6 +423,36 @@ end
 -- ---------------------------------------------------------------------------
 -- Smart Encounter Card Resolution (Arrivals & Burdens)
 -- ---------------------------------------------------------------------------
+function addTimerToArrivalCard(cardObj)
+  local p = cardObj.getPosition()
+  local hits = Physics.cast({
+    origin = {p.x, p.y + 3, p.z},
+    direction = {0, -1, 0},
+    type = 3,
+    size = {2.1, 3.5, 3.2},
+    max_distance = 5
+  })
+  local count = 0
+  for _, hit in ipairs(hits) do
+    local o = hit.hit_object
+    if o and o.getName() == "Arrival Timer" and not o.getLock() then count = count + 1 end
+  end
+  if count >= 3 then
+    broadcastToAll(cardObj.getName() .. " already has the maximum 3 Arrival Timers!", {0.96, 0.78, 0.44})
+    return
+  end
+  local bag = getObjectFromGUID(CONFIG.guids.arrivalTimerBag)
+  if not bag then return end
+  local offsets = { {-0.62, 0.55, 0.95}, {0.0, 0.55, 0.95}, {0.62, 0.55, 0.95} }
+  local off = offsets[count + 1] or {0, 0.55, 0.95}
+  bag.takeObject({
+    position = {p.x + off[1], p.y + off[2], p.z + off[3]},
+    rotation = {0, 180, 0},
+    smooth = true
+  })
+  broadcastToAll("+1 Arrival Timer on " .. cardObj.getName() .. " (" .. tostring(count + 1) .. "/3).", {0.72, 0.92, 0.98})
+end
+
 function clearTimersOnCard(cardObj)
   local p = cardObj.getPosition()
   local hits = Physics.cast({
@@ -517,14 +555,67 @@ function onHudNextTurn()
   end
 end
 
-function onHudCalcScore()
-  local popTotal = 0
-  local renownTotal = 0
-  local strainTotal = 0
-  local workingTiles = 0
-  local overstrainedTiles = 0
-  local activeBurdens = 0
+function getSeatSteward(seatIdx)
+  local ord = state.stewardOrder or { 1, 2, 3, 4, 5, 6 }
+  local sIdx = ord[seatIdx] or seatIdx
+  return CONFIG.stewards[sIdx] or CONFIG.stewards[1], sIdx
+end
 
+function onHudUsePower()
+  local st, sIdx = getSeatSteward(state.currentTurnIdx)
+  if not state.powerUsed then state.powerUsed = { false, false, false, false, false, false } end
+  if state.powerUsed[sIdx] then
+    broadcastToAll(st.name .. " already used their Once-Per-Season Power this Season (refreshes next Season).", {0.96, 0.72, 0.44})
+    return
+  end
+  state.powerUsed[sIdx] = true
+  refreshHud()
+  broadcastToAll("STEWARD POWER USED — " .. st.name .. ": " .. (st.powerText or ""), {0.96, 0.86, 0.50})
+end
+
+function onHudShuffleStewards()
+  local ord = { 1, 2, 3, 4, 5, 6 }
+  for i = 6, 2, -1 do
+    local j = math.random(1, i)
+    ord[i], ord[j] = ord[j], ord[i]
+  end
+  state.stewardOrder = ord
+  local names = {}
+  for seat = 1, 6 do
+    local st = CONFIG.stewards[ord[seat]]
+    local pawn = st and getObjectFromGUID(st.pawnGuid)
+    if pawn then
+      if seat <= state.playerCount then
+        local hp = st.startHexPos
+        pawn.setPositionSmooth({hp[1], hp[2] + 0.5, hp[3]}, false, true)
+        pawn.setRotationSmooth({0, 180, 0}, false, true)
+        table.insert(names, string.format("Seat %d: %s (%s)", seat, st.name, st.startHexId))
+      else
+        pawn.setPositionSmooth({st.homePawnPos[1], st.homePawnPos[2], st.homePawnPos[3]}, false, true)
+      end
+    end
+  end
+  refreshHud()
+  broadcastToAll("Shuffled Stewards -> " .. table.concat(names, " | "), {0.86, 0.84, 0.98})
+end
+
+function onHudPullTravelExt()
+  local bag = getObjectFromGUID(CONFIG.guids.travelExtBag)
+  if not bag or bag.getQuantity() == 0 then
+    broadcastToAll("No Travel Extensions remain in supply.", {0.95, 0.72, 0.42})
+    return
+  end
+  local sp = CONFIG.positions.coreStaging
+  bag.takeObject({
+    position = {sp[1] + math.random(-4, 4) * 0.12, sp[2] + 0.6, sp[3] + math.random(-4, 4) * 0.12},
+    rotation = {0, 180, 0},
+    smooth = true
+  })
+  broadcastToAll("Pulled Travel Extension hex (Basic side up, press F to flip to Upgraded).", {0.86, 0.94, 0.80})
+end
+
+function scanTableScore()
+  local popTotal, renownTotal, strainTotal, workingTiles, overstrainedTiles, activeBurdens = 0, 0, 0, 0, 0, 0
   for _, obj in ipairs(getAllObjects()) do
     local p = obj.getPosition()
     local id = obj.getGMNotes() or ""
@@ -542,7 +633,6 @@ function onHudCalcScore()
     elseif obj.getName() == "Strain Token" and not obj.getLock() and isOnMapBoard(p) then
       strainTotal = strainTotal + 1
     elseif CONFIG.encounterRules[id] and CONFIG.encounterRules[id].type == "burden" then
-      -- Check if resting in Encounter Board IN PLAY zone
       for _, s in ipairs(CONFIG.positions.inPlaySlots) do
         if math.abs(p.x - s[1]) < 1.8 and math.abs(p.z - s[3]) < 2.2 then
           activeBurdens = activeBurdens + 1
@@ -551,17 +641,81 @@ function onHudCalcScore()
       end
     end
   end
+  return {
+    working = workingTiles, overstrained = overstrainedTiles,
+    pop = popTotal, renown = renownTotal,
+    strain = strainTotal, burdens = activeBurdens
+  }
+end
 
-  local strainPen = strainTotal * 10
-  local burdenPen = activeBurdens * 10
-  local subtotal = popTotal + renownTotal - strainPen - burdenPen
+function updateScoreModal()
+  local s = scanTableScore()
+  local questPts = state.scoreQuest and 20 or 0
+  local objPts = (state.scoreObj or 0) * 15
+  local goldPts = (state.scoreGold or 0) * 5
+  local failPen = (state.scoreFailedArrivals or 0) * 10
+  local total = s.pop + s.renown + questPts + objPts + goldPts - (s.strain * 10) - (s.burdens * 10) - failPen
+  UI.setAttribute("scMapSummary", "text", string.format("Working Tiles: %d  |  Overstrained: %d", s.working, s.overstrained))
+  UI.setAttribute("scAutoLines", "text", string.format("Population: +%d  |  Tile Renown: +%d\nStrain (%d): -%d  |  Active Burdens (%d): -%d", s.pop, s.renown, s.strain, s.strain * 10, s.burdens, s.burdens * 10))
+  UI.setAttribute("btnScQuest", "text", state.scoreQuest and "YES (+20)" or "NO (+0)")
+  UI.setAttribute("btnScQuest", "color", state.scoreQuest and "#2d5a36" or "#342e26")
+  UI.setAttribute("scObjVal", "text", string.format("%d (+%d)", state.scoreObj or 0, objPts))
+  UI.setAttribute("scGoldVal", "text", string.format("%d (+%d)", state.scoreGold or 0, goldPts))
+  UI.setAttribute("scFailVal", "text", string.format("%d (-%d)", state.scoreFailedArrivals or 0, failPen))
+  UI.setAttribute("scTotal", "text", "TOTAL SETTLEMENT SCORE: " .. tostring(total))
+  return s, total
+end
+
+function onHudOpenScoreSheet()
+  updateScoreModal()
+  UI.setAttribute("qvScoreModal", "active", "true")
+end
+
+function onHudCloseScoreSheet()
+  UI.setAttribute("qvScoreModal", "active", "false")
+end
+
+function onScoreToggleQuest()
+  state.scoreQuest = not state.scoreQuest
+  updateScoreModal()
+end
+
+function onScoreAdjObj(_, deltaStr)
+  local d = tonumber(deltaStr) or 0
+  state.scoreObj = math.max(0, math.min(state.playerCount, (state.scoreObj or 0) + d))
+  updateScoreModal()
+end
+
+function onScoreAdjGold(_, deltaStr)
+  local d = tonumber(deltaStr) or 0
+  state.scoreGold = math.max(0, math.min(5, (state.scoreGold or 0) + d))
+  updateScoreModal()
+end
+
+function onScoreAdjFail(_, deltaStr)
+  local d = tonumber(deltaStr) or 0
+  state.scoreFailedArrivals = math.max(0, (state.scoreFailedArrivals or 0) + d)
+  updateScoreModal()
+end
+
+function onHudRefreshScore()
+  updateScoreModal()
+end
+
+function onHudBroadcastScore()
+  local s, total = updateScoreModal()
   broadcastToAll(
     string.format(
-      "LIVE SCORE: %d pts | Working Tiles: %d (Overstrained: %d) | Pop: +%d | Tile Renown: +%d | Strain (%d): -%d | Active Burdens (%d): -%d | (Add +15/Steward Obj, +20 Quest, +5/Golden, -10/Failed Arrival)",
-      subtotal, workingTiles, overstrainedTiles, popTotal, renownTotal, strainTotal, strainPen, activeBurdens, burdenPen
+      "FINAL / LIVE SCORE: %d pts | Pop +%d, Tile Renown +%d, Quest +%d, Stewards +%d, Golden +%d | Strain -%d, Burdens -%d, Failed Arrivals -%d",
+      total, s.pop, s.renown, state.scoreQuest and 20 or 0, (state.scoreObj or 0) * 15, (state.scoreGold or 0) * 5,
+      s.strain * 10, s.burdens * 10, (state.scoreFailedArrivals or 0) * 10
     ),
     {0.96, 0.88, 0.54}
   )
+end
+
+function onHudCalcScore()
+  onHudOpenScoreSheet()
 end
 
 -- ---------------------------------------------------------------------------
@@ -638,20 +792,36 @@ function refreshHud()
   local _, seasonRoman = getSeason(state.round)
   local rules = SETUP_RULES[state.playerCount] or SETUP_RULES[2]
   UI.setAttribute("qvHudBody", "active", state.hudCollapsed and "false" or "true")
-  UI.setAttribute("qvHudRoot", "height", state.hudCollapsed and "36" or "672")
+  UI.setAttribute("qvHudRoot", "height", state.hudCollapsed and "36" or "712")
   UI.setAttribute("qvToggleBtn", "text", state.hudCollapsed and "+" or "-")
   UI.setAttribute(
     "qvStatus",
     "text",
     string.format("Season %s  |  Round %d/12  |  %dP (%d Act)", seasonRoman, state.round, state.playerCount, rules.actions)
   )
-  local st = CONFIG.stewards[state.currentTurnIdx]
+  local st, sIdx = getSeatSteward(state.currentTurnIdx)
   local stName = st and st.name or ("Seat " .. tostring(state.currentTurnIdx))
   UI.setAttribute(
     "qvTurnInfo",
     "text",
-    string.format("Seat %d (%s) · %d/%d Act", state.currentTurnIdx, stName, state.actionsLeft or rules.actions, rules.actions)
+    string.format("Seat %d (%s) · %d/%d", state.currentTurnIdx, stName, state.actionsLeft or rules.actions, rules.actions)
   )
+  local used = state.powerUsed and state.powerUsed[sIdx]
+  UI.setAttribute("qvPowerStatus", "text", used and (stName .. " Power: USED (next Season)") or (stName .. " Power: READY (1/Season)"))
+  UI.setAttribute("qvPowerStatus", "color", used and "#c89b6e" or "#a8d8a2")
+  UI.setAttribute("btnUsePower", "color", used and "#38322a" or "#355844")
+  UI.setAttribute("btnUsePower", "text", used and "USED" or "USE POWER")
+
+  if not state.roundRevealed then
+    UI.setAttribute("qvPhaseCue", "text", "Step 1: Click REVEAL ENCOUNTERS to start Round " .. tostring(state.round))
+    UI.setAttribute("btnRevealEnc", "color", "#b07c24")
+    UI.setAttribute("btnEndRound", "color", "#26422c")
+  else
+    UI.setAttribute("qvPhaseCue", "text", "Step 2: Take Actions -> NEXT TURN -> END ROUND")
+    UI.setAttribute("btnRevealEnc", "color", "#6e501c")
+    UI.setAttribute("btnEndRound", "color", "#30683c")
+  end
+
   for p = 1, 5 do
     UI.setAttribute("btnSetup" .. tostring(p), "color", (state.playerCount == p) and "#8a6624" or "#2e2922")
   end
@@ -687,6 +857,12 @@ function runSetup(playerCount)
   state.firstPlayerIdx = 1
   state.currentTurnIdx = 1
   state.actionsLeft = rules.actions
+  state.roundRevealed = false
+  state.powerUsed = { false, false, false, false, false, false }
+  state.scoreQuest = false
+  state.scoreObj = 0
+  state.scoreGold = 0
+  state.scoreFailedArrivals = 0
 
   for _, guid in ipairs(CONFIG.guids.warehouseCounters) do
     local c = getObjectFromGUID(guid)
@@ -694,11 +870,12 @@ function runSetup(playerCount)
   end
 
   local placedStewards = {}
-  for i = 1, 6 do
-    local st = CONFIG.stewards[i]
+  local ord = state.stewardOrder or { 1, 2, 3, 4, 5, 6 }
+  for seat = 1, 6 do
+    local st = CONFIG.stewards[ord[seat]]
     local pawn = st and getObjectFromGUID(st.pawnGuid)
     if pawn then
-      if i <= playerCount then
+      if seat <= playerCount then
         local hp = st.startHexPos
         pawn.setPositionSmooth({hp[1], hp[2] + 0.5, hp[3]}, false, true)
         pawn.setRotationSmooth({0, 180, 0}, false, true)
@@ -878,6 +1055,8 @@ function revealEncounters()
       break
     end
   end
+  state.roundRevealed = true
+  refreshHud()
 end
 
 -- ---------------------------------------------------------------------------
@@ -980,16 +1159,22 @@ function onEndRound()
   local ticked, expired = tickArrivalTimers()
   if state.round < 12 then
     state.round = state.round + 1
+    state.roundRevealed = false
     moveRoundMarker(state.round)
     state.firstPlayerIdx = (state.firstPlayerIdx % state.playerCount) + 1
     state.currentTurnIdx = state.firstPlayerIdx
     state.actionsLeft = (SETUP_RULES[state.playerCount] or SETUP_RULES[2]).actions
     movePlayer1Marker(state.firstPlayerIdx)
+    local seasonMsg = ""
+    if state.round == 5 then
+      state.powerUsed = { false, false, false, false, false, false }
+      seasonMsg = " — SEASON II BEGINS! All Steward powers refreshed (Burden cost now 5)."
+    elseif state.round == 9 then
+      state.powerUsed = { false, false, false, false, false, false }
+      seasonMsg = " — SEASON III BEGINS! All Steward powers refreshed (Burden cost now 7)."
+    end
     buildControlPlaqueUI()
     refreshHud()
-    local seasonMsg = ""
-    if state.round == 5 then seasonMsg = " — SEASON II BEGINS! Refresh Steward powers (Burden cost now 5)."
-    elseif state.round == 9 then seasonMsg = " — SEASON III BEGINS! Refresh Steward powers (Burden cost now 7)." end
     broadcastToAll(
       string.format("Round %d begins (cleared %d X, ticked %d timer(s), P1 -> Seat %d)%s",
         state.round, cleared, ticked, state.firstPlayerIdx, seasonMsg),
@@ -1216,6 +1401,15 @@ function resetTable()
   state.currentTurnIdx = 1
   state.actionsLeft = (SETUP_RULES[state.playerCount] or SETUP_RULES[2]).actions
   state.activeTargetGuid = ""
+  state.roundRevealed = false
+  state.powerUsed = { false, false, false, false, false, false }
+  state.scoreQuest = false
+  state.scoreObj = 0
+  state.scoreGold = 0
+  state.scoreFailedArrivals = 0
+  UI.setAttribute("qvScoreModal", "active", "false")
+  UI.setAttribute("qvTileMenuModal", "active", "false")
+  tileMenuOpen = false
   moveRoundMarker(1)
   movePlayer1Marker(1)
   buildControlPlaqueUI()
