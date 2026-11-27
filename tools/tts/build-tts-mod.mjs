@@ -610,7 +610,9 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   const warehouseCounterGuids = [];
   whOrder.forEach(([label, iconRel], i) => {
     const cxMm = innerL + colW * (i + 0.5);
-    const [wx, wz] = boardMmToWorld(POS.logisticsBoard, LONG_BOARD_MM, cxMm, LONG_BOARD_MM.h / 2);
+    // Seated below the colored stitch line (73mm) and above the debossed icon (125mm),
+    // leaving the entire upper tray (26mm..68mm) open for the 5x3 grid of 15 wooden discs!
+    const [wx, wz] = boardMmToWorld(POS.logisticsBoard, LONG_BOARD_MM, cxMm, 94);
     const guid = nextGuid();
     warehouseCounterGuids.push(guid);
     objects.push(
@@ -619,7 +621,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
         name: label,
         description: `Warehouse ${label} tracker (cap 15). Left-click +1, right-click -1.`,
         pos: [wx, 1.12, wz],
-        scale: [0.92, 1.0, 0.92],
+        scale: [0.68, 1.0, 0.68],
         imageUrl: asset(iconRel),
         type: 2,
         thickness: 0.12,
