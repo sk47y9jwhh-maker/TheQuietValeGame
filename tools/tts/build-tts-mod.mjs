@@ -1144,6 +1144,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       kind: "core",
       category: t.category,
       name: t.basic.name,
+      size: t.size || 1,
       linked: Boolean(t.basic.effectText && t.basic.effectText.includes("Linked Production")),
       placement: {
         terrain: t.placement?.terrain || [],
