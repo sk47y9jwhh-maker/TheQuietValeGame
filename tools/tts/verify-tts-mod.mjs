@@ -82,7 +82,7 @@ assert(decksByName["Burdens Reserve (30)"] === 30, `Expected 30 Burdens, got ${d
 assert(decksByName["Arrivals Reserve (25)"] === 25, `Expected 25 Arrivals, got ${decksByName["Arrivals Reserve (25)"]}`);
 assert(decksByName["Golden Boons (5)"] === 5, `Expected 5 Golden Boons, got ${decksByName["Golden Boons (5)"]}`);
 assert(stewardCount === 6, `Expected 6 Steward mats, got ${stewardCount}`);
-assert(pdfCount === 1, `Expected 1 Rulebook PDF, got ${pdfCount}`);
+assert(pdfCount === 6, `Expected 6 PDFs (1 Rulebook + 5 A6 Steward Guides), got ${pdfCount}`);
 assert(bagsByName["Golden Tiles Reserve (5)"] === 5, `Expected 5 Golden Tiles, got ${bagsByName["Golden Tiles Reserve (5)"]}`);
 assert(bagsByName["Special Tiles Reserve (#1–#26)"] >= 26, `Expected >=26 Special Tiles, got ${bagsByName["Special Tiles Reserve (#1–#26)"]}`);
 
