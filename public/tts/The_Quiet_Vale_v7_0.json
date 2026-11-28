@@ -15708,9 +15708,9 @@
         "rotX": 0,
         "rotY": 180,
         "rotZ": 0,
-        "scaleX": 1,
-        "scaleY": 1,
-        "scaleZ": 1
+        "scaleX": 0.58,
+        "scaleY": 0.58,
+        "scaleZ": 0.58
       },
       "Nickname": "Vanguard Meeple",
       "Description": "Place on starting terrain (woodland).",
@@ -15803,9 +15803,9 @@
         "rotX": 0,
         "rotY": 180,
         "rotZ": 0,
-        "scaleX": 1,
-        "scaleY": 1,
-        "scaleZ": 1
+        "scaleX": 0.58,
+        "scaleY": 0.58,
+        "scaleZ": 0.58
       },
       "Nickname": "Knight Meeple",
       "Description": "Place on starting terrain (arable).",
@@ -15898,9 +15898,9 @@
         "rotX": 0,
         "rotY": 180,
         "rotZ": 0,
-        "scaleX": 1,
-        "scaleY": 1,
-        "scaleZ": 1
+        "scaleX": 0.58,
+        "scaleY": 0.58,
+        "scaleZ": 0.58
       },
       "Nickname": "Sentinel Meeple",
       "Description": "Place on starting terrain (mountains).",
@@ -15993,9 +15993,9 @@
         "rotX": 0,
         "rotY": 180,
         "rotZ": 0,
-        "scaleX": 1,
-        "scaleY": 1,
-        "scaleZ": 1
+        "scaleX": 0.58,
+        "scaleY": 0.58,
+        "scaleZ": 0.58
       },
       "Nickname": "Ranger Meeple",
       "Description": "Place on starting terrain (heaths).",
@@ -16088,9 +16088,9 @@
         "rotX": 0,
         "rotY": 180,
         "rotZ": 0,
-        "scaleX": 1,
-        "scaleY": 1,
-        "scaleZ": 1
+        "scaleX": 0.58,
+        "scaleY": 0.58,
+        "scaleZ": 0.58
       },
       "Nickname": "Warden Meeple",
       "Description": "Place on starting terrain (ruins).",
@@ -16183,9 +16183,9 @@
         "rotX": 0,
         "rotY": 180,
         "rotZ": 0,
-        "scaleX": 1,
-        "scaleY": 1,
-        "scaleZ": 1
+        "scaleX": 0.58,
+        "scaleY": 0.58,
+        "scaleZ": 0.58
       },
       "Nickname": "Quartermaster Meeple",
       "Description": "Place on starting terrain (woodland, mountains, heaths, arable, ruins).",

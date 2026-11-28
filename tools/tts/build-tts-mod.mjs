@@ -390,7 +390,7 @@ function makePawn({ guid = nextGuid(), name, description, pos, color, meshUrl })
   return {
     GUID: guid,
     Name: "Custom_Model",
-    Transform: makeTransform(pos, [0, 180, 0], [1.0, 1.0, 1.0]),
+    Transform: makeTransform(pos, [0, 180, 0], [0.58, 0.58, 0.58]),
     Nickname: name,
     Description: description,
     GMNotes: "",
