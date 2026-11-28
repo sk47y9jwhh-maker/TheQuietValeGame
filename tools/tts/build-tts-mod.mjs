@@ -849,7 +849,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
         description: bucket.map((t) => `${t.basic.name} (×${t.count})`).join(", "),
         pos: [wx, 1.08, wz],
         color: bagColor,
-        meshUrl: asset("models/tile-rack-long.obj"),
+        meshUrl: asset("models/tile-rack-long-v2.obj"),
         diffuseUrl: asset(bagDiffuse),
         scale: [1.0, 0.95, 1.0],
         contained
@@ -880,7 +880,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       description: "Double-sided Travel Extension hexes (Basic / Upgraded). Use +TRAVEL EXT. in HUD to pull quickly.",
       pos: [16.4, 1.08, -3.6],
       color: { r: 0.45, g: 0.42, b: 0.34 },
-      meshUrl: asset("models/tile-box.obj"),
+      meshUrl: asset("models/tile-box-v2.obj"),
       diffuseUrl: asset("models/tray-ext.jpg"),
       scale: [1.10, 0.95, 1.10],
       contained: extItems
@@ -919,7 +919,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       description: "All 26 numbered Special Tiles. Unlocked automatically when Welcoming Arrivals or via HUD.",
       pos: [16.4, 1.08, -6.7],
       color: { r: 0.20, g: 0.24, b: 0.32 },
-      meshUrl: asset("models/tile-box.obj"),
+      meshUrl: asset("models/tile-box-v2.obj"),
       diffuseUrl: asset("models/tray-special.jpg"),
       scale: [1.10, 0.95, 1.10],
       contained: specialContained
@@ -948,7 +948,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       description: "5 Golden Legacy hex tiles.",
       pos: [16.4, 1.08, -9.8],
       color: { r: 0.76, g: 0.60, b: 0.22 },
-      meshUrl: asset("models/tile-box.obj"),
+      meshUrl: asset("models/tile-box-v2.obj"),
       diffuseUrl: asset("models/tray-golden.jpg"),
       scale: [1.10, 0.95, 1.10],
       contained: goldenContained
