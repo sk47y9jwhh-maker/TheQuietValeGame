@@ -849,7 +849,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
         description: bucket.map((t) => `${t.basic.name} (×${t.count})`).join(", "),
         pos: [wx, 1.08, wz],
         color: bagColor,
-        meshUrl: asset("models/tile-rack-long-v2.obj"),
+        meshUrl: asset("models/tile-rack-long-v3.obj"),
         diffuseUrl: asset(bagDiffuse),
         scale: [1.0, 0.95, 1.0],
         contained

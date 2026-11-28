@@ -9083,7 +9083,7 @@
       "MaterialIndex": -1,
       "MeshIndex": -1,
       "CustomMesh": {
-        "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long-v2.obj",
+        "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long-v3.obj",
         "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-resource.jpg",
         "NormalURL": "",
         "ColliderURL": "",
@@ -10174,7 +10174,7 @@
       "MaterialIndex": -1,
       "MeshIndex": -1,
       "CustomMesh": {
-        "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long-v2.obj",
+        "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long-v3.obj",
         "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-merchant.jpg",
         "NormalURL": "",
         "ColliderURL": "",
@@ -10433,7 +10433,7 @@
       "MaterialIndex": -1,
       "MeshIndex": -1,
       "CustomMesh": {
-        "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long-v2.obj",
+        "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long-v3.obj",
         "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-social.jpg",
         "NormalURL": "",
         "ColliderURL": "",
@@ -11004,7 +11004,7 @@
       "MaterialIndex": -1,
       "MeshIndex": -1,
       "CustomMesh": {
-        "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long-v2.obj",
+        "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long-v3.obj",
         "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-housing.jpg",
         "NormalURL": "",
         "ColliderURL": "",
@@ -11679,7 +11679,7 @@
       "MaterialIndex": -1,
       "MeshIndex": -1,
       "CustomMesh": {
-        "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long-v2.obj",
+        "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long-v3.obj",
         "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-travel.jpg",
         "NormalURL": "",
         "ColliderURL": "",
