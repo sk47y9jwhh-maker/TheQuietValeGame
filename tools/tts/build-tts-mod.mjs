@@ -777,7 +777,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   const coreCatalog = [];
   bayBuckets.forEach((bucket, bayIdx) => {
     const bxMm = tileInnerL + bayW * (bayIdx + 0.5);
-    const [wx, wz] = boardMmToWorld(POS.tilesBoard, TILES_BOARD_MM, bxMm, 168);
+    const [wx, wz] = boardMmToWorld(POS.tilesBoard, TILES_BOARD_MM, bxMm, 162);
     const [bagTitle, bagColor] = bayNames[bayIdx];
     const bagGuid = nextGuid();
     const contained = [];
@@ -807,8 +807,8 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
         description: bucket.map((t) => `${t.basic.name} (×${t.count})`).join(", "),
         pos: [wx, 1.08, wz],
         color: bagColor,
-        meshUrl: asset("models/tile-box.obj"),
-        scale: [0.95, 0.85, 0.95],
+        meshUrl: asset("models/tile-rack-long.obj"),
+        scale: [1.0, 0.95, 1.0],
         contained
       })
     );
@@ -1247,7 +1247,14 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       coreStaging: [-11.5, 1.25, 14.6],
       ruinsHexes,
       roundSockets,
-      seatMarkers: seatMarkerPositions
+      seatMarkers: seatMarkerPositions,
+      handZones: [
+        { color: "White",  pos: [-15.0, 3.2, -21.8], rotY: 0,   axis: "x" },
+        { color: "Red",    pos: [15.0,  3.2, -21.8], rotY: 0,   axis: "x" },
+        { color: "Blue",   pos: [15.0,  3.2,  21.8], rotY: 180, axis: "x" },
+        { color: "Green",  pos: [-15.0, 3.2,  21.8], rotY: 180, axis: "x" },
+        { color: "Yellow", pos: [-38.5, 3.2,   0.0], rotY: 90,  axis: "z" }
+      ]
     },
     mapBounds: {
       minX: Number((POS.mapBoard[0] - MAP_BOARD_MM.w * MM * 0.5).toFixed(3)),

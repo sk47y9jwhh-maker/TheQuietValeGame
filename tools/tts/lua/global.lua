@@ -1073,23 +1073,23 @@ function startSeedingSession(encDeck, playerCount)
   local dealQueue = {}
   for p = 1, playerCount do
     local hand = {}
-    local color = SEAT_COLORS[p]
-    local ht = Player[color] and Player[color].getHandTransform()
-    local seatFallback = CONFIG.positions.seatMarkers[p] or { 0, 2.0, -21.8 }
-    local targetPos = ht and ht.position or { x = seatFallback[1], y = 2.4, z = seatFallback[3] }
-    local targetRotY = ht and ht.rotation and ht.rotation.y or 0
+    local hz = CONFIG.positions.handZones and CONFIG.positions.handZones[p]
+    local color = (hz and hz.color) or SEAT_COLORS[p]
+    local basePos = (hz and hz.pos) or { 0, 3.2, -21.8 }
+    local rotY = (hz and hz.rotY) or 0
+    local axis = (hz and hz.axis) or "x"
     for k = 1, 9 do
       local item = objs[cursor]
       if item then
         table.insert(hand, { guid = item.guid, note = item.gm_notes or "", name = item.name or "Card", band = 0 })
-        table.insert(dealQueue, { guid = item.guid, color = color, pos = targetPos, rotY = targetRotY, slot = k })
+        table.insert(dealQueue, { guid = item.guid, color = color, basePos = basePos, rotY = rotY, axis = axis, slot = k })
         cursor = cursor + 1
       end
     end
     seedSession.hands[p] = hand
   end
 
-  -- Physically deal each player's 9 cards into their own hand zone so unseeded cards stay in their hands!
+  -- Physically deal each player's 9 cards directly into their own seat's hand zone (always face-up, clearly separated per seat!).
   -- The remaining 3*P neutral cards stay right on the ENCOUNTER draw well as the starting Encounter Deck.
   local idx = 1
   local function dealNext()
@@ -1103,15 +1103,16 @@ function startSeedingSession(encDeck, playerCount)
     local src = findEncounterDrawDeck()
     if src and src.tag == "Deck" and src.getQuantity() > 1 then
       local isSeated = Player[d.color] and Player[d.color].seated
-      local spread = (d.slot - 5) * 0.35
-      local px = d.pos.x + (isSeated and 0 or spread)
-      local py = isSeated and (d.pos.y + 0.2) or (1.35 + d.slot * 0.04)
-      local pz = d.pos.z
-      local rot = isSeated and { 0, d.rotY + 180, 0 } or { 0, d.rotY + 180, 180 }
+      -- Spread cleanly across that seat's hand area (never overlapping another player's seat)
+      local offset = (d.slot - 5) * (isSeated and 0.25 or 1.05)
+      local px = d.basePos[1] + (d.axis == "x" and offset or 0)
+      local py = isSeated and (d.basePos[2] + 0.1) or (1.35 + d.slot * 0.03)
+      local pz = d.basePos[3] + (d.axis == "z" and offset or 0)
+      -- Face-up (z = 0) oriented toward that seat (rotY + 180 makes card face upright for the player at that edge)
       src.takeObject({
         guid = d.guid,
         position = { px, py, pz },
-        rotation = rot,
+        rotation = { 0, (d.rotY + 180) % 360, 0 },
         smooth = false
       })
     end
