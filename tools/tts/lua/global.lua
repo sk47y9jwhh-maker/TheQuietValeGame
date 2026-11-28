@@ -1070,40 +1070,54 @@ function startSeedingSession(encDeck, playerCount)
     picks = {}
   }
   local cursor = 1
-  local handGuids = {}
+  local dealQueue = {}
   for p = 1, playerCount do
     local hand = {}
+    local color = SEAT_COLORS[p]
+    local ht = Player[color] and Player[color].getHandTransform()
+    local seatFallback = CONFIG.positions.seatMarkers[p] or { 0, 2.0, -21.8 }
+    local targetPos = ht and ht.position or { x = seatFallback[1], y = 2.4, z = seatFallback[3] }
+    local targetRotY = ht and ht.rotation and ht.rotation.y or 0
     for k = 1, 9 do
       local item = objs[cursor]
       if item then
         table.insert(hand, { guid = item.guid, note = item.gm_notes or "", name = item.name or "Card", band = 0 })
-        table.insert(handGuids, item.guid)
+        table.insert(dealQueue, { guid = item.guid, color = color, pos = targetPos, rotY = targetRotY, slot = k })
         cursor = cursor + 1
       end
     end
     seedSession.hands[p] = hand
   end
 
-  -- Physically move the 9*P player-hand cards into a tidy face-down "Player Seeding Hands" stack
-  -- so the ENCOUNTER well holds only the 3*P neutral cards ready for Season I TOP/MID/BOT insertion!
-  local hp = CONFIG.positions.seedS1
-  for idx, g in ipairs(handGuids) do
-    if encDeck and encDeck.tag == "Deck" and encDeck.getQuantity() > 1 then
-      encDeck.takeObject({
-        guid = g,
-        position = { hp[1], hp[2] + 0.35 + (idx - 1) * 0.03, hp[3] },
-        rotation = { 0, 180, 180 },
+  -- Physically deal each player's 9 cards into their own hand zone so unseeded cards stay in their hands!
+  -- The remaining 3*P neutral cards stay right on the ENCOUNTER draw well as the starting Encounter Deck.
+  local idx = 1
+  local function dealNext()
+    if idx > #dealQueue then
+      renderSeedingModal()
+      UI.setAttribute("qvSeedingModal", "active", "true")
+      return
+    end
+    local d = dealQueue[idx]
+    idx = idx + 1
+    local src = findEncounterDrawDeck()
+    if src and src.tag == "Deck" and src.getQuantity() > 1 then
+      local isSeated = Player[d.color] and Player[d.color].seated
+      local spread = (d.slot - 5) * 0.35
+      local px = d.pos.x + (isSeated and 0 or spread)
+      local py = isSeated and (d.pos.y + 0.2) or (1.35 + d.slot * 0.04)
+      local pz = d.pos.z
+      local rot = isSeated and { 0, d.rotY + 180, 0 } or { 0, d.rotY + 180, 180 }
+      src.takeObject({
+        guid = d.guid,
+        position = { px, py, pz },
+        rotation = rot,
         smooth = false
       })
     end
+    Wait.frames(dealNext, 1)
   end
-  Wait.time(function()
-    local hStack = findDeckOrCardAt(hp)
-    if hStack then hStack.setName("Player Seeding Hands (Private)") end
-  end, 0.45)
-
-  renderSeedingModal()
-  UI.setAttribute("qvSeedingModal", "active", "true")
+  dealNext()
 end
 
 function openSeasonSeeding(seasonNum)
@@ -1272,22 +1286,18 @@ function finalizeModalSeededDeck()
   UI.setAttribute("qvSeedingModal", "active", "false")
   seedSession.active = false
   local encDeck = findEncounterDrawDeck()
-  local handStack = findDeckOrCardAt(CONFIG.positions.seedS1)
   local drawPos = CONFIG.positions.encounterDraw
 
   -- Build exact v7.0 deck order (index 1 = TOP of deck, #order = BOTTOM of deck):
   -- Start with current Encounter Deck cards, then for each player insert TOP at 1, MID at floor(len/2)+1, BOT at end.
   local order = {}
-  local inEncDeck = {}
   if encDeck then
     if encDeck.tag == "Deck" then
       for _, o in ipairs(encDeck.getObjects()) do
         table.insert(order, o.guid)
-        inEncDeck[o.guid] = true
       end
     elseif encDeck.tag == "Card" then
       table.insert(order, encDeck.getGUID())
-      inEncDeck[encDeck.getGUID()] = true
     end
   end
 
@@ -1300,42 +1310,85 @@ function finalizeModalSeededDeck()
     end
   end
 
-  -- Move current Encounter Deck slightly aside so we can re-stack from BOTTOM (#order) to TOP (1) cleanly onto drawPos
-  local tmpPos = { drawPos[1] - 3.6, drawPos[2] + 0.5, drawPos[3] }
-  if encDeck then encDeck.setPosition(tmpPos) end
+  -- Move current Encounter Deck temporarily aside so we can re-stack every card cleanly from BOTTOM (#order) to TOP (1)
+  -- onto drawPos, while leaving each player's unseeded cards untouched in their hands!
+  local tmpPos = { drawPos[1] - 3.8, drawPos[2] + 0.5, drawPos[3] }
+  if encDeck then
+    encDeck.setPosition(tmpPos)
+    encDeck.setRotation({ 0, 180, 180 })
+  end
 
   Wait.time(function()
-    local curEnc = findDeckOrCardAt(tmpPos) or encDeck
-    local curHand = findDeckOrCardAt(CONFIG.positions.seedS1) or handStack
-    local yStep = 0.035
+    local i = #order
     local placed = 0
-    -- Place from BOTTOM (#order) up to TOP (1) so index 1 lands on top of the physical deck!
-    for i = #order, 1, -1 do
+    local function stackNext()
+      if i < 1 then
+        Wait.time(function()
+          local finalDeck = findEncounterDrawDeck()
+          local romans = { "I", "II", "III" }
+          local sRoman = romans[seedSession.season or 1] or "I"
+          if finalDeck then
+            finalDeck.setName("Encounter Deck (Season " .. sRoman .. ")")
+          end
+          state.activeTab = "play"
+          refreshHud()
+          broadcastToAll(
+            string.format("[AUTO] Season %s Encounter Deck built (%d cards in exact Top/Mid/Bot order; unseeded cards remain in players' hands)! Click REVEAL ENCOUNTERS to begin Round %d.", sRoman, #order, state.round),
+            {0.80, 0.96, 0.78}
+          )
+        end, 0.45)
+        return
+      end
+
       local g = order[i]
-      local targetP = { drawPos[1], drawPos[2] + 0.35 + placed * yStep, drawPos[3] }
+      i = i - 1
+      local targetP = { drawPos[1], drawPos[2] + 0.45 + placed * 0.08, drawPos[3] }
       placed = placed + 1
-      local src = inEncDeck[g] and curEnc or curHand
-      if src then
-        if src.tag == "Deck" and src.getQuantity() > 1 then
-          src.takeObject({ guid = g, position = targetP, rotation = {0, 180, 180}, smooth = false })
-        elseif src.tag == "Card" and src.getGUID() == g then
-          src.setRotation({0, 180, 180})
+
+      -- 1. Live standalone card (in a player's hand, on the table, or last remaining card from tmpPos)
+      local liveCard = getObjectFromGUID(g)
+      if liveCard then
+        liveCard.setRotation({ 0, 180, 180 })
+        liveCard.setPosition(targetP)
+      else
+        -- 2. Card still inside the temporary Encounter Deck at tmpPos (or a seat's unseated stack)
+        local src = findDeckOrCardAt(tmpPos)
+        if src and src.tag == "Deck" then
+          if src.getQuantity() > 1 then
+            src.takeObject({ guid = g, position = targetP, rotation = { 0, 180, 180 }, smooth = false })
+          else
+            src.setRotation({ 0, 180, 180 })
+            src.setPosition(targetP)
+          end
+        elseif src then
+          src.setRotation({ 0, 180, 180 })
           src.setPosition(targetP)
         else
-          -- Last remaining card in deck
-          src.setRotation({0, 180, 180})
-          src.setPosition(targetP)
+          -- Fallback: scan any deck on the table that might hold g (e.g., an unseated player's stacked hand)
+          for _, obj in ipairs(getAllObjects()) do
+            if obj.tag == "Deck" then
+              local found = false
+              for _, co in ipairs(obj.getObjects()) do
+                if co.guid == g then found = true; break end
+              end
+              if found then
+                if obj.getQuantity() > 1 then
+                  obj.takeObject({ guid = g, position = targetP, rotation = { 0, 180, 180 }, smooth = false })
+                else
+                  obj.setRotation({ 0, 180, 180 })
+                  obj.setPosition(targetP)
+                end
+                break
+              end
+            end
+          end
         end
       end
+
+      -- 2-frame stagger guarantees TTS merges every card cleanly into ONE solid Encounter Deck!
+      Wait.frames(stackNext, 2)
     end
-    local romans = { "I", "II", "III" }
-    local sRoman = romans[seedSession.season or 1] or "I"
-    state.activeTab = "play"
-    refreshHud()
-    broadcastToAll(
-      string.format("[AUTO] Season %s seeding complete (%d cards in Encounter Deck)! Click REVEAL ENCOUNTERS to begin Round %d.", sRoman, #order, state.round),
-      {0.80, 0.96, 0.78}
-    )
+    stackNext()
   end, 0.35)
 end
 
