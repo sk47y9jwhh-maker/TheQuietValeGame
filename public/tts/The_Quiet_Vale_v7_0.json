@@ -9104,9 +9104,9 @@
       "Description": "Lumber Yard (×4), Mine Tunnel (×4), Gathering Outpost (×4), Farmstead (×4), Salvage Camp (×4)",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.31,
-        "g": 0.41,
-        "b": 0.28
+        "r": 1,
+        "g": 1,
+        "b": 1
       },
       "Locked": true,
       "Grid": false,
@@ -9120,7 +9120,7 @@
       "MeshIndex": -1,
       "CustomMesh": {
         "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long.obj",
-        "DiffuseURL": "",
+        "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-resource.jpg",
         "NormalURL": "",
         "ColliderURL": "",
         "Convex": true,
@@ -10195,9 +10195,9 @@
       "Description": "Workshops (×2), Market Stalls (×2)",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.54,
-        "g": 0.43,
-        "b": 0.17
+        "r": 1,
+        "g": 1,
+        "b": 1
       },
       "Locked": true,
       "Grid": false,
@@ -10211,7 +10211,7 @@
       "MeshIndex": -1,
       "CustomMesh": {
         "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long.obj",
-        "DiffuseURL": "",
+        "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-merchant.jpg",
         "NormalURL": "",
         "ColliderURL": "",
         "Convex": true,
@@ -10454,9 +10454,9 @@
       "Description": "Tavern (×2), Eatery (×2), Washhouse (×2), Apothecary (×2), The Vaults (×2)",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.48,
-        "g": 0.31,
-        "b": 0.42
+        "r": 1,
+        "g": 1,
+        "b": 1
       },
       "Locked": true,
       "Grid": false,
@@ -10470,7 +10470,7 @@
       "MeshIndex": -1,
       "CustomMesh": {
         "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long.obj",
-        "DiffuseURL": "",
+        "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-social.jpg",
         "NormalURL": "",
         "ColliderURL": "",
         "Convex": true,
@@ -11025,9 +11025,9 @@
       "Description": "Cabin (×4), Cottage (×4), Inn (×2), Stedding (×2)",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.6,
-        "g": 0.36,
-        "b": 0.24
+        "r": 1,
+        "g": 1,
+        "b": 1
       },
       "Locked": true,
       "Grid": false,
@@ -11041,7 +11041,7 @@
       "MeshIndex": -1,
       "CustomMesh": {
         "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long.obj",
-        "DiffuseURL": "",
+        "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-housing.jpg",
         "NormalURL": "",
         "ColliderURL": "",
         "Convex": true,
@@ -11700,9 +11700,9 @@
       "Description": "Path (×8), Common Land (×2), Street (×6), Track (×4), Bridge (×4)",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.48,
-        "g": 0.44,
-        "b": 0.35
+        "r": 1,
+        "g": 1,
+        "b": 1
       },
       "Locked": true,
       "Grid": false,
@@ -11716,7 +11716,7 @@
       "MeshIndex": -1,
       "CustomMesh": {
         "MeshURL": "https://thequietvalegame.com/tts/models/tile-rack-long.obj",
-        "DiffuseURL": "",
+        "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-travel.jpg",
         "NormalURL": "",
         "ColliderURL": "",
         "Convex": true,
@@ -12999,9 +12999,9 @@
       "Description": "Double-sided Travel Extension hexes (Basic / Upgraded). Use +TRAVEL EXT. in HUD to pull quickly.",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.45,
-        "g": 0.42,
-        "b": 0.34
+        "r": 1,
+        "g": 1,
+        "b": 1
       },
       "Locked": true,
       "Grid": false,
@@ -13015,7 +13015,7 @@
       "MeshIndex": -1,
       "CustomMesh": {
         "MeshURL": "https://thequietvalegame.com/tts/models/tile-box.obj",
-        "DiffuseURL": "",
+        "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-ext.jpg",
         "NormalURL": "",
         "ColliderURL": "",
         "Convex": true,
@@ -13778,9 +13778,9 @@
       "Description": "All 26 numbered Special Tiles. Unlocked automatically when Welcoming Arrivals or via HUD.",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.2,
-        "g": 0.24,
-        "b": 0.32
+        "r": 1,
+        "g": 1,
+        "b": 1
       },
       "Locked": true,
       "Grid": false,
@@ -13794,7 +13794,7 @@
       "MeshIndex": -1,
       "CustomMesh": {
         "MeshURL": "https://thequietvalegame.com/tts/models/tile-box.obj",
-        "DiffuseURL": "",
+        "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-special.jpg",
         "NormalURL": "",
         "ColliderURL": "",
         "Convex": true,
@@ -15285,9 +15285,9 @@
       "Description": "5 Golden Legacy hex tiles.",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.76,
-        "g": 0.6,
-        "b": 0.22
+        "r": 1,
+        "g": 1,
+        "b": 1
       },
       "Locked": true,
       "Grid": false,
@@ -15301,7 +15301,7 @@
       "MeshIndex": -1,
       "CustomMesh": {
         "MeshURL": "https://thequietvalegame.com/tts/models/tile-box.obj",
-        "DiffuseURL": "",
+        "DiffuseURL": "https://thequietvalegame.com/tts/models/tray-golden.jpg",
         "NormalURL": "",
         "ColliderURL": "",
         "Convex": true,
