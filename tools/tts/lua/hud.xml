@@ -7,7 +7,7 @@
        rectAlignment="MiddleLeft"
        offsetXY="14 28"
        width="304"
-       height="488"
+       height="518"
        color="#171411F5"
        outline="#c49b4a"
        outlineSize="2 -2"
@@ -21,7 +21,7 @@
   </HorizontalLayout>
 
   <!-- Main collapsible body -->
-  <VerticalLayout id="qvHudBody" rectAlignment="UpperCenter" offsetXY="0 -36" height="446" padding="8 8 4 8" spacing="6" childForceExpandHeight="false" childControlHeight="true">
+  <VerticalLayout id="qvHudBody" rectAlignment="UpperCenter" offsetXY="0 -36" height="476" padding="8 8 4 8" spacing="6" childForceExpandHeight="false" childControlHeight="true">
 
     <!-- Top Navigation Tabs -->
     <HorizontalLayout minHeight="28" preferredHeight="28" spacing="4">
@@ -37,7 +37,7 @@
     </VerticalLayout>
 
     <!-- ==================== TAB 1: PLAY ==================== -->
-    <VerticalLayout id="panelPlay" active="true" spacing="6" childForceExpandHeight="false" childControlHeight="true" minHeight="358" preferredHeight="358">
+    <VerticalLayout id="panelPlay" active="true" spacing="6" childForceExpandHeight="false" childControlHeight="true" minHeight="388" preferredHeight="388">
 
       <!-- Active Turn & Steward Power Card -->
       <VerticalLayout minHeight="60" preferredHeight="60" spacing="4" padding="6 6 5 5" color="#252019EE">
@@ -105,6 +105,13 @@
       <HorizontalLayout minHeight="30" preferredHeight="30" spacing="6">
         <Button text="CORE TILE MENU" flexibleWidth="1" fontSize="11" color="#6c5222" onClick="onHudToggleTileMenu" />
         <Button text="SCORE SHEET" flexibleWidth="1" fontSize="11" color="#523b5e" onClick="onHudOpenScoreSheet" />
+      </HorizontalLayout>
+
+      <!-- 1-Click Right-Side-Up Camera Presets (moves only clicking player's camera) -->
+      <HorizontalLayout minHeight="26" preferredHeight="26" spacing="5">
+        <Button text="VIEW MAP" flexibleWidth="1" fontSize="10" color="#2e3e36" onClick="onHudFocusCam(map)" tooltip="Pan smoothly to frame the Map Board" />
+        <Button text="ENCOUNTERS" flexibleWidth="1" fontSize="10" color="#3c3426" onClick="onHudFocusCam(encounters)" tooltip="Pan smoothly to frame the Encounter Board" />
+        <Button text="FULL TABLE" flexibleWidth="1" fontSize="10" color="#2c323c" onClick="onHudFocusCam(table)" tooltip="Zoom out to view the entire table" />
       </HorizontalLayout>
 
     </VerticalLayout>

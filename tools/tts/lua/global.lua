@@ -1526,6 +1526,17 @@ function onHudToggle()
   refreshHud()
 end
 
+function onHudFocusCam(player, preset)
+  if not player then return end
+  if preset == "map" then
+    player.lookAt({ position = { x = -12.0, y = 1.1, z = 0.0 }, pitch = 62, yaw = 0, distance = 29 })
+  elseif preset == "encounters" then
+    player.lookAt({ position = { x = 14.34, y = 1.1, z = 7.6 }, pitch = 58, yaw = 0, distance = 21 })
+  else
+    player.lookAt({ position = { x = 0.0, y = 1.1, z = -1.5 }, pitch = 54, yaw = 0, distance = 56 })
+  end
+end
+
 function onHudSetup(_, playerCountStr)
   local p = tonumber(playerCountStr)
   if p then runSetup(p) end
@@ -1593,7 +1604,7 @@ function refreshHud()
   local rules = SETUP_RULES[state.playerCount] or SETUP_RULES[2]
   local tab = state.activeTab or "play"
   UI.setAttribute("qvHudBody", "active", state.hudCollapsed and "false" or "true")
-  UI.setAttribute("qvHudRoot", "height", state.hudCollapsed and "36" or "488")
+  UI.setAttribute("qvHudRoot", "height", state.hudCollapsed and "36" or "518")
   UI.setAttribute("qvToggleBtn", "text", state.hudCollapsed and "+" or "-")
   UI.setAttribute("panelPlay", "active", tab == "play" and "true" or "false")
   UI.setAttribute("panelTiles", "active", tab == "tiles" and "true" or "false")
