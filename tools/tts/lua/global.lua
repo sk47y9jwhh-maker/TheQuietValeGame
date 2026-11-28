@@ -84,10 +84,44 @@ end
 
 function validateTilePlacement(tileObj, rule, hex)
   local pl = rule.placement
-  if not pl then return true, nil end
+
+  -- 0. Check if another tile already occupies this hex
+  local hasWorkingNeighbor = false
+  local hasStewardHere = false
+  for _, st in ipairs(CONFIG.stewards) do
+    local pawn = getObjectFromGUID(st.pawnGuid)
+    if pawn then
+      local pp = pawn.getPosition()
+      if math.sqrt((pp.x - hex.x)^2 + (pp.z - hex.z)^2) <= 1.35 then
+        hasStewardHere = true
+        break
+      end
+    end
+  end
+
+  local mapTileCount = 0
+  for _, other in ipairs(getAllObjects()) do
+    if other ~= tileObj then
+      local oid = other.getGMNotes() or ""
+      local oname = other.getName() or ""
+      local orule = CONFIG.tileRules[oid]
+      if (orule or oname == "Travel Extension") and isOnMapBoard(other.getPosition()) then
+        mapTileCount = mapTileCount + 1
+        local op = other.getPosition()
+        local dist = math.sqrt((op.x - hex.x)^2 + (op.z - hex.z)^2)
+        if dist < 0.75 then
+          return false, string.format("%s cannot be placed on %s: already occupied by %s!", rule.name, hex.id, (orule and orule.name) or oname)
+        elseif dist <= 2.65 then
+          if countTokensOnTile(other, "Strain Token") < 3 then
+            hasWorkingNeighbor = true
+          end
+        end
+      end
+    end
+  end
 
   -- 1. Terrain check
-  if pl.terrain and #pl.terrain > 0 then
+  if pl and pl.terrain and #pl.terrain > 0 then
     if not listContains(pl.terrain, hex.t) then
       local need = pl.text ~= "" and pl.text or ("Must be placed on: " .. table.concat(pl.terrain, " / "))
       return false, string.format("%s on %s (%s): %s", rule.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, need)
@@ -97,7 +131,7 @@ function validateTilePlacement(tileObj, rule, hex)
   end
 
   -- 2. Adjacent terrain check (e.g., Washhouse -> Water/River, The Vaults -> Ruins)
-  if pl.adjacentTerrain and #pl.adjacentTerrain > 0 then
+  if pl and pl.adjacentTerrain and #pl.adjacentTerrain > 0 then
     local foundAdj = false
     for _, h2 in ipairs(CONFIG.mapHexes) do
       if h2.id ~= hex.id and listContains(pl.adjacentTerrain, h2.t) then
@@ -111,24 +145,34 @@ function validateTilePlacement(tileObj, rule, hex)
     end
   end
 
-  -- 3. Adjacent placed tile category check (e.g., Cottage -> Housing, Inn/Workshops -> Travel)
-  if pl.adjacentCategory and #pl.adjacentCategory > 0 then
+  -- 3. Adjacent non-Overstrained placed tile category check (e.g., Cottage -> Housing, Inn/Workshops -> Travel)
+  if pl and pl.adjacentCategory and #pl.adjacentCategory > 0 then
     local foundCat = false
     for _, other in ipairs(getAllObjects()) do
       if other ~= tileObj then
         local oid = other.getGMNotes() or ""
+        local oname = other.getName() or ""
         local orule = CONFIG.tileRules[oid]
-        if orule and listContains(pl.adjacentCategory, orule.category) and isOnMapBoard(other.getPosition()) then
+        local ocat = (orule and orule.category) or (oname == "Travel Extension" and "travel") or nil
+        if ocat and listContains(pl.adjacentCategory, ocat) and isOnMapBoard(other.getPosition()) then
           local op = other.getPosition()
           local dist = math.sqrt((op.x - hex.x)^2 + (op.z - hex.z)^2)
-          if dist <= 2.65 then foundCat = true; break end
+          if dist <= 2.65 and countTokensOnTile(other, "Strain Token") < 3 then
+            foundCat = true
+            break
+          end
         end
       end
     end
     if not foundCat then
-      local need = pl.text ~= "" and pl.text or ("Must be adjacent to a " .. table.concat(pl.adjacentCategory, "/") .. " tile.")
+      local need = pl.text ~= "" and pl.text or ("Must be adjacent to a working " .. table.concat(pl.adjacentCategory, "/") .. " tile.")
       return false, string.format("%s on %s: %s", rule.name, hex.id, need)
     end
+  end
+
+  -- 4. Settlement connection check (after first placement under a Steward Meeple, tiles must touch a working tile)
+  if mapTileCount > 0 and not hasStewardHere and not hasWorkingNeighbor and rule.kind ~= "golden" then
+    return false, string.format("%s on %s is not adjacent to any working tile (only allowed with Ranger's Power).", rule.name, hex.id)
   end
 
   return true, nil
@@ -136,30 +180,42 @@ end
 
 function onObjectDrop(_, obj)
   if not obj or obj.getLock() then return end
-  Wait.frames(function()
+  Wait.time(function()
     if not obj then return end
     local pos = obj.getPosition()
     if not isOnMapBoard(pos) then return end
     local hex = findNearestHex(pos)
     if not hex then return end
 
-    -- Case A: Steward Meeple moved to a different hex -> auto-spend 1 Action
+    -- Case A: Steward Meeple moved -> track hex cleanly WITHOUT double-charging Actions (moving is part of Place/Upgrade/Activate!)
     for _, st in ipairs(CONFIG.stewards) do
       if obj.getGUID() == st.pawnGuid then
         if not state.pawnLastHex then state.pawnLastHex = {} end
         local prevHex = state.pawnLastHex[st.id]
         if prevHex and prevHex ~= hex.id then
-          spendAction(1)
-          broadcastToAll(string.format("Moved %s to %s (%s) — -1 Action (%d left).", st.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, state.actionsLeft or 0), {0.82, 0.92, 0.98})
+          broadcastToAll(string.format("Moved %s Meeple to %s (%s).", st.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t), {0.82, 0.92, 0.98})
         end
         state.pawnLastHex[st.id] = hex.id
         return
       end
     end
 
-    -- Case B: Tile dropped onto a Map Board hex -> validate placement & auto-count Action
+    -- Case B: Travel Extension or Named Tile dropped onto a Map Board hex -> validate placement & auto-count Action
     local id = obj.getGMNotes() or ""
     local rule = CONFIG.tileRules[id]
+    if not rule and obj.getName() == "Travel Extension" then
+      rule = {
+        kind = "extension",
+        category = "travel",
+        name = "Travel Extension",
+        placement = {
+          terrain = {},
+          adjacentTerrain = {},
+          adjacentCategory = { "travel" },
+          text = "Place on land adjacent to a Travel Tile."
+        }
+      }
+    end
     if not rule then return end
 
     local legal, reason = validateTilePlacement(obj, rule, hex)
@@ -209,7 +265,7 @@ function onObjectDrop(_, obj)
         )
       end
     end
-  end, 8)
+  end, 0.35)
 end
 
 local SETUP_RULES = {
@@ -2228,7 +2284,7 @@ function resetTable()
     elseif string.sub(name, 1, 6) == "Quest " then
       local p = CONFIG.positions.questDeckWell
       stackBump.quest = stackBump.quest + 1
-      cardObj.setRotation({0, 180, 180})
+      cardObj.setRotation({0, 90, 180})
       cardObj.setPosition({p[1], p[2] + 0.6 + stackBump.quest * 0.03, p[3]})
       return true
     elseif string.sub(name, 1, 12) == "Target Card " then
@@ -2327,7 +2383,7 @@ function resetTable()
   UI.setAttribute("qvTileMenuModal", "active", "false")
   UI.setAttribute("qvSeedingModal", "active", "false")
   UI.setAttribute("qvAlertBanner", "active", "false")
-  seedSession.active = false
+  seedSession = { active = false, season = 1, playerIdx = 1, hands = {}, picks = {} }
   tileMenuOpen = false
   moveRoundMarker(1)
   movePlayer1Marker(1)
