@@ -66,8 +66,9 @@ function walk(obj) {
     if (obj.CustomImage.ImageURL) allUrls.add(obj.CustomImage.ImageURL);
     if (obj.CustomImage.ImageSecondaryURL) allUrls.add(obj.CustomImage.ImageSecondaryURL);
   }
-  if (obj.CustomMesh && obj.CustomMesh.MeshURL) {
-    allUrls.add(obj.CustomMesh.MeshURL);
+  if (obj.CustomMesh) {
+    if (obj.CustomMesh.MeshURL) allUrls.add(obj.CustomMesh.MeshURL);
+    if (obj.CustomMesh.DiffuseURL) allUrls.add(obj.CustomMesh.DiffuseURL);
   }
   if (obj.CustomPDF) {
     pdfCount++;

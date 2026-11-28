@@ -327,7 +327,7 @@ function makeBag({ guid = nextGuid(), name, description = "", pos, color, infini
   };
 }
 
-function makeTileBox({ guid = nextGuid(), name, description = "", pos, color, meshUrl, scale = [1.0, 1.0, 1.0], contained = [] }) {
+function makeTileBox({ guid = nextGuid(), name, description = "", pos, color = { r: 1, g: 1, b: 1 }, meshUrl, diffuseUrl = "", scale = [1.0, 1.0, 1.0], contained = [] }) {
   return {
     GUID: guid,
     Name: "Custom_Model_Bag",
@@ -335,7 +335,7 @@ function makeTileBox({ guid = nextGuid(), name, description = "", pos, color, me
     Nickname: name,
     Description: description,
     GMNotes: "",
-    ColorDiffuse: color,
+    ColorDiffuse: diffuseUrl ? { r: 1, g: 1, b: 1 } : color,
     Locked: true,
     Grid: false,
     Snap: true,
@@ -348,7 +348,7 @@ function makeTileBox({ guid = nextGuid(), name, description = "", pos, color, me
     MeshIndex: -1,
     CustomMesh: {
       MeshURL: meshUrl,
-      DiffuseURL: "",
+      DiffuseURL: diffuseUrl,
       NormalURL: "",
       ColliderURL: "",
       Convex: true,
@@ -751,11 +751,11 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   // (avoids 21 overlapping stacks colliding on spawn while keeping every category one click away,
   // and keeps the top Quest + Unlocked Special Tiles areas completely clear!)
   const bayNames = [
-    ["Resource Core Tiles", { r: 0.31, g: 0.41, b: 0.28 }],
-    ["Merchant & Crafting Tiles", { r: 0.54, g: 0.43, b: 0.17 }],
-    ["Social & Wellbeing Tiles", { r: 0.48, g: 0.31, b: 0.42 }],
-    ["Housing Core Tiles", { r: 0.60, g: 0.36, b: 0.24 }],
-    ["Travel Core Tiles", { r: 0.48, g: 0.44, b: 0.35 }]
+    ["Resource Core Tiles", { r: 0.31, g: 0.41, b: 0.28 }, "models/tray-resource.jpg"],
+    ["Merchant & Crafting Tiles", { r: 0.54, g: 0.43, b: 0.17 }, "models/tray-merchant.jpg"],
+    ["Social & Wellbeing Tiles", { r: 0.48, g: 0.31, b: 0.42 }, "models/tray-social.jpg"],
+    ["Housing Core Tiles", { r: 0.60, g: 0.36, b: 0.24 }, "models/tray-housing.jpg"],
+    ["Travel Core Tiles", { r: 0.48, g: 0.44, b: 0.35 }, "models/tray-travel.jpg"]
   ];
   const bayForCategory = {
     resource: 0,
@@ -778,7 +778,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   bayBuckets.forEach((bucket, bayIdx) => {
     const bxMm = tileInnerL + bayW * (bayIdx + 0.5);
     const [wx, wz] = boardMmToWorld(POS.tilesBoard, TILES_BOARD_MM, bxMm, 162);
-    const [bagTitle, bagColor] = bayNames[bayIdx];
+    const [bagTitle, bagColor, bagDiffuse] = bayNames[bayIdx];
     const bagGuid = nextGuid();
     const contained = [];
     for (const tile of bucket) {
@@ -808,6 +808,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
         pos: [wx, 1.08, wz],
         color: bagColor,
         meshUrl: asset("models/tile-rack-long.obj"),
+        diffuseUrl: asset(bagDiffuse),
         scale: [1.0, 0.95, 1.0],
         contained
       })
@@ -838,6 +839,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       pos: [16.4, 1.08, -3.6],
       color: { r: 0.45, g: 0.42, b: 0.34 },
       meshUrl: asset("models/tile-box.obj"),
+      diffuseUrl: asset("models/tray-ext.jpg"),
       scale: [1.10, 0.95, 1.10],
       contained: extItems
     })
@@ -876,6 +878,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       pos: [16.4, 1.08, -6.7],
       color: { r: 0.20, g: 0.24, b: 0.32 },
       meshUrl: asset("models/tile-box.obj"),
+      diffuseUrl: asset("models/tray-special.jpg"),
       scale: [1.10, 0.95, 1.10],
       contained: specialContained
     })
@@ -904,6 +907,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       pos: [16.4, 1.08, -9.8],
       color: { r: 0.76, g: 0.60, b: 0.22 },
       meshUrl: asset("models/tile-box.obj"),
+      diffuseUrl: asset("models/tray-golden.jpg"),
       scale: [1.10, 0.95, 1.10],
       contained: goldenContained
     })
