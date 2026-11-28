@@ -331,24 +331,24 @@ __QV_TILE_MENU_ROWS__
   </VerticalLayout>
 </Panel>
 
-<!-- Placement Warning / Alert Banner (! badge at top-center, auto-hides after 6.5s) -->
+<!-- Placement Warning / Alert Banner (! badge at top-center, auto-hides after 7.5s) -->
 <Panel id="qvAlertBanner"
        active="false"
        rectAlignment="UpperCenter"
-       offsetXY="0 -66"
-       width="540"
-       height="58"
-       color="#361814F5"
-       outline="#e89a38"
+       offsetXY="0 -88"
+       width="620"
+       height="68"
+       color="#361410FA"
+       outline="#f0a038"
        outlineSize="2 -2">
-  <HorizontalLayout padding="10 10 6 6" spacing="10" childForceExpandWidth="false">
-    <Panel preferredWidth="36" minWidth="36" preferredHeight="36" color="#d97a1e" outline="#f8d890" outlineSize="1 -1">
-      <Text text="!" fontSize="24" fontStyle="Bold" color="#18120c" alignment="MiddleCenter" />
+  <HorizontalLayout padding="10 10 8 8" spacing="10" childForceExpandWidth="false" childForceExpandHeight="false" childControlHeight="true" childAlignment="MiddleLeft">
+    <Panel preferredWidth="40" minWidth="40" preferredHeight="40" minHeight="40" color="#e07c1c" outline="#fbe096" outlineSize="1 -1">
+      <Text text="!" fontSize="26" fontStyle="Bold" color="#18120c" alignment="MiddleCenter" />
     </Panel>
-    <VerticalLayout flexibleWidth="1" spacing="2" childForceExpandHeight="false">
-      <Text id="qvAlertTitle" text="PLACEMENT WARNING" fontSize="12" fontStyle="Bold" color="#f5b858" alignment="MiddleLeft" />
-      <Text id="qvAlertBody" text="Tile cannot be placed here." fontSize="11" color="#f8eee0" alignment="MiddleLeft" />
+    <VerticalLayout flexibleWidth="1" spacing="2" preferredHeight="48" minHeight="48" childForceExpandHeight="false" childControlHeight="true">
+      <Text id="qvAlertTitle" text="PLACEMENT WARNING" fontSize="13" fontStyle="Bold" color="#f8be5c" minHeight="18" preferredHeight="18" alignment="MiddleLeft" />
+      <Text id="qvAlertBody" text="Tile cannot be placed here." fontSize="11" color="#fff4e4" minHeight="28" preferredHeight="28" alignment="UpperLeft" />
     </VerticalLayout>
-    <Button text="X" preferredWidth="28" minWidth="28" color="#5a2620" onClick="onHudDismissAlert" tooltip="Dismiss warning" />
+    <Button text="X" preferredWidth="30" minWidth="30" preferredHeight="30" minHeight="30" color="#68241e" onClick="onHudDismissAlert" tooltip="Dismiss warning" />
   </HorizontalLayout>
 </Panel>
