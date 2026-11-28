@@ -2083,12 +2083,12 @@ function inspectInPlaySlots()
   local slots = CONFIG.positions.inPlaySlots
   local info = {}
   for idx, s in ipairs(slots) do
-    -- Cast slightly wider in -Z to catch 50%-overlapping cascades in this column
+    -- Cast over the main IN PLAY slot + upward (+Z) tuck zone (stopping short of overflow Arrivals at s[3] + 5.6)
     local hits = Physics.cast({
-      origin = { s[1], s[2] + 3, s[3] - 1.2 },
+      origin = { s[1], s[2] + 3, s[3] + 1.1 },
       direction = { 0, -1, 0 },
       type = 3,
-      size = { 2.0, 3, 5.6 },
+      size = { 2.0, 3, 5.2 },
       max_distance = 5
     })
     local cards = {}
@@ -2096,10 +2096,15 @@ function inspectInPlaySlots()
     for _, hit in ipairs(hits) do
       local o = hit.hit_object
       if o and o.tag == "Card" and not seen[o.getGUID()] then
-        seen[o.getGUID()] = true
-        table.insert(cards, o)
+        -- Exclude any overflow Arrival parked above the board (z > s[3] + 4.0)
+        if o.getPosition().z <= s[3] + 4.0 then
+          seen[o.getGUID()] = true
+          table.insert(cards, o)
+        end
       end
     end
+    -- Sort oldest (highest z, tucked furthest up) -> newest (lowest z, front of slot)
+    table.sort(cards, function(a, b) return a.getPosition().z > b.getPosition().z end)
     local kind = "empty"
     if #cards > 0 then
       kind = getEncounterCardType(cards[1])
@@ -2112,6 +2117,27 @@ function inspectInPlaySlots()
   return info
 end
 
+local TUCK_DZ = 1.35 -- older cards tuck upward (+Z) behind the newest card so their name & icon remain visible
+local TUCK_DY = 0.04
+local OVERFLOW_ARRIVAL_DZ = 5.6 -- overflow Arrivals sit cleanly above the Encounter Board
+
+function restackTuckedSlot(slot, extraIncoming)
+  -- Position existing cards [oldest..newest] tucked UPWARD (+Z) underneath the incoming newest card
+  local n = #slot.cards
+  local shift = extraIncoming and 1 or 0
+  for i, card in ipairs(slot.cards) do
+    local stepsBack = (n - i) + shift
+    local p = {
+      slot.pos[1],
+      slot.pos[2] + 0.16 + i * TUCK_DY,
+      slot.pos[3] + stepsBack * TUCK_DZ
+    }
+    card.setPositionSmooth(p, false, true)
+    card.setRotationSmooth({ 0, 180, 0 }, false, true)
+  end
+  return { slot.pos[1], slot.pos[2] + 0.28 + (n + shift) * TUCK_DY, slot.pos[3] }
+end
+
 function compactSameTypeSlots(slotInfo, targetKind)
   local matching = {}
   for _, si in ipairs(slotInfo) do
@@ -2120,19 +2146,33 @@ function compactSameTypeSlots(slotInfo, targetKind)
   if #matching < 2 then return nil end
   local dst = matching[1]
   local src = matching[#matching]
-  local dzStep = -1.55
-  local dyStep = 0.06
   for _, card in ipairs(src.cards) do
-    local p = { dst.pos[1], dst.pos[2] + 0.25 + dst.count * dyStep, dst.pos[3] + dst.count * dzStep }
-    card.setPositionSmooth(p, false, true)
-    card.setRotationSmooth({ 0, 180, 0 }, false, true)
     table.insert(dst.cards, card)
     dst.count = dst.count + 1
   end
+  restackTuckedSlot(dst, false)
   src.cards = {}
   src.count = 0
   src.kind = "empty"
   return src
+end
+
+function findOpenAboveBoardArrivalSlot(reservedAbove)
+  local slots = CONFIG.positions.inPlaySlots
+  -- Prefer center-left/center columns first (matches natural tabletop layout above the board)
+  local pref = { 2, 3, 4, 1, 5 }
+  for _, idx in ipairs(pref) do
+    if not reservedAbove[idx] then
+      local s = slots[idx]
+      local abovePos = { s[1], s[2], s[3] + OVERFLOW_ARRIVAL_DZ }
+      if not isSlotOccupied(abovePos) then
+        reservedAbove[idx] = true
+        return { abovePos[1], abovePos[2] + 0.25, abovePos[3] }
+      end
+    end
+  end
+  local s = slots[2]
+  return { s[1], s[2] + 0.25, s[3] + OVERFLOW_ARRIVAL_DZ + 4.8 }
 end
 
 function revealEncounters()
@@ -2142,10 +2182,9 @@ function revealEncounters()
     return
   end
   local slotInfo = inspectInPlaySlots()
+  local reservedAbove = {}
   local seasonNum, seasonRoman = getSeason(state.round)
   local burdenCost = seasonNum * 2 + 1
-  local dzStep = -1.55 -- 50% vertical overlap so every stacked card's header & count stay clearly visible
-  local dyStep = 0.06
 
   local function findSlotByKind(kind)
     for _, si in ipairs(slotInfo) do
@@ -2155,7 +2194,7 @@ function revealEncounters()
   end
 
   local function pickTargetForCard(cardType)
-    -- 1. Arrivals MUST NEVER be stacked (their 3 base Timer tokens must remain unobstructed)
+    -- 1. Arrivals MUST NEVER be stacked; if all 5 IN PLAY slots are full, compact Burdens/Boons or place ABOVE the board!
     if cardType == "arrival" then
       local empty = findSlotByKind("empty")
       if not empty then empty = compactSameTypeSlots(slotInfo, "burden") end
@@ -2163,67 +2202,64 @@ function revealEncounters()
       if empty then
         empty.kind = "arrival"
         empty.count = 1
-        return { empty.pos[1], empty.pos[2] + 0.25, empty.pos[3] }, false
+        return { empty.pos[1], empty.pos[2] + 0.25, empty.pos[3] }, false, empty
       end
-      -- Fallback if all 5 slots already hold Arrivals: place cleanly beside the Encounter Board
-      local last = CONFIG.positions.inPlaySlots[5]
-      return { last[1] + 5.2, last[2] + 0.25, last[3] }, false
+      return findOpenAboveBoardArrivalSlot(reservedAbove), false, nil
     end
 
-    -- 2. Burdens: take an empty slot if plenty of room, otherwise cascade 50% onto existing Burden stack!
+    -- 2. Burdens: newest Burden always sits fully visible in front; older Burdens tuck UPWARD (+Z) with name visible!
     if cardType == "burden" then
       local empty = findSlotByKind("empty")
       local existing = findSlotByKind("burden")
       local emptyCount = 0
       for _, si in ipairs(slotInfo) do if si.kind == "empty" then emptyCount = emptyCount + 1 end end
       if existing and (not empty or emptyCount <= 1) then
-        local pos = { existing.pos[1], existing.pos[2] + 0.25 + existing.count * dyStep, existing.pos[3] + existing.count * dzStep }
+        local frontPos = restackTuckedSlot(existing, true)
         existing.count = existing.count + 1
-        return pos, true
+        return frontPos, true, existing
       elseif empty then
         empty.kind = "burden"
         empty.count = 1
-        return { empty.pos[1], empty.pos[2] + 0.25, empty.pos[3] }, false
+        return { empty.pos[1], empty.pos[2] + 0.25, empty.pos[3] }, false, empty
       else
         local freed = compactSameTypeSlots(slotInfo, "boon")
         if freed then
           freed.kind = "burden"
           freed.count = 1
-          return { freed.pos[1], freed.pos[2] + 0.25, freed.pos[3] }, false
+          return { freed.pos[1], freed.pos[2] + 0.25, freed.pos[3] }, false, freed
         end
-        local last = CONFIG.positions.inPlaySlots[5]
-        return { last[1], last[2] + 0.35, last[3] + dzStep }, true
+        return findOpenAboveBoardArrivalSlot(reservedAbove), false, nil
       end
     end
 
-    -- 3. Boons: take an empty slot first; if space is low, compact Burdens first, else cascade 50% onto existing Boon stack
+    -- 3. Boons: take an empty slot first; when space runs out, tuck older Boons UPWARD (+Z) behind the newest Boon!
     local empty = findSlotByKind("empty")
     if empty then
       empty.kind = "boon"
       empty.count = 1
-      return { empty.pos[1], empty.pos[2] + 0.25, empty.pos[3] }, false
+      return { empty.pos[1], empty.pos[2] + 0.25, empty.pos[3] }, false, empty
     end
     local freed = compactSameTypeSlots(slotInfo, "burden")
     if freed then
       freed.kind = "boon"
       freed.count = 1
-      return { freed.pos[1], freed.pos[2] + 0.25, freed.pos[3] }, false
+      return { freed.pos[1], freed.pos[2] + 0.25, freed.pos[3] }, false, freed
     end
     local existingBoon = findSlotByKind("boon")
     if existingBoon then
-      local pos = { existingBoon.pos[1], existingBoon.pos[2] + 0.25 + existingBoon.count * dyStep, existingBoon.pos[3] + existingBoon.count * dzStep }
+      local frontPos = restackTuckedSlot(existingBoon, true)
       existingBoon.count = existingBoon.count + 1
-      return pos, true
+      return frontPos, true, existingBoon
     end
-    local last = CONFIG.positions.inPlaySlots[5]
-    return { last[1] + 5.2, last[2] + 0.25, last[3] }, false
+    return findOpenAboveBoardArrivalSlot(reservedAbove), false, nil
   end
 
-  local function handleRevealed(cardObj, slotPos, stacked)
+  local function handleRevealed(cardObj, slotPos, stacked, slotRef)
     attachObjectMenus(cardObj)
+    if slotRef then table.insert(slotRef.cards, cardObj) end
     local name = cardObj.getName()
     local cType = getEncounterCardType(cardObj)
-    local stackNote = stacked and " (cascaded 50% on stack)" or ""
+    local stackNote = stacked and " (older card tucked above with name visible)" or ""
     if cType == "arrival" then
       Wait.time(function() spawnArrivalTimers(slotPos) end, 0.45)
       broadcastToAll("[AUTO] ARRIVAL: " .. name .. " — placed 3 Timers. (Right-click card -> Welcome Arrival when ready)", {0.68, 0.88, 0.98})
@@ -2245,21 +2281,21 @@ function revealEncounters()
     elseif encDeck.tag == "Card" then
       peekType = getEncounterCardType(encDeck)
     end
-    local targetPos, stacked = pickTargetForCard(peekType)
+    local targetPos, stacked, slotRef = pickTargetForCard(peekType)
     if encDeck.tag == "Deck" then
       if encDeck.getQuantity() > 1 then
         local card = encDeck.takeObject({ position = targetPos, rotation = {0, 180, 0}, smooth = true })
-        if card then handleRevealed(card, targetPos, stacked) end
+        if card then handleRevealed(card, targetPos, stacked, slotRef) end
       else
         encDeck.setPositionSmooth(targetPos, false, true)
         encDeck.setRotationSmooth({0, 180, 0}, false, true)
-        handleRevealed(encDeck, targetPos, stacked)
+        handleRevealed(encDeck, targetPos, stacked, slotRef)
         break
       end
     elseif encDeck.tag == "Card" then
       encDeck.setPositionSmooth(targetPos, false, true)
       encDeck.setRotationSmooth({0, 180, 0}, false, true)
-      handleRevealed(encDeck, targetPos, stacked)
+      handleRevealed(encDeck, targetPos, stacked, slotRef)
       break
     end
   end
@@ -2276,15 +2312,15 @@ function revealEncounters()
   end
   state.roundRevealed = true
   refreshHud()
-  -- Gently pan camera (right-side up, yaw=0) to frame the Encounter Board so players read the newly revealed cards
+  -- Gently pan camera (right-side up, yaw=0) to frame the Encounter Board + tucked headers + overflow Arrivals
   Wait.time(function()
     for _, pl in ipairs(Player.getPlayers()) do
       if pl and pl.seated then
         pl.lookAt({
-          position = { x = 14.34, y = 1.1, z = 7.6 },
+          position = { x = 14.34, y = 1.1, z = 9.0 },
           pitch = 58,
           yaw = 0,
-          distance = 21
+          distance = 24
         })
       end
     end
@@ -2353,10 +2389,14 @@ function movePlayer1Marker(seatIdx)
 end
 
 function tickArrivalTimers()
-  local slots = CONFIG.positions.inPlaySlots
+  local checkSlots = {}
+  for _, slot in ipairs(CONFIG.positions.inPlaySlots) do
+    table.insert(checkSlots, slot)
+    table.insert(checkSlots, { slot[1], slot[2], slot[3] + OVERFLOW_ARRIVAL_DZ })
+  end
   local ticked = 0
   local expired = {}
-  for _, slot in ipairs(slots) do
+  for _, slot in ipairs(checkSlots) do
     local hits = Physics.cast({ origin = {slot[1], slot[2] + 3, slot[3]}, direction = {0, -1, 0}, type = 3, size = {2.1, 3, 3.2}, max_distance = 5 })
     local timers = {}
     local cardName = "Arrival"
