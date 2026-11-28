@@ -87,7 +87,7 @@ function stewardBlock(s, idx) {
 }
 const everyStart = box("Every Steward: getting started", `<p><b>Setup.</b> Put your meeple on an empty hex of your starting terrain (never two on one hex).</p>
     <p><b>First placement.</b> Your first Action places any legal Tile under your meeple. It need not be a Resource Tile or connect to another Tile.</p>`, "every");
-const everyPlay = box("Every Steward: during play", `<p><b>Shelter in the Ruins.</b> When you place or upgrade a Tile whose whole footprint lies on Ruins, ignore all Stone in that cost. If any part of it lies outside the Ruins, pay the full cost.</p>
+const everyPlay = box("Every Steward: during play", `<p><b>Shelter in the Ruins.</b> When you place or upgrade a Tile whose whole footprint lies on Ruins, ignore all <b>Wood, Stone and Metal</b> in that cost (still pay Food, Herbs and Goods). If any part lies outside Ruins, pay the full cost.</p>
     <p><b>Your Power</b> costs no Action and refreshes at the start of each Season.</p>`, "every");
 const stewardPages = [0, 2, 4].map((i) => page(`The Stewards · ${numerals[i]} and ${numerals[i + 1]}`, `${stewards[i].name} & ${stewards[i + 1].name}`,
   stewardBlock(stewards[i], i) + stewardBlock(stewards[i + 1], i + 1) + (i === 0 ? everyStart : i === 4 ? everyPlay : ""), "steward"));
@@ -95,7 +95,7 @@ const stewardPages = [0, 2, 4].map((i) => page(`The Stewards · ${numerals[i]} a
 const turnPage = page("How a round works", "Your turn", `
   <div class="seasons">${[["I", "Foundations", "Rounds 1–4"], ["II", "Growth", "Rounds 5–8"], ["III", "Maturity", "Rounds 9–12"]].map(([n, t, r]) => `<div><span>${n}</span><b>${t}</b><i>${r}</i></div>`).join("")}</div>
   <h3 class="sub">Each round</h3>
-  ${steps([["Reveal.", "Reveal Encounter Cards until the number of standard cards revealed equals the player count. Finish every mandatory effect."], ["Turns.", "Clockwise from the first player, who moves one seat left each round, each player takes one turn of up to 4 Actions (3 with 4 or 5 players) and may stop early."], ["End of round.", "Remove 1 timer from every active Arrival and resolve any that run out. End durations, remove every X token and move the Round marker."]])}
+  ${steps([["Reveal.", "Reveal Encounter Cards until the number of standard cards revealed equals the player count. Finish every mandatory effect."], ["Turns.", "Clockwise from the Player 1 marker (which passes one seat clockwise each round), each player takes <b>4 Actions (1–2p)</b>, <b>3 (3–4p)</b> or <b>2 (5p)</b> and may stop early."], ["End of round.", "Remove 1 timer from every active Arrival and resolve any that run out. End durations, remove every X token and move the Round marker."]])}
   <h3 class="sub">Four Actions (repeat any)</h3>
   <div class="actions">
     <div><b>Place</b>Put an available Tile on a legal, reachable empty hex and pay its cost.</div>
@@ -130,22 +130,20 @@ const targetPage = page("Choosing where Strain lands", "Target Cards", `
     <figure><img src="${A("card-target.jpg")}"><figcaption>Structured card</figcaption></figure>
     <div>
       <p>When an effect places Strain, it says which Tiles are <b>eligible</b>. The Target Card picks among them, so nobody has to choose.</p>
-      <p class="small">Shuffle the 30-card deck once at setup. After each use, return the card face down to the bottom.</p>
+      <p class="small">Shuffle the 15-card deck once at setup. After each use, return the card face down to the bottom.</p>
     </div>
   </div>
-  <h3 class="sub">Work down the rows</h3>
+  <h3 class="sub">Work down the two rows</h3>
   <div class="trows">
-    <div><b>Tile class</b>Core · Special or Golden · Any</div>
-    <div><b>Tile side</b>Basic · Upgraded · Either · Any</div>
-    <div><b>Adjacency</b>3+ neighbours · 0&ndash;2 neighbours · Any</div>
-    <div><b>Current Strain</b>Already strained · Unstrained · Any</div>
+    <div><b>1. Tile</b>Basic · Upgraded · Special / Golden · Any</div>
+    <div><b>2. Current Strain</b>Already strained · Unstrained · Any</div>
   </div>
-  <p>At each row, keep the eligible Tiles that match. <b>If none match, skip the row</b> and keep them all. <b>Any</b> changes nothing. Never bring back a Tile already ruled out.</p>
+  <p>At each row, keep the eligible Tiles that match (unless already set by the effect). <b>Stop as soon as only 1 Tile remains.</b> <b>If none match, skip the row</b> and keep them all. Never bring back a Tile already ruled out.</p>
   <div class="tcards">
-    <figure><img src="${A("card-target-open.jpg")}"><figcaption>Open card</figcaption></figure>
+    <figure><img src="${A("card-target-open.jpg")}"><figcaption>Open card (13&ndash;15)</figcaption></figure>
     <div>
-      <p><b>If still tied</b> after the four rows, take the tied Tile the arrow points to on the map.</p>
-      <p><b>Open card:</b> the players choose any eligible Tile.</p>
+      <p><b>If still tied</b> after both rows, take the tied Tile closest to the compass direction on the map. <b>Still tied? Players choose.</b></p>
+      <p><b>Open card:</b> players choose any eligible Tile.</p>
       <p>Draw a separate card for each Tile that needs a target.</p>
     </div>
   </div>`, "target");
@@ -154,7 +152,7 @@ const cardsPage = page("The Encounter and Quest decks", "Encounter & Quest Cards
   <div class="cards4">
     ${[["boon", "Boon", "Use the row for the current Season. The italic line says how long it stays."], ["burden", "Burden", "Apply the current row. It stays active, and reapplies with the new row each Season, until resolved."], ["arrival", "Arrival", "Enters with 3 timers. Meet its Requirements with an Interact Action to unlock its Special Tile."], ["goldenBoon", "Golden Boon", "Resolve free, then discard. Not counted among the cards revealed."]].map(([k, n, d]) => `<figure><img src="${A(`enc-${k}.jpg`)}"><figcaption><b>${n}</b>${d}</figcaption></figure>`).join("")}
   </div>
-  <p class="small">When an Arrival&rsquo;s last timer is removed it fails: discard it, record a failure and place 1 Strain using a Target Card. An Arrival still active after Round 12 does not fail. A completed Arrival&rsquo;s Special Tile (matching back number) is placed later with a Place Action for 0 resources.</p>
+  <p class="small">When an Arrival&rsquo;s last timer is removed it fails: discard it, record a failure and place 1 Strain using a Target Card. An Arrival still active after Round 12 does not fail. A completed Arrival&rsquo;s Special Tile (matching back number) is placed later for <b>0 Actions and 0 resources</b>.</p>
   <h3 class="sub">Quest Cards</h3>
   <div class="quest">
     <img src="${A("card-quest.jpg")}">
@@ -168,7 +166,7 @@ const cardsPage = page("The Encounter and Quest decks", "Encounter & Quest Cards
 
 const refPage = page("During play", "At-table reference", `
   <h3 class="sub">Placing Strain</h3>
-  ${steps([["Select.", "The effect sets which Tiles are eligible. Draw a Target Card to choose among them (page 17)."], ["Prevent.", "Supported stops 1 Strain. It does not stack."], ["Check.", "At 3 Strain a Tile is Overstrained: it does nothing, connects nothing and scores nothing until it drops below 3."], ["Chain.", "After the whole effect, each newly Overstrained Tile spreads 1 Strain to a neighbour, chosen with a fresh Target Card."]])}
+  ${steps([["Select.", "The effect sets eligible Tiles; draw a Target Card (p. 17)."], ["Prevent.", "Supported blocks 1 Strain, then is removed (never stacks). Once-per-round preventers take an X token."], ["Check.", "At 3 Strain a Tile is Overstrained: it does nothing, connects nothing and scores nothing until below 3."], ["Chain.", "After the effect, each newly Overstrained Tile spreads 1 Strain to a neighbour (fresh Target Card)."]])}
   <h3 class="sub">End of Seasons I and II (after Rounds 4 and 8)</h3>
   <ol class="mini"><li>Finish Arrival expiry.</li><li>Discard Boons that end with the Season.</li><li>Neighbourly Support: each Housing cluster gains 1 Supported per 3 Housing Tiles.</li><li>Reapply every Burden with the new row.</li><li>Refresh every Steward Power.</li><li>Each Steward seeds 3 cards from their hand.</li></ol>
   <h3 class="sub">Final score (shared)</h3>
