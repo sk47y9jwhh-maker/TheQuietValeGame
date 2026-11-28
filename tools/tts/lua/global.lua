@@ -110,7 +110,7 @@ function validateTilePlacement(tileObj, rule, hex)
         local op = other.getPosition()
         local dist = math.sqrt((op.x - hex.x)^2 + (op.z - hex.z)^2)
         if dist < 0.75 then
-          return false, string.format("%s cannot be placed on %s: already occupied by %s!", rule.name, hex.id, (orule and orule.name) or oname)
+          return false, string.format("%s cannot be placed on %s: already occupied by %s!", rule.name, hex.id, (orule and orule.name) or oname), "Hex occupied"
         elseif dist <= 2.65 then
           if #getTokensOnTile(other).strain < 3 then
             hasWorkingNeighbor = true
@@ -120,17 +120,19 @@ function validateTilePlacement(tileObj, rule, hex)
     end
   end
 
-  -- 1. Terrain check
+  -- 1. Terrain check (top-right icon WITHOUT hex border = must be placed ON this terrain)
   if pl and pl.terrain and #pl.terrain > 0 then
     if not listContains(pl.terrain, hex.t) then
-      local need = pl.text ~= "" and pl.text or ("Must be placed on: " .. table.concat(pl.terrain, " / "))
-      return false, string.format("%s on %s (%s): %s", rule.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, need)
+      local labels = {}
+      for _, t in ipairs(pl.terrain) do table.insert(labels, TERRAIN_LABEL[t] or t) end
+      local tList = table.concat(labels, " / ")
+      return false, string.format("%s on %s (%s): must be placed ON %s.", rule.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, tList), "Needs " .. tList
     end
   elseif hex.t == "water" then
-    return false, string.format("%s cannot be placed on %s (Water/River).", rule.name, hex.id)
+    return false, string.format("%s cannot be placed on %s (Water/River).", rule.name, hex.id), "No Water/River"
   end
 
-  -- 2. Adjacent terrain check (e.g., Washhouse -> Water/River, The Vaults -> Ruins)
+  -- 2. Adjacent terrain check (top-right icon INSIDE hex border = must be ADJACENT to this terrain)
   if pl and pl.adjacentTerrain and #pl.adjacentTerrain > 0 then
     local foundAdj = false
     for _, h2 in ipairs(CONFIG.mapHexes) do
@@ -140,8 +142,10 @@ function validateTilePlacement(tileObj, rule, hex)
       end
     end
     if not foundAdj then
-      local need = pl.text ~= "" and pl.text or ("Must be adjacent to: " .. table.concat(pl.adjacentTerrain, " / "))
-      return false, string.format("%s on %s: %s", rule.name, hex.id, need)
+      local labels = {}
+      for _, t in ipairs(pl.adjacentTerrain) do table.insert(labels, TERRAIN_LABEL[t] or t) end
+      local tList = table.concat(labels, " / ")
+      return false, string.format("%s on %s: must be adjacent to %s.", rule.name, hex.id, tList), "Needs adj. " .. tList
     end
   end
 
@@ -165,17 +169,17 @@ function validateTilePlacement(tileObj, rule, hex)
       end
     end
     if not foundCat then
-      local need = pl.text ~= "" and pl.text or ("Must be adjacent to a working " .. table.concat(pl.adjacentCategory, "/") .. " tile.")
-      return false, string.format("%s on %s: %s", rule.name, hex.id, need)
+      local cList = table.concat(pl.adjacentCategory, "/")
+      return false, string.format("%s on %s: must be adjacent to a working %s tile.", rule.name, hex.id, cList), "Needs adj. " .. cList
     end
   end
 
   -- 4. Settlement connection check (after first placement under a Steward Meeple, tiles must touch a working tile)
   if mapTileCount > 0 and not hasStewardHere and not hasWorkingNeighbor and rule.kind ~= "golden" then
-    return false, string.format("%s on %s is not adjacent to any working tile (only allowed with Ranger's Power).", rule.name, hex.id)
+    return false, string.format("%s on %s is not adjacent to any working tile (only allowed with Ranger's Power).", rule.name, hex.id), "Not adj. to tile"
   end
 
-  return true, nil
+  return true, nil, nil
 end
 
 function onObjectDrop(_, obj)
@@ -1616,7 +1620,7 @@ function openHexTilePicker(playerColor, menuPosition)
       end
     end
     if rule then
-      local legal, reason = validateTilePlacement(nil, rule, hex)
+      local legal, reason, shortReason = validateTilePlacement(nil, rule, hex)
       local bag = getObjectFromGUID(entry.bagGuid)
       local stock = 0
       local firstGuid = nil
@@ -1646,7 +1650,7 @@ function openHexTilePicker(playerColor, menuPosition)
         affordable = affordable,
         isRuins = isRuins,
         legal = legal and (stock > 0),
-        reason = (stock == 0) and "Out of stock" or (reason or "")
+        reason = (stock == 0) and "None left" or (shortReason or reason or "Not legal")
       }
       if item.legal then
         table.insert(legalList, item)
@@ -1685,10 +1689,7 @@ function openHexTilePicker(playerColor, menuPosition)
         UI.setAttribute("hpBtn" .. i, "color", opt.affordable and "#2f5e36" or "#6a3a24")
         UI.setAttribute("hpBtn" .. i, "text", opt.affordable and "PLACE" or "FORCE")
       else
-        local shortWhy = opt.stock == 0 and "None left" or "Not legal for hex"
-        if opt.rule.placement and opt.rule.placement.text and opt.rule.placement.text ~= "" then
-          shortWhy = "Not legal: " .. string.gsub(opt.rule.placement.text, "^Place ", "")
-        end
+        local shortWhy = (opt.stock == 0) and "None left" or ("Not legal: " .. (opt.reason or "invalid"))
         UI.setAttribute("hpCost" .. i, "text", shortWhy)
         UI.setAttribute("hpCost" .. i, "color", "#c4846a")
         UI.setAttribute("hpBtn" .. i, "color", opt.stock > 0 and "#4a382c" or "#2a2420")
