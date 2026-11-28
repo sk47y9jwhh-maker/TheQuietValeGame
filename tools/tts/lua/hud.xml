@@ -359,3 +359,133 @@ __QV_TILE_MENU_ROWS__
     <Button text="X" preferredWidth="30" minWidth="30" preferredHeight="30" minHeight="30" color="#68241e" onClick="onHudDismissAlert" tooltip="Dismiss warning" />
   </HorizontalLayout>
 </Panel>
+
+<!-- Right-Click Empty Hex Core Tile Picker Modal (Living-Table style!) -->
+<Panel id="qvHexPickerModal"
+       active="false"
+       rectAlignment="MiddleCenter"
+       width="540"
+       height="446"
+       color="#171411FA"
+       outline="#c89e4c"
+       outlineSize="2 -2"
+       allowDragging="true"
+       returnToOriginalPositionWhenReleased="false">
+  <HorizontalLayout rectAlignment="UpperCenter" height="36" padding="12 8 5 5" color="#261f17FF">
+    <Text id="hexPickTitle" text="PLACE CORE TILE ON HEX" fontSize="12" fontStyle="Bold" color="#ecd084" alignment="MiddleLeft" flexibleWidth="1" />
+    <Button text="CLOSE" preferredWidth="64" minWidth="64" color="#6a2a24" onClick="onHudCloseHexPicker" />
+  </HorizontalLayout>
+  <Text id="hexPickSub" rectAlignment="UpperCenter" offsetXY="0 -38" width="520" height="24" text="Showing legal Core Tiles for this hex (click PLACE to pull, pay cost, move Steward, and spend 1 Action)." fontSize="10" color="#d4ccb8" alignment="MiddleCenter" />
+  <VerticalScrollView rectAlignment="UpperCenter" offsetXY="0 -64" width="528" height="374" color="#17141100" scrollSensitivity="35" horizontalScrollbarVisibility="AutoHideAndExpandViewport">
+    <VerticalLayout id="hexPickList" width="504" height="680" padding="6 6 4 6" spacing="4" childForceExpandHeight="false" childControlHeight="true" childForceExpandWidth="true">
+      <HorizontalLayout id="hexPickRow1" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#252019EE">
+        <Text id="hpCat1" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName1" text="Tile (x3)" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost1" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn1" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(1)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow2" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#201b15EE">
+        <Text id="hpCat2" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName2" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost2" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn2" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(2)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow3" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#252019EE">
+        <Text id="hpCat3" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName3" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost3" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn3" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(3)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow4" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#201b15EE">
+        <Text id="hpCat4" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName4" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost4" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn4" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(4)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow5" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#252019EE">
+        <Text id="hpCat5" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName5" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost5" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn5" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(5)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow6" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#201b15EE">
+        <Text id="hpCat6" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName6" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost6" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn6" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(6)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow7" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#252019EE">
+        <Text id="hpCat7" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName7" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost7" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn7" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(7)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow8" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#201b15EE">
+        <Text id="hpCat8" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName8" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost8" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn8" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(8)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow9" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#252019EE">
+        <Text id="hpCat9" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName9" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost9" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn9" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(9)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow10" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#201b15EE">
+        <Text id="hpCat10" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName10" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost10" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn10" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(10)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow11" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#252019EE">
+        <Text id="hpCat11" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName11" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost11" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn11" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(11)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow12" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#201b15EE">
+        <Text id="hpCat12" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName12" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost12" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn12" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(12)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow13" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#252019EE">
+        <Text id="hpCat13" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName13" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost13" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn13" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(13)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow14" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#201b15EE">
+        <Text id="hpCat14" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName14" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost14" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn14" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(14)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow15" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#252019EE">
+        <Text id="hpCat15" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName15" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost15" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn15" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(15)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow16" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#201b15EE">
+        <Text id="hpCat16" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName16" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost16" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn16" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(16)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow17" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#252019EE">
+        <Text id="hpCat17" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName17" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost17" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn17" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(17)" />
+      </HorizontalLayout>
+      <HorizontalLayout id="hexPickRow18" minHeight="34" preferredHeight="34" spacing="6" padding="6 6 2 2" color="#201b15EE">
+        <Text id="hpCat18" text="RES" preferredWidth="58" minWidth="58" fontSize="10" fontStyle="Bold" color="#9ed68c" alignment="MiddleCenter" />
+        <Text id="hpName18" text="Tile" preferredWidth="185" minWidth="185" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+        <Text id="hpCost18" text="Free" flexibleWidth="1" fontSize="10" color="#e8d8b0" alignment="MiddleLeft" />
+        <Button id="hpBtn18" text="PLACE" preferredWidth="68" minWidth="68" fontSize="10" color="#2f5e36" onClick="onHexPickTile(18)" />
+      </HorizontalLayout>
+    </VerticalLayout>
+  </VerticalScrollView>
+</Panel>

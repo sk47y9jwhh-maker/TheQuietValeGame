@@ -390,6 +390,13 @@ end
 -- ---------------------------------------------------------------------------
 function attachObjectMenus(obj)
   if not obj then return end
+  if obj.getName() == "The Quiet Vale — Map Board" then
+    obj.clearContextMenu()
+    obj.addContextMenuItem("Place Core Tile Here...", function(playerColor)
+      openHexTilePicker(playerColor)
+    end)
+    return
+  end
   local note = obj.getGMNotes() or ""
   if note == "" then return end
 
@@ -1537,6 +1544,195 @@ function onHudFocusCam(player, preset)
   end
 end
 
+-- ---------------------------------------------------------------------------
+-- Right-Click Empty Hex Core Tile Picker (Living-Table style!)
+-- ---------------------------------------------------------------------------
+local hexPicker = { hex = nil, options = {} }
+
+local CAT_BADGE = {
+  resource  = { "RES",   "#9ed68c" },
+  housing   = { "HOUSE", "#e8a87c" },
+  social    = { "SOC",   "#d89cc8" },
+  wellbeing = { "WELL",  "#a8d8c8" },
+  merchant  = { "MERCH", "#ecd078" },
+  crafting  = { "CRAFT", "#d4c88c" },
+  travel    = { "TRAV",  "#c8bca4" }
+}
+
+local function formatCostShort(costMap, isRuins)
+  local short = { wood = "W", stone = "St", metal = "M", food = "F", herbs = "H", goods = "G" }
+  local parts = {}
+  for _, res in ipairs({"wood", "stone", "metal", "food", "herbs", "goods"}) do
+    local amt = costMap[res] or 0
+    if amt > 0 then table.insert(parts, tostring(amt) .. short[res]) end
+  end
+  if #parts == 0 then
+    return isRuins and "Free (Ruins!)" or "Free"
+  end
+  return table.concat(parts, " ") .. (isRuins and " (Ruins!)" or "")
+end
+
+function openHexTilePicker(playerColor)
+  local pl = Player[playerColor]
+  local ptr = pl and pl.getPointerPosition()
+  if not ptr then return end
+  local hex = findNearestHex(ptr)
+  if not hex then
+    broadcastToAll("Right-click directly over an empty Map Board hex to open the Core Tile Picker.", {0.96, 0.78, 0.44})
+    return
+  end
+
+  -- Check if hex is already occupied
+  for _, other in ipairs(getAllObjects()) do
+    local oid = other.getGMNotes() or ""
+    local oname = other.getName() or ""
+    if (CONFIG.tileRules[oid] or oname == "Travel Extension") and isOnMapBoard(other.getPosition()) then
+      local op = other.getPosition()
+      if math.sqrt((op.x - hex.x)^2 + (op.z - hex.z)^2) < 0.75 then
+        showAlert("HEX OCCUPIED", hex.id .. " already has " .. oname .. " on it. Right-click that tile to Activate or Upgrade.")
+        return
+      end
+    end
+  end
+
+  local isRuins = (hex.t == "ruins")
+  local options = {}
+  for _, entry in ipairs(CONFIG.coreCatalog) do
+    local ruleId, rule = nil, nil
+    for id, r in pairs(CONFIG.tileRules) do
+      if r.kind == "core" and r.name == entry.name then
+        ruleId, rule = id, r
+        break
+      end
+    end
+    if rule then
+      local legal = validateTilePlacement(nil, rule, hex)
+      if legal then
+        local bag = getObjectFromGUID(entry.bagGuid)
+        local stock = 0
+        local firstGuid = nil
+        if bag then
+          local prefix = entry.name .. " /"
+          for _, item in ipairs(bag.getObjects()) do
+            if string.sub(item.name or "", 1, #prefix) == prefix then
+              stock = stock + 1
+              if not firstGuid then firstGuid = item.guid end
+            end
+          end
+        end
+        if stock > 0 then
+          local effCost = {}
+          for res, amt in pairs(rule.basic.cost or {}) do
+            if not (isRuins and (res == "wood" or res == "stone" or res == "metal")) then
+              effCost[res] = amt
+            end
+          end
+          local affordable = canAffordCost(effCost)
+          table.insert(options, {
+            id = ruleId,
+            rule = rule,
+            bagGuid = entry.bagGuid,
+            tileGuid = firstGuid,
+            stock = stock,
+            effCost = effCost,
+            affordable = affordable,
+            isRuins = isRuins
+          })
+        end
+      end
+    end
+  end
+
+  hexPicker.hex = hex
+  hexPicker.options = options
+  UI.setAttribute("hexPickTitle", "text", string.format("PLACE CORE TILE ON %s (%s)", hex.id, TERRAIN_LABEL[hex.t] or hex.t))
+
+  if #options == 0 then
+    UI.setAttribute("hexPickSub", "text", "No legal Core Tiles available for " .. hex.id .. " right now (check terrain, adjacency, or move a Steward here first).")
+  else
+    local ruinsNote = isRuins and "  |  Shelter in the Ruins: Wood/Stone/Metal FREE!" or ""
+    UI.setAttribute("hexPickSub", "text", string.format("%d legal Core Tile(s) for %s — click PLACE to pull, pay cost & move Steward.%s", #options, hex.id, ruinsNote))
+  end
+
+  for i = 1, 18 do
+    local opt = options[i]
+    if opt then
+      UI.setAttribute("hexPickRow" .. i, "active", "true")
+      local b = CAT_BADGE[opt.rule.category] or { "TILE", "#d8ceb8" }
+      UI.setAttribute("hpCat" .. i, "text", b[1])
+      UI.setAttribute("hpCat" .. i, "color", b[2])
+      UI.setAttribute("hpName" .. i, "text", string.format("%s (x%d)", opt.rule.name, opt.stock))
+      UI.setAttribute("hpCost" .. i, "text", formatCostShort(opt.effCost, opt.isRuins))
+      UI.setAttribute("hpCost" .. i, "color", opt.affordable and "#e8d8b0" or "#e8847a")
+      UI.setAttribute("hpBtn" .. i, "color", opt.affordable and "#2f5e36" or "#5a2a24")
+      UI.setAttribute("hpBtn" .. i, "text", opt.affordable and "PLACE" or "SHORT")
+    else
+      UI.setAttribute("hexPickRow" .. i, "active", "false")
+    end
+  end
+  UI.setAttribute("hexPickList", "height", tostring(math.max(120, #options * 38 + 16)))
+  UI.setAttribute("qvHexPickerModal", "active", "true")
+end
+
+function onHudCloseHexPicker()
+  UI.setAttribute("qvHexPickerModal", "active", "false")
+end
+
+function onHexPickTile(_, idxStr)
+  local idx = tonumber(idxStr)
+  local opt = idx and hexPicker.options and hexPicker.options[idx]
+  local hex = hexPicker.hex
+  if not opt or not hex then return end
+
+  local ok, details = payCost(opt.effCost)
+  if not ok then
+    showAlert("CANNOT AFFORD " .. opt.rule.name, "Missing Warehouse resources: " .. table.concat(details, ", "))
+    broadcastToAll("Cannot place " .. opt.rule.name .. " — missing: " .. table.concat(details, ", "), {0.96, 0.48, 0.44})
+    return
+  end
+
+  local bag = getObjectFromGUID(opt.bagGuid)
+  if not bag then return end
+
+  UI.setAttribute("qvHexPickerModal", "active", "false")
+  if not state.placedTileGuids then state.placedTileGuids = {} end
+  state.placedTileGuids[opt.tileGuid] = hex.id
+
+  bag.takeObject({
+    guid = opt.tileGuid,
+    position = { hex.x, 1.12, hex.z },
+    rotation = { 0, 180, 0 },
+    smooth = true,
+    callback_function = function(spawned)
+      if spawned then attachObjectMenus(spawned) end
+    end
+  })
+
+  -- Move the active player's Steward Meeple neatly onto the newly placed tile!
+  local st = getSeatSteward(state.currentTurnIdx)
+  local pawn = st and getObjectFromGUID(st.pawnGuid)
+  if pawn then
+    if not state.pawnLastHex then state.pawnLastHex = {} end
+    state.pawnLastHex[st.id] = hex.id
+    Wait.time(function()
+      pawn.setPositionSmooth({ hex.x, 1.62, hex.z }, false, true)
+      pawn.setRotationSmooth({ 0, 180, 0 }, false, true)
+    end, 0.25)
+  end
+
+  spendAction(1)
+  local costStr = (#details > 0) and table.concat(details, ", ") or "Free!"
+  local ruinsNote = opt.isRuins and " [Shelter in the Ruins!]" or ""
+  broadcastToAll(
+    string.format("[AUTO] Placed %s on %s (%s) — %s, -1 Action (%d left), moved %s Meeple.%s",
+      opt.rule.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, costStr, state.actionsLeft or 0, st and st.name or "Steward", ruinsNote),
+    {0.82, 0.96, 0.78}
+  )
+  if (state.actionsLeft or 0) == 0 then
+    showAlert("0 ACTIONS REMAINING", "This player has used all Actions — click NEXT TURN when ready.")
+  end
+end
+
 function onHudSetup(_, playerCountStr)
   local p = tonumber(playerCountStr)
   if p then runSetup(p) end
@@ -2393,6 +2589,7 @@ function resetTable()
   UI.setAttribute("qvScoreModal", "active", "false")
   UI.setAttribute("qvTileMenuModal", "active", "false")
   UI.setAttribute("qvSeedingModal", "active", "false")
+  UI.setAttribute("qvHexPickerModal", "active", "false")
   UI.setAttribute("qvAlertBanner", "active", "false")
   seedSession = { active = false, season = 1, playerIdx = 1, hands = {}, picks = {} }
   tileMenuOpen = false
