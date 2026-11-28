@@ -386,11 +386,11 @@ function makePlaque({ guid = nextGuid(), name, pos, scale = [3.6, 0.25, 2.2], co
   };
 }
 
-function makePawn({ guid = nextGuid(), name, description, pos, color }) {
+function makePawn({ guid = nextGuid(), name, description, pos, color, meshUrl }) {
   return {
     GUID: guid,
-    Name: "PlayerPawn",
-    Transform: makeTransform(pos, [0, 180, 0], [1.05, 1.05, 1.05]),
+    Name: "Custom_Model",
+    Transform: makeTransform(pos, [0, 180, 0], [1.0, 1.0, 1.0]),
     Nickname: name,
     Description: description,
     GMNotes: "",
@@ -402,6 +402,48 @@ function makePawn({ guid = nextGuid(), name, description, pos, color }) {
     Sticky: true,
     Tooltip: true,
     Hands: false,
+    CustomMesh: {
+      MeshURL: meshUrl,
+      DiffuseURL: "",
+      NormalURL: "",
+      ColliderURL: "",
+      Convex: true,
+      MaterialIndex: 1, // Wood
+      TypeIndex: 1,     // Figurine (stays upright!)
+      CastShadows: true
+    },
+    LuaScript: "",
+    LuaScriptState: "",
+    XmlUI: ""
+  };
+}
+
+function make3dToken({ guid = nextGuid(), name, description = "", pos, scale = [0.4, 1.0, 0.4], color, meshUrl, materialIndex = 1 }) {
+  return {
+    GUID: guid,
+    Name: "Custom_Model",
+    Transform: makeTransform(pos, [0, 180, 0], scale),
+    Nickname: name,
+    Description: description,
+    GMNotes: "",
+    ColorDiffuse: color,
+    Locked: false,
+    Grid: false,
+    Snap: true,
+    Autoraise: true,
+    Sticky: true,
+    Tooltip: true,
+    Hands: false,
+    CustomMesh: {
+      MeshURL: meshUrl,
+      DiffuseURL: "",
+      NormalURL: "",
+      ColliderURL: "",
+      Convex: true,
+      MaterialIndex: materialIndex, // 1 = Wood, 2 = Metal
+      TypeIndex: 0,                 // Generic token
+      CastShadows: true
+    },
     LuaScript: "",
     LuaScriptState: "",
     XmlUI: ""
@@ -678,33 +720,33 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   });
 
   // Infinite Token Bags on the right side of the Logistics Board (TOKENS well)
+  // Real game components: Black wooden Strain discs, Bronze metal Supported shields, Natural wooden X tokens, Round bronze metal Arrival discs
   const tokWellX = LONG_BOARD_MM.w - 6 - 40;
   let strainBagGuid = "";
   let supportedBagGuid = "";
   let cooldownXBagGuid = "";
   let arrivalTimerBagGuid = "";
   const tokenBagSpecs = [
-    ["Strain Tokens", "Place on tiles for Strain. 3 Strain = Overstrained.", "tokens/strain.png", { r: 0.16, g: 0.15, b: 0.15 }, -20, -24, 0.42],
-    ["Supported Shields", "Single-use bronze shield: prevents the next 1 Strain on this tile.", "tokens/supported.png", { r: 0.72, g: 0.54, b: 0.24 }, 20, -24, 0.44],
-    ["Cooldown X", "Marks a tile activated this round. Cleared by End Round button.", "tokens/cooldown-x.png", { r: 0.48, g: 0.24, b: 0.22 }, -20, 24, 0.40],
-    ["Arrival Timers", "Place 3 timers on a revealed Arrival; remove 1 each round.", "tokens/arrival-timer.png", { r: 0.24, g: 0.36, b: 0.44 }, 20, 24, 0.30]
+    ["Strain Tokens", "Black wooden disc: place on tiles for Strain (3 Strain = Overstrained).", "models/token-disc.obj", { r: 0.12, g: 0.11, b: 0.11 }, 1, -20, -24, 0.42],
+    ["Supported Shields", "Bronze metal shield: prevents the next 1 Strain on this tile, then removed.", "models/token-shield.obj", { r: 0.80, g: 0.58, b: 0.26 }, 2, 20, -24, 0.46],
+    ["Cooldown X", "Natural wooden X: marks a once-per-round tile or Linked Production used this round.", "models/token-x.obj", { r: 0.76, g: 0.62, b: 0.42 }, 1, -20, 24, 0.44],
+    ["Arrival Timers", "Round bronze metal disc: place 3 on a revealed Arrival; remove 1 each round.", "models/token-disc.obj", { r: 0.76, g: 0.52, b: 0.24 }, 2, 20, 24, 0.30]
   ];
-  for (const [bagName, desc, imgRel, col, dxMm, dyMm, tokScale] of tokenBagSpecs) {
+  for (const [bagName, desc, meshRel, col, matIdx, dxMm, dyMm, tokScale] of tokenBagSpecs) {
     const [bx, bz] = boardMmToWorld(POS.logisticsBoard, LONG_BOARD_MM, tokWellX + dxMm, 73 + dyMm);
     const bagGuid = nextGuid();
     if (bagName === "Strain Tokens") strainBagGuid = bagGuid;
     if (bagName === "Supported Shields") supportedBagGuid = bagGuid;
     if (bagName === "Cooldown X") cooldownXBagGuid = bagGuid;
     if (bagName === "Arrival Timers") arrivalTimerBagGuid = bagGuid;
-    const tokenItem = makeCustomTile({
+    const tokenItem = make3dToken({
       name: bagName === "Cooldown X" ? "Cooldown X" : bagName.replace(/s$/, ""),
       description: desc,
       pos: [bx, 1.2, bz],
       scale: [tokScale, 1.0, tokScale],
-      imageUrl: asset(imgRel),
-      type: 2,
-      thickness: 0.12,
-      stackable: true
+      color: col,
+      meshUrl: asset(meshRel),
+      materialIndex: matIdx
     });
     objects.push(
       makeBag({
@@ -947,13 +989,14 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   );
 
   // 7. 6 Steward Reference Mats (3:2 landscape via stretch: true) + 6 Matching Meeples/Pawns
+  // Exact canonical Steward meeple colours from design/rulebook-v6_9/scene.py (STEWARD_COLOURS)
   const stewardColors = {
-    vanguard: { r: 0.31, g: 0.48, b: 0.32 },
-    knight: { r: 0.64, g: 0.37, b: 0.24 },
-    sentinel: { r: 0.37, g: 0.44, b: 0.49 },
-    ranger: { r: 0.46, g: 0.33, b: 0.54 },
-    warden: { r: 0.55, g: 0.24, b: 0.28 },
-    quartermaster: { r: 0.61, g: 0.49, b: 0.20 }
+    vanguard:      { r: 0.333, g: 0.463, b: 0.310 }, // (85, 118, 79)
+    knight:        { r: 0.659, g: 0.557, b: 0.196 }, // (168, 142, 50)
+    sentinel:      { r: 0.369, g: 0.510, b: 0.576 }, // (94, 130, 147)
+    ranger:        { r: 0.467, g: 0.380, b: 0.518 }, // (119, 97, 132)
+    warden:        { r: 0.678, g: 0.404, b: 0.239 }, // (173, 103, 61)
+    quartermaster: { r: 0.651, g: 0.557, b: 0.416 }  // (166, 142, 106)
   };
   // Default Starting Terrain hex IDs matching src/engine/setup.ts
   const defaultStewardStartHex = {
@@ -998,7 +1041,8 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
         name: `${s.name} Meeple`,
         description: `Place on starting terrain (${s.startingTerrains.join(", ")}).`,
         pos: [sx, 1.5, sz + 1.0],
-        color: stewardColors[s.id]
+        color: stewardColors[s.id],
+        meshUrl: asset("models/meeple.obj")
       })
     );
   });
