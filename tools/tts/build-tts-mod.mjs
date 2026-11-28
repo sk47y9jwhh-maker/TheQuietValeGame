@@ -794,14 +794,14 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     makeBag({
       guid: travelExtBagGuid,
       name: `Travel Extensions (${extCount})`,
-      description: "Double-sided Travel Extension hexes (Basic / Upgraded). Use +EXT in HUD to pull quickly.",
-      pos: [-23.0, 1.15, 14.6],
+      description: "Double-sided Travel Extension hexes (Basic / Upgraded). Use +TRAVEL EXT. in HUD to pull quickly.",
+      pos: [16.4, 1.15, -3.6],
       color: { r: 0.45, g: 0.42, b: 0.34 },
       contained: extItems
     })
   );
 
-  // 5. Special Tiles Reserve Bag (26 numbered tiles #1-#26) & Golden Tiles Bag (5) — top-left archive row
+  // 5. Special Tiles Reserve Bag (26 numbered tiles #1-#26) & Golden Tiles Bag (5) — neatly between Tiles Board & Rulebook
   const specialBagGuid = nextGuid();
   const specialContained = [];
   for (const t of specialTiles) {
@@ -814,7 +814,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
             name: `#${num} ${t.name}`,
             description: `Special Tile #${num} (0 Actions to place once unlocked). ${t.effectText || ""}`,
             gmNotes: t.id,
-            pos: [-19.4, 1.3, 14.6],
+            pos: [16.4, 1.3, -6.7],
             scale: HEX_SCALE,
             imageUrl: asset(`tiles/${t.id}.jpg`),
             secondaryUrl: asset(`tiles/special-back-${num}.jpg`),
@@ -831,7 +831,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       guid: specialBagGuid,
       name: "Special Tiles Reserve (#1–#26)",
       description: "All 26 numbered Special Tiles. Unlocked automatically when Welcoming Arrivals or via HUD.",
-      pos: [-19.4, 1.15, 14.6],
+      pos: [16.4, 1.15, -6.7],
       color: { r: 0.20, g: 0.24, b: 0.32 },
       contained: specialContained
     })
@@ -842,7 +842,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       name: t.name,
       description: `Golden Legacy Tile #${i + 1}. ${t.effectText || ""}\nScoring: ${t.scoringText || ""}`,
       gmNotes: t.id,
-      pos: [-15.8, 1.3, 14.6],
+      pos: [16.4, 1.3, -9.8],
       scale: HEX_SCALE,
       imageUrl: asset(`tiles/${t.id}.jpg`),
       secondaryUrl: asset("tiles/golden-back.jpg"),
@@ -857,7 +857,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       guid: goldenBagGuid,
       name: "Golden Tiles Reserve (5)",
       description: "5 Golden Legacy hex tiles.",
-      pos: [-15.8, 1.15, 14.6],
+      pos: [16.4, 1.15, -9.8],
       color: { r: 0.76, g: 0.60, b: 0.22 },
       contained: goldenContained
     })
@@ -960,7 +960,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     makePdf({
       name: "The Quiet Vale — Rulebook v7.0 (36 pages)",
       pdfUrl,
-      pos: [19.8, 1.25, -6.7]
+      pos: [21.6, 1.25, -6.7]
     }),
     makePdf({
       name: "A6 Steward Guide (Seat 1 — White)",
