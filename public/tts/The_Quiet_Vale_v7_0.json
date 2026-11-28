@@ -7671,12 +7671,12 @@
         "scaleZ": 0.75
       },
       "Nickname": "Strain Tokens",
-      "Description": "Place on tiles for Strain. 3 Strain = Overstrained.",
+      "Description": "Black wooden disc: place on tiles for Strain (3 Strain = Overstrained).",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.16,
-        "g": 0.15,
-        "b": 0.15
+        "r": 0.12,
+        "g": 0.11,
+        "b": 0.11
       },
       "Locked": true,
       "Grid": false,
@@ -7694,7 +7694,7 @@
       "ContainedObjects": [
         {
           "GUID": "10007a",
-          "Name": "Custom_Tile",
+          "Name": "Custom_Model",
           "Transform": {
             "posX": 23.07,
             "posY": 1.2,
@@ -7707,38 +7707,29 @@
             "scaleZ": 0.42
           },
           "Nickname": "Strain Token",
-          "Description": "Place on tiles for Strain. 3 Strain = Overstrained.",
+          "Description": "Black wooden disc: place on tiles for Strain (3 Strain = Overstrained).",
           "GMNotes": "",
           "ColorDiffuse": {
-            "r": 1,
-            "g": 1,
-            "b": 1
+            "r": 0.12,
+            "g": 0.11,
+            "b": 0.11
           },
-          "LayoutGroupSortIndex": 0,
-          "Value": 0,
           "Locked": false,
           "Grid": false,
           "Snap": true,
-          "IgnoreFoW": false,
-          "MeasureMovement": false,
-          "DragSelectable": true,
           "Autoraise": true,
           "Sticky": true,
           "Tooltip": true,
-          "GridProjection": false,
-          "HideWhenFaceDown": false,
           "Hands": false,
-          "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tokens/strain.png",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/strain.png",
-            "ImageScalar": 1,
-            "WidthScale": 0,
-            "CustomTile": {
-              "Type": 2,
-              "Thickness": 0.12,
-              "Stackable": true,
-              "Stretch": false
-            }
+          "CustomMesh": {
+            "MeshURL": "https://thequietvalegame.com/tts/models/token-disc.obj",
+            "DiffuseURL": "",
+            "NormalURL": "",
+            "ColliderURL": "",
+            "Convex": true,
+            "MaterialIndex": 1,
+            "TypeIndex": 0,
+            "CastShadows": true
           },
           "LuaScript": "",
           "LuaScriptState": "",
@@ -7764,12 +7755,12 @@
         "scaleZ": 0.75
       },
       "Nickname": "Supported Shields",
-      "Description": "Single-use bronze shield: prevents the next 1 Strain on this tile.",
+      "Description": "Bronze metal shield: prevents the next 1 Strain on this tile, then removed.",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.72,
-        "g": 0.54,
-        "b": 0.24
+        "r": 0.8,
+        "g": 0.58,
+        "b": 0.26
       },
       "Locked": true,
       "Grid": false,
@@ -7787,7 +7778,7 @@
       "ContainedObjects": [
         {
           "GUID": "10007c",
-          "Name": "Custom_Tile",
+          "Name": "Custom_Model",
           "Transform": {
             "posX": 24.67,
             "posY": 1.2,
@@ -7795,43 +7786,34 @@
             "rotX": 0,
             "rotY": 180,
             "rotZ": 0,
-            "scaleX": 0.44,
+            "scaleX": 0.46,
             "scaleY": 1,
-            "scaleZ": 0.44
+            "scaleZ": 0.46
           },
           "Nickname": "Supported Shield",
-          "Description": "Single-use bronze shield: prevents the next 1 Strain on this tile.",
+          "Description": "Bronze metal shield: prevents the next 1 Strain on this tile, then removed.",
           "GMNotes": "",
           "ColorDiffuse": {
-            "r": 1,
-            "g": 1,
-            "b": 1
+            "r": 0.8,
+            "g": 0.58,
+            "b": 0.26
           },
-          "LayoutGroupSortIndex": 0,
-          "Value": 0,
           "Locked": false,
           "Grid": false,
           "Snap": true,
-          "IgnoreFoW": false,
-          "MeasureMovement": false,
-          "DragSelectable": true,
           "Autoraise": true,
           "Sticky": true,
           "Tooltip": true,
-          "GridProjection": false,
-          "HideWhenFaceDown": false,
           "Hands": false,
-          "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tokens/supported.png",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/supported.png",
-            "ImageScalar": 1,
-            "WidthScale": 0,
-            "CustomTile": {
-              "Type": 2,
-              "Thickness": 0.12,
-              "Stackable": true,
-              "Stretch": false
-            }
+          "CustomMesh": {
+            "MeshURL": "https://thequietvalegame.com/tts/models/token-shield.obj",
+            "DiffuseURL": "",
+            "NormalURL": "",
+            "ColliderURL": "",
+            "Convex": true,
+            "MaterialIndex": 2,
+            "TypeIndex": 0,
+            "CastShadows": true
           },
           "LuaScript": "",
           "LuaScriptState": "",
@@ -7857,12 +7839,12 @@
         "scaleZ": 0.75
       },
       "Nickname": "Cooldown X",
-      "Description": "Marks a tile activated this round. Cleared by End Round button.",
+      "Description": "Natural wooden X: marks a once-per-round tile or Linked Production used this round.",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.48,
-        "g": 0.24,
-        "b": 0.22
+        "r": 0.76,
+        "g": 0.62,
+        "b": 0.42
       },
       "Locked": true,
       "Grid": false,
@@ -7880,7 +7862,7 @@
       "ContainedObjects": [
         {
           "GUID": "10007e",
-          "Name": "Custom_Tile",
+          "Name": "Custom_Model",
           "Transform": {
             "posX": 23.07,
             "posY": 1.2,
@@ -7888,43 +7870,34 @@
             "rotX": 0,
             "rotY": 180,
             "rotZ": 0,
-            "scaleX": 0.4,
+            "scaleX": 0.44,
             "scaleY": 1,
-            "scaleZ": 0.4
+            "scaleZ": 0.44
           },
           "Nickname": "Cooldown X",
-          "Description": "Marks a tile activated this round. Cleared by End Round button.",
+          "Description": "Natural wooden X: marks a once-per-round tile or Linked Production used this round.",
           "GMNotes": "",
           "ColorDiffuse": {
-            "r": 1,
-            "g": 1,
-            "b": 1
+            "r": 0.76,
+            "g": 0.62,
+            "b": 0.42
           },
-          "LayoutGroupSortIndex": 0,
-          "Value": 0,
           "Locked": false,
           "Grid": false,
           "Snap": true,
-          "IgnoreFoW": false,
-          "MeasureMovement": false,
-          "DragSelectable": true,
           "Autoraise": true,
           "Sticky": true,
           "Tooltip": true,
-          "GridProjection": false,
-          "HideWhenFaceDown": false,
           "Hands": false,
-          "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tokens/cooldown-x.png",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/cooldown-x.png",
-            "ImageScalar": 1,
-            "WidthScale": 0,
-            "CustomTile": {
-              "Type": 2,
-              "Thickness": 0.12,
-              "Stackable": true,
-              "Stretch": false
-            }
+          "CustomMesh": {
+            "MeshURL": "https://thequietvalegame.com/tts/models/token-x.obj",
+            "DiffuseURL": "",
+            "NormalURL": "",
+            "ColliderURL": "",
+            "Convex": true,
+            "MaterialIndex": 1,
+            "TypeIndex": 0,
+            "CastShadows": true
           },
           "LuaScript": "",
           "LuaScriptState": "",
@@ -7950,12 +7923,12 @@
         "scaleZ": 0.75
       },
       "Nickname": "Arrival Timers",
-      "Description": "Place 3 timers on a revealed Arrival; remove 1 each round.",
+      "Description": "Round bronze metal disc: place 3 on a revealed Arrival; remove 1 each round.",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.24,
-        "g": 0.36,
-        "b": 0.44
+        "r": 0.76,
+        "g": 0.52,
+        "b": 0.24
       },
       "Locked": true,
       "Grid": false,
@@ -7973,7 +7946,7 @@
       "ContainedObjects": [
         {
           "GUID": "100080",
-          "Name": "Custom_Tile",
+          "Name": "Custom_Model",
           "Transform": {
             "posX": 24.67,
             "posY": 1.2,
@@ -7986,38 +7959,29 @@
             "scaleZ": 0.3
           },
           "Nickname": "Arrival Timer",
-          "Description": "Place 3 timers on a revealed Arrival; remove 1 each round.",
+          "Description": "Round bronze metal disc: place 3 on a revealed Arrival; remove 1 each round.",
           "GMNotes": "",
           "ColorDiffuse": {
-            "r": 1,
-            "g": 1,
-            "b": 1
+            "r": 0.76,
+            "g": 0.52,
+            "b": 0.24
           },
-          "LayoutGroupSortIndex": 0,
-          "Value": 0,
           "Locked": false,
           "Grid": false,
           "Snap": true,
-          "IgnoreFoW": false,
-          "MeasureMovement": false,
-          "DragSelectable": true,
           "Autoraise": true,
           "Sticky": true,
           "Tooltip": true,
-          "GridProjection": false,
-          "HideWhenFaceDown": false,
           "Hands": false,
-          "CustomImage": {
-            "ImageURL": "https://thequietvalegame.com/tts/tokens/arrival-timer.png",
-            "ImageSecondaryURL": "https://thequietvalegame.com/tts/tokens/arrival-timer.png",
-            "ImageScalar": 1,
-            "WidthScale": 0,
-            "CustomTile": {
-              "Type": 2,
-              "Thickness": 0.12,
-              "Stackable": true,
-              "Stretch": false
-            }
+          "CustomMesh": {
+            "MeshURL": "https://thequietvalegame.com/tts/models/token-disc.obj",
+            "DiffuseURL": "",
+            "NormalURL": "",
+            "ColliderURL": "",
+            "Convex": true,
+            "MaterialIndex": 2,
+            "TypeIndex": 0,
+            "CastShadows": true
           },
           "LuaScript": "",
           "LuaScriptState": "",
@@ -15736,7 +15700,7 @@
     },
     {
       "GUID": "100116",
-      "Name": "PlayerPawn",
+      "Name": "Custom_Model",
       "Transform": {
         "posX": -13.5,
         "posY": 1.5,
@@ -15744,17 +15708,17 @@
         "rotX": 0,
         "rotY": 180,
         "rotZ": 0,
-        "scaleX": 1.05,
-        "scaleY": 1.05,
-        "scaleZ": 1.05
+        "scaleX": 1,
+        "scaleY": 1,
+        "scaleZ": 1
       },
       "Nickname": "Vanguard Meeple",
       "Description": "Place on starting terrain (woodland).",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.31,
-        "g": 0.48,
-        "b": 0.32
+        "r": 0.333,
+        "g": 0.463,
+        "b": 0.31
       },
       "Locked": false,
       "Grid": false,
@@ -15763,6 +15727,16 @@
       "Sticky": true,
       "Tooltip": true,
       "Hands": false,
+      "CustomMesh": {
+        "MeshURL": "https://thequietvalegame.com/tts/models/meeple.obj",
+        "DiffuseURL": "",
+        "NormalURL": "",
+        "ColliderURL": "",
+        "Convex": true,
+        "MaterialIndex": 1,
+        "TypeIndex": 1,
+        "CastShadows": true
+      },
       "LuaScript": "",
       "LuaScriptState": "",
       "XmlUI": ""
@@ -15821,7 +15795,7 @@
     },
     {
       "GUID": "100118",
-      "Name": "PlayerPawn",
+      "Name": "Custom_Model",
       "Transform": {
         "posX": -8.1,
         "posY": 1.5,
@@ -15829,17 +15803,17 @@
         "rotX": 0,
         "rotY": 180,
         "rotZ": 0,
-        "scaleX": 1.05,
-        "scaleY": 1.05,
-        "scaleZ": 1.05
+        "scaleX": 1,
+        "scaleY": 1,
+        "scaleZ": 1
       },
       "Nickname": "Knight Meeple",
       "Description": "Place on starting terrain (arable).",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.64,
-        "g": 0.37,
-        "b": 0.24
+        "r": 0.659,
+        "g": 0.557,
+        "b": 0.196
       },
       "Locked": false,
       "Grid": false,
@@ -15848,6 +15822,16 @@
       "Sticky": true,
       "Tooltip": true,
       "Hands": false,
+      "CustomMesh": {
+        "MeshURL": "https://thequietvalegame.com/tts/models/meeple.obj",
+        "DiffuseURL": "",
+        "NormalURL": "",
+        "ColliderURL": "",
+        "Convex": true,
+        "MaterialIndex": 1,
+        "TypeIndex": 1,
+        "CastShadows": true
+      },
       "LuaScript": "",
       "LuaScriptState": "",
       "XmlUI": ""
@@ -15906,7 +15890,7 @@
     },
     {
       "GUID": "10011a",
-      "Name": "PlayerPawn",
+      "Name": "Custom_Model",
       "Transform": {
         "posX": -2.7,
         "posY": 1.5,
@@ -15914,17 +15898,17 @@
         "rotX": 0,
         "rotY": 180,
         "rotZ": 0,
-        "scaleX": 1.05,
-        "scaleY": 1.05,
-        "scaleZ": 1.05
+        "scaleX": 1,
+        "scaleY": 1,
+        "scaleZ": 1
       },
       "Nickname": "Sentinel Meeple",
       "Description": "Place on starting terrain (mountains).",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.37,
-        "g": 0.44,
-        "b": 0.49
+        "r": 0.369,
+        "g": 0.51,
+        "b": 0.576
       },
       "Locked": false,
       "Grid": false,
@@ -15933,6 +15917,16 @@
       "Sticky": true,
       "Tooltip": true,
       "Hands": false,
+      "CustomMesh": {
+        "MeshURL": "https://thequietvalegame.com/tts/models/meeple.obj",
+        "DiffuseURL": "",
+        "NormalURL": "",
+        "ColliderURL": "",
+        "Convex": true,
+        "MaterialIndex": 1,
+        "TypeIndex": 1,
+        "CastShadows": true
+      },
       "LuaScript": "",
       "LuaScriptState": "",
       "XmlUI": ""
@@ -15991,7 +15985,7 @@
     },
     {
       "GUID": "10011c",
-      "Name": "PlayerPawn",
+      "Name": "Custom_Model",
       "Transform": {
         "posX": 2.7,
         "posY": 1.5,
@@ -15999,17 +15993,17 @@
         "rotX": 0,
         "rotY": 180,
         "rotZ": 0,
-        "scaleX": 1.05,
-        "scaleY": 1.05,
-        "scaleZ": 1.05
+        "scaleX": 1,
+        "scaleY": 1,
+        "scaleZ": 1
       },
       "Nickname": "Ranger Meeple",
       "Description": "Place on starting terrain (heaths).",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.46,
-        "g": 0.33,
-        "b": 0.54
+        "r": 0.467,
+        "g": 0.38,
+        "b": 0.518
       },
       "Locked": false,
       "Grid": false,
@@ -16018,6 +16012,16 @@
       "Sticky": true,
       "Tooltip": true,
       "Hands": false,
+      "CustomMesh": {
+        "MeshURL": "https://thequietvalegame.com/tts/models/meeple.obj",
+        "DiffuseURL": "",
+        "NormalURL": "",
+        "ColliderURL": "",
+        "Convex": true,
+        "MaterialIndex": 1,
+        "TypeIndex": 1,
+        "CastShadows": true
+      },
       "LuaScript": "",
       "LuaScriptState": "",
       "XmlUI": ""
@@ -16076,7 +16080,7 @@
     },
     {
       "GUID": "10011e",
-      "Name": "PlayerPawn",
+      "Name": "Custom_Model",
       "Transform": {
         "posX": 8.1,
         "posY": 1.5,
@@ -16084,17 +16088,17 @@
         "rotX": 0,
         "rotY": 180,
         "rotZ": 0,
-        "scaleX": 1.05,
-        "scaleY": 1.05,
-        "scaleZ": 1.05
+        "scaleX": 1,
+        "scaleY": 1,
+        "scaleZ": 1
       },
       "Nickname": "Warden Meeple",
       "Description": "Place on starting terrain (ruins).",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.55,
-        "g": 0.24,
-        "b": 0.28
+        "r": 0.678,
+        "g": 0.404,
+        "b": 0.239
       },
       "Locked": false,
       "Grid": false,
@@ -16103,6 +16107,16 @@
       "Sticky": true,
       "Tooltip": true,
       "Hands": false,
+      "CustomMesh": {
+        "MeshURL": "https://thequietvalegame.com/tts/models/meeple.obj",
+        "DiffuseURL": "",
+        "NormalURL": "",
+        "ColliderURL": "",
+        "Convex": true,
+        "MaterialIndex": 1,
+        "TypeIndex": 1,
+        "CastShadows": true
+      },
       "LuaScript": "",
       "LuaScriptState": "",
       "XmlUI": ""
@@ -16161,7 +16175,7 @@
     },
     {
       "GUID": "100120",
-      "Name": "PlayerPawn",
+      "Name": "Custom_Model",
       "Transform": {
         "posX": 13.5,
         "posY": 1.5,
@@ -16169,17 +16183,17 @@
         "rotX": 0,
         "rotY": 180,
         "rotZ": 0,
-        "scaleX": 1.05,
-        "scaleY": 1.05,
-        "scaleZ": 1.05
+        "scaleX": 1,
+        "scaleY": 1,
+        "scaleZ": 1
       },
       "Nickname": "Quartermaster Meeple",
       "Description": "Place on starting terrain (woodland, mountains, heaths, arable, ruins).",
       "GMNotes": "",
       "ColorDiffuse": {
-        "r": 0.61,
-        "g": 0.49,
-        "b": 0.2
+        "r": 0.651,
+        "g": 0.557,
+        "b": 0.416
       },
       "Locked": false,
       "Grid": false,
@@ -16188,6 +16202,16 @@
       "Sticky": true,
       "Tooltip": true,
       "Hands": false,
+      "CustomMesh": {
+        "MeshURL": "https://thequietvalegame.com/tts/models/meeple.obj",
+        "DiffuseURL": "",
+        "NormalURL": "",
+        "ColliderURL": "",
+        "Convex": true,
+        "MaterialIndex": 1,
+        "TypeIndex": 1,
+        "CastShadows": true
+      },
       "LuaScript": "",
       "LuaScriptState": "",
       "XmlUI": ""
