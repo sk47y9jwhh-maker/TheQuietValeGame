@@ -112,7 +112,7 @@ function validateTilePlacement(tileObj, rule, hex)
         if dist < 0.75 then
           return false, string.format("%s cannot be placed on %s: already occupied by %s!", rule.name, hex.id, (orule and orule.name) or oname)
         elseif dist <= 2.65 then
-          if countTokensOnTile(other, "Strain Token") < 3 then
+          if #getTokensOnTile(other).strain < 3 then
             hasWorkingNeighbor = true
           end
         end
@@ -157,7 +157,7 @@ function validateTilePlacement(tileObj, rule, hex)
         if ocat and listContains(pl.adjacentCategory, ocat) and isOnMapBoard(other.getPosition()) then
           local op = other.getPosition()
           local dist = math.sqrt((op.x - hex.x)^2 + (op.z - hex.z)^2)
-          if dist <= 2.65 and countTokensOnTile(other, "Strain Token") < 3 then
+          if dist <= 2.65 and #getTokensOnTile(other).strain < 3 then
             foundCat = true
             break
           end
@@ -392,8 +392,8 @@ function attachObjectMenus(obj)
   if not obj then return end
   if obj.getName() == "The Quiet Vale — Map Board" then
     obj.clearContextMenu()
-    obj.addContextMenuItem("Place Core Tile Here...", function(playerColor)
-      openHexTilePicker(playerColor)
+    obj.addContextMenuItem("Place Core Tile Here...", function(playerColor, menuPosition)
+      openHexTilePicker(playerColor, menuPosition)
     end)
     return
   end
@@ -1572,9 +1572,9 @@ local function formatCostShort(costMap, isRuins)
   return table.concat(parts, " ") .. (isRuins and " (Ruins!)" or "")
 end
 
-function openHexTilePicker(playerColor)
+function openHexTilePicker(playerColor, menuPosition)
   local pl = Player[playerColor]
-  local ptr = pl and pl.getPointerPosition()
+  local ptr = menuPosition or (pl and pl.getPointerPosition())
   if not ptr then return end
   local hex = findNearestHex(ptr)
   if not hex then
@@ -1708,6 +1708,25 @@ function onHexPickTile(_, idxStr)
     end
   })
 
+  -- Auto-pull Travel Extension tiles for multi-hex Travel Tiles (Path +1, Street +2, Track +3)
+  local extNeeded = math.max(0, (opt.rule.size or 1) - 1)
+  local extPulled = 0
+  if extNeeded > 0 then
+    local extBag = getObjectFromGUID(CONFIG.guids.travelExtBag)
+    if extBag then
+      for k = 1, extNeeded do
+        if extBag.getQuantity() > 0 then
+          extBag.takeObject({
+            position = { hex.x + 1.85 + (k - 1) * 0.35, 1.45 + (k - 1) * 0.16, hex.z - 0.5 },
+            rotation = { 0, 180, 0 },
+            smooth = true
+          })
+          extPulled = extPulled + 1
+        end
+      end
+    end
+  end
+
   -- Move the active player's Steward Meeple neatly onto the newly placed tile!
   local st = getSeatSteward(state.currentTurnIdx)
   local pawn = st and getObjectFromGUID(st.pawnGuid)
@@ -1723,9 +1742,10 @@ function onHexPickTile(_, idxStr)
   spendAction(1)
   local costStr = (#details > 0) and table.concat(details, ", ") or "Free!"
   local ruinsNote = opt.isRuins and " [Shelter in the Ruins!]" or ""
+  local extNote = (extPulled > 0) and string.format(" + pulled %d Travel Extension(s) — place in a straight line!", extPulled) or ""
   broadcastToAll(
-    string.format("[AUTO] Placed %s on %s (%s) — %s, -1 Action (%d left), moved %s Meeple.%s",
-      opt.rule.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, costStr, state.actionsLeft or 0, st and st.name or "Steward", ruinsNote),
+    string.format("[AUTO] Placed %s on %s (%s) — %s, -1 Action (%d left), moved %s Meeple.%s%s",
+      opt.rule.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, costStr, state.actionsLeft or 0, st and st.name or "Steward", ruinsNote, extNote),
     {0.82, 0.96, 0.78}
   )
   if (state.actionsLeft or 0) == 0 then
