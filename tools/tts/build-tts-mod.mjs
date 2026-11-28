@@ -963,8 +963,8 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   const hexById = Object.fromEntries(hexSnaps.map((h) => [h.id, h.Position]));
   const stewardConfigs = [];
   stewards.forEach((s, idx) => {
-    const sx = -16.5 + idx * 6.6;
-    const sz = -14.8;
+    const sx = -13.5 + idx * 5.4;
+    const sz = -14.6;
     const pawnGuid = nextGuid();
     const startHexId = defaultStewardStartHex[s.id] || "G1";
     const startHexPos = hexById[startHexId];
@@ -975,14 +975,14 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       pawnGuid,
       startHexId,
       startHexPos: [startHexPos.x, startHexPos.y, startHexPos.z],
-      homePawnPos: [sx, 1.5, sz + 1.3]
+      homePawnPos: [sx, 1.5, sz + 1.0]
     });
     objects.push(
       makeCustomTile({
         name: `Steward: ${s.name}`,
         description: `Start: ${s.startingTerrains.join(", ")}\nPower: ${s.powerText}\nObjective (+${s.objectiveRenown}): ${s.objectiveText}`,
         pos: [sx, 1.18, sz],
-        scale: [1.85, 1.0, 1.85],
+        scale: [1.50, 1.0, 1.50],
         imageUrl: asset(`stewards/steward-${s.id}.jpg`),
         secondaryUrl: asset("stewards/steward-back.jpg"),
         type: 0,
@@ -993,7 +993,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
         guid: pawnGuid,
         name: `${s.name} Meeple`,
         description: `Place on starting terrain (${s.startingTerrains.join(", ")}).`,
-        pos: [sx, 1.5, sz + 1.3],
+        pos: [sx, 1.5, sz + 1.0],
         color: stewardColors[s.id]
       })
     );
