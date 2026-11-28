@@ -1946,6 +1946,17 @@ function revealEncounters()
       break
     end
   end
+  if not state.roundRevealed and state.round > 1 and state.playerCount > 1 then
+    state.firstPlayerIdx = (state.firstPlayerIdx % state.playerCount) + 1
+    state.currentTurnIdx = state.firstPlayerIdx
+    state.actionsLeft = (SETUP_RULES[state.playerCount] or SETUP_RULES[2]).actions
+    movePlayer1Marker(state.firstPlayerIdx)
+    local st = getSeatSteward(state.firstPlayerIdx)
+    broadcastToAll(
+      string.format("[AUTO] Player 1 Marker -> Seat %d (%s) for Round %d.", state.firstPlayerIdx, st and st.name or "Player", state.round),
+      {0.94, 0.84, 0.56}
+    )
+  end
   state.roundRevealed = true
   refreshHud()
 end
@@ -2052,10 +2063,7 @@ function onEndRound()
     state.round = state.round + 1
     state.roundRevealed = false
     moveRoundMarker(state.round)
-    state.firstPlayerIdx = (state.firstPlayerIdx % state.playerCount) + 1
-    state.currentTurnIdx = state.firstPlayerIdx
     state.actionsLeft = (SETUP_RULES[state.playerCount] or SETUP_RULES[2]).actions
-    movePlayer1Marker(state.firstPlayerIdx)
     local seasonMsg = ""
     if state.round == 5 then
       state.powerUsed = { false, false, false, false, false, false }
@@ -2069,8 +2077,8 @@ function onEndRound()
     buildControlPlaqueUI()
     refreshHud()
     broadcastToAll(
-      string.format("Round %d begins (cleared %d X, ticked %d timer(s), P1 -> Seat %d)%s",
-        state.round, cleared, ticked, state.firstPlayerIdx, seasonMsg),
+      string.format("Round %d begins (cleared %d X, ticked %d timer(s))%s",
+        state.round, cleared, ticked, seasonMsg),
       {0.84, 0.94, 0.78}
     )
   else
