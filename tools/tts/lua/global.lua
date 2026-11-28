@@ -309,6 +309,10 @@ function onLoad(saved_data)
     end
   end
   Wait.frames(function()
+    clearContextMenu()
+    addContextMenuItem("Place Core Tile Here...", function(playerColor, menuPosition)
+      openHexTilePicker(playerColor, menuPosition)
+    end)
     for _, obj in ipairs(getAllObjects()) do
       attachObjectMenus(obj)
     end
@@ -396,9 +400,7 @@ function attachObjectMenus(obj)
   if not obj then return end
   if obj.getName() == "The Quiet Vale — Map Board" then
     obj.clearContextMenu()
-    obj.addContextMenuItem("Place Core Tile Here...", function(playerColor, menuPosition)
-      openHexTilePicker(playerColor, menuPosition)
-    end)
+    obj.interactable = false -- passes empty-hex right-clicks straight to Global addContextMenuItem with exact menuPosition!
     return
   end
   for _, st in ipairs(CONFIG.stewards) do
