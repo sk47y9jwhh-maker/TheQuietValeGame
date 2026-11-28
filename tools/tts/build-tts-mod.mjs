@@ -1004,13 +1004,13 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     })
   );
 
-  // 9. Five Player Hand Zones (evenly spaced across the 88x52 Custom Table with an A6 Steward Guide beside each seat)
+  // 9. Five Player Hand Zones (rotY = 0 on front -Z edge faces +Z across the table so everything is right-side up!)
   objects.push(
-    makeHandZone("White", [-27.5, 3.2, -21.8], 180),
-    makeHandZone("Red", [-9.2, 3.2, -21.8], 180),
-    makeHandZone("Blue", [9.2, 3.2, -21.8], 180),
-    makeHandZone("Green", [27.5, 3.2, -21.8], 180),
-    makeHandZone("Yellow", [0.0, 3.2, 21.8], 0)
+    makeHandZone("White", [-27.5, 3.2, -21.8], 0),
+    makeHandZone("Red", [-9.2, 3.2, -21.8], 0),
+    makeHandZone("Blue", [9.2, 3.2, -21.8], 0),
+    makeHandZone("Green", [27.5, 3.2, -21.8], 0),
+    makeHandZone("Yellow", [0.0, 3.2, 21.8], 180)
   );
 
   // 10. World Snap Points (126 Map Hexes + 12 Round Sockets + Card Wells)
