@@ -867,11 +867,11 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   const roundMarkerGuid = nextGuid();
   const player1MarkerGuid = nextGuid();
   const seatMarkerPositions = [
-    [-27.5, 1.25, -18.2], // Seat 1 (White)
-    [-9.2, 1.25, -18.2],  // Seat 2 (Red)
-    [9.2, 1.25, -18.2],   // Seat 3 (Blue)
-    [27.5, 1.25, -18.2],  // Seat 4 (Green)
-    [0.0, 1.25, 18.2]     // Seat 5 (Yellow)
+    [-22.0, 1.25, -18.2], // Seat 1 (White — Front Left)
+    [0.0, 1.25, -18.2],   // Seat 2 (Red — Front Center)
+    [22.0, 1.25, -18.2],  // Seat 3 (Blue — Front Right)
+    [34.5, 1.25, 0.0],    // Seat 4 (Green — Right End)
+    [-34.5, 1.25, 0.0]    // Seat 5 (Yellow — Left End)
   ];
   objects.push(
     makeCustomTile({
@@ -966,7 +966,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       name: "A6 Steward Guide (Seat 1 — White)",
       description: stewardGuideDesc,
       pdfUrl: stewardGuideUrl,
-      pos: [-18.6, 1.25, -21.8],
+      pos: [-13.0, 1.25, -21.8],
       rot: [0, 180, 0],
       scale: [1.48, 1.0, 1.48]
     }),
@@ -974,7 +974,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       name: "A6 Steward Guide (Seat 2 — Red)",
       description: stewardGuideDesc,
       pdfUrl: stewardGuideUrl,
-      pos: [-0.3, 1.25, -21.8],
+      pos: [9.0, 1.25, -21.8],
       rot: [0, 180, 0],
       scale: [1.48, 1.0, 1.48]
     }),
@@ -982,7 +982,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       name: "A6 Steward Guide (Seat 3 — Blue)",
       description: stewardGuideDesc,
       pdfUrl: stewardGuideUrl,
-      pos: [18.1, 1.25, -21.8],
+      pos: [31.0, 1.25, -21.8],
       rot: [0, 180, 0],
       scale: [1.48, 1.0, 1.48]
     }),
@@ -990,27 +990,27 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       name: "A6 Steward Guide (Seat 4 — Green)",
       description: stewardGuideDesc,
       pdfUrl: stewardGuideUrl,
-      pos: [36.4, 1.25, -21.8],
-      rot: [0, 180, 0],
+      pos: [38.5, 1.25, 9.2],
+      rot: [0, 90, 0],
       scale: [1.48, 1.0, 1.48]
     }),
     makePdf({
       name: "A6 Steward Guide (Seat 5 — Yellow)",
       description: stewardGuideDesc,
       pdfUrl: stewardGuideUrl,
-      pos: [-9.0, 1.25, 21.8],
-      rot: [0, 0, 0],
+      pos: [-38.5, 1.25, -9.2],
+      rot: [0, 270, 0],
       scale: [1.48, 1.0, 1.48]
     })
   );
 
-  // 9. Five Player Hand Zones (rotY = 0 on front -Z edge faces +Z across the table so everything is right-side up!)
+  // 9. Five Player Hand Zones: 3 along the front (-Z, rotY=0 facing +Z) + 1 on each end (Right rotY=270, Left rotY=90)
   objects.push(
-    makeHandZone("White", [-27.5, 3.2, -21.8], 0),
-    makeHandZone("Red", [-9.2, 3.2, -21.8], 0),
-    makeHandZone("Blue", [9.2, 3.2, -21.8], 0),
-    makeHandZone("Green", [27.5, 3.2, -21.8], 0),
-    makeHandZone("Yellow", [0.0, 3.2, 21.8], 180)
+    makeHandZone("White", [-22.0, 3.2, -21.8], 0),
+    makeHandZone("Red", [0.0, 3.2, -21.8], 0),
+    makeHandZone("Blue", [22.0, 3.2, -21.8], 0),
+    makeHandZone("Green", [38.5, 3.2, 0.0], 270),
+    makeHandZone("Yellow", [-38.5, 3.2, 0.0], 90)
   );
 
   // 10. World Snap Points (126 Map Hexes + 12 Round Sockets + Card Wells)
