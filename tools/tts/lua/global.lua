@@ -397,6 +397,15 @@ function attachObjectMenus(obj)
     end)
     return
   end
+  for _, st in ipairs(CONFIG.stewards) do
+    if obj.getGUID() == st.pawnGuid then
+      obj.clearContextMenu()
+      obj.addContextMenuItem("Place Core Tile Under Meeple...", function(playerColor)
+        openHexTilePicker(playerColor, obj.getPosition())
+      end)
+      return
+    end
+  end
   local note = obj.getGMNotes() or ""
   if note == "" then return end
 
@@ -1596,7 +1605,8 @@ function openHexTilePicker(playerColor, menuPosition)
   end
 
   local isRuins = (hex.t == "ruins")
-  local options = {}
+  local legalList = {}
+  local illegalList = {}
   for _, entry in ipairs(CONFIG.coreCatalog) do
     local ruleId, rule = nil, nil
     for id, r in pairs(CONFIG.tileRules) do
@@ -1606,66 +1616,84 @@ function openHexTilePicker(playerColor, menuPosition)
       end
     end
     if rule then
-      local legal = validateTilePlacement(nil, rule, hex)
-      if legal then
-        local bag = getObjectFromGUID(entry.bagGuid)
-        local stock = 0
-        local firstGuid = nil
-        if bag then
-          local prefix = entry.name .. " /"
-          for _, item in ipairs(bag.getObjects()) do
-            if string.sub(item.name or "", 1, #prefix) == prefix then
-              stock = stock + 1
-              if not firstGuid then firstGuid = item.guid end
-            end
+      local legal, reason = validateTilePlacement(nil, rule, hex)
+      local bag = getObjectFromGUID(entry.bagGuid)
+      local stock = 0
+      local firstGuid = nil
+      if bag then
+        local prefix = entry.name .. " /"
+        for _, item in ipairs(bag.getObjects()) do
+          if string.sub(item.name or "", 1, #prefix) == prefix then
+            stock = stock + 1
+            if not firstGuid then firstGuid = item.guid end
           end
         end
-        if stock > 0 then
-          local effCost = {}
-          for res, amt in pairs(rule.basic.cost or {}) do
-            if not (isRuins and (res == "wood" or res == "stone" or res == "metal")) then
-              effCost[res] = amt
-            end
-          end
-          local affordable = canAffordCost(effCost)
-          table.insert(options, {
-            id = ruleId,
-            rule = rule,
-            bagGuid = entry.bagGuid,
-            tileGuid = firstGuid,
-            stock = stock,
-            effCost = effCost,
-            affordable = affordable,
-            isRuins = isRuins
-          })
+      end
+      local effCost = {}
+      for res, amt in pairs(rule.basic.cost or {}) do
+        if not (isRuins and (res == "wood" or res == "stone" or res == "metal")) then
+          effCost[res] = amt
         end
+      end
+      local affordable = canAffordCost(effCost)
+      local item = {
+        id = ruleId,
+        rule = rule,
+        bagGuid = entry.bagGuid,
+        tileGuid = firstGuid,
+        stock = stock,
+        effCost = effCost,
+        affordable = affordable,
+        isRuins = isRuins,
+        legal = legal and (stock > 0),
+        reason = (stock == 0) and "Out of stock" or (reason or "")
+      }
+      if item.legal then
+        table.insert(legalList, item)
+      else
+        table.insert(illegalList, item)
       end
     end
   end
 
+  local options = {}
+  for _, it in ipairs(legalList) do table.insert(options, it) end
+  for _, it in ipairs(illegalList) do table.insert(options, it) end
+
   hexPicker.hex = hex
   hexPicker.options = options
-  UI.setAttribute("hexPickTitle", "text", string.format("PLACE CORE TILE ON %s (%s)", hex.id, TERRAIN_LABEL[hex.t] or hex.t))
+  UI.setAttribute("hexPickTitle", "text", string.format("CORE TILE PICKER — %s (%s)", hex.id, TERRAIN_LABEL[hex.t] or hex.t))
+  local ruinsNote = isRuins and "  |  Shelter in the Ruins: W/St/M FREE!" or ""
+  UI.setAttribute(
+    "hexPickSub",
+    "text",
+    string.format("%d legal on %s (top)  |  %d not legal (marked below — still placeable via FORCE).%s", #legalList, hex.id, #illegalList, ruinsNote)
+  )
 
-  if #options == 0 then
-    UI.setAttribute("hexPickSub", "text", "No legal Core Tiles available for " .. hex.id .. " right now (check terrain, adjacency, or move a Steward here first).")
-  else
-    local ruinsNote = isRuins and "  |  Shelter in the Ruins: Wood/Stone/Metal FREE!" or ""
-    UI.setAttribute("hexPickSub", "text", string.format("%d legal Core Tile(s) for %s — click PLACE to pull, pay cost & move Steward.%s", #options, hex.id, ruinsNote))
-  end
-
-  for i = 1, 18 do
+  for i = 1, 21 do
     local opt = options[i]
     if opt then
       UI.setAttribute("hexPickRow" .. i, "active", "true")
       local b = CAT_BADGE[opt.rule.category] or { "TILE", "#d8ceb8" }
-      UI.setAttribute("hpCat" .. i, "text", b[1])
-      UI.setAttribute("hpCat" .. i, "color", b[2])
+      UI.setAttribute("hpCat" .. i, "text", opt.legal and b[1] or "!")
+      UI.setAttribute("hpCat" .. i, "color", opt.legal and b[2] or "#d47c58")
       UI.setAttribute("hpName" .. i, "text", string.format("%s (x%d)", opt.rule.name, opt.stock))
-      UI.setAttribute("hpCost" .. i, "text", formatCostShort(opt.effCost, opt.isRuins))
-      UI.setAttribute("hpCost" .. i, "color", opt.affordable and "#e8d8b0" or "#e8847a")
-      UI.setAttribute("hpBtn" .. i, "color", opt.affordable and "#2f5e36" or "#5a2a24")
-      UI.setAttribute("hpBtn" .. i, "text", opt.affordable and "PLACE" or "SHORT")
+      UI.setAttribute("hpName" .. i, "color", opt.legal and "#f8f2e2" or "#a89d8c")
+      if opt.legal then
+        UI.setAttribute("hpCost" .. i, "text", formatCostShort(opt.effCost, opt.isRuins))
+        UI.setAttribute("hpCost" .. i, "color", opt.affordable and "#e8d8b0" or "#e8847a")
+        UI.setAttribute("hpBtn" .. i, "color", opt.affordable and "#2f5e36" or "#6a3a24")
+        UI.setAttribute("hpBtn" .. i, "text", opt.affordable and "PLACE" or "FORCE")
+      else
+        local shortWhy = opt.stock == 0 and "None left" or "Not legal for hex"
+        if opt.rule.placement and opt.rule.placement.text and opt.rule.placement.text ~= "" then
+          shortWhy = "Not legal: " .. string.gsub(opt.rule.placement.text, "^Place ", "")
+        end
+        UI.setAttribute("hpCost" .. i, "text", shortWhy)
+        UI.setAttribute("hpCost" .. i, "color", "#c4846a")
+        UI.setAttribute("hpBtn" .. i, "color", opt.stock > 0 and "#4a382c" or "#2a2420")
+        UI.setAttribute("hpBtn" .. i, "text", opt.stock > 0 and "FORCE" or "EMPTY")
+      end
     else
       UI.setAttribute("hexPickRow" .. i, "active", "false")
     end
@@ -1683,12 +1711,18 @@ function onHexPickTile(_, idxStr)
   local opt = idx and hexPicker.options and hexPicker.options[idx]
   local hex = hexPicker.hex
   if not opt or not hex then return end
+  if not opt.tileGuid or opt.stock == 0 then
+    broadcastToAll("No copies of " .. opt.rule.name .. " left in its wooden tray.", {0.96, 0.56, 0.44})
+    return
+  end
 
   local ok, details = payCost(opt.effCost)
-  if not ok then
-    showAlert("CANNOT AFFORD " .. opt.rule.name, "Missing Warehouse resources: " .. table.concat(details, ", "))
-    broadcastToAll("Cannot place " .. opt.rule.name .. " — missing: " .. table.concat(details, ", "), {0.96, 0.48, 0.44})
-    return
+  local costStr = "Free!"
+  if ok then
+    costStr = (#details > 0) and table.concat(details, ", ") or "Free!"
+  else
+    -- Still allow placing when clicking FORCE (e.g., Boon/Power discount or manual adjustment), just notify clearly!
+    costStr = "UNPAID (missing: " .. table.concat(details, ", ") .. ")"
   end
 
   local bag = getObjectFromGUID(opt.bagGuid)
@@ -1740,12 +1774,12 @@ function onHexPickTile(_, idxStr)
   end
 
   spendAction(1)
-  local costStr = (#details > 0) and table.concat(details, ", ") or "Free!"
   local ruinsNote = opt.isRuins and " [Shelter in the Ruins!]" or ""
   local extNote = (extPulled > 0) and string.format(" + pulled %d Travel Extension(s) — place in a straight line!", extPulled) or ""
+  local forceNote = (not opt.legal) and " [FORCED]" or ""
   broadcastToAll(
-    string.format("[AUTO] Placed %s on %s (%s) — %s, -1 Action (%d left), moved %s Meeple.%s%s",
-      opt.rule.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, costStr, state.actionsLeft or 0, st and st.name or "Steward", ruinsNote, extNote),
+    string.format("[AUTO] Placed %s on %s (%s) — %s, -1 Action (%d left), moved %s Meeple.%s%s%s",
+      opt.rule.name, hex.id, TERRAIN_LABEL[hex.t] or hex.t, costStr, state.actionsLeft or 0, st and st.name or "Steward", ruinsNote, extNote, forceNote),
     {0.82, 0.96, 0.78}
   )
   if (state.actionsLeft or 0) == 0 then
