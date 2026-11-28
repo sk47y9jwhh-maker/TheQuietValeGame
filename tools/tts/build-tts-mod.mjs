@@ -403,7 +403,7 @@ function makeHandZone(color, pos, rotY = 0) {
   return {
     GUID: nextGuid(),
     Name: "HandTrigger",
-    Transform: makeTransform(pos, [0, rotY, 0], [11.5, 4.0, 4.8]),
+    Transform: makeTransform(pos, [0, rotY, 0], [14.5, 4.2, 5.2]),
     Nickname: "",
     Description: "",
     GMNotes: "",
@@ -965,13 +965,13 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     })
   );
 
-  // 9. Five Player Hand Zones (raised closer to the table edge so seeding cards are large & readable)
+  // 9. Five Player Hand Zones (seated comfortably on the large 88x52 Custom Table in front of each player)
   objects.push(
-    makeHandZone("White", [-19.5, 3.0, -19.2], 0),
-    makeHandZone("Red", [-7.5, 3.0, -19.2], 0),
-    makeHandZone("Blue", [4.5, 3.0, -19.2], 0),
-    makeHandZone("Green", [16.5, 3.0, -19.2], 0),
-    makeHandZone("Yellow", [-12.0, 3.0, 17.5], 180)
+    makeHandZone("White", [-24.5, 3.2, -22.0], 0),
+    makeHandZone("Red", [-8.2, 3.2, -22.0], 0),
+    makeHandZone("Blue", [8.2, 3.2, -22.0], 0),
+    makeHandZone("Green", [24.5, 3.2, -22.0], 0),
+    makeHandZone("Yellow", [0.0, 3.2, 22.0], 180)
   );
 
   // 10. World Snap Points (126 Map Hexes + 12 Round Sockets + Card Wells)
@@ -1067,14 +1067,32 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     };
   }
 
-  // Export canonical v7.0 encounter rules for right-click Welcome Arrival / Resolve Burden / Discard
+  // Export canonical v7.0 encounter rules + concise summaries for Seeding Modal & right-click Resolution
+  const shortText = (s, max = 64) => {
+    const clean = String(s || "").replace(/\s+/g, " ").trim();
+    return clean.length > max ? clean.slice(0, max - 1) + "…" : clean;
+  };
   const encounterRules = {};
-  for (const c of boons) encounterRules[c.id] = { type: "boon" };
-  for (const c of goldenBoons) encounterRules[c.id] = { type: "goldenBoon" };
+  for (const c of boons) {
+    encounterRules[c.id] = {
+      type: "boon",
+      name: c.name,
+      summary: shortText(c.effects?.season1 || "Boon")
+    };
+  }
+  for (const c of goldenBoons) {
+    encounterRules[c.id] = {
+      type: "goldenBoon",
+      name: c.name,
+      summary: shortText(c.effectText || "Golden Boon")
+    };
+  }
   for (const c of burdens) {
     encounterRules[c.id] = {
       type: "burden",
-      res: burdenResolutionResources[c.id] || "goods"
+      name: c.name,
+      res: burdenResolutionResources[c.id] || "goods",
+      summary: shortText(c.effects?.season1 || "Burden")
     };
   }
   for (const c of arrivals) {
@@ -1082,8 +1100,10 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     const unlockNums = c.unlocksTileId ? [...(specialTileBackNumbers[c.unlocksTileId] || [])] : [];
     encounterRules[c.id] = {
       type: "arrival",
+      name: c.name,
       cost: compactRes(req?.cost),
-      unlockNums
+      unlockNums,
+      summary: shortText(`Req: ${c.requirementText || ""} -> ${c.rewardText || ""}`, 72)
     };
   }
 
@@ -1214,7 +1234,8 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     Tags: ["Board Games", "Cooperative", "Hex Grid", "Resource Management"],
     Gravity: 0.5,
     PlayArea: 0.5,
-    Table: "Table_RPG",
+    Table: "Table_Custom",
+    TableURL: asset("boards/table-surface.jpg"),
     Sky: "Sky_Museum",
     Note: "The Quiet Vale: Seasons of Settlement (v7.0). Use the left HUD panel for 1-click Setup (auto-places Stewards & deals hands), Reveal Encounters (+3 Arrival Timers), Draw Target Card, Warehouse tracking, Core Tile Menu, and End Round cleanup.",
     Rules: "",
