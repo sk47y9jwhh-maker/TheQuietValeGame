@@ -1959,6 +1959,19 @@ function revealEncounters()
   end
   state.roundRevealed = true
   refreshHud()
+  -- Gently pan camera (right-side up, yaw=0) to frame the Encounter Board so players read the newly revealed cards
+  Wait.time(function()
+    for _, pl in ipairs(Player.getPlayers()) do
+      if pl and pl.seated then
+        pl.lookAt({
+          position = { x = 14.34, y = 1.1, z = 7.6 },
+          pitch = 58,
+          yaw = 0,
+          distance = 21
+        })
+      end
+    end
+  end, 0.35)
 end
 
 -- ---------------------------------------------------------------------------
