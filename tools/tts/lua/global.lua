@@ -1040,6 +1040,224 @@ end
 -- ---------------------------------------------------------------------------
 -- XmlUI HUD Handlers
 -- ---------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
+-- Interactive 9-Card Encounter Seeding Modal (replaces cramped bottom hand!)
+-- ---------------------------------------------------------------------------
+local seedSession = {
+  active = false,
+  playerIdx = 1,
+  hands = {},       -- hands[p] = { { guid, gm_notes, name, band=0 }, ... } (9 cards)
+  neutral = {},     -- { guid, ... } (3*P cards)
+  bands = { {}, {}, {} } -- accumulated { guid, ... } for S1, S2, S3
+}
+
+function shuffleList(tbl)
+  for i = #tbl, 2, -1 do
+    local j = math.random(1, i)
+    tbl[i], tbl[j] = tbl[j], tbl[i]
+  end
+  return tbl
+end
+
+function startSeedingSession(encDeck, playerCount)
+  if not encDeck or encDeck.tag ~= "Deck" then return end
+  local objs = encDeck.getObjects()
+  seedSession = {
+    active = true,
+    playerIdx = 1,
+    hands = {},
+    neutral = {},
+    bands = { {}, {}, {} }
+  }
+  local cursor = 1
+  for p = 1, playerCount do
+    local hand = {}
+    for k = 1, 9 do
+      local item = objs[cursor]
+      if item then
+        table.insert(hand, { guid = item.guid, note = item.gm_notes or "", name = item.name or "Card", band = 0 })
+        cursor = cursor + 1
+      end
+    end
+    seedSession.hands[p] = hand
+  end
+  while cursor <= #objs do
+    table.insert(seedSession.neutral, objs[cursor].guid)
+    cursor = cursor + 1
+  end
+  renderSeedingModal()
+  UI.setAttribute("qvSeedingModal", "active", "true")
+end
+
+function renderSeedingModal()
+  local p = seedSession.playerIdx
+  local hand = seedSession.hands[p] or {}
+  local st = getSeatSteward(p)
+  local stName = st and st.name or ("Player " .. tostring(p))
+  UI.setAttribute("seedHeader", "text", string.format("ENCOUNTER SEEDING — PLAYER %d OF %d (%s)  |  ASSIGN 3 EACH TO S1 / S2 / S3", p, state.playerCount, stName))
+
+  local counts = { 0, 0, 0 }
+  for _, c in ipairs(hand) do
+    if c.band >= 1 and c.band <= 3 then counts[c.band] = counts[c.band] + 1 end
+  end
+  UI.setAttribute("seedCounts", "text", string.format("Season I (Top): %d/3    |    Season II (Middle): %d/3    |    Season III (Bottom): %d/3", counts[1], counts[2], counts[3]))
+
+  for i = 1, 9 do
+    local c = hand[i]
+    if c then
+      UI.setAttribute("seedRow" .. i, "active", "true")
+      local er = CONFIG.encounterRules[c.note]
+      local t = er and er.type or "boon"
+      local tagText = (t == "burden" and "BURDEN") or (t == "arrival" and "ARRIVAL") or "BOON"
+      local tagColor = (t == "burden" and "#f08478") or (t == "arrival" and "#82c6f0") or "#9ed68c"
+      local summary = (er and er.summary) or ""
+      UI.setAttribute("seedTag" .. i, "text", tagText)
+      UI.setAttribute("seedTag" .. i, "color", tagColor)
+      UI.setAttribute("seedName" .. i, "text", c.name)
+      UI.setAttribute("seedDesc" .. i, "text", summary)
+      for b = 1, 3 do
+        local btnId = "seedBtn" .. i .. "_" .. b
+        local activeCol = (b == 1 and "#3b6e3c") or (b == 2 and "#8a6622") or "#523a64"
+        UI.setAttribute(btnId, "color", (c.band == b) and activeCol or "#2e2922")
+      end
+    else
+      UI.setAttribute("seedRow" .. i, "active", "false")
+    end
+  end
+
+  local isLast = (p >= state.playerCount)
+  UI.setAttribute("btnSeedConfirm", "text", isLast and "CONFIRM & BUILD ENCOUNTER DECK" or ("CONFIRM PLAYER " .. p .. " -> PLAYER " .. (p + 1)))
+end
+
+function onHudOpenSeeding()
+  if not seedSession.active then
+    local encDeck = findEncounterDrawDeck()
+    if encDeck and encDeck.tag == "Deck" then
+      startSeedingSession(encDeck, state.playerCount)
+    else
+      broadcastToAll("Click 1P–5P Setup first to create the Encounter pool for seeding.", {0.96, 0.78, 0.44})
+    end
+    return
+  end
+  renderSeedingModal()
+  UI.setAttribute("qvSeedingModal", "active", "true")
+end
+
+function onHudCloseSeeding()
+  UI.setAttribute("qvSeedingModal", "active", "false")
+end
+
+function onSeedPick(_, arg)
+  local rowStr, bandStr = string.match(arg or "", "(%d+):(%d+)")
+  local row, band = tonumber(rowStr), tonumber(bandStr)
+  local hand = seedSession.hands[seedSession.playerIdx]
+  if not row or not band or not hand or not hand[row] then return end
+
+  if hand[row].band == band then
+    hand[row].band = 0
+  else
+    -- Enforce max 3 cards per Season band
+    local cur = 0
+    for _, c in ipairs(hand) do if c.band == band then cur = cur + 1 end end
+    if cur >= 3 then
+      broadcastToAll("Season " .. tostring(band) .. " already has 3/3 cards — uncheck one first or pick another Season.", {0.96, 0.72, 0.42})
+      return
+    end
+    hand[row].band = band
+  end
+  renderSeedingModal()
+end
+
+function onSeedAutoFill()
+  local hand = seedSession.hands[seedSession.playerIdx]
+  if not hand then return end
+  local counts = { 0, 0, 0 }
+  for _, c in ipairs(hand) do
+    if c.band >= 1 and c.band <= 3 then counts[c.band] = counts[c.band] + 1 end
+  end
+  for _, c in ipairs(hand) do
+    if c.band == 0 then
+      for b = 1, 3 do
+        if counts[b] < 3 then
+          c.band = b
+          counts[b] = counts[b] + 1
+          break
+        end
+      end
+    end
+  end
+  renderSeedingModal()
+end
+
+function onSeedConfirmPlayer()
+  local p = seedSession.playerIdx
+  local hand = seedSession.hands[p] or {}
+  local counts = { 0, 0, 0 }
+  for _, c in ipairs(hand) do
+    if c.band >= 1 and c.band <= 3 then counts[c.band] = counts[c.band] + 1 end
+  end
+  if counts[1] ~= 3 or counts[2] ~= 3 or counts[3] ~= 3 then
+    broadcastToAll("Assign 3 cards each to Season I, II, and III (or click AUTO-FILL 3 / 3 / 3).", {0.96, 0.72, 0.42})
+    return
+  end
+  for _, c in ipairs(hand) do
+    table.insert(seedSession.bands[c.band], c.guid)
+  end
+  if p < state.playerCount then
+    seedSession.playerIdx = p + 1
+    renderSeedingModal()
+    broadcastToAll("[AUTO] Player " .. p .. " seeded! Now seeding for Player " .. (p + 1) .. ".", {0.82, 0.92, 0.98})
+  else
+    finalizeModalSeededDeck()
+  end
+end
+
+function finalizeModalSeededDeck()
+  UI.setAttribute("qvSeedingModal", "active", "false")
+  seedSession.active = false
+  local encDeck = findEncounterDrawDeck()
+  if not encDeck or encDeck.tag ~= "Deck" then
+    broadcastToAll("Encounter Deck not found in ENCOUNTER well.", {0.96, 0.52, 0.45})
+    return
+  end
+  -- Distribute 3*P neutral cards evenly (P per Season band) and shuffle each band independently
+  shuffleList(seedSession.neutral)
+  for idx, g in ipairs(seedSession.neutral) do
+    local band = ((idx - 1) % 3) + 1
+    table.insert(seedSession.bands[band], g)
+  end
+  shuffleList(seedSession.bands[1])
+  shuffleList(seedSession.bands[2])
+  shuffleList(seedSession.bands[3])
+
+  -- Stack physically onto ENCOUNTER draw well: Season III (bottom) -> Season II (middle) -> Season I (top)
+  local drawPos = CONFIG.positions.encounterDraw
+  local ordered = {}
+  for _, g in ipairs(seedSession.bands[3]) do table.insert(ordered, g) end
+  for _, g in ipairs(seedSession.bands[2]) do table.insert(ordered, g) end
+  for _, g in ipairs(seedSession.bands[1]) do table.insert(ordered, g) end
+
+  -- Move deck temporarily aside, then re-stack in exact S3 -> S2 -> S1 order onto drawPos
+  local tmpPos = { drawPos[1] - 3.6, drawPos[2] + 0.5, drawPos[3] }
+  encDeck.setPosition(tmpPos)
+  Wait.time(function()
+    local yStep = 0.035
+    for idx, g in ipairs(ordered) do
+      local targetP = { drawPos[1], drawPos[2] + 0.35 + (idx - 1) * yStep, drawPos[3] }
+      if encDeck and encDeck.tag == "Deck" and encDeck.getQuantity() > 1 then
+        encDeck.takeObject({ guid = g, position = targetP, rotation = {0, 180, 180}, smooth = false })
+      elseif encDeck then
+        encDeck.setRotation({0, 180, 180})
+        encDeck.setPosition(targetP)
+        break
+      end
+    end
+    state.activeTab = "play"
+    refreshHud()
+    broadcastToAll("[AUTO] Seeded Encounter Deck built (Season I on top -> Season II -> Season III on bottom)! Click REVEAL ENCOUNTERS to begin Round 1.", {0.80, 0.96, 0.78})
+  end, 0.35)
+end
+
 function onHudTab(_, tabName)
   state.activeTab = tabName or "play"
   refreshHud()
@@ -1328,19 +1546,7 @@ function runSetup(playerCount)
     if encDeck and encDeck.tag == "Deck" then
       encDeck.setName("Encounter Deck (" .. tostring(playerCount) .. "P)")
       encDeck.shuffle()
-      local seatedCount = 0
-      for i = 1, playerCount do
-        local color = SEAT_COLORS[i]
-        if Player[color] and Player[color].seated then
-          encDeck.deal(9, color)
-          seatedCount = seatedCount + 1
-        end
-      end
-      if seatedCount > 0 then
-        broadcastToAll(string.format("Dealt 9-card seeding hands to %d seated player(s). Click QUICK-SEED to jump straight into Round 1!", seatedCount), {0.82, 0.92, 0.98})
-      else
-        broadcastToAll("Encounter Deck shuffled & ready in ENCOUNTER well! Click REVEAL ENCOUNTERS to start Round 1.", {0.82, 0.92, 0.98})
-      end
+      startSeedingSession(encDeck, playerCount)
     end
   end, 1.0)
 
@@ -1356,6 +1562,8 @@ function runSetup(playerCount)
 end
 
 function runQuickSeed()
+  UI.setAttribute("qvSeedingModal", "active", "false")
+  seedSession.active = false
   local drawPos = CONFIG.positions.encounterDraw
   local moved = 0
   for i = 1, state.playerCount do
@@ -1372,9 +1580,11 @@ function runQuickSeed()
     local encDeck = findEncounterDrawDeck()
     if encDeck and encDeck.tag == "Deck" then
       encDeck.shuffle()
-      broadcastToAll("Quick-Seed complete (" .. tostring(moved) .. " hand cards merged). Encounter Deck shuffled!", {0.84, 0.95, 0.78})
+      state.activeTab = "play"
+      refreshHud()
+      broadcastToAll("[AUTO] Quick-Seed complete! Encounter Deck shuffled & ready — click REVEAL ENCOUNTERS for Round 1.", {0.84, 0.95, 0.78})
     end
-  end, 0.8)
+  end, 0.6)
 end
 
 -- ---------------------------------------------------------------------------
@@ -1813,7 +2023,9 @@ function resetTable()
   state.pawnLastHex = {}
   UI.setAttribute("qvScoreModal", "active", "false")
   UI.setAttribute("qvTileMenuModal", "active", "false")
+  UI.setAttribute("qvSeedingModal", "active", "false")
   UI.setAttribute("qvAlertBanner", "active", "false")
+  seedSession.active = false
   tileMenuOpen = false
   moveRoundMarker(1)
   movePlayer1Marker(1)

@@ -153,9 +153,9 @@
       </HorizontalLayout>
 
       <Text text="2. ENCOUNTER DECK SEEDING (SEASONS I / II / III)" fontSize="10" fontStyle="Bold" color="#c9a862" minHeight="14" preferredHeight="14" />
-      <Text text="Press H for large hand view. Right-click cards in hand to assign Season I (Top), Season II (Middle), or Season III (Bottom), then click BUILD SEEDED DECK." fontSize="10" color="#d8ceb8" minHeight="42" preferredHeight="42" />
-      <Button text="BUILD SEEDED DECK (S1 / S2 / S3)" minHeight="32" preferredHeight="32" fontSize="11" color="#445c38" onClick="onHudBuildSeededDeck" tooltip="Shuffle Season I, II, and III stacks separately and stack S3 -> S2 -> S1 onto the Encounter well" />
-      <Button id="btnQuickSeed" text="QUICK-SEED (RANDOMIZE ALL)" minHeight="28" preferredHeight="28" fontSize="11" color="#3c3428" onClick="onHudQuickSeed" tooltip="Skip manual seeding: merge all dealt hands + draw pile into one shuffled deck" />
+      <Text text="Setup automatically opens the readable 9-card Seeding Window so cards never clip at the table edge. Assign 3 cards each to Season I, II, and III." fontSize="10" color="#d8ceb8" minHeight="38" preferredHeight="38" />
+      <Button text="OPEN SEEDING WINDOW (9 CARDS)" minHeight="32" preferredHeight="32" fontSize="11" color="#445c38" onClick="onHudOpenSeeding" tooltip="Open the interactive 9-card Season I / II / III Seeding window" />
+      <Button id="btnQuickSeed" text="QUICK-SEED (RANDOMIZE ALL)" minHeight="28" preferredHeight="28" fontSize="11" color="#3c3428" onClick="onHudQuickSeed" tooltip="Skip manual seeding and shuffle the full Encounter Deck immediately" />
 
       <Text text="3. RESET TABLE" fontSize="10" fontStyle="Bold" color="#d4887c" minHeight="14" preferredHeight="14" />
       <Button id="btnResetGame" text="RESET GAME (2-CLICK CONFIRM)" minHeight="32" preferredHeight="32" fontSize="11" color="#622422" onClick="onHudResetClick" tooltip="Click twice to return all tiles, cards, meeples, tokens, and counters to starting positions" />
@@ -231,6 +231,102 @@ __QV_TILE_MENU_ROWS__
     <HorizontalLayout minHeight="28" preferredHeight="28" spacing="6">
       <Button text="RESCAN MAP" flexibleWidth="1" color="#3a4c62" onClick="onHudRefreshScore" />
       <Button text="BROADCAST TO CHAT" flexibleWidth="1" color="#6c5222" onClick="onHudBroadcastScore" />
+    </HorizontalLayout>
+  </VerticalLayout>
+</Panel>
+
+<!-- Interactive 9-Card Encounter Seeding Modal (replaces cramped bottom hand cards!) -->
+<Panel id="qvSeedingModal"
+       active="false"
+       rectAlignment="MiddleCenter"
+       width="780"
+       height="526"
+       color="#171411F8"
+       outline="#c89e4c"
+       outlineSize="2 -2"
+       allowDragging="true"
+       returnToOriginalPositionWhenReleased="false">
+  <HorizontalLayout rectAlignment="UpperCenter" height="36" padding="12 8 5 5" color="#261f17FF">
+    <Text id="seedHeader" text="ENCOUNTER SEEDING — PLAYER 1 OF 2 (ASSIGN 3 EACH TO SEASON I / II / III)" fontSize="12" fontStyle="Bold" color="#ecd084" alignment="MiddleLeft" flexibleWidth="1" />
+    <Button text="CLOSE" preferredWidth="64" minWidth="64" color="#6a2a24" onClick="onHudCloseSeeding" />
+  </HorizontalLayout>
+  <VerticalLayout rectAlignment="UpperCenter" offsetXY="0 -38" width="764" height="482" padding="10 10 6 8" spacing="5" childForceExpandHeight="false" childControlHeight="true">
+    <Text id="seedCounts" text="Season I (Top): 0/3    |    Season II (Middle): 0/3    |    Season III (Bottom): 0/3" fontSize="12" fontStyle="Bold" color="#d8e8c8" alignment="MiddleCenter" minHeight="22" preferredHeight="22" />
+    <HorizontalLayout id="seedRow1" minHeight="38" preferredHeight="38" spacing="6" padding="6 6 2 2" color="#252019EE">
+      <Text id="seedTag1" text="BOON" preferredWidth="68" minWidth="68" fontSize="10" fontStyle="Bold" color="#a6d896" alignment="MiddleCenter" />
+      <Text id="seedName1" text="Card 1" preferredWidth="175" minWidth="175" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+      <Text id="seedDesc1" text="Summary" flexibleWidth="1" fontSize="10" color="#d6ccb8" alignment="MiddleLeft" />
+      <Button id="seedBtn1_1" text="S1" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(1:1)" />
+      <Button id="seedBtn1_2" text="S2" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(1:2)" />
+      <Button id="seedBtn1_3" text="S3" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(1:3)" />
+    </HorizontalLayout>
+    <HorizontalLayout id="seedRow2" minHeight="38" preferredHeight="38" spacing="6" padding="6 6 2 2" color="#201b15EE">
+      <Text id="seedTag2" text="BOON" preferredWidth="68" minWidth="68" fontSize="10" fontStyle="Bold" color="#a6d896" alignment="MiddleCenter" />
+      <Text id="seedName2" text="Card 2" preferredWidth="175" minWidth="175" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+      <Text id="seedDesc2" text="Summary" flexibleWidth="1" fontSize="10" color="#d6ccb8" alignment="MiddleLeft" />
+      <Button id="seedBtn2_1" text="S1" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(2:1)" />
+      <Button id="seedBtn2_2" text="S2" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(2:2)" />
+      <Button id="seedBtn2_3" text="S3" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(2:3)" />
+    </HorizontalLayout>
+    <HorizontalLayout id="seedRow3" minHeight="38" preferredHeight="38" spacing="6" padding="6 6 2 2" color="#252019EE">
+      <Text id="seedTag3" text="BOON" preferredWidth="68" minWidth="68" fontSize="10" fontStyle="Bold" color="#a6d896" alignment="MiddleCenter" />
+      <Text id="seedName3" text="Card 3" preferredWidth="175" minWidth="175" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+      <Text id="seedDesc3" text="Summary" flexibleWidth="1" fontSize="10" color="#d6ccb8" alignment="MiddleLeft" />
+      <Button id="seedBtn3_1" text="S1" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(3:1)" />
+      <Button id="seedBtn3_2" text="S2" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(3:2)" />
+      <Button id="seedBtn3_3" text="S3" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(3:3)" />
+    </HorizontalLayout>
+    <HorizontalLayout id="seedRow4" minHeight="38" preferredHeight="38" spacing="6" padding="6 6 2 2" color="#201b15EE">
+      <Text id="seedTag4" text="BOON" preferredWidth="68" minWidth="68" fontSize="10" fontStyle="Bold" color="#a6d896" alignment="MiddleCenter" />
+      <Text id="seedName4" text="Card 4" preferredWidth="175" minWidth="175" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+      <Text id="seedDesc4" text="Summary" flexibleWidth="1" fontSize="10" color="#d6ccb8" alignment="MiddleLeft" />
+      <Button id="seedBtn4_1" text="S1" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(4:1)" />
+      <Button id="seedBtn4_2" text="S2" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(4:2)" />
+      <Button id="seedBtn4_3" text="S3" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(4:3)" />
+    </HorizontalLayout>
+    <HorizontalLayout id="seedRow5" minHeight="38" preferredHeight="38" spacing="6" padding="6 6 2 2" color="#252019EE">
+      <Text id="seedTag5" text="BOON" preferredWidth="68" minWidth="68" fontSize="10" fontStyle="Bold" color="#a6d896" alignment="MiddleCenter" />
+      <Text id="seedName5" text="Card 5" preferredWidth="175" minWidth="175" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+      <Text id="seedDesc5" text="Summary" flexibleWidth="1" fontSize="10" color="#d6ccb8" alignment="MiddleLeft" />
+      <Button id="seedBtn5_1" text="S1" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(5:1)" />
+      <Button id="seedBtn5_2" text="S2" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(5:2)" />
+      <Button id="seedBtn5_3" text="S3" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(5:3)" />
+    </HorizontalLayout>
+    <HorizontalLayout id="seedRow6" minHeight="38" preferredHeight="38" spacing="6" padding="6 6 2 2" color="#201b15EE">
+      <Text id="seedTag6" text="BOON" preferredWidth="68" minWidth="68" fontSize="10" fontStyle="Bold" color="#a6d896" alignment="MiddleCenter" />
+      <Text id="seedName6" text="Card 6" preferredWidth="175" minWidth="175" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+      <Text id="seedDesc6" text="Summary" flexibleWidth="1" fontSize="10" color="#d6ccb8" alignment="MiddleLeft" />
+      <Button id="seedBtn6_1" text="S1" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(6:1)" />
+      <Button id="seedBtn6_2" text="S2" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(6:2)" />
+      <Button id="seedBtn6_3" text="S3" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(6:3)" />
+    </HorizontalLayout>
+    <HorizontalLayout id="seedRow7" minHeight="38" preferredHeight="38" spacing="6" padding="6 6 2 2" color="#252019EE">
+      <Text id="seedTag7" text="BOON" preferredWidth="68" minWidth="68" fontSize="10" fontStyle="Bold" color="#a6d896" alignment="MiddleCenter" />
+      <Text id="seedName7" text="Card 7" preferredWidth="175" minWidth="175" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+      <Text id="seedDesc7" text="Summary" flexibleWidth="1" fontSize="10" color="#d6ccb8" alignment="MiddleLeft" />
+      <Button id="seedBtn7_1" text="S1" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(7:1)" />
+      <Button id="seedBtn7_2" text="S2" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(7:2)" />
+      <Button id="seedBtn7_3" text="S3" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(7:3)" />
+    </HorizontalLayout>
+    <HorizontalLayout id="seedRow8" minHeight="38" preferredHeight="38" spacing="6" padding="6 6 2 2" color="#201b15EE">
+      <Text id="seedTag8" text="BOON" preferredWidth="68" minWidth="68" fontSize="10" fontStyle="Bold" color="#a6d896" alignment="MiddleCenter" />
+      <Text id="seedName8" text="Card 8" preferredWidth="175" minWidth="175" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+      <Text id="seedDesc8" text="Summary" flexibleWidth="1" fontSize="10" color="#d6ccb8" alignment="MiddleLeft" />
+      <Button id="seedBtn8_1" text="S1" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(8:1)" />
+      <Button id="seedBtn8_2" text="S2" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(8:2)" />
+      <Button id="seedBtn8_3" text="S3" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(8:3)" />
+    </HorizontalLayout>
+    <HorizontalLayout id="seedRow9" minHeight="38" preferredHeight="38" spacing="6" padding="6 6 2 2" color="#252019EE">
+      <Text id="seedTag9" text="BOON" preferredWidth="68" minWidth="68" fontSize="10" fontStyle="Bold" color="#a6d896" alignment="MiddleCenter" />
+      <Text id="seedName9" text="Card 9" preferredWidth="175" minWidth="175" fontSize="11" fontStyle="Bold" color="#f8f2e2" alignment="MiddleLeft" />
+      <Text id="seedDesc9" text="Summary" flexibleWidth="1" fontSize="10" color="#d6ccb8" alignment="MiddleLeft" />
+      <Button id="seedBtn9_1" text="S1" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(9:1)" />
+      <Button id="seedBtn9_2" text="S2" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(9:2)" />
+      <Button id="seedBtn9_3" text="S3" preferredWidth="46" minWidth="46" fontSize="11" color="#2e2922" onClick="onSeedPick(9:3)" />
+    </HorizontalLayout>
+    <HorizontalLayout minHeight="32" preferredHeight="32" spacing="8">
+      <Button text="AUTO-FILL 3 / 3 / 3" preferredWidth="180" color="#3c3428" onClick="onSeedAutoFill" tooltip="Evenly assign any remaining unassigned cards across Season I, II, and III" />
+      <Button id="btnSeedConfirm" text="CONFIRM PLAYER 1 -> NEXT" flexibleWidth="1" fontSize="12" color="#2d5c36" onClick="onSeedConfirmPlayer" />
     </HorizontalLayout>
   </VerticalLayout>
 </Panel>
