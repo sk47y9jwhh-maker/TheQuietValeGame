@@ -1646,7 +1646,7 @@ function runSetup(playerCount)
   local questDeck = getObjectFromGUID(CONFIG.guids.questDeck)
   if questDeck then
     questDeck.shuffle()
-    questDeck.takeObject({ position = CONFIG.positions.activeQuest, rotation = {0, 180, 0}, smooth = true })
+    questDeck.takeObject({ position = CONFIG.positions.activeQuest, rotation = {0, 90, 0}, smooth = true })
   end
 
   local drawPos = CONFIG.positions.encounterDraw

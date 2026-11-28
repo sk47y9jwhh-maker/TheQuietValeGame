@@ -59,12 +59,15 @@ function walk(obj) {
       allUrls.add(d.BackURL);
     }
   }
-  if (obj.Name === "Bag" || obj.Name === "Infinite_Bag") {
+  if (obj.Name === "Bag" || obj.Name === "Infinite_Bag" || obj.Name === "Custom_Model_Bag") {
     bagsByName[obj.Nickname] = (obj.ContainedObjects || []).length;
   }
   if (obj.CustomImage) {
     if (obj.CustomImage.ImageURL) allUrls.add(obj.CustomImage.ImageURL);
     if (obj.CustomImage.ImageSecondaryURL) allUrls.add(obj.CustomImage.ImageSecondaryURL);
+  }
+  if (obj.CustomMesh && obj.CustomMesh.MeshURL) {
+    allUrls.add(obj.CustomMesh.MeshURL);
   }
   if (obj.CustomPDF) {
     pdfCount++;

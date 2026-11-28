@@ -327,6 +327,43 @@ function makeBag({ guid = nextGuid(), name, description = "", pos, color, infini
   };
 }
 
+function makeTileBox({ guid = nextGuid(), name, description = "", pos, color, meshUrl, scale = [1.0, 1.0, 1.0], contained = [] }) {
+  return {
+    GUID: guid,
+    Name: "Custom_Model_Bag",
+    Transform: makeTransform(pos, [0, 180, 0], scale),
+    Nickname: name,
+    Description: description,
+    GMNotes: "",
+    ColorDiffuse: color,
+    Locked: true,
+    Grid: false,
+    Snap: true,
+    Autoraise: true,
+    Sticky: true,
+    Tooltip: true,
+    HideWhenFaceDown: false,
+    Hands: false,
+    MaterialIndex: -1,
+    MeshIndex: -1,
+    CustomMesh: {
+      MeshURL: meshUrl,
+      DiffuseURL: "",
+      NormalURL: "",
+      ColliderURL: "",
+      Convex: true,
+      MaterialIndex: 1, // Wood
+      TypeIndex: 6,     // Bag container
+      CastShadows: true
+    },
+    Bag: { Order: 0 },
+    ContainedObjects: contained,
+    LuaScript: "",
+    LuaScriptState: "",
+    XmlUI: ""
+  };
+}
+
 function makePlaque({ guid = nextGuid(), name, pos, scale = [3.6, 0.25, 2.2], color = { r: 0.14, g: 0.12, b: 0.10 } }) {
   return {
     GUID: guid,
@@ -516,6 +553,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   const goldenBoonsGuid = nextGuid();
 
   const tarotScale = [1.46, 1.0, 1.50];
+  // Unused Encounter Reserve Decks neatly parked on the far right of the large Custom Table
   objects.push(
     makeDeck({
       guid: boonsGuid,
@@ -526,7 +564,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       numWidth: 6,
       numHeight: 5,
       cards: boons.map((c) => ({ nickname: c.name, description: `Boon — ${c.effects?.season1 || ""}`, gmNotes: c.id })),
-      pos: [6.8, 1.35, 14.6],
+      pos: [33.0, 1.35, 8.8],
       rot: [0, 180, 180],
       scale: tarotScale
     }),
@@ -539,7 +577,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       numWidth: 6,
       numHeight: 5,
       cards: burdens.map((c) => ({ nickname: c.name, description: `Burden — ${c.effects?.season1 || ""}`, gmNotes: c.id })),
-      pos: [11.8, 1.35, 14.6],
+      pos: [38.5, 1.35, 8.8],
       rot: [0, 180, 180],
       scale: tarotScale
     }),
@@ -556,7 +594,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
         description: `Arrival — Req: ${c.requirementText || ""} | Reward: ${c.rewardText || ""}`,
         gmNotes: c.id
       })),
-      pos: [16.8, 1.35, 14.6],
+      pos: [33.0, 1.35, 2.2],
       rot: [0, 180, 180],
       scale: tarotScale
     }),
@@ -569,7 +607,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       numWidth: 5,
       numHeight: 2,
       cards: goldenBoons.map((c) => ({ nickname: c.name, description: c.effectText || "Golden Boon", gmNotes: c.id })),
-      pos: [21.8, 1.35, 14.6],
+      pos: [38.5, 1.35, 2.2],
       rot: [0, 180, 180],
       scale: tarotScale
     })
@@ -701,7 +739,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
         description: `Top (${q.top.kind}): ${q.top.name} — ${q.top.text}\nBottom (${q.bottom.kind}): ${q.bottom.name} — ${q.bottom.text}`
       })),
       pos: [questDeckX, 1.25, questDeckZ],
-      rot: [0, 180, 180],
+      rot: [0, 90, 180],
       scale: [1.14, 1.0, 1.14]
     })
   );
@@ -763,12 +801,14 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
       }
     }
     objects.push(
-      makeBag({
+      makeTileBox({
         guid: bagGuid,
         name: `${bagTitle} (${contained.length})`,
         description: bucket.map((t) => `${t.basic.name} (×${t.count})`).join(", "),
-        pos: [wx, 1.18, wz],
+        pos: [wx, 1.08, wz],
         color: bagColor,
+        meshUrl: asset("models/tile-box.obj"),
+        scale: [0.95, 0.85, 0.95],
         contained
       })
     );
@@ -791,17 +831,19 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   );
   const travelExtBagGuid = nextGuid();
   objects.push(
-    makeBag({
+    makeTileBox({
       guid: travelExtBagGuid,
       name: `Travel Extensions (${extCount})`,
       description: "Double-sided Travel Extension hexes (Basic / Upgraded). Use +TRAVEL EXT. in HUD to pull quickly.",
-      pos: [16.4, 1.15, -3.6],
+      pos: [16.4, 1.08, -3.6],
       color: { r: 0.45, g: 0.42, b: 0.34 },
+      meshUrl: asset("models/tile-box.obj"),
+      scale: [1.10, 0.95, 1.10],
       contained: extItems
     })
   );
 
-  // 5. Special Tiles Reserve Bag (26 numbered tiles #1-#26) & Golden Tiles Bag (5) — neatly between Tiles Board & Rulebook
+  // 5. Special Tiles Reserve Box (26 numbered tiles #1-#26) & Golden Tiles Box (5) — neatly between Tiles Board & Rulebook
   const specialBagGuid = nextGuid();
   const specialContained = [];
   for (const t of specialTiles) {
@@ -827,12 +869,14 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     }
   }
   objects.push(
-    makeBag({
+    makeTileBox({
       guid: specialBagGuid,
       name: "Special Tiles Reserve (#1–#26)",
       description: "All 26 numbered Special Tiles. Unlocked automatically when Welcoming Arrivals or via HUD.",
-      pos: [16.4, 1.15, -6.7],
+      pos: [16.4, 1.08, -6.7],
       color: { r: 0.20, g: 0.24, b: 0.32 },
+      meshUrl: asset("models/tile-box.obj"),
+      scale: [1.10, 0.95, 1.10],
       contained: specialContained
     })
   );
@@ -853,12 +897,14 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   );
   const goldenBagGuid = nextGuid();
   objects.push(
-    makeBag({
+    makeTileBox({
       guid: goldenBagGuid,
       name: "Golden Tiles Reserve (5)",
       description: "5 Golden Legacy hex tiles.",
-      pos: [16.4, 1.15, -9.8],
+      pos: [16.4, 1.08, -9.8],
       color: { r: 0.76, g: 0.60, b: 0.22 },
+      meshUrl: asset("models/tile-box.obj"),
+      scale: [1.10, 0.95, 1.10],
       contained: goldenContained
     })
   );
@@ -1020,8 +1066,8 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     { Position: { x: encDrawX, y: 1.08, z: encDrawZ }, Rotation: { x: 0, y: 180, z: 0 }, RotationSnap: true },
     { Position: { x: encDiscX, y: 1.08, z: encDiscZ }, Rotation: { x: 0, y: 180, z: 0 }, RotationSnap: true },
     { Position: { x: targetX, y: 1.08, z: targetZ }, Rotation: { x: 0, y: 180, z: 0 }, RotationSnap: true },
-    { Position: { x: questDeckX, y: 1.08, z: questDeckZ }, Rotation: { x: 0, y: 180, z: 0 }, RotationSnap: true },
-    { Position: { x: activeQuestX, y: 1.08, z: activeQuestZ }, Rotation: { x: 0, y: 180, z: 0 }, RotationSnap: true }
+    { Position: { x: questDeckX, y: 1.08, z: questDeckZ }, Rotation: { x: 0, y: 90, z: 0 }, RotationSnap: true },
+    { Position: { x: activeQuestX, y: 1.08, z: activeQuestZ }, Rotation: { x: 0, y: 90, z: 0 }, RotationSnap: true }
   ];
 
   // 5 evenly spaced IN PLAY slots across the Encounter Board center recess
@@ -1185,10 +1231,10 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     positions: {
       encounterDraw: [encDrawX, 1.25, encDrawZ],
       encounterDiscard: [encDiscX, 1.25, encDiscZ],
-      boonsReserve: [6.8, 1.35, 14.6],
-      burdensReserve: [11.8, 1.35, 14.6],
-      arrivalsReserve: [16.8, 1.35, 14.6],
-      goldenBoonsReserve: [21.8, 1.35, 14.6],
+      boonsReserve: [33.0, 1.35, 8.8],
+      burdensReserve: [38.5, 1.35, 8.8],
+      arrivalsReserve: [33.0, 1.35, 2.2],
+      goldenBoonsReserve: [38.5, 1.35, 2.2],
       questDeckWell: [questDeckX, 1.25, questDeckZ],
       seedS1: [-7.0, 1.35, 14.6],
       seedS2: [-3.2, 1.35, 14.6],
