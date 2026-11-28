@@ -1399,7 +1399,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     Hands: {
       Enable: true,
       DisableUnused: false,
-      Hiding: 0
+      Hiding: 2 // Disable hand hiding so all players' hands stay revealed for easy local/tabletop co-op
     },
     SnapPoints: snapPoints,
     ObjectStates: objects
