@@ -371,13 +371,21 @@ function makePawn({ guid = nextGuid(), name, description, pos, color }) {
   };
 }
 
-function makePdf({ guid = nextGuid(), name, pdfUrl, pos }) {
+function makePdf({
+  guid = nextGuid(),
+  name,
+  description = "Official 36-page Rulebook v7.0 (1–5 Players).",
+  pdfUrl,
+  pos,
+  rot = [0, 180, 0],
+  scale = [2.25, 1.0, 2.25]
+}) {
   return {
     GUID: guid,
     Name: "Custom_PDF",
-    Transform: makeTransform(pos, [0, 180, 0], [2.25, 1.0, 2.25]),
+    Transform: makeTransform(pos, rot, scale),
     Nickname: name,
-    Description: "Official 36-page Rulebook v7.0 (1–5 Players).",
+    Description: description,
     GMNotes: "",
     ColorDiffuse: { r: 1, g: 1, b: 1 },
     Locked: false,
@@ -403,7 +411,7 @@ function makeHandZone(color, pos, rotY = 0) {
   return {
     GUID: nextGuid(),
     Name: "HandTrigger",
-    Transform: makeTransform(pos, [0, rotY, 0], [14.5, 4.2, 5.2]),
+    Transform: makeTransform(pos, [0, rotY, 0], [13.5, 4.2, 5.0]),
     Nickname: "",
     Description: "",
     GMNotes: "",
@@ -855,15 +863,15 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     })
   );
 
-  // 6. Round Marker & Player 1 Marker
+  // 6. Round Marker & Player 1 Marker (aligned with the 5 Player Stations)
   const roundMarkerGuid = nextGuid();
   const player1MarkerGuid = nextGuid();
   const seatMarkerPositions = [
-    [-20.0, 1.25, -18.6], // Seat 1 (White)
-    [-8.0, 1.25, -18.6],  // Seat 2 (Red)
-    [4.0, 1.25, -18.6],   // Seat 3 (Blue)
-    [16.0, 1.25, -18.6],  // Seat 4 (Green)
-    [-12.0, 1.25, 14.6]   // Seat 5 (Yellow)
+    [-27.5, 1.25, -18.2], // Seat 1 (White)
+    [-9.2, 1.25, -18.2],  // Seat 2 (Red)
+    [9.2, 1.25, -18.2],   // Seat 3 (Blue)
+    [27.5, 1.25, -18.2],  // Seat 4 (Green)
+    [0.0, 1.25, 18.2]     // Seat 5 (Yellow)
   ];
   objects.push(
     makeCustomTile({
@@ -909,7 +917,7 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
   const hexById = Object.fromEntries(hexSnaps.map((h) => [h.id, h.Position]));
   const stewardConfigs = [];
   stewards.forEach((s, idx) => {
-    const sx = -22.0 + idx * 6.4;
+    const sx = -16.5 + idx * 6.6;
     const sz = -14.8;
     const pawnGuid = nextGuid();
     const startHexId = defaultStewardStartHex[s.id] || "G1";
@@ -945,33 +953,64 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
     );
   });
 
-  // 8. Rulebook v7.0 PDF + Steward's Core Tile Reference Sheet (uncluttered bottom-right reading zone!)
+  // 8. Rulebook v7.0 PDF (centered cleanly beside the Tiles Board) + 5 A6 Steward Guides (one at each player seat!)
+  const stewardGuideUrl = asset("The-Quiet-Vale-A6-Steward-Guide.pdf");
+  const stewardGuideDesc = "Official 20-page A6 Steward Guide (all 6 Stewards, turn reference, all 21 Core Tiles, Target/Encounter/Quest guides). Click to flip pages!";
   objects.push(
     makePdf({
       name: "The Quiet Vale — Rulebook v7.0 (36 pages)",
       pdfUrl,
-      pos: [17.4, 1.25, -6.7]
+      pos: [19.8, 1.25, -6.7]
     }),
-    makeCustomTile({
-      name: "Steward's Guide — Core Tile Menu (v7.0)",
-      description: "Hover & press Alt to inspect all 21 Core Tiles (Basic & Upgraded costs, terrain, effects, and scoring).",
-      pos: [23.0, 1.18, -6.7],
-      scale: [3.6, 1.0, 3.6],
-      imageUrl: asset("stewards/tile-reference-sheet.jpg"),
-      secondaryUrl: asset("stewards/steward-back.jpg"),
-      type: 0,
-      thickness: 0.1,
-      stretch: true
+    makePdf({
+      name: "A6 Steward Guide (Seat 1 — White)",
+      description: stewardGuideDesc,
+      pdfUrl: stewardGuideUrl,
+      pos: [-18.6, 1.25, -21.8],
+      rot: [0, 180, 0],
+      scale: [1.48, 1.0, 1.48]
+    }),
+    makePdf({
+      name: "A6 Steward Guide (Seat 2 — Red)",
+      description: stewardGuideDesc,
+      pdfUrl: stewardGuideUrl,
+      pos: [-0.3, 1.25, -21.8],
+      rot: [0, 180, 0],
+      scale: [1.48, 1.0, 1.48]
+    }),
+    makePdf({
+      name: "A6 Steward Guide (Seat 3 — Blue)",
+      description: stewardGuideDesc,
+      pdfUrl: stewardGuideUrl,
+      pos: [18.1, 1.25, -21.8],
+      rot: [0, 180, 0],
+      scale: [1.48, 1.0, 1.48]
+    }),
+    makePdf({
+      name: "A6 Steward Guide (Seat 4 — Green)",
+      description: stewardGuideDesc,
+      pdfUrl: stewardGuideUrl,
+      pos: [36.4, 1.25, -21.8],
+      rot: [0, 180, 0],
+      scale: [1.48, 1.0, 1.48]
+    }),
+    makePdf({
+      name: "A6 Steward Guide (Seat 5 — Yellow)",
+      description: stewardGuideDesc,
+      pdfUrl: stewardGuideUrl,
+      pos: [-9.0, 1.25, 21.8],
+      rot: [0, 0, 0],
+      scale: [1.48, 1.0, 1.48]
     })
   );
 
-  // 9. Five Player Hand Zones (seated comfortably on the large 88x52 Custom Table in front of each player)
+  // 9. Five Player Hand Zones (evenly spaced across the 88x52 Custom Table with an A6 Steward Guide beside each seat)
   objects.push(
-    makeHandZone("White", [-24.5, 3.2, -22.0], 180),
-    makeHandZone("Red", [-8.2, 3.2, -22.0], 180),
-    makeHandZone("Blue", [8.2, 3.2, -22.0], 180),
-    makeHandZone("Green", [24.5, 3.2, -22.0], 180),
-    makeHandZone("Yellow", [0.0, 3.2, 22.0], 0)
+    makeHandZone("White", [-27.5, 3.2, -21.8], 180),
+    makeHandZone("Red", [-9.2, 3.2, -21.8], 180),
+    makeHandZone("Blue", [9.2, 3.2, -21.8], 180),
+    makeHandZone("Green", [27.5, 3.2, -21.8], 180),
+    makeHandZone("Yellow", [0.0, 3.2, 21.8], 0)
   );
 
   // 10. World Snap Points (126 Map Hexes + 12 Round Sockets + Card Wells)
