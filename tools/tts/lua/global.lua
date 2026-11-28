@@ -1064,29 +1064,62 @@ function startSeedingSession(encDeck, playerCount)
   local objs = encDeck.getObjects()
   seedSession = {
     active = true,
+    season = 1,
     playerIdx = 1,
     hands = {},
-    neutral = {},
-    bands = { {}, {}, {} }
+    picks = {}
   }
   local cursor = 1
+  local handGuids = {}
   for p = 1, playerCount do
     local hand = {}
     for k = 1, 9 do
       local item = objs[cursor]
       if item then
         table.insert(hand, { guid = item.guid, note = item.gm_notes or "", name = item.name or "Card", band = 0 })
+        table.insert(handGuids, item.guid)
         cursor = cursor + 1
       end
     end
     seedSession.hands[p] = hand
   end
-  while cursor <= #objs do
-    table.insert(seedSession.neutral, objs[cursor].guid)
-    cursor = cursor + 1
+
+  -- Physically move the 9*P player-hand cards into a tidy face-down "Player Seeding Hands" stack
+  -- so the ENCOUNTER well holds only the 3*P neutral cards ready for Season I TOP/MID/BOT insertion!
+  local hp = CONFIG.positions.seedS1
+  for idx, g in ipairs(handGuids) do
+    if encDeck and encDeck.tag == "Deck" and encDeck.getQuantity() > 1 then
+      encDeck.takeObject({
+        guid = g,
+        position = { hp[1], hp[2] + 0.35 + (idx - 1) * 0.03, hp[3] },
+        rotation = { 0, 180, 180 },
+        smooth = false
+      })
+    end
+  end
+  Wait.time(function()
+    local hStack = findDeckOrCardAt(hp)
+    if hStack then hStack.setName("Player Seeding Hands (Private)") end
+  end, 0.45)
+
+  renderSeedingModal()
+  UI.setAttribute("qvSeedingModal", "active", "true")
+end
+
+function openSeasonSeeding(seasonNum)
+  if not seedSession or not seedSession.hands or not seedSession.hands[1] or #seedSession.hands[1] < 3 then
+    return false
+  end
+  seedSession.active = true
+  seedSession.season = seasonNum
+  seedSession.playerIdx = 1
+  seedSession.picks = {}
+  for p = 1, state.playerCount do
+    for _, c in ipairs(seedSession.hands[p] or {}) do c.band = 0 end
   end
   renderSeedingModal()
   UI.setAttribute("qvSeedingModal", "active", "true")
+  return true
 end
 
 function renderSeedingModal()
@@ -1094,13 +1127,23 @@ function renderSeedingModal()
   local hand = seedSession.hands[p] or {}
   local st = getSeatSteward(p)
   local stName = st and st.name or ("Player " .. tostring(p))
-  UI.setAttribute("seedHeader", "text", string.format("ENCOUNTER SEEDING — PLAYER %d OF %d (%s)  |  ASSIGN 3 EACH TO S1 / S2 / S3", p, state.playerCount, stName))
+  local romans = { "I", "II", "III" }
+  local sRoman = romans[seedSession.season or 1] or "I"
+  UI.setAttribute(
+    "seedHeader",
+    "text",
+    string.format("SEASON %s SEEDING — PLAYER %d OF %d (%s)  |  PICK 1 TOP / 1 MID / 1 BOT (%d IN HAND)", sRoman, p, state.playerCount, stName, #hand)
+  )
 
   local counts = { 0, 0, 0 }
   for _, c in ipairs(hand) do
     if c.band >= 1 and c.band <= 3 then counts[c.band] = counts[c.band] + 1 end
   end
-  UI.setAttribute("seedCounts", "text", string.format("Season I (Top): %d/3    |    Season II (Middle): %d/3    |    Season III (Bottom): %d/3", counts[1], counts[2], counts[3]))
+  UI.setAttribute(
+    "seedCounts",
+    "text",
+    string.format("Top of Deck: %d/1    |    Middle of Deck: %d/1    |    Bottom of Deck: %d/1   (remaining %d saved for next Season)", counts[1], counts[2], counts[3], math.max(0, #hand - 3))
+  )
 
   for i = 1, 9 do
     local c = hand[i]
@@ -1126,11 +1169,17 @@ function renderSeedingModal()
   end
 
   local isLast = (p >= state.playerCount)
-  UI.setAttribute("btnSeedConfirm", "text", isLast and "CONFIRM & BUILD ENCOUNTER DECK" or ("CONFIRM PLAYER " .. p .. " -> PLAYER " .. (p + 1)))
+  UI.setAttribute(
+    "btnSeedConfirm",
+    "text",
+    isLast and ("CONFIRM & SEED SEASON " .. sRoman .. " DECK") or ("CONFIRM PLAYER " .. p .. " -> PLAYER " .. (p + 1))
+  )
 end
 
 function onHudOpenSeeding()
   if not seedSession.active then
+    local seasonNum = getSeason(state.round)
+    if openSeasonSeeding(seasonNum) then return end
     local encDeck = findEncounterDrawDeck()
     if encDeck and encDeck.tag == "Deck" then
       startSeedingSession(encDeck, state.playerCount)
@@ -1156,12 +1205,9 @@ function onSeedPick(_, arg)
   if hand[row].band == band then
     hand[row].band = 0
   else
-    -- Enforce max 3 cards per Season band
-    local cur = 0
-    for _, c in ipairs(hand) do if c.band == band then cur = cur + 1 end end
-    if cur >= 3 then
-      broadcastToAll("Season " .. tostring(band) .. " already has 3/3 cards — uncheck one first or pick another Season.", {0.96, 0.72, 0.42})
-      return
+    -- 1 card per slot (TOP / MID / BOT): moving a slot clears it from any previous row smoothly
+    for _, c in ipairs(hand) do
+      if c.band == band then c.band = 0 end
     end
     hand[row].band = band
   end
@@ -1171,16 +1217,16 @@ end
 function onSeedAutoFill()
   local hand = seedSession.hands[seedSession.playerIdx]
   if not hand then return end
-  local counts = { 0, 0, 0 }
+  local hasBand = { false, false, false }
   for _, c in ipairs(hand) do
-    if c.band >= 1 and c.band <= 3 then counts[c.band] = counts[c.band] + 1 end
+    if c.band >= 1 and c.band <= 3 then hasBand[c.band] = true end
   end
-  for _, c in ipairs(hand) do
-    if c.band == 0 then
-      for b = 1, 3 do
-        if counts[b] < 3 then
+  for b = 1, 3 do
+    if not hasBand[b] then
+      for _, c in ipairs(hand) do
+        if c.band == 0 then
           c.band = b
-          counts[b] = counts[b] + 1
+          hasBand[b] = true
           break
         end
       end
@@ -1192,21 +1238,31 @@ end
 function onSeedConfirmPlayer()
   local p = seedSession.playerIdx
   local hand = seedSession.hands[p] or {}
-  local counts = { 0, 0, 0 }
+  local topGuid, midGuid, botGuid = nil, nil, nil
   for _, c in ipairs(hand) do
-    if c.band >= 1 and c.band <= 3 then counts[c.band] = counts[c.band] + 1 end
+    if c.band == 1 then topGuid = c.guid
+    elseif c.band == 2 then midGuid = c.guid
+    elseif c.band == 3 then botGuid = c.guid end
   end
-  if counts[1] ~= 3 or counts[2] ~= 3 or counts[3] ~= 3 then
-    broadcastToAll("Assign 3 cards each to Season I, II, and III (or click AUTO-FILL 3 / 3 / 3).", {0.96, 0.72, 0.42})
+  if not topGuid or not midGuid or not botGuid then
+    broadcastToAll("Pick 1 TOP, 1 MID, and 1 BOT card for this Season (or click AUTO-PICK 1 / 1 / 1).", {0.96, 0.72, 0.42})
     return
   end
+  -- Remove the 3 seeded cards from this player's remaining hand (9 -> 6 -> 3 -> 0)
+  local remaining = {}
   for _, c in ipairs(hand) do
-    table.insert(seedSession.bands[c.band], c.guid)
+    if c.guid ~= topGuid and c.guid ~= midGuid and c.guid ~= botGuid then
+      c.band = 0
+      table.insert(remaining, c)
+    end
   end
+  seedSession.hands[p] = remaining
+  seedSession.picks[p] = { top = topGuid, mid = midGuid, bot = botGuid }
+
   if p < state.playerCount then
     seedSession.playerIdx = p + 1
     renderSeedingModal()
-    broadcastToAll("[AUTO] Player " .. p .. " seeded! Now seeding for Player " .. (p + 1) .. ".", {0.82, 0.92, 0.98})
+    broadcastToAll("[AUTO] Player " .. p .. " seeded 3 cards! Now seeding for Player " .. (p + 1) .. ".", {0.82, 0.92, 0.98})
   else
     finalizeModalSeededDeck()
   end
@@ -1216,45 +1272,70 @@ function finalizeModalSeededDeck()
   UI.setAttribute("qvSeedingModal", "active", "false")
   seedSession.active = false
   local encDeck = findEncounterDrawDeck()
-  if not encDeck or encDeck.tag ~= "Deck" then
-    broadcastToAll("Encounter Deck not found in ENCOUNTER well.", {0.96, 0.52, 0.45})
-    return
-  end
-  -- Distribute 3*P neutral cards evenly (P per Season band) and shuffle each band independently
-  shuffleList(seedSession.neutral)
-  for idx, g in ipairs(seedSession.neutral) do
-    local band = ((idx - 1) % 3) + 1
-    table.insert(seedSession.bands[band], g)
-  end
-  shuffleList(seedSession.bands[1])
-  shuffleList(seedSession.bands[2])
-  shuffleList(seedSession.bands[3])
-
-  -- Stack physically onto ENCOUNTER draw well: Season III (bottom) -> Season II (middle) -> Season I (top)
+  local handStack = findDeckOrCardAt(CONFIG.positions.seedS1)
   local drawPos = CONFIG.positions.encounterDraw
-  local ordered = {}
-  for _, g in ipairs(seedSession.bands[3]) do table.insert(ordered, g) end
-  for _, g in ipairs(seedSession.bands[2]) do table.insert(ordered, g) end
-  for _, g in ipairs(seedSession.bands[1]) do table.insert(ordered, g) end
 
-  -- Move deck temporarily aside, then re-stack in exact S3 -> S2 -> S1 order onto drawPos
+  -- Build exact v7.0 deck order (index 1 = TOP of deck, #order = BOTTOM of deck):
+  -- Start with current Encounter Deck cards, then for each player insert TOP at 1, MID at floor(len/2)+1, BOT at end.
+  local order = {}
+  local inEncDeck = {}
+  if encDeck then
+    if encDeck.tag == "Deck" then
+      for _, o in ipairs(encDeck.getObjects()) do
+        table.insert(order, o.guid)
+        inEncDeck[o.guid] = true
+      end
+    elseif encDeck.tag == "Card" then
+      table.insert(order, encDeck.getGUID())
+      inEncDeck[encDeck.getGUID()] = true
+    end
+  end
+
+  for p = 1, state.playerCount do
+    local pk = seedSession.picks[p]
+    if pk then
+      table.insert(order, 1, pk.top)
+      table.insert(order, math.floor(#order / 2) + 1, pk.mid)
+      table.insert(order, pk.bot)
+    end
+  end
+
+  -- Move current Encounter Deck slightly aside so we can re-stack from BOTTOM (#order) to TOP (1) cleanly onto drawPos
   local tmpPos = { drawPos[1] - 3.6, drawPos[2] + 0.5, drawPos[3] }
-  encDeck.setPosition(tmpPos)
+  if encDeck then encDeck.setPosition(tmpPos) end
+
   Wait.time(function()
+    local curEnc = findDeckOrCardAt(tmpPos) or encDeck
+    local curHand = findDeckOrCardAt(CONFIG.positions.seedS1) or handStack
     local yStep = 0.035
-    for idx, g in ipairs(ordered) do
-      local targetP = { drawPos[1], drawPos[2] + 0.35 + (idx - 1) * yStep, drawPos[3] }
-      if encDeck and encDeck.tag == "Deck" and encDeck.getQuantity() > 1 then
-        encDeck.takeObject({ guid = g, position = targetP, rotation = {0, 180, 180}, smooth = false })
-      elseif encDeck then
-        encDeck.setRotation({0, 180, 180})
-        encDeck.setPosition(targetP)
-        break
+    local placed = 0
+    -- Place from BOTTOM (#order) up to TOP (1) so index 1 lands on top of the physical deck!
+    for i = #order, 1, -1 do
+      local g = order[i]
+      local targetP = { drawPos[1], drawPos[2] + 0.35 + placed * yStep, drawPos[3] }
+      placed = placed + 1
+      local src = inEncDeck[g] and curEnc or curHand
+      if src then
+        if src.tag == "Deck" and src.getQuantity() > 1 then
+          src.takeObject({ guid = g, position = targetP, rotation = {0, 180, 180}, smooth = false })
+        elseif src.tag == "Card" and src.getGUID() == g then
+          src.setRotation({0, 180, 180})
+          src.setPosition(targetP)
+        else
+          -- Last remaining card in deck
+          src.setRotation({0, 180, 180})
+          src.setPosition(targetP)
+        end
       end
     end
+    local romans = { "I", "II", "III" }
+    local sRoman = romans[seedSession.season or 1] or "I"
     state.activeTab = "play"
     refreshHud()
-    broadcastToAll("[AUTO] Seeded Encounter Deck built (Season I on top -> Season II -> Season III on bottom)! Click REVEAL ENCOUNTERS to begin Round 1.", {0.80, 0.96, 0.78})
+    broadcastToAll(
+      string.format("[AUTO] Season %s seeding complete (%d cards in Encounter Deck)! Click REVEAL ENCOUNTERS to begin Round %d.", sRoman, #order, state.round),
+      {0.80, 0.96, 0.78}
+    )
   end, 0.35)
 end
 
@@ -1562,29 +1643,26 @@ function runSetup(playerCount)
 end
 
 function runQuickSeed()
+  if seedSession and seedSession.hands and seedSession.hands[1] and #seedSession.hands[1] >= 3 then
+    if not seedSession.active then
+      openSeasonSeeding(getSeason(state.round))
+    end
+    for p = seedSession.playerIdx, state.playerCount do
+      seedSession.playerIdx = p
+      onSeedAutoFill()
+      onSeedConfirmPlayer()
+    end
+    return
+  end
   UI.setAttribute("qvSeedingModal", "active", "false")
   seedSession.active = false
-  local drawPos = CONFIG.positions.encounterDraw
-  local moved = 0
-  for i = 1, state.playerCount do
-    local color = SEAT_COLORS[i]
-    if Player[color] and Player[color].seated then
-      for _, card in ipairs(Player[color].getHandObjects()) do
-        card.setPosition({drawPos[1], drawPos[2] + 0.8 + moved * 0.04, drawPos[3]})
-        card.setRotation({0, 180, 180})
-        moved = moved + 1
-      end
-    end
+  local encDeck = findEncounterDrawDeck()
+  if encDeck and encDeck.tag == "Deck" then
+    encDeck.shuffle()
+    state.activeTab = "play"
+    refreshHud()
+    broadcastToAll("[AUTO] Encounter Deck shuffled & ready — click REVEAL ENCOUNTERS.", {0.84, 0.95, 0.78})
   end
-  Wait.time(function()
-    local encDeck = findEncounterDrawDeck()
-    if encDeck and encDeck.tag == "Deck" then
-      encDeck.shuffle()
-      state.activeTab = "play"
-      refreshHud()
-      broadcastToAll("[AUTO] Quick-Seed complete! Encounter Deck shuffled & ready — click REVEAL ENCOUNTERS for Round 1.", {0.84, 0.95, 0.78})
-    end
-  end, 0.6)
 end
 
 -- ---------------------------------------------------------------------------
@@ -1619,51 +1697,198 @@ function spawnArrivalTimers(cardPos)
   end
 end
 
+function getEncounterCardType(cardObj)
+  if not cardObj then return "boon" end
+  local note = cardObj.getGMNotes() or ""
+  local er = CONFIG.encounterRules and CONFIG.encounterRules[note]
+  if er and er.type then return er.type end
+  local desc = cardObj.getDescription() or ""
+  if string.sub(desc, 1, 7) == "Arrival" then return "arrival" end
+  if string.sub(desc, 1, 6) == "Burden" then return "burden" end
+  return "boon"
+end
+
+function inspectInPlaySlots()
+  local slots = CONFIG.positions.inPlaySlots
+  local info = {}
+  for idx, s in ipairs(slots) do
+    -- Cast slightly wider in -Z to catch 50%-overlapping cascades in this column
+    local hits = Physics.cast({
+      origin = { s[1], s[2] + 3, s[3] - 1.2 },
+      direction = { 0, -1, 0 },
+      type = 3,
+      size = { 2.0, 3, 5.6 },
+      max_distance = 5
+    })
+    local cards = {}
+    local seen = {}
+    for _, hit in ipairs(hits) do
+      local o = hit.hit_object
+      if o and o.tag == "Card" and not seen[o.getGUID()] then
+        seen[o.getGUID()] = true
+        table.insert(cards, o)
+      end
+    end
+    local kind = "empty"
+    if #cards > 0 then
+      kind = getEncounterCardType(cards[1])
+      for _, c in ipairs(cards) do
+        if getEncounterCardType(c) == "arrival" then kind = "arrival"; break end
+      end
+    end
+    info[idx] = { idx = idx, pos = s, kind = kind, cards = cards, count = #cards }
+  end
+  return info
+end
+
+function compactSameTypeSlots(slotInfo, targetKind)
+  local matching = {}
+  for _, si in ipairs(slotInfo) do
+    if si.kind == targetKind then table.insert(matching, si) end
+  end
+  if #matching < 2 then return nil end
+  local dst = matching[1]
+  local src = matching[#matching]
+  local dzStep = -1.55
+  local dyStep = 0.06
+  for _, card in ipairs(src.cards) do
+    local p = { dst.pos[1], dst.pos[2] + 0.25 + dst.count * dyStep, dst.pos[3] + dst.count * dzStep }
+    card.setPositionSmooth(p, false, true)
+    card.setRotationSmooth({ 0, 180, 0 }, false, true)
+    table.insert(dst.cards, card)
+    dst.count = dst.count + 1
+  end
+  src.cards = {}
+  src.count = 0
+  src.kind = "empty"
+  return src
+end
+
 function revealEncounters()
   local encDeck = findEncounterDrawDeck()
   if not encDeck then
     broadcastToAll("No Encounter Deck found in ENCOUNTER well! Click 1P–5P Setup first.", {0.96, 0.52, 0.45})
     return
   end
-  local slots = CONFIG.positions.inPlaySlots
-  local openSlots = {}
-  for _, s in ipairs(slots) do
-    if not isSlotOccupied(s) then table.insert(openSlots, s) end
-  end
+  local slotInfo = inspectInPlaySlots()
   local seasonNum, seasonRoman = getSeason(state.round)
   local burdenCost = seasonNum * 2 + 1
+  local dzStep = -1.55 -- 50% vertical overlap so every stacked card's header & count stay clearly visible
+  local dyStep = 0.06
 
-  local function handleRevealed(cardObj, slotPos)
+  local function findSlotByKind(kind)
+    for _, si in ipairs(slotInfo) do
+      if si.kind == kind then return si end
+    end
+    return nil
+  end
+
+  local function pickTargetForCard(cardType)
+    -- 1. Arrivals MUST NEVER be stacked (their 3 base Timer tokens must remain unobstructed)
+    if cardType == "arrival" then
+      local empty = findSlotByKind("empty")
+      if not empty then empty = compactSameTypeSlots(slotInfo, "burden") end
+      if not empty then empty = compactSameTypeSlots(slotInfo, "boon") end
+      if empty then
+        empty.kind = "arrival"
+        empty.count = 1
+        return { empty.pos[1], empty.pos[2] + 0.25, empty.pos[3] }, false
+      end
+      -- Fallback if all 5 slots already hold Arrivals: place cleanly beside the Encounter Board
+      local last = CONFIG.positions.inPlaySlots[5]
+      return { last[1] + 5.2, last[2] + 0.25, last[3] }, false
+    end
+
+    -- 2. Burdens: take an empty slot if plenty of room, otherwise cascade 50% onto existing Burden stack!
+    if cardType == "burden" then
+      local empty = findSlotByKind("empty")
+      local existing = findSlotByKind("burden")
+      local emptyCount = 0
+      for _, si in ipairs(slotInfo) do if si.kind == "empty" then emptyCount = emptyCount + 1 end end
+      if existing and (not empty or emptyCount <= 1) then
+        local pos = { existing.pos[1], existing.pos[2] + 0.25 + existing.count * dyStep, existing.pos[3] + existing.count * dzStep }
+        existing.count = existing.count + 1
+        return pos, true
+      elseif empty then
+        empty.kind = "burden"
+        empty.count = 1
+        return { empty.pos[1], empty.pos[2] + 0.25, empty.pos[3] }, false
+      else
+        local freed = compactSameTypeSlots(slotInfo, "boon")
+        if freed then
+          freed.kind = "burden"
+          freed.count = 1
+          return { freed.pos[1], freed.pos[2] + 0.25, freed.pos[3] }, false
+        end
+        local last = CONFIG.positions.inPlaySlots[5]
+        return { last[1], last[2] + 0.35, last[3] + dzStep }, true
+      end
+    end
+
+    -- 3. Boons: take an empty slot first; if space is low, compact Burdens first, else cascade 50% onto existing Boon stack
+    local empty = findSlotByKind("empty")
+    if empty then
+      empty.kind = "boon"
+      empty.count = 1
+      return { empty.pos[1], empty.pos[2] + 0.25, empty.pos[3] }, false
+    end
+    local freed = compactSameTypeSlots(slotInfo, "burden")
+    if freed then
+      freed.kind = "boon"
+      freed.count = 1
+      return { freed.pos[1], freed.pos[2] + 0.25, freed.pos[3] }, false
+    end
+    local existingBoon = findSlotByKind("boon")
+    if existingBoon then
+      local pos = { existingBoon.pos[1], existingBoon.pos[2] + 0.25 + existingBoon.count * dyStep, existingBoon.pos[3] + existingBoon.count * dzStep }
+      existingBoon.count = existingBoon.count + 1
+      return pos, true
+    end
+    local last = CONFIG.positions.inPlaySlots[5]
+    return { last[1] + 5.2, last[2] + 0.25, last[3] }, false
+  end
+
+  local function handleRevealed(cardObj, slotPos, stacked)
     attachObjectMenus(cardObj)
     local name = cardObj.getName()
-    local desc = cardObj.getDescription() or ""
-    if string.sub(desc, 1, 7) == "Arrival" then
+    local cType = getEncounterCardType(cardObj)
+    local stackNote = stacked and " (cascaded 50% on stack)" or ""
+    if cType == "arrival" then
       Wait.time(function() spawnArrivalTimers(slotPos) end, 0.45)
       broadcastToAll("[AUTO] ARRIVAL: " .. name .. " — placed 3 Timers. (Right-click card -> Welcome Arrival when ready)", {0.68, 0.88, 0.98})
-    elseif string.sub(desc, 1, 6) == "Burden" then
-      broadcastToAll(string.format("[MANUAL] BURDEN: %s — Apply its Season %s reveal effect now! (Right-click -> Resolve for %d)", name, seasonRoman, burdenCost), {0.98, 0.62, 0.56})
+    elseif cType == "burden" then
+      broadcastToAll(string.format("[MANUAL] BURDEN: %s%s — Apply Season %s reveal effect now! (Right-click -> Resolve for %d)", name, stackNote, seasonRoman, burdenCost), {0.98, 0.62, 0.56})
     else
-      broadcastToAll(string.format("[MANUAL] BOON: %s — Apply its Season %s text, then right-click -> Discard.", name, seasonRoman), {0.78, 0.95, 0.72})
+      broadcastToAll(string.format("[MANUAL] BOON: %s%s — Apply Season %s text, then right-click -> Discard.", name, stackNote, seasonRoman), {0.78, 0.95, 0.72})
     end
   end
 
   for i = 1, state.playerCount do
-    local slotPos = openSlots[i] or slots[((i - 1) % #slots) + 1]
-    local targetPos = {slotPos[1], slotPos[2] + 0.25, slotPos[3]}
+    local peekType = "boon"
+    if encDeck.tag == "Deck" then
+      local objs = encDeck.getObjects()
+      if objs and objs[1] then
+        local er = CONFIG.encounterRules and CONFIG.encounterRules[objs[1].gm_notes or ""]
+        if er and er.type then peekType = er.type end
+      end
+    elseif encDeck.tag == "Card" then
+      peekType = getEncounterCardType(encDeck)
+    end
+    local targetPos, stacked = pickTargetForCard(peekType)
     if encDeck.tag == "Deck" then
       if encDeck.getQuantity() > 1 then
         local card = encDeck.takeObject({ position = targetPos, rotation = {0, 180, 0}, smooth = true })
-        if card then handleRevealed(card, targetPos) end
+        if card then handleRevealed(card, targetPos, stacked) end
       else
         encDeck.setPositionSmooth(targetPos, false, true)
         encDeck.setRotationSmooth({0, 180, 0}, false, true)
-        handleRevealed(encDeck, targetPos)
+        handleRevealed(encDeck, targetPos, stacked)
         break
       end
     elseif encDeck.tag == "Card" then
       encDeck.setPositionSmooth(targetPos, false, true)
       encDeck.setRotationSmooth({0, 180, 0}, false, true)
-      handleRevealed(encDeck, targetPos)
+      handleRevealed(encDeck, targetPos, stacked)
       break
     end
   end
@@ -1780,10 +2005,12 @@ function onEndRound()
     local seasonMsg = ""
     if state.round == 5 then
       state.powerUsed = { false, false, false, false, false, false }
-      seasonMsg = " — SEASON II BEGINS! All Steward powers refreshed (Burden cost now 5)."
+      seasonMsg = " — SEASON II BEGINS! All Steward powers refreshed (Burden cost now 5). Opening Season II Seeding!"
+      Wait.time(function() openSeasonSeeding(2) end, 0.5)
     elseif state.round == 9 then
       state.powerUsed = { false, false, false, false, false, false }
-      seasonMsg = " — SEASON III BEGINS! All Steward powers refreshed (Burden cost now 7)."
+      seasonMsg = " — SEASON III BEGINS! All Steward powers refreshed (Burden cost now 7). Opening Season III Seeding!"
+      Wait.time(function() openSeasonSeeding(3) end, 0.5)
     end
     buildControlPlaqueUI()
     refreshHud()

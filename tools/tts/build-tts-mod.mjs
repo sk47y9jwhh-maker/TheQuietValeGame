@@ -967,11 +967,11 @@ export function buildTtsSave({ assetBaseUrl, pdfUrl }) {
 
   // 9. Five Player Hand Zones (seated comfortably on the large 88x52 Custom Table in front of each player)
   objects.push(
-    makeHandZone("White", [-24.5, 3.2, -22.0], 0),
-    makeHandZone("Red", [-8.2, 3.2, -22.0], 0),
-    makeHandZone("Blue", [8.2, 3.2, -22.0], 0),
-    makeHandZone("Green", [24.5, 3.2, -22.0], 0),
-    makeHandZone("Yellow", [0.0, 3.2, 22.0], 180)
+    makeHandZone("White", [-24.5, 3.2, -22.0], 180),
+    makeHandZone("Red", [-8.2, 3.2, -22.0], 180),
+    makeHandZone("Blue", [8.2, 3.2, -22.0], 180),
+    makeHandZone("Green", [24.5, 3.2, -22.0], 180),
+    makeHandZone("Yellow", [0.0, 3.2, 22.0], 0)
   );
 
   // 10. World Snap Points (126 Map Hexes + 12 Round Sockets + Card Wells)
